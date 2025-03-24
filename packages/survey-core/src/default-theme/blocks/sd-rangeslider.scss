@@ -5,7 +5,7 @@ $range-slider-thumb-size: 20px;
 
 @mixin thumbFocusMixin {
   outline: 2px solid $primary;
-  outline-offset: 5px;
+  outline-offset: 2px;
 }
 
 .sd-range-slider {

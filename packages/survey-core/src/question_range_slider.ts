@@ -1,5 +1,6 @@
 import { ExpressionRunner } from "./conditions";
 import { HashTable } from "./helpers";
+import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
 import { QuestionRatingModel } from "./question_rating";
 import { QuestionFactory } from "./questionfactory";
@@ -14,6 +15,30 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) focusedThumb: number | null;
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
+  @property({ defaultValue: [] }) customTicks: ItemValue[];
+
+  //  customTicks: [
+  //     {
+  //       text: "min",
+  //       value: 0
+  //     },
+  //     {
+  //       text: "25%",
+  //       value: 25
+  //     },
+  //     {
+  //       text: "Very long label which has to be located well!",
+  //       value: 50
+  //     },
+  //     {
+  //       text: "75%",
+  //       value: 75
+  //     },
+  //     {
+  //       text: "max",
+  //       value: 100
+  //     }
+  //   ]
 
   public getType(): string {
     return "rangeslider";
@@ -62,11 +87,11 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     if (this.isDiscreteValueByStep) {
       return (this.max - this.min) / (this.ticksCount - 1);
     }
-    return 10;
+    return 1;
   }
 
   public get isDiscreteValueByStep(): boolean {
-    return true;
+    return false;
   }
 
   public get minSelectedRange(): number {
@@ -78,7 +103,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public get ticksCount(): number { // TODO interval
-    if (this.customTicks) return this.customTicks.length;
+    if (this.customTicks.length > 0) return this.customTicks.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;
     }
@@ -87,32 +112,6 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
 
   public get tickSize(): number {
     return null;
-  }
-
-  public get customTicks(): {text: string, value: number}[] | null {
-    return null;
-    // return [
-    //   {
-    //     text: "min",
-    //     value: 0
-    //   },
-    //   {
-    //     text: "25%",
-    //     value: 25
-    //   },
-    //   {
-    //     text: "Very long label which has to be located well!",
-    //     value: 50
-    //   },
-    //   {
-    //     text: "75%",
-    //     value: 75
-    //   },
-    //   {
-    //     text: "max",
-    //     value: 100
-    //   }
-    // ];
   }
 
   public get isShowTicks(): boolean {
@@ -152,7 +151,10 @@ Serializer.addClass(
     {
       name: "minValueExpression",
       type: "condition"
-    }
+    },
+    {
+      name: "customTicks:itemvalue[]",
+    },
   ],
   function () {
     return new QuestionRangeSliderModel("");

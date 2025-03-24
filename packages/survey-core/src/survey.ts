@@ -4713,7 +4713,7 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleElementValue: IElement;
+  private currentSingleElementValue: IElement|undefined;
   private getSingleQuestions(): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
@@ -4728,7 +4728,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleElement(): IElement {
+  public get currentSingleElement(): IElement|undefined {
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
   public set currentSingleElement(val: IElement) {

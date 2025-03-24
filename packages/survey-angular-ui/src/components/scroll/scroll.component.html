@@ -1,6 +1,6 @@
 <ng-template #template>
-    <ng-content *ng-if="disabled"></ng-content>
-    <div class="sv-scroll__wrapper" *ng-if="!disabled" #container>
+    <ng-container *ngIf="disabled"><ng-content></ng-content></ng-container>
+    <div class="sv-scroll__wrapper" *ngIf="!disabled" #container>
         <div class="sv-scroll__scroller sv-drag-target-skipped" (scroll)="model.onScrollContainer()">
             <div class="sv-scroll__container">
                 <ng-content></ng-content>

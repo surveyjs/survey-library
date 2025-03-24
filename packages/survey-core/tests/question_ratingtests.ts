@@ -1847,3 +1847,51 @@ QUnit.test("Rating: check in matrix mode", (assert) => {
   rating.displayMode = "buttons";
   assert.ok(rating.ratingRootCss.includes("wrappble_test"));
 });
+
+QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appear for rateValues", (assert) => {
+  const json = {
+    questions: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "autoGenerate": false,
+        "minRateDescription": "Strongly Disagree",
+        "maxRateDescription": "Strongly Agree",
+        "displayMode": "dropdown",
+        "rateValues": [
+          {
+            "value": "A",
+            "text": "1"
+          },
+          {
+            "value": "B",
+            "text": "2"
+          },
+          {
+            "value": "C",
+            "text": "3"
+          },
+          {
+            "value": "D",
+            "text": "4"
+          },
+          {
+            "value": "E",
+            "text": "5"
+          }
+        ],
+      }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.visibleChoices.length, 5);
+  assert.equal(q1.visibleChoices[0].value, "A");
+  assert.equal(q1.visibleChoices[0].text, "1");
+  assert.equal(q1.visibleChoices[0].description.text, "Strongly Disagree");
+
+  assert.equal(q1.visibleChoices[4].value, "E");
+  assert.equal(q1.visibleChoices[4].text, "5");
+  assert.equal(q1.visibleChoices[4].description.text, "Strongly Agree");
+});

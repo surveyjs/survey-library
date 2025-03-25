@@ -2452,8 +2452,10 @@ QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: t
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testCustomValue1 = "item101";
   const testCustomValue2 = "item10";
+  const testCustomValue3 = "item";
 
   dropdownListModel.inputStringRendered = testCustomValue1;
   assert.equal(dropdownListModel.allowCustomChoices, true, "#1 allowCustomChoices");
@@ -2466,6 +2468,31 @@ QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: t
   assert.equal(dropdownListModel.customValue, testCustomValue2, "#2 customValue");
   assert.equal(dropdownListModel.hintStringPrefix, "", "#2 hintStringPrefix");
   assert.equal(dropdownListModel.hintStringSuffix, "", "#2 hintStringSuffix");
+
+  const event = {
+    keyCode: 38,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  dropdownListModel.inputStringRendered = testCustomValue3;
+  assert.equal(dropdownListModel.inputStringRendered, testCustomValue3, "#3 inputStringRendered");
+  assert.equal(dropdownListModel.customValue, testCustomValue3, "#3 customValue");
+  assert.equal(dropdownListModel.hintStringPrefix, "", "#3 hintStringPrefix");
+  assert.equal(dropdownListModel.hintStringSuffix, "1", "#3 hintStringSuffix");
+
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputStringRendered, testCustomValue3, "#4 inputStringRendered");
+  assert.equal(dropdownListModel.customValue, testCustomValue3, "#4 customValue");
+  assert.equal(dropdownListModel.hintStringPrefix, "", "#4 hintStringPrefix");
+  assert.equal(dropdownListModel.hintStringSuffix, "", "#4 hintStringSuffix");
+
+  dropdownListModel.keyHandler(event);
+  listModel.onItemClick(listModel.actions[4]);
+  assert.equal(dropdownListModel.inputStringRendered, testCustomValue3, "#5 inputStringRendered");
+  assert.equal(dropdownListModel.customValue, undefined, "#5 customValue");
+  assert.equal(dropdownListModel.hintStringPrefix, "", "#5 hintStringPrefix");
+  assert.equal(dropdownListModel.hintStringSuffix, "", "#5 hintStringSuffix");
 });
 
 QUnit.test("allowCustomChoices: Option to create item not available if item exist (case-insensitive).", function (assert) {

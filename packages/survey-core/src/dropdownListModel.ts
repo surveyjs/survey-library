@@ -267,6 +267,7 @@ export class DropdownListModel extends Base {
       const newChoice = this.createCustomItem();
       if (!!newChoice) {
         this.question.value = newChoice.id;
+        this.applyHintString(newChoice);
       }
     } else {
       this.question.value = item.id;
@@ -420,6 +421,8 @@ export class DropdownListModel extends Base {
     const hasHtml = item?.locText.hasHtml;
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
+      this.hintString = "";
+    } else if (item === this.customItemValue) {
       this.hintString = "";
     } else {
       this.hintString = item?.title;

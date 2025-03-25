@@ -1,11 +1,8 @@
 import { property, Serializer } from "./jsonobject";
-import { Helpers } from "./helpers";
 import {
   IPage,
   IPanel,
   IElement,
-  ISurveyElement,
-  ISurveyImpl,
   ISurvey,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";

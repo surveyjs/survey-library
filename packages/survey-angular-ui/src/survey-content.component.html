@@ -1,11 +1,11 @@
 <ng-template #template>
   <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables" [lang]="model.locale || 'en'" [dir]="model.localeDir">
-    <ng-template [component]="{ name: 'sv-scroll', data: { disabled: model.rootScrollDisabled } }">
+    <sv-scroll [disabled]="model.rootScrollDisabled">
       <sv-svg-bundle *ngIf="model.needRenderIcons"></sv-svg-bundle>
       <div [class]="model.wrapperFormCss">
         <div *ngIf="!!model.renderBackgroundImage" [class]="model.css.rootBackgroundImage" [style]="model.backgroundImageStyle"></div>
         <form onsubmit="return false;">
-          <ng-template [component]="{ name: 'sv-scroll', data: { disabled: model.rootScrollDisabled } }">
+          <sv-scroll [disabled]="model.formScrollDisabled">
           <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
           <div [class]="model.css.container">
             <div *ngIf="model.headerView === 'basic' && model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
@@ -40,10 +40,10 @@
             <div *ngIf="model.state === 'loading'" [class]="model.loadingBodyCss" [innerHtml]="model.processedLoadingHtml"></div>
             <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
           </div>
-          </ng-template>
+        </sv-scroll>
         </form>
         <sv-notifier [notifier]="model.notifier"></sv-notifier>
       </div>
-    </ng-template>
+    </sv-scroll>
   </div>
 </ng-template>

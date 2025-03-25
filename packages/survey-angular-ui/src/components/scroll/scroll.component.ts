@@ -11,7 +11,7 @@ import { AngularComponentFactory } from "./../../component-factory";
 export class ScrollComponent extends EmbeddedViewContentComponent implements AfterViewInit, OnDestroy {
   public model!: ScrollViewModel;
   @Input() disabled?: boolean;
-  @ViewChild("container") container!: ElementRef<HTMLElement>
+  @ViewChild("container") container: ElementRef<HTMLElement> | undefined;
   constructor(viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);
     this.model = new ScrollViewModel();

@@ -126,7 +126,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
       const fullRange = max - min;
       this.question.isIndeterminate = true;
       if (fullRange > maxSelectedRange) return [(fullRange - maxSelectedRange) / 2, (fullRange + maxSelectedRange) / 2];
-      return [min, max];
+      return [min, max]; // TODO support several values 3 and more
     }
 
     return value;

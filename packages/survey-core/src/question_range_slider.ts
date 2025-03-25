@@ -12,13 +12,13 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
 export class QuestionRangeSliderModel extends QuestionRatingModel {
-  @property({ defaultValue: null }) focusedThumb: number | null;
+  @property({ defaultValue: false }) isSingleMode: boolean;
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
   @property({ defaultValue: null }) maxValueExpression: string | null;
   @property({ defaultValue: null }) minValueExpression: string | null;
   @property({ getDefaultValue: function() { return this.max; } }) maxSelectedRange: number;
-  @property({ defaultValue: 0 }) minSelectedRange: number;
+  @property({ defaultValue: 1 }) minSelectedRange: number;
   @property({ defaultValue: "" }) valueFormat: string;
   public get step(): number {
     if (this.isDiscreteValueByStep) {
@@ -67,6 +67,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   //       value: 100
   //     }
   //   ]
+  @property({ defaultValue: null }) focusedThumb: number | null;
 
   public getType(): string {
     return "rangeslider";
@@ -80,7 +81,6 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public isIndeterminate: boolean = false;
-  public isSingleMode: boolean = true;
 
   protected onCreating(): void {
     super.onCreating();
@@ -125,12 +125,35 @@ Serializer.addClass(
   "rangeslider",
   [
     {
+      name: "isSingleMode:boolean",
+      default: false,
+    },
+    {
+      name: "isDiscreteValueByStep",
+      default: false
+    },
+    {
+      name: "min:number",
+      default: 0,
+    },
+    {
+      name: "max:number",
+      default: 100,
+    },
+    {
       name: "step:number",
       default: 1,
     },
     {
       name: "ticksCount:number",
       default: 6
+    },
+    {
+      name: "maxSelectedRange: number"
+    },
+    {
+      name: "minSelectedRange: number",
+      default: 1
     },
     {
       name: "maxValueExpression",

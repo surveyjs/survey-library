@@ -930,3 +930,24 @@ QUnit.test("locString placeholder", function (assert) {
   };
   assert.equal(locStr.getPlaceholder(), "empty", "default placeholder, onGetTextCallback");
 });
+QUnit.test("locString.lastLocChanged: string", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableStringTester(owner, true);
+  assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #1");
+  locString.setLocaleText("de", "deText");
+  assert.equal(locString.lastChangedLoc, "de", "lastLocChanged #2");
+  locString.setLocaleText("en", "enText");
+  assert.equal(locString.lastChangedLoc, "en", "lastLocChanged #3");
+  locString.clearLocale("de");
+  assert.equal(locString.lastChangedLoc, "de", "lastLocChanged #4");
+  locString.setJson({});
+  assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #5");
+  locString.setLocaleText("fr", "frText");
+  assert.equal(locString.lastChangedLoc, "fr", "lastLocChanged #6");
+  locString.text = "fdfdf";
+  assert.equal(locString.lastChangedLoc, "", "lastLocChanged #7");
+  locString.setLocaleText("fr", "frText");
+  assert.equal(locString.lastChangedLoc, "fr", "lastLocChanged #8");
+  locString.clear();
+  assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #9");
+});

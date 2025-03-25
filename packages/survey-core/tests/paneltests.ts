@@ -3451,17 +3451,17 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
   assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
 });
-QUnit.test("panel.showQuestionNumbers: 'onpanelrecursive'", function (assert) {
+QUnit.test("panel.showQuestionNumbers: 'recursive'", function (assert) {
   const survey = new SurveyModel({
     showQuestionNumbers: "on",
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
-        showNumber: true, showQuestionNumbers: "onpanelrecursive",
+        showNumber: true, showQuestionNumbers: "recursive",
         elements: [
           {
             type: "panel", name: "panel2",
-            showNumber: true, showQuestionNumbers: "onpanelrecursive", title: "Panel 2",
+            showNumber: true, showQuestionNumbers: "recursive", title: "Panel 2",
             elements: [
               { type: "text", name: "q1" },
               { type: "text", name: "q2" }
@@ -3473,7 +3473,7 @@ QUnit.test("panel.showQuestionNumbers: 'onpanelrecursive'", function (assert) {
       },
       {
         type: "panel", name: "panel3",
-        showNumber: true, showQuestionNumbers: "onpanelrecursive", title: "Panel 3",
+        showNumber: true, showQuestionNumbers: "recursive", title: "Panel 3",
         elements: [
           { type: "text", name: "q5" },
           { type: "text", name: "q6" }
@@ -3493,7 +3493,6 @@ QUnit.test("panel.showQuestionNumbers: 'onpanelrecursive'", function (assert) {
   assert.equal(survey.getQuestionByName("q6").no, "2.2.", "q6.no");
   assert.equal(survey.getQuestionByName("q7").no, "3.", "q7.no");
 });
-
 QUnit.test("Check that startWithNewLine doesn't trigger animation", (assert) => {
   settings.animationEnabled = true;
   const survey = new SurveyModel({

@@ -2273,7 +2273,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive;
   }
   private get isQuestionIndexRecursive(): boolean {
-    return this.showQuestionNumbers === "onpanelrecursive";
+    return this.showQuestionNumbers === "recursive";
   }
   private hasParentInQuestionIndex(): boolean {
     if(!this.isQuestionIndexOnPanel) return false;
@@ -2558,7 +2558,7 @@ Serializer.addClass(
       },
     },
     { name: "showNumber:boolean" },
-    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "onpanelrecursive", "off"] },
+    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "recursive", "off"] },
     { name: "questionStartIndex", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
     { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],

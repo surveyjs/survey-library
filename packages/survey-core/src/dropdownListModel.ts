@@ -71,14 +71,14 @@ export class DropdownListModel extends Base {
         if (!!callbackAfterItemsLoaded) {
           callbackAfterItemsLoaded();
         }
-        if (this.allowCustomChoices) {
-          this.processCustomValue(this.inputString);
-        }
+        this.processCustomValue(this.inputString);
       }
     });
     this.itemsSettings.skip += this.itemsSettings.take;
   }
   private processCustomValue(val: string) {
+    if (!this.allowCustomChoices) return;
+
     const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, val, false, false))[0];
     if (!!item) {
       this.customValue = undefined;
@@ -364,7 +364,7 @@ export class DropdownListModel extends Base {
   public get customItemValue(): ItemValue {
     if (!this._customItemValue) {
       this._customItemValue = new ItemValue("newCustomItem", this.getLocalizationFormatString("createCustomItem", this.customValue));
-      this._customItemValue.css = "sv-custom-value";
+      this._customItemValue.css = "sv-list-item--custom-value";
     }
     return this._customItemValue;
   }
@@ -437,7 +437,7 @@ export class DropdownListModel extends Base {
     this.inputString = val;
     this.filterString = val;
 
-    if (this.allowCustomChoices && !this.question.choicesLazyLoadEnabled) {
+    if (!this.question.choicesLazyLoadEnabled) {
       this.processCustomValue(val);
     }
     if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {

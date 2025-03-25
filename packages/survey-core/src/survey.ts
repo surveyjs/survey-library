@@ -3705,7 +3705,7 @@ export class SurveyModel extends SurveyElementCore
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
       if(this.currentSingleElement) {
-        const questions = this.getSingleQuestions();
+        const questions = this.getSingleElements();
         this.currentSingleElement = questions.length > 0 ? questions[0] : undefined;
       }
     }
@@ -3971,7 +3971,7 @@ export class SurveyModel extends SurveyElementCore
     const q: any = this.currentSingleElement;
     if(!q) return this.nextPage();
     if(this.validationEnabled && !q.validate(true)) return false;
-    const questions = this.getSingleQuestions();
+    const questions = this.getSingleElements();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
     let keys: any = {};
@@ -3989,7 +3989,7 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     const q = this.currentSingleElement;
     if(!q) return this.prevPage();
-    const questions = this.getSingleQuestions();
+    const questions = this.getSingleElements();
     const index = questions.indexOf(q);
     if(index === 0) return false;
     this.currentSingleElement = questions[index - 1];
@@ -4559,16 +4559,15 @@ export class SurveyModel extends SurveyElementCore
     this.updateButtonsVisibility();
   }
   private currentSingleElementValue: IElement;
-  private getSingleQuestions(): Array<IElement> {
+  private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if(!p.isStartPage && p.isVisible) {
-        const qs: Array<any> = [];
-        //p.addQuestionsToList(qs, true);
-        p.elements.forEach(el => qs.push(el));
-        qs.forEach(q => { if(q.isVisible) res.push(q); });
+        const els: Array<any> = [];
+        p.elements.forEach(el => els.push(el));
+        els.forEach(el => { if(el === includeEl || el.isVisible) res.push(el); });
       }
     }
     return res;
@@ -4610,6 +4609,14 @@ export class SurveyModel extends SurveyElementCore
   public set currentSingleQuestion(val: Question) {
     this.currentSingleElement = val;
   }
+  private changeCurrentSingleElementOnVisibilityChanged(): void {
+    const el = this.currentSingleElement;
+    if(!el || el.isVisible) return;
+    const els = this.getSingleElements(el);
+    const index = els.indexOf(el);
+    const newEl = (index > 0) ? els[index - 1] : (index < els.length - 1 ? els[index + 1] : undefined);
+    this.currentSingleElement = newEl;
+  }
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
@@ -4621,9 +4628,9 @@ export class SurveyModel extends SurveyElementCore
       this.updatePagesContainer();
     }
     if(this.isSingleVisibleQuestion) {
-      const questions = this.getSingleQuestions();
-      if(questions.length > 0) {
-        this.currentSingleElement = questions[0];
+      const els = this.getSingleElements();
+      if(els.length > 0) {
+        this.currentSingleElement = els[0];
       }
     }
   }
@@ -4679,7 +4686,7 @@ export class SurveyModel extends SurveyElementCore
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleElement;
     if(!!q) {
-      const questions = this.getSingleQuestions();
+      const questions = this.getSingleElements();
       const index = questions.indexOf(q);
       if(index >= 0) {
         fVal = index === 0;
@@ -7070,6 +7077,9 @@ export class SurveyModel extends SurveyElementCore
     if (resetIndexes) {
       this.updateVisibleIndexes(question.page);
     }
+    if(!newValue) {
+      this.changeCurrentSingleElementOnVisibilityChanged();
+    }
     this.onQuestionVisibleChanged.fire(this, {
       question: question,
       name: question.name,
@@ -7082,6 +7092,9 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
+    if(!newValue) {
+      this.changeCurrentSingleElementOnVisibilityChanged();
+    }
     this.onPageVisibleChanged.fire(this, {
       page: page,
       visible: newValue,
@@ -7089,6 +7102,9 @@ export class SurveyModel extends SurveyElementCore
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
     this.updateVisibleIndexes(panel.page);
+    if(!newValue) {
+      this.changeCurrentSingleElementOnVisibilityChanged();
+    }
     this.onPanelVisibleChanged.fire(this, {
       panel: panel,
       visible: newValue,

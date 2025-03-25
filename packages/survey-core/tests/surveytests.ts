@@ -21251,6 +21251,37 @@ QUnit.test("questionsOnPageMode & validationEnabled , Bug#9558", function (asser
   assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion");
   assert.equal(survey.tryComplete(), true, "Survey is completed");
 });
+QUnit.test("questionsOnPageMode & visibility questions, Bug#9641", function (assert) {
+  const json = {
+    elements: [
+      { type: "text", name: "q1", visibleIf: "false" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.currentSingleQuestion.name, "q2", "the first question is invisible");
+  survey.getQuestionByName("q2").visible = false;
+  assert.equal(survey.currentSingleQuestion.name, "q3", "the second question is invisible");
+});
+QUnit.test("questionsOnPageMode & visibility panels, Bug#9641", function (assert) {
+  const json = {
+    elements: [
+      { type: "panel", name: "p1", elements: [{ type: "text", name: "q1", visibleIf: "false" }] },
+      { type: "panel", name: "p2", elements: [{ type: "text", name: "q2" }] },
+      { type: "panel", name: "p3", elements: [{ type: "text", name: "q3" }] },
+      { type: "text", name: "q4" },
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.currentSingleElement.name, "p2", "the first panel is invisible");
+  survey.getPanelByName("p2").visible = false;
+  assert.equal(survey.currentSingleElement.name, "p3", "the second panel is invisible");
+  survey.getQuestionByName("q3").visible = false;
+  assert.equal(survey.currentSingleElement.name, "q4", "the third panel is invisible");
+});
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {
     "pages": [{

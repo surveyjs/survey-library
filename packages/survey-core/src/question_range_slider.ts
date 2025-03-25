@@ -15,8 +15,36 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) focusedThumb: number | null;
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
-  @property({ defaultValue: [] }) customTicks: ItemValue[];
+  @property({ defaultValue: null }) maxValueExpression: string | null;
+  @property({ defaultValue: null }) minValueExpression: string | null;
+  @property({ getDefaultValue: function() { return this.max; } }) maxSelectedRange: number;
+  @property({ defaultValue: 10 }) minSelectedRange: number;
+  @property({ defaultValue: "" }) valueFormat: string;
+  public get step(): number {
+    if (this.isDiscreteValueByStep) {
+      return (this.max - this.min) / (this.ticksCount - 1);
+    }
+    return this.getPropertyValue("step");
+  }
+  public set step(val: number) {
+    this.setPropertyValue("step", val);
+  }
+  @property({ defaultValue: false }) isDiscreteValueByStep: boolean;
 
+  @property({ defaultValue: true }) isShowTicks: boolean;
+  @property({ defaultValue: true }) isShowMinMaxTicks: boolean;
+  public get ticksCount(): number { // TODO interval count?
+    if (this.customTicks.length > 0) return this.customTicks.length;
+    if (this.tickSize) {
+      return Math.round(100 / this.tickSize) + 2;
+    }
+    return this.getPropertyValue("ticksCount");
+  }
+  public set ticksCount(val: number) {
+    this.setPropertyValue("ticksCount", val);
+  }
+  @property({ defaultValue: null }) tickSize: number | null;
+  @property({ defaultValue: [] }) customTicks: ItemValue[];
   //  customTicks: [
   //     {
   //       text: "min",
@@ -51,81 +79,6 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
       .toString();
   }
 
-  public get maxValueExpression(): any {
-    return this.getPropertyValue("maxValueExpression");
-  }
-  public set maxValueExpression(val: any) {
-    this.setPropertyValue("maxValueExpression", val);
-  }
-  public get minValueExpression(): any {
-    return this.getPropertyValue("minValueExpression");
-  }
-  public set minValueExpression(val: any) {
-    this.setPropertyValue("minValueExpression", val);
-  }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    let maxRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.maxValueExpression);
-    let minRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.minValueExpression);
-
-    if (!!maxRunner && maxRunner.canRun) {
-      maxRunner.onRunComplete = (res) => {
-        this.max = res ?? this.max;
-      };
-      maxRunner.run(values, properties);
-    }
-
-    if (!!minRunner && minRunner.canRun) {
-      minRunner.onRunComplete = (res) => {
-        this.min = res ?? this.min;
-      };
-      minRunner.run(values, properties);
-    }
-  }
-
-  public get step(): number {
-    if (this.isDiscreteValueByStep) {
-      return (this.max - this.min) / (this.ticksCount - 1);
-    }
-    return 1;
-  }
-
-  public get isDiscreteValueByStep(): boolean {
-    return false;
-  }
-
-  public get minSelectedRange(): number {
-    return 10;
-  }
-
-  public get maxSelectedRange(): number {
-    return 100;
-  }
-
-  public get ticksCount(): number { // TODO interval
-    if (this.customTicks.length > 0) return this.customTicks.length;
-    if (this.tickSize) {
-      return Math.round(100 / this.tickSize) + 2;
-    }
-    return 6;
-  }
-
-  public get tickSize(): number {
-    return null;
-  }
-
-  public get isShowTicks(): boolean {
-    return true;
-  }
-
-  public get isShowMinMaxTicks(): boolean {
-    return true;
-  }
-
-  public get valueFormat(): string {
-    return "%";
-  }
-
   public isIndeterminate: boolean = false;
 
   protected onCreating(): void {
@@ -139,11 +92,45 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
       this.isIndeterminate = false;
     }
   }
+
+  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runConditionCore(values, properties);
+
+    if (this.maxValueExpression) {
+      let maxRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.maxValueExpression);
+
+      if (!!maxRunner && maxRunner.canRun) {
+        maxRunner.onRunComplete = (res) => {
+          this.max = res ?? this.max;
+        };
+        maxRunner.run(values, properties);
+      }
+    }
+
+    if (this.minValueExpression) {
+      let minRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.minValueExpression);
+
+      if (!!minRunner && minRunner.canRun) {
+        minRunner.onRunComplete = (res) => {
+          this.min = res ?? this.min;
+        };
+        minRunner.run(values, properties);
+      }
+    }
+  }
 }
 
 Serializer.addClass(
   "rangeslider",
   [
+    {
+      name: "step:number",
+      default: 1,
+    },
+    {
+      name: "ticksCount:number",
+      default: 6
+    },
     {
       name: "maxValueExpression",
       type: "condition"

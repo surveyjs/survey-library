@@ -2276,7 +2276,6 @@ export class PanelModel extends PanelModelBase implements IElement {
     if(this.isPage) return false;
     const val = this.showQuestionNumbers;
     if(val !== "default") return val === "recursive";
-    if(this.parent && this.parent.isPanel) return (<PanelModel>this.parent).isQuestionIndexRecursive;
     return !!this.survey && this.survey.showQuestionNumbers === "recursive";
   }
   private hasParentInQuestionIndex(): boolean {

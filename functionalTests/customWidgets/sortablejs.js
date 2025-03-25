@@ -1,5 +1,5 @@
 import { fixture, test } from "testcafe";
-import { frameworks, url_test, initSurvey, checkSurveyWithEmptyQuestion } from "../helper";
+import { frameworks, url_test, initSurvey, checkSurveyWithEmptyQuestion, explicitErrorHandler } from "../helper";
 const title = "sortablejs";
 
 const json = {
@@ -19,6 +19,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
     .page`${url_test}customWidget/${framework}`.beforeEach(
     async (ctx) => {
+      await explicitErrorHandler();
       await initSurvey(framework, json);
     }
   );

@@ -2257,7 +2257,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected beforeSetVisibleIndex(index: number): number {
     if(this.isPage) return super.beforeSetVisibleIndex(index);
     let visibleIndex = -1;
-    if (this.showNumber && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
+    if ((this.showNumber || this.isQuestionIndexRecursive) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
       visibleIndex = index;
     }
     this.setPropertyValue("visibleIndex", visibleIndex);
@@ -2273,7 +2273,11 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive;
   }
   private get isQuestionIndexRecursive(): boolean {
-    return this.showQuestionNumbers === "recursive";
+    if(this.isPage) return false;
+    const val = this.showQuestionNumbers;
+    if(val !== "default") return val === "recursive";
+    if(this.parent && this.parent.isPanel) return (<PanelModel>this.parent).isQuestionIndexRecursive;
+    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
   }
   private hasParentInQuestionIndex(): boolean {
     if(!this.isQuestionIndexOnPanel) return false;

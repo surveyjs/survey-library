@@ -6522,7 +6522,8 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private getStartVisibleIndex(): number {
-    return this.showQuestionNumbers == "on" ? 0 : -1;
+    const val = this.showQuestionNumbers;
+    return val === "on" || val === "recursive" ? 0 : -1;
   }
   private updatePageVisibleIndexes(): void {
     this.updateButtonsVisibility();
@@ -8435,7 +8436,7 @@ Serializer.addClass("survey", [
   {
     name: "showQuestionNumbers",
     default: "off",
-    choices: ["on", "onPage", "off"],
+    choices: ["on", "onPage", "recursive", "off"],
   },
   {
     name: "questionTitleLocation",

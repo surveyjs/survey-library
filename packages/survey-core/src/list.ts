@@ -68,6 +68,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }) filterString: string;
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
+  @property({ defaultValue: true }) shouldProcessFilter: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
   @property({ defaultValue: true }) renderElements: boolean;
   @property({ defaultValue: false }) textWrapEnabled: boolean;
@@ -112,9 +113,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public get visibleItems(): Array<T> {
     return this.visibleActions.filter(item => this.isItemVisible(item));
-  }
-  private get shouldProcessFilter(): boolean {
-    return !this.onFilterStringChangedCallback;
   }
   private onFilterStringChanged(text: string) {
     if (!!this.onFilterStringChangedCallback) {

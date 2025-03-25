@@ -44,6 +44,9 @@ export class DropdownListModel extends Base {
   protected listModelFilterStringChanged = (newValue: string) => {
     if (this.filterString !== newValue) {
       this.filterString = newValue;
+      if (!this.choicesLazyLoadEnabled) {
+        this.processCustomValue(newValue);
+      }
     }
   }
 
@@ -56,7 +59,7 @@ export class DropdownListModel extends Base {
   private setItems(items: Array<any>, totalCount: number) {
     this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
     this.itemsSettings.totalCount = totalCount;
-    this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.itemsSettings.items.length == this.itemsSettings.totalCount;
+    this.listModel.isAllDataLoaded = this.choicesLazyLoadEnabled && this.itemsSettings.items.length == this.itemsSettings.totalCount;
     this.question.choices = this.itemsSettings.items;
   }
   private loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
@@ -157,7 +160,7 @@ export class DropdownListModel extends Base {
     if (isVisible) {
       this.listModel.renderElements = true;
     }
-    if (isVisible && this.question.choicesLazyLoadEnabled) {
+    if (isVisible && this.choicesLazyLoadEnabled) {
       this.listModel.actions = [];
       this.resetItemsSettings();
       this.updateQuestionChoices();
@@ -214,7 +217,7 @@ export class DropdownListModel extends Base {
   protected onHidePopup(): void {
     this.resetFilterString();
     this.question.suggestedItem = null;
-    if (this.question.choicesLazyLoadEnabled) {
+    if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
     }
     this.customValue = undefined;
@@ -298,8 +301,9 @@ export class DropdownListModel extends Base {
         this.hasScroll = options.newValue;
       }
     });
-    model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
+    model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
+    model.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
   }
   protected getPopupCssClasses(): string { return "sv-single-select-list"; }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
@@ -331,7 +335,7 @@ export class DropdownListModel extends Base {
       this.popupRecalculatePosition(true);
     };
 
-    if (this.question.choicesLazyLoadEnabled) {
+    if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
       this.updateQuestionChoices(updateAfterFilterStringChanged);
     } else {
@@ -377,6 +381,7 @@ export class DropdownListModel extends Base {
   }) customValue: string;
 
   @property({ defaultValue: true }) searchEnabled: boolean;
+  @property() choicesLazyLoadEnabled: boolean;
   @property({
     defaultValue: "",
     onSet: (_, target: DropdownListModel) => {
@@ -437,7 +442,7 @@ export class DropdownListModel extends Base {
     this.inputString = val;
     this.filterString = val;
 
-    if (!this.question.choicesLazyLoadEnabled) {
+    if (!this.choicesLazyLoadEnabled) {
       this.processCustomValue(val);
     }
     if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
@@ -504,8 +509,8 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
-    this.updateAfterListModelCreated(this.listModel);
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
+    this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);
     this.setAllowCustomChoices(this.question.allowCustomChoices);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
@@ -544,7 +549,8 @@ export class DropdownListModel extends Base {
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {
-    this.listModel.setOnFilterStringChangedCallback(newValue ? this.listModelFilterStringChanged : undefined);
+    this.choicesLazyLoadEnabled = newValue;
+    this.listModel.shouldProcessFilter = !newValue;
   }
 
   public updateItems(): void {

@@ -18,7 +18,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) maxValueExpression: string | null;
   @property({ defaultValue: null }) minValueExpression: string | null;
   @property({ getDefaultValue: function() { return this.max; } }) maxSelectedRange: number;
-  @property({ defaultValue: 10 }) minSelectedRange: number;
+  @property({ defaultValue: 0 }) minSelectedRange: number;
   @property({ defaultValue: "" }) valueFormat: string;
   public get step(): number {
     if (this.isDiscreteValueByStep) {
@@ -80,6 +80,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public isIndeterminate: boolean = false;
+  public isSingleMode: boolean = true;
 
   protected onCreating(): void {
     super.onCreating();

@@ -110,11 +110,16 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private getRenderedValue() {
-    const { max, min, maxSelectedRange } = this.question;
+    const { max, min, maxSelectedRange, isSingleMode } = this.question;
     let value = this.question.value;
 
-    if (!Array.isArray(value)) {
-      value = typeof value === "undefined" ? [] : [value];
+    if (isSingleMode) {
+      if (typeof value === "undefined" || value.length === 0) {
+        this.question.isIndeterminate = true;
+        return [min];
+      } else {
+        return [value];
+      }
     }
 
     if (value.length === 0) {

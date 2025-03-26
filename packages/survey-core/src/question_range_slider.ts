@@ -141,8 +141,7 @@ Serializer.addClass(
       // }
     },
     {
-      name: "minSelectedRange: number",
-      default: 1
+      name: "minSelectedRange: number"
     },
     {
       name: "maxValueExpression",

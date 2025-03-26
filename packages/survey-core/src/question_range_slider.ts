@@ -1,7 +1,7 @@
 import { ExpressionRunner } from "./conditions";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { property, Serializer } from "./jsonobject";
+import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionRatingModel } from "./question_rating";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -17,8 +17,8 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: 0 }) min: number;
   @property({ defaultValue: null }) maxValueExpression: string | null;
   @property({ defaultValue: null }) minValueExpression: string | null;
-  @property({ defaultValue: 100 }) maxSelectedRange: number;
-  @property({ defaultValue: 1 }) minSelectedRange: number;
+  @property({ defaultValue: null }) maxSelectedRange: number | null;
+  @property({ defaultValue: null }) minSelectedRange: number | null;
   @property({ defaultValue: "" }) valueFormat: string;
   public get step(): number {
     if (this.isDiscreteValueByStep) {
@@ -30,7 +30,6 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     this.setPropertyValue("step", val);
   }
   @property({ defaultValue: false }) isDiscreteValueByStep: boolean;
-
   @property({ defaultValue: true }) isShowTicks: boolean;
   @property({ defaultValue: true }) isShowMinMaxTicks: boolean;
   public get ticksCount(): number { // TODO interval count?
@@ -44,12 +43,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     this.setPropertyValue("ticksCount", val);
   }
   @property({ defaultValue: null }) tickSize: number | null;
-  public get customTicks(): ItemValue[] {
-    return this.getPropertyValue("customTicks");
-  }
-  public set customTicks(newValue: ItemValue[]) {
-    this.setPropertyValue("customTicks", newValue);
-  }
+  @propertyArray({ }) customTicks: ItemValue[];
   @property({ defaultValue: null }) focusedThumb: number | null;
 
   constructor(name: string) {
@@ -67,6 +61,14 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootSingleMode, !Array.isArray(this.value))
       .toString();
+  }
+
+  public get renderedMaxSelectedRange(): number {
+    return this.maxSelectedRange ?? this.max;
+  }
+
+  public get renderedMinSelectedRange(): number {
+    return this.minSelectedRange ?? this.step;
   }
 
   public isIndeterminate: boolean = false;
@@ -134,7 +136,9 @@ Serializer.addClass(
     },
     {
       name: "maxSelectedRange: number",
-      default: 100
+      // defaultFunc: (obj: QuestionRangeSliderModel): number => {
+      //   return obj.max;
+      // }
     },
     {
       name: "minSelectedRange: number",

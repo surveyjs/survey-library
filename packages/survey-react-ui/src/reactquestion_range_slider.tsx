@@ -111,7 +111,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private getRenderedValue() {
-    const { max, min, maxSelectedRange, isSingleMode } = this.question;
+    const { max, min, renderedMaxSelectedRange: maxSelectedRange, isSingleMode } = this.question;
     let value = this.question.value;
 
     if (isSingleMode) {
@@ -157,7 +157,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private ensureLeftBorder(newValue:number, inputNumber):number {
-    const { minSelectedRange, maxSelectedRange } = this.question;
+    const { renderedMinSelectedRange: minSelectedRange, renderedMaxSelectedRange: maxSelectedRange } = this.question;
     const value:number[] = this.getRenderedValue();
     const prevValueBorder = value[inputNumber - 1];
     const nextValueBorder = value[inputNumber + 1];
@@ -170,7 +170,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private ensureRightBorder(newValue, inputNumber):number {
     const value:number[] = this.getRenderedValue();
-    const { minSelectedRange, maxSelectedRange } = this.question;
+    const { renderedMinSelectedRange: minSelectedRange, renderedMaxSelectedRange: maxSelectedRange } = this.question;
     const nextValueBorder = value[inputNumber + 1];
     const prevValueBorder = value[inputNumber - 1];
 

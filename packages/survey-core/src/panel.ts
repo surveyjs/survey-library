@@ -710,6 +710,13 @@ export class PanelModelBase extends SurveyElement<Question>
 
     return this.questionsValue;
   }
+  public get visibleQuestions(): Array<Question> {
+    const res = new Array<Question>();
+    this.questions.forEach(q => {
+      if(q.isVisible) res.push(q);
+    });
+    return res;
+  }
   public getQuestions(includeNested: boolean): Array<Question> {
     const res = this.questions;
     if(!includeNested) return res;
@@ -999,7 +1006,11 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   protected hasErrorsCore(rec: any): void {
-    const elements = this.elements;
+    let singleQ = <Question>this.survey?.currentSingleQuestion;
+    if(singleQ && this.questions.indexOf(singleQ) < 0) {
+      singleQ = undefined;
+    }
+    const elements = singleQ ? [singleQ] : this.elements;
     let element = null;
     let firstErroredEl = null;
     for (var i = 0; i < elements.length; i++) {
@@ -1022,8 +1033,10 @@ export class PanelModelBase extends SurveyElement<Question>
         }
       }
     }
-    this.hasErrorsInPanels(rec);
-    this.updateContainsErrors();
+    if(!singleQ) {
+      this.hasErrorsInPanels(rec);
+      this.updateContainsErrors();
+    }
     if(!firstErroredEl && this.errors.length > 0) {
       firstErroredEl = this.getFirstQuestionToFocus(false, true);
       if(!rec.firstErrorQuestion) {
@@ -1031,8 +1044,8 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     if(rec.fireCallback && firstErroredEl) {
-      if(firstErroredEl === rec.firstErrorQuestion && rec.focusOnFirstError) {
-        firstErroredEl.focus(true);
+      if((!!singleQ || firstErroredEl === rec.firstErrorQuestion) && rec.focusOnFirstError) {
+        rec.firstErrorQuestion.focus(true);
       } else {
         firstErroredEl.expandAllParents();
       }

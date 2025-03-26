@@ -14,6 +14,7 @@ import "../../src/localization/french";
 import "../../src/localization/georgian";
 import "../../src/localization/german";
 import "../../src/localization/greek";
+import "../../src/localization/haitian-creole";
 import "../../src/localization/hebrew";
 import "../../src/localization/hindi";
 import "../../src/localization/hungarian";

@@ -192,12 +192,12 @@ Survey Creator generates captions for your custom question type and its properti
 <!-- src/components/ColorPicker.vue -->
 <script lang="ts">
 // ...
-import { editorLocalization } from "survey-creator-core";
+import { getLocaleStrings } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 // ...
 
-const locale = editorLocalization.getLocale("");
+const locale = getLocaleStrings("en");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";

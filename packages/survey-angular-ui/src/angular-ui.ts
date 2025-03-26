@@ -9,6 +9,7 @@ export * from "./components/popup/popup-pointer.component";
 export * from "./components/popup/popup.component";
 export * from "./components/popup/popup-container.component";
 export * from "./components/skeleton.component";
+export * from "./components/scroll/scroll.component";
 export * from "./components/dropdown/dropdown.component";
 export * from "./components/tagbox/tagbox-filter.component";
 export * from "./components/tagbox/tagbox-item.component";

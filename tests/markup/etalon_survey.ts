@@ -95,7 +95,7 @@ registerMarkupTests(
         survey["needRenderIcons"] = false;
       },
       getSnapshot: el => {
-        return el.children[0].children[0].outerHTML;
+        return el.querySelector(".sd-root_background-image")?.outerHTML || "";
       },
       snapshot: "survey-theme-backgroundImage"
     },

@@ -2177,13 +2177,15 @@ export class PanelModel extends PanelModelBase implements IElement {
     return super.addNoFromChild(no);
   }
   /**
-   * Gets or sets a value that specifies how the elements numbers inside panel are displayed.
+   * Specifies whether to display survey element numbers within this page/panel and how to calculate them.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `default` - display questions numbers as defined in parent panel or survey
-   * - `onpanel` - display questions numbers, start numbering from beginning of this page
-   * - `off` - turn off the numbering for questions titles
+   * - `"default"` - Inherits the setting from the parent panel, page, or survey.
+   * - `"recursive"` - Applies recursive numbering to elements nested within this page/panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
+   * - `"onpanel"` - Starts numbering within this page/panel from scratch.
+   * - `false` or `"off"` - Hides question numbers within this page/panel.
+   * @see [SurveyModel.showQuestionNumbers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers)
    * @see showNumber
    */
   public get showQuestionNumbers(): string {

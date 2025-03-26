@@ -2847,12 +2847,13 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
   }
   /**
-   * Specifies whether to display question numbers and how to calculate them.
+   * Specifies whether to display survey element numbers and how to calculate them.
    *
    * Possible values:
    *
-   * - `true` or `"on"` - Displays question numbers.
-   * - `"onpage"` - Displays question numbers and starts numbering on each page from scratch.
+   * - `true` or `"on"` - Numbers survey elements in order, regardless of their nesting level.
+   * - `"recursive"` - Applies recursive numbering to elements nested in panels (for example, 1 -> 1.1 -> 1.1.1, etc.).
+   * - `"onpage"` - Starts numbering on each page from scratch.
    * - `false` or `"off"` - Hides question numbers.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))

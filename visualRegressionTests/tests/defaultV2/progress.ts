@@ -449,7 +449,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       })();
       await t.resizeWindow(800, 600);
-      await t.scroll(".sd-root-modern--full-container", 0, 500);
+      await t.scroll(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller", 0, 500);
       await t.wait(1000);
       await takeElementScreenshot("survey-progress-bar-top-pages-sticky.png", Selector("#surveyElement"), t, comparer);
     });
@@ -484,7 +484,7 @@ frameworks.forEach(framework => {
       })();
       await applyHeaderAccentBackgroundColor();
       await t.resizeWindow(800, 600);
-      await t.scroll(".sd-root-modern--full-container", 0, 500);
+      await t.scroll(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller", 0, 500);
       await t.wait(1000);
       await takeElementScreenshot("survey-progress-bar-top-questions-sticky.png", Selector("#surveyElement"), t, comparer);
     });
@@ -592,7 +592,7 @@ frameworks.forEach(framework => {
       await ClientFunction(() => {
         (document.querySelector("#surveyElement") as HTMLElement).style.height = "calc(100vh - 32px)";
       })();
-      await t.scroll(".sd-root-modern--full-container", 0, 300);
+      await t.scroll(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller", 0, 300);
       await t.wait(1000);
       await takeElementScreenshot("survey-progress-bar-top-buttons-sticky-background.png", Selector("#surveyElement"), t, comparer);
     });

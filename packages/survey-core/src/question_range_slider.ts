@@ -17,22 +17,8 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: 0 }) min: number;
   @property({ defaultValue: null }) maxValueExpression: string | null;
   @property({ defaultValue: null }) minValueExpression: string | null;
-  public get maxSelectedRange(): number {
-    const value = this.getPropertyValue("maxSelectedRange");
-    if (typeof value === "undefined") return this.max;
-    return value;
-  }
-  public set maxSelectedRange(val: number) {
-    this.setPropertyValue("maxSelectedRange", val);
-  }
-  public get minSelectedRange(): number {
-    const value = this.getPropertyValue("minSelectedRange");
-    if (typeof value === "undefined") return this.min;
-    return value;
-  }
-  public set minSelectedRange(val: number) {
-    this.setPropertyValue("minSelectedRange", val);
-  }
+  @property({ defaultValue: 100 }) maxSelectedRange: number;
+  @property({ defaultValue: 1 }) minSelectedRange: number;
   @property({ defaultValue: "" }) valueFormat: string;
   public get step(): number {
     if (this.isDiscreteValueByStep) {
@@ -147,10 +133,12 @@ Serializer.addClass(
       default: 6
     },
     {
-      name: "maxSelectedRange: number"
+      name: "maxSelectedRange: number",
+      default: 100
     },
     {
-      name: "minSelectedRange: number"
+      name: "minSelectedRange: number",
+      default: 1
     },
     {
       name: "maxValueExpression",

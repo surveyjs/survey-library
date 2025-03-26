@@ -131,7 +131,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     let newValue = [].concat(this.question.renderedValue || []);
     newValue.splice(newValue.indexOf(id), 1);
     this.question.renderedValue = newValue;
-    this.applyHintString(this.listModel.focusedItem);
+    this.applyHintString();
     this.updateListState();
   }
   public clear(): void {
@@ -184,7 +184,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   protected afterScrollToFocusedItem() {
     if (!this.listModel.focusedItem?.selected) {
-      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+      this.applyHintString();
     } else {
       this.hintString = "";
     }

@@ -45,7 +45,7 @@ export class DropdownListModel extends Base {
     if (this.filterString !== newValue) {
       this.filterString = newValue;
       if (!this.choicesLazyLoadEnabled) {
-        this.processCustomValue(newValue);
+        this.processCustomValue();
       }
     }
   }
@@ -63,6 +63,7 @@ export class DropdownListModel extends Base {
     this.question.choices = this.itemsSettings.items;
   }
   private loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
+    const _filterString = this.filterString;
     this.question.survey.loadQuestionChoices({
       question: this.question,
       filter: this.filterString,
@@ -74,19 +75,20 @@ export class DropdownListModel extends Base {
         if (!!callbackAfterItemsLoaded) {
           callbackAfterItemsLoaded();
         }
-        this.processCustomValue(this.inputString);
+        this.processCustomValue(_filterString);
       }
     });
     this.itemsSettings.skip += this.itemsSettings.take;
   }
-  private processCustomValue(val: string) {
+  private processCustomValue(newValue?: string) {
     if (!this.allowCustomChoices) return;
 
-    const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, val, false, false))[0];
+    const value = newValue || this.filterString;
+    const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {
-      this.customValue = val;
+      this.customValue = value;
       this.updateItems();
       this.listModel.focusFirstVisibleItem();
     }
@@ -174,7 +176,7 @@ export class DropdownListModel extends Base {
       this.question.processOpenDropdownMenu(dropdownMenuOptions);
       if (prevMenuType !== dropdownMenuOptions.menuType) {
         this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
-        this.listModel.setSearchEnabled(this.searchEnabled && dropdownMenuOptions.menuType !== "dropdown");
+        this.listModel.setSearchEnabled(this.inputAvailable && dropdownMenuOptions.menuType !== "dropdown");
       }
 
       if (!!this.question.onOpenedCallBack) {
@@ -270,7 +272,7 @@ export class DropdownListModel extends Base {
       const newChoice = this.createCustomItem();
       if (!!newChoice) {
         this.question.value = newChoice.id;
-        this.applyHintString(newChoice);
+        this.hintString = "";
       }
     } else {
       this.question.value = item.id;
@@ -443,7 +445,7 @@ export class DropdownListModel extends Base {
     this.filterString = val;
 
     if (!this.choicesLazyLoadEnabled) {
-      this.processCustomValue(val);
+      this.processCustomValue();
     }
     if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
       this.hintString = "";
@@ -540,7 +542,7 @@ export class DropdownListModel extends Base {
   }
 
   public setSearchEnabled(newValue: boolean): void {
-    this.listModel.setSearchEnabled(IsTouch && newValue);
+    this.listModel.setSearchEnabled(IsTouch && (newValue || this.question.allowCustomChoices));
     this.searchEnabled = newValue;
   }
 

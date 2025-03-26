@@ -2392,7 +2392,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   _setIsTouch(true);
   const survey = new SurveyModel({
     questions: [{
-      name: "q1", type: "tagbox", searchEnabled: "true", allowCustomChoices: true,
+      name: "q1", type: "tagbox", searchEnabled: false, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
   });
@@ -2403,6 +2403,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   const testCustomValue = "item10";
 
   assert.equal(dropdownListModel.customValue, undefined, "#1 customValue");
+  assert.equal(listModel.searchEnabled, true, "#1 listModel searchEnabled");
   assert.equal(listModel.isEmpty, false, "#1 listModel is not empty");
   assert.equal(listModel.actions.length, 4, "#1 listModel.actions");
 

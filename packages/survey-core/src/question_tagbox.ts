@@ -246,7 +246,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled || this.allowCustomChoice? "_0" : "");
+    return this.inputId + (this.searchEnabled || this.allowCustomChoices? "_0" : "");
   }
   public getInputId(): string {
     return this.inputId + "_0";

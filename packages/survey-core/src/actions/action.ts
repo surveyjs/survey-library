@@ -5,7 +5,7 @@ import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
-import { defaultActionBarCss } from "./container";
+import { ActionBarCssClasses, defaultActionBarCss } from "./container";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -287,10 +287,10 @@ export abstract class BaseAction extends Base implements IAction {
   public set title(val: string) {
     this.setTitle(val);
   }
-  public set cssClasses(val: any) {
+  public set cssClasses(val: ActionBarCssClasses) {
     this.cssClassesValue = val;
   }
-  public get cssClasses() {
+  public get cssClasses(): Readonly<ActionBarCssClasses> {
     return this.cssClassesValue || defaultActionBarCss;
   }
   public get isVisible() {
@@ -547,7 +547,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
 
   //ILocalizableOwner
   getLocale(): string { return this.owner ? this.owner.getLocale() : ""; }
-  getMarkdownHtml(text: string, name: string): string { return this.owner ? this.owner.getMarkdownHtml(text, name) : undefined; }
+  getMarkdownHtml(text: string, name: string, item?: any): string { return this.owner ? this.owner.getMarkdownHtml(text, name, item) : undefined; }
   getProcessedText(text: string): string { return this.owner ? this.owner.getProcessedText(text) : text; }
   getRenderer(name: string): string { return this.owner ? this.owner.getRenderer(name) : null; }
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }

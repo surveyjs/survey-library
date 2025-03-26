@@ -664,8 +664,8 @@ export class MatrixDropdownColumn extends Base
   public getLocale(): string {
     return this.colOwner ? this.colOwner.getLocale() : "";
   }
-  public getMarkdownHtml(text: string, name: string): string {
-    return this.colOwner ? this.colOwner.getMarkdownHtml(text, name) : undefined;
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return this.colOwner ? this.colOwner.getMarkdownHtml(text, name, item) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.colOwner ? this.colOwner.getRenderer(name) : null;
@@ -906,7 +906,7 @@ Serializer.addClass(
       name: "title", serializationProperty: "locTitle", dependsOn: "name",
       onPropertyEditorUpdate: function (obj: any, editor: any) {
         if (!!obj && !!editor) {
-          editor.placeholder = obj.name;
+          editor.placeholder = obj.locTitle.getPlaceholder();
         }
       }
     },

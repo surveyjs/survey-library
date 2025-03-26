@@ -1,0 +1,19 @@
+<ng-template #template>
+    <ng-container *ngIf="!disabled">
+        <div class="sv-scroll__wrapper" #container>
+            <div class="sv-scroll__scroller sv-drag-target-skipped" (scroll)="model.onScrollContainer()">
+                <div class="sv-scroll__container">
+                    <ng-container *ngTemplateOutlet="transparentTemplate"></ng-container>
+                </div>
+            </div>
+            <div class="sv-scroll__scrollbar" (scroll)="model.onScrollScrollbar()">
+                <div class="sv-scroll__scrollbar-sizer">
+                </div>
+            </div>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="disabled"><ng-container *ngTemplateOutlet="transparentTemplate"></ng-container></ng-container>
+</ng-template>
+<ng-template #transparentTemplate>
+    <ng-content></ng-content>
+</ng-template>

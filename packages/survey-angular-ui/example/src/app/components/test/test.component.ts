@@ -5,7 +5,7 @@ import "survey-core/survey.i18n";
 
 @Component({
   selector: "test",
-  template: "<router-outlet></router-outlet>",
+  template: "",
 })
 export class TestComponent {
   public model?: SurveyModel | Survey.PopupSurveyModel;

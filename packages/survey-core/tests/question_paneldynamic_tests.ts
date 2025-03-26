@@ -7765,3 +7765,34 @@ QUnit.test("A Dynamic Panel question number is updated when adding a new panel B
   panel.addPanel();
   assert.equal(panel.no, "2.", "no #2");
 });
+QUnit.test("Test displayValue() function in dynamic panel, Bug#9635", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "checkbox",
+            name: "q1",
+            choices: ["item1", "item2", "item3"],
+            showOtherItem: true
+          },
+          {
+            type: "text",
+            name: "q2",
+            setValueExpression: "displayValue('q1',{panel.q1})"
+          }
+        ]
+      }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.addPanel();
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  q1.value = ["item1", "other"];
+  assert.equal(q2.value, "item1, Other (describe)", "Other as other display value");
+  q1.comment = "other comment";
+  assert.equal(q2.value, "item1, other comment", "Other is comment value");
+  assert.deepEqual(panel.value, [{ q1: ["item1", "other"], "q1-Comment": "other comment", q2: "item1, other comment" }], "value is set correctly");
+});

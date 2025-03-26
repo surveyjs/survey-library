@@ -758,4 +758,33 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Numbered page Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "title": "Test",
+        "pages": [
+          {
+            "name": "page1",
+            "title": "Page 1 Test",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1",
+                "title": "TestQuestion"
+              }
+            ]
+          }
+        ],
+        "showPageNumbers": true,
+        "showPreviewBeforeComplete": true,
+        "headerView": "advanced"
+      });
+
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-numbered-page.png", Selector(".sd-panel--as-page"), t, comparer);
+    });
+  });
 });

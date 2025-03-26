@@ -78,6 +78,10 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     return this.actions.concat([<T>this.dotsItem]);
   }
 
+  protected getAllActions(): T[] {
+    return this.actions.concat(<T>this.dotsItem);
+  }
+
   protected raiseUpdate(isResetInitialized: boolean): void {
     if (!this.isResponsivenessDisabled) {
       super.raiseUpdate(isResetInitialized);

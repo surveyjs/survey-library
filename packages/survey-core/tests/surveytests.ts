@@ -7813,7 +7813,7 @@ QUnit.test("Randomize questions in page and panels & single question per page", 
 
   Helpers.randomizeArray = oldFunc;
 });
-QUnit.test("questionPerPage vs nextPage&prevPage", function (assert) {
+QUnit.test("questionPerPage vs nextPage&prevPage & Bug#9617 (isLastPage/isFirstPage)", function (assert) {
   const survey = new SurveyModel({
     questionsOnPageMode: "questionPerPage",
     pages: [
@@ -7822,18 +7822,32 @@ QUnit.test("questionPerPage vs nextPage&prevPage", function (assert) {
     ]
   });
   assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #1");
+  assert.equal(survey.isFirstPage, true, "isFirstPage #1");
+  assert.equal(survey.isLastPage, false, "isLastPage #1");
   survey.nextPage();
   assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #2");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #2");
+  assert.equal(survey.isLastPage, false, "isLastPage #2");
   survey.nextPage();
   assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #3");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #3");
+  assert.equal(survey.isLastPage, false, "isLastPage #3");
   survey.nextPage();
   assert.equal(survey.currentSingleQuestion.name, "q4", "currentSingleQuestion #4");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #4");
+  assert.equal(survey.isLastPage, true, "isLastPage #4");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion #5");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #5");
+  assert.equal(survey.isLastPage, false, "isLastPage #5");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #6");
+  assert.equal(survey.isFirstPage, false, "isFirstPage #6");
+  assert.equal(survey.isLastPage, false, "isLastPage #6");
   survey.prevPage();
   assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #7");
+  assert.equal(survey.isFirstPage, true, "isFirstPage #7");
+  assert.equal(survey.isLastPage, false, "isLastPage #7");
 });
 
 QUnit.test("Quiz, correct, incorrect answers", function (assert) {
@@ -21043,7 +21057,7 @@ QUnit.test("_isElementShouldBeSticky", (assert) => {
     querySelector: () => topStickyContainer,
     scrollTop: 0
   };
-  survey.rootElement = rootElement;
+  survey.scrollerElement = rootElement;
 
   assert.notOk(survey._isElementShouldBeSticky(".test"), "no scrolling");
 
@@ -21292,6 +21306,37 @@ QUnit.test("questionsOnPageMode & validationEnabled , Bug#9558", function (asser
   assert.equal(survey.performNext(), true, "Can go futher");
   assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion");
   assert.equal(survey.tryComplete(), true, "Survey is completed");
+});
+QUnit.test("questionsOnPageMode & visibility questions, Bug#9641", function (assert) {
+  const json = {
+    elements: [
+      { type: "text", name: "q1", visibleIf: "false" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.currentSingleQuestion.name, "q2", "the first question is invisible");
+  survey.getQuestionByName("q2").visible = false;
+  assert.equal(survey.currentSingleQuestion.name, "q3", "the second question is invisible");
+});
+QUnit.test("questionsOnPageMode & visibility panels, Bug#9641", function (assert) {
+  const json = {
+    elements: [
+      { type: "panel", name: "p1", elements: [{ type: "text", name: "q1", visibleIf: "false" }] },
+      { type: "panel", name: "p2", elements: [{ type: "text", name: "q2" }] },
+      { type: "panel", name: "p3", elements: [{ type: "text", name: "q3" }] },
+      { type: "text", name: "q4" },
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.currentSingleElement.name, "p2", "the first panel is invisible");
+  survey.getPanelByName("p2").visible = false;
+  assert.equal(survey.currentSingleElement.name, "p3", "the second panel is invisible");
+  survey.getQuestionByName("q3").visible = false;
+  assert.equal(survey.currentSingleElement.name, "q4", "the third panel is invisible");
 });
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {

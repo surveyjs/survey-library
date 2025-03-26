@@ -914,3 +914,40 @@ QUnit.test("Remove locale for en empty string", function (assert) {
   locStr.clearLocale("de");
   assert.deepEqual(locStr.getJson(), "str", "getJson #2");
 });
+QUnit.test("locString placeholder", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr = new LocalizableString(owner, true);
+  locStr.setJson({ default: "str", pt: "str-pt", "pt-BR": "str-br" }, true);
+  assert.equal(locStr.getPlaceholder(), "", "default placeholder");
+  owner.locale = "pt";
+  assert.equal(locStr.getPlaceholder(), "str", "pt placeholder");
+  owner.locale = "pt-BR";
+  assert.equal(locStr.getPlaceholder(), "str-pt", "pt-BR placeholder");
+  owner.locale = "";
+  locStr.onGetTextCallback = (text: string) => {
+    if(!text) return "empty";
+    return text;
+  };
+  assert.equal(locStr.getPlaceholder(), "empty", "default placeholder, onGetTextCallback");
+});
+QUnit.test("locString.lastLocChanged: string", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableStringTester(owner, true);
+  assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #1");
+  locString.setLocaleText("de", "deText");
+  assert.equal(locString.lastChangedLoc, "de", "lastLocChanged #2");
+  locString.setLocaleText("en", "enText");
+  assert.equal(locString.lastChangedLoc, "en", "lastLocChanged #3");
+  locString.clearLocale("de");
+  assert.equal(locString.lastChangedLoc, "de", "lastLocChanged #4");
+  locString.setJson({});
+  assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #5");
+  locString.setLocaleText("fr", "frText");
+  assert.equal(locString.lastChangedLoc, "fr", "lastLocChanged #6");
+  locString.text = "fdfdf";
+  assert.equal(locString.lastChangedLoc, "", "lastLocChanged #7");
+  locString.setLocaleText("fr", "frText");
+  assert.equal(locString.lastChangedLoc, "fr", "lastLocChanged #8");
+  locString.clear();
+  assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #9");
+});

@@ -3456,7 +3456,7 @@ QUnit.test("Page & Panel should have different title&description properties", fu
   assert.equal(panelTitle.placeholder, "panelT", "panel title unique");
   assert.equal(panelDescription.placeholder, "panelD", "panel description unique");
 });
-QUnit.test("property showMode -> displayMode, #9291", function (assert) {
+QUnit.test("property showMode -> locationInTable, #9291", function (assert) {
   const prop1 = Serializer.addProperty("question", { name: "prop1", showMode: "form" });
   const prop2 = Serializer.addProperty("question", { name: "prop2", locationInTable: "detail" });
   const prop3 = Serializer.addProperty("question", { name: "prop3" });
@@ -3469,7 +3469,7 @@ QUnit.test("property showMode -> displayMode, #9291", function (assert) {
   assert.equal(prop2.showMode, "form", "prop2.showMode");
   assert.equal(prop2.locationInTable, "detail", "prop2.locationInTable");
   assert.equal(prop3.showMode, "", "prop3.showMode");
-  assert.equal(prop3.locationInTable, "both", "prop3.locationInTable");
+  assert.equal(prop3.locationInTable, "column", "prop3.locationInTable");
   assert.equal(prop4.showMode, "list", "prop4.showMode");
   assert.equal(prop4.locationInTable, "column", "prop4.locationInTable");
   assert.equal(prop5.showMode, "list", "prop5.showMode");
@@ -3479,7 +3479,7 @@ QUnit.test("property showMode -> displayMode, #9291", function (assert) {
 
   prop1.showMode = "";
   assert.equal(prop1.showMode, "", "prop1.showMode, #2");
-  assert.equal(prop1.locationInTable, "both", "prop1.locationInTable, #2");
+  assert.equal(prop1.locationInTable, "column", "prop1.locationInTable, #2");
   prop1.showMode = "list";
   assert.equal(prop1.showMode, "list", "prop1.showMode, #3");
   assert.equal(prop1.locationInTable, "column", "prop1.locationInTable, #3");

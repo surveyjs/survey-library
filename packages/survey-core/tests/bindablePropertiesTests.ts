@@ -107,26 +107,26 @@ QUnit.test("Load from JSON", function (assert) {
 QUnit.test("Question, bind a property", function (assert) {
   var survey = new SurveyModel({
     elements: [
-      { name: "q1", type: "text", defaultValue: 3 },
+      { name: "q1", type: "text", inputType: "number", defaultValue: 3 },
       {
         name: "q2",
-        type: "text",
+        type: "matrixdynamic",
         bindings: {
-          min: "q1",
+          rowCount: "q1",
         },
       },
     ],
   });
   var question = survey.getQuestionByName("q2");
   assert.equal(
-    question.bindings.getValueNameByPropertyName("min"),
+    question.bindings.getValueNameByPropertyName("rowCount"),
     "q1",
     "bindable properties serialized successful"
   );
-  assert.equal(question.min, 3, "bindable question has default value");
+  assert.equal(question.rowCount, 3, "bindable question has default value");
   survey.setValue("q1", 4);
-  assert.equal(question.min, 4, "bindable question value is 4");
-  question.min = 5;
+  assert.equal(question.rowCount, 4, "bindable question value is 4");
+  question.rowCount = 5;
   assert.equal(survey.getValue("q1"), 5, "Set value from a property");
 });
 
@@ -291,4 +291,30 @@ QUnit.test("Dynamic Matrix, bind rowCount and expression column", function (asse
   assert.equal(matrix.rowCount, 3, "bindable question value is 3");
   assert.equal(matrix.visibleRows.length, 3, "visible rows is 3");
   assert.deepEqual(matrix.value, [{ col1: "Row 1" }, { col1: "Row 2" }, { col1: "Row 3" }], "expression set correct value");
+});
+QUnit.test("Bindings - do not store incorrect values", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { name: "q1", type: "text" },
+      {
+        name: "q2",
+        type: "matrixdynamic",
+        bindings: {
+          rowCount: "q1",
+          pos: {
+            pos: {
+              start: 1,
+              end: 10
+            },
+            start: 20,
+            end: 30
+          }
+        },
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  assert.deepEqual(matrix.toJSON(), { name: "q2", bindings: { rowCount: "q1" } }, "toJSON #1");
+  matrix.bindings.setBinding("dummy", "val1");
+  assert.deepEqual(matrix.toJSON(), { name: "q2", bindings: { rowCount: "q1" } }, "toJSON #2");
 });

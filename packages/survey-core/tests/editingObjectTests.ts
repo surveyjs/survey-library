@@ -249,6 +249,27 @@ QUnit.test("Edit survey title property with isLocalizable=false", function (asse
 
   prop.isLocalizable = true;
 });
+QUnit.test("Edit question title property for non default locale", function (assert) {
+  const editableSurvey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", title: "Question 1" }],
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "name" }, { type: "comment", name: "title" }],
+  });
+  editableSurvey.locale = "de";
+  const q1 = <QuestionTextModel>editableSurvey.getQuestionByName("q1");
+  survey.editingObj = q1;
+  const titleQuestion = survey.getQuestionByName("title");
+  assert.notOk(titleQuestion.value, "show empty value");
+  Serializer.findProperty("question", "title").onPropertyEditorUpdate(q1, titleQuestion);
+  assert.equal(titleQuestion.placeholder, "Question 1", "set correct placeholder, locale is de");
+  titleQuestion.value = "Frage 1";
+  assert.equal(q1.locTitle.getLocaleText("de"), "Frage 1", "set localized title");
+  assert.equal(q1.locTitle.getLocaleText("default"), "Question 1", "get default title");
+  editableSurvey.locale = "";
+  Serializer.findProperty("question", "title").onPropertyEditorUpdate(q1, titleQuestion);
+  assert.equal(titleQuestion.placeholder, "q1", "set correct placeholder, locale is default");
+});
 QUnit.test("Edit question title property, setup initial value", function (
   assert
 ) {
@@ -585,7 +606,7 @@ QUnit.test("Edit choices in matrix", function (assert) {
     "set text property from matrix"
   );
 });
-QUnit.test("Edit choices in matrix and localization", function (assert) {
+QUnit.test("Edit choices in matrix", function (assert) {
   var question = new QuestionDropdownModel("q1");
   question.choices = [{ value: "item1" }, { value: "item2", text: "Item 2" }];
   var survey = new SurveyModel({
@@ -612,6 +633,37 @@ QUnit.test("Edit choices in matrix and localization", function (assert) {
   assert.equal(cell.value, "Item 2_2", "Change #2");
   itemValue.locText.setLocaleText("de", "Item 2_3-de");
   assert.equal(cell.value, "Item 2_2", "Ignore change");
+});
+QUnit.test("Edit choices in matrix and localization", function (assert) {
+  const editableSurvey = new SurveyModel({
+    elements: [{ type: "dropdown", name: "q1", choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }] }],
+  });
+  const question = editableSurvey.getQuestionByName("q1");
+  editableSurvey.locale = "de";
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  const cell = <QuestionTextModel>matrix.visibleRows[1].cells[1].question;
+  const itemValue = <ItemValue>question.choices[1];
+  assert.notOk(cell.value, "cell.value, #1");
+  itemValue.text = "Item 2_1";
+  assert.equal(cell.value, "Item 2_1", "cell.value, #2");
+  itemValue.locText.setLocaleText("default", "Item 2_2");
+  assert.equal(cell.value, "Item 2_1", "cell.value #3");
+  itemValue.locText.setLocaleText("de", "Item 2_3-de");
+  assert.equal(cell.value, "Item 2_3-de", "cell.value #4");
 });
 QUnit.test("Do not re-create rows and rendered table on adding new choice item", function (assert) {
   var question = new QuestionDropdownModel("q1");
@@ -1739,8 +1791,8 @@ QUnit.test("survey, complete text & locale", function (assert) {
   assert.equal(commentHtml.value, "html:default", "comment #1");
   assert.equal(commentText.value, "text:default", "commentText #1");
   survey.locale = "de";
-  assert.equal(commentHtml.value, "html:default", "comment #2");
-  assert.equal(commentText.value, "text:default", "commentText #2");
+  assert.notOk(commentHtml.value, "comment #2");
+  assert.notOk(commentText.value, "commentText #2");
   commentHtml.value = "html:de";
   commentText.value = "text:de";
   assert.equal(survey.completedHtml, "html:de", "completedHtml #1");

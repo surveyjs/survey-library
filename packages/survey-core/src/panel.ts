@@ -492,11 +492,11 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
-  getMarkdownHtml(text: string, name: string): string {
+  getMarkdownHtml(text: string, name: string, item?: any): string {
     if(name === "navigationTitle" && this.locNavigationTitle.isEmpty) {
       return this.locTitle.renderedHtml || this.name;
     }
-    return super.getMarkdownHtml(text, name);
+    return super.getMarkdownHtml(text, name, item);
   }
   public get locNavigationTitle(): LocalizableString {
     return this.getLocalizableString("navigationTitle");
@@ -2013,24 +2013,6 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < els.length; i++) {
       (<Base>(<any>els[i])).checkBindings(valueName, value);
     }
-  }
-
-  // creator dragdrop usage
-  public dragDropFindRow(findElement: ISurveyElement): QuestionRowModel {
-    if (!findElement || findElement.isPage) return null;
-    var element = <IElement>findElement;
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      if (rows[i].elements.indexOf(element) > -1) return rows[i];
-    }
-    for (var i = 0; i < this.elements.length; i++) {
-      var pnl = this.elements[i].getPanel();
-      if (!pnl) continue;
-      var row = (<PanelModelBase>pnl).dragDropFindRow(element);
-      if (!!row) return row;
-    }
-    return null;
-
   }
 
   public needResponsiveWidth() {

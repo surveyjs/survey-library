@@ -5,7 +5,9 @@ import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
 
-export let defaultActionBarCss = {
+export type ActionBarCssClasses = { [index: string]: string };
+
+export let defaultActionBarCss: ActionBarCssClasses = {
   root: "sv-action-bar",
   defaultSizeMode: "sv-action-bar--default-size-mode",
   smallSizeMode: "sv-action-bar--small-size-mode",
@@ -20,8 +22,8 @@ export let defaultActionBarCss = {
 };
 
 export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
-  public getMarkdownHtml(text: string, name: string): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name) : undefined;
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }
   public getRenderer(name: string): string {
     return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
@@ -110,15 +112,18 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected getDefaultCssClasses(): any {
     return defaultActionBarCss;
   }
-  public set cssClasses(val: any) {
+  protected getAllActions() {
+    return this.actions;
+  }
+  public set cssClasses(val: ActionBarCssClasses) {
     this.cssClassesValue = {};
     this.copyCssClasses(this.cssClassesValue, this.getDefaultCssClasses());
     mergeValues(val, this.cssClasses);
-    this.actions.forEach((action: T) => {
+    this.getAllActions().forEach((action: T) => {
       this.setActionCssClasses(action);
     });
   }
-  public get cssClasses(): any {
+  public get cssClasses(): ActionBarCssClasses {
     if(!this.cssClassesValue) {
       this.cssClassesValue = this.getDefaultCssClasses();
     }

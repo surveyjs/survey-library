@@ -7,7 +7,7 @@ import { SurveyElementCore } from "./survey-element";
 
 export interface ILocalizableOwner {
   getLocale(): string;
-  getMarkdownHtml(text: string, name: string): string;
+  getMarkdownHtml(text: string, name: string, item?: any): string;
   getProcessedText(text: string): string;
   getRenderer(name: string): string;
   getRendererContext(locStr: LocalizableString): any;
@@ -63,6 +63,7 @@ export class LocalizableString implements ILocalizableString {
   public serializeCallBackText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
+  public lastChangedLoc: string;
   public onSearchChanged: () => void;
   public sharedData: LocalizableString;
   public searchText: string;
@@ -82,6 +83,10 @@ export class LocalizableString implements ILocalizableString {
     }
     if (!!this.sharedData) return this.sharedData.locale;
     return "";
+  }
+  public get isDefautlLocale(): boolean {
+    const loc = this.locale;
+    return !loc || loc === settings.defaultLocaleName;
   }
   public strChanged(): void {
     if(!this.isTextRequested) return;
@@ -109,6 +114,17 @@ export class LocalizableString implements ILocalizableString {
         : this.calcText();
     this.calculatedTextValue = undefined;
     return this.renderedText;
+  }
+  public getPlaceholder(): string {
+    let res = "";
+    if(!this.isDefautlLocale) {
+      const dialectLocale = this.getRootDialect(this.locale);
+      res = this.getLocaleText(dialectLocale || settings.defaultLocaleName);
+    }
+    if(!res && this.onGetTextCallback) {
+      res = this.onGetTextCallback("", "");
+    }
+    return res;
   }
   private calcText(): string {
     const pureText = this.pureText;
@@ -195,6 +211,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
+    this.lastChangedLoc = loc;
     if (!!loc && value === undefined) {
       const oldValue = this.getValue(loc);
       if (oldValue !== undefined) {
@@ -304,6 +321,7 @@ export class LocalizableString implements ILocalizableString {
       this.sharedData.setJson(value, isLoading);
       return;
     }
+    this.lastChangedLoc = undefined;
     this.values = {};
     this.htmlValues = {};
     if (value === null || value === undefined) return;

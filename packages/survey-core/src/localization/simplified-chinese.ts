@@ -14,7 +14,7 @@ export var simplifiedChineseSurveyStrings = {
   selectAllItemText: "选择全部",
   deselectAllItemText: "取消全选",
   progressText: "第 {0} 页, 共 {1} 页",
-  indexText: "{1}{0}",
+  indexText: "第 {0} 页，共 {1} 页",
   panelDynamicProgressText: "{0} of {1}",
   panelDynamicTabTextFormat: "面板 {面板索引}",
   questionsProgressText: "第 {0}/{1} 题",
@@ -117,7 +117,6 @@ setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nati
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
-// indexText: "{0} of {1}" => "{1}{0}"
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "面板 {面板索引}"
 // ratingOptionsCaption: "Select..." => "选择。。。"
 // filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "将文件拖放到此处或单击下面的按钮并选择要上传的文件。"

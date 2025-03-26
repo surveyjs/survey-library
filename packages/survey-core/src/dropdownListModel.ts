@@ -275,6 +275,7 @@ export class DropdownListModel extends Base {
     }
     const updateAfterFilterStringChanged = () => {
       this.setFilterStringToListModel(this.filterString);
+      if (this.filterString) this.applyHintString();
       this.popupRecalculatePosition(true);
     };
 
@@ -334,7 +335,8 @@ export class DropdownListModel extends Base {
     if (hintStringMiddle && this.inputString != hintStringMiddle) this.inputString = hintStringMiddle;
   }
 
-  protected applyHintString(item: ItemValue) {
+  protected applyHintString() {
+    const item: ItemValue = this.listModel.focusedItem || this.question.selectedItem;
     const hasHtml = item?.locText.hasHtml;
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
@@ -353,8 +355,6 @@ export class DropdownListModel extends Base {
     this.filterString = val;
     if (!val) {
       this.hintString = "";
-    } else {
-      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     }
   }
 
@@ -398,7 +398,7 @@ export class DropdownListModel extends Base {
       !this.question.searchEnabled && this.hintStringLC && this.question.isEmpty();
   }
   public get hintStringSuffix(): string {
-    return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
+    return this.hintStringLC.indexOf(this.inputStringLC) >= 0 ? this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length) : "";
   }
   public get hintStringMiddle(): string {
     const start = this.hintStringLC.indexOf(this.inputStringLC);
@@ -528,7 +528,7 @@ export class DropdownListModel extends Base {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     }
     else {
-      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+      this.applyHintString();
     }
 
     this.fixInputCase();

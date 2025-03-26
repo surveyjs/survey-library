@@ -1,10 +1,7 @@
-import { ClientFunction, Selector } from "testcafe";
-// eslint-disable-next-line no-undef
-const minimist = require("minimist");
+import { Page } from "@playwright/test";
+import { RunOptions } from "axe-core";
 
-// eslint-disable-next-line no-undef
-const args = minimist(process.argv.slice(2));
-const environment = args.env;
+const environment = process.env.env;
 
 export const frameworks = environment
   ? [environment]
@@ -14,8 +11,8 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export const initSurvey = ClientFunction(
-  (framework, json, events?, isDesignMode?, props?) => {
+export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
+  await page.evaluate(([framework, json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -26,64 +23,46 @@ export const initSurvey = ClientFunction(
     };
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
-
-    json["showQuestionNumbers"] = "on";
-    const model = new window["Survey"].Model(json);
+    const self: any = window;
+    const model = new self.Survey.Model(json);
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
       window["SurveyResult"] = model.data;
-      document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
+      (document.getElementById("surveyResultElement") as HTMLElement).innerHTML = JSON.stringify(
         model.data
       );
     };
-    if (!!events) {
-      for (var str in events) {
-        model[str].add(events[str]);
-      }
-    }
     if (!!props) {
       for (var key in props) {
         model[key] = props[key];
       }
     }
     model.onComplete.add(surveyComplete);
-
-    if (framework === "knockout") {
-      document.getElementById("surveyElement").innerHTML = "";
-      model.render("surveyElement");
+    const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
+    if (framework === "survey-js-ui") {
+      surveyElement.innerHTML = "";
+      self.SurveyUI.renderSurvey(model, surveyElement);
     } else if (framework === "react") {
-      if(!!(window as any).root) {
-        (window as any).root.unmount();
+      if(!!self.root) {
+        self.root.unmount();
       }
-      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
+      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        (window as any).React.createElement((window as any).React.StrictMode,
-          { children: (window as any).React.createElement((window as any).SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
+        self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
       );
-    } else if (framework === "vue") {
-      document.getElementById("surveyElement").innerHTML =
-        "<survey :survey='survey'/>";
-      !!window["vueApp"] && window["vueApp"].$destroy();
-      window["vueApp"] = new window["Vue"]({
-        el: "#surveyElement",
-        data: { survey: model },
-      });
-    } else if (framework === "survey-js-ui") {
-      document.getElementById("surveyElement").innerHTML = "";
-      (window as any).SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "angular" || framework == "vue3") {
-      (window as any).setSurvey(model);
+      self.window.setSurvey(model);
     }
     window["survey"] = model;
-  }
-);
+  }, [framework, json, isDesignMode, props]);
+};
 
 // https://www.deque.com/axe/core-documentation/api-documentation/#overview
 export const axeTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice", "section508", "wcag412"];
 
-export const axeContext = { include: [[".sd-page"]] };
-export const axeOptions = {
+export const axeContext = ".sd-page";
+export const axeOptions: RunOptions = {
   runOnly: {
     type: "tag",
     values: axeTags

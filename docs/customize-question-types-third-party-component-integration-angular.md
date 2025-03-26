@@ -7,7 +7,7 @@ description: Use any Angular component as an editor in your survey or form.
 
 This help topic describes how to integrate a third-party Angular component into a standalone survey and Survey Creator. As an example, we will integrate the [Angular Color](https://www.npmjs.com/package/ngx-color) component. To install it, run the following command:
 
-```cmd
+```sh
 npm install ngx-color --save
 ```
 
@@ -31,15 +31,6 @@ import { ColorCompactModule } from "ngx-color/compact";
 })
 export class AppModule { }
 ```
-
-The following live example illustrates Survey Creator with an integrated Angular Color component:
-
-<iframe src="https://codesandbox.io/embed/surveyjs-third-party-angular-component-integration-ivityy?fontsize=14&hidenavigation=1&module=%2Fsrc%2Fapp%2Fcolor-picker%2Fcolor-picker.component.ts&theme=light&view=preview"
-  style="width:100%; height:550px; border:0; border-radius: 4px; overflow:hidden;"
-  title="SurveyJS: Third-Party Angular Component Integration"
-  allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
-  sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
-></iframe>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/integrate-third-party-angular-components (linkStyle))
 
@@ -306,11 +297,11 @@ export class AppComponent {
 Survey Creator generates captions for your custom question type and its properties automatically. If you need to change them, use the [localization engine](/Documentation/Survey-Creator?id=localization):
 
 ```js
-import { editorLocalization } from "survey-creator-core";
+import { getLocaleStrings } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 
-const locale = editorLocalization.getLocale("");
+const locale = getLocaleStrings("en");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -324,7 +315,7 @@ locale.pe.disableAlpha = "Disable alpha channel";
 import { Component } from "@angular/core";
 import { AngularComponentFactory, QuestionAngular } from "survey-angular-ui";
 import { ElementFactory, Question, Serializer } from "survey-core";
-import { editorLocalization } from "survey-creator-core";
+import { getLocaleStrings } from "survey-creator-core";
 import { ColorEvent } from 'ngx-color';
 
 const CUSTOM_TYPE = "color-picker";
@@ -392,7 +383,7 @@ Serializer.addClass(
   "question"
 );
 
-const locale = editorLocalization.getLocale("");
+const locale = getLocaleStrings("en");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -461,7 +452,7 @@ settings.customIcons["icon-" + CUSTOM_TYPE] = "icon-text";
 import { Component } from "@angular/core";
 import { AngularComponentFactory, QuestionAngular } from "survey-angular-ui";
 import { ElementFactory, Question, Serializer, SvgRegistry } from "survey-core";
-import { editorLocalization } from "survey-creator-core";
+import { getLocaleStrings } from "survey-creator-core";
 import { ColorEvent } from 'ngx-color';
 
 const CUSTOM_TYPE = "color-picker";
@@ -530,7 +521,7 @@ Serializer.addClass(
 );
 
 // Specify display names for the question type and its properties
-const locale = editorLocalization.getLocale("");
+const locale = getLocaleStrings("en");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -612,7 +603,7 @@ function applyBackground(color) {
 };
 
 function handleActiveTabChange(sender, options) {
-  if (options.tabName === "test" || options.tabName === "designer") {
+  if (options.tabName === "preview" || options.tabName === "designer") {
     applyBackground(sender.survey.backgroundColor);
   }
 };
@@ -645,7 +636,7 @@ export class SurveyCreatorComponent implements OnInit {
 }
 ```
 
-You might want to use a third-party component only as a property editor, without allowing survey editors to use it in questions. In this case, you need to hide the component from the Toolbox and the Add Question menu. To do this, pass `false` as a third argument to the `ElementFactory.Instance.registerElement` method when you register a [freshly created model](#create-a-model):
+You might want to use a third-party component only as a property editor, without allowing survey authors to use it in questions. In this case, you need to hide the component from the Toolbox and the Add Question menu. To do this, pass `false` as a third argument to the `ElementFactory.Instance.registerElement` method when you register a [freshly created model](#create-a-model):
 
 ```js
 import { ElementFactory } from "survey-core";
@@ -669,7 +660,7 @@ ElementFactory.Instance.registerElement(
 import { Component } from "@angular/core";
 import { AngularComponentFactory, QuestionAngular } from "survey-angular-ui";
 import { ElementFactory, Question, Serializer, SvgRegistry } from "survey-core";
-import { PropertyGridEditorCollection, editorLocalization } from "survey-creator-core";
+import { PropertyGridEditorCollection, getLocaleStrings } from "survey-creator-core";
 import { ColorEvent } from 'ngx-color';
 
 const CUSTOM_TYPE = "color-picker";
@@ -738,7 +729,7 @@ Serializer.addClass(
 );
 
 // Specify display names for the question type and its properties 
-const locale = editorLocalization.getLocale("");
+const locale = getLocaleStrings("en");
 locale.qt[CUSTOM_TYPE] = "Color Picker";
 locale.pe.colorPickerType = "Color picker type";
 locale.pe.disableAlpha = "Disable alpha channel";
@@ -792,7 +783,7 @@ function applyBackground(color) {
 };
 
 function handleActiveTabChange(sender, options) {
-  if (options.tabName === "test" || options.tabName === "designer") {
+  if (options.tabName === "preview" || options.tabName === "designer") {
     applyBackground(sender.survey.backgroundColor);
   }
 };

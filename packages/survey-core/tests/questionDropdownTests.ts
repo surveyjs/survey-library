@@ -364,30 +364,28 @@ QUnit.test("ListModel localization", assert => {
   assert.equal(listModel.filterStringPlaceholder, "Tippen Sie, um zu suchen...", "filtered text in de");
   survey.locale = "";
 });
-QUnit.test("readOnlyText default", assert => {
+QUnit.test("survey.onTextMarkdown, options.item #9601", assert => {
   const json = {
     questions: [
       {
         "type": "dropdown",
         "name": "q1",
-        "placeholder": "click",
-        "hasOther": true,
-        "showNoneItem": true,
-        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+        "choices": [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" }]
       }]
   };
   const survey = new SurveyModel(json);
+  const itemsValues = new Array<string>();
   survey.onTextMarkdown.add((sender, options) => {
+    if(options.item) {
+      itemsValues.push(options.item.value);
+    }
     options.html = options.text + "_" + options.text;
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  assert.equal(question.readOnlyText, "click", "use place-holder");
-  question.value = "other";
-  assert.equal(question.readOnlyText, "", "use other");
-  question.value = "none";
-  assert.equal(question.readOnlyText, "", "use none text");
-  question.value = 2;
-  assert.equal(question.readOnlyText, "", "use choice text");
+  assert.equal(question.choices[0].locText.textOrHtml, "Item 1_Item 1", "choices[0]");
+  assert.equal(question.choices[1].locText.textOrHtml, "Item 2_Item 2", "choices[1]");
+  assert.equal(question.choices[2].locText.textOrHtml, "Item 3_Item 3", "choices[2]");
+  assert.deepEqual(itemsValues, [1, 2, 3]);
 });
 QUnit.test("readOnlyText visibleChoices changed", assert => {
   const json = {

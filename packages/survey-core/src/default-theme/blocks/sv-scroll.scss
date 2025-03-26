@@ -1,0 +1,57 @@
+@use "../variables" as *;
+
+.sv-scroll__wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sv-scroll__scroller {
+  box-sizing: border-box;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  display: flex;
+  flex-direction: column;
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.sv-scroll__scrollbar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  width: fit-content;
+  margin-inline-start: -1px;
+  visibility: hidden;
+  z-index: 30;
+  inset-inline-end: 0;
+  inset-inline-start: initial;
+  @-moz-document url-prefix() {
+    scrollbar-width: thin;
+    scrollbar-color: var(--ctr-scrollbar-background-color, var(--sjs-border-25-overlay, #00000026)) transparent;
+  }
+}
+
+.sv-scroll__wrapper:hover .sv-scroll__scrollbar {
+  visibility: visible;
+}
+
+.sv-scroll__scrollbar-sizer {
+  width: 1px;
+}
+
+.sv-scroll__container {
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}

@@ -58,7 +58,7 @@ export interface IMatrixDropdownData {
   ): Question;
   choices: Array<ItemValue>;
   getLocale(): string;
-  getMarkdownHtml(text: string, name: string): string;
+  getMarkdownHtml(text: string, name: string, item?: any): string;
   getRenderer(name: string): string;
   getRendererContext(locStr: LocalizableString): any;
   getProcessedText(text: string): string;
@@ -708,8 +708,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public getLocale(): string {
     return this.data ? this.data.getLocale() : "";
   }
-  public getMarkdownHtml(text: string, name: string): string {
-    return this.data ? this.data.getMarkdownHtml(text, name) : undefined;
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
+    return this.data ? this.data.getMarkdownHtml(text, name, item) : undefined;
   }
   public getRenderer(name: string): string {
     return this.data ? this.data.getRenderer(name) : null;

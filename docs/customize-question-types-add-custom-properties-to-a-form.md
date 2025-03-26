@@ -578,6 +578,33 @@ Serializer.addProperty("rating",
 );
 ```
 
+### `locationInTable`
+
+A string value that specifies where to place the property editor within a table editor in Survey Creator's Property Grid. Applies only to properties added to the classes that use a table editor (for example, `itemvalue`).
+
+Accepted values:
+
+- `"column"` (default) - Displays the property editor in a table column.
+- `"detail"` - Displays the property editor in an expandable detail section within a table.
+- `"both"` - Displays the property editor in a table column and in an expandable detail section.
+
+The following code adds a numeric property `"score"` to the `itemvalue` class. The property editor will be displayed in a table column and in an expandable detail section:
+
+```js
+import { Serializer } from "survey-core";
+
+Serializer.addProperty("itemvalue", {
+  name: "score",
+  type: "number",
+  default: 0,
+  minValue: 0,
+  maxValue: 100,
+  locationInTable: "both" // or "column" | "detail"
+});
+```
+
+<img src="../images/locationInTable.png" width="1544" height="884" alt="SurveyJS Form Builder: locationInTable property">
+
 ### `maxLength`
 
 A numeric value that specifies the maximum number of characters users can enter into the text input.

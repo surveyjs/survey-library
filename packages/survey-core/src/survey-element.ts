@@ -157,7 +157,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected getIsTitleRenderedAsString(): boolean { return !this.isTitleOwner; }
   //ILocalizableOwner
   public abstract getLocale(): string;
-  public abstract getMarkdownHtml(text: string, name: string): string;
+  public abstract getMarkdownHtml(text: string, name: string, item?: any): string;
   public abstract getRenderer(name: string): string;
   public abstract getRendererContext(locStr: LocalizableString): any;
   public abstract getProcessedText(text: string): string;
@@ -812,11 +812,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         ? this.locOwner.getLocale()
         : "";
   }
-  public getMarkdownHtml(text: string, name: string): string {
+  public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.survey
-      ? this.survey.getSurveyMarkdownHtml(this, text, name)
+      ? this.survey.getSurveyMarkdownHtml(this, text, name, item)
       : this.locOwner
-        ? this.locOwner.getMarkdownHtml(text, name)
+        ? this.locOwner.getMarkdownHtml(text, name, item)
         : undefined;
   }
   public getRenderer(name: string): string {

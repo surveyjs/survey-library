@@ -220,7 +220,8 @@ export class MatrixCells extends Base {
       const rowValues = this.values[row];
       for (let col in rowValues) {
         if (row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
-          resRow[col] = rowValues[col];
+          const loc = this.getCellLocCore(row, col);
+          resRow[col] = loc ? loc.getJson() : rowValues[col];
         }
       }
       res[row] = resRow;

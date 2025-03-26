@@ -58,30 +58,19 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     this.setPropertyValue("ticksCount", val);
   }
   @property({ defaultValue: null }) tickSize: number | null;
-  @property({ defaultValue: [] }) customTicks: ItemValue[];
-  //  customTicks: [
-  //     {
-  //       text: "min",
-  //       value: 0
-  //     },
-  //     {
-  //       text: "25%",
-  //       value: 25
-  //     },
-  //     {
-  //       text: "Very long label which has to be located well!",
-  //       value: 50
-  //     },
-  //     {
-  //       text: "75%",
-  //       value: 75
-  //     },
-  //     {
-  //       text: "max",
-  //       value: 100
-  //     }
-  //   ]
+  public get customTicks(): ItemValue[] {
+    return this.getPropertyValue("customTicks");
+  }
+  public set customTicks(newValue: ItemValue[]) {
+    this.setPropertyValue("customTicks", newValue);
+  }
   @property({ defaultValue: null }) focusedThumb: number | null;
+
+  constructor(name: string) {
+    super(name);
+    this.createNewArray("value");
+    this.createItemValues("customTicks");
+  }
 
   public getType(): string {
     return "rangeslider";
@@ -95,11 +84,6 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public isIndeterminate: boolean = false;
-
-  protected onCreating(): void {
-    super.onCreating();
-    this.createNewArray("value");
-  }
 
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);

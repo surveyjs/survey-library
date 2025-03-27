@@ -81,7 +81,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const firstValue = renderedValue[0];
     const inputValue = firstValue + ((lastValue - firstValue) / 2);
 
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} value={inputValue} type="range" min={min} max={max} step={step} onChange={ (e)=>{ this.handleRangeOnChange(e, inputValue); } }/>;
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} onChange={ (e)=>{ this.handleRangeOnChange(e, inputValue); } }/>;
   }
 
   private getThumbs() {
@@ -185,11 +185,14 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>, oldInputValue: number): void => {
-    const diff = oldInputValue - +event.target.value;
+    const step = this.question.step;
+    const diff = +event.target.value > oldInputValue ? -step : step;
+
     const renderedValue = this.getRenderedValue();
     for (let i = 0; i < renderedValue.length; i++) {
       renderedValue[i] -= diff;
     }
+
     this.question.value = renderedValue;
   }
 

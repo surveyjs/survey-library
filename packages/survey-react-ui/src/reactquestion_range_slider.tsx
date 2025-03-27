@@ -13,9 +13,10 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
-    const { cssClasses, isShowTicks } = this.question;
+    const { cssClasses, isShowTicks, isSingleMode } = this.question;
 
     const inputs = this.getInputs();
+    const rangeInput = isSingleMode ? null : this.getRangeInput();
     const thumbs = this.getThumbs();
     const ticks = isShowTicks ? this.getTicks() : null;
 
@@ -40,14 +41,14 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
           </div>
         </div>
         {inputs}
+        {rangeInput}
       </div>
     );
   }
 
   private getInputs() {
     const inputs = [];
-    const cssClasses = this.question.cssClasses;
-    const { max, min, step } = this.question;
+    const { max, min, step, cssClasses } = this.question;
 
     let value:number[] = this.getRenderedValue();
 
@@ -56,6 +57,34 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
       inputs.push(input);
     }
     return inputs;
+  }
+
+  constructor(props: any) {
+    super(props);
+    this.rangeInputRef = React.createRef();
+  }
+  componentDidMount() {
+    super.componentDidMount();
+
+    const renderedValue = this.getRenderedValue();
+    const percentLastValue = this.getPercent(renderedValue[renderedValue.length - 1]);
+    const percentFirstValue = this.getPercent(renderedValue[0]);
+    let percent: number = percentLastValue - percentFirstValue;
+
+    const inputNode = this.rangeInputRef.current;
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", `${percent}%`);
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `${percentFirstValue}%`);
+  }
+  private rangeInputRef:React.RefObject<HTMLInputElement>;
+  private getRangeInput() {
+    const { max, min, step, cssClasses } = this.question;
+    const renderedValue = this.getRenderedValue();
+    const lastValue = renderedValue[renderedValue.length - 1];
+    const firstValue = renderedValue[0];
+
+    const inputValue = firstValue + ((lastValue - firstValue) / 2);
+
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} value={inputValue} type="range" min={min} max={max} step={step} onChange={ (e)=>{ this.handleRangeOnChange(e); } }/>;
   }
 
   private getThumbs() {
@@ -146,6 +175,10 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const renderedValue = this.getRenderedValue();
     renderedValue.splice(inputNumber, 1, newValue);
     this.question.value = renderedValue;
+  }
+
+  private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const value:number[] = this.getRenderedValue();
   }
 
   private handleOnFocus = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {

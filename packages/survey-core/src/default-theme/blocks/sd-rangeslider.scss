@@ -215,3 +215,20 @@ input[type=range].sd-range-slider__input::-ms-fill-upper {
 input[type=range].sd-range-slider__input::-ms-tooltip {
   display: none;
 }
+
+:root {
+  --sjs-range-slider-range-input-thumb-width: 0px;
+  --sjs-range-slider-range-input-thumb-left: 0;
+}
+
+input[type=range][name=range-input].sd-range-slider__input::-webkit-slider-thumb {
+  width: var(--sjs-range-slider-range-input-thumb-width, 0px);
+  left: var(--sjs-range-slider-range-input-thumb-left, 0);
+  position: absolute;
+}
+
+input[type=range][name=range-input].sd-range-slider__input::-moz-range-thumb {
+  width: var(--sjs-range-slider-range-input-thumb-width, 0px);
+  left: var(--sjs-range-slider-range-input-thumb-left, 0);
+  position: absolute;
+}

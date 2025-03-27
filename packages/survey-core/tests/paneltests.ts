@@ -2963,7 +2963,7 @@ QUnit.test("getAllRows for page", function (assert) {
   }
 });
 QUnit.test("forceRenderRows for page", async function (assert) {
-  let done = assert.async(1);
+  let done = assert.async();
   const json = {
     pages: [
       {
@@ -3024,7 +3024,7 @@ QUnit.test("forceRenderRows for page", async function (assert) {
   }
 });
 QUnit.test("forceRenderElement for page the exact element, gap = 0", async function (assert) {
-  let done = assert.async(1);
+  let done = assert.async();
   const json = {
     pages: [
       {
@@ -3084,7 +3084,7 @@ QUnit.test("forceRenderElement for page the exact element, gap = 0", async funct
   }
 });
 QUnit.test("forceRenderElement for page with one prev element, gap = 1", async function (assert) {
-  let done = assert.async(1);
+  let done = assert.async();
   const json = {
     pages: [
       {

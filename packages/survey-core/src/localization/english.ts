@@ -112,6 +112,7 @@ export var englishStrings = {
   selectToRankEmptyUnrankedAreaText: "Drag choices here to rank them",
   ok: "OK",
   cancel: "Cancel",
+  createCustomItem: "Create \"{0}\" item...",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

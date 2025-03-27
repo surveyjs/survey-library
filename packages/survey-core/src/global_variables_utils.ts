@@ -23,6 +23,10 @@ export class DomWindowHelper {
     if(!DomWindowHelper.isAvailable()) return null;
     return window.innerHeight;
   }
+  public static getDevicePixelRatio(): number {
+    if(!DomWindowHelper.isAvailable()) return null;
+    return window.devicePixelRatio;
+  }
   public static getWindow(): Window {
     if(!DomWindowHelper.isAvailable()) return;
     return window;

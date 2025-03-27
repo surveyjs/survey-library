@@ -440,8 +440,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public setSubItems(options: IListModel): void {
     this.markerIconName = "icon-next_16x16";
-    this.component = "sv-list-item-group";
+    this.component = this.getGroupComponentName();
     this.items = [...options.items];
+    if (!this.popupModel) {
+      this.createPopupForSubitems(options);
+    } else {
+      const list: ListModel = this.popupModel.contentComponentData.model as ListModel;
+      list.setItems(this.items);
+    }
+  }
+  private createPopupForSubitems(options: IListModel): void {
     const listOptions = Object.assign({}, options);
     listOptions.searchEnabled = false;
     const popupModel = createPopupModelWithListModel(
@@ -574,6 +582,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getComponent(): string {
     return this._component;
+  }
+  protected getGroupComponentName() {
+    return "sv-list-item-group";
   }
   public dispose(): void {
     this.updateCallback = undefined;

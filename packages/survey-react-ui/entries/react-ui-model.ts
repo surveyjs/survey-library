@@ -105,6 +105,7 @@ export { QuestionErrorComponent } from "../src/components/question-error";
 
 export { MatrixRow } from "../src/components/matrix/row";
 export { Skeleton } from "../src/components/skeleton";
+export { Scroll } from "../src/components/scroll";
 export { NotifierComponent } from "../src/components/notifier";
 export { ComponentsContainer } from "../src/components/components-container";
 export { CharacterCounterComponent } from "../src/components/character-counter";

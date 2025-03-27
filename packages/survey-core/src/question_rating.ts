@@ -439,10 +439,10 @@ export class QuestionRatingModel extends Question {
     if (!item) return null;
     const value = item.value;
     let description: LocalizableString;
-    if (value === this.rateMin) {
+    if (index === 0) {
       description = this.minRateDescription && this.locMinRateDescription;
     }
-    if (value === this.rateMax || index === settings.ratingMaximumRateValueCount) {
+    if (index === (this.rateCount - 1)) {
       description = this.maxRateDescription && this.locMaxRateDescription;
     }
     let newItem = new RatingItemValue(value, item.text, description);

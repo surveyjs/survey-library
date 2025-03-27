@@ -208,7 +208,7 @@ frameworks.forEach(framework => {
 
   test("show bottom progress bar", async t => {
     await ClientFunction(() => window.Survey.surveyCss.currentType = "")();
-    const progressRootElement = Selector(".sd-root-modern > div > form > .sd-container-modern .sv-components-row ~ div");
+    const progressRootElement = Selector(".sd-root-modern > .sv-scroll__wrapper > .sv-scroll__scroller > .sv-scroll__container > div > form > .sd-container-modern .sv-components-row ~ div");
     await t.expect(progressbar.exists).notOk();
 
     await show_bottom_progress_bar();

@@ -63,6 +63,7 @@ export class LocalizableString implements ILocalizableString {
   public serializeCallBackText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
+  public lastChangedLoc: string;
   public onSearchChanged: () => void;
   public sharedData: LocalizableString;
   public searchText: string;
@@ -210,6 +211,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
+    this.lastChangedLoc = loc;
     if (!!loc && value === undefined) {
       const oldValue = this.getValue(loc);
       if (oldValue !== undefined) {
@@ -319,6 +321,7 @@ export class LocalizableString implements ILocalizableString {
       this.sharedData.setJson(value, isLoading);
       return;
     }
+    this.lastChangedLoc = undefined;
     this.values = {};
     this.htmlValues = {};
     if (value === null || value === undefined) return;

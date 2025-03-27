@@ -263,6 +263,7 @@ export {
   ICustomQuestionTypeConfiguration
 } from "../../src/question_custom";
 
+export { ScrollViewModel } from "../../src/scroll";
 export { ListModel } from "../../src/list";
 export { MultiSelectListModel } from "../../src/multiSelectListModel";
 export { PopupModel, IDialogOptions } from "../../src/popup";

@@ -2453,7 +2453,7 @@ export class SurveyModel extends SurveyElementCore
     this.wrapperFormCss = new CssClassBuilder()
       .append(this.css.rootWrapper)
       .append(this.css.rootWrapperHasImage, !!this.backgroundImage)
-      .append(this.css.rootWrapperFixed, !!this.backgroundImage && this.backgroundImageAttachment === "fixed")
+      .append(this.css.rootWrapperFixed, !this.formScrollDisabled)
       .toString();
   }
   /**
@@ -3844,7 +3844,7 @@ export class SurveyModel extends SurveyElementCore
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
       if(this.currentSingleElement) {
-        const questions = this.getSingleQuestions();
+        const questions = this.getSingleElements();
         this.currentSingleElement = questions.length > 0 ? questions[0] : undefined;
       }
     }
@@ -4100,7 +4100,7 @@ export class SurveyModel extends SurveyElementCore
     const q: any = this.currentSingleElement;
     if(!q) return this.nextPage();
     if(this.validationEnabled && !q.validate(true)) return false;
-    const questions = this.getSingleQuestions();
+    const questions = this.getSingleElements();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
     let keys: any = {};
@@ -4118,7 +4118,7 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     const q = this.currentSingleElement;
     if(!q) return this.prevPage();
-    const questions = this.getSingleQuestions();
+    const questions = this.getSingleElements();
     const index = questions.indexOf(q);
     if(index === 0) return false;
     this.currentSingleElement = questions[index - 1];
@@ -4714,16 +4714,15 @@ export class SurveyModel extends SurveyElementCore
     this.updateButtonsVisibility();
   }
   private currentSingleElementValue: IElement;
-  private getSingleQuestions(): Array<IElement> {
+  private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if(!p.isStartPage && p.isVisible) {
-        const qs: Array<any> = [];
-        //p.addQuestionsToList(qs, true);
-        p.elements.forEach(el => qs.push(el));
-        qs.forEach(q => { if(q.isVisible) res.push(q); });
+        const els: Array<any> = [];
+        p.elements.forEach(el => els.push(el));
+        els.forEach(el => { if(el === includeEl || el.isVisible) res.push(el); });
       }
     }
     return res;
@@ -4765,6 +4764,14 @@ export class SurveyModel extends SurveyElementCore
   public set currentSingleQuestion(val: Question) {
     this.currentSingleElement = val;
   }
+  private changeCurrentSingleElementOnVisibilityChanged(): void {
+    const el = this.currentSingleElement;
+    if(!el || el.isVisible) return;
+    const els = this.getSingleElements(el);
+    const index = els.indexOf(el);
+    const newEl = (index > 0) ? els[index - 1] : (index < els.length - 1 ? els[index + 1] : undefined);
+    this.currentSingleElement = newEl;
+  }
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
@@ -4776,9 +4783,9 @@ export class SurveyModel extends SurveyElementCore
       this.updatePagesContainer();
     }
     if(this.isSingleVisibleQuestion) {
-      const questions = this.getSingleQuestions();
-      if(questions.length > 0) {
-        this.currentSingleElement = questions[0];
+      const els = this.getSingleElements();
+      if(els.length > 0) {
+        this.currentSingleElement = els[0];
       }
     }
   }
@@ -4834,7 +4841,7 @@ export class SurveyModel extends SurveyElementCore
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleElement;
     if(!!q) {
-      const questions = this.getSingleQuestions();
+      const questions = this.getSingleElements();
       const index = questions.indexOf(q);
       if(index >= 0) {
         fVal = index === 0;
@@ -5290,12 +5297,14 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
+    this.scrollerElement = htmlElement.getElementsByClassName("sv-scroll__scroller")[0];
     this.addScrollEventListener();
   }
   beforeDestroySurveyElement() {
     this.destroyResizeObserver();
     this.removeScrollEventListener();
     this.rootElement = undefined;
+    this.scrollerElement = undefined;
   }
   /**
    * An event that is raised when the survey's width or height is changed.
@@ -7122,6 +7131,9 @@ export class SurveyModel extends SurveyElementCore
     if (resetIndexes) {
       this.updateVisibleIndexes(question.page);
     }
+    if(!newValue) {
+      this.changeCurrentSingleElementOnVisibilityChanged();
+    }
     this.onQuestionVisibleChanged.fire(this, {
       question: question,
       name: question.name,
@@ -7134,6 +7146,9 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
+    if(!newValue) {
+      this.changeCurrentSingleElementOnVisibilityChanged();
+    }
     this.onPageVisibleChanged.fire(this, {
       page: page,
       visible: newValue,
@@ -7141,6 +7156,9 @@ export class SurveyModel extends SurveyElementCore
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
     this.updateVisibleIndexes(panel.page);
+    if(!newValue) {
+      this.changeCurrentSingleElementOnVisibilityChanged();
+    }
     this.onPanelVisibleChanged.fire(this, {
       panel: panel,
       visible: newValue,
@@ -8277,14 +8295,22 @@ export class SurveyModel extends SurveyElementCore
   // private _lastScrollTop = 0;
   public _isElementShouldBeSticky(selector: string): boolean {
     if (!selector) return false;
-    const topStickyContainer = this.rootElement.querySelector(selector);
+    const topStickyContainer = this.scrollerElement?.querySelector(selector);
     if (!!topStickyContainer) {
       // const scrollDirection = this.rootElement.scrollTop > this._lastScrollTop ? "down" : "up";
       // this._lastScrollTop = this.rootElement.scrollTop;
-      return this.rootElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.rootElement.getBoundingClientRect().y;
+      return !!this.scrollerElement && this.scrollerElement.scrollTop > 0 && topStickyContainer.getBoundingClientRect().y <= this.scrollerElement.getBoundingClientRect().y;
     }
     return false;
   }
+
+  public get rootScrollDisabled() {
+    return !(this.fitToContainer && this.formScrollDisabled);
+  }
+  public get formScrollDisabled() {
+    return !this.backgroundImage || this.backgroundImageAttachment !== "fixed";
+  }
+
   public onScroll(): void {
     if (!!this.rootElement) {
       if (this._isElementShouldBeSticky(".sv-components-container-center")) {
@@ -8303,8 +8329,8 @@ export class SurveyModel extends SurveyElementCore
     if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
     }
-    if (!!this.css.rootWrapper) {
-      this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
+    if (!!this.scrollerElement) {
+      this.scrollerElement.addEventListener("scroll", this.scrollHandler);
     }
   }
   public removeScrollEventListener(): void {
@@ -8313,8 +8339,8 @@ export class SurveyModel extends SurveyElementCore
       if (!!this.rootElement.getElementsByTagName("form")[0]) {
         this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
       }
-      if (!!this.css.rootWrapper) {
-        this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
+      if (!!this.scrollerElement) {
+        this.scrollerElement.removeEventListener("scroll", this.scrollHandler);
       }
     }
   }

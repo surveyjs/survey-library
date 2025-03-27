@@ -351,3 +351,12 @@ QUnit.test("Action setSubItems popup item click", function (assert) {
   action.popupModel.contentComponentData.model.onItemClick(action.items[1]);
   assert.equal(event, "test29");
 });
+
+QUnit.test("Action setSubItems does not change existing popup", function (assert) {
+  const action = new Action({ id: "test2", title: "test2" });
+  const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
+  var lastPopup = action.popupModel;
+  (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
+  assert.equal(lastPopup, action.popupModel);
+});

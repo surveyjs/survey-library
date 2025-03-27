@@ -138,25 +138,25 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getRenderedValue() {
     const { max, min, renderedMaxSelectedRange: maxSelectedRange, isSingleMode } = this.question;
-    let value = this.question.value;
+    let result = this.question.value.slice();
 
     if (isSingleMode) {
-      if (typeof value === "undefined" || value.length === 0) {
+      if (typeof result === "undefined" || result.length === 0) {
         this.question.isIndeterminate = true;
         return [min];
       } else {
-        return [value];
+        return [result];
       }
     }
 
-    if (value.length === 0) {
+    if (result.length === 0) {
       const fullRange = max - min;
       this.question.isIndeterminate = true;
       if (fullRange > maxSelectedRange) return [(fullRange - maxSelectedRange) / 2, (fullRange + maxSelectedRange) / 2];
       return [min, max]; // TODO support several values 3 and more
     }
 
-    return value;
+    return result;
   }
 
   private updateInputRangeStyles() {
@@ -187,11 +187,10 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>, oldInputValue: number): void => {
     const diff = oldInputValue - +event.target.value;
     const renderedValue = this.getRenderedValue();
-    const newValue = [];
     for (let i = 0; i < renderedValue.length; i++) {
-      newValue.push(renderedValue[i] - diff);
+      renderedValue[i] -= diff;
     }
-    this.question.value = newValue;
+    this.question.value = renderedValue;
   }
 
   private handleOnFocus = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {

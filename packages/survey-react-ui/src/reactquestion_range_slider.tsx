@@ -213,15 +213,22 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    const step = this.question.step;
+    const { step, max, min } = this.question;
     const diff = +event.target.value > this.oldInputValue ? -step : step;
     this.oldInputValue = +event.target.value;
 
     const renderedValue = this.getRenderedValue();
+    let borderArrived = false;
     for (let i = 0; i < renderedValue.length; i++) {
-      renderedValue[i] -= diff;
+      const newVal = renderedValue[i] - diff;
+      if (newVal <= max && newVal >= min) {
+        renderedValue[i] -= diff;
+      } else {
+        borderArrived = true;
+      }
     }
 
+    if (borderArrived) { borderArrived = false; return; }
     this.question.value = renderedValue;
   }
 

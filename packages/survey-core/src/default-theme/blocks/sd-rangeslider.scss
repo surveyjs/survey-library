@@ -120,7 +120,8 @@ $range-slider-thumb-size: 20px;
 
 .sd-range-slider__ticks-container {
   position: absolute;
-  padding-top: 30px;
+  //padding-top: 30px;
+  top: 100px;
   right: 0;
   left: 0;
 

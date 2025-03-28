@@ -37,11 +37,11 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const rangeRightPercent = (100 - rightPercent) + "%";
 
     return (
-      <div className={this.question.rootCss} ref={(div) => (this.setControl(div))} /*onMouseMove={ (e)=>{ this.handleOnPointerMove(e); } }*/ /*onPointerDown={ (e)=>{ this.handleOnPointerDown(e); } }*/>
+      <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
         <div className={cssClasses.visualSliderContainer}>
           <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
           <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
-          <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }}></div>
+          <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} onMouseMove={ (e)=>{ this.handleOnPointerMove(e); } } /*onPointerDown={ (e)=>{ this.handleOnPointerDown(e); } }*/></div>
           {thumbs}
         </div>
         <div className={cssClasses.ticksContainer}>
@@ -188,7 +188,8 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     if (this.isMovingRange) return;
     const { max, min } = this.question;
     const e = event;
-    const leftPercent = ((e.clientX - e.currentTarget.getBoundingClientRect().x) / e.currentTarget.getBoundingClientRect().width) * 100;
+    const rangeSliderWidth = this.control.clientWidth;
+    const leftPercent = ((e.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
     const newInputValue = leftPercent/100*(max-min) + min;
     const inputNode = this.rangeInputRef.current;
     inputNode.value = ""+newInputValue;

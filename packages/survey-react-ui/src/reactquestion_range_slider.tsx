@@ -10,11 +10,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
   }
   componentDidMount() {
     super.componentDidMount();
-    this.updateInputRangeStyles();
-  }
-  componentDidUpdate(prevProps: any, prevState: any): void {
-    super.componentDidUpdate(prevProps, prevState);
-    this.updateInputRangeStyles();
+    // this.updateInputRangeStyles();
   }
 
   protected get question(): QuestionRangeSliderModel {
@@ -41,7 +37,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const rangeRightPercent = (100 - rightPercent) + "%";
 
     return (
-      <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
+      <div className={this.question.rootCss} ref={(div) => (this.setControl(div))} /*onMouseMove={ (e)=>{ this.handleOnPointerMove(e); } }*/ /*onPointerDown={ (e)=>{ this.handleOnPointerDown(e); } }*/>
         <div className={cssClasses.visualSliderContainer}>
           <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
           <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
@@ -81,7 +77,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const firstValue = renderedValue[0];
     const inputValue = firstValue + ((lastValue - firstValue) / 2);
 
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} onChange={ (e)=>{ this.handleRangeOnChange(e, inputValue); } }/>;
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} onChange={ (e)=>{ this.handleRangeOnChange(e); } } />;
   }
 
   private getThumbs() {
@@ -168,6 +164,8 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     const inputNode = this.rangeInputRef.current;
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", `calc(${percent}% - 20px)`); //TODO 20px is thumb width remove hardcode
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${percentFirstValue}% + 10px)`); //TODO 10px
+
+    // inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");
   }
 
   private handleOnChange = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
@@ -184,9 +182,39 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     this.question.value = renderedValue;
   }
 
-  private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>, oldInputValue: number): void => {
+  private oldInputValue: number | null = null;
+  private isMovingRange = false;
+  private handleOnPointerMove(event: /*React.PointerEvent<HTMLDivElement>*/any,) {
+    if (this.isMovingRange) return;
+    const { max, min } = this.question;
+    const e = event;
+    const leftPercent = ((e.clientX - e.currentTarget.getBoundingClientRect().x) / e.currentTarget.getBoundingClientRect().width) * 100;
+    const newInputValue = leftPercent/100*(max-min) + min;
+    const inputNode = this.rangeInputRef.current;
+    inputNode.value = ""+newInputValue;
+    this.oldInputValue = newInputValue;
+    // inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px"); //TODO 20px is thumb width remove hardcode
+    // inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${leftPercent}% - 10px)`); //TODO 10px
+  }
+  private handleOnPointerDown(event: React.PointerEvent<HTMLDivElement>,) {
+    this.isMovingRange = true;
+    event.preventDefault();
+    event.stopPropagation();
+    // const { max, min } = this.question;
+    // const e = event;
+    // const leftPercent = ((e.clientX - e.currentTarget.getBoundingClientRect().x) / e.currentTarget.getBoundingClientRect().width) * 100;
+    // const newInputValue = leftPercent/100*(max-min) + min;
+    // const inputNode = this.rangeInputRef.current;
+    // inputNode.value = ""+newInputValue;
+    // this.oldInputValue = newInputValue;
+    // inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px"); //TODO 20px is thumb width remove hardcode
+    // inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${leftPercent}% - 10px)`); //TODO 10px
+  }
+
+  private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const step = this.question.step;
-    const diff = +event.target.value > oldInputValue ? -step : step;
+    const diff = +event.target.value > this.oldInputValue ? -step : step;
+    this.oldInputValue = +event.target.value;
 
     const renderedValue = this.getRenderedValue();
     for (let i = 0; i < renderedValue.length; i++) {

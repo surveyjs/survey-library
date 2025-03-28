@@ -1254,9 +1254,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
   availableQuestionTitleWidth(): boolean {
-    const questionTitleLocation = this.getQuestionTitleLocation();
-    if (questionTitleLocation === "left") return true;
-    return this.hasElementWithTitleLocationLeft();
+    return this.getQuestionTitleLocation() === "left" || this.hasElementWithTitleLocationLeft();
   }
   hasElementWithTitleLocationLeft(): boolean {
     const result = this.elements.some(el => {

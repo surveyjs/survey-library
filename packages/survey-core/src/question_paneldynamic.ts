@@ -1166,6 +1166,15 @@ export class QuestionPanelDynamicModel extends Question
   public set templateTitleLocation(val: string) {
     this.templateQuestionTitleLocation = val;
   }
+  public get templateQuestionTitleWidth(): string {
+    return this.getPropertyValue("templateQuestionTitleWidth");
+  }
+  public set templateQuestionTitleWidth(val: string) {
+    this.setPropertyValue("templateQuestionTitleWidth", val);
+  }
+  getTemplateQuestionTitleWidth(): string {
+    return this.templateQuestionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
+  }
   /**
    * Specifies the error message position.
    *
@@ -2772,6 +2781,12 @@ Serializer.addClass(
       name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "templateQuestionTitleWidth",
+      visibleIf: function (obj: any) {
+        return !!obj && obj.template.availableQuestionTitleWidth();
+      }
     },
     { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     {

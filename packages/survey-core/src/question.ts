@@ -2684,7 +2684,7 @@ export class Question extends SurveyElement<Question>
   }
 
   protected needResponsiveness(): boolean {
-    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+    return this.supportResponsiveness() && !this.isDesignMode;
   }
 
   protected checkForResponsiveness(el: HTMLElement): void {

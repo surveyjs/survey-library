@@ -4,6 +4,8 @@ import { ItemValue } from "./itemvalue";
 import { QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { DropdownListModel } from "./dropdownListModel";
+import { classesToSelector } from "./utils/utils";
 
 export class ButtonGroupItemValue extends ItemValue {
   constructor(
@@ -50,6 +52,99 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   public supportOther(): boolean {
     return false;
+  }
+
+  //methods for mobile view
+  public getControlClass(): string {
+    this.isEmpty();
+    return new CssClassBuilder()
+      .append(this.cssClasses.control)
+      .append(this.cssClasses.controlEmpty, this.isEmpty())
+      .append(this.cssClasses.onError, this.hasCssError())
+      .append(this.cssClasses.controlDisabled, this.isDisabledStyle)
+      .append(this.cssClasses.controlReadOnly, this.isReadOnlyStyle)
+      .append(this.cssClasses.controlPreview, this.isPreviewStyle)
+      .toString();
+  }
+  protected getFirstInputElementId(): string {
+    return this.inputId + "_0";
+  }
+  public getInputId(index: number): string {
+    return this.inputId + "_" + index;
+  }
+  public get placeholder(): string {
+    return this.getLocalizableStringText("ratingOptionsCaption");
+  }
+  public set placeholder(val: string) {
+    this.setLocalizableStringText("ratingOptionsCaption", val);
+  }
+  get locPlaceholder(): LocalizableString {
+    return this.getLocalizableString("ratingOptionsCaption");
+  }
+  get allowClear(): boolean {
+    return true;
+  }
+  get searchEnabled(): boolean {
+    return false;
+  }
+  public isItemSelected(item: ItemValue): boolean {
+    return item.value == this.value;
+  }
+  public get readOnlyText() {
+    if (this.readOnly) return (this.displayValue || this.placeholder);
+    return this.isEmpty() ? this.placeholder : "";
+  }
+  @property({ defaultValue: false }) inputHasValue: boolean;
+
+  public get showSelectedItemLocText(): boolean {
+    return !this.readOnly && !this.inputHasValue && !!this.selectedItemLocText;
+  }
+  public get selectedItemLocText(): LocalizableString {
+    return this.selectedItem?.locText;
+  }
+
+  private dropdownListModelValue: DropdownListModel;
+  public set dropdownListModel(val: DropdownListModel) {
+    this.dropdownListModelValue = val;
+    this.ariaExpanded = !!val ? "false" : undefined;
+    this.updateElementCss();
+  }
+  public get dropdownListModel(): DropdownListModel {
+    if (this.renderAs === "dropdown") {
+      this.onBeforeSetCompactRenderer();
+    }
+    return this.dropdownListModelValue;
+  }
+  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+
+  // responsiveness
+  public triggerResponsiveness(hard: boolean = true): void {
+    super.triggerResponsiveness(true);
+  }
+  public needResponsiveWidth(): boolean {
+    return true;
+  }
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected getCompactRenderAs(): string {
+    return "dropdown";
+  }
+  protected getObservedElementSelector(): string {
+    return classesToSelector(this.cssClasses.root);
+  }
+  protected onBeforeSetCompactRenderer(): void {
+    if (!this.dropdownListModelValue) {
+      this.dropdownListModelValue = new DropdownListModel(this);
+      this.ariaExpanded = "false";
+    }
+  }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+      this.dropdownListModelValue = undefined;
+    }
   }
 }
 

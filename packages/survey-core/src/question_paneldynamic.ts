@@ -1182,8 +1182,13 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("templateErrorLocation", value.toLowerCase());
   }
   /**
-   * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
-   * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
+   * Specifies whether to display survey element numbers within the dynamic panel and how to calculate them.
+   *
+   * Possible values:
+   *
+   * - `"onSurvey"` - Continues numbering across the entire survey.
+   * - `"onPanel"` - Starts numbering within the dynamic panel from scratch.
+   * - `"off"` (default) - Hides question numbers.
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");

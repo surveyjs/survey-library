@@ -1520,7 +1520,7 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeList) {
       this.currentIndex = index;
     }
-    if (this.survey) this.survey.dynamicPanelAdded(this);
+    this.notifyOnPanelAddedRemoved(true, index);
     return this.panelsCore[index];
   }
   private updateValueOnAddingPanel(prevIndex: number, index: number): void {
@@ -1639,8 +1639,24 @@ export class QuestionPanelDynamicModel extends Question
     this.value = value;
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
-    if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
+    this.notifyOnPanelAddedRemoved(false, index, panel);
     this.isValueChangingInternally = false;
+  }
+  private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel?: PanelModel): void {
+    if(!panel) {
+      panel = this.panelsCore[index];
+    }
+    if(this.survey) {
+      const updateIndeces = this.showQuestionNumbers === "onSurvey";
+      if(isAdded) {
+        this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
+      } else {
+        this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
+      }
+    }
+    if(isAdded && !!panel && this.showQuestionNumbers === "onPanel") {
+      panel.setVisibleIndex(0);
+    }
   }
   private getVisualPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -1837,7 +1853,7 @@ export class QuestionPanelDynamicModel extends Question
     this.assignOnPropertyChangedToTemplate();
     if (!!this.survey) {
       for (var i = 0; i < this.panelCount; i++) {
-        this.survey.dynamicPanelAdded(this);
+        this.notifyOnPanelAddedRemoved(true, i);
       }
     }
     this.updateIsReady();

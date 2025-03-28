@@ -954,6 +954,82 @@ QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function
   assert.equal(q1.no, "1.", "The number should be 1.");
   assert.equal(q2.no, "2.", "The number should be 2.");
 });
+QUnit.test("PanelDynamic, showQuestionNumbers onSurvey in run-time, bug#9652", function(assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q2"
+              }
+            ],
+            "showQuestionNumbers": "onSurvey"
+          }
+        ]
+      }
+    ],
+    "showQuestionNumbers": "on"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.addPanel();
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  assert.equal(panel.no, "", "The number should be empty for dynamic panel.");
+  assert.equal(q1.no, "1.", "The number should be 1.");
+  assert.equal(q2.no, "2.", "The number should be 2.");
+});
+QUnit.test("PanelDynamic, showQuestionNumbers onPanel in run-time, bug#9652", function(assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q2"
+              }
+            ],
+            "showQuestionNumbers": "onPanel"
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.addPanel();
+  assert.equal(panel.panels[0].getQuestionByName("q2").no, "1.", "The number should be 2., #1");
+  panel.addPanel();
+  assert.equal(panel.panels[1].getQuestionByName("q2").no, "1.", "The number should be 2., #2");
+});
+
 QUnit.test("PanelDynamic, renderMode", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");

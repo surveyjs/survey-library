@@ -5526,24 +5526,18 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex?: number, panel?: PanelModel): void {
-    if (!this.isLoadingFromJson && this.hasQuestionVisibleIndeces(question)) {
+  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
+    if (!this.isLoadingFromJson && updateIndexes) {
       this.updateVisibleIndexes(question.page);
-    }
-    if (this.onDynamicPanelAdded.isEmpty) return;
-    var panels = (<any>question).panels;
-    if (panelIndex === undefined) {
-      panelIndex = panels.length - 1;
-      panel = panels[panelIndex];
     }
     this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
   }
-  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): void {
+  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
-    if(this.hasQuestionVisibleIndeces(question)) {
+    if(updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
     this.onDynamicPanelRemoved.fire(this, {
@@ -5551,13 +5545,6 @@ export class SurveyModel extends SurveyElementCore
       panelIndex: panelIndex,
       panel: panel,
     });
-  }
-  private hasQuestionVisibleIndeces(question: Question): boolean {
-    const qList = question.getNestedQuestions(true);
-    for(let i = 0; i < qList.length; i ++) {
-      if(qList[i].visibleIndex > -1) return true;
-    }
-    return false;
   }
   dynamicPanelRemoving(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): boolean {
     const options = {

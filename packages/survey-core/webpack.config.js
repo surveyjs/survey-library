@@ -36,35 +36,35 @@ var buildPlatformJson = {
   files: [
     "**/*"
   ],
-  "module": "fesm/survey-core.js",
+  "module": "fesm/survey-core.mjs",
   "main": "survey.core.js",
   "exports": {
     ".": {
       "types": "./typings/entries/index.d.ts",
-      "import": "./fesm/survey-core.js",
+      "import": "./fesm/survey-core.mjs",
       "require": "./survey.core.js"
     },
     "./*.css": "./*.css",
     "./survey.i18n": {
-      "import": "./fesm/survey.i18n.js",
+      "import": "./fesm/survey.i18n.mjs",
       "require": "./survey.i18n.js"
     },
     "./i18n": {
-      "import": "./fesm/i18n/index.js",
+      "import": "./fesm/i18n/index.mjs",
       "require": "./i18n/index.js"
     },
     "./i18n/*": {
-      "import": "./fesm/i18n/*.js",
+      "import": "./fesm/i18n/*.mjs",
       "require": "./i18n/*.js"
     },
     "./themes": {
       "types": "./themes/index.d.ts",
-      "import": "./fesm/themes/index.js",
+      "import": "./fesm/themes/index.mjs",
       "require": "./themes/index.js"
     },
     "./themes/index": {
       "types": "./themes/index.d.ts",
-      "import": "./fesm/themes/index.js",
+      "import": "./fesm/themes/index.mjs",
       "require": "./themes/index.js"
     },
     "./themes/*": {
@@ -73,7 +73,7 @@ var buildPlatformJson = {
     },
     "./icons/*": {
       "types": "./icons/*.d.ts",
-      "import": "./fesm/icons/*.js",
+      "import": "./fesm/icons/*.mjs",
       "require": "./icons/*.js"
     }
   },

@@ -33,12 +33,12 @@ const buildPlatformJson = {
     "**/*"
   ],
   "main": "survey-js-ui.js",
-  "module": "fesm/survey-js-ui.js",
+  "module": "fesm/survey-js-ui.mjs",
   "typings": "./typings/survey-js-ui/entries/index.d.ts",
   "exports": {
     ".": {
       "types": "./typings/survey-js-ui/entries/index.d.ts",
-      "import": "./fesm/survey-js-ui.js",
+      "import": "./fesm/survey-js-ui.mjs",
       "require": "./survey-js-ui.js"
     }
   },

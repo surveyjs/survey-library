@@ -105,9 +105,6 @@ export class PageModel extends PanelModel implements IPage {
   public set navigationTitle(val: string) {
     this.setLocalizableStringText("navigationTitle", val);
   }
-  /**
-   * Explanatory text displayed under a navigation button in the progress bar. Applies when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar), `SurveyModel`'s [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"pages"`, and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarShowPageTitles) is `true`.
-   */
   public get navigationDescription(): string {
     return this.getLocalizableStringText("navigationDescription");
   }
@@ -413,9 +410,6 @@ Serializer.addClass(
     },
     {
       name: "navigationTitle",
-      visibleIf: function (obj: any) {
-        return !!obj.survey && (obj.survey.progressBarType === "buttons" || obj.survey.showTOC);
-      },
       serializationProperty: "locNavigationTitle",
     },
     {

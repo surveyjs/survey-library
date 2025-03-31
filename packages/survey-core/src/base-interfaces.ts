@@ -150,6 +150,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question?: QuestionPanelDynamicModel
   ): Array<IAction>;
   questionStartIndex: string;
+  showQuestionNumbers: string | boolean;
   questionTitleLocation: string;
   questionDescriptionLocation: string;
   questionErrorLocation: string;
@@ -233,8 +234,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getValidateVisitedEmptyFields(): boolean;
   multipleTextItemAdded(question: IQuestion, item: any): void;
   matrixCellValidate(question: IQuestion, options: any): SurveyError;
-  dynamicPanelAdded(question: IQuestion, panelIndex?: number, panel?: IPanel): void;
-  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
+  dynamicPanelAdded(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
+  dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): void;
   dynamicPanelItemValueChanging(question: IQuestion, options: any): void;

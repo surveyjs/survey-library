@@ -220,16 +220,17 @@ input[type=range].sd-range-slider__input::-ms-tooltip {
 :root {
   --sjs-range-slider-range-input-thumb-width: 0px;
   --sjs-range-slider-range-input-thumb-left: 0;
+  --sjs-range-slider-range-input-thumb-position: absolute;
 }
 
-// input[type=range][name=range-input].sd-range-slider__input::-webkit-slider-thumb {
-//   width: var(--sjs-range-slider-range-input-thumb-width, 0px);
-//   left: var(--sjs-range-slider-range-input-thumb-left, 0);
-//   position: absolute;
-// }
+input[type=range][name=range-input].sd-range-slider__input::-webkit-slider-thumb {
+  width: var(--sjs-range-slider-range-input-thumb-width, 0px);
+  left: var(--sjs-range-slider-range-input-thumb-left, 0);
+  position: var(--sjs-range-slider-range-input-thumb-position, relative);
+}
 
-// input[type=range][name=range-input].sd-range-slider__input::-moz-range-thumb {
-//   width: var(--sjs-range-slider-range-input-thumb-width, 0px);
-//   left: var(--sjs-range-slider-range-input-thumb-left, 0);
-//   position: absolute;
-// }
+input[type=range][name=range-input].sd-range-slider__input::-moz-range-thumb {
+  width: var(--sjs-range-slider-range-input-thumb-width, 0px);
+  left: var(--sjs-range-slider-range-input-thumb-left, 0);
+  position: var(--sjs-range-slider-range-input-thumb-position, relative);
+}

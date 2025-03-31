@@ -1067,9 +1067,9 @@ export class QuestionSelectBase extends Question {
   protected updateVisibleChoices(): void {
     if (this.isLoadingFromJson || this.isDisposed) return;
     var newValue = new Array<ItemValue>();
+    this.customChoices.forEach(choice => newValue.push(choice));
     var calcValue = this.calcVisibleChoices();
     (calcValue || []).forEach(choice => newValue.push(choice));
-    this.customChoices.forEach(choice => newValue.push(choice));
     const oldValue = this.visibleChoices;
     if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
       this.setArrayPropertyDirectly("visibleChoices", newValue);

@@ -1873,14 +1873,14 @@ QUnit.test("allowCustomChoices: Add custom value into dropdown", function (asser
   assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
   assert.equal(listModel.actions.length, 7, "#2 listModel.actions");
-  assert.equal(listModel.actions[5].id, testCustomValue, "#2 custom value add into list - id");
-  assert.equal(listModel.actions[5].title, testCustomValue, "#2 custom value add into list - title");
+  assert.equal(listModel.actions[0].id, testCustomValue, "#2 custom value add into list - id");
+  assert.equal(listModel.actions[0].title, testCustomValue, "#2 custom value add into list - title");
   assert.equal(listModel.actions[6].id, "newCustomItem", "#2 custom item id");
   assert.equal(listModel.actions[6].visible, false, "#2 custom item invisible");
   assert.equal(question.value, testCustomValue, "#2 question.value");
   assert.equal(question.selectedItem.id, testCustomValue, "#2 question.selectedItem");
   assert.equal(question.visibleChoices.length, 6, "#2 question.visibleChoices");
-  assert.equal(question.visibleChoices[5].value, testCustomValue, "#2 question.visibleChoices[5]");
+  assert.equal(question.visibleChoices[0].value, testCustomValue, "#2 question.visibleChoices[0]");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
 
   survey.tryComplete();

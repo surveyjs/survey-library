@@ -548,6 +548,9 @@ export class DropdownListModel extends Base {
 
   public setAllowCustomChoices(newValue: boolean): void {
     this.allowCustomChoices = newValue;
+    if(newValue) {
+      this.searchEnabled = newValue;
+    }
   }
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {

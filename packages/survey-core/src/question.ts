@@ -959,18 +959,24 @@ export class Question extends SurveyElement<Question>
   protected getSingleQuestionLocTitleCore(): LocalizableString {
     return undefined;
   }
-  protected getSingleInputQuestions(): Array<Question> {
+  private getSingleInputQuestions(): Array<Question> {
+    const res = this.getSingleInputQuestionsCore(this.getPropertyValue("singleInputQuestion"));
+    res.forEach(q => { if(q !== this) this.onSingleInputQuestionAdded(q); });
+    return res;
+  }
+  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
     return this.getNestedQuestions(true, false);
   }
+  protected onSingleInputQuestionAdded(question: Question): void {}
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
-  protected getSingleInputQuestionsForDynamic(): Array<Question> {
+  protected getSingleInputQuestionsForDynamic(question?: Question): Array<Question> {
     const res = new Array<Question>();
+    if(question) {
+      this.setPropertyValue("singleInputQuestion", question);
+    }
     const q = this.getPropertyValue("singleInputQuestion");
     if(!!q && q !== this) {
       this.fillSingleInputQuestionsInContainer(res, q);
-    }
-    if(res.length > 0) {
-      res.unshift(this);
     }
     res.push(this);
     return res;
@@ -995,7 +1001,11 @@ export class Question extends SurveyElement<Question>
     if(!q) return false;
     const questions = this.getSingleInputQuestions();
     let index = questions.indexOf(q);
-    if(index < 0) return false;
+    if(index < 0) {
+      if(questions.length === 0) return false;
+      index = 0;
+      skip = 0;
+    }
     index += skip;
     if(index < 0 || index >= questions.length) return false;
     this.setSingleInputQuestion(questions[index]);

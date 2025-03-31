@@ -470,7 +470,7 @@ export class QuestionMatrixModel
     }
     return null;
   }
-  protected getSingleInputQuestions(): Array<Question> {
+  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
     if(!!this.nestedQuestionsValue) return this.nestedQuestionsValue;
     const res: Array<Question> = [];
     this.visibleRows.forEach(row => {

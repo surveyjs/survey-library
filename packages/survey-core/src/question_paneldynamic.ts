@@ -1191,12 +1191,25 @@ export class QuestionPanelDynamicModel extends Question
     super.resetSingleInput();
     this.locTemplateTitle.onGetTextCallback = null;
   }
-  protected getSingleInputQuestions(): Array<Question> {
+  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
     this.onFirstRendering();
-    return this.getSingleInputQuestionsForDynamic();
+    const res = new Array<Question>();
+    const panels = this.visiblePanels;
+    if((!question || question === this) && panels.length > 0) {
+      for(let i = 0; i < panels.length; i ++) {
+        const panel = panels[i];
+        if(this.isValueEmpty(panel.getValue()) || panel.hasErrors(false, false)) {
+          this.fillSingleInputQuestionsByPanel(res, panel);
+        }
+      }
+    }
+    return this.getSingleInputQuestionsForDynamic(res.length > 0 ? res[0] : null);
   }
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
     const panel = this.getPanelByQuestion(innerQuestion);
+    this.fillSingleInputQuestionsByPanel(res, panel);
+  }
+  private fillSingleInputQuestionsByPanel(res: Array<Question>, panel: PanelModel): void {
     if(panel) {
       panel.questions.forEach(q => q.addNestedQuestion(res, true, false));
     }

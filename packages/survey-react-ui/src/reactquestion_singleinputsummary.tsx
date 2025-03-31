@@ -31,15 +31,19 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
     return placeholder || <div>{this.renderLocString(this.summary.noEntry)}</div>;
   }
   private renderItem(item: QuestionSingleInputSummaryItem, index: number): React.JSX.Element {
+    const btnEdit = item.btnEdit ?
+      <button className={this.css.summaryRowActionEdit} onClick={() => item.btnEdit.action()} title={item.btnEdit.title}>
+        <SvgIcon iconName="icon-editsmall-16x16" iconSize="auto" />
+      </button> : null;
+    const btnDelete = item.showRemove && item.btnRemove ?
+      <button className={this.css.summaryRowActionDelete} onClick={() => item.btnRemove.action()} title={item.btnRemove.title}>
+        <SvgIcon iconName="icon-delete-16x16" iconSize="auto" />
+      </button>: null;
     return <div className={this.css.summaryRow} key={index}>
       <div className={this.css.summaryRowContent}>{this.renderLocString(item.locText)}</div>
       <div className={this.css.summaryRowActions}>
-        <button className={this.css.summaryRowActionEdit} onClick={() => item.btnEdit.action()} title={item.btnEdit.title}>
-          <SvgIcon iconName="icon-editsmall-16x16" iconSize="auto" />
-        </button>
-        <button className={this.css.summaryRowActionDelete} onClick={() => item.btnRemove.action()} title={item.btnRemove.title}>
-          <SvgIcon iconName="icon-delete-16x16" iconSize="auto" />
-        </button>
+        {btnEdit}
+        {btnDelete}
       </div>
     </div>;
   }

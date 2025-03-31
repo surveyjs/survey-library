@@ -701,16 +701,29 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.survey.matrixRowRemoved(this, index, row);
     }
   }
-  private isSingleInputQuestionsRequested: boolean;
-  protected getSingleInputQuestions(): Array<Question> {
-    if(!this.isSingleInputQuestionsRequested && this.rowCount > 0 && this.isEmpty()) {
-      this.isSingleInputQuestionsRequested = true;
-      this.rowCount = 0;
+  protected onSingleInputQuestionAdded(question: Question): void {
+    if(!this.showHeader) {
+      question.titleLocation = "hidden";
     }
-    return this.getSingleInputQuestionsForDynamic();
+  }
+  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
+    const res = new Array<Question>();
+    const rows = this.visibleRows;
+    if((!question || question === this) && rows.length > 0) {
+      for(let i = 0; i < rows.length; i ++) {
+        const row = rows[i];
+        if(row.isEmpty || row.hasErrors(false, {}, () => {})) {
+          this.fillSingleInputQuestionsByRow(res, row);
+        }
+      }
+    }
+    return this.getSingleInputQuestionsForDynamic(res.length > 0 ? res[0] : null);
   }
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
     const row = this.getRowByQuestion(innerQuestion);
+    this.fillSingleInputQuestionsByRow(res, row);
+  }
+  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
     if(row) {
       row.questions.forEach(q => q.addNestedQuestion(res, true, false));
     }

@@ -2311,6 +2311,10 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", funct
   assert.equal(question.visibleChoices.length, 5, "#2 question.visibleChoices");
   assert.equal(question.visibleChoices[4].value, testCustomValue, "#2 question.visibleChoices[4]");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
+
+  survey.tryComplete();
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
+
 });
 
 QUnit.test("allowCustomChoices: inputStringRendered isn't reset after backspace, if searchEnabled: false", function (assert) {
@@ -2442,6 +2446,9 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: true", functi
   assert.equal(question.visibleChoices.length, 5, "#2 question.visibleChoices");
   assert.equal(question.visibleChoices[4].value, testCustomValue, "#2 question.visibleChoices[4]");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
+
+  survey.tryComplete();
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
 });
 
 QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: true", function (assert) {
@@ -2733,6 +2740,9 @@ QUnit.test("allowCustomChoices: Add custom value if choicesLazyLoadEnabled is tr
         assert.equal(question.visibleChoices[25].value, testCustomValue, "#2 question.visibleChoices[4]");
         assert.deepEqual(survey.data, { country: testCustomValue }, "#2 survey.data");
 
+        survey.tryComplete();
+        assert.deepEqual(survey.data, { country: testCustomValue }, "#3 survey.data");
+
         done1();
       }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
@@ -2834,6 +2844,9 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
   assert.equal(question.visibleChoices.length, 5, "#2 question.visibleChoices");
   assert.equal(question.visibleChoices[4].value, testCustomValue, "#2 question.visibleChoices[4]");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
+
+  survey.tryComplete();
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
 
   _setIsTouch(false);
 });

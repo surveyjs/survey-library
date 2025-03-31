@@ -244,7 +244,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     (this.selectedItemValues as Array<ItemValue> || []).forEach(func);
     this.visibleChoices.forEach(func);
   }
-
+  protected canAddCustomChoices(): boolean {
+    return this.allowCustomChoices;
+  }
   protected getFirstInputElementId(): string {
     return this.inputId + (this.searchEnabled || this.allowCustomChoices? "_0" : "");
   }

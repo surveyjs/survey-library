@@ -1882,6 +1882,9 @@ QUnit.test("allowCustomChoices: Add custom value into dropdown", function (asser
   assert.equal(question.visibleChoices.length, 6, "#2 question.visibleChoices");
   assert.equal(question.visibleChoices[5].value, testCustomValue, "#2 question.visibleChoices[5]");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
+
+  survey.tryComplete();
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
 });
 
 function getCACities() {

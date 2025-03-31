@@ -348,6 +348,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.dropdownListModel.updateItems();
     }
   }
+  protected canAddCustomChoices(): boolean {
+    return this.allowCustomChoices;
+  }
 
   protected getFirstInputElementId(): string {
     return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");

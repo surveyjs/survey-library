@@ -1715,7 +1715,7 @@ export class QuestionSelectBase extends Question {
     return this.choicesByUrl && !!this.choicesByUrl.url;
   }
   public clearIncorrectValues(): void {
-    if (!this.hasValueToClearIncorrectValues() || !this.canClearIncorrectValues()) return;
+    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
     } else {
@@ -1723,10 +1723,14 @@ export class QuestionSelectBase extends Question {
     }
   }
   private canClearIncorrectValues(): boolean {
+    if (this.canAddCustomChoices()) return false;
     if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
     if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
     if (this.hasChoicesUrl && (!this.choicesFromUrl || this.choicesFromUrl.length == 0)) return false;
     return true;
+  }
+  protected canAddCustomChoices(): boolean {
+    return false;
   }
   protected hasValueToClearIncorrectValues(): boolean {
     if (!!this.survey && this.survey.keepIncorrectValues) return false;

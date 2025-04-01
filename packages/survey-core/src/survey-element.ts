@@ -82,6 +82,9 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   get locTitle(): LocalizableString {
     return this.getLocalizableString("title");
   }
+  get locRenderedTitle(): LocalizableString {
+    return this.locTitle;
+  }
   protected getDefaultTitleValue(): string { return undefined; }
   protected setTitleValue(val: string): void {
     this.setLocalizableStringText("title", val);

@@ -109,6 +109,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
+  currentSingleQuestion: IQuestion;
+  isSingleVisibleInput: boolean;
+  updateNavigationElements(): void;
   currentSingleElement: IElement;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
@@ -379,6 +382,7 @@ export interface ITitleOwner {
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;
   locTitle: LocalizableString;
+  locRenderedTitle: LocalizableString;
 }
 export interface IProgressInfo {
   questionCount: number;

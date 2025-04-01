@@ -1167,13 +1167,10 @@ export class QuestionPanelDynamicModel extends Question
     this.templateQuestionTitleLocation = val;
   }
   public get templateQuestionTitleWidth(): string {
-    return this.getPropertyValue("templateQuestionTitleWidth");
+    return this.template.questionTitleWidth;
   }
   public set templateQuestionTitleWidth(val: string) {
-    this.setPropertyValue("templateQuestionTitleWidth", val);
-  }
-  getTemplateQuestionTitleWidth(): string {
-    return this.templateQuestionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
+    this.template.questionTitleWidth = val;
   }
   /**
    * Specifies the error message position.
@@ -2204,6 +2201,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.isInteractiveDesignElement = false;
     panel.setParentQuestion(this);
     panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
+    panel.onGetQuestionTitleWidth = () => this.templateQuestionTitleWidth;
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {

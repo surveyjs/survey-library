@@ -336,6 +336,7 @@ export class PanelModelBase extends SurveyElement<Question>
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
+  onGetQuestionTitleWidth: () => string;
 
   public onAddRow(row: QuestionRowModel): void {
     this.onRowVisibleChanged();
@@ -1273,7 +1274,8 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   @property() questionTitleWidth: string;
   getQuestionTitleWidth(): string {
-    return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
+    const width = this.onGetQuestionTitleWidth ? this.onGetQuestionTitleWidth() : this.questionTitleWidth;
+    return width || this.parent && this.parent.getQuestionTitleWidth();
   }
   public get columns(): Array<PanelLayoutColumnModel> {
     if (!this._columns) {

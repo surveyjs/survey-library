@@ -413,7 +413,10 @@ Serializer.addClass(
     { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
-    { name: "allowCustomChoices:boolean", default: false, visible: false },
+    {
+      name: "allowCustomChoices:boolean", default: false,
+      visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
+    },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

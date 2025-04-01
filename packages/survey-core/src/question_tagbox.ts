@@ -299,7 +299,10 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
-    { name: "allowCustomChoices:boolean", default: false, visible: false },
+    {
+      name: "allowCustomChoices:boolean", default: false,
+      visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
+    },
     { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

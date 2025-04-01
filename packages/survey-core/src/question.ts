@@ -1898,8 +1898,14 @@ export class Question extends SurveyElement<Question>
   }
   private calcNo(): string {
     if (!this.hasTitle || !this.showNumber) return "";
-    const parentIndex: number | undefined = (<any>this.parent)?.visibleIndex;
-    var no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
+    let parentIndex: number | undefined;
+    if(!!this.parent) {
+      parentIndex = (<any>this.parent).visibleIndex;
+    }
+    let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
+    if(!!this.parent) {
+      no = (<any>this.parent).addNoFromChild(no);
+    }
     if (!!this.survey) {
       no = this.survey.getUpdatedQuestionNo(this, no);
     }

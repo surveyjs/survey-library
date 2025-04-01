@@ -351,3 +351,37 @@ QUnit.test("Action setSubItems popup item click", function (assert) {
   action.popupModel.contentComponentData.model.onItemClick(action.items[1]);
   assert.equal(event, "test29");
 });
+
+QUnit.test("Action setSubItems does not change existing popup", function (assert) {
+  const action = new Action({ id: "test2", title: "test2" });
+  const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
+  var lastPopup = action.popupModel;
+  (action as Action).setSubItems({ items: subitems, onSelectionChanged: () => { } });
+  assert.equal(lastPopup, action.popupModel);
+});
+
+QUnit.test("Action subitems show timeout - we should wait other popup to hide", function (assert) {
+  const actionBar = new ActionContainer();
+  const action1 = new Action({ id: "test2", title: "test2" });
+  let delayCalled = -1;
+  (action1 as Action).showPopupDelayed = (delay) => {
+    delayCalled = delay;
+  };
+  const subitems1 = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
+  (action1 as Action).setSubItems({ items: subitems1, onSelectionChanged: () => { } });
+  const action2 = new Action({ id: "test3", title: "test3" });
+  const subitems2 = [new Action({ id: "test38", title: "test38" }), new Action({ id: "test39", title: "test39" })];
+  (action2 as Action).setSubItems({ items: subitems2, onSelectionChanged: () => { } });
+
+  actionBar.setItems([action1, action2]);
+  actionBar.subItemsShowDelay = 20;
+  actionBar.subItemsHideDelay = 30;
+
+  actionBar.mouseOverHandler(action1);
+  assert.equal(delayCalled, 20);
+
+  action2.popupModel.show();
+  actionBar.mouseOverHandler(action1);
+  assert.equal(delayCalled, 30);
+});

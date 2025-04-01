@@ -288,7 +288,10 @@ export class DropdownListModel extends Base {
       allow: true
     };
     this.question.survey.createCustomChoiceItem(options);
-    if (!options.allow) return null;
+    if (!options.allow) {
+      this.clear();
+      return null;
+    }
 
     this.question.customChoices.push(newChoice);
     this.customValue = undefined;
@@ -318,6 +321,7 @@ export class DropdownListModel extends Base {
     }
   }
   public clear(): void {
+    this.customValue = undefined;
     this.inputString = null;
     this.hintString = "";
     this.resetFilterString();

@@ -2177,6 +2177,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
   const dropdownListModel = question.dropdownListModel;
   const listModel: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
   const testCustomValue = "item10";
+  const testCustomValueUpperCase = testCustomValue.toUpperCase();
 
   dropdownListModel.inputStringRendered = testCustomValue;
   assert.equal(question.value.length, 0, "#1 question.value");
@@ -2184,12 +2185,16 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
   assert.deepEqual(survey.data, {}, "#1 survey.data");
 
   listModel.onItemClick(listModel.actions[4]);
+  assert.equal(dropdownListModel.inputStringRendered, "", "#2 inputStringRendered");
   assert.equal(question.value.length, 1, "#2 question.value.length");
   assert.deepEqual(question.value, [testCustomValue], "#2 question.value");
   assert.equal(question.selectedItems.length, 1, "#1 question.selectedItems.length");
   assert.equal(question.selectedItems[0].value, testCustomValue, "#2 question.selectedItems[0].id");
-  assert.equal(question.selectedItems[0].text, testCustomValue.toUpperCase(), "#2 question.selectedItems.text");
+  assert.equal(question.selectedItems[0].text, testCustomValueUpperCase, "#2 question.selectedItems.text");
   assert.deepEqual(survey.data, { q1: [testCustomValue] }, "#2 survey.data");
+  assert.equal(listModel.actions[5].id, "newCustomItem", "#2 custom item id");
+  assert.equal(listModel.actions[5].title, "newCustomItem", "#2 custom item text");
+  assert.equal(listModel.actions[5].visible, false, "#2 custom item invisible");
 
   dropdownListModel.inputStringRendered = testCustomValue + "1";
   assert.equal(question.value.length, 1, "#3 question.value.length");
@@ -2197,17 +2202,21 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
 
   assert.equal(question.selectedItems.length, 1, "#1 question.selectedItems.length");
   assert.equal(question.selectedItems[0].value, testCustomValue, "#3 question.selectedItems[0].id");
-  assert.equal(question.selectedItems[0].text, testCustomValue.toUpperCase(), "#3 question.selectedItems.text");
+  assert.equal(question.selectedItems[0].text, testCustomValueUpperCase, "#3 question.selectedItems.text");
   assert.deepEqual(survey.data, { q1: [testCustomValue] }, "#3 survey.data");
 
   listModel.onItemClick(listModel.actions[5]);
+  assert.equal(dropdownListModel.inputStringRendered, "", "#4 inputStringRendered");
   assert.equal(question.value.length, 1, "#4 question.value.length");
   assert.deepEqual(question.value, [testCustomValue], "#4 question.value");
 
   assert.equal(question.selectedItems.length, 1, "#1 question.selectedItems.length");
   assert.equal(question.selectedItems[0].value, testCustomValue, "#4 question.selectedItems[0].id");
-  assert.equal(question.selectedItems[0].text, testCustomValue.toUpperCase(), "#4 question.selectedItems.text");
+  assert.equal(question.selectedItems[0].text, testCustomValueUpperCase, "#4 question.selectedItems.text");
   assert.deepEqual(survey.data, { q1: [testCustomValue] }, "#4 survey.data");
+  assert.equal(listModel.actions[5].id, "newCustomItem", "#4 custom item id");
+  assert.equal(listModel.actions[5].title, "newCustomItem", "#4 custom item text");
+  assert.equal(listModel.actions[5].visible, false, "#4 custom item invisible");
 });
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {

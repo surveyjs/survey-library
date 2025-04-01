@@ -2540,25 +2540,30 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
   const dropdownListModel = question.dropdownListModel;
   const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testCustomValue = "item10";
+  const testCustomValueUpperCase = testCustomValue.toUpperCase();
 
   dropdownListModel.inputStringRendered = testCustomValue;
   assert.equal(question.value, undefined, "#1 question.value");
   assert.equal(question.selectedItem, undefined, "#1 question.selectedItem");
   assert.deepEqual(survey.data, {}, "#1 survey.data");
+  assert.equal(listModel.actions[4].id, "newCustomItem");
 
   listModel.onItemClick(listModel.actions[4]);
+  assert.equal(dropdownListModel.inputStringRendered, "item10", "#2 inputStringRendered");
   assert.equal(question.value, testCustomValue, "#2 question.value");
   assert.equal(question.selectedItem.value, testCustomValue, "#2 question.selectedItem.id");
-  assert.equal(question.selectedItem.text, testCustomValue.toUpperCase(), "#2 question.selectedItem.text");
+  assert.equal(question.selectedItem.text, testCustomValueUpperCase, "#2 question.selectedItem.text");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
 
   dropdownListModel.inputStringRendered = testCustomValue + "1";
   assert.equal(question.value, testCustomValue, "#3 question.value");
   assert.equal(question.selectedItem.value, testCustomValue, "#3 question.selectedItem.id");
-  assert.equal(question.selectedItem.text, testCustomValue.toUpperCase(), "#3 question.selectedItem.text");
+  assert.equal(question.selectedItem.text, testCustomValueUpperCase, "#3 question.selectedItem.text");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
+  assert.equal(listModel.actions[5].id, "newCustomItem");
 
   listModel.onItemClick(listModel.actions[5]);
+  assert.equal(dropdownListModel.inputStringRendered, "", "#4 inputStringRendered");
   assert.equal(question.value, testCustomValue, "#4 question.value");
   assert.equal(question.selectedItem.value, testCustomValue, "#4 question.selectedItem.id");
   assert.equal(question.selectedItem.text, testCustomValue.toUpperCase(), "#4 question.selectedItem.text");

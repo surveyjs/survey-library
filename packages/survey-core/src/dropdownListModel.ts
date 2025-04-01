@@ -276,7 +276,7 @@ export class DropdownListModel extends Base {
       }
     } else {
       this.question.value = item.id;
-      if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
+      if (this.searchEnabled) this.applyInputString(item as ItemValue);
     }
   }
 
@@ -490,8 +490,8 @@ export class DropdownListModel extends Base {
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return !!this.question.searchEnabled && !!(this.hintStringLC || this.inputStringLC) ||
-      !this.question.searchEnabled && this.hintStringLC && this.question.isEmpty();
+    return !!this.searchEnabled && !!(this.hintStringLC || this.inputStringLC) ||
+      !this.searchEnabled && this.hintStringLC && this.question.isEmpty();
   }
   public get hintStringSuffix(): string {
     return this.hintStringLC.indexOf(this.inputStringLC) >= 0 ? this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length) : "";
@@ -632,7 +632,7 @@ export class DropdownListModel extends Base {
   }
 
   protected afterScrollToFocusedItem() {
-    if (this.question.value && !this.listModel.filterString && this.question.searchEnabled) {
+    if (this.question.value && !this.listModel.filterString && this.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     }
     else {
@@ -662,8 +662,8 @@ export class DropdownListModel extends Base {
     } else if (!this.popupModel.isVisible && event.keyCode === 13) {
       (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
       isStopPropagation = true;
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
-      if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.searchEnabled || !this.inputString))) {
+      if (event.keyCode === 13 && this.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.hide();
         this.onClear(event);
       }
@@ -681,10 +681,10 @@ export class DropdownListModel extends Base {
       this.hintString = "";
       this.onEscape();
     } else {
-      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.question.searchEnabled) {
+      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.searchEnabled) {
         isStopPropagation = true;
       }
-      if (event.keyCode === 32 && this.question.searchEnabled) {
+      if (event.keyCode === 32 && this.searchEnabled) {
         return;
       }
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
@@ -696,7 +696,7 @@ export class DropdownListModel extends Base {
     }
   }
   protected onEscape() {
-    if (this.question.searchEnabled)
+    if (this.searchEnabled)
       this.applyInputString(this.question.selectedItem);
   }
 
@@ -725,7 +725,7 @@ export class DropdownListModel extends Base {
 
   public setInputStringFromSelectedItem(newValue: any): void {
     if (!this.focused) return;
-    if (this.question.searchEnabled && !!newValue) {
+    if (this.searchEnabled && !!newValue) {
       this.applyInputString(newValue);
     } else {
       this.inputString = null;

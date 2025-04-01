@@ -104,7 +104,7 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
 
   private getTicks() {
     const ticks = [];
-    const { max, min, ticksCount, isShowMinMaxTicks, customTicks, cssClasses, step } = this.question;
+    const { max, min, ticksCount, isShowMinMaxTicks, ticks: customTicks, cssClasses, step } = this.question;
     const fullRange = max - min;
 
     for (let i = 0; i < ticksCount; i++) {

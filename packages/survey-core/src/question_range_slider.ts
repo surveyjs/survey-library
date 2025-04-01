@@ -21,7 +21,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) minSelectedRange: number | null;
   @property({ defaultValue: "" }) valueFormat: string;
   public get step(): number {
-    if (this.isDiscreteValueByStep) {
+    if (this.snapToTicks) {
       return (this.max - this.min) / (this.ticksCount - 1);
     }
     return this.getPropertyValue("step");
@@ -29,11 +29,12 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   public set step(val: number) {
     this.setPropertyValue("step", val);
   }
-  @property({ defaultValue: false }) isDiscreteValueByStep: boolean;
+
+  @property({ defaultValue: false }) snapToTicks: boolean;
   @property({ defaultValue: true }) isShowTicks: boolean;
   @property({ defaultValue: true }) isShowMinMaxTicks: boolean;
   public get ticksCount(): number { // TODO interval count?
-    if (this.customTicks.length > 0) return this.customTicks.length;
+    if (this.ticks.length > 0) return this.ticks.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;
     }
@@ -43,13 +44,14 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
     this.setPropertyValue("ticksCount", val);
   }
   @property({ defaultValue: null }) tickSize: number | null;
-  @propertyArray({ }) customTicks: ItemValue[];
+  @propertyArray({ }) ticks: ItemValue[];
+
   @property({ defaultValue: null }) focusedThumb: number | null;
 
   constructor(name: string) {
     super(name);
     this.createNewArray("value");
-    this.createItemValues("customTicks");
+    this.createItemValues("ticks");
   }
 
   public getType(): string {
@@ -115,7 +117,7 @@ Serializer.addClass(
       default: false,
     },
     {
-      name: "isDiscreteValueByStep",
+      name: "snapToTicks",
       default: false
     },
     {
@@ -152,7 +154,7 @@ Serializer.addClass(
       type: "condition"
     },
     {
-      name: "customTicks:itemvalue[]",
+      name: "ticks:itemvalue[]",
     },
   ],
   function () {

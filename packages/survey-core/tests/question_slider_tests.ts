@@ -184,3 +184,24 @@ QUnit.test("ticks (custom)", (assert) => {
   assert.deepEqual(q1.ticks[1].value, 2);
   assert.deepEqual(q1.ticksCount, q1.ticks.length);
 });
+
+QUnit.test("sliderType", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+      },
+      {
+        type: "slider",
+        name: "q2",
+        sliderType: "single"
+      },
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  let q2 = <QuestionSliderModel>survey.getQuestionByName("q2");
+  assert.deepEqual(q1.sliderType, "range");
+  assert.deepEqual(q2.sliderType, "single");
+});

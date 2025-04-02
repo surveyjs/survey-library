@@ -22,10 +22,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
-    const { cssClasses, isShowTicks, isSingleMode } = this.question;
+    const { cssClasses, isShowTicks, sliderType } = this.question;
 
     const inputs = this.getInputs();
-    const rangeInput = isSingleMode ? null : this.getRangeInput();
+    const rangeInput = sliderType === "single" ? null : this.getRangeInput();
     const thumbs = this.getThumbs();
     const ticks = isShowTicks ? this.getTicks() : null;
 
@@ -77,7 +77,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const firstValue = renderedValue[0];
     const inputValue = firstValue + ((lastValue - firstValue) / 2);
 
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleOnPointerDown(e); } } onPointerUp={ (e)=>{ this.handleOnPointerUp(e); } } />;
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleOnPointerDown(e); } } onPointerUp={ (e)=>{ this.handleOnPointerUp(e); } } />;
   }
 
   private getThumbs() {
@@ -133,10 +133,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getRenderedValue() {
-    const { max, min, renderedMaxSelectedRange: maxSelectedRange, isSingleMode } = this.question;
+    const { max, min, renderedmaxRangeLength: maxRangeLength, sliderType } = this.question;
     let result = this.question.value.slice();
 
-    if (isSingleMode) {
+    if (sliderType === "single") {
       if (typeof result === "undefined" || result.length === 0) {
         this.question.isIndeterminate = true;
         return [min];
@@ -148,7 +148,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     if (result.length === 0) {
       const fullRange = max - min;
       this.question.isIndeterminate = true;
-      if (fullRange > maxSelectedRange) return [(fullRange - maxSelectedRange) / 2, (fullRange + maxSelectedRange) / 2];
+      if (fullRange > maxRangeLength) return [(fullRange - maxRangeLength) / 2, (fullRange + maxRangeLength) / 2];
       return [min, max]; // TODO support several values 3 and more
     }
 
@@ -230,27 +230,27 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private ensureLeftBorder(newValue:number, inputNumber):number {
-    const { renderedMinSelectedRange: minSelectedRange, renderedMaxSelectedRange: maxSelectedRange } = this.question;
+    const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength } = this.question;
     const value:number[] = this.getRenderedValue();
     const prevValueBorder = value[inputNumber - 1];
     const nextValueBorder = value[inputNumber + 1];
 
-    if (nextValueBorder - newValue > maxSelectedRange) return value[inputNumber];
+    if (nextValueBorder - newValue > maxRangeLength) return value[inputNumber];
     if (inputNumber <= 0) return newValue;
 
-    return Math.max(newValue, prevValueBorder + minSelectedRange);
+    return Math.max(newValue, prevValueBorder + minRangeLength);
   }
 
   private ensureRightBorder(newValue, inputNumber):number {
     const value:number[] = this.getRenderedValue();
-    const { renderedMinSelectedRange: minSelectedRange, renderedMaxSelectedRange: maxSelectedRange } = this.question;
+    const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength } = this.question;
     const nextValueBorder = value[inputNumber + 1];
     const prevValueBorder = value[inputNumber - 1];
 
-    if (newValue - prevValueBorder > maxSelectedRange) return value[inputNumber];
+    if (newValue - prevValueBorder > maxRangeLength) return value[inputNumber];
     if (inputNumber === value.length-1) return newValue;
 
-    return Math.min(newValue, nextValueBorder - minSelectedRange);
+    return Math.min(newValue, nextValueBorder - minRangeLength);
   }
 }
 ReactQuestionFactory.Instance.registerQuestion("slider", (props) => {

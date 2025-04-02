@@ -12,13 +12,13 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
 export class QuestionSliderModel extends QuestionRatingModel {
-  @property({ defaultValue: false }) isSingleMode: boolean;
+  @property({ defaultValue: "range" }) sliderType: "range" | "single";
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
   @property({ defaultValue: null }) maxValueExpression: string | null;
   @property({ defaultValue: null }) minValueExpression: string | null;
-  @property({ defaultValue: null }) maxSelectedRange: number | null;
-  @property({ defaultValue: null }) minSelectedRange: number | null;
+  @property({ defaultValue: null }) maxRangeLength: number | null;
+  @property({ defaultValue: null }) minRangeLength: number | null;
   @property({ defaultValue: "" }) valueFormat: string;
   public get step(): number {
     if (this.snapToTicks) {
@@ -65,12 +65,12 @@ export class QuestionSliderModel extends QuestionRatingModel {
       .toString();
   }
 
-  public get renderedMaxSelectedRange(): number {
-    return this.maxSelectedRange ?? this.max;
+  public get renderedmaxRangeLength(): number {
+    return this.maxRangeLength ?? this.max;
   }
 
-  public get renderedMinSelectedRange(): number {
-    return this.minSelectedRange ?? this.step;
+  public get renderedminRangeLength(): number {
+    return this.minRangeLength ?? this.step;
   }
 
   public isIndeterminate: boolean = false;
@@ -113,8 +113,8 @@ Serializer.addClass(
   "slider",
   [
     {
-      name: "isSingleMode:boolean",
-      default: false,
+      name: "sliderType:string",
+      default: "range",
     },
     {
       name: "snapToTicks",
@@ -137,13 +137,13 @@ Serializer.addClass(
       default: 6
     },
     {
-      name: "maxSelectedRange: number",
+      name: "maxRangeLength: number",
       // defaultFunc: (obj: QuestionSliderModel): number => {
       //   return obj.max;
       // }
     },
     {
-      name: "minSelectedRange: number"
+      name: "minRangeLength: number"
     },
     {
       name: "maxValueExpression",

@@ -610,6 +610,9 @@ frameworks.forEach(framework => {
       await t.resizeWindow(500, 700);
       await ClientFunction(() => {
         window["Survey"]._setIsTouch(true);
+        window["survey"].onOpenDropdownMenu.add((sender, options) => {
+          if (options.menuType === "popup") options.menuType = "overlay";
+        });
       })();
       await initSurvey(framework, {
         showQuestionNumbers: "off",

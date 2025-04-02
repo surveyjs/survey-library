@@ -298,6 +298,7 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
   assert.equal(list.searchEnabled, true);
   assert.equal(list.showSearchClearButton, true);
   assert.equal(popup.displayMode, "overlay");
+  assert.equal(popup.getDisplayMode(), "menu-popup-overlay");
   assert.ok(popup.isFocusedContent);
   assert.notOk(popup.setWidthByTarget);
   popup.isVisible = true;

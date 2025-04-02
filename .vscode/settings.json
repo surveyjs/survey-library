@@ -25,4 +25,5 @@
         "clearOnRun": "none"
     },
     "testing.openTesting": "neverOpen",
+    "testing.automaticallyOpenTestResults": "neverOpen",
 }

@@ -16,7 +16,7 @@ export default defineConfig({
     },
     {
       name: "e2e",
-      testDir: resolve(__dirname, "./functionalTests")
+      testDir: resolve(__dirname, "./e2e")
     }
   ]
 });

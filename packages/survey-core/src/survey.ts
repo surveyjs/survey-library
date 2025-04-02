@@ -8481,6 +8481,7 @@ Serializer.addClass("survey", [
     name: "progressBarLocation",
     default: "auto",
     choices: ["auto", "aboveheader", "belowheader", "bottom", "topbottom"],
+    visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
     name: "progressBarType",

@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 
 const title = "RequiredIf property";
 
-const themeName = "defaultV2";
+const themeName = "default";
 
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {

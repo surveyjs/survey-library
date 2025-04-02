@@ -178,12 +178,21 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
 
   public mouseOverHandler(itemValue: T): void {
     itemValue.isHovered = true;
+    let needToShowPopup = false;
+    let otherPopupVisible = false;
     this.actions.forEach(action => {
       if (action === itemValue && !!itemValue.popupModel) {
-        itemValue.showPopupDelayed(this.subItemsShowDelay);
-        this.popupAfterShowCallback(itemValue);
+        needToShowPopup = true;
+      }
+      if (action.popupModel && action.popupModel.isVisible) {
+        otherPopupVisible = true;
       }
     });
+    if (needToShowPopup) {
+      const delay = otherPopupVisible ? Math.max(this.subItemsShowDelay, this.subItemsHideDelay) : this.subItemsShowDelay;
+      itemValue.showPopupDelayed(delay);
+      this.popupAfterShowCallback(itemValue);
+    }
   }
 
   public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {

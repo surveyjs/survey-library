@@ -1,6 +1,5 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 import { registerMarkupTests } from "./helper";
-import { setupLocale } from "../../packages/survey-core/src/surveyStrings";
 
 registerMarkupTests(
   [

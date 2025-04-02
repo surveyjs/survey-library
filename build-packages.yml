@@ -299,13 +299,14 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
+          cd $(Build.SourcesDirectory)/survey-library
           npm run postinstall
-        displayName: "install chrome"
+        displayName: "install playwright chrome"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library
           npx puppeteer browsers install chrome
-        displayName: "install chrome"
+        displayName: "install puppeteer chrome"
 
       - task: DownloadBuildArtifacts@0
         inputs:

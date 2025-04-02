@@ -610,9 +610,6 @@ frameworks.forEach(framework => {
       await t.resizeWindow(500, 700);
       await ClientFunction(() => {
         window["Survey"]._setIsTouch(true);
-        window["survey"].onOpenDropdownMenu.add((sender, options) => {
-          if (options.menuType === "popup") options.menuType = "overlay";
-        });
       })();
       await initSurvey(framework, {
         showQuestionNumbers: "off",
@@ -639,6 +636,11 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await ClientFunction(() => {
+        window["survey"].onOpenDropdownMenu.add((sender, options) => {
+          if (options.menuType === "popup") options.menuType = "overlay";
+        });
+      })();
       await t.click(Selector(".sd-dropdown__filter-string-input"))
         .click(Selector(".sd-list__item span").withText("item1"))
         .click(Selector(".sd-dropdown__filter-string-input"));

@@ -18432,6 +18432,7 @@ QUnit.test("getContainerContent - do show advanced header on completed page if s
   };
 
   let survey = new SurveyModel(json);
+  survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
   function getContainerContent(container: LayoutElementContainer) {
     let result = survey.getContainerContent(container);
     result.forEach(item => {
@@ -18865,7 +18866,7 @@ QUnit.test("getContainerContent - header elements order", function (assert) {
     container: "header",
     component: "sv-custom",
   });
-  survey.applyTheme({ "headerView": "advanced" } as any);
+  survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" }, "headerView": "advanced" } as any);
 
   assert.deepEqual(getContainerContent("header"), [
     {
@@ -20565,6 +20566,7 @@ QUnit.test("getContainerContent - show advanced header on start page", function 
   };
 
   let survey = new SurveyModel(json);
+  survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" } });
   const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [{
@@ -21009,6 +21011,84 @@ QUnit.test("getContainerContent - do not show buttons progress in the single pag
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
+
+QUnit.test("getContainerContent - show advanced header in content top container if no header background", function (assert) {
+  const json = {
+    "title": "Survey",
+    "pages": [
+      { name: "page1", elements: [{ name: "q1", type: "html" }] },
+      { name: "page2", elements: [{ name: "q2", type: "text" }] },
+    ],
+    "showTOC": true,
+    "headerView": "advanced",
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.equal(survey.progressBarType, "pages");
+  assert.equal(survey.questionsOnPageMode, "standard");
+  assert.equal(survey.showProgressBar, false);
+  assert.equal(survey.progressBarLocation, "auto");
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "header in center");
+  assert.deepEqual(getContainerContent("footer"), [], "footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "center top");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "center bottom");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-navigation-toc",
+    "id": "toc-navigation"
+  }], "left");
+  assert.deepEqual(getContainerContent("right"), [], "right");
+});
+
+QUnit.test("getContainerContent - show advanced header in header container if header background is set", function (assert) {
+  const json = {
+    "title": "Survey",
+    "pages": [
+      { name: "page1", elements: [{ name: "q1", type: "html" }] },
+      { name: "page2", elements: [{ name: "q2", type: "text" }] },
+    ],
+    "showTOC": true,
+    "headerView": "advanced",
+  };
+
+  let survey = new SurveyModel(json);
+  survey.applyTheme({ cssVariables: { "--sjs-header-backcolor": "red" } });
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.equal(survey.progressBarType, "pages");
+  assert.equal(survey.questionsOnPageMode, "standard");
+  assert.equal(survey.showProgressBar, false);
+  assert.equal(survey.progressBarLocation, "auto");
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "header in header");
+  assert.deepEqual(getContainerContent("center"), [], "Progress is shown");
+  assert.deepEqual(getContainerContent("footer"), [], "footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "center top");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "center bottom");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-navigation-toc",
+    "id": "toc-navigation"
+  }], "left");
+  assert.deepEqual(getContainerContent("right"), [], "right");
+});
+
 QUnit.test("Display mode in design time 2", function (assert) {
   const survey = new SurveyModel();
   assert.equal(survey.wrapperFormCss, "sd-root-modern__wrapper");

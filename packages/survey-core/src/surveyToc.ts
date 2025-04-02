@@ -118,9 +118,12 @@ export class TOCModel {
       tocRootElement.style.height = "";
       if (!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
         const rootHeight = rootElement.getBoundingClientRect().height;
+        const headerLayoutElement = this.survey.findLayoutElement("advanced-header");
+        const advHeader = headerLayoutElement && headerLayoutElement.data;
+        let isBelowHeader = !advHeader || advHeader.hasBackground;
         const titleSelector = this.survey.headerView === "advanced" ? ".sv-header" : ".sv_custom_header+div div." + (this.survey.css.title || "sd-title");
         const titleElement = rootElement.querySelector(titleSelector) as HTMLDivElement;
-        const titleElementHeight = titleElement ? titleElement.getBoundingClientRect().height : 0;
+        const titleElementHeight = titleElement && isBelowHeader ? titleElement.getBoundingClientRect().height : 0;
         const scrollCompensationHeight = rootElement.scrollTop > titleElementHeight ? 0 : titleElementHeight - rootElement.scrollTop;
         tocRootElement.style.height = (rootHeight - scrollCompensationHeight - 1) + "px";
       }

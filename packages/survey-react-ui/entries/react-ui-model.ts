@@ -71,7 +71,7 @@ export { SurveyProgressButtons } from "../src/progressButtons";
 export { SurveyProgressToc } from "../src/progressToc";
 export { SurveyQuestionRating } from "../src/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../src/rating-dropdown";
-export { SurveyQuestionRangeSlider } from "../src/reactquestion_range_slider";
+export { SurveyQuestionSlider } from "../src/reactquestion_slider";
 export { SurveyQuestionExpression } from "../src/reactquestion_expression";
 export { PopupSurvey, SurveyWindow } from "../src/react-popup-survey";
 export { ReactQuestionFactory } from "../src/reactquestion_factory";

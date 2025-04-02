@@ -11,7 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  *
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
-export class QuestionRangeSliderModel extends QuestionRatingModel {
+export class QuestionSliderModel extends QuestionRatingModel {
   @property({ defaultValue: false }) isSingleMode: boolean;
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
@@ -55,7 +55,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
   }
 
   public getType(): string {
-    return "rangeslider";
+    return "slider";
   }
 
   public get rootCss(): string {
@@ -110,7 +110,7 @@ export class QuestionRangeSliderModel extends QuestionRatingModel {
 }
 
 Serializer.addClass(
-  "rangeslider",
+  "slider",
   [
     {
       name: "isSingleMode:boolean",
@@ -138,7 +138,7 @@ Serializer.addClass(
     },
     {
       name: "maxSelectedRange: number",
-      // defaultFunc: (obj: QuestionRangeSliderModel): number => {
+      // defaultFunc: (obj: QuestionSliderModel): number => {
       //   return obj.max;
       // }
     },
@@ -158,10 +158,10 @@ Serializer.addClass(
     },
   ],
   function () {
-    return new QuestionRangeSliderModel("");
+    return new QuestionSliderModel("");
   },
   "question", // TODO maybe rating ?
 );
-QuestionFactory.Instance.registerQuestion("rangeslider", (name) => {
-  return new QuestionRangeSliderModel(name);
+QuestionFactory.Instance.registerQuestion("slider", (name) => {
+  return new QuestionSliderModel(name);
 });

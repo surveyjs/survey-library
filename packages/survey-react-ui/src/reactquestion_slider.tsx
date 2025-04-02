@@ -1,9 +1,9 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { Base, QuestionRangeSliderModel } from "survey-core";
+import { Base, QuestionSliderModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 
-export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
+export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
     this.rangeInputRef = React.createRef();
@@ -13,8 +13,8 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     this.updateInputRangeStyles();
   }
 
-  protected get question(): QuestionRangeSliderModel {
-    return this.questionBase as QuestionRangeSliderModel;
+  protected get question(): QuestionSliderModel {
+    return this.questionBase as QuestionSliderModel;
   }
 
   protected getStateElement(): Base {
@@ -253,6 +253,6 @@ export class SurveyQuestionRangeSlider extends SurveyQuestionElementBase {
     return Math.min(newValue, nextValueBorder - minSelectedRange);
   }
 }
-ReactQuestionFactory.Instance.registerQuestion("rangeslider", (props) => {
-  return React.createElement(SurveyQuestionRangeSlider, props);
+ReactQuestionFactory.Instance.registerQuestion("slider", (props) => {
+  return React.createElement(SurveyQuestionSlider, props);
 });

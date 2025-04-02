@@ -234,6 +234,7 @@ export class DropdownListModel extends Base {
   }
   protected setOnTextSearchCallbackForListModel(listModel: ListModel<ItemValue>) {
     listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
+      if (item.id === this.customItemValue.id) return item.visible;
       if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
       let textInLow = item.text.toLocaleLowerCase();
       textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
@@ -559,7 +560,6 @@ export class DropdownListModel extends Base {
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {
     this.choicesLazyLoadEnabled = newValue;
-    this.listModel.shouldProcessFilter = !newValue;
   }
 
   public updateItems(): void {

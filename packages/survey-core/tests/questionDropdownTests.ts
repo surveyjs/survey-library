@@ -1824,8 +1824,9 @@ QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
   survey.onChoicesLazyLoad.add((_, opt) => {
     const total = 55;
     const result: Array<any> = [];
+    const filter = !opt.filter ? "" : "des";
     for (let index = 0; index < total; index++) {
-      result.push({ value: "item" + index, text: "item" + index });
+      result.push({ value: "item" + index, text: "item" + filter + index });
     }
     if(opt.filter === "des") {
       opt.setItems(result.slice(10, 15), total);

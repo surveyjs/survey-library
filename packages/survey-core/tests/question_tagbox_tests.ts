@@ -2406,6 +2406,55 @@ QUnit.test("allowCustomChoices: Add custom value if choicesLazyLoadEnabled is tr
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
+QUnit.test("allowCustomChoices: Filter choices if choicesLazyLoadEnabled is true", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "tagbox",
+        "name": "country",
+        "title": "Select a country",
+        "choicesLazyLoadEnabled": true,
+        "choicesLazyLoadPageSize": 25,
+        "allowCustomChoices": true,
+      }
+    ]
+  });
+  let callback;
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    let result: any = [];
+    callback = (filter) => {
+      result = !!filter ? [] : getNumberArray();
+      options.setItems(result, result.length);
+    };
+  });
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const listModel: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const testCustomValue = "testCustomValue";
+
+  dropdownListModel.popupModel.show();
+  callback(dropdownListModel.filterString);
+  assert.equal(listModel.actions.length, 26, "#0 listModel.actions");
+  assert.equal(listModel.actions[25].id, "newCustomItem", "#0 added item id");
+  assert.equal(listModel.isItemVisible(listModel.actions[25]), false, "#0 added item visible");
+
+  dropdownListModel.inputStringRendered = testCustomValue;
+  callback(dropdownListModel.filterString);
+  assert.equal(listModel.actions.length, 1, "#1 listModel.actions");
+  assert.equal(listModel.actions[0].id, "newCustomItem", "#1 custom item id");
+  assert.equal(listModel.isItemVisible(listModel.actions[0]), true, "#1 custom item visible");
+
+  listModel.onItemClick(listModel.getActionById("newCustomItem"));
+  dropdownListModel.inputStringRendered = testCustomValue + "_1";
+  callback(dropdownListModel.filterString);
+  assert.equal(listModel.actions.length, 2, "#2 listModel.actions");
+  assert.equal(listModel.actions[0].id, "testCustomValue", "#2 added item id");
+  assert.equal(listModel.isItemVisible(listModel.actions[0]), false, "#2 added item visible");
+  assert.equal(listModel.actions[1].id, "newCustomItem", "#2 custom item id");
+  assert.equal(listModel.isItemVisible(listModel.actions[1]), true, "#2 custom item visible");
+});
+
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value (mobile mode)", function (assert) {
   _setIsTouch(true);
   const survey = new SurveyModel({

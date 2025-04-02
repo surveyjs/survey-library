@@ -69,7 +69,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }) filterString: string;
   @property({ defaultValue: false }) hasVerticalScroller: boolean;
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
-  @property({ defaultValue: true }) shouldProcessFilter: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
   @property({ defaultValue: true }) renderElements: boolean;
   @property({ defaultValue: false }) textWrapEnabled: boolean;
@@ -89,7 +88,8 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
   public isItemVisible(item: T): boolean {
-    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
+    if(item.id === this.loadingIndicator.id) return item.visible;
+    return item.visible && this.hasText(item, this.filterString);
   }
 
   protected getRenderedActions(): Array<T> {

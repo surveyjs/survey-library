@@ -70,7 +70,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     };
     const res = new MultiSelectListModel<ItemValue>(listOptions);
     this.setOnTextSearchCallbackForListModel(res);
-    res.forceShowFilter = true;
+    res.forceShowFilter = this.question.choicesLazyLoadEnabled;
     return res;
   }
   protected resetFilterString(): void {

@@ -19168,15 +19168,22 @@ QUnit.test("Search disabled after change popup displayMode", function (assert) {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const popup = question.dropdownListModel.popupModel;
   const list: ListModel = popup.contentComponentData.model as ListModel;
+  let menuType = "popup";
   survey.onOpenDropdownMenu.add((_, options) => {
-    options.menuType = "dropdown";
+    options.menuType = menuType;
   });
 
   assert.equal(popup.displayMode, "overlay", "#1");
   assert.equal(popup.setWidthByTarget, false, "#2");
-  assert.equal(list.showFilter, true, "#3");
+  assert.equal(list.showFilter, false, "#3");
   assert.equal(list.searchEnabled, true, "#4");
 
+  question.choices.push(new ItemValue("Renault"));
+  popup.show();
+  assert.equal(list.showFilter, true, "#5");
+  popup.hide();
+
+  menuType = "dropdown";
   popup.show();
   assert.equal(popup.displayMode, "popup", "#1.1");
   assert.equal(popup.setWidthByTarget, true, "#2.1");

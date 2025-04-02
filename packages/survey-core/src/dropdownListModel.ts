@@ -232,7 +232,7 @@ export class DropdownListModel extends Base {
     const res = new ListModel<ItemValue>(listOptions as any);
     this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
-    res.forceShowFilter = true;
+    res.forceShowFilter = this.question.choicesLazyLoadEnabled;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };

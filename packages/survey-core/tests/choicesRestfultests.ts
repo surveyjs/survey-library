@@ -1869,7 +1869,7 @@ QUnit.test("allowCustomChoices: Add custom value into dropdown", function (asser
   assert.equal(question.visibleChoices.length, 5, "#1 question.visibleChoices");
   assert.deepEqual(survey.data, {}, "#1 survey.data");
 
-  listModel.onItemClick(listModel.actions[5]);
+  listModel.onItemClick(listModel.getActionById("newCustomItem"));
   assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
   assert.equal(listModel.actions.length, 7, "#2 listModel.actions");

@@ -1943,7 +1943,7 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", funct
   assert.equal(question.visibleChoices.length, 4, "#1 question.visibleChoices");
   assert.deepEqual(survey.data, {}, "#1 survey.data");
 
-  listModel.onItemClick(listModel.actions[4]);
+  listModel.onItemClick(listModel.getActionById("newCustomItem"));
   assert.equal(dropdownListModel.inputStringRendered, "", "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
   assert.equal(listModel.actions.length, 6, "#2 listModel.actions");
@@ -2095,7 +2095,7 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: true", functi
   assert.equal(question.visibleChoices.length, 4, "#1 question.visibleChoices");
   assert.deepEqual(survey.data, {}, "#1 survey.data");
 
-  listModel.onItemClick(listModel.actions[4]);
+  listModel.onItemClick(listModel.getActionById("newCustomItem"));
   assert.equal(dropdownListModel.inputStringRendered, "", "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
   assert.equal(listModel.actions.length, 6, "#2 listModel.actions");
@@ -2374,7 +2374,7 @@ QUnit.test("allowCustomChoices: Add custom value if choicesLazyLoadEnabled is tr
       assert.deepEqual(survey.data, {}, "#1 survey.data");
       assert.equal(dropdownListModel.popupModel.isVisible, true, "#1 popupModel.isVisible");
 
-      listModel.onItemClick(listModel.actions[0]);
+      listModel.onItemClick(listModel.getActionById("newCustomItem"));
       setTimeout(() => {
         assert.equal(dropdownListModel.inputStringRendered, "", "#2 inputStringRendered");
         assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
@@ -2484,7 +2484,7 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
   assert.equal(question.visibleChoices.length, 4, "#1 question.visibleChoices");
   assert.deepEqual(survey.data, {}, "#1 survey.data");
 
-  listModel.onItemClick(listModel.actions[4]);
+  listModel.onItemClick(listModel.getActionById("newCustomItem"));
   assert.equal(dropdownListModel.inputStringRendered, "", "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
   assert.equal(listModel.actions.length, 6, "#2 listModel.actions");

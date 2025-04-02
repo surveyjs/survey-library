@@ -1077,20 +1077,9 @@ export class QuestionSelectBase extends Question {
     }
   }
   private calcVisibleChoices(): Array<ItemValue> {
-    if (this.canUseFilteredChoices()) return this.getFilteredChoices();
-    var res = this.sortVisibleChoices(this.getFilteredChoices().slice());
+    var res = this.sortArrayByChoicesOrder(this.getFilteredChoices());
     this.addToVisibleChoices(res, this.isAddDefaultItems);
     return res;
-  }
-  protected canUseFilteredChoices(): boolean {
-    return (
-      !this.isAddDefaultItems &&
-      !this.showNoneItem &&
-      !this.showRefuseItem &&
-      !this.showDontKnowItem &&
-      !this.hasOther &&
-      this.choicesOrder == "none"
-    );
   }
   public setCanShowOptionItemCallback(func: (item: ItemValue) => boolean) {
     this.canShowOptionItemCallback = func;
@@ -1695,13 +1684,15 @@ export class QuestionSelectBase extends Question {
     var choices = this.isUsingCarryForward ? this.visibleChoices : this.getFilteredChoices();
     return !choices || choices.length > 0;
   }
-  private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
-    if (this.isInDesignMode) return array;
-    var order = this.choicesOrder.toLowerCase();
-    if (order == "asc") return this.sortArray(array, 1);
-    if (order == "desc") return this.sortArray(array, -1);
-    if (order == "random") return this.randomizeArray(array);
-    return array;
+  private sortArrayByChoicesOrder(array: Array<ItemValue>): Array<ItemValue> {
+    const res = array.slice();
+    if (this.isInDesignMode) return res;
+
+    const order = this.choicesOrder.toLowerCase();
+    if (order == "asc") return this.sortArray(res, 1);
+    if (order == "desc") return this.sortArray(res, -1);
+    if (order == "random") return this.randomizeArray(res);
+    return res;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function (a, b) {

@@ -2855,3 +2855,42 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
 
   _setIsTouch(false);
 });
+
+QUnit.test("allowCustomChoices: Add custom value if sortOrder", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      name: "q1", type: "dropdown", choicesOrder: "asc", allowCustomChoices: true,
+      choices: ["ABC", "DEF", "JKL", "MNO", "PQR"]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const testCustomValue = "GHI";
+
+  dropdownListModel.inputStringRendered = testCustomValue;
+  assert.equal(listModel.actions.length, 6, "#1 listModel.actions");
+  assert.equal(listModel.actions[5].id, "newCustomItem", "#1 custom item id");
+  assert.equal(listModel.actions[5].visible, true, "#1 custom item visible");
+  assert.equal(question.value, undefined, "#1 question.value");
+  assert.equal(question.selectedItem, undefined, "#1 question.selectedItem");
+  assert.equal(question.visibleChoices.length, 5, "#1 question.visibleChoices");
+  assert.deepEqual(survey.data, {}, "#1 survey.data");
+
+  listModel.onItemClick(listModel.getActionById("newCustomItem"));
+  assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
+  assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
+  assert.equal(listModel.actions.length, 7, "#2 listModel.actions");
+  assert.equal(listModel.actions[2].id, testCustomValue, "#2 custom value add into list - id");
+  assert.equal(listModel.actions[2].title, testCustomValue, "#2 custom value add into list - title");
+  assert.equal(listModel.actions[6].id, "newCustomItem", "#2 custom item id");
+  assert.equal(listModel.actions[6].visible, false, "#2 custom item invisible");
+  assert.equal(question.value, testCustomValue, "#2 question.value");
+  assert.equal(question.selectedItem.id, testCustomValue, "#2 question.selectedItem");
+  assert.equal(question.visibleChoices.length, 6, "#2 question.visibleChoices");
+  assert.equal(question.visibleChoices[2].value, testCustomValue, "#2 question.visibleChoices[0]");
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#2 survey.data");
+
+  survey.tryComplete();
+  assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
+});

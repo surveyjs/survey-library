@@ -18,7 +18,7 @@ export var surveyLocalization = {
     this.localeNames[loc] = localeConfig.nativeName;
     this.localeNamesInEnglish[loc] = localeConfig.englishName;
     if (localeConfig.rtl !== undefined) {
-      this.localeDirections[loc] = localeConfig.rtl;
+      this.localeDirections[loc] = localeConfig.rtl ? "rtl" : "ltr";
     }
   },
   get currentLocale(): string {

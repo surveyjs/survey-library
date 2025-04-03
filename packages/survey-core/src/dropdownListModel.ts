@@ -127,7 +127,7 @@ export class DropdownListModel extends Base {
     let menuType: "overlay" | "popup" | "dropdown" = "dropdown";
     let deviceType: "mobile" | "tablet" | "desktop" = "desktop";
     if (IsTouch) {
-      menuType = isTablet ? "popup" : "overlay";
+      menuType = "popup";
       deviceType = isTablet ? "tablet" : "mobile";
     }
 

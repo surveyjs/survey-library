@@ -452,6 +452,11 @@ frameworks.forEach(framework => {
           }
         });
       })();
+      await ClientFunction(() => {
+        window["survey"].onOpenDropdownMenu.add((sender, options) => {
+          if (options.menuType === "popup") options.menuType = "overlay";
+        });
+      })();
 
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
       const popupContainer = Selector(".sv-popup__container .sv-popup__content").filterVisible();

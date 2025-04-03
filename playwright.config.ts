@@ -5,6 +5,7 @@ export default defineConfig({
     command: "",
     url: "http://localhost:8080"
   },
+  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
   projects: [
     {
       name: "a11y",

@@ -369,7 +369,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/e2e"
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
           Contents: "**"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
           OverWrite: true

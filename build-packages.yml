@@ -346,10 +346,10 @@ jobs:
           npm run test
         displayName: "run markup tests"
 
-      # - script: |
-      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-      #     npm run e2e:ci
-      #   displayName: "run e2e tests"
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
@@ -366,6 +366,23 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildReact"
           publishLocation: "Container"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/e2e"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
 
   - job: Angular
     dependsOn:

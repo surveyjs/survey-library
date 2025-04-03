@@ -305,6 +305,11 @@ frameworks.forEach(async framework => {
           }
         ]
       });
+      await ClientFunction(() => {
+        window["survey"].onOpenDropdownMenu.add((sender, options) => {
+          if (options.menuType === "popup") options.menuType = "overlay";
+        });
+      })();
       await t.click(Selector(".sd-dropdown__filter-string-input"))
         .click(Selector(".sd-list__item span").withText("item1"));
       await takeElementScreenshot("tagbox-question-overlay-popup-selected.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);

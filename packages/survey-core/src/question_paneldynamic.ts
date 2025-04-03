@@ -314,6 +314,10 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
     this.registerPropertyChangedHandlers(["minPanelCount"], () => { this.onMinPanelCountChanged(); });
     this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
+    this.registerPropertyChangedHandlers(["templateQuestionTitleLocation", "templateQuestionTitleWidth"], () => {
+      const panels = this.visiblePanelsCore;
+      if(panels) panels.forEach((panel) => { panel.updateElementCss(true); });
+    });
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get hasSingleInput(): boolean { return false; }

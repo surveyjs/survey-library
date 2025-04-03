@@ -7813,3 +7813,27 @@ QUnit.test("Question title width for dynamic panels - property.visibleIf #2295",
   q1.titleLocation = "top";
   assert.equal(prop.isVisible("", qPanel), false, "#5");
 });
+QUnit.test("Question title location for dynamic panels - update dynamically #2295", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }]
+  });
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel = <PanelModel>qPanel.panels[0];
+  const q1 = panel.getQuestionByName("q1");
+  const leftClass = q1.cssClasses.titleLeftRoot;
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#1");
+  qPanel.templateQuestionTitleLocation = "left";
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#2");
+  qPanel.templateQuestionTitleLocation = "default";
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#3");
+  survey.pages[0].questionTitleLocation = "left";
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#4");
+});

@@ -507,13 +507,13 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+          npm run e2e:ci
+        displayName: "run e2e tests"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+          npm run testcafe:ci
+        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -649,13 +649,13 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+          npm run e2e:ci
+        displayName: "run e2e tests"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+          npm run testcafe:ci
+        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:

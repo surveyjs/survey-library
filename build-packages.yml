@@ -300,6 +300,11 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
           npx puppeteer browsers install chrome
         displayName: "install chrome"
 

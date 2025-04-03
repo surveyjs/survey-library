@@ -687,7 +687,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/test-results/"
           Contents: "**"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E"
           OverWrite: true

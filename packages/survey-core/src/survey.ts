@@ -8184,8 +8184,17 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed")) && layoutElement.container === container) {
+        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
+          const advHeader = layoutElement && layoutElement.data as Cover;
+          if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
+            if (container === "center") {
           containerLayoutElements.push(layoutElement);
+            }
+          } else {
+            if (layoutElement.container === container) {
+              containerLayoutElements.push(layoutElement);
+            }
+          }
         }
       } else {
         if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {

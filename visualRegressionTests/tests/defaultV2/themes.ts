@@ -442,7 +442,10 @@ frameworks.forEach(framework => {
   test("Mobile mode: input font-size is 16px", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(400, 2000);
-      await ClientFunction(() => { window["Survey"]._setIsTouch(true); })();
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+        (<any>window).Survey.ListModel.MINELEMENTCOUNT = 2;
+      })();
       await initSurvey(framework, jsonWithInputs);
       await ClientFunction(() => {
         (<any>window).survey.applyTheme({

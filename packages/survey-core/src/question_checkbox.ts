@@ -480,9 +480,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return { index: -1, val: undefined };
   }
-  protected canUseFilteredChoices(): boolean {
-    return !this.hasSelectAll && super.canUseFilteredChoices();
-  }
   protected supportSelectAll(): boolean {
     return this.isSupportProperty("showSelectAllItem");
   }

@@ -1,26 +1,22 @@
 import type { Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
-const minimist = require("minimist");
-
-// eslint-disable-next-line no-undef
-const args = minimist(process.argv.slice(2));
-const environment = args.env;
+const environment = process.env.env;
 
 export const frameworks = environment
   ? [environment]
-  : ["knockout", "react", "vue"/*, "jquery-ui"*/];
+  : ["angular", "react", "vue3"/*, "js-ui"*/];
 
 // eslint-disable-next-line no-console
 //console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
-export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
+export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
 export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
-    window["Survey"].StylesManager.applyTheme(theme);
+    // window["Survey"].StylesManager.applyTheme(theme);
   }, theme);
 };
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
@@ -38,6 +34,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 
     //!!!TODO!!!
     //window["Survey"].settings.animationEnabled = false;
+    const self: any = window;
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
@@ -53,37 +50,34 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     }
     model.onComplete.add(surveyComplete);
 
-    if (framework === "knockout") {
-      document.getElementById("surveyElement").innerHTML = "";
-      model.render("surveyElement");
-    } else if (framework === "jquery-ui") {
-      document.getElementById("surveyElement").innerHTML = "";
-      window["$"]("#surveyElement").Survey({
-        model: model
-      });
-    } else if (framework === "survey-js-ui") {
-      document.getElementById("surveyElement").innerHTML = "";
-      SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
+    const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
+    if (framework === "js-ui") {
+      surveyElement.innerHTML = "";
+      self.SurveyUI.renderSurvey(model, surveyElement);
     } else if (framework === "react") {
-      if(!!window.root) {
-        window.root.unmount();
+      if (!!self.root) {
+        self.root.unmount();
       }
-      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
+        self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
       );
-    } else if (framework === "vue") {
-      document.getElementById("surveyElement").innerHTML =
-        "<survey :survey='survey'/>";
-      !!window["vueApp"] && window["vueApp"].$destroy();
-      window["vueApp"] = new window["Vue"]({
-        el: "#surveyElement",
-        data: { survey: model },
-      });
     } else if (framework === "angular" || framework == "vue3") {
-      window.setSurvey(model);
+      self.window.setSurvey(model);
     }
+
+    // if (framework === "react") {
+    //   if (!!window.root) {
+    //     window.root.unmount();
+    //   }
+    //   const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+    //   window["root"] = root;
+    //   root.render(
+    //     React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
+    //   );
+    // }
+
     window["survey"] = model;
   }, [framework, json, isDesignMode, props]);
 };

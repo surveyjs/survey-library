@@ -3,7 +3,7 @@ import { QuestionBoolean, QuestionRadiogroup } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
-const themeName = "defaultV2";
+const themeName = "default";
 const title = "Boolean Screenshot";
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {

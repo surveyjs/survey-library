@@ -67,13 +67,15 @@
     "build:example:prod": "ng build --aot --output-hashing=none angular-ui",
     "test": "ng test --watch=false --browsers=ChromeHeadless survey-angular-ui",
     "test:watch": "ng test survey-angular-ui",
-    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
     "testcafe": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.dev.js",
     "testcafe:ci": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.dev.js",
     "vrt:ci": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --reporter minimal --env=angular --config-file ../../.testcaferc.js",
     "accessibility-tests": "cross-env env=angular playwright test --project a11y --ui",
-    "accessibility-tests:ci": "cross-env env=angular playwright test --project a11y --reporter dot --quiet"
+    "accessibility-tests:ci": "cross-env env=angular playwright test --project a11y --reporter dot --quiet",
+    "e2e": "cross-env env=angular playwright test --project e2e --ui",
+    "e2e:ci": "cross-env env=angular playwright test --project e2e --reporter dot --quiet",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "commit-and-tag-version": {
     "bumpFiles": [

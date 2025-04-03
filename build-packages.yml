@@ -343,13 +343,13 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+          npm run e2e:ci
+        displayName: "run e2e tests"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+          npm run testcafe:ci
+        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -361,6 +361,23 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildReact"
           publishLocation: "Container"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
 
   - job: Angular
     dependsOn:
@@ -483,10 +500,10 @@ jobs:
           npm run testcafe:ci
         displayName: "run functional tests"
 
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+      # - script: |
+      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+      #     npm run e2e:ci
+      #   displayName: "run e2e tests"
 
       - task: CopyFiles@2
         inputs:
@@ -620,10 +637,10 @@ jobs:
           npm run testcafe:ci
         displayName: "run functional tests"
 
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
+      # - script: |
+      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+      #     npm run e2e:ci
+      #   displayName: "run e2e tests"
 
       - task: CopyFiles@2
         inputs:

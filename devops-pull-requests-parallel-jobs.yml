@@ -327,6 +327,23 @@ jobs:
           npm run testcafe:ci
         displayName: "run functional tests"
 
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/e2e"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
+          ArtifactName: "Library_Vue3_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
   - job: SurveyUI_and_CSSFrameworks
     dependsOn: Core
     steps:

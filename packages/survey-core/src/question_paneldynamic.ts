@@ -1170,6 +1170,11 @@ export class QuestionPanelDynamicModel extends Question
   public set templateTitleLocation(val: string) {
     this.templateQuestionTitleLocation = val;
   }
+  /**
+   * Sets consistent width for question titles in CSS values. Applies only when [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) evaluates to `"left"`.
+   *
+   * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
+   */
   public get templateQuestionTitleWidth(): string {
     return this.template.questionTitleWidth;
   }

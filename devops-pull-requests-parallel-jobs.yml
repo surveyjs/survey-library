@@ -273,6 +273,10 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
           npx puppeteer browsers install chrome
         displayName: "install chrome"
 
@@ -312,6 +316,11 @@ jobs:
           cd packages/survey-vue3-ui
           npm run test
         displayName: "run unit and markup tests"
+
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
 
       - bash: |
           cd packages/survey-vue3-ui

@@ -1742,3 +1742,13 @@ QUnit.test("ExpressionRunner: do not convert to number extreme large strings", f
   values.a = "9999999999999999";
   assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
 });
+QUnit.only("No params for iif function, Bug#9674", function(assert) {
+  let runner = new ExpressionRunner("iif()");
+  assert.equal(runner.run(values), null, "Empty paramsters, #1");
+  runner = new ExpressionRunner("iif('')");
+  assert.equal(runner.run(values), null, "Empty paramsters, #2");
+});
+QUnit.only("No params for getDate function, Bug#9674", function(assert) {
+  let runner = new ExpressionRunner("getDate()");
+  assert.equal(runner.run(values), null, "Empty paramsters, #1");
+});

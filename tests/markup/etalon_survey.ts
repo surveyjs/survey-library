@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { setupLocale } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -64,8 +64,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       initSurvey: (survey) => {
-        surveyLocalization.locales["tst"] = {};
-        surveyLocalization.localeDirections["tst"] = "rtl";
+        setupLocale({ localeCode: "tst", strings: {}, nativeName: "Tst", englishName: "Test", rtl: true });
 
         survey.locale = "tst";
       },

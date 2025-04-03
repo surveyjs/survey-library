@@ -230,8 +230,9 @@ function avgInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("avgInArray", avgInArray);
 
 function iif(params: any[]): any {
-  if (!Array.isArray(params) || params.length !== 3) return null;
-  return params[0] ? params[1] : params[2];
+  if (!Array.isArray(params) || params.length < 2) return null;
+  const va2 = params.length > 2 ? params[2] : undefined;
+  return params[0] ? params[1] : va2;
 }
 FunctionFactory.Instance.register("iif", iif);
 

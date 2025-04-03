@@ -1,5 +1,7 @@
-import { _setIsTouch, _setIsTablet, Question } from "survey-core";
+import { _setIsTouch, _setIsTablet, Question, ListModel } from "survey-core";
 import { registerMarkupTests } from "./helper";
+
+let oldMinCount = 0;
 
 registerMarkupTests(
   [
@@ -212,10 +214,13 @@ registerMarkupTests(
       before: () => {
         _setIsTouch(true);
         _setIsTablet(true);
+        oldMinCount = ListModel.MINELEMENTCOUNT;
+        ListModel.MINELEMENTCOUNT = 2;
       },
       after: () => {
         _setIsTouch(false);
         _setIsTablet(undefined);
+        ListModel.MINELEMENTCOUNT = oldMinCount;
       },
       snapshot: "dropdown-select-mobile",
     },

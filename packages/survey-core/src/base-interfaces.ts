@@ -11,9 +11,8 @@ import { IAction } from "./actions/action";
 import { PanelModel } from "./panel";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
-import { CreateCustomChoiceItemEvent, DragDropAllowEvent } from "./survey-events-api";
+import { DragDropAllowEvent } from "./survey-events-api";
 import { PopupModel } from "./popup";
-import { ItemValue } from "./itemvalue";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -262,7 +261,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
   processOpenDropdownMenu(question: IQuestion, options: IDropdownMenuOptions): void;
   chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: Base, item?: any, elementType?: string, propertyName?: string }): void;
-  createCustomChoiceItem(options: CreateCustomChoiceItemEvent);
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;

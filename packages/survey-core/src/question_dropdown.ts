@@ -206,14 +206,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() searchMode: "contains" | "startsWith";
 
-  @property({
-    onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if (!!target.dropdownListModelValue) {
-        target.dropdownListModel.setAllowCustomChoices(newValue);
-      }
-    }
-  }) allowCustomChoices: boolean;
-
   /**
    * Specifies whether to wrap long texts in choice options onto a new line.
    *
@@ -348,12 +340,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.dropdownListModel.updateItems();
     }
   }
-  protected canAddCustomChoices(): boolean {
-    return this.allowCustomChoices;
-  }
 
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");
+    return this.inputId + (this.searchEnabled ? "_0" : "");
   }
   public getInputId() {
     return this.inputId + "_0";
@@ -413,10 +402,6 @@ Serializer.addClass(
     { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
-    {
-      name: "allowCustomChoices:boolean", default: false,
-      visibleIf: (obj: any): boolean => !obj.choicesFromQuestion, dependsOn: "choicesFromQuestion"
-    },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },

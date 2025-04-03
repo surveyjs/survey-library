@@ -456,9 +456,7 @@ QUnit.test("QuestionFile canPreviewImage", function (assert) {
 QUnit.test(
   "QuestionFile process errors during files uploading - https://surveyjs.answerdesk.io/ticket/details/T1075",
   async function (assert) {
-    const done1 = assert.async();
-    const done2 = assert.async();
-
+    var done = assert.async(2);
     var json = {
       questions: [
         {
@@ -511,7 +509,7 @@ QUnit.test(
       assert.equal(q1.errors.length, 1, "Has errors");
       assert.equal(q1.errors[0].text, "custom error text", "Error text");
       assert.equal(state, "loaded");
-      done2();
+      done();
 
       isSuccess = true;
       q1.loadFiles([<any>{ name: "f2", type: "t2" }]);
@@ -522,7 +520,7 @@ QUnit.test(
         assert.equal(q1.value[0].content, "f2_url");
         assert.equal(stateSec, "->loading->error->loaded->loading->loaded");
         assert.equal(state, "loaded");
-        done1();
+        done();
       }, 2);
     }, 2);
   }
@@ -852,7 +850,7 @@ QUnit.test("Question File responsive", (assert) => {
 });
 
 QUnit.test("QuestionFile inside a panel set value", async function (assert) {
-  let done = assert.async();
+  let done = assert.async(1);
   var json = {
     "name": "page1",
     "elements": [

@@ -449,11 +449,6 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library
-          npm run postinstall
-        displayName: "install playwright chrome"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library
           npx puppeteer browsers install chrome
         displayName: "install chrome"
 
@@ -507,13 +502,13 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
           npm run testcafe:ci
         displayName: "run functional tests"
+
+      # - script: |
+      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+      #     npm run e2e:ci
+      #   displayName: "run e2e tests"
 
       - task: CopyFiles@2
         inputs:
@@ -525,23 +520,6 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildAngular"
           publishLocation: "Container"
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
-          Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E"
-          OverWrite: true
-        condition: always()
-        displayName: "copy e2e artifacts"
-
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E/"
-          ArtifactName: "Library_Angular_E2E"
-          publishLocation: "Container"
-        condition: always()
-        displayName: "publish e2e artifacts"
 
   - job: Vue3
     dependsOn:
@@ -608,11 +586,6 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library
-          npm run postinstall
-        displayName: "install playwright chrome"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library
           npx puppeteer browsers install chrome
         displayName: "install chrome"
 
@@ -666,13 +639,13 @@ jobs:
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          npm run e2e:ci
-        displayName: "run e2e tests"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
           npm run testcafe:ci
         displayName: "run functional tests"
+
+      # - script: |
+      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+      #     npm run e2e:ci
+      #   displayName: "run e2e tests"
 
       - task: CopyFiles@2
         inputs:
@@ -684,23 +657,6 @@ jobs:
           PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
           ArtifactName: "SurveyJSLibraryBuildVue3"
           publishLocation: "Container"
-
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
-          Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E"
-          OverWrite: true
-        condition: always()
-        displayName: "copy e2e artifacts"
-
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
-          ArtifactName: "Library_Vue3_E2E"
-          publishLocation: "Container"
-        condition: always()
-        displayName: "publish e2e artifacts"
 
   - job: SurveyUI_and_CSSFrameworks
     dependsOn:

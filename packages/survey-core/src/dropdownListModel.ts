@@ -2,17 +2,14 @@ import { IAction } from "./actions/action";
 import { Base } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
-import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { IListModel, ListModel } from "./list";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
-import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionDropdownModel } from "./question_dropdown";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
-import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
@@ -44,9 +41,6 @@ export class DropdownListModel extends Base {
   protected listModelFilterStringChanged = (newValue: string) => {
     if (this.filterString !== newValue) {
       this.filterString = newValue;
-      if (!this.choicesLazyLoadEnabled) {
-        this.processCustomValue();
-      }
     }
   }
 
@@ -59,11 +53,10 @@ export class DropdownListModel extends Base {
   private setItems(items: Array<any>, totalCount: number) {
     this.itemsSettings.items = [].concat(this.itemsSettings.items, items);
     this.itemsSettings.totalCount = totalCount;
-    this.listModel.isAllDataLoaded = this.choicesLazyLoadEnabled && this.itemsSettings.items.length == this.itemsSettings.totalCount;
+    this.listModel.isAllDataLoaded = this.question.choicesLazyLoadEnabled && this.itemsSettings.items.length == this.itemsSettings.totalCount;
     this.question.choices = this.itemsSettings.items;
   }
   private loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
-    const _filterString = this.filterString;
     this.question.survey.loadQuestionChoices({
       question: this.question,
       filter: this.filterString,
@@ -75,23 +68,9 @@ export class DropdownListModel extends Base {
         if (!!callbackAfterItemsLoaded) {
           callbackAfterItemsLoaded();
         }
-        this.processCustomValue(_filterString);
       }
     });
     this.itemsSettings.skip += this.itemsSettings.take;
-  }
-  private processCustomValue(newValue?: string) {
-    if (!this.allowCustomChoices) return;
-
-    const value = newValue || this.filterString;
-    const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
-    if (!!item) {
-      this.customValue = undefined;
-    } else {
-      this.customValue = value;
-      this.updateItems();
-      this.listModel.focusFirstVisibleItem();
-    }
   }
   private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
@@ -154,40 +133,40 @@ export class DropdownListModel extends Base {
       this.updatePopupFocusFirstInputSelector();
     });
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
-      this.popupVisibilityChanged(option.isVisible);
+      if (option.isVisible) {
+        this.listModel.renderElements = true;
+      }
+      if (option.isVisible && this.question.choicesLazyLoadEnabled) {
+        this.listModel.actions = [];
+        this.resetItemsSettings();
+        this.updateQuestionChoices();
+      }
+
+      if (option.isVisible) {
+        this.updatePopupFocusFirstInputSelector();
+
+        const dropdownMenuOptions = this.getDropdownMenuOptions();
+        const prevMenuType = dropdownMenuOptions.menuType;
+        this.question.processOpenDropdownMenu(dropdownMenuOptions);
+        if (prevMenuType !== dropdownMenuOptions.menuType) {
+          this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
+          this.listModel.setSearchEnabled(this.searchEnabled && dropdownMenuOptions.menuType !== "dropdown");
+        }
+
+        if (!!this.question.onOpenedCallBack) {
+          this.question.onOpenedCallBack();
+        }
+      }
+      if (!option.isVisible) {
+        this.onHidePopup();
+
+        if (this.question.choicesLazyLoadEnabled) {
+          this.resetItemsSettings();
+        }
+      }
+      this.question.ariaExpanded = option.isVisible ? "true" : "false";
+      this.question.processPopupVisiblilityChanged(this.popupModel, option.isVisible);
     });
-  }
-
-  private popupVisibilityChanged(isVisible: boolean) {
-    if (isVisible) {
-      this.listModel.renderElements = true;
-    }
-    if (isVisible && this.choicesLazyLoadEnabled) {
-      this.listModel.actions = [];
-      this.resetItemsSettings();
-      this.updateQuestionChoices();
-    }
-
-    if (isVisible) {
-      this.updatePopupFocusFirstInputSelector();
-
-      const dropdownMenuOptions = this.getDropdownMenuOptions();
-      const prevMenuType = dropdownMenuOptions.menuType;
-      this.question.processOpenDropdownMenu(dropdownMenuOptions);
-      if (prevMenuType !== dropdownMenuOptions.menuType) {
-        this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
-        this.listModel.setSearchEnabled(this.inputAvailable && dropdownMenuOptions.menuType !== "dropdown");
-      }
-
-      if (!!this.question.onOpenedCallBack) {
-        this.question.onOpenedCallBack();
-      }
-    }
-    if (!isVisible) {
-      this.onHidePopup();
-    }
-    this.question.ariaExpanded = isVisible ? "true" : "false";
-    this.question.processPopupVisiblilityChanged(this.popupModel, isVisible);
   }
 
   private setFilterStringToListModel(newValue: string): void {
@@ -219,22 +198,13 @@ export class DropdownListModel extends Base {
   protected onHidePopup(): void {
     this.resetFilterString();
     this.question.suggestedItem = null;
-    if (this.choicesLazyLoadEnabled) {
-      this.resetItemsSettings();
-    }
-    this.customValue = undefined;
-    this.resetCustomItemValue();
   }
 
   protected getAvailableItems(): Array<ItemValue> {
-    if (this.allowCustomChoices) {
-      return [].concat(this.question.visibleChoices, [this.customItemValue]);
-    }
     return this.question.visibleChoices;
   }
   protected setOnTextSearchCallbackForListModel(listModel: ListModel<ItemValue>) {
     listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
-      if (item.id === this.customItemValue.id) return item.visible;
       if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
       let textInLow = item.text.toLocaleLowerCase();
       textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
@@ -247,7 +217,8 @@ export class DropdownListModel extends Base {
     let _onSelectionChanged = this.onSelectionChanged;
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
-        this.setQuestionValue(item);
+        this.question.value = item.id;
+        if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
         this.popupModel.hide();
       };
     }
@@ -267,39 +238,6 @@ export class DropdownListModel extends Base {
     };
     return res;
   }
-
-  private setQuestionValue(item: IAction) {
-    if (this.allowCustomChoices && item.id === this.customItemValue.id) {
-      const newChoice = this.createCustomItem();
-      if (!!newChoice) {
-        this.question.value = newChoice.id;
-        this.hintString = "";
-      }
-    } else {
-      this.question.value = item.id;
-      if (this.searchEnabled) this.applyInputString(item as ItemValue);
-    }
-  }
-
-  protected createCustomItem(): ItemValue {
-    const newChoice = new ItemValue(this.customValue);
-    const options: CreateCustomChoiceItemEvent = {
-      item: newChoice,
-      question: this.question as QuestionSelectBase,
-      allow: true
-    };
-    this.question.survey.createCustomChoiceItem(options);
-    if (!options.allow) {
-      this.clear();
-      return null;
-    }
-
-    this.question.customChoices.push(newChoice);
-    this.customValue = undefined;
-    this.updateItems();
-    return newChoice;
-  }
-
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
     model.isItemSelected = (action: ItemValue) => !!action.selected;
     model.onPropertyChanged.add((sender: any, options: any) => {
@@ -307,9 +245,8 @@ export class DropdownListModel extends Base {
         this.hasScroll = options.newValue;
       }
     });
-    model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
+    model.isAllDataLoaded = !this.question.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
-    model.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
   }
   protected getPopupCssClasses(): string { return "sv-single-select-list"; }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
@@ -322,7 +259,6 @@ export class DropdownListModel extends Base {
     }
   }
   public clear(): void {
-    this.customValue = undefined;
     this.inputString = null;
     this.hintString = "";
     this.resetFilterString();
@@ -343,7 +279,7 @@ export class DropdownListModel extends Base {
       this.popupRecalculatePosition(true);
     };
 
-    if (this.choicesLazyLoadEnabled) {
+    if (this.question.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
       this.updateQuestionChoices(updateAfterFilterStringChanged);
     } else {
@@ -358,38 +294,7 @@ export class DropdownListModel extends Base {
     return !this.focused || this._markdownMode || !this.searchEnabled;
   }
 
-  public updateCustomItemValue(): void {
-    if (this.customValue) {
-      this.customItemValue.text = this.getLocalizationFormatString("createCustomItem", this.customValue);
-      this.customItemValue.visible = true;
-    } else {
-      this.resetCustomItemValue();
-    }
-  }
-
-  private resetCustomItemValue(): void {
-    this.customItemValue.text = "";
-    this.customItemValue.visible = false;
-  }
-
-  private _customItemValue: ItemValue;
-  public get customItemValue(): ItemValue {
-    if (!this._customItemValue) {
-      this._customItemValue = new ItemValue("newCustomItem", this.getLocalizationFormatString("createCustomItem", this.customValue));
-      this._customItemValue.css = "sv-list-item--custom-value";
-    }
-    return this._customItemValue;
-  }
-
-  @property({ defaultValue: false }) allowCustomChoices: boolean;
-  @property({
-    onSet: (newValue: string, target: DropdownListModel) => {
-      target.updateCustomItemValue();
-    }
-  }) customValue: string;
-
   @property({ defaultValue: true }) searchEnabled: boolean;
-  @property() choicesLazyLoadEnabled: boolean;
   @property({
     defaultValue: "",
     onSet: (_, target: DropdownListModel) => {
@@ -436,8 +341,6 @@ export class DropdownListModel extends Base {
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
       this.hintString = "";
-    } else if (item === this.customItemValue) {
-      this.hintString = "";
     } else {
       this.hintString = item?.title;
     }
@@ -450,11 +353,7 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.inputString = val;
     this.filterString = val;
-
-    if (!this.choicesLazyLoadEnabled) {
-      this.processCustomValue();
-    }
-    if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
+    if (!val) {
       this.hintString = "";
     }
   }
@@ -495,8 +394,8 @@ export class DropdownListModel extends Base {
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
-    return !!this.searchEnabled && !!(this.hintStringLC || this.inputStringLC) ||
-      !this.searchEnabled && this.hintStringLC && this.question.isEmpty();
+    return !!this.question.searchEnabled && !!(this.hintStringLC || this.inputStringLC) ||
+      !this.question.searchEnabled && this.hintStringLC && this.question.isEmpty();
   }
   public get hintStringSuffix(): string {
     return this.hintStringLC.indexOf(this.inputStringLC) >= 0 ? this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length) : "";
@@ -516,10 +415,9 @@ export class DropdownListModel extends Base {
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
-    this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.updateAfterListModelCreated(this.listModel);
+    this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
     this.setSearchEnabled(this.question.searchEnabled);
-    this.setAllowCustomChoices(this.question.allowCustomChoices);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
@@ -530,36 +428,26 @@ export class DropdownListModel extends Base {
   get popupModel(): PopupModel {
     return this._popupModel;
   }
-  public get inputAvailable(): boolean {
-    return this.searchEnabled || this.allowCustomChoices;
-  }
   public get noTabIndex(): boolean {
-    return this.question.isInputReadOnly || this.inputAvailable;
+    return this.question.isInputReadOnly || this.searchEnabled;
   }
   public get filterReadOnly(): boolean {
-    return !this.filterStringEnabled || !this.focused;
+    return this.question.isInputReadOnly || !this.searchEnabled || !this.focused;
   }
   public get filterStringEnabled(): boolean {
-    return !this.question.isInputReadOnly && this.inputAvailable;
+    return !this.question.isInputReadOnly && this.searchEnabled;
   }
   public get inputMode(): "none" | "text" {
     return IsTouch ? "none" : "text";
   }
 
   public setSearchEnabled(newValue: boolean): void {
-    this.listModel.setSearchEnabled(IsTouch && (newValue || this.question.allowCustomChoices));
+    this.listModel.setSearchEnabled(IsTouch && newValue);
     this.searchEnabled = newValue;
   }
 
-  public setAllowCustomChoices(newValue: boolean): void {
-    this.allowCustomChoices = newValue;
-    if(newValue) {
-      this.searchEnabled = newValue;
-    }
-  }
-
   public setChoicesLazyLoadEnabled(newValue: boolean): void {
-    this.choicesLazyLoadEnabled = newValue;
+    this.listModel.setOnFilterStringChangedCallback(newValue ? this.listModelFilterStringChanged : undefined);
   }
 
   public updateItems(): void {
@@ -636,7 +524,7 @@ export class DropdownListModel extends Base {
   }
 
   protected afterScrollToFocusedItem() {
-    if (this.question.value && !this.listModel.filterString && this.searchEnabled) {
+    if (this.question.value && !this.listModel.filterString && this.question.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     }
     else {
@@ -648,26 +536,30 @@ export class DropdownListModel extends Base {
   }
 
   keyHandler(event: any): void {
-    let isStopPropagation = false;
     const char: number = event.which || event.keyCode;
     if (this.popupModel.isVisible && event.keyCode === 38) {
       this.changeSelectionWithKeyboard(true);
-      isStopPropagation = true;
+      event.preventDefault();
+      event.stopPropagation();
     } else if (event.keyCode === 40) {
       this.popupModel.show();
       this.changeSelectionWithKeyboard(false);
-      isStopPropagation = true;
-    } else if (event.keyCode === 9) {
+      event.preventDefault();
+      event.stopPropagation();
+    } if (event.keyCode === 9) {
       this.popupModel.hide();
-    } else if (!this.popupModel.isVisible && event.keyCode === 32) {
-      this.popupModel.show();
-      this.changeSelectionWithKeyboard(false);
-      isStopPropagation = true;
-    } else if (!this.popupModel.isVisible && event.keyCode === 13) {
-      (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
-      isStopPropagation = true;
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.searchEnabled || !this.inputString))) {
-      if (event.keyCode === 13 && this.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
+    } else if (!this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
+      if (event.keyCode === 32) {
+        this.popupModel.show();
+        this.changeSelectionWithKeyboard(false);
+      }
+      if (event.keyCode === 13) {
+        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
+      if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.hide();
         this.onClear(event);
       }
@@ -675,9 +567,10 @@ export class DropdownListModel extends Base {
         this.listModel.selectFocusedItem();
         this.onFocus(event);
       }
-      isStopPropagation = true;
+      event.preventDefault();
+      event.stopPropagation();
     } else if (char === 46 || char === 8) {
-      if (!this.inputAvailable) {
+      if (!this.searchEnabled) {
         this.onClear(event);
       }
     } else if (event.keyCode === 27) {
@@ -685,22 +578,18 @@ export class DropdownListModel extends Base {
       this.hintString = "";
       this.onEscape();
     } else {
-      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.searchEnabled) {
-        isStopPropagation = true;
+      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.question.searchEnabled) {
+        event.preventDefault();
+        event.stopPropagation();
       }
-      if (event.keyCode === 32 && this.searchEnabled) {
+      if (event.keyCode === 32 && this.question.searchEnabled) {
         return;
       }
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }
-
-    if (isStopPropagation) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
   }
   protected onEscape() {
-    if (this.searchEnabled)
+    if (this.question.searchEnabled)
       this.applyInputString(this.question.selectedItem);
   }
 
@@ -729,7 +618,7 @@ export class DropdownListModel extends Base {
 
   public setInputStringFromSelectedItem(newValue: any): void {
     if (!this.focused) return;
-    if (this.searchEnabled && !!newValue) {
+    if (this.question.searchEnabled && !!newValue) {
       this.applyInputString(newValue);
     } else {
       this.inputString = null;

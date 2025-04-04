@@ -322,3 +322,15 @@ QUnit.test("Do not serialized required, resetValueIf, setValueIf, defaultValueEx
   q1.isRequired = true;
   assert.deepEqual(q1.toJSON(), { name: "q1", expression: "{q2} + {q3}" }, "Serialize only expression");
 });
+QUnit.test("Values as number and as string, Bug#9690", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "expression", name: "q1", expression: "{q2} + 1" },
+      { type: "dropdown", name: "q2", choices: [1, 2, 3] }
+    ]
+  });
+  survey.data = { q2: 1, q1: "2" };
+  const q1 = survey.getQuestionByName("q1");
+  assert.strictEqual(q1.value, 2, "q1.value is number");
+  assert.strictEqual(survey.getValue("q1"), 2, "survey.getValue('q1') is string");
+});

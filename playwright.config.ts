@@ -6,6 +6,7 @@ export default defineConfig({
     url: "http://localhost:8080"
   },
   snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
+  reporter: [["junit", { outputFile: "test-results/e2e-junit-results.xml" }]],
   projects: [
     {
       name: "a11y",

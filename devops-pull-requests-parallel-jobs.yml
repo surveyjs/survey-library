@@ -195,6 +195,13 @@ jobs:
           testRunTitle: "React End-To-End Tests"
         condition: succeededOrFailed()
 
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.SourcesDirectory)/packages/survey-react-ui/playwright-report"
+          artifact: react-playwright-report
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
+
   - job: Angular
     dependsOn: Core
     steps:
@@ -310,6 +317,13 @@ jobs:
           mergeTestResults: true
           failTaskOnFailedTests: true
           testRunTitle: "Angular End-To-End Tests"
+        condition: succeededOrFailed()
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.SourcesDirectory)/packages/survey-angular-ui/playwright-report"
+          artifact: angular-playwright-report
+          publishLocation: "pipeline"
         condition: succeededOrFailed()
 
   - job: Vue3

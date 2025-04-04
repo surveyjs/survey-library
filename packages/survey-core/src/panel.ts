@@ -2446,7 +2446,16 @@ export class PanelModel extends PanelModelBase implements IElement {
     return false;
   }
   private forcusFirstQuestionOnExpand = true;
-  public expand(focusFirstQuestion: boolean = true) {
+  /**
+   * Expands the panel.
+   * @param focusFirstQuestion Specifies whether to focus the first question within the expanded panel. Default value: `true`.
+   * @see state
+   * @see toggleState
+   * @see collapse
+   * @see isCollapsed
+   * @see isExpanded
+   */
+  public expand(focusFirstQuestion: boolean = true): void {
     this.forcusFirstQuestionOnExpand = focusFirstQuestion;
     super.expand();
   }

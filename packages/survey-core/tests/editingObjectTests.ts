@@ -1075,7 +1075,7 @@ QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function (
   });
   survey.onMatrixCellValidate.add(function (sender, options) {
     if (options.columnName != "name") return;
-    options.error = options.value.length != 4 ? "Error in name" : null;
+    options.error = options.value.length != 4 ? "Error in name" : undefined;
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
   var row = matrix.visibleRows[0];

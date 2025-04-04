@@ -40,6 +40,10 @@ export class SurveyQuestionButtonGroup extends SurveyQuestionElementBase {
   }
 }
 
+ReactQuestionFactory.Instance.registerQuestion("buttongroup", (props) => {
+  return React.createElement(SurveyQuestionButtonGroup, props);
+});
+
 export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
   public model: ButtonGroupItemModel;
   constructor(props: any) {

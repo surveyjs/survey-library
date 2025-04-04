@@ -4,8 +4,14 @@
       <input
         type="checkbox"
         [value]="model.booleanValue" [class]="model.cssClasses.controlCheckbox" 
-        [attr.name]="model.name" [id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"
-        [attr.aria-invalid]="model.ariaInvalid" [attr.aria-errormessage]="model.ariaErrormessage" [(ngModel)]="model.booleanValue" [value]="model.booleanValue"
+        [attr.name]="model.name" [id]="model.inputId"
+        [attr.aria-required]="model.a11y_input_ariaRequired"
+        [attr.aria-label]="model.a11y_input_ariaLabel"
+        [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+        [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+        [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
+        [(ngModel)]="model.booleanValue" [value]="model.booleanValue"
         [disabled]="model.isDisabledAttr" [readonly]="model.isReadOnlyAttr" [indeterminate]="model.isIndeterminate"
       />
       <span [class]="model.cssClasses.checkboxMaterialDecorator">

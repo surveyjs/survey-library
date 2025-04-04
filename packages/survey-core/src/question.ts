@@ -774,10 +774,10 @@ export class Question extends SurveyElement<Question>
       const columns = this.parent.getColumsForElement(this as any);
       const columnCount = columns.length;
       if (columnCount !== 0 && !!columns[0].questionTitleWidth) return columns[0].questionTitleWidth;
-
-      const percentWidth = this.getPercentQuestionTitleWidth();
+      const questionWidth = this.getQuestionParentTitleWidth();
+      const percentWidth = this.getPercentQuestionTitleWidth(questionWidth);
       if (!percentWidth && !!this.parent) {
-        let width = this.parent.getQuestionTitleWidth() as any;
+        let width = questionWidth;
         if (width && !isNaN(width)) width = width + "px";
         return width;
       }
@@ -785,8 +785,13 @@ export class Question extends SurveyElement<Question>
     }
     return undefined;
   }
-  getPercentQuestionTitleWidth(): number {
-    const width = !!this.parent && this.parent.getQuestionTitleWidth();
+  private getQuestionParentTitleWidth(): any {
+    if(!this.parent) return undefined;
+    const res = this.parent.getQuestionTitleWidth();
+    if(!res && !!this.parentQuestion) return this.parentQuestion.getQuestionParentTitleWidth();
+    return res;
+  }
+  private getPercentQuestionTitleWidth(width: any): number {
     if (!!width && width[width.length - 1] === "%") {
       return parseInt(width);
 
@@ -2817,8 +2822,7 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get ariaLabel(): string {
-    if (this.isNewA11yStructure) return null;
-
+    if (this.isNewA11yStructure || (this.hasTitle && !this.parentQuestion)) return null;
     return this.locTitle.renderedHtml;
   }
   public get ariaRole(): string {
@@ -2837,13 +2841,8 @@ export class Question extends SurveyElement<Question>
     return this.hasCssError() ? "true" : "false";
   }
   public get ariaLabelledBy(): string {
-    if (this.isNewA11yStructure) return null;
-
-    if (this.hasTitle) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
+    if (this.isNewA11yStructure || !this.hasTitle || this.parentQuestion) return null;
+    return this.ariaTitleId;
   }
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;

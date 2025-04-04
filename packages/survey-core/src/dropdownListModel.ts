@@ -127,7 +127,7 @@ export class DropdownListModel extends Base {
     let menuType: "overlay" | "popup" | "dropdown" = "dropdown";
     let deviceType: "mobile" | "tablet" | "desktop" = "desktop";
     if (IsTouch) {
-      menuType = isTablet ? "popup" : "overlay";
+      menuType = "popup";
       deviceType = isTablet ? "tablet" : "mobile";
     }
 
@@ -261,7 +261,7 @@ export class DropdownListModel extends Base {
     const res = new ListModel<ItemValue>(listOptions as any);
     this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
-    res.forceShowFilter = true;
+    res.forceShowFilter = this.question.choicesLazyLoadEnabled;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };

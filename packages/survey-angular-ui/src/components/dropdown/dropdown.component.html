@@ -2,6 +2,7 @@
     <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0" [class]="model.getControlClass()"
         [attr.disabled]="model.isDisabledAttr ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
+        [attr.aria-labelledby]="model.ariaLabelledBy"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-errormessage]="model.ariaErrormessage" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
@@ -37,8 +38,6 @@
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" aria-hidden="true"
             [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton">
-            <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
-            <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"
                 [size]="'auto'" sv-ng-svg-icon></svg>
         </div>

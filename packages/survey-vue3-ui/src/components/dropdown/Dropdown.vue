@@ -10,6 +10,7 @@
       :class="question.getControlClass()"
       :role="question.ariaRole"
       :aria-required="question.ariaRequired"
+      :aria-labelledby="question.ariaLabelledBy"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-errormessage="question.ariaErrormessage"

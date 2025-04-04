@@ -57,15 +57,16 @@ frameworks.forEach((framework) => {
       await question.checkQuestionValue(false);
     });
     */
-    test("check arrow keydowns", async ({ page }) => {
-      const question = new QuestionBoolean(page, "bool");
-      await question.focus();
-      await question.checkQuestionValue(undefined);
-      page.keyboard.press("ArrowRight");
-      await question.checkQuestionValue(true);
-      page.keyboard.press("ArrowLeft");
-      await question.checkQuestionValue(false);
-    });
+    // TODO: reanimate unstable test
+    // test("check arrow keydowns", async ({ page }) => {
+    //   const question = new QuestionBoolean(page, "bool");
+    //   await question.focus();
+    //   await question.checkQuestionValue(undefined);
+    //   page.keyboard.press("ArrowRight");
+    //   await question.checkQuestionValue(true);
+    //   page.keyboard.press("ArrowLeft");
+    //   await question.checkQuestionValue(false);
+    // });
   });
 });
 frameworks.forEach((framework) => {

@@ -21986,3 +21986,13 @@ QUnit.test("Don't rise onPageAdded when mooving question", function (assert) {
   assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
   assert.equal(survey.pages[0].name, "page2", "page2 is the first page");
 });
+
+QUnit.test("Update hasTitle on load from JSON", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.hasTitle, false, "no title in empty survey");
+  survey.fromJSON({
+    title: "title",
+    elements: [{ name: "q1", type: "text" }]
+  });
+  assert.equal(survey.hasTitle, true, "title presents");
+});

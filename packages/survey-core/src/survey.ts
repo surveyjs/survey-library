@@ -6536,6 +6536,8 @@ export class SurveyModel extends SurveyElementCore
   }
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     if (!json) return;
+    this.resetHasLogo();
+    this.resetPropertyValue("titleIsEmpty");
     this.questionHashesClear();
     this.jsonErrors = null;
     this.sjsVersion = undefined;

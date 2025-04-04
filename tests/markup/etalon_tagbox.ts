@@ -1,5 +1,7 @@
-import { _setIsTouch, _setIsTablet } from "survey-core";
+import { _setIsTouch, _setIsTablet, ListModel } from "survey-core";
 import { registerMarkupTests } from "./helper";
+
+let oldMinCount = 0;
 
 registerMarkupTests(
   [
@@ -24,7 +26,7 @@ registerMarkupTests(
       snapshot: "tagbox"
     },
     {
-      name: "Test Tagbox question markup",
+      name: "Test Tagbox question markup - touch",
       json: {
         questions: [
           {
@@ -43,10 +45,13 @@ registerMarkupTests(
       before: () => {
         _setIsTouch(true);
         _setIsTablet(true);
+        oldMinCount = ListModel.MINELEMENTCOUNT;
+        ListModel.MINELEMENTCOUNT = 2;
       },
       after: () => {
         _setIsTouch(false);
         _setIsTablet(undefined);
+        ListModel.MINELEMENTCOUNT = oldMinCount;
       },
       removeIds: true,
       snapshot: "tagbox-mobile"

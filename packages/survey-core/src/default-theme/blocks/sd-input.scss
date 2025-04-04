@@ -1,7 +1,6 @@
 @use "../variables.scss" as *;
 
 .sd-input {
-  @include useEditorFontSize;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -165,7 +164,6 @@ textarea {
 .sd-input[type="email"],
 .sd-input[type="color"],
 .sd-input[type="range"] {
-  @include useEditorFontSize;
   box-sizing: content-box;
   width: calc(100% - 4 * #{$base-unit});
   height: multiply(1.5, $font-editorfont-size);

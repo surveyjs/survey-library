@@ -550,7 +550,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-text.sd-rating__item-text {
-  @include useEditorFontSize;
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
   color: $font-questiontitle-color;

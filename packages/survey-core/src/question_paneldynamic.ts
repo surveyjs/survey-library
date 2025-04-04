@@ -314,6 +314,10 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
     this.registerPropertyChangedHandlers(["minPanelCount"], () => { this.onMinPanelCountChanged(); });
     this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
+    this.registerPropertyChangedHandlers(["templateQuestionTitleLocation", "templateQuestionTitleWidth"], () => {
+      const panels = this.visiblePanelsCore;
+      if(panels) panels.forEach((panel) => { panel.updateElementCss(true); });
+    });
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get hasSingleInput(): boolean { return false; }
@@ -1165,6 +1169,17 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set templateTitleLocation(val: string) {
     this.templateQuestionTitleLocation = val;
+  }
+  /**
+   * Sets consistent width for question titles in CSS values. Applies only when [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) evaluates to `"left"`.
+   *
+   * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
+   */
+  public get templateQuestionTitleWidth(): string {
+    return this.template.questionTitleWidth;
+  }
+  public set templateQuestionTitleWidth(val: string) {
+    this.template.questionTitleWidth = val;
   }
   /**
    * Specifies the error message position.
@@ -2216,6 +2231,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.isInteractiveDesignElement = false;
     panel.setParentQuestion(this);
     panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
+    panel.onGetQuestionTitleWidth = () => this.templateQuestionTitleWidth;
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
@@ -2793,6 +2809,12 @@ Serializer.addClass(
       name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "templateQuestionTitleWidth",
+      visibleIf: function (obj: any) {
+        return !!obj && obj.template.availableQuestionTitleWidth();
+      }
     },
     { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     {

@@ -6,6 +6,7 @@ import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
+import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
@@ -1147,4 +1148,9 @@ export interface ResizeEvent {
    * The current survey height in pixels.
    */
   height: number;
+}
+export interface CreateCustomChoiceItemEvent {
+  question: QuestionSelectBase;
+  item: ItemValue;
+  allow: boolean;
 }

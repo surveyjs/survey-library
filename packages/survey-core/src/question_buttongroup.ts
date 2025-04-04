@@ -118,9 +118,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
 
   // responsiveness
-  public triggerResponsiveness(hard: boolean = true): void {
-    super.triggerResponsiveness(true);
-  }
   public needResponsiveWidth(): boolean {
     return true;
   }
@@ -131,7 +128,8 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return "dropdown";
   }
   protected getObservedElementSelector(): string {
-    return classesToSelector(this.cssClasses.root);
+    // return classesToSelector(this.cssClasses.root);
+    return ".sd-button-group-scrollable-container";
   }
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {

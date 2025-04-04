@@ -817,7 +817,7 @@ export var defaultCss = {
     containersDivider: "sv-ranking__containers-divider",
   },
   buttongroup: {
-    root: "sv-button-group",
+    root: "sd-button-group-scrollable-container sv-button-group",
     item: "sv-button-group__item",
     itemIcon: "sv-button-group__item-icon",
     itemDecorator: "sv-button-group__item-decorator",
@@ -827,7 +827,7 @@ export var defaultCss = {
     itemDisabled: "sv-button-group__item--disabled",
     itemControl: "sv-visuallyhidden",
 
-    rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
+    rootDropdown: "sd-button-group-scrollable-container sd-scrollable-container--compact sd-selectbase",
     selectWrapper: "sv-dropdown_select-wrapper",
     control: "sd-input sd-dropdown",
     controlEmpty: "sd-dropdown--empty",

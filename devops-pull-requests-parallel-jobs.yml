@@ -429,6 +429,13 @@ jobs:
           testRunTitle: "Vue3 End-To-End Tests"
         condition: succeededOrFailed()
 
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/playwright-report"
+          artifact: vue3-playwright-report
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
+
   - job: SurveyUI_and_CSSFrameworks
     dependsOn: Core
     steps:

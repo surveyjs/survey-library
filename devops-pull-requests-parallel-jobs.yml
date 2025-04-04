@@ -344,6 +344,17 @@ jobs:
         condition: always()
         displayName: "publish e2e artifacts"
 
+      - task: PublishTestResults@2
+        displayName: 'Publish test results'
+        inputs:
+          searchFolder: 'test-results'
+          testResultsFormat: 'JUnit'
+          testResultsFiles: 'e2e-junit-results.xml'
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: 'My End-To-End Tests'
+        condition: succeededOrFailed()
+
   - job: SurveyUI_and_CSSFrameworks
     dependsOn: Core
     steps:

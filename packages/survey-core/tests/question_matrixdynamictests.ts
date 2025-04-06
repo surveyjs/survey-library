@@ -9778,7 +9778,7 @@ QUnit.test("matrix dynamic expression & checkbox valuePropertyName & displayValu
   });
   const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
-  const expression = survey.getQuestionByName("q3");
+  // const expression = survey.getQuestionByName("q3");
   checkbox.renderedValue = [1, 3];
   const rows = matrix.visibleRows;
   assert.equal(rows.length, 2, "There are two rows");

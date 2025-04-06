@@ -19,10 +19,12 @@ export class QuestionSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) minValueExpression: string | null;
   @property({ defaultValue: null }) maxRangeLength: number | null;
   @property({ defaultValue: null }) minRangeLength: number | null;
-  @property({ defaultValue: "" }) valueFormat: string;
+  @property({ defaultValue: "{0}" }) tooltipFormat: string;
+  @property({ defaultValue: "{0}" }) labelFormat: string;
+  @property({ defaultValue: "always" }) tooltipVisibility: "onhover" | "always" | "never";
   public get step(): number {
     if (this.snapToTicks) {
-      return (this.max - this.min) / (this.ticksCount - 1);
+      return (this.max - this.min) / (this.tickCount - 1);
     }
     return this.getPropertyValue("step");
   }
@@ -31,17 +33,17 @@ export class QuestionSliderModel extends QuestionRatingModel {
   }
 
   @property({ defaultValue: false }) snapToTicks: boolean;
-  @property({ defaultValue: true }) isShowTicks: boolean;
-  @property({ defaultValue: true }) isShowMinMaxTicks: boolean;
-  public get ticksCount(): number { // TODO interval count?
+  @property({ defaultValue: true }) showLabels: boolean;
+  @property({ defaultValue: true }) showEdgeLabels: boolean;
+  public get tickCount(): number { // TODO interval count?
     if (this.ticks.length > 0) return this.ticks.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;
     }
-    return this.getPropertyValue("ticksCount");
+    return this.getPropertyValue("tickCount");
   }
-  public set ticksCount(val: number) {
-    this.setPropertyValue("ticksCount", val);
+  public set tickCount(val: number) {
+    this.setPropertyValue("tickCount", val);
   }
   @property({ defaultValue: null }) tickSize: number | null;
   @propertyArray({ }) ticks: ItemValue[];
@@ -117,6 +119,26 @@ Serializer.addClass(
       default: "range",
     },
     {
+      name: "showLabels:boolean",
+      default: true
+    },
+    {
+      name: "tooltipFormat:string",
+      default: "{0}"
+    },
+    {
+      name: "tooltipVisibility:string",
+      default: "always"
+    },
+    {
+      name: "labelFormat:string",
+      default: "{0}"
+    },
+    {
+      name: "showEdgeLabels:boolean",
+      default: true
+    },
+    {
       name: "snapToTicks",
       default: false
     },
@@ -133,7 +155,7 @@ Serializer.addClass(
       default: 1,
     },
     {
-      name: "ticksCount:number",
+      name: "tickCount:number",
       default: 6
     },
     {

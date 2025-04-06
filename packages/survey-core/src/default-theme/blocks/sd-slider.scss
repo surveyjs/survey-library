@@ -14,7 +14,7 @@ $range-slider-thumb-size: 20px;
   margin-top: 45px;
 
   &:hover {
-    .sd-slider__tooltip {
+    .sd-slider__tooltip--on-hover {
       opacity: 1;
     }
   }
@@ -110,6 +110,10 @@ $range-slider-thumb-size: 20px;
     border-top-style: solid;
     border-top-color: $primary;
   }
+}
+
+.sd-slider__tooltip--on-hover {
+  opacity: 0;
 }
 
 .sd-slider__tooltip-value {

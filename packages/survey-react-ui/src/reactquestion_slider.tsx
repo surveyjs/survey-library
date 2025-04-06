@@ -2,6 +2,7 @@ import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { Base, QuestionSliderModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { ReactElement } from "react";
 
 export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -22,12 +23,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
-    const { cssClasses, isShowTicks, sliderType } = this.question;
+    const { cssClasses, showLabels, sliderType } = this.question;
 
     const inputs = this.getInputs();
     const rangeInput = sliderType === "single" ? null : this.getRangeInput();
     const thumbs = this.getThumbs();
-    const ticks = isShowTicks ? this.getTicks() : null;
+    const ticks = showLabels ? this.getTicks() : null;
 
     const value = this.getRenderedValue();
     const leftPercent = this.getPercent(value[0]);
@@ -82,20 +83,24 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getThumbs() {
     const thumbs = [];
-    const { isIndeterminate, cssClasses, valueFormat, focusedThumb } = this.question;
+    const { isIndeterminate, cssClasses, tooltipFormat, focusedThumb, tooltipVisibility } = this.question;
 
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
       let percent: string = this.getPercent(value[i]) + "%";
 
+      let tooltip: ReactElement | null = null;
+      if (tooltipVisibility !== "never") {
+        tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`} style={{ left: percent }}>
+          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : tooltipFormat.replace("{0}", ""+value[i]) }</span>
+        </div>;
+      }
+
       // TODO all keys should be generated ids
       const thumb = <React.Fragment key={"thumb-"+i}>
         <span className={`${cssClasses.thumb} ${i === focusedThumb ? cssClasses.thumbFocusedMode : ""}`} style={{ left: percent }}></span>
-
-        <div className={cssClasses.tooltip} style={{ left: percent }}>
-          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : value[i] + valueFormat}</span>
-        </div>
+        {tooltip}
       </React.Fragment>;
       thumbs.push(thumb);
     }
@@ -104,20 +109,20 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getTicks() {
     const ticks = [];
-    const { max, min, ticksCount, isShowMinMaxTicks, ticks: customTicks, cssClasses, step } = this.question;
+    const { max, min, tickCount, showEdgeLabels, ticks: customTicks, cssClasses, step, labelFormat } = this.question;
     const fullRange = max - min;
 
-    for (let i = 0; i < ticksCount; i++) {
-      let tickStep = i * fullRange / (ticksCount - 1);
+    for (let i = 0; i < tickCount; i++) {
+      let tickStep = i * fullRange / (tickCount - 1);
       let position = tickStep / fullRange * 100;
 
-      if (!isShowMinMaxTicks && (i === 0 || i === ticksCount - 1)) continue;
+      if (!showEdgeLabels && (i === 0 || i === tickCount - 1)) continue;
 
       const isDecimal = step % 1 != 0;
       const tickText:string = customTicks.length > 0 ? customTicks[i].text : isDecimal ? ""+(tickStep + min) : ""+Math.round(tickStep + min);
 
       const tick = <React.Fragment key={"tick-"+i}>
-        <div className={`${cssClasses.tick} ${tickText.length > 10 ? cssClasses.tickLong : ""}`} style={{ left: position + "%" }}>{tickText}</div>
+        <div className={`${cssClasses.tick} ${tickText.length > 10 ? cssClasses.tickLong : ""}`} style={{ left: position + "%" }}>{labelFormat.replace("{0}", ""+tickText)}</div>
       </React.Fragment>;
 
       ticks.push(tick);

@@ -681,6 +681,7 @@ export var defaultCss = {
     thumb: "sd-slider__thumb",
     thumbFocusedMode: "sd-slider__thumb--focused",
     tooltip: "sd-slider__tooltip",
+    tooltipOnHoverMode: "sd-slider__tooltip--on-hover",
     tooltipValue: "sd-slider__tooltip-value",
     input: "sd-slider__input",
     ticksContainer: "sd-slider__ticks-container",

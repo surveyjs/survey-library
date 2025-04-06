@@ -132,10 +132,8 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
           case "auto": {
             if (!IsTouch) {
               result = "menu-popup"; // desktop
-            } else if (calculateIsTablet()) {
-              result = "menu-popup-overlay"; //tablet
             } else {
-              result = "menu-overlay"; // phone
+              result = "menu-popup-overlay"; //tablet
             }
             break;
           }

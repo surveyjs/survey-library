@@ -1,4 +1,6 @@
 import { registerMarkupTest } from "./helper";
+import { settings } from "survey-core";
+
 registerMarkupTest(
   {
     name: "Test question title with html markup",
@@ -100,5 +102,28 @@ registerMarkupTest(
       survey.getAllQuestions()[0].rightIndent = 1;
     },
 
+  },
+);
+registerMarkupTest(
+  {
+    name: "Test question with label title tag",
+    json: {
+      showQuestionNumbers: "off",
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          title: "Question title",
+        }
+      ]
+    },
+    snapshot: "question-title-label",
+    before() {
+      settings.titleTags.question = "label";
+    },
+    after() {
+      settings.titleTags.question = "h5";
+    },
+    event: "onAfterRenderPage"
   },
 );

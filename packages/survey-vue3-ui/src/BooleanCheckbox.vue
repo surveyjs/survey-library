@@ -12,10 +12,12 @@
           :indeterminate.prop="question.isIndeterminate"
           :disabled="question.isDisabledAttr"
           :readonly="question.isReadOnlyAttr"
-          :aria-required="question.ariaRequired"
-          :aria-label="question.ariaLabel"
-          :aria-invalid="question.ariaInvalid"
-          :aria-errormessage="question.ariaErrormessage"
+          :aria-required="question.a11y_input_ariaRequired"
+          :aria-label="question.a11y_input_ariaLabel"
+          :aria-labelledby="question.a11y_input_ariaLabelledBy"
+          :aria-describedby="question.a11y_input_ariaDescribedBy"
+          :aria-invalid="question.a11y_input_ariaInvalid"
+          :aria-errormessage="question.a11y_input_ariaErrormessage"
         />
         <span :class="question.cssClasses.checkboxMaterialDecorator">
           <svg

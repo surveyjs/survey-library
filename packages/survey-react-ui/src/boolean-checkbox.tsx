@@ -33,10 +33,12 @@ export class SurveyQuestionBooleanCheckbox extends SurveyQuestionBoolean {
               readOnly={this.question.isReadOnlyAttr}
               checked={this.question.booleanValue || false}
               onChange={this.handleOnChange}
-              aria-required={this.question.ariaRequired}
-              aria-label={this.question.ariaLabel}
-              aria-invalid={this.question.ariaInvalid}
-              aria-errormessage={this.question.ariaErrormessage}
+              aria-required={this.question.a11y_input_ariaRequired}
+              aria-label={this.question.a11y_input_ariaLabel}
+              aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+              aria-describedby={this.question.a11y_input_ariaDescribedBy}
+              aria-invalid={this.question.a11y_input_ariaInvalid}
+              aria-errormessage={this.question.a11y_input_ariaErrormessage}
             />
             <span className={cssClasses.checkboxMaterialDecorator}>
               {this.question.svgIcon ?

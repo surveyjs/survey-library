@@ -336,6 +336,7 @@ export class PanelModelBase extends SurveyElement<Question>
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
+  onGetQuestionTitleWidth: () => string;
 
   public onAddRow(row: QuestionRowModel): void {
     this.onRowVisibleChanged();
@@ -571,6 +572,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public set questionsOrder(val: string) {
     this.questionOrder = val;
   }
+  public addNoFromChild(no: string): string { return no; }
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
   }
@@ -1254,9 +1256,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
   availableQuestionTitleWidth(): boolean {
-    const questionTitleLocation = this.getQuestionTitleLocation();
-    if (questionTitleLocation === "left") return true;
-    return this.hasElementWithTitleLocationLeft();
+    return this.getQuestionTitleLocation() === "left" || this.hasElementWithTitleLocationLeft();
   }
   hasElementWithTitleLocationLeft(): boolean {
     const result = this.elements.some(el => {
@@ -1275,7 +1275,8 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   @property() questionTitleWidth: string;
   getQuestionTitleWidth(): string {
-    return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
+    const width = this.onGetQuestionTitleWidth ? this.onGetQuestionTitleWidth() : this.questionTitleWidth;
+    return width || this.parent && this.parent.getQuestionTitleWidth();
   }
   public get columns(): Array<PanelLayoutColumnModel> {
     if (!this._columns) {
@@ -2170,14 +2171,21 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("showNumber", val);
     this.notifySurveyOnVisibilityChanged();
   }
+  public addNoFromChild(no: string): string {
+    if(this.isQuestionIndexRecursive)
+      return this.calcNo() + no;
+    return super.addNoFromChild(no);
+  }
   /**
-   * Gets or sets a value that specifies how the elements numbers inside panel are displayed.
+   * Specifies whether to display survey element numbers within this page/panel and how to calculate them.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `default` - display questions numbers as defined in parent panel or survey
-   * - `onpanel` - display questions numbers, start numbering from beginning of this page
-   * - `off` - turn off the numbering for questions titles
+   * - `"default"` - Inherits the setting from the parent panel, page, or survey.
+   * - `"recursive"` - Applies recursive numbering to elements nested within this page/panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
+   * - `"onpanel"` - Starts numbering within this page/panel from scratch.
+   * - `false` or `"off"` - Hides question numbers within this page/panel.
+   * @see [SurveyModel.showQuestionNumbers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers)
    * @see showNumber
    */
   public get showQuestionNumbers(): string {
@@ -2224,6 +2232,9 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private calcNo(): string {
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    if(!!this.parent) {
+      no = (<any>this.parent).addNoFromChild(no);
+    }
     if(this.survey) {
       no = this.survey.getUpdatedPanelNo(this, no);
     }
@@ -2248,7 +2259,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected beforeSetVisibleIndex(index: number): number {
     if(this.isPage) return super.beforeSetVisibleIndex(index);
     let visibleIndex = -1;
-    if (this.showNumber && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
+    if ((this.showNumber || this.isQuestionIndexRecursive) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
       visibleIndex = index;
     }
     this.setPropertyValue("visibleIndex", visibleIndex);
@@ -2257,17 +2268,26 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   protected getPanelStartIndex(index: number): number {
     if (this.showQuestionNumbers === "off") return -1;
-    if (this.showQuestionNumbers === "onpanel") return 0;
+    if (this.isQuestionIndexOnPanel) return 0;
     return index;
   }
+  private get isQuestionIndexOnPanel(): boolean {
+    return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive;
+  }
+  private get isQuestionIndexRecursive(): boolean {
+    if(this.isPage) return false;
+    const val = this.showQuestionNumbers;
+    if(val !== "default") return val === "recursive";
+    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
+  }
   private hasParentInQuestionIndex(): boolean {
-    if(this.showQuestionNumbers !== "onpanel") return false;
+    if(!this.isQuestionIndexOnPanel) return false;
     const str = this.questionStartIndex;
     const index = str.indexOf(".");
     return index > -1 && index < str.length - 1;
   }
   protected isContinueNumbering(): boolean {
-    return this.showQuestionNumbers !== "off" && this.showQuestionNumbers !== "onpanel";
+    return this.showQuestionNumbers !== "off" && !this.isQuestionIndexOnPanel;
   }
   private notifySurveyOnVisibilityChanged() {
     if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
@@ -2426,7 +2446,16 @@ export class PanelModel extends PanelModelBase implements IElement {
     return false;
   }
   private forcusFirstQuestionOnExpand = true;
-  public expand(focusFirstQuestion: boolean = true) {
+  /**
+   * Expands the panel.
+   * @param focusFirstQuestion Specifies whether to focus the first question within the expanded panel. Default value: `true`.
+   * @see state
+   * @see toggleState
+   * @see collapse
+   * @see isCollapsed
+   * @see isExpanded
+   */
+  public expand(focusFirstQuestion: boolean = true): void {
     this.forcusFirstQuestionOnExpand = focusFirstQuestion;
     super.expand();
   }
@@ -2543,7 +2572,7 @@ Serializer.addClass(
       },
     },
     { name: "showNumber:boolean" },
-    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "off"] },
+    { name: "showQuestionNumbers", default: "default", choices: ["default", "onpanel", "recursive", "off"] },
     { name: "questionStartIndex", visibleIf: (obj: PanelModel): boolean => obj.isPanel },
     { name: "allowAdaptiveActions:boolean", default: true, visible: false },
   ],

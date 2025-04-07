@@ -370,6 +370,28 @@ QUnit.test("Run dateDiff by days", function(assert) {
   (<any>values).d1 = undefined;
   assert.equal(runner.run(values), null, "a value is undefined");
 });
+QUnit.test("Run dateDiff by hours", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'hours')");
+  const d1 = new Date("2021-02-02");
+  const d2 = new Date("2021-02-03");
+  d1.setHours(1, 0, 0, 0);
+  d2.setHours(12, 0, 0, 0);
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), 24 + 11, "35 hours");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
+QUnit.test("Run dateDiff by minutes", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'minutes')");
+  const d1 = new Date("2021-02-01");
+  const d2 = new Date("2021-02-02");
+  d1.setHours(1, 10, 0, 0);
+  d2.setHours(12, 25, 0, 0);
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), (24 + 11) * 60 + 15, "hours");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
 QUnit.test("Run dateAdd() for days", function(assert) {
   const d1 = new Date("2021-01-01");
   const values = { d1: d1 };

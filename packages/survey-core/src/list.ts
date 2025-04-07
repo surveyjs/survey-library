@@ -6,6 +6,7 @@ import { ElementHelper } from "./element-helper";
 import { classesToSelector, getFirstVisibleChild } from "./utils/utils";
 import { settings } from "./settings";
 import { ILocalizableOwner } from "./localizablestring";
+import { IsTouch } from "./utils/devices";
 
 export let defaultListCss = {
   root: "sv-list__container",
@@ -87,7 +88,8 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
   public isItemVisible(item: T): boolean {
-    return item.visible && (!this.shouldProcessFilter || this.hasText(item, this.filterString));
+    if(item.id === this.loadingIndicator.id) return item.visible;
+    return item.visible && this.hasText(item, this.filterString);
   }
 
   protected getRenderedActions(): Array<T> {
@@ -112,9 +114,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public get visibleItems(): Array<T> {
     return this.visibleActions.filter(item => this.isItemVisible(item));
-  }
-  private get shouldProcessFilter(): boolean {
-    return !this.onFilterStringChangedCallback;
   }
   private onFilterStringChanged(text: string) {
     if (!!this.onFilterStringChangedCallback) {
@@ -342,7 +341,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.focusedItem = undefined;
   }
   public focusFirstVisibleItem(): void {
-    this.focusedItem = this.visibleItems[0];
+    if (!IsTouch) {
+      this.focusedItem = this.visibleItems[0];
+    }
   }
   public focusLastVisibleItem(): void {
     this.focusedItem = this.visibleItems[this.visibleItems.length - 1];

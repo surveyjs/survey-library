@@ -71,7 +71,8 @@ import {
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
   LoadChoicesFromServerEvent,
-  ProcessTextValueEvent
+  ProcessTextValueEvent,
+  CreateCustomChoiceItemEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -912,6 +913,7 @@ export class SurveyModel extends SurveyElementCore
 
   public onElementWrapperComponentName: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   public onElementWrapperComponentData: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
@@ -2847,12 +2849,13 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
   }
   /**
-   * Specifies whether to display question numbers and how to calculate them.
+   * Specifies whether to display survey element numbers and how to calculate them.
    *
    * Possible values:
    *
-   * - `true` or `"on"` - Displays question numbers.
-   * - `"onpage"` - Displays question numbers and starts numbering on each page from scratch.
+   * - `true` or `"on"` - Numbers survey elements in order, regardless of their nesting level.
+   * - `"recursive"` - Applies recursive numbering to elements nested in panels (for example, 1 -> 1.1 -> 1.1.1, etc.).
+   * - `"onpage"` - Starts numbering on each page from scratch.
    * - `false` or `"off"` - Hides question numbers.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
@@ -5526,24 +5529,18 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixCellValidate.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex?: number, panel?: PanelModel): void {
-    if (!this.isLoadingFromJson && this.hasQuestionVisibleIndeces(question)) {
+  dynamicPanelAdded(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
+    if (!this.isLoadingFromJson && updateIndexes) {
       this.updateVisibleIndexes(question.page);
-    }
-    if (this.onDynamicPanelAdded.isEmpty) return;
-    var panels = (<any>question).panels;
-    if (panelIndex === undefined) {
-      panelIndex = panels.length - 1;
-      panel = panels[panelIndex];
     }
     this.onDynamicPanelAdded.fire(this, { question: question, panel: panel, panelIndex: panelIndex });
   }
-  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): void {
+  dynamicPanelRemoved(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel, updateIndexes: boolean): void {
     var questions = !!panel ? (<PanelModelBase>panel).questions : [];
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
-    if(this.hasQuestionVisibleIndeces(question)) {
+    if(updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
     this.onDynamicPanelRemoved.fire(this, {
@@ -5551,13 +5548,6 @@ export class SurveyModel extends SurveyElementCore
       panelIndex: panelIndex,
       panel: panel,
     });
-  }
-  private hasQuestionVisibleIndeces(question: Question): boolean {
-    const qList = question.getNestedQuestions(true);
-    for(let i = 0; i < qList.length; i ++) {
-      if(qList[i].visibleIndex > -1) return true;
-    }
-    return false;
   }
   dynamicPanelRemoving(question: QuestionPanelDynamicModel, panelIndex: number, panel: PanelModel): boolean {
     const options = {
@@ -6531,7 +6521,8 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private getStartVisibleIndex(): number {
-    return this.showQuestionNumbers == "on" ? 0 : -1;
+    const val = this.showQuestionNumbers;
+    return val === "on" || val === "recursive" ? 0 : -1;
   }
   private updatePageVisibleIndexes(): void {
     this.updateButtonsVisibility();
@@ -6545,6 +6536,8 @@ export class SurveyModel extends SurveyElementCore
   }
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     if (!json) return;
+    this.resetHasLogo();
+    this.resetPropertyValue("titleIsEmpty");
     this.questionHashesClear();
     this.jsonErrors = null;
     this.sjsVersion = undefined;
@@ -8193,8 +8186,17 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed")) && layoutElement.container === container) {
+        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
+          const advHeader = layoutElement && layoutElement.data as Cover;
+          if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
+            if (container === "center") {
           containerLayoutElements.push(layoutElement);
+            }
+          } else {
+            if (layoutElement.container === container) {
+              containerLayoutElements.push(layoutElement);
+            }
+          }
         }
       } else {
         if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
@@ -8220,6 +8222,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public getCssTitleExpandableSvg(): string {
     return null;
+  }
+  createCustomChoiceItem(options: CreateCustomChoiceItemEvent): any {
+    this.onCreateCustomChoiceItem.fire(this, options);
   }
 
   /**
@@ -8462,7 +8467,7 @@ Serializer.addClass("survey", [
   {
     name: "showQuestionNumbers",
     default: "off",
-    choices: ["on", "onPage", "off"],
+    choices: ["on", "onPage", "recursive", "off"],
   },
   {
     name: "questionTitleLocation",
@@ -8487,6 +8492,7 @@ Serializer.addClass("survey", [
     name: "progressBarLocation",
     default: "auto",
     choices: ["auto", "aboveheader", "belowheader", "bottom", "topbottom"],
+    visibleIf: (obj: any) => { return obj.showProgressBar; }
   },
   {
     name: "progressBarType",

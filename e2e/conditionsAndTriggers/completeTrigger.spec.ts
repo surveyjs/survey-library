@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
 const title = "completeTrigger";
-const themeName = "defaultV2";
+const themeName = "default";
 
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {

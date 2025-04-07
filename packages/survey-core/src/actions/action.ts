@@ -67,7 +67,7 @@ export interface IAction {
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` wrapped in a `<div>`. The `css` property applies classes to the `<div>`.
+   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `css` property applies classes to the `<div>` element.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -76,9 +76,9 @@ export interface IAction {
    */
   css?: string;
   /**
-   * One or several CSS classes that you want to apply to the inner `<input>` element.
+   * One or several CSS classes that you want to apply to the inner `<input>` or `<button>` element.
    *
-   * In the markup, an action item is rendered as an `<input>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`.
+   * In the markup, an action item is rendered as an `<input>` or `<button>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`/`<button>` element.
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
@@ -440,8 +440,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public setSubItems(options: IListModel): void {
     this.markerIconName = "icon-next_16x16";
-    this.component = "sv-list-item-group";
+    this.component = this.getGroupComponentName();
     this.items = [...options.items];
+    if (!this.popupModel) {
+      this.createPopupForSubitems(options);
+    } else {
+      const list: ListModel = this.popupModel.contentComponentData.model as ListModel;
+      list.setItems(this.items);
+    }
+  }
+  private createPopupForSubitems(options: IListModel): void {
     const listOptions = Object.assign({}, options);
     listOptions.searchEnabled = false;
     const popupModel = createPopupModelWithListModel(
@@ -574,6 +582,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getComponent(): string {
     return this._component;
+  }
+  protected getGroupComponentName() {
+    return "sv-list-item-group";
   }
   public dispose(): void {
     this.updateCallback = undefined;

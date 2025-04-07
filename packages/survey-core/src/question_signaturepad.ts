@@ -7,7 +7,7 @@ import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
 import { dataUrl2File, FileLoader, QuestionFileModelBase } from "./question_file";
 import { isBase64URL } from "./utils/utils";
-import { DomDocumentHelper } from "./global_variables_utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -137,7 +137,14 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private fromDataUrl(data: string) {
     this._loadedData = data;
     if (this.signaturePad) {
-      this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
+      const devicePixelRatio = DomWindowHelper.getDevicePixelRatio();
+      const ratio = (this.dataFormat === "svg" && !!devicePixelRatio) ? devicePixelRatio : 1;
+
+      const options = {
+        width: this.canvas.width * this.scale / ratio,
+        height: this.canvas.height * this.scale / ratio
+      };
+      this.signaturePad.fromDataURL(data, options);
     }
   }
   private _loadedData: string = undefined;
@@ -194,8 +201,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   private updateValueHandler = () => {
     this._loadedData = undefined;
-    this.scaleCanvas(false, true);
-    this.loadPreview(this.value);
+    this.scaleCanvas(true, true);
   };
 
   initSignaturePad(el: HTMLElement) {

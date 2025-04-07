@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectorRef } from "@angular/core";
+import { Component, Input, OnChanges, OnInit, SimpleChanges, AfterViewInit, ChangeDetectorRef } from "@angular/core";
 import { EmbeddedViewContentComponent } from "../../../embedded-view-content.component";
 import { createTOCListModel, getTocRootCss, ListModel, SurveyModel, TOCModel } from "survey-core";
 import { AngularComponentFactory } from "../../../component-factory";
@@ -8,10 +8,14 @@ import { AngularComponentFactory } from "../../../component-factory";
   templateUrl: "./progress.component.html",
   styles: [":host { display: none; }"]
 })
-export class ProgressTocComponent extends EmbeddedViewContentComponent implements OnChanges, OnInit {
+export class ProgressTocComponent extends EmbeddedViewContentComponent implements AfterViewInit, OnChanges, OnInit {
+  @Input() survey!: SurveyModel;
   @Input() model!: TOCModel;
   override ngOnInit(): void {
     super.ngOnInit();
+  }
+  ngAfterViewInit() {
+    this.model.updateStickyTOCSize(this.survey.rootElement);
   }
   ngOnChanges(changes: SimpleChanges): void {
   }

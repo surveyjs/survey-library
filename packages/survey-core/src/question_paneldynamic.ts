@@ -314,6 +314,10 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
     this.registerPropertyChangedHandlers(["minPanelCount"], () => { this.onMinPanelCountChanged(); });
     this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
+    this.registerPropertyChangedHandlers(["templateQuestionTitleLocation", "templateQuestionTitleWidth"], () => {
+      const panels = this.visiblePanelsCore;
+      if(panels) panels.forEach((panel) => { panel.updateElementCss(true); });
+    });
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get hasSingleInput(): boolean { return false; }
@@ -1167,6 +1171,17 @@ export class QuestionPanelDynamicModel extends Question
     this.templateQuestionTitleLocation = val;
   }
   /**
+   * Sets consistent width for question titles in CSS values. Applies only when [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) evaluates to `"left"`.
+   *
+   * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
+   */
+  public get templateQuestionTitleWidth(): string {
+    return this.template.questionTitleWidth;
+  }
+  public set templateQuestionTitleWidth(val: string) {
+    this.template.questionTitleWidth = val;
+  }
+  /**
    * Specifies the error message position.
    *
    * Possible values:
@@ -1182,8 +1197,13 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("templateErrorLocation", value.toLowerCase());
   }
   /**
-   * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
-   * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
+   * Specifies whether to display survey element numbers within the dynamic panel and how to calculate them.
+   *
+   * Possible values:
+   *
+   * - `"onSurvey"` - Continues numbering across the entire survey.
+   * - `"onPanel"` - Starts numbering within the dynamic panel from scratch.
+   * - `"off"` (default) - Hides question numbers.
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
@@ -1536,7 +1556,7 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeList) {
       this.currentIndex = index;
     }
-    if (this.survey) this.survey.dynamicPanelAdded(this);
+    this.notifyOnPanelAddedRemoved(true, index);
     return this.panelsCore[index];
   }
   private focusNewPanelCallback: () => void;
@@ -1665,8 +1685,24 @@ export class QuestionPanelDynamicModel extends Question
     this.value = value;
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
-    if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
+    this.notifyOnPanelAddedRemoved(false, index, panel);
     this.isValueChangingInternally = false;
+  }
+  private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel?: PanelModel): void {
+    if(!panel) {
+      panel = this.panelsCore[index];
+    }
+    if(this.survey) {
+      const updateIndeces = this.showQuestionNumbers === "onSurvey";
+      if(isAdded) {
+        this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
+      } else {
+        this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
+      }
+    }
+    if(isAdded && !!panel && this.showQuestionNumbers === "onPanel") {
+      panel.setVisibleIndex(0);
+    }
   }
   private getVisualPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -1863,7 +1899,7 @@ export class QuestionPanelDynamicModel extends Question
     this.assignOnPropertyChangedToTemplate();
     if (!!this.survey) {
       for (var i = 0; i < this.panelCount; i++) {
-        this.survey.dynamicPanelAdded(this);
+        this.notifyOnPanelAddedRemoved(true, i);
       }
     }
     this.updateIsReady();
@@ -2195,6 +2231,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.isInteractiveDesignElement = false;
     panel.setParentQuestion(this);
     panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
+    panel.onGetQuestionTitleWidth = () => this.templateQuestionTitleWidth;
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
@@ -2772,6 +2809,12 @@ Serializer.addClass(
       name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "templateQuestionTitleWidth",
+      visibleIf: function (obj: any) {
+        return !!obj && obj.template.availableQuestionTitleWidth();
+      }
     },
     { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     {

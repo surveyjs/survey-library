@@ -7,6 +7,11 @@ import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyProgressToc extends SurveyNavigationBase {
+  componentDidMount() {
+    super.componentDidMount();
+    const tocModel = this.props.model;
+    tocModel.updateStickyTOCSize(this.survey.rootElement);
+  }
   render(): React.JSX.Element {
     const tocModel = this.props.model;
     let content: React.JSX.Element;

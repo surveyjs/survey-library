@@ -3161,6 +3161,14 @@ export class SurveyModel extends SurveyElementCore
     this.valuesHash = {};
     this.setDataCore(data, !data);
   }
+  public calcWithExpressionMap(map: any) {
+    const data = this.data;
+    const res = {};
+    Object.keys(map).forEach(key => {
+      res[key] = new ExpressionRunner(map[key]).run(data);
+    });
+    return res;
+  }
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
    *
@@ -8188,7 +8196,7 @@ export class SurveyModel extends SurveyElementCore
           const advHeader = layoutElement && layoutElement.data as Cover;
           if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
             if (container === "center") {
-          containerLayoutElements.push(layoutElement);
+              containerLayoutElements.push(layoutElement);
             }
           } else {
             if (layoutElement.container === container) {

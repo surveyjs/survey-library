@@ -21986,3 +21986,43 @@ QUnit.test("Don't rise onPageAdded when mooving question", function (assert) {
   assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
   assert.equal(survey.pages[0].name, "page2", "page2 is the first page");
 });
+QUnit.only("test calcWithExpressionMap function", function (assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      }
+    ]
+  });
+  assert.deepEqual(survey.data, {}, "there is no data");
+  survey.data = { question1: "item1", question2: 5 };
+  assert.deepEqual(
+    survey.data,
+    { question1: "item1", question2: 5 },
+    "set the object"
+  );
+
+  const map = {
+    "f1": "{question1}",
+    "f2": "{question2}",
+    "f1_1": "question1"
+  };
+
+  const mappedData = survey.calcWithExpressionMap(map);
+
+  assert.deepEqual(
+    mappedData,
+    { f1: "item1", f2: 5, f1_1: "question1" },
+    "set the object"
+  );
+});

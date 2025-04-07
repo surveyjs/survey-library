@@ -222,23 +222,28 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private moveThumbByClick = (event: React.PointerEvent<HTMLDivElement>) => {
     console.log("handle click!");
-    const { max, min } = this.question;
+    const { max, min, maxRangeLength, minRangeLength } = this.question;
 
     const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
-    const newValue = Math.round(percent/100*(max-min) + min);
+    let newValue = Math.round(percent/100*(max-min) + min);
 
     const renderedValue = this.getRenderedValue();
+    let thumbIndex = 0;
 
-    // let borderArrived = false;
     for (let i = 0; i < renderedValue.length; i++) {
-      renderedValue[0] = newValue;
-      // if (newValue <= max && newValue >= min) { // TODO minRangeLength and maxRangeLength
-      //   renderedValue[0] = newValue;
-      // } else {
-      //   borderArrived = true;
-      // }
+      const currentMinValueDiff = Math.abs(renderedValue[thumbIndex] - newValue);
+      const newMinValueDiff = Math.abs(renderedValue[i] - newValue);
+      if (newMinValueDiff < currentMinValueDiff) {
+        thumbIndex = i;
+      }
     }
-    // if (borderArrived) { borderArrived = false; return; }
+
+    // TODO ensure all borders logic ensureBorders(newValue) {...}; rendederValue = ensureBorders(newValue);
+    if (renderedValue.length > 1) {
+      newValue = this.ensureRightBorder(newValue, thumbIndex);
+      newValue = this.ensureLeftBorder(newValue, thumbIndex);
+    }
+    renderedValue[thumbIndex] = newValue;
     this.question.value = renderedValue;
   }
 

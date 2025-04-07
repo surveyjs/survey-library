@@ -10,7 +10,7 @@ export class DragOrClickHelper {
   private currentY: any;
   private itemModel: any;
 
-  constructor(private dragHandler: any) { }
+  constructor(public dragHandler: any = null) { }
 
   public onPointerDown(pointerDownEvent: any, itemModel?: any) {
     if (IsTouch) {

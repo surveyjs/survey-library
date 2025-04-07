@@ -5,6 +5,7 @@ import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionRatingModel } from "./question_rating";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 
 /**
  * A class that describes the Range Slider question type.
@@ -46,14 +47,13 @@ export class QuestionSliderModel extends QuestionRatingModel {
   }
   @propertyArray({ }) ticks: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
-
   @property({ defaultValue: null }) tickSize: number | null;
-  @property({ defaultValue: null }) focusedThumb: number | null;
 
   constructor(name: string) {
     super(name);
     this.createNewArray("value");
     this.createItemValues("ticks");
+    this.dragOrClickHelper = new DragOrClickHelper();
   }
 
   public getType(): string {
@@ -76,6 +76,14 @@ export class QuestionSliderModel extends QuestionRatingModel {
   }
 
   public isIndeterminate: boolean = false;
+  @property({ defaultValue: null }) focusedThumb: number | null; // TODO probably need to be just internal not property
+
+  public dragOrClickHelper: DragOrClickHelper;
+
+  public handlePointerDown = (event: PointerEvent): void => {
+    const choice = ItemValue.getItemByValue(this.visibleChoices, this.draggedChoiceValue);
+    this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
+  }
 
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);

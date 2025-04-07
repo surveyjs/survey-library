@@ -39,7 +39,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        <div className={cssClasses.visualSliderContainer}>
+        <div className={cssClasses.visualSliderContainer} >
           <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
           <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
           <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
@@ -65,20 +65,16 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }/>;
+      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onClick={ (e)=>{ console.log("click", e); } }/>;
       inputs.push(input);
     }
     return inputs;
   }
 
   private getRangeInput() {
-    const { max, min, step, cssClasses } = this.question;
-    const renderedValue = this.getRenderedValue();
-    const lastValue = renderedValue[renderedValue.length - 1];
-    const firstValue = renderedValue[0];
-    const inputValue = firstValue + ((lastValue - firstValue) / 2);
-
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleOnPointerDown(e); } } onPointerUp={ (e)=>{ this.handleOnPointerUp(e); } } />;
+    const { max, min, step, cssClasses, allowDragRange } = this.question;
+    if (!allowDragRange) return null;
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ console.log("down", e); this.handleOnPointerDown(e); } } onPointerUp={ (e)=>{ console.log("up", e); this.handleOnPointerUp(e); } } onClick={ (e)=>{ console.log("click", e); } }/>;
   }
 
   private getThumbs() {
@@ -161,6 +157,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private updateInputRangeStyles() {
+    if (!this.question.allowDragRange) return;
     const renderedValue = this.getRenderedValue();
     const percentLastValue = this.getPercent(renderedValue[renderedValue.length - 1]);
     const percentFirstValue = this.getPercent(renderedValue[0]);
@@ -189,7 +186,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private oldInputValue: number | null = null;
 
   private handleOnPointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    const { max, min } = this.question;
+    const { max, min, allowDragRange } = this.question;
+
+    if (!allowDragRange) return;
 
     const inputNode = this.rangeInputRef.current;
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");

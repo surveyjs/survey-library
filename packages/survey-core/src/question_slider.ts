@@ -31,7 +31,6 @@ export class QuestionSliderModel extends QuestionRatingModel {
   public set step(val: number) {
     this.setPropertyValue("step", val);
   }
-
   @property({ defaultValue: false }) snapToTicks: boolean;
   @property({ defaultValue: true }) showLabels: boolean;
   @property({ defaultValue: true }) showEdgeLabels: boolean;
@@ -45,9 +44,10 @@ export class QuestionSliderModel extends QuestionRatingModel {
   public set tickCount(val: number) {
     this.setPropertyValue("tickCount", val);
   }
-  @property({ defaultValue: null }) tickSize: number | null;
   @propertyArray({ }) ticks: ItemValue[];
+  @property({ defaultValue: true }) allowDragRange: boolean;
 
+  @property({ defaultValue: null }) tickSize: number | null;
   @property({ defaultValue: null }) focusedThumb: number | null;
 
   constructor(name: string) {
@@ -159,13 +159,13 @@ Serializer.addClass(
       default: 6
     },
     {
-      name: "maxRangeLength: number",
+      name: "maxRangeLength:number",
       // defaultFunc: (obj: QuestionSliderModel): number => {
       //   return obj.max;
       // }
     },
     {
-      name: "minRangeLength: number"
+      name: "minRangeLength:number"
     },
     {
       name: "maxValueExpression",
@@ -178,6 +178,10 @@ Serializer.addClass(
     {
       name: "ticks:itemvalue[]",
     },
+    {
+      name: "allowDragRange:boolean",
+      default: true
+    }
   ],
   function () {
     return new QuestionSliderModel("");

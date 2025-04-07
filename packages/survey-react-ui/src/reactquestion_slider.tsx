@@ -211,12 +211,16 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private handleRangePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    this.refreshInputRange();
     if (this.isRangeMoving) {
+      this.refreshInputRange();
       this.isRangeMoving = false;
       return;
     }
 
+    const inputNode = this.rangeInputRef.current;
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "0px");
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
     this.moveThumbByClick(event);
   }
 
@@ -245,9 +249,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     }
     renderedValue[thumbIndex] = newValue;
     this.question.value = renderedValue;
+    this.refreshInputRange();
   }
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    if (!this.isRangeMoving) return;
     const { step, max, min } = this.question;
     const diff = +event.target.value > this.oldInputValue ? -step : step;
     this.oldInputValue = +event.target.value;

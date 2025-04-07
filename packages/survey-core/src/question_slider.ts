@@ -53,7 +53,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
     super(name);
     this.createNewArray("value");
     this.createItemValues("ticks");
-    this.dragOrClickHelper = new DragOrClickHelper();
+    this.dragOrClickHelper = new DragOrClickHelper(null, false);
   }
 
   public getType(): string {

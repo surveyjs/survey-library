@@ -10,10 +10,10 @@ export class DragOrClickHelper {
   private currentY: any;
   private itemModel: any;
 
-  constructor(public dragHandler: any = null) { }
+  constructor(public dragHandler: any = null, public preventOnTouch = true) { }
 
   public onPointerDown(pointerDownEvent: any, itemModel?: any) {
-    if (IsTouch) {
+    if (IsTouch && this.preventOnTouch) {
       this.dragHandler(pointerDownEvent, pointerDownEvent.currentTarget, itemModel); //TODO handle inside in the library's drag drop core, need refactoring
       return;
     }

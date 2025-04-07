@@ -417,18 +417,21 @@ export class Base {
   }
 
   /**
-   * Returns a JSON object that corresponds to the current SurveyJS object.
+   * Returns a JSON schema that corresponds to the current survey element.
+   * @param options An object with configuration options.
+   * @param {boolean} options.storeDefaults Pass `true` the JSON schema should include properties with default values.
+   * @returns A JSON schema of the survey element.
    * @see fromJSON
    */
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
   }
   /**
-   * Assigns a new configuration to the current SurveyJS object. This configuration is taken from a passed JSON object.
+   * Assigns a new JSON schema to the current survey element.
    *
-   * The JSON object should contain only serializable properties of this SurveyJS object. Event handlers and properties that do not belong to the SurveyJS object are ignored.
+   * The JSON schema should contain only serializable properties of this survey element. Event handlers and properties that do not belong to the survey element are ignored.
    *
-   * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
+   * @param json A JSON schema that you want to apply to the current survey element.
    * @param options An object with configuration options.
    * @param {boolean} options.validatePropertyValues Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
    * @see toJSON

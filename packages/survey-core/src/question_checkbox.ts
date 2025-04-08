@@ -67,6 +67,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return null;
   }
+  protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
+    if(isDependOn && !!this.valuePropertyName) return [];
+    return super.getDependedQuestionsByValueName(isDependOn);
+  }
   /**
    * Returns the "Select All" choice item. Use this property to change the item's `value` or `text`.
    * @see showSelectAllItem

@@ -9724,7 +9724,43 @@ QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray 
   rows[1].getQuestionByColumnName("col1").value = 7;
   assert.equal(expression.value, 12, "Calculate values correctly");
 });
-
+QUnit.test("matrix dynamic expression & checkbox valuePropertyName & displayValue function, Bug#9699", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          { value: 1, text: "Item 1" },
+          { value: 2, text: "Item 2" },
+          { value: 3, text: "Item 3" }
+        ],
+        "valuePropertyName": "testItem"
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "q2",
+        "valueName": "q1",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "defaultValueExpression": "displayValue('q1', {row.testItem})"
+          }
+        ],
+        "rowCount": 0
+      }
+    ]
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  // const expression = survey.getQuestionByName("q3");
+  checkbox.renderedValue = [1, 3];
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "There are two rows");
+  assert.equal(rows[0].getQuestionByColumnName("col1").value, "Item 1", "Row 1 value is correct");
+  assert.equal(rows[1].getQuestionByColumnName("col1").value, "Item 3", "Row 2 value is correct");
+});
 QUnit.test("matrix dynamic & share data in cells & detail panel, Bug8697", function (assert) {
   const survey = new SurveyModel({
     elements: [

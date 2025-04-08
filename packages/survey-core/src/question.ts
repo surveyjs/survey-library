@@ -322,9 +322,12 @@ export class Question extends SurveyElement<Question>
   private getIsReadyDependends(): Array<Question> {
     return this.getIsReadyDependendCore(false);
   }
+  protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
+    return this.survey.questionsByValueName(this.getValueName());
+  }
   private getIsReadyDependendCore(isDependOn: boolean): Array<Question> {
     if (!this.survey) return [];
-    const questions = this.survey.questionsByValueName(this.getValueName());
+    const questions = this.getDependedQuestionsByValueName(isDependOn);
     const res = new Array<Question>();
     questions.forEach(q => { if (q !== this) res.push(<Question>q); });
     if (!isDependOn) {

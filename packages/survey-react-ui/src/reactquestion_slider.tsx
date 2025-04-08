@@ -39,7 +39,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        <div className={cssClasses.visualSliderContainer} onPointerUp={ (e)=>{ this.moveThumbByClick(e); } }>
+        <div className={cssClasses.visualSliderContainer} onPointerUp={ (e)=>{ this.moveThumbByClick(e); }}>
           <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
           <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
           <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
@@ -65,7 +65,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } />;
+      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
       inputs.push(input);
     }
     return inputs;
@@ -180,6 +180,13 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     }
 
     renderedValue.splice(inputNumber, 1, newValue);
+    // renderedValue.sort((a, b)=>a-b);
+    this.question.value = renderedValue;
+  }
+
+  private handlePointerUp(e) {
+    const renderedValue:number[] = this.getRenderedValue();
+    renderedValue.sort((a, b)=>a-b);
     this.question.value = renderedValue;
   }
 
@@ -282,7 +289,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private ensureLeftBorder(newValue:number, inputNumber):number {
-    const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength } = this.question;
+    const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength, allowSwap } = this.question;
+
+    if (allowSwap) return newValue;
+
     const value:number[] = this.getRenderedValue();
     const prevValueBorder = value[inputNumber - 1];
     const nextValueBorder = value[inputNumber + 1];
@@ -294,8 +304,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private ensureRightBorder(newValue, inputNumber):number {
+    const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength, allowSwap } = this.question;
+
+    if (allowSwap) return newValue;
+
     const value:number[] = this.getRenderedValue();
-    const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength } = this.question;
     const nextValueBorder = value[inputNumber + 1];
     const prevValueBorder = value[inputNumber - 1];
 

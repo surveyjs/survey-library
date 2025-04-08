@@ -48,6 +48,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   @propertyArray({ }) ticks: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
+  @property({ defaultValue: true }) allowSwap: boolean;
 
   constructor(name: string) {
     super(name);
@@ -188,6 +189,10 @@ Serializer.addClass(
     },
     {
       name: "allowDragRange:boolean",
+      default: true
+    },
+    {
+      name: "allowSwap:boolean",
       default: true
     }
   ],

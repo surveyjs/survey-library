@@ -188,27 +188,27 @@ input[type=range].sd-slider__input:focus {
 
 input[type=range].sd-slider__input::-webkit-slider-thumb {
   pointer-events: all;
-  height: $range-slider-thumb-size;
+  height: 70px;
   width: $range-slider-thumb-size;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
   cursor: pointer;
-  top: -2px;
+  top: -20px;
   position: relative;
 }
 
 input[type=range].sd-slider__input::-moz-range-thumb {
   pointer-events: all;
-  height: $range-slider-thumb-size;
+  height: 70px;
   width: $range-slider-thumb-size;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
   cursor: pointer;
-  top: -2px;
+  top: -20px;
   position: relative;
 }
 

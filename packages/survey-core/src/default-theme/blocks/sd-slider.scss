@@ -157,12 +157,16 @@ input[type=range].sd-slider__input {
   position: absolute;
   pointer-events: none;
   -webkit-appearance: none;
-  z-index: 3;
+  z-index: 4;
   height: 14px;
   top: -2px;
   width: 100%;
   opacity: 0;
   margin: 0;
+}
+
+input[type=range][name="range-input"].sd-slider__input {
+  z-index: 3;
 }
 
 input[type=range].sd-slider__input:focus::-webkit-slider-runnable-track {

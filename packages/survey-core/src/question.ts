@@ -214,7 +214,7 @@ export class Question extends SurveyElement<Question>
     const options: ITextArea = {
       question: this,
       id: () => this.commentId,
-      propertyName: "comment",
+      propertyNames: ["comment"],
       className: () => this.cssClasses.comment,
       placeholder: () => this.renderedCommentPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,

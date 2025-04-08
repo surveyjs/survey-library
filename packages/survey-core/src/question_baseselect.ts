@@ -115,7 +115,7 @@ export class QuestionSelectBase extends Question {
     const options: ITextArea = {
       question: this,
       id: () => this.otherId,
-      propertyName: "otherValue",
+      propertyNames: ["otherValue", "comment"],
       className: () => this.cssClasses.other,
       placeholder: () => this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,

@@ -34,7 +34,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     const options: ITextArea = {
       question: this,
       id: () => this.inputId,
-      propertyName: "value",
+      propertyNames: ["value"],
       className: () => this.className,
       placeholder: () => this.renderedPlaceholder,
       isDisabledAttr: () => this.isDisabledAttr,

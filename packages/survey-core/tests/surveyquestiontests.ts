@@ -7910,6 +7910,41 @@ QUnit.test("TextAreaOptions", function (assert) {
 
   StylesManager.applyTheme("default");
 });
+QUnit.test("The text area value is not updated on setting the question comment/other value in the code", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "car",
+        "title": "Which is the brand of your car?",
+        "isRequired": true,
+        "showNoneItem": true,
+        "showOtherItem": true,
+        "colCount": 1,
+        "choices": ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota"],
+        "separateSpecialChoices": true,
+        "allowClear": true
+      }
+    ]
+  });
+
+  const car = <QuestionDropdownModel>survey.getQuestionByName("car");
+  const otherOptions = car.otherTextAreaModel;
+  const textArea1 = document.createElement("textarea");
+
+  try {
+    otherOptions.setElement(textArea1);
+    assert.equal(textArea1.value, "", "textArea value #1");
+    assert.equal(otherOptions.getTextValue(), "");
+
+    survey.setComment("car", "new value");
+    assert.equal(textArea1.value, "new value", "textArea value #2");
+    assert.equal(otherOptions.getTextValue(), "new value");
+
+  } finally {
+    textArea1.remove();
+  }
+});
 QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
   const survey = new SurveyModel({
     validateVisitedEmptyFields: true,

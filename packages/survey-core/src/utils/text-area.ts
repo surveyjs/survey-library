@@ -4,7 +4,7 @@ import { Question } from "../question";
 export interface ITextArea {
   question: any;
   id: () => string;
-  propertyName: string;
+  propertyNames: Array<string>;
   className: () => string;
   isDisabledAttr: () => boolean;
   isReadOnlyAttr?: () => boolean;
@@ -45,7 +45,7 @@ export class TextAreaModel {
   }
 
   constructor(private options: ITextArea) {
-    this.question.registerFunctionOnPropertyValueChanged(this.options.propertyName, this.onPropertyChangedCallback, "__textarea");
+    this.question.registerFunctionOnPropertiesValueChanged(this.options.propertyNames, this.onPropertyChangedCallback, "__textarea");
   }
 
   public setElement(element: HTMLTextAreaElement | null): void {
@@ -149,7 +149,7 @@ export class TextAreaModel {
   }
   public dispose(): void {
     if (this.question) {
-      this.question.unRegisterFunctionOnPropertyValueChanged(this.options.propertyName, "__textarea");
+      this.question.unRegisterFunctionOnPropertiesValueChanged(this.options.propertyNames, "__textarea");
     }
     this.resetElement();
   }

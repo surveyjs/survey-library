@@ -1143,7 +1143,7 @@ export class Base {
     caseInSensitive: boolean = false,
     trimString: boolean = false
   ): boolean {
-    return Helpers.isTwoValueEquals(x, y, false, !caseInSensitive, trimString);
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: !caseInSensitive, trimStrings: trimString, doNotConvertNumbers: true });
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

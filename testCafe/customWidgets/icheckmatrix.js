@@ -58,8 +58,8 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult.Quality).eql({
-      affordable: 2,
-      "does what it claims": 3
+      affordable: "2",
+      "does what it claims": "3"
     });
   });
 });

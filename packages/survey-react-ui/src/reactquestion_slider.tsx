@@ -31,8 +31,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const ticks = showLabels ? this.getTicks() : null;
 
     const value = this.getRenderedValue();
-    const leftPercent = this.getPercent(value[0]);
-    const rightPercent = this.getPercent(value[value.length - 1]);
+    const leftPercent = this.getPercent(Math.min(value[0], value[value.length - 1]));
+    const rightPercent = this.getPercent(Math.max(value[0], value[value.length - 1]));
 
     const rangeLeftPercent = leftPercent + "%";
     const rangeRightPercent = (100 - rightPercent) + "%";
@@ -188,6 +188,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const renderedValue:number[] = this.getRenderedValue();
     renderedValue.sort((a, b)=>a-b);
     this.question.value = renderedValue;
+    this.refreshInputRange();
   }
 
   private oldInputValue: number | null = null;

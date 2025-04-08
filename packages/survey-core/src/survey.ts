@@ -3165,7 +3165,24 @@ export class SurveyModel extends SurveyElementCore
     const data = this.data;
     const res = {};
     Object.keys(map).forEach(key => {
-      res[key] = new ExpressionRunner(map[key]).run(data);
+      const mapValue = (typeof (map[key]) === "object") ? map[key] : { expr: map[key] } as any;
+      const val = new ExpressionRunner(mapValue.expr).run(data);
+      let newVal = null;
+      if (typeof (mapValue.values) === "object") {
+        if (Array.isArray(mapValue.values)) {
+          newVal = mapValue.values.indexOf(val) >= 0;
+        } else {
+          newVal = mapValue.values[val];
+        }
+      }
+      else {
+        if (mapValue.values === undefined) {
+          newVal = val;
+        } else {
+          newVal = mapValue.values == val;
+        }
+      }
+      res[key] = newVal;
     });
     return res;
   }

@@ -22014,7 +22014,9 @@ QUnit.only("test calcWithExpressionMap function", function (assert) {
 
   const map = {
     "f1": "{question1}",
-    "f2": "{question2}",
+    "f2": {
+      expr: "{question2}"
+    },
     "f1_1": "question1"
   };
 
@@ -22024,5 +22026,58 @@ QUnit.only("test calcWithExpressionMap function", function (assert) {
     mappedData,
     { f1: "item1", f2: 5, f1_1: "question1" },
     "set the object"
+  );
+});
+
+QUnit.skip("test calcWithExpressionMap function for radio and checkboxes", function (assert) {
+  var survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choiсes": ["item1", "item2", "item3"]
+          },
+          {
+            "type": "checkboxes",
+            "name": "question2",
+            "choiсes": ["item1", "item2", "item3"]
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = { question1: "item1", question2: ["item1", "item3"] };
+
+  const map = {
+    "f1": {
+      expr: "{question1}",
+      values: {
+        "item1": "1",
+        "item2": "2",
+        "item3": "3"
+      }
+    },
+    "f2_1": {
+      expr: "{question2}",
+      values: ["item1"]
+    },
+    "f2_2": {
+      expr: "{question2}",
+      values: ["item2"]
+    },
+    "f2_3": {
+      expr: "{question2}",
+      values: "item3"
+    }
+  };
+
+  const mappedData = survey.calcWithExpressionMap(map);
+
+  assert.deepEqual(
+    mappedData,
+    { f1: "1", f2_1: true, f2_2: false, f2_3: true },
   );
 });

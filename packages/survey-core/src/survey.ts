@@ -3169,17 +3169,13 @@ export class SurveyModel extends SurveyElementCore
       const val = new ExpressionRunner(mapValue.expr).run(data);
       let newVal = null;
       if (typeof (mapValue.values) === "object") {
-        if (Array.isArray(mapValue.values)) {
-          newVal = mapValue.values.indexOf(val) >= 0;
-        } else {
-          newVal = mapValue.values[val];
-        }
+        newVal = mapValue.values[val];
       }
       else {
         if (mapValue.values === undefined) {
           newVal = val;
         } else {
-          newVal = mapValue.values == val;
+          newVal = Array.isArray(val) ? val.indexOf(mapValue.values) >= 0 : mapValue.values == val;
         }
       }
       res[key] = newVal;

@@ -21986,7 +21986,7 @@ QUnit.test("Don't rise onPageAdded when mooving question", function (assert) {
   assert.equal(pageAddedRaisedCount, 0, "onPageAdded is not raised");
   assert.equal(survey.pages[0].name, "page2", "page2 is the first page");
 });
-QUnit.only("test calcWithExpressionMap function", function (assert) {
+QUnit.test("test calcWithExpressionMap function", function (assert) {
   var survey = new SurveyModel({
     "pages": [
       {
@@ -22029,7 +22029,7 @@ QUnit.only("test calcWithExpressionMap function", function (assert) {
   );
 });
 
-QUnit.skip("test calcWithExpressionMap function for radio and checkboxes", function (assert) {
+QUnit.test("test calcWithExpressionMap function for radio and checkboxes", function (assert) {
   var survey = new SurveyModel({
     "pages": [
       {
@@ -22062,11 +22062,11 @@ QUnit.skip("test calcWithExpressionMap function for radio and checkboxes", funct
     },
     "f2_1": {
       expr: "{question2}",
-      values: ["item1"]
+      values: "item1"
     },
     "f2_2": {
       expr: "{question2}",
-      values: ["item2"]
+      values: "item2"
     },
     "f2_3": {
       expr: "{question2}",

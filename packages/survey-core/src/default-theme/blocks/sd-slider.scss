@@ -121,7 +121,7 @@ $range-slider-thumb-size: 20px;
   line-height: 28px;
 }
 
-.sd-slider__ticks-container {
+.sd-slider__labels-container {
   position: absolute;
   //padding-top: 30px;
   top: 100px;
@@ -134,7 +134,7 @@ $range-slider-thumb-size: 20px;
   }
 }
 
-.sd-slider__tick {
+.sd-slider__label {
   color: $foreground;
   position: absolute;
   margin-left: calc($range-slider-thumb-size / -2);
@@ -144,7 +144,7 @@ $range-slider-thumb-size: 20px;
   }
 }
 
-.sd-slider__tick--long {
+.sd-slider__label--long {
   transform: rotate(-40deg);
   white-space: break-spaces;
   top: -30px;

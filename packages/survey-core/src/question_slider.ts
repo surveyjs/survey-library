@@ -24,28 +24,28 @@ export class QuestionSliderModel extends QuestionRatingModel {
   @property({ defaultValue: "{0}" }) labelFormat: string;
   @property({ defaultValue: "always" }) tooltipVisibility: "onhover" | "always" | "never";
   public get step(): number {
-    if (this.snapToTicks) {
-      return (this.max - this.min) / (this.tickCount - 1);
+    if (this.segmentCount) {
+      return (this.max - this.min) / this.segmentCount;
     }
     return this.getPropertyValue("step");
   }
   public set step(val: number) {
     this.setPropertyValue("step", val);
   }
-  @property({ defaultValue: false }) snapToTicks: boolean;
+  @property({ defaultValue: null }) segmentCount: number | null;
   @property({ defaultValue: true }) showLabels: boolean;
   @property({ defaultValue: true }) showEdgeLabels: boolean;
-  public get tickCount(): number { // TODO interval count?
-    if (this.ticks.length > 0) return this.ticks.length;
+  public get labelCount(): number { // TODO interval count?
+    if (this.labels.length > 0) return this.labels.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;
     }
-    return this.getPropertyValue("tickCount");
+    return this.getPropertyValue("labelCount");
   }
-  public set tickCount(val: number) {
-    this.setPropertyValue("tickCount", val);
+  public set labelCount(val: number) {
+    this.setPropertyValue("labelCount", val);
   }
-  @propertyArray({ }) ticks: ItemValue[];
+  @propertyArray({ }) labels: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   @property({ defaultValue: true }) allowSwap: boolean;
@@ -53,7 +53,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("value");
-    this.createItemValues("ticks");
+    this.createItemValues("labels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
   }
 
@@ -148,8 +148,7 @@ Serializer.addClass(
       default: true
     },
     {
-      name: "snapToTicks",
-      default: false
+      name: "segmentCount:number",
     },
     {
       name: "min:number",
@@ -164,7 +163,7 @@ Serializer.addClass(
       default: 1,
     },
     {
-      name: "tickCount:number",
+      name: "labelCount:number",
       default: 6
     },
     {
@@ -185,7 +184,7 @@ Serializer.addClass(
       type: "condition"
     },
     {
-      name: "ticks:itemvalue[]",
+      name: "labels:itemvalue[]",
     },
     {
       name: "allowDragRange:boolean",

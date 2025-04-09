@@ -684,9 +684,9 @@ export var defaultCss = {
     tooltipOnHoverMode: "sd-slider__tooltip--on-hover",
     tooltipValue: "sd-slider__tooltip-value",
     input: "sd-slider__input",
-    ticksContainer: "sd-slider__ticks-container",
-    tick: "sd-slider__tick",
-    tickLong: "sd-slider__tick--long",
+    labelsContainer: "sd-slider__labels-container",
+    label: "sd-slider__label",
+    labelLong: "sd-slider__label--long",
   },
   comment: {
     root: "sd-input sd-comment",

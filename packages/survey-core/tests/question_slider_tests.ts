@@ -63,40 +63,26 @@ QUnit.test("check css", (assert) => {
   assert.deepEqual(q1.rootCss, "sd-slider");
 });
 
-QUnit.test("snapToTicks", (assert) => {
+QUnit.test("segmentCount", (assert) => {
   var json = {
     elements: [
       {
         type: "slider",
         name: "q1",
-        snapToTicks: true,
+        segmentCount: 5,
+        min: 0,
+        max: 100,
         step: 10
       },
     ],
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.snapToTicks, true);
-  q1.snapToTicks = false;
-  assert.deepEqual(q1.snapToTicks, false);
-});
-
-QUnit.test("snapToTicks", (assert) => {
-  var json = {
-    elements: [
-      {
-        type: "slider",
-        name: "q1",
-        snapToTicks: true,
-        step: 10
-      },
-    ],
-  };
-  const survey = new SurveyModel(json);
-  const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.snapToTicks, true);
-  q1.snapToTicks = false;
-  assert.deepEqual(q1.snapToTicks, false);
+  assert.deepEqual(q1.segmentCount, 5);
+  assert.deepEqual(q1.step, 20);
+  q1.segmentCount = null;
+  assert.deepEqual(q1.segmentCount, null);
+  assert.deepEqual(q1.step, 10);
 });
 
 QUnit.test("step", (assert) => {
@@ -119,8 +105,7 @@ QUnit.test("step", (assert) => {
         name: "q1",
         min: 100,
         max: 200,
-        tickCount: 11,
-        snapToTicks: true
+        step: 10
       },
     ],
   };
@@ -130,7 +115,7 @@ QUnit.test("step", (assert) => {
   assert.deepEqual(q1.step, 10);
 });
 
-QUnit.test("tickCount", (assert) => {
+QUnit.test("labelCount", (assert) => {
   let json:any = {
     elements: [
       {
@@ -141,7 +126,7 @@ QUnit.test("tickCount", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.tickCount, 6);
+  assert.deepEqual(q1.labelCount, 6);
 
   json = {
     elements: [
@@ -156,16 +141,16 @@ QUnit.test("tickCount", (assert) => {
   };
   survey = new SurveyModel(json);
   q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.tickCount, 4+2);
+  assert.deepEqual(q1.labelCount, 4+2);
 });
 
-QUnit.test("ticks (custom)", (assert) => {
+QUnit.test("labels (custom)", (assert) => {
   let json:any = {
     elements: [
       {
         type: "slider",
         name: "q1",
-        ticks: [
+        labels: [
           {
             text: "one",
             value: 1
@@ -180,9 +165,9 @@ QUnit.test("ticks (custom)", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.ticks[0].value, 1);
-  assert.deepEqual(q1.ticks[1].value, 2);
-  assert.deepEqual(q1.tickCount, q1.ticks.length);
+  assert.deepEqual(q1.labels[0].value, 1);
+  assert.deepEqual(q1.labels[1].value, 2);
+  assert.deepEqual(q1.labelCount, q1.labels.length);
 });
 
 QUnit.test("sliderType", (assert) => {

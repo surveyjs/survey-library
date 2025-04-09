@@ -28,7 +28,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const inputs = this.getInputs();
     const rangeInput = sliderType === "single" ? null : this.getRangeInput();
     const thumbs = this.getThumbs();
-    const ticks = showLabels ? this.getTicks() : null;
+    const labels = showLabels ? this.getLabels() : null;
 
     const value = this.getRenderedValue();
     const leftPercent = sliderType === "single" ? this.getPercent(Math.min(value, 0)) : this.getPercent(Math.min(...value));
@@ -45,9 +45,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
           <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
           {thumbs}
         </div>
-        <div className={cssClasses.ticksContainer}>
+        <div className={cssClasses.labelsContainer}>
           <div>
-            {ticks}
+            {labels}
           </div>
         </div>
         {inputs}
@@ -103,28 +103,28 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     return thumbs;
   }
 
-  private getTicks() {
-    const ticks = [];
-    const { max, min, tickCount, showEdgeLabels, ticks: customTicks, cssClasses, step, labelFormat } = this.question;
+  private getLabels() {
+    const labels = [];
+    const { max, min, labelCount, showEdgeLabels, labels: customLabels, cssClasses, step, labelFormat } = this.question;
     const fullRange = max - min;
 
-    for (let i = 0; i < tickCount; i++) {
-      let tickStep = i * fullRange / (tickCount - 1);
-      let position = tickStep / fullRange * 100;
+    for (let i = 0; i < labelCount; i++) {
+      let labelStep = i * fullRange / (labelCount - 1);
+      let position = labelStep / fullRange * 100;
 
-      if (!showEdgeLabels && (i === 0 || i === tickCount - 1)) continue;
+      if (!showEdgeLabels && (i === 0 || i === labelCount - 1)) continue;
 
       const isDecimal = step % 1 != 0;
-      const tickText:string = customTicks.length > 0 ? customTicks[i].text : isDecimal ? ""+(tickStep + min) : ""+Math.round(tickStep + min);
+      const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? ""+(labelStep + min) : ""+Math.round(labelStep + min);
 
-      const tick = <React.Fragment key={"tick-"+i}>
-        <div className={`${cssClasses.tick} ${tickText.length > 10 ? cssClasses.tickLong : ""}`} style={{ left: position + "%" }}>{labelFormat.replace("{0}", ""+tickText)}</div>
+      const label = <React.Fragment key={"label-"+i}>
+        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLong : ""}`} style={{ left: position + "%" }}>{labelFormat.replace("{0}", ""+labelText)}</div>
       </React.Fragment>;
 
-      ticks.push(tick);
+      labels.push(label);
     }
 
-    return ticks;
+    return labels;
   }
 
   private getPercent(value:number):number {

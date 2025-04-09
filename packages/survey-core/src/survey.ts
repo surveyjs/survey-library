@@ -152,6 +152,7 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
 
   //#region Event declarations
+  public onEndLoadingFromJson: EventBase<SurveyModel, Object> = this.addEvent<SurveyModel, Object>();
   /**
    * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
    *
@@ -6583,6 +6584,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.setCalculatedWidthModeUpdater();
+    this.onEndLoadingFromJson.fire(this, {});
   }
 
   private updateNavigationCss() {

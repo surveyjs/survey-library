@@ -882,3 +882,40 @@ QUnit.test("pages visibility on value changed", function (assert) {
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
   assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
 });
+
+QUnit.test("update TOC pages on survey loaded from JSON", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          },
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3",
+          }
+        ]
+      }
+    ],
+    "showTOC": true
+  };
+  let survey: SurveyModel = new SurveyModel({});
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 0, "No TOC items in empty survey");
+  survey.fromJSON(json);
+  assert.equal(tocListModel.visibleItems.length, 2, "Two pages are visible in TOC");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
+  assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
+  assert.equal(tocListModel.actions.length, 2, "Two pages are visible in TOC actions");
+  assert.equal(tocListModel.actions[0].title, survey.pages[0].name, "Page 1 is visible in TOC actions");
+  assert.equal(tocListModel.actions[1].title, survey.pages[1].name, "Page 2 is visible in TOC actions");
+});

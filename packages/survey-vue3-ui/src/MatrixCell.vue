@@ -7,7 +7,7 @@
       type="radio"
       :class="question.cssClasses.itemValue"
       :name="row.fullName"
-      v-model="row.value"
+      v-model="renderedValue"
       :value="column.value"
       :readonly="row.isReadOnlyAttr"
       :disabled="row.isDisabledAttr"
@@ -49,14 +49,24 @@ import type {
   ItemValue,
   QuestionMatrixModel,
 } from "survey-core";
+import { computed } from "vue";
 
 defineOptions({
   inheritAttrs: false,
 });
-defineProps<{
+const props = defineProps<{
   question: QuestionMatrixModel;
   row: MatrixRowModel;
   column: ItemValue;
   columnIndex: number;
 }>();
+const renderedValue = computed({
+  get() {
+    return props.row.value ?? "";
+  },
+  set(val) {
+    const row = props.row;
+    row.value = val;
+  },
+});
 </script>

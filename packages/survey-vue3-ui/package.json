@@ -16,7 +16,7 @@
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
     "test": "vitest --no-watch --no-threads",
     "test:watch": "vitest --no-threads",
-    "lint": "eslint ./src ./tests --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint": "eslint ./src ./tests --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --ignore-path .gitignore --max-warnings=0",
     "testcafe": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --env=vue3 --config-file ../../.testcaferc.dev.js",
     "testcafe:ci": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
     "vrt": "testcafe ../../visualRegressionTests/ --app \"npm run serve:example:prod\" --screenshots ../../ --selector-timeout 1500 --env=vue3 --config-file ../../.testcaferc.dev.js",

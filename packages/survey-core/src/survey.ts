@@ -71,7 +71,8 @@ import {
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
   LoadChoicesFromServerEvent,
-  ProcessTextValueEvent
+  ProcessTextValueEvent,
+  CreateCustomChoiceItemEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -151,6 +152,7 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
 
   //#region Event declarations
+  public onEndLoadingFromJson: EventBase<SurveyModel, Object> = this.addEvent<SurveyModel, Object>();
   /**
    * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
    *
@@ -912,6 +914,7 @@ export class SurveyModel extends SurveyElementCore
 
   public onElementWrapperComponentName: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   public onElementWrapperComponentData: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
@@ -6598,6 +6601,8 @@ export class SurveyModel extends SurveyElementCore
   }
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     if (!json) return;
+    this.resetHasLogo();
+    this.resetPropertyValue("titleIsEmpty");
     this.questionHashesClear();
     this.jsonErrors = null;
     this.sjsVersion = undefined;
@@ -6643,6 +6648,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.setCalculatedWidthModeUpdater();
+    this.onEndLoadingFromJson.fire(this, {});
   }
 
   private updateNavigationCss() {
@@ -7208,14 +7214,13 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
-    this.updateVisibleIndexes(panel.page);
-    if(!newValue) {
-      this.changeCurrentSingleElementOnVisibilityChanged();
+    if(!!panel.page) {
+      this.updateVisibleIndexes(panel.page);
+      if(!newValue) {
+        this.changeCurrentSingleElementOnVisibilityChanged();
+      }
     }
-    this.onPanelVisibleChanged.fire(this, {
-      panel: panel,
-      visible: newValue,
-    });
+    this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
   }
   questionCreated(question: Question): any {
     this.onQuestionCreated.fire(this, { question: question });
@@ -8248,8 +8253,17 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed")) && layoutElement.container === container) {
-          containerLayoutElements.push(layoutElement);
+        if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
+          const advHeader = layoutElement && layoutElement.data as Cover;
+          if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
+            if (container === "center") {
+              containerLayoutElements.push(layoutElement);
+            }
+          } else {
+            if (layoutElement.container === container) {
+              containerLayoutElements.push(layoutElement);
+            }
+          }
         }
       } else {
         if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
@@ -8275,6 +8289,9 @@ export class SurveyModel extends SurveyElementCore
   }
   public getCssTitleExpandableSvg(): string {
     return null;
+  }
+  createCustomChoiceItem(options: CreateCustomChoiceItemEvent): any {
+    this.onCreateCustomChoiceItem.fire(this, options);
   }
 
   /**

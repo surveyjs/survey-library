@@ -21,6 +21,7 @@ import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
+import { Serializer } from "../src/jsonobject";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -7729,6 +7730,66 @@ QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
   panel.maxPanelCount = 2;
   assert.equal(btnAdd.isVisible, true, "#4");
 });
+QUnit.test("maxRowCount & footer buttons in detail matrix panel, Bug#9714", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ],
+            "maxPanelCount": 2
+          }
+        ],
+        "detailPanelMode": "underRowSingle",
+        "cellType": "text",
+        "rowCount": 2
+      }
+    ]
+  });
+  survey.pages[0].onFirstRendering();
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  let panel = row.getQuestionByName("panel");
+  const getAddBtn = () => {
+    return panel.footerToolbar.getActionById("sv-pd-add-btn");
+  };
+  assert.equal(getAddBtn().isVisible, true, "addBtn #1");
+  panel.value = [{ q1: "abc" }];
+  assert.equal(getAddBtn().isVisible, true, "#addBtn 2");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #2");
+  panel.value = [{ q1: "abc" }, { q1: "def" }];
+  assert.equal(panel.panelCount, 2, "panelCount #3");
+  assert.equal(panel.maxPanelCount, 2, "maxPanelCount #3");
+  assert.equal(panel.canAddPanel, false, "canAddPanel #3");
+  assert.equal(getAddBtn().isVisible, false, "addBtn #3");
+  panel.removePanel(0);
+  assert.equal(getAddBtn().isVisible, true, "addBtn #4");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #4");
+  row = matrix.visibleRows[1];
+  row.showDetailPanel();
+  panel = row.getQuestionByName("panel");
+  panel.addPanel();
+  assert.equal(getAddBtn().isVisible, true, "addBtn #5");
+  panel.addPanel();
+  assert.equal(getAddBtn().isVisible, false, "addBtn #6");
+  panel.removePanel(0);
+  assert.equal(getAddBtn().isVisible, true, "addBtn #7");
+});
 QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic panel, Bug#8892", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -7871,4 +7932,81 @@ QUnit.test("Test displayValue() function in dynamic panel, Bug#9635", function (
   q1.comment = "other comment";
   assert.equal(q2.value, "item1, other comment", "Other is comment value");
   assert.deepEqual(panel.value, [{ q1: ["item1", "other"], "q1-Comment": "other comment", q2: "item1, other comment" }], "value is set correctly");
+});
+QUnit.test("Question title width for dynamic panels #2295", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "question1", titleLocation: "left" },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateQuestionTitleLocation: "left",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }]
+  });
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  let q1 = qPanel.panels[0].getQuestionByName("q1");
+  assert.equal(q1.titleWidth, undefined, "q1 titleWidth, #1");
+  const page = survey.pages[0];
+  page.questionTitleWidth = "100px";
+  assert.equal(page.getQuestionTitleWidth(), "100px", "page titleWidth, #1");
+  assert.equal(q1.titleWidth, "100px", "q1 titleWidth, #2");
+  qPanel.templateQuestionTitleWidth = "200px";
+  assert.equal(qPanel.panels[0].getQuestionTitleWidth(), "200px", "panel titleWidth, #1");
+  assert.equal(q1.titleWidth, "200px", "q1 titleWidth, #4");
+  qPanel.addPanel();
+  assert.equal(qPanel.panels[0].getQuestionTitleWidth(), "200px", "panel titleWidth, #2");
+  q1 = qPanel.panels[0].getQuestionByName("q1");
+  assert.equal(q1.titleWidth, "200px", "q1 titleWidth, #5");
+});
+QUnit.test("Question title width for dynamic panels - property.visibleIf #2295", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }]
+  });
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const prop = Serializer.findProperty("paneldynamic", "templateQuestionTitleWidth");
+  assert.equal(prop.isVisible("", qPanel), false, "#1");
+  qPanel.templateQuestionTitleLocation = "left";
+  assert.equal(prop.isVisible("", qPanel), true, "#2");
+  qPanel.templateQuestionTitleLocation = "top";
+  assert.equal(prop.isVisible("", qPanel), false, "#3");
+  const q1 = qPanel.template.getQuestionByName("q1");
+  q1.titleLocation = "left";
+  assert.equal(prop.isVisible("", qPanel), true, "#4");
+  q1.titleLocation = "top";
+  assert.equal(prop.isVisible("", qPanel), false, "#5");
+});
+QUnit.test("Question title location for dynamic panels - update dynamically #2295", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }]
+  });
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel = <PanelModel>qPanel.panels[0];
+  const q1 = panel.getQuestionByName("q1");
+  const leftClass = q1.cssClasses.titleLeftRoot;
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#1");
+  qPanel.templateQuestionTitleLocation = "left";
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#2");
+  qPanel.templateQuestionTitleLocation = "default";
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#3");
+  survey.pages[0].questionTitleLocation = "left";
+  assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#4");
 });

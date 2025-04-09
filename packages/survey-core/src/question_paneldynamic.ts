@@ -316,6 +316,10 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
     this.registerPropertyChangedHandlers(["minPanelCount"], () => { this.onMinPanelCountChanged(); });
     this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
+    this.registerPropertyChangedHandlers(["templateQuestionTitleLocation", "templateQuestionTitleWidth"], () => {
+      const panels = this.visiblePanelsCore;
+      if(panels) panels.forEach((panel) => { panel.updateElementCss(true); });
+    });
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get hasSingleInput(): boolean { return false; }
@@ -959,6 +963,7 @@ export class QuestionPanelDynamicModel extends Question
     if (val < 0) return;
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) {
       this.setPropertyValue("panelCount", val);
+      this.updateFooterActions();
       return;
     }
     if (val == this.panelsCore.length || this.useTemplatePanel) return;
@@ -1171,6 +1176,17 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set templateTitleLocation(val: string) {
     this.templateQuestionTitleLocation = val;
+  }
+  /**
+   * Sets consistent width for question titles in CSS values. Applies only when [`templateQuestionTitleLocation`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateQuestionTitleLocation) evaluates to `"left"`.
+   *
+   * Default value: `undefined` (inherits the actual value from the [`questionTitleWidth`](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionTitleWidth) property of the parent panel or page.
+   */
+  public get templateQuestionTitleWidth(): string {
+    return this.template.questionTitleWidth;
+  }
+  public set templateQuestionTitleWidth(val: string) {
+    this.template.questionTitleWidth = val;
   }
   /**
    * Specifies the error message position.
@@ -1776,14 +1792,17 @@ export class QuestionPanelDynamicModel extends Question
     this.updateBindings("panelCount", this.panelCount);
     this.singleInputOnRemoveItem(visIndex);
     var value = this.value;
-    if (!value || !Array.isArray(value) || index >= value.length) return;
-    this.isValueChangingInternally = true;
-    value.splice(index, 1);
-    this.value = value;
-    this.updateFooterActions();
-    this.fireCallback(this.panelCountChangedCallback);
-    this.notifyOnPanelAddedRemoved(false, index, panel);
-    this.isValueChangingInternally = false;
+    if (!value || !Array.isArray(value) || index >= value.length) {
+      this.updateFooterActions();
+    } else {
+      this.isValueChangingInternally = true;
+      value.splice(index, 1);
+      this.value = value;
+      this.updateFooterActions();
+      this.fireCallback(this.panelCountChangedCallback);
+      this.notifyOnPanelAddedRemoved(false, index, panel);
+      this.isValueChangingInternally = false;
+    }
   }
   private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel?: PanelModel): void {
     if(!panel) {
@@ -2328,6 +2347,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.isInteractiveDesignElement = false;
     panel.setParentQuestion(this);
     panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
+    panel.onGetQuestionTitleWidth = () => this.templateQuestionTitleWidth;
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
@@ -2905,6 +2925,12 @@ Serializer.addClass(
       name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "templateQuestionTitleWidth",
+      visibleIf: function (obj: any) {
+        return !!obj && obj.template.availableQuestionTitleWidth();
+      }
     },
     { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     {

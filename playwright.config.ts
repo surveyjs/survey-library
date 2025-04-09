@@ -5,6 +5,8 @@ export default defineConfig({
     command: "",
     url: "http://localhost:8080"
   },
+  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
+  reporter: [["junit", { outputFile: "test-results/e2e-junit-results.xml" }], ["html", { open: "never" }]],
   projects: [
     {
       name: "a11y",
@@ -16,7 +18,7 @@ export default defineConfig({
     },
     {
       name: "e2e",
-      testDir: resolve(__dirname, "./functionalTests")
+      testDir: resolve(__dirname, "./e2e")
     }
   ]
 });

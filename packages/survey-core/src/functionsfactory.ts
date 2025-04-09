@@ -230,14 +230,14 @@ function avgInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("avgInArray", avgInArray);
 
 function iif(params: any[]): any {
-  if (!params && params.length !== 3) return "";
-  return params[0] ? params[1] : params[2];
+  if (!Array.isArray(params) || params.length < 2) return null;
+  const va2 = params.length > 2 ? params[2] : undefined;
+  return params[0] ? params[1] : va2;
 }
 FunctionFactory.Instance.register("iif", iif);
 
 function getDate(params: any[]): any {
-  if (!params && params.length < 1) return null;
-  if (!params[0]) return null;
+  if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
   return createDate("function-getDate", params[0]);
 }
 FunctionFactory.Instance.register("getDate", getDate);
@@ -262,7 +262,24 @@ FunctionFactory.Instance.register("age", age);
 
 function dateDiff(params: any[]): any {
   if(!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
-  return dateDiffMonths(params[0], params[1], (params.length > 2 ? params[2] : "") || "days");
+  const type = (params.length > 2 ? params[2] : "") || "days";
+  const isHours = type === "hours" || type === "minutes";
+  const dType = isHours ? "days" : type;
+  let days = dateDiffMonths(params[0], params[1], dType);
+  if(isHours) {
+    const date1 = createDate("function-dateDiffMonths", params[0]);
+    const date2 = createDate("function-dateDiffMonths", params[1]);
+    if(date2.getHours() > date1.getHours()) {
+      days -= 1;
+    }
+    let hours = days * 24 + date2.getHours() - date1.getHours();
+    if(type === "hours") return hours;
+    if(date2.getMinutes() < date1.getMinutes()) {
+      hours -= 1;
+    }
+    return hours * 60 + date2.getMinutes() - date1.getMinutes();
+  }
+  return days;
 }
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 

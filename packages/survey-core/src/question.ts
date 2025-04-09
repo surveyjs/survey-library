@@ -228,7 +228,7 @@ export class Question extends SurveyElement<Question>
     const options: ITextArea = {
       question: this,
       id: () => this.commentId,
-      propertyName: "comment",
+      propertyNames: ["comment"],
       className: () => this.cssClasses.comment,
       placeholder: () => this.renderedCommentPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -336,9 +336,12 @@ export class Question extends SurveyElement<Question>
   private getIsReadyDependends(): Array<Question> {
     return this.getIsReadyDependendCore(false);
   }
+  protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
+    return this.survey.questionsByValueName(this.getValueName());
+  }
   private getIsReadyDependendCore(isDependOn: boolean): Array<Question> {
     if (!this.survey) return [];
-    const questions = this.survey.questionsByValueName(this.getValueName());
+    const questions = this.getDependedQuestionsByValueName(isDependOn);
     const res = new Array<Question>();
     questions.forEach(q => { if (q !== this) res.push(<Question>q); });
     if (!isDependOn) {
@@ -1074,10 +1077,10 @@ export class Question extends SurveyElement<Question>
       const columns = this.parent.getColumsForElement(this as any);
       const columnCount = columns.length;
       if (columnCount !== 0 && !!columns[0].questionTitleWidth) return columns[0].questionTitleWidth;
-
-      const percentWidth = this.getPercentQuestionTitleWidth();
+      const questionWidth = this.getQuestionParentTitleWidth();
+      const percentWidth = this.getPercentQuestionTitleWidth(questionWidth);
       if (!percentWidth && !!this.parent) {
-        let width = this.parent.getQuestionTitleWidth() as any;
+        let width = questionWidth;
         if (width && !isNaN(width)) width = width + "px";
         return width;
       }
@@ -1085,8 +1088,13 @@ export class Question extends SurveyElement<Question>
     }
     return undefined;
   }
-  getPercentQuestionTitleWidth(): number {
-    const width = !!this.parent && this.parent.getQuestionTitleWidth();
+  private getQuestionParentTitleWidth(): any {
+    if(!this.parent) return undefined;
+    const res = this.parent.getQuestionTitleWidth();
+    if(!res && !!this.parentQuestion) return this.parentQuestion.getQuestionParentTitleWidth();
+    return res;
+  }
+  private getPercentQuestionTitleWidth(width: any): number {
     if (!!width && width[width.length - 1] === "%") {
       return parseInt(width);
 
@@ -1789,35 +1797,7 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
-  /**
-   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
-   *
-   * @see otherText
-   * @see otherItem
-   * @see otherErrorText
-   * @see showCommentArea
-   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
-   */
-  public get showOtherItem(): boolean {
-    return this.getPropertyValue("showOtherItem", false);
-  }
-  public set showOtherItem(val: boolean) {
-    if (!this.supportOther() || this.showOtherItem == val) return;
-    this.setPropertyValue("showOtherItem", val);
-    this.hasOtherChanged();
-  }
-
-  public get hasOther(): boolean {
-    return this.showOtherItem;
-  }
-  public set hasOther(val: boolean) {
-    this.showOtherItem = val;
-  }
-
-  protected hasOtherChanged(): void { }
-  public get requireUpdateCommentValue(): boolean {
-    return this.hasComment || this.hasOther;
-  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
@@ -3148,8 +3128,7 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get ariaLabel(): string {
-    if (this.isNewA11yStructure) return null;
-
+    if (this.isNewA11yStructure || (this.hasTitle && !this.parentQuestion)) return null;
     return this.locTitle.renderedHtml;
   }
   public get ariaRole(): string {
@@ -3168,13 +3147,8 @@ export class Question extends SurveyElement<Question>
     return this.hasCssError() ? "true" : "false";
   }
   public get ariaLabelledBy(): string {
-    if (this.isNewA11yStructure) return null;
-
-    if (this.hasTitle) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
+    if (this.isNewA11yStructure || !this.hasTitle || this.parentQuestion) return null;
+    return this.ariaTitleId;
   }
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;

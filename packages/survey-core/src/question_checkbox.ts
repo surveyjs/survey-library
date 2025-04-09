@@ -67,6 +67,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return null;
   }
+  protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
+    if(isDependOn && !!this.valuePropertyName) return [];
+    return super.getDependedQuestionsByValueName(isDependOn);
+  }
   /**
    * Returns the "Select All" choice item. Use this property to change the item's `value` or `text`.
    * @see showSelectAllItem
@@ -479,9 +483,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       if (index > -1) return { index: i, val: noneValues[index] };
     }
     return { index: -1, val: undefined };
-  }
-  protected canUseFilteredChoices(): boolean {
-    return !this.hasSelectAll && super.canUseFilteredChoices();
   }
   protected supportSelectAll(): boolean {
     return this.isSupportProperty("showSelectAllItem");

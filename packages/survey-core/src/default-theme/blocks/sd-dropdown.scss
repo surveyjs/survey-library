@@ -46,7 +46,6 @@
 }
 
 .sd-dropdown__value {
-  @include useEditorFontSize;
   width: 100%;
   min-height: multiply(1.5, $font-editorfont-size);
   overflow: hidden;
@@ -86,7 +85,6 @@
 
 .sd-dropdown_chevron-button-svg,
 .sd-dropdown_clean-button-svg {
-  @include useEditorFontSize;
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
 
@@ -105,7 +103,6 @@
 }
 
 .sd-dropdown__filter-string-input {
-  @include useEditorFontSize;
   position: absolute;
   left: 0;
   top: 0;
@@ -186,7 +183,6 @@
 
 .sv-dropdown-popup {
   .sd-list__item-body {
-    @include useEditorFontSize;
     line-height: multiply(1.5, $font-editorfont-size);
     font-size: $font-editorfont-size;
     font-weight: $font-editorfont-weight;
@@ -206,6 +202,16 @@
       padding-block: calcSize(1.25);
       padding-inline-start: calcSize(1.75);
     }
+  }
+}
+
+.sv-dropdown-popup.sv-popup--menu-tablet,
+.sv-dropdown-popup.sv-popup--menu-phone {
+  .sd-list__item-body {
+    font-family: $font-family;
+    font-size: $font-size;
+    line-height: multiply(1.5, $font-size);
+    font-weight: 400;
   }
 }
 
@@ -243,4 +249,9 @@
   .sd-dropdown {
     background-position: left calcSize(1.5) top 50%, 0 0;
   }
+}
+
+.sv-list-item--custom-value .sv-list__item-body {
+  font-weight: bold;
+  color: $primary;
 }

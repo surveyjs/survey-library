@@ -47,9 +47,11 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   survey.onFocusInQuestion.add((s, o) => {
     updateSelectedItem(getPage(o.question));
   });
-  survey.registerFunctionOnPropertyValueChanged("pages", () => {
+  const updatePagesFunc = () => {
     listModel.setItems(getTOCItems(survey, onAction));
-  }, "toc");
+  };
+  survey.registerFunctionOnPropertyValueChanged("pages", updatePagesFunc, "toc");
+  survey.onEndLoadingFromJson.add(updatePagesFunc);
   return listModel;
 }
 
@@ -118,9 +120,12 @@ export class TOCModel {
       tocRootElement.style.height = "";
       if (!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
         const rootHeight = rootElement.getBoundingClientRect().height;
+        const headerLayoutElement = this.survey.findLayoutElement("advanced-header");
+        const advHeader = headerLayoutElement && headerLayoutElement.data;
+        let isBelowHeader = !advHeader || advHeader.hasBackground;
         const titleSelector = this.survey.headerView === "advanced" ? ".sv-header" : ".sv_custom_header+div div." + (this.survey.css.title || "sd-title");
         const titleElement = rootElement.querySelector(titleSelector) as HTMLDivElement;
-        const titleElementHeight = titleElement ? titleElement.getBoundingClientRect().height : 0;
+        const titleElementHeight = titleElement && isBelowHeader ? titleElement.getBoundingClientRect().height : 0;
         const scrollCompensationHeight = rootElement.scrollTop > titleElementHeight ? 0 : titleElementHeight - rootElement.scrollTop;
         tocRootElement.style.height = (rootHeight - scrollCompensationHeight - 1) + "px";
       }
@@ -140,7 +145,9 @@ export class TOCModel {
     this.popupModel.toggleVisibility();
   }
   public dispose(): void {
-    this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    this.survey.onEndLoadingFromJson.remove(handler);
+    this.survey.onPageAdded.remove(handler);
     this.popupModel.dispose();
     this.listModel.dispose();
   }

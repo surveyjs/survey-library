@@ -45,7 +45,7 @@ packages/survey-angular-ui/src/**/*.js
 dist
 junit.xml
 **/test-results/
-/playwright-report/
+**/playwright-report/
 /blob-report/
 /playwright/.cache/
 playwright-report/*

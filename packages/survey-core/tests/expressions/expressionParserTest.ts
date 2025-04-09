@@ -370,6 +370,28 @@ QUnit.test("Run dateDiff by days", function(assert) {
   (<any>values).d1 = undefined;
   assert.equal(runner.run(values), null, "a value is undefined");
 });
+QUnit.test("Run dateDiff by hours", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'hours')");
+  const d1 = new Date("2021-02-02");
+  const d2 = new Date("2021-02-03");
+  d1.setHours(1, 0, 0, 0);
+  d2.setHours(12, 0, 0, 0);
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), 24 + 11, "35 hours");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
+QUnit.test("Run dateDiff by minutes", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'minutes')");
+  const d1 = new Date("2021-02-01");
+  const d2 = new Date("2021-02-02");
+  d1.setHours(1, 10, 0, 0);
+  d2.setHours(12, 25, 0, 0);
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.run(values), (24 + 11) * 60 + 15, "hours");
+  (<any>values).d1 = undefined;
+  assert.equal(runner.run(values), null, "a value is undefined");
+});
 QUnit.test("Run dateAdd() for days", function(assert) {
   const d1 = new Date("2021-01-01");
   const values = { d1: d1 };
@@ -1719,4 +1741,14 @@ QUnit.test("ExpressionRunner: do not convert to number extreme large strings", f
   assert.strictEqual(runner.run(values), 1000000000000001, "it is a number");
   values.a = "9999999999999999";
   assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
+});
+QUnit.test("No params for iif function, Bug#9674", function(assert) {
+  let runner = new ExpressionRunner("iif()");
+  assert.equal(runner.run(values), null, "Empty paramsters, #1");
+  runner = new ExpressionRunner("iif('')");
+  assert.equal(runner.run(values), null, "Empty paramsters, #2");
+});
+QUnit.test("No params for getDate function, Bug#9674", function(assert) {
+  let runner = new ExpressionRunner("getDate()");
+  assert.equal(runner.run(values), null, "Empty paramsters, #1");
 });

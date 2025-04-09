@@ -57,6 +57,10 @@ export class QuestionSelectBase extends Question {
         this.onVisibleChoicesChanged();
       }
     });
+    this.createItemValues("customChoices");
+    this.registerPropertyChangedHandlers(["customChoices"], () => {
+      this.onVisibleChoicesChanged();
+    });
     this.registerPropertyChangedHandlers(
       ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
         "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible"],
@@ -116,7 +120,7 @@ export class QuestionSelectBase extends Question {
     const options: ITextArea = {
       question: this,
       id: () => this.otherId,
-      propertyName: "otherValue",
+      propertyNames: ["otherValue", "comment"],
       className: () => this.cssClasses.other,
       placeholder: () => this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -816,6 +820,12 @@ export class QuestionSelectBase extends Question {
     this.updateVisibleChoices();
   }
   public clearIncorrectValuesCallback: () => void;
+  public get customChoices(): Array<any> {
+    return this.getPropertyValue("customChoices");
+  }
+  public set customChoices(val: Array<any>) {
+    this.setPropertyValue("customChoices", val);
+  }
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
    *
@@ -954,9 +964,6 @@ export class QuestionSelectBase extends Question {
   public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);
   }
-  protected hasOtherChanged() {
-    this.onVisibleChoicesChanged();
-  }
   /**
    * Specifies the sort order of choice items.
    *
@@ -1056,12 +1063,9 @@ export class QuestionSelectBase extends Question {
   }
   protected updateVisibleChoices(): void {
     if (this.isLoadingFromJson || this.isDisposed) return;
-    var newValue = new Array<ItemValue>();
     var calcValue = this.calcVisibleChoices();
-    if (!calcValue) calcValue = [];
-    for (var i = 0; i < calcValue.length; i++) {
-      newValue.push(calcValue[i]);
-    }
+    var newValue = new Array<ItemValue>();
+    (calcValue || []).forEach(choice => newValue.push(choice));
     const oldValue = this.visibleChoices;
     if (!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
       this.setArrayPropertyDirectly("visibleChoices", newValue);
@@ -1069,20 +1073,13 @@ export class QuestionSelectBase extends Question {
     }
   }
   private calcVisibleChoices(): Array<ItemValue> {
-    if (this.canUseFilteredChoices()) return this.getFilteredChoices();
-    var res = this.sortVisibleChoices(this.getFilteredChoices().slice());
+    let res = new Array<ItemValue>();
+    this.customChoices.forEach(choice => res.push(choice));
+    this.getFilteredChoices().forEach(choice => res.push(choice));
+
+    res = this.sortArrayByChoicesOrder(res);
     this.addToVisibleChoices(res, this.isAddDefaultItems);
     return res;
-  }
-  protected canUseFilteredChoices(): boolean {
-    return (
-      !this.isAddDefaultItems &&
-      !this.showNoneItem &&
-      !this.showRefuseItem &&
-      !this.showDontKnowItem &&
-      !this.hasOther &&
-      this.choicesOrder == "none"
-    );
   }
   public setCanShowOptionItemCallback(func: (item: ItemValue) => boolean) {
     this.canShowOptionItemCallback = func;
@@ -1395,6 +1392,31 @@ export class QuestionSelectBase extends Question {
   protected getChoices(): Array<ItemValue> {
     return this.choices;
   }
+  /**
+   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
+   *
+   * @see otherText
+   * @see otherItem
+   * @see otherErrorText
+   * @see showCommentArea
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+   */
+  public get showOtherItem(): boolean {
+    return this.getPropertyValue("showOtherItem", false);
+  }
+  public set showOtherItem(val: boolean) {
+    if (!this.supportOther() || this.showOtherItem == val) return;
+    this.setPropertyValue("showOtherItem", val);
+    this.onVisibleChoicesChanged();
+  }
+
+  public get hasOther(): boolean {
+    return this.showOtherItem;
+  }
+  public set hasOther(val: boolean) {
+    this.showOtherItem = val;
+  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment || this.showOtherItem; }
   public supportOther(): boolean {
     return this.isSupportProperty("showOtherItem");
   }
@@ -1687,13 +1709,15 @@ export class QuestionSelectBase extends Question {
     var choices = this.isUsingCarryForward ? this.visibleChoices : this.getFilteredChoices();
     return !choices || choices.length > 0;
   }
-  private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
-    if (this.isInDesignMode) return array;
-    var order = this.choicesOrder.toLowerCase();
-    if (order == "asc") return this.sortArray(array, 1);
-    if (order == "desc") return this.sortArray(array, -1);
-    if (order == "random") return this.randomizeArray(array);
-    return array;
+  private sortArrayByChoicesOrder(array: Array<ItemValue>): Array<ItemValue> {
+    const res = array.slice();
+    if (this.isInDesignMode) return res;
+
+    const order = this.choicesOrder.toLowerCase();
+    if (order == "asc") return this.sortArray(res, 1);
+    if (order == "desc") return this.sortArray(res, -1);
+    if (order == "random") return this.randomizeArray(res);
+    return res;
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function (a, b) {
@@ -1707,7 +1731,7 @@ export class QuestionSelectBase extends Question {
     return this.choicesByUrl && !!this.choicesByUrl.url;
   }
   public clearIncorrectValues(): void {
-    if (!this.hasValueToClearIncorrectValues() || !this.canClearIncorrectValues()) return;
+    if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
     } else {
@@ -1715,10 +1739,14 @@ export class QuestionSelectBase extends Question {
     }
   }
   private canClearIncorrectValues(): boolean {
+    if (this.canAddCustomChoices()) return false;
     if (this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
     if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
     if (this.hasChoicesUrl && (!this.choicesFromUrl || this.choicesFromUrl.length == 0)) return false;
     return true;
+  }
+  protected canAddCustomChoices(): boolean {
+    return false;
   }
   protected hasValueToClearIncorrectValues(): boolean {
     if (!!this.survey && this.survey.keepIncorrectValues) return false;

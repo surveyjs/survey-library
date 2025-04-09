@@ -832,13 +832,12 @@ export class Base {
   public registerFunctionOnPropertiesValueChanged(names: Array<string>, func: any, key: string = null): void {
     this.registerPropertyChangedHandlers(names, func, key);
   }
-  public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): void {
+  public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): Array<any> {
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       var item = this.onPropChangeFunctions[i];
       if (item.name == name && item.key == key) {
-        this.onPropChangeFunctions.splice(i, 1);
-        return;
+        return this.onPropChangeFunctions.splice(i, 1);
       }
     }
   }
@@ -1153,7 +1152,7 @@ export class Base {
     caseInSensitive: boolean = false,
     trimString: boolean = false
   ): boolean {
-    return Helpers.isTwoValueEquals(x, y, false, !caseInSensitive, trimString);
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: !caseInSensitive, trimStrings: trimString, doNotConvertNumbers: true });
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

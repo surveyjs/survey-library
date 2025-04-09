@@ -180,7 +180,9 @@ frameworks.forEach(framework => {
     );
 
     await t
-      .click(Selector("div[aria-label='dropdown_question']"))
+      .click(Selector("span").withText("dropdown_question")
+        .parent("[data-name]")
+        .find("div[role='combobox']"))
       .click(getListItemByText("item1"));
 
     await t.typeText(

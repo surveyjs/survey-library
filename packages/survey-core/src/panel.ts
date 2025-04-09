@@ -336,6 +336,7 @@ export class PanelModelBase extends SurveyElement<Question>
   addElementCallback: (element: IElement) => void;
   removeElementCallback: (element: IElement) => void;
   onGetQuestionTitleLocation: () => string;
+  onGetQuestionTitleWidth: () => string;
 
   public onAddRow(row: QuestionRowModel): void {
     this.onRowVisibleChanged();
@@ -1268,9 +1269,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return this.survey ? this.survey.questionTitleLocation : "top";
   }
   availableQuestionTitleWidth(): boolean {
-    const questionTitleLocation = this.getQuestionTitleLocation();
-    if (questionTitleLocation === "left") return true;
-    return this.hasElementWithTitleLocationLeft();
+    return this.getQuestionTitleLocation() === "left" || this.hasElementWithTitleLocationLeft();
   }
   hasElementWithTitleLocationLeft(): boolean {
     const result = this.elements.some(el => {
@@ -1289,7 +1288,8 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   @property() questionTitleWidth: string;
   getQuestionTitleWidth(): string {
-    return this.questionTitleWidth || this.parent && this.parent.getQuestionTitleWidth();
+    const width = this.onGetQuestionTitleWidth ? this.onGetQuestionTitleWidth() : this.questionTitleWidth;
+    return width || this.parent && this.parent.getQuestionTitleWidth();
   }
   public get columns(): Array<PanelLayoutColumnModel> {
     if (!this._columns) {
@@ -2303,7 +2303,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers !== "off" && !this.isQuestionIndexOnPanel;
   }
   private notifySurveyOnVisibilityChanged() {
-    if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
+    if (this.survey != null && !this.isLoadingFromJson) {
       this.survey.panelVisibilityChanged(this, this.isVisible);
     }
   }
@@ -2459,7 +2459,17 @@ export class PanelModel extends PanelModelBase implements IElement {
     return false;
   }
   private forcusFirstQuestionOnExpand = true;
-  public expand(focusFirstQuestion: boolean = true) {
+  /**
+   * Expands the panel.
+   * @param focusFirstQuestion Specifies whether to focus the first question within the expanded panel. Default value: `true`.
+   * @hidefor PageModel
+   * @see state
+   * @see toggleState
+   * @see collapse
+   * @see isCollapsed
+   * @see isExpanded
+   */
+  public expand(focusFirstQuestion: boolean = true): void {
     this.forcusFirstQuestionOnExpand = focusFirstQuestion;
     super.expand();
   }

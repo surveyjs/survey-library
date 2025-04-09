@@ -636,6 +636,11 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await ClientFunction(() => {
+        window["survey"].onOpenDropdownMenu.add((sender, options) => {
+          if (options.menuType === "popup") options.menuType = "overlay";
+        });
+      })();
       await t.click(Selector(".sd-dropdown__filter-string-input"))
         .click(Selector(".sd-list__item span").withText("item1"))
         .click(Selector(".sd-dropdown__filter-string-input"));
@@ -695,4 +700,23 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check dropdown question input", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "dropdown", name: "q1", allowCustomChoices: true,
+            choices: ["item1", "item2", "item3"]
+          }
+        ]
+      });
+
+      await t
+        .click(".sd-dropdown__filter-string-input")
+        .pressKey("t e s t")
+        .wait(500);
+      await takeElementScreenshot("dropdown-custom-list-item.png", getListItemByText("Create \"test\" item"), t, comparer);
+    });
+  });
 });

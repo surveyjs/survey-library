@@ -2290,7 +2290,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers !== "off" && !this.isQuestionIndexOnPanel;
   }
   private notifySurveyOnVisibilityChanged() {
-    if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
+    if (this.survey != null && !this.isLoadingFromJson) {
       this.survey.panelVisibilityChanged(this, this.isVisible);
     }
   }

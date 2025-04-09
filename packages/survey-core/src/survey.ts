@@ -7148,14 +7148,13 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
-    this.updateVisibleIndexes(panel.page);
-    if(!newValue) {
-      this.changeCurrentSingleElementOnVisibilityChanged();
+    if(!!panel.page) {
+      this.updateVisibleIndexes(panel.page);
+      if(!newValue) {
+        this.changeCurrentSingleElementOnVisibilityChanged();
+      }
     }
-    this.onPanelVisibleChanged.fire(this, {
-      panel: panel,
-      visible: newValue,
-    });
+    this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
   }
   questionCreated(question: Question): any {
     this.onQuestionCreated.fire(this, { question: question });
@@ -8190,7 +8189,7 @@ export class SurveyModel extends SurveyElementCore
           const advHeader = layoutElement && layoutElement.data as Cover;
           if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
             if (container === "center") {
-          containerLayoutElements.push(layoutElement);
+              containerLayoutElements.push(layoutElement);
             }
           } else {
             if (layoutElement.container === container) {

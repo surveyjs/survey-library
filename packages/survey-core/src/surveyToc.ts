@@ -47,9 +47,11 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   survey.onFocusInQuestion.add((s, o) => {
     updateSelectedItem(getPage(o.question));
   });
-  survey.registerFunctionOnPropertyValueChanged("pages", () => {
+  const updatePagesFunc = () => {
     listModel.setItems(getTOCItems(survey, onAction));
-  }, "toc");
+  };
+  survey.registerFunctionOnPropertyValueChanged("pages", updatePagesFunc, "toc");
+  survey.onEndLoadingFromJson.add(updatePagesFunc);
   return listModel;
 }
 
@@ -145,7 +147,9 @@ export class TOCModel {
     this.popupModel.toggleVisibility();
   }
   public dispose(): void {
-    this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    this.survey.onEndLoadingFromJson.remove(handler);
+    this.survey.onPageAdded.remove(handler);
     this.popupModel.dispose();
     this.listModel.dispose();
   }

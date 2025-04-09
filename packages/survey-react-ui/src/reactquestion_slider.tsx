@@ -65,7 +65,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
+      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={0.1} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
       inputs.push(input);
     }
     return inputs;
@@ -74,7 +74,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getRangeInput() {
     const { max, min, step, cssClasses, allowDragRange } = this.question;
     if (!allowDragRange) return null;
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={ (e)=>{ this.handleRangePointerUp(e); } } />;
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={0.1} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={ (e)=>{ this.handleRangePointerUp(e); } } />;
   }
 
   private getThumbs() {
@@ -188,9 +188,15 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     this.question.value = renderedValue;
   }
 
-  private handlePointerUp(e) {
+  private handlePointerUp = (e) => {
+    const { step } = this.question;
     const renderedValue:number[] = this.getRenderedValue();
     renderedValue.sort((a, b)=>a-b);
+    if (step) {
+      for (let i = 0; i < renderedValue.length; i++) {
+        renderedValue[i] = Math.round(renderedValue[i]/step)*step;
+      }
+    }
     this.question.value = renderedValue;
     this.refreshInputRange();
   }

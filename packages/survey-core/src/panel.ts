@@ -2449,6 +2449,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   /**
    * Expands the panel.
    * @param focusFirstQuestion Specifies whether to focus the first question within the expanded panel. Default value: `true`.
+   * @hidefor PageModel
    * @see state
    * @see toggleState
    * @see collapse

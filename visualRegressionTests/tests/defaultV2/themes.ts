@@ -439,7 +439,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Mobile mode: input font-size is 16px", async (t) => {
+  test("Mobile mode: input font-size less 16px", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(400, 2000);
       await ClientFunction(() => {

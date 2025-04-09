@@ -3,7 +3,12 @@ import { settings } from "./settings";
 export interface HashTable<T = any> {
   [key: string]: T;
 }
-
+export interface IEqualValuesParameters {
+  ignoreOrder?: boolean;
+  caseSensitive?: boolean;
+  trimStrings?: boolean;
+  doNotConvertNumbers?: boolean;
+}
 export function createDate(reason: string, val?: number | string | Date): Date {
   if(!val) return new Date();
   if(!settings.storeUtcDates && typeof val === "string" && isISODateOnly(val)) {
@@ -49,15 +54,10 @@ export class Helpers {
     }
     return true;
   }
-  public static isArraysEqual(
-    x: any,
-    y: any,
-    ignoreOrder: boolean = false,
-    caseSensitive?: boolean,
-    trimStrings? : boolean
-  ): boolean {
+  public static checkIfArraysEqual(x: any, y: any, params: IEqualValuesParameters): boolean {
     if (!Array.isArray(x) || !Array.isArray(y)) return false;
     if (x.length !== y.length) return false;
+    const ignoreOrder: boolean = params.ignoreOrder !== undefined ? params.ignoreOrder : false;
     if (ignoreOrder) {
       var xSorted = [];
       var ySorted = [];
@@ -71,9 +71,18 @@ export class Helpers {
       y = ySorted;
     }
     for (var i = 0; i < x.length; i++) {
-      if (!Helpers.isTwoValueEquals(x[i], y[i], ignoreOrder, caseSensitive, trimStrings)) return false;
+      if (!Helpers.checkIfValuesEqual(x[i], y[i], params)) return false;
     }
     return true;
+  }
+  public static isArraysEqual(
+    x: any,
+    y: any,
+    ignoreOrder: boolean = false,
+    caseSensitive?: boolean,
+    trimStrings? : boolean
+  ): boolean {
+    return Helpers.checkIfArraysEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
   }
   public static compareStrings(x: string, y: string): number {
     const normalize = settings.comparator.normalizeTextCallback;
@@ -100,13 +109,7 @@ export class Helpers {
     }
     return x > y ? 1 : -1;
   }
-  public static isTwoValueEquals(
-    x: any,
-    y: any,
-    ignoreOrder: boolean = false,
-    caseSensitive?: boolean,
-    trimStrings? : boolean
-  ): boolean {
+  public static checkIfValuesEqual(x: any, y: any, params: IEqualValuesParameters): boolean {
     if (x === y) return true;
 
     if (Array.isArray(x) && x.length === 0 && typeof y === "undefined")
@@ -115,8 +118,8 @@ export class Helpers {
       return true;
     if ((x === undefined || x === null) && y === "") return true;
     if ((y === undefined || y === null) && x === "") return true;
-    if(trimStrings === undefined) trimStrings = settings.comparator.trimStrings;
-    if(caseSensitive === undefined) caseSensitive = settings.comparator.caseSensitive;
+    const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : settings.comparator.caseSensitive;
+    const trimStrings = params.trimStrings !== undefined ? params.trimStrings : settings.comparator.trimStrings;
 
     if(typeof x === "string" && typeof y === "string") {
       const normalize = settings.comparator.normalizeTextCallback;
@@ -133,8 +136,8 @@ export class Helpers {
       return x === y;
     }
     if(x instanceof Date && y instanceof Date) return x.getTime() == y.getTime();
-
-    if (Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
+    const convertNumbers = !params.doNotConvertNumbers;
+    if (convertNumbers && Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
       if (parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
         return true;
       }
@@ -151,22 +154,33 @@ export class Helpers {
     if ((y === true || y === false) && typeof x == "string") {
       return y.toString() === x.toLocaleLowerCase();
     }
-    if (!Helpers.isValueObject(x) && !Helpers.isValueObject(y)) return x == y;
-    if (!Helpers.isValueObject(x) || !Helpers.isValueObject(y)) return false;
+    const isXObj = Helpers.isValueObject(x);
+    const isYObj = Helpers.isValueObject(y);
+    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) return x == y;
+    if (!isXObj || !isYObj) return false;
     if (x["equals"] && y["equals"]) return x.equals(y);
     if (Array.isArray(x) && Array.isArray(y)) {
-      return Helpers.isArraysEqual(x, y, ignoreOrder, caseSensitive, trimStrings);
+      return Helpers.checkIfArraysEqual(x, y, params);
     }
 
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;
       if (!y.hasOwnProperty(p)) return false;
-      if (!this.isTwoValueEquals(x[p], y[p], ignoreOrder, caseSensitive, trimStrings)) return false;
+      if (!this.checkIfValuesEqual(x[p], y[p], params)) return false;
     }
     for (p in y) {
       if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
     }
     return true;
+  }
+  public static isTwoValueEquals(
+    x: any,
+    y: any,
+    ignoreOrder: boolean = false,
+    caseSensitive?: boolean,
+    trimStrings? : boolean
+  ): boolean {
+    return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
   }
   public static randomizeArray<T>(array: Array<T>): Array<T> {
     for (var i = array.length - 1; i > 0; i--) {

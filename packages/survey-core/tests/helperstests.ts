@@ -283,7 +283,11 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     "undefined and null"
   );
 });
-
+QUnit.test("isTwoValueEquals/checkIfValuesEqual, numbers and string, Bug# 9690", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals(10, "10"), true, "10 equals '10', #1");
+  assert.equal(Helpers.checkIfValuesEqual(10, "10", {}), true, "10 equals '10, #2");
+  assert.equal(Helpers.checkIfValuesEqual(10, "10", { doNotConvertNumbers: true }), false, "10 doesn't equal '10', #3");
+});
 QUnit.test(
   "isTwoValueEquals, numbers and string + string and string, Bug# 2000",
   function(assert) {

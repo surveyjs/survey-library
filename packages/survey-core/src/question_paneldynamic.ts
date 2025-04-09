@@ -957,6 +957,7 @@ export class QuestionPanelDynamicModel extends Question
     if (val < 0) return;
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) {
       this.setPropertyValue("panelCount", val);
+      this.updateFooterActions();
       return;
     }
     if (val == this.panelsCore.length || this.useTemplatePanel) return;
@@ -1633,14 +1634,17 @@ export class QuestionPanelDynamicModel extends Question
     this.panelsCore.splice(index, 1);
     this.updateBindings("panelCount", this.panelCount);
     var value = this.value;
-    if (!value || !Array.isArray(value) || index >= value.length) return;
-    this.isValueChangingInternally = true;
-    value.splice(index, 1);
-    this.value = value;
-    this.updateFooterActions();
-    this.fireCallback(this.panelCountChangedCallback);
-    this.notifyOnPanelAddedRemoved(false, index, panel);
-    this.isValueChangingInternally = false;
+    if (!value || !Array.isArray(value) || index >= value.length) {
+      this.updateFooterActions();
+    } else {
+      this.isValueChangingInternally = true;
+      value.splice(index, 1);
+      this.value = value;
+      this.updateFooterActions();
+      this.fireCallback(this.panelCountChangedCallback);
+      this.notifyOnPanelAddedRemoved(false, index, panel);
+      this.isValueChangingInternally = false;
+    }
   }
   private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel?: PanelModel): void {
     if(!panel) {

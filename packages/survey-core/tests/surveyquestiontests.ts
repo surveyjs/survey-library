@@ -100,23 +100,23 @@ QUnit.test("Only some questions support comment", function (assert) {
   );
 });
 QUnit.test("Only some questions support other", function (assert) {
-  var questionText = <Question>(
-    QuestionFactory.Instance.createQuestion("text", "textQuestion")
+  var questionImagePicker = <Question>(
+    QuestionFactory.Instance.createQuestion("imagepicker", "imagePickerQuestion")
   );
 
   assert.equal(
-    questionText.supportOther(),
+    questionImagePicker.supportOther(),
     false,
     "Text question doesn't support other."
   );
   assert.equal(
-    questionText.hasOther,
+    questionImagePicker.hasOther,
     false,
     "Text question doesn't support other."
   );
-  questionText.hasOther = true;
+  questionImagePicker.hasOther = true;
   assert.equal(
-    questionText.hasOther,
+    questionImagePicker.hasOther,
     false,
     "You can't set has other to the text question."
   );

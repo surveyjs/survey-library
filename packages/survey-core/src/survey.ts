@@ -7088,14 +7088,13 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
-    this.updateVisibleIndexes(panel.page);
-    if(!newValue) {
-      this.changeCurrentSingleElementOnVisibilityChanged();
+    if(!!panel.page) {
+      this.updateVisibleIndexes(panel.page);
+      if(!newValue) {
+        this.changeCurrentSingleElementOnVisibilityChanged();
+      }
     }
-    this.onPanelVisibleChanged.fire(this, {
-      panel: panel,
-      visible: newValue,
-    });
+    this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
   }
   questionCreated(question: Question): any {
     this.onQuestionCreated.fire(this, { question: question });

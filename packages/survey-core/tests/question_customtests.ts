@@ -3516,3 +3516,43 @@ QUnit.test("Composite: checkErrorsMode: `onComplete` with several elements, Bug#
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: survey.onPanelVisibleChanged, Bug#9698", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      { type: "panel", name: "panel1", visibleIf: "{composite.q1} = 'a'", elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "question1" }, { type: "panel", name: "panel2", elements: [{ type: "text", name: "q3" }] }, { type: "text", name: "q4" }]
+  });
+  const logs: Array<any> = [];
+  survey.onPanelVisibleChanged.add((survey, options) => {
+    logs.push({ panel: options.panel.name, visible: options.visible });
+  });
+  let questionNumberCounter = 0;
+  survey.onGetQuestionNumber.add((survey, options) => {
+    if(options.question.name === "q4") {
+      questionNumberCounter ++;
+    }
+  });
+  const question1 = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const q1 = question1.contentPanel.getQuestionByName("q1");
+  const panel2 = <PanelModel>survey.getPanelByName("panel2");
+  panel2.visible = false;
+  panel2.visible = true;
+  const maxQuestionNumberCounter = questionNumberCounter;
+  q1.value = "a";
+  q1.value = "b";
+  assert.equal(questionNumberCounter, maxQuestionNumberCounter, "questionNumberCounter #2");
+  assert.equal(logs.length, 4, "logs.length");
+  assert.deepEqual(logs, [
+    { panel: "panel2", visible: false },
+    { panel: "panel2", visible: true },
+    { panel: "panel1", visible: true },
+    { panel: "panel1", visible: false }
+  ], "logs");
+
+  ComponentCollection.Instance.clear();
+});

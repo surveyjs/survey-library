@@ -882,3 +882,39 @@ QUnit.test("pages visibility on value changed", function (assert) {
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible in TOC");
   assert.equal(tocListModel.visibleItems[1].id, survey.pages[1].name, "Page 2 is visible in TOC");
 });
+
+QUnit.test("navigate to page in single page mode", function (assert) {
+  let json: any = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [{ "type": "html", }]
+      },
+      {
+        "name": "page2",
+        "elements": [{ "type": "text", "name": "question2" }]
+      },
+      {
+        "name": "page3",
+        "elements": [{ "type": "text", "name": "question3" }
+        ]
+      },
+      {
+        "name": "page4",
+        "elements": [{ "type": "text", "name": "question4" }]
+      }
+    ]
+  };
+  let survey: SurveyModel = new SurveyModel(json);
+  let focus3rdPageCounter = 0;
+  survey.pages[2].focusFirstQuestion = () => focus3rdPageCounter++;
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 4);
+  assert.equal(survey.currentPage.name, "single-page");
+  assert.equal(focus3rdPageCounter, 0);
+  tocListModel.visibleItems[2].action();
+  assert.equal(survey.currentPage.name, "single-page");
+  assert.equal(focus3rdPageCounter, 1);
+});

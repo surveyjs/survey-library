@@ -38,9 +38,6 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   var listModel = new ListModel(listOptions as any);
   listModel.allowSelection = false;
   const updateSelectedItem = (currentPage: PageModel, defaultSelection?: IAction) => {
-    if (survey.isSinglePage) {
-      return;
-    }
     listModel.selectedItem = !!currentPage && listModel.actions.filter(i => i.id === currentPage.name)[0] || defaultSelection;
   };
   updateSelectedItem(survey.currentPage, items[0]);

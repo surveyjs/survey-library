@@ -861,20 +861,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         allowClear: true
       }]
   });
-  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
-  assert.deepEqual(question.getTitleActions(), []);
-  assert.ok(question.showClearButtonInContent);
-
-  survey = new SurveyModel({
-    questions: [
-      {
-        type: "radiogroup",
-        name: "q1",
-        choices: ["Item 1"],
-        showClearButton: true
-      }]
-  });
   survey.css = defaultCss;
   question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   const action = <IAction>question.getTitleActions()[0];
@@ -2450,7 +2437,6 @@ QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) =
     elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
   });
   const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
-  assert.equal(q1.isDefaultV2Theme, true, "V2 theme");
   assert.ok(q1.getTitleToolbar());
   assert.equal(q1.titleActions.length, 1, "one action");
   const item = q1.titleActions[0];

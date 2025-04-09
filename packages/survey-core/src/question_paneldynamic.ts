@@ -1381,7 +1381,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList &&
+    if (!this.legacyNavigation && !this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
     }
@@ -2675,13 +2675,10 @@ export class QuestionPanelDynamicModel extends Question
     this.tabbedMenu.actions.splice(this.tabbedMenu.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();
   }
-  get showLegacyNavigation(): boolean {
-    return !this.isDefaultV2Theme;
-  }
 
   get showNavigation(): boolean {
     if (this.isReadOnly && this.visiblePanelCount == 1) return false;
-    return this.visiblePanelCount > 0 && !this.showLegacyNavigation && !!this.cssClasses.footer;
+    return this.visiblePanelCount > 0 && !!this.cssClasses.footer;
   }
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.renderedPanels.length - 1;

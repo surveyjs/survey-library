@@ -31,8 +31,7 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
   }
 
   protected renderElement(): React.JSX.Element | null {
-    const content = this.question.supportFileNavigator ? this.question.renderedPages.map((page: any, index: number) => { return (<SurveyFilePage page={page} question={this.question} key={page.id}></SurveyFilePage>); })
-      : this.question.previewValue.map((item: any, index: number) => { return (<SurveyFileItem item={item} question={this.question} key={index}></SurveyFileItem>); });
+    const content = this.question.renderedPages.map((page: any, index: number) => { return (<SurveyFilePage page={page} question={this.question} key={page.id}></SurveyFilePage>); });
     return <div className={this.question.cssClasses.fileList || undefined}>{content}</div>;
   }
   protected canRender(): boolean {

@@ -230,14 +230,14 @@ function avgInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("avgInArray", avgInArray);
 
 function iif(params: any[]): any {
-  if (!params && params.length !== 3) return "";
-  return params[0] ? params[1] : params[2];
+  if (!Array.isArray(params) || params.length < 2) return null;
+  const va2 = params.length > 2 ? params[2] : undefined;
+  return params[0] ? params[1] : va2;
 }
 FunctionFactory.Instance.register("iif", iif);
 
 function getDate(params: any[]): any {
-  if (!params && params.length < 1) return null;
-  if (!params[0]) return null;
+  if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
   return createDate("function-getDate", params[0]);
 }
 FunctionFactory.Instance.register("getDate", getDate);

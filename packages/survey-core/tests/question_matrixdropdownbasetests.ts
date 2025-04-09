@@ -1269,7 +1269,7 @@ QUnit.test("defaultValueExpression & regeneration of rows", function (assert) {
   question.value = 15;
   assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "question value #3");
 });
-QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
+QUnit.test("defaultValueExpression & using rowvalue in it, #1", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1302,7 +1302,7 @@ QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
   question.value = 15;
   assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "question value #3");
 });
-QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
+QUnit.test("defaultValueExpression & using rowvalue in it, #2", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {

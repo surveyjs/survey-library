@@ -23,7 +23,6 @@
 }
 
 .sd-tagbox_clean-button {
-  @include useEditorFontSize;
   height: multiply(1.5, $font-editorfont-size);
   padding: multiply(0.5, $font-editorfont-size);
   margin: auto 0;
@@ -79,7 +78,6 @@
 }
 
 .sd-tagbox-item_clean-button-svg {
-  @include useEditorFontSize;
   display: block;
   padding: multiply(0.25, $font-editorfont-size);
   width: multiply(1, $font-editorfont-size);
@@ -155,7 +153,6 @@
 }
 
 .sd-dropdown__hint-suffix.sd-tagbox__hint-suffix {
-  @include useEditorFontSize;
   line-height: multiply(1.5, $font-editorfont-size);
   height: 100%;
   display: flex;
@@ -163,7 +160,6 @@
 }
 
 .sd-dropdown__hint-prefix.sd-tagbox__hint-prefix {
-  @include useEditorFontSize;
   line-height: multiply(1.5, $font-editorfont-size);
   height: 100%;
   display: flex;

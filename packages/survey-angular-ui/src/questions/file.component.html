@@ -1,19 +1,20 @@
 <div [class]="model.fileRootCss" #contentElement>
-  <input [class]="model.cssClasses.fileInput" *ngIf="!model.isReadOnlyAttr && !model.isDisabledAttr && model.hasFileUI" tabindex="-1" type="file"
-    [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
+  <input [class]="model.cssClasses.fileInput" *ngIf="!model.isReadOnlyAttr && !model.isDisabledAttr && model.hasFileUI"
+    tabindex="-1" type="file" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
     [attr.aria-errormessage]="model.ariaErrormessage" [attr.multiple]="model.multipleRendered"
     [attr.title]="model.inputTitle" [attr.accept]="model.acceptedTypes" [attr.capture]="model.renderCapture" />
-  <input *ngIf="model.isReadOnlyAttr" type="file" readonly [class]="model.getReadOnlyFileCss()" [attr.id]="model.inputId"
-    [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title" style="color: transparent" />
-  <input *ngIf="model.isDisabledAttr" type="file" disabled [class]="model.getReadOnlyFileCss()" [attr.id]="model.inputId"
-    [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title" style="color: transparent" />
+  <input *ngIf="model.isReadOnlyAttr" type="file" readonly [class]="model.getReadOnlyFileCss()"
+    [attr.id]="model.inputId" [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title"
+    style="color: transparent" />
+  <input *ngIf="model.isDisabledAttr" type="file" disabled [class]="model.getReadOnlyFileCss()"
+    [attr.id]="model.inputId" [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title"
+    style="color: transparent" />
   <div [class]="model.cssClasses.dragArea" (dragenter)="model.onDragEnter($event)" (drop)="model.onDrop($event)"
     (dragover)="model.onDragOver($event)" (dragleave)="model.onDragLeave($event)">
     <div [class]="model.getFileDecoratorCss()" *ngIf="model.showFileDecorator">
       <span [class]="model.cssClasses.dragAreaPlaceholder" [model]="model.locRenderedPlaceholder" sv-ng-string></span>
       <div [class]="model.cssClasses.wrapper">
-        <sv-ng-choose-file-btn [data]="{ question: model }" *ngIf="model.showChooseButton"></sv-ng-choose-file-btn>
         <sv-ng-action-bar [model]="model.actionsContainer" *ngIf="model.actionsContainerVisible"></sv-ng-action-bar>
         <span [class]="model.cssClasses.noFileChosen" *ngIf="model.isEmpty()">{{ model.noFileChosenCaption }}</span>
       </div>
@@ -26,14 +27,8 @@
     <ng-container *ngIf="model.isPlayingVideo">
       <ng-container *ngTemplateOutlet="fileVideo"></ng-container>
     </ng-container>
-    <ng-container *ngIf="model.showRemoveButton">
-      <ng-container *ngTemplateOutlet="fileCleanButton; context: { css: model.showRemoveButton }"></ng-container>
-    </ng-container>
     <ng-container *ngIf="model.allowShowPreview">
       <ng-template [component]="{ name: 'sv-file-preview', data: { question: model } }"></ng-template>
-    </ng-container>
-    <ng-container *ngIf="model.showRemoveButtonBottom">
-      <ng-container *ngTemplateOutlet="fileCleanButton; context: { css: model.showRemoveButtonBottom }"></ng-container>
     </ng-container>
     <sv-action-bar *ngIf="model.fileNavigatorVisible" [model]="model.fileNavigator"></sv-action-bar>
   </div>

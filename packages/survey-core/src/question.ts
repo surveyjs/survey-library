@@ -2692,7 +2692,7 @@ export class Question extends SurveyElement<Question>
   }
 
   protected needResponsiveness(): boolean {
-    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+    return this.supportResponsiveness() && !this.isDesignMode;
   }
 
   protected checkForResponsiveness(el: HTMLElement): void {
@@ -2745,13 +2745,14 @@ export class Question extends SurveyElement<Question>
         }
         const callback = () => {
           const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-          if (!requiredWidth && this.isDefaultRendering()) {
+          if (this.isDefaultRendering()) {
             requiredWidth = rootEl.scrollWidth;
           }
           if (isProcessed || !isContainerVisible(rootEl)) {
             isProcessed = false;
           } else {
-            isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+            const availableWidth = getElementWidth(rootEl);
+            isProcessed = this.processResponsiveness(requiredWidth, availableWidth);
           }
         };
         if (hard) {

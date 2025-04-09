@@ -1455,6 +1455,7 @@ QUnit.test("check rating display-mode styles", (assert) => {
 });
 
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
+  RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
   const done = assert.async();
@@ -1493,36 +1494,37 @@ QUnit.test("check rating triggerResponsiveness method", (assert) => {
   q1.afterRender(rootElement);
   q2.afterRender(rootElement);
 
-  assert.notOk(!!q2["triggerResponsivenessCallback"]);
-  assert.ok(!!q1["triggerResponsivenessCallback"]);
-  assert.ok(q1["resizeObserver"]);
-  assert.equal(q1.renderAs, "default");
+  assert.notOk(!!q2["triggerResponsivenessCallback"], "q2 triggerResponsivenessCallback");
+  assert.ok(!!q1["triggerResponsivenessCallback"], "q1 triggerResponsivenessCallback");
+  assert.ok(q1["resizeObserver"], "q1 resizeObserver");
+  assert.equal(q1.renderAs, "default", "q1 renderAs #1");
 
   contentElement.style.width = "350px";
 
   survey.triggerResponsiveness(false);
-  assert.equal(q1.renderAs, "dropdown");
+  assert.equal(q1.renderAs, "dropdown", "q1 renderAs #2");
 
   contentElement.style.width = "450px";
   //to reset is processed flag
   survey.triggerResponsiveness(false);
 
   survey.triggerResponsiveness(false);
-  assert.equal(q1.renderAs, "default");
+  assert.equal(q1.renderAs, "default", "q1 renderAs #3");
 
   ratingElement.style.width = "500px";
 
   survey.triggerResponsiveness(false);
-  assert.equal(q1.renderAs, "default");
+  assert.equal(q1.renderAs, "default", "q1 renderAs #4");
 
   survey.triggerResponsiveness(true);
 
   setTimeout(() => {
-    assert.equal(q1.renderAs, "dropdown");
+    assert.equal(q1.renderAs, "dropdown", "q1 renderAs #5");
 
     ratingElement.remove();
     contentElement.remove();
     rootElement.remove();
+    RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
     window.ResizeObserver = ResizeObserver;
     done();
   }, 1);

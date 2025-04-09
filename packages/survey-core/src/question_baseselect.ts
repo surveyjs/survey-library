@@ -964,9 +964,6 @@ export class QuestionSelectBase extends Question {
   public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);
   }
-  protected hasOtherChanged() {
-    this.onVisibleChoicesChanged();
-  }
   /**
    * Specifies the sort order of choice items.
    *
@@ -1395,6 +1392,31 @@ export class QuestionSelectBase extends Question {
   protected getChoices(): Array<ItemValue> {
     return this.choices;
   }
+  /**
+     * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
+     *
+     * @see otherText
+     * @see otherItem
+     * @see otherErrorText
+     * @see showCommentArea
+     * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+     */
+  public get showOtherItem(): boolean {
+    return this.getPropertyValue("showOtherItem", false);
+  }
+  public set showOtherItem(val: boolean) {
+    if (!this.supportOther() || this.showOtherItem == val) return;
+    this.setPropertyValue("showOtherItem", val);
+    this.onVisibleChoicesChanged();
+  }
+
+  public get hasOther(): boolean {
+    return this.showOtherItem;
+  }
+  public set hasOther(val: boolean) {
+    this.showOtherItem = val;
+  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment || this.showOtherItem; }
   public supportOther(): boolean {
     return this.isSupportProperty("showOtherItem");
   }

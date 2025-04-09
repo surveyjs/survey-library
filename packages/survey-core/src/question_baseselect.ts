@@ -1393,14 +1393,14 @@ export class QuestionSelectBase extends Question {
     return this.choices;
   }
   /**
-     * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
-     *
-     * @see otherText
-     * @see otherItem
-     * @see otherErrorText
-     * @see showCommentArea
-     * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
-     */
+   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
+   *
+   * @see otherText
+   * @see otherItem
+   * @see otherErrorText
+   * @see showCommentArea
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+   */
   public get showOtherItem(): boolean {
     return this.getPropertyValue("showOtherItem", false);
   }

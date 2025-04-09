@@ -31,8 +31,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const ticks = showLabels ? this.getTicks() : null;
 
     const value = this.getRenderedValue();
-    const leftPercent = this.getPercent(Math.min(...value));
-    const rightPercent = this.getPercent(Math.max(...value));
+    const leftPercent = sliderType === "single" ? this.getPercent(Math.min(value, 0)) : this.getPercent(Math.min(...value));
+    const rightPercent = sliderType === "single" ? this.getPercent(Math.max(value, 0)) : this.getPercent(Math.max(...value));
 
     const rangeLeftPercent = leftPercent + "%";
     const rangeRightPercent = (100 - rightPercent) + "%";
@@ -130,21 +130,24 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getPercent(value:number):number {
     const { max, min } = this.question;
     const fullRange = max - min;
-    return ((value - min)/fullRange)*100;
+    return (Math.abs(value - min)/fullRange)*100;
   }
 
   private getRenderedValue() {
     const { max, min, renderedmaxRangeLength: maxRangeLength, sliderType } = this.question;
-    let result = this.question.value.slice();
+    let result;
 
     if (sliderType === "single") {
+      result = this.question.value;
       if (typeof result === "undefined" || result.length === 0) {
         this.question.isIndeterminate = true;
-        return [min];
+        return min >= 0 ? [min] : [0];
       } else {
         return [result];
       }
     }
+
+    result = this.question.value.slice();
 
     if (result.length === 0) {
       const fullRange = max - min;
@@ -158,6 +161,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private refreshInputRange() {
     if (!this.question.allowDragRange) return;
+    if (!this.rangeInputRef.current) return;
     const renderedValue = this.getRenderedValue();
     const percentLastValue = this.getPercent(renderedValue[renderedValue.length - 1]);
     const percentFirstValue = this.getPercent(renderedValue[0]);

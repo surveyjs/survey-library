@@ -20,11 +20,7 @@ $range-slider-thumb-size: 20px;
   }
 }
 
-.sd-slider--single {
-  .sd-slider__inverse-track--left {
-    background-color: $primary;
-  }
-}
+.sd-slider--single {}
 
 .sd-slider__visual-slider-container {
   position: absolute;
@@ -37,23 +33,25 @@ $range-slider-thumb-size: 20px;
 .sd-slider__inverse-track {
   position: absolute;
   height: $range-slider-height;
-  border-radius: 10px;
   background-color: $foreground-light;
 }
 
 .sd-slider__inverse-track--left {
   left: 0;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
 }
 
 .sd-slider__inverse-track--right {
   right: 0;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .sd-slider__range-track {
   position: absolute;
   left: 0;
   height: $range-slider-height;
-  border-radius: 14px;
   background-color: $primary;
 }
 

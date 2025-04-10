@@ -10,6 +10,8 @@
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@babel/plugin-transform-runtime": "7.23.3",
     "@playwright/test": "^1.51.1",
     "@types/lodash": "4.14.186",
@@ -20,11 +22,12 @@
     "axe-testcafe": "^3.0.0",
     "concurrently": "^7",
     "devextreme-screenshot-comparer": "^2.0.11",
+    "lint-staged": "^15.4.3",
     "eslint": "^8.57.0",
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
     "eslint-plugin-react": "^7.33.0",
     "get-func-name": "2.0.0",
-    "husky": "^7.0.4",
+    "husky": "^9.1.7",
     "node-uuid": "1.4.7",
     "playwright": "^1.51.1",
     "puppeteer": "22.13.1",
@@ -39,5 +42,10 @@
     "hooks": {
       "pre-push": "npm run pre-push-check"
     }
+  },
+  "lint-staged": {
+    "**/*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
+      "eslint --fix"
+    ]
   }
 }

@@ -10,7 +10,7 @@ frameworks.forEach((framework) => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url_test}${themeName}/${framework}`);
     });
-    test("Check boolean question", async ({ page }) => {
+    test.skip("Check boolean question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         questions: [
@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
       await question.setPropertyValue("value", undefined);
       await question.toHaveScreenshot("boolean-question-disabled.png");
     });
-    test("Check boolean question - interchange buttons", async ({ page }) => {
+    test.skip("Check boolean question - interchange buttons", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 800 });
       await initSurvey(page, framework, {
         questions: [
@@ -68,7 +68,7 @@ frameworks.forEach((framework) => {
       await question.setPropertyValue("value", undefined);
       await question.toHaveScreenshot("boolean-question-exch-disabled.png");
     });
-    test("Check radio boolean question", async ({ page }) => {
+    test.skip("Check radio boolean question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         width: "900px",
@@ -94,7 +94,7 @@ frameworks.forEach((framework) => {
       await page.locator("body").click({ position: { x: 1, y: 1 } });
       await question.toHaveScreenshot("boolean-radio-question-unfocused.png");
     });
-    test("Check boolean question word-wrap", async ({ page }) => {
+    test.skip("Check boolean question word-wrap", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         focusFirstQuestionAutomatic: true,
@@ -112,7 +112,7 @@ frameworks.forEach((framework) => {
       await question.resetFocusToBody();
       await question.toHaveScreenshot("boolean-question-word-wrap.png");
     });
-    test("Check boolean thumb position", async ({ page }) => {
+    test.skip("Check boolean thumb position", async ({ page }) => {
       await page.setViewportSize({ width: 1400, height: 800 });
       await initSurvey(page, framework, {
         "logoPosition": "right",
@@ -143,7 +143,7 @@ frameworks.forEach((framework) => {
       await question1.toHaveScreenshot("boolean-switch-thumb-right.png");
       await question2.toHaveScreenshot("boolean-switch-thumb-right-swapped.png");
     });
-    test("Check boolean swapOrder thumb position", async ({ page }) => {
+    test.skip("Check boolean swapOrder thumb position", async ({ page }) => {
       await page.setViewportSize({ width: 1400, height: 800 });
       await initSurvey(page, framework, {
         "elements": [

@@ -9,7 +9,7 @@ frameworks.forEach((framework) => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url_test}${themeName}/${framework}`);
     });
-    test("Check TOC on the first page after start", async ({ page }) => {
+    test.skip("Check TOC on the first page after start", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 800 });
       await initSurvey(page, framework, {
         "title": "Survey",

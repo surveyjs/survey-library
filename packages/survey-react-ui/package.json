@@ -33,6 +33,8 @@
         "accessibility-tests:ci": "cross-env env=react playwright test --project a11y --reporter dot --quiet",
         "e2e": "cross-env env=react playwright test --project e2e --ui",
         "e2e:ci": "cross-env env=react playwright test --project e2e",
+        "scr": "cross-env env=react playwright test --project vrt --ui",
+        "scr:ci": "cross-env env=react playwright test --project vrt",
         "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
     },
     "typings": "./typings/src/entries/react-ui.d.ts",

@@ -14,7 +14,7 @@ export default defineConfig({
     },
     {
       name: "vrt",
-      testDir: resolve(__dirname, "./visualRegressionTests")
+      testDir: resolve(__dirname, "./screenshots")
     },
     {
       name: "e2e",

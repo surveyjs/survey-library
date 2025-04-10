@@ -48,7 +48,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       target.onRemove(item);
     }
   })
-  actions: Array<T>;
+    actions: Array<T>;
   private cssClassesValue: any;
 
   protected getRenderedActions(): Array<T> {

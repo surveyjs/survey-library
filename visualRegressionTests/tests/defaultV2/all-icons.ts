@@ -27,10 +27,17 @@ frameworks.forEach(framework => {
         const svgContainer = document.createElement("div");
         svgContainer.id = "svgCointainer";
         document.body.appendChild(svgContainer);
-        document.getElementById("surveyElement")!.style.display = "none";
+        const surveyElement = document.getElementById("surveyElement");
+        if(!!surveyElement) {
+          surveyElement.style.display = "none";
+        }
 
         const svgCointainer = document.getElementById("svgCointainer");
-        const symbols = document.getElementById("sv-icon-holder-global-container")!.querySelectorAll("symbol");
+        const globalContainer = document.getElementById("sv-icon-holder-global-container");
+        let symbols;
+        if(!!globalContainer) {
+          symbols = globalContainer.querySelectorAll("symbol");
+        }
 
         function createSvg(id) {
           const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -39,7 +46,9 @@ frameworks.forEach(framework => {
           svg.style.height = "48px";
 
           const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-          svgCointainer!.appendChild(svg);
+          if(!!svgCointainer) {
+            svgCointainer.appendChild(svg);
+          }
           svg.appendChild(use);
           use.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", `#${id}`);
         }

@@ -57,7 +57,7 @@ export class ElementFactory {
       return el;
     };
     this.registerElement(questionType, creator, showInToolbox);
-  }
+  };
   public clear(): void {
     this.creatorHash = {};
   }

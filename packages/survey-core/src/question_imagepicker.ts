@@ -383,7 +383,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
     }
     this._width && this.processResponsiveness(0, this._width);
-  }
+  };
 
   @property({}) private responsiveColCount: number;
 

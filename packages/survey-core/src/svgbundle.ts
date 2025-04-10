@@ -78,7 +78,7 @@ export class SvgIconRegistry {
   public updateMarkup(): void {
     this.onIconsChanged.fire(this, {});
   }
-  public onIconsChanged = new EventBase<SvgIconRegistry, {}>()
+  public onIconsChanged = new EventBase<SvgIconRegistry, {}>();
 }
 
 export const SvgRegistry: SvgIconRegistry = new SvgIconRegistry();

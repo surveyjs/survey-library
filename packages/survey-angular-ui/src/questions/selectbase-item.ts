@@ -14,7 +14,7 @@ export class SelectBaseItemComponent extends BaseAngular<ItemValue> implements A
   @Input() model!: ItemValue | any;
   @Input() inputType!: string;
   @Input() showLabel: boolean = true;
-  @ViewChild("container", { read: ElementRef }) container!: ElementRef<HTMLDivElement>
+  @ViewChild("container", { read: ElementRef }) container!: ElementRef<HTMLDivElement>;
   protected getModel(): ItemValue {
     return this.model;
   }
@@ -25,13 +25,13 @@ export class SelectBaseItemComponent extends BaseAngular<ItemValue> implements A
         this.previousModel.setRootElement(undefined as any);
       }
       if(this.model && this.container?.nativeElement) {
-        this.model.setRootElement(this.container.nativeElement)
+        this.model.setRootElement(this.container.nativeElement);
       }
     }
   }
   ngAfterViewInit(): void {
     if(this.model && this.container?.nativeElement && !this.question.isDesignMode) {
-      this.model.setRootElement(this.container.nativeElement)
+      this.model.setRootElement(this.container.nativeElement);
     }
   }
   override ngOnDestroy(): void {

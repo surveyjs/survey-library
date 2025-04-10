@@ -36,7 +36,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
     if(this.cell.isErrorsCell && this.cell?.question) {
       this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
         this.update();
-      }, "__ngSubscription")
+      }, "__ngSubscription");
     }
   }
   public get panelComponentName(): string {
@@ -94,7 +94,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription")    
+      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription");
     }
   }
   public get canRender() {

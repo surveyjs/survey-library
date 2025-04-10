@@ -367,7 +367,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   private rowsAnimation: AnimationGroup<QuestionRowModel> = new AnimationGroup(this.getRowsAnimationOptions(), (value) => {
     this.setPropertyValue("visibleRows", value);
-  }, () => this.visibleRows)
+  }, () => this.visibleRows);
   get visibleRows(): Array<QuestionRowModel> {
     return this.getPropertyValue("visibleRows");
   }
@@ -1212,7 +1212,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.updateColumnWidth(this.gridLayoutColumns);
       this.updateRootStyle();
     }
-  }
+  };
   public updateColumns() {
     this._columns = undefined;
     this.updateRootStyle();

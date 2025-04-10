@@ -143,7 +143,7 @@ export class TOCModel {
   icon = "icon-navmenu_24x24";
   togglePopup = (): void => {
     this.popupModel.toggleVisibility();
-  }
+  };
   public dispose(): void {
     const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
     this.survey.onEndLoadingFromJson.remove(handler);

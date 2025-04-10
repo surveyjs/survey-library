@@ -48,7 +48,7 @@ export class DropdownListModel extends Base {
         this.processCustomValue();
       }
     }
-  }
+  };
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;

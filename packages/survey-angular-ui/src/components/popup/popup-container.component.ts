@@ -5,7 +5,7 @@ import { PopupBaseViewModel, PopupModalViewModel } from "survey-core";
 @Component({
   selector: "sv-ng-popup-container, '[sv-ng-popup-container]'",
   templateUrl: "./popup-container.component.html"
-  })
+})
 
 export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBaseViewModel> extends BaseAngular<T> {
   @Input() model!: T;

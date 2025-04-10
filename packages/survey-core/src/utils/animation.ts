@@ -278,7 +278,7 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
     } catch {
       this.update(newValue);
     }
-  })
+  });
   sync(newValue: T): void {
     if(this.animationOptions.isAnimationEnabled()) {
       this._debouncedSync.run(newValue);

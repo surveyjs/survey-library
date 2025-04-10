@@ -121,7 +121,7 @@ export class ExpressionExecutorRunner {
 
 export class ExpressionExecutor implements IExpresionExecutor {
   public static createExpressionExecutor: (expression: string) => IExpresionExecutor =
-    (expression: string) => { return new ExpressionExecutor(expression); }
+    (expression: string) => { return new ExpressionExecutor(expression); };
   public onComplete: (res: any, id: number) => void;
   private expressionValue: string;
   private operand: Operand;

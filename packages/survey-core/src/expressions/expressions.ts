@@ -474,17 +474,17 @@ export class OperandMaker {
     return res;
   }
 
-static unaryFunctions: HashTable<Function> = {
-  empty: function(value: any): boolean {
-    return Helpers.isValueEmpty(value);
-  },
-  notempty: function(value: any): boolean {
-    return !OperandMaker.unaryFunctions.empty(value);
-  },
-  negate: function(value: boolean): boolean {
-    return !value;
-  },
-};
+  static unaryFunctions: HashTable<Function> = {
+    empty: function(value: any): boolean {
+      return Helpers.isValueEmpty(value);
+    },
+    notempty: function(value: any): boolean {
+      return !OperandMaker.unaryFunctions.empty(value);
+    },
+    negate: function(value: boolean): boolean {
+      return !value;
+    },
+  };
 
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {

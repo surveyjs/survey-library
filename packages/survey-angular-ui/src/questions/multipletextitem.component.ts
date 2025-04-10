@@ -26,13 +26,13 @@ export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> im
     if(this.model.isErrorsCell) {
       this.editor.registerFunctionOnPropertyValueChanged("errors", () => {
         this.update();
-      }, "__ngSubscription")
+      }, "__ngSubscription");
     }
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if(this.model.isErrorsCell) {
-      this.editor.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription")    
+      this.editor.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription");
     }
   }
 }

@@ -5,7 +5,7 @@ import { Component, EmbeddedViewRef, OnInit, TemplateRef, ViewChild, ViewContain
 })
 
 export class EmbeddedViewContentComponent implements OnInit {
-  @ViewChild("template", { read: TemplateRef, static: true }) templateRef!: TemplateRef<HTMLElement>
+  @ViewChild("template", { read: TemplateRef, static: true }) templateRef!: TemplateRef<HTMLElement>;
   protected embeddedView?: EmbeddedViewRef<HTMLElement>;
   constructor(protected viewContainerRef?: ViewContainerRef) {}
 

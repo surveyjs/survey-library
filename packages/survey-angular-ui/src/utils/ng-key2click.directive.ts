@@ -19,7 +19,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     evt.stopPropagation();
     doKey2ClickUp(evt, this.options);
     return false;
-  }
+  };
   private blur (evt: any) {
     doKey2ClickBlur(evt);
   }

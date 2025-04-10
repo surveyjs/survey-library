@@ -17,7 +17,7 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
       this.update();
     };
     this.model.currentIndexChangedCallback = () => {
-      this.update()
+      this.update();
     };
     this.model.renderModeChangedCallback = () => {
       this.update();

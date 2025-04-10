@@ -1318,7 +1318,7 @@ export class RenderingCompletedAwaiter {
     if (this._elementsToRenderCount <= 0) {
       this.visibleElementsRendered();
     }
-  }
+  };
   private stopWaitingForElementsRendering() {
     if (this._elementsToRenderTimer) {
       clearTimeout(this._elementsToRenderTimer);

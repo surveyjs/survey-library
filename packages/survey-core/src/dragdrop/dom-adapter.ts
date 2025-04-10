@@ -128,7 +128,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private onContextMenu = (event:any) => {
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
   private moveShortcutElement(event: PointerEvent) {
     let rootElementX = this.rootElement.getBoundingClientRect().x;
     let rootElementY = this.rootElement.getBoundingClientRect().y;

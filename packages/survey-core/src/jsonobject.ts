@@ -291,7 +291,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
-  private uniquePropertyValue: string
+  private uniquePropertyValue: string;
   private readOnlyValue: boolean | null;
   private visibleValue: boolean | null;
   private isLocalizableValue: boolean | null;

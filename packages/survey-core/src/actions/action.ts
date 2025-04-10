@@ -245,7 +245,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
-  @property() css?: string
+  @property() css?: string;
   minDimension: number;
   maxDimension: number;
 
@@ -547,7 +547,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleChanged = () => {
     const val = this.locTitle.renderedHtml;
     this.setPropertyValue("_title", !!val ? val : undefined);
-  }
+  };
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
     this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);

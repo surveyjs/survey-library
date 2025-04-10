@@ -127,7 +127,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     rankingChoices.splice(toIndex, 0, item);
 
     this.updateDraggedElementShortcut(toIndex + 1);
-  }
+  };
 
   protected updateDraggedElementShortcut(newIndex: number) {
     if(this.domAdapter?.draggedElementShortcut) {

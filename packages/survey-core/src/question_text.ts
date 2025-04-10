@@ -642,7 +642,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this._isWaitingForEnter = event.keyCode === 229;
     }
     this.onTextKeyDownHandler(event);
-  }
+  };
   public onChange = (event: any): void => {
     this.updateDateValidationMessage(event);
     const elementIsFocused = event.target === settings.environment.root.activeElement;

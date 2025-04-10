@@ -267,13 +267,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private _rankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimationOptions(true), (val) => {
     this._renderedRankingChoices = val;
-  }, () => this.renderedRankingChoices)
+  }, () => this.renderedRankingChoices);
   public get rankingChoicesAnimation(): AnimationGroup<ItemValue> {
     return this._rankingChoicesAnimation;
   }
   private _unRankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimationOptions(false), (val) => {
     this._renderedUnRankingChoices = val;
-  }, () => this.renderedUnRankingChoices)
+  }, () => this.renderedUnRankingChoices);
   public get unRankingChoicesAnimation(): AnimationGroup<ItemValue> {
     return this._unRankingChoicesAnimation;
   }
@@ -411,7 +411,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public startDrag = (event: PointerEvent): void => {
     const choice = ItemValue.getItemByValue(this.visibleChoices, this.draggedChoiceValue);
     this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
-  }
+  };
 
   public handlePointerUp = (
     event: PointerEvent,

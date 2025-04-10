@@ -126,7 +126,7 @@ export class MultipleTextItemModel extends Base
   }
   public focusIn = (): void => {
     this.editor.focusIn();
-  }
+  };
   /**
    * Marks the item as required. If a respondent leaves this item empty, the question displays a [validation error](#requiredErrorText).
    */
@@ -880,7 +880,7 @@ export class QuestionMultipleTextModel extends Question
 
 export class MutlipleTextRow extends Base {
   @property() public isVisible: boolean = true;
-  @propertyArray() public cells: Array<MultipleTextCell> = []
+  @propertyArray() public cells: Array<MultipleTextCell> = [];
 }
 export class MutlipleTextErrorRow extends MutlipleTextRow {
   public onAfterCreated(): void {

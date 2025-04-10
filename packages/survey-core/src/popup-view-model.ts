@@ -130,7 +130,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
 
   private onModelIsVisibleChangedCallback = () => {
     this.isVisible = this.model.isVisible;
-  }
+  };
 
   private setupModel(model: PopupModel) {
     if (!!this.model) {

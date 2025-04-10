@@ -298,7 +298,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private renderedRowsAnimation = new AnimationGroup(this.getRenderedRowsAnimationOptions(), (val) => {
     this._renderedRows = val;
-  }, () => this._renderedRows)
+  }, () => this._renderedRows);
 
   public get renderedRows(): Array<QuestionMatrixDropdownRenderedRow> {
     return this._renderedRows;

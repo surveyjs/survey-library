@@ -29,7 +29,7 @@ class SimpleContainer {
     contains() {
       return false;
     }
-  }
+  };
 }
 class ResizeObserver {
   observe() { }

@@ -155,7 +155,7 @@ export class QuestionFilePage extends Base {
   private static getId() {
     return "sv_sfp_" + QuestionFilePage.pageCounter++;
   }
-  @propertyArray({}) public items: Array<any>
+  @propertyArray({}) public items: Array<any>;
   public id: string;
   constructor(private question: QuestionFileModel, private index: number) {
     super();
@@ -1110,7 +1110,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this.isDragging = true;
       this.dragCounter++;
     }
-  }
+  };
   onDragOver = (event: any) => {
     if (!this.canDragDrop()) {
       event.returnValue = false;
@@ -1118,7 +1118,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
-  }
+  };
   onDrop = (event: any) => {
     if (this.canDragDrop()) {
       this.isDragging = false;
@@ -1127,7 +1127,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       let src = event.dataTransfer;
       this.onChange(src);
     }
-  }
+  };
   onDragLeave = (event: any) => {
     if (this.canDragDrop()) {
       this.dragCounter--;
@@ -1135,11 +1135,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.isDragging = false;
       }
     }
-  }
+  };
   doChange = (event: any) => {
     var src = event.target || event.srcElement;
     this.onChange(src);
-  }
+  };
   doClean = () => {
     if (this.needConfirmRemoveFile) {
       confirmActionAsync({
@@ -1152,7 +1152,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       return;
     }
     this.clearFilesCore();
-  }
+  };
   private clearFilesCore(): void {
     if (this.rootElement) {
       const input = this.rootElement.querySelectorAll("input")[0];
@@ -1187,14 +1187,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
       const link = currentTarget.getElementsByTagName("a")[0];
       link?.click();
     }
-  }
+  };
   doDownloadFile = (event: any, data: any) => {
     event.stopPropagation();
     if (detectIEOrEdge()) {
       event.preventDefault();
       loadFileFromBase64(data.content, data.name);
     }
-  }
+  };
   //#endregion
   public dispose(): void {
     this.cameraValue = undefined;

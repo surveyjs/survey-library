@@ -115,7 +115,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
 
   public startDragMatrixRow = (event: PointerEvent, currentTarget: HTMLElement): void => {
     this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, <HTMLElement>event.target);
-  }
+  };
 
   public getType(): string {
     return "matrixdynamic";

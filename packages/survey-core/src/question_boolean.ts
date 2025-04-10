@@ -163,7 +163,7 @@ export class QuestionBooleanModel extends Question {
    * @see labelFalse
    */
   @property()
-  valueTrue: any;
+    valueTrue: any;
   /**
    * A value to save in survey results when respondents give a negative answer.
    *
@@ -172,7 +172,7 @@ export class QuestionBooleanModel extends Question {
    * @see labelFalse
    */
   @property()
-  valueFalse: any;
+    valueFalse: any;
 
   public getValueTrue(): any {
     return this.valueTrue !== undefined ? this.valueTrue : true;

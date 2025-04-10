@@ -1927,7 +1927,7 @@ export class QuestionSelectBase extends Question {
       this.renderedChoicesChangedCallback && this.renderedChoicesChangedCallback();
     },
     () => this._renderedChoices
-  )
+  );
 
   public get renderedChoices(): Array<ItemValue> {
     return this._renderedChoices;

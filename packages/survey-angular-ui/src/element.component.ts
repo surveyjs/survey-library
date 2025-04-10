@@ -20,7 +20,7 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
   protected override onModelChanged(): void {
     super.onModelChanged();
     if(this.previousModel) {
-      this.previousModel.setWrapperElement(undefined)
+      this.previousModel.setWrapperElement(undefined);
     }
     if(this.model && this.container?.nativeElement) {
       this.model.setWrapperElement(this.container.nativeElement);
@@ -61,7 +61,7 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
   }
   public ngAfterViewInit(): void {
     if(this.model && this.container?.nativeElement) {
-      this.model.setWrapperElement(this.container.nativeElement)
+      this.model.setWrapperElement(this.container.nativeElement);
     }
   }
   public override ngOnDestroy(): void {

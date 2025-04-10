@@ -15,10 +15,10 @@ export class ResponsivityManager {
 
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
     return DomDocumentHelper.getComputedStyle(elt);
-  }
+  };
   private debouncedProcess = debounce(() => {
     this.process();
-  })
+  });
   constructor(
     public container: HTMLDivElement, private model: AdaptiveActionContainer) {
     this.model.updateCallback =

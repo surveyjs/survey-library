@@ -223,7 +223,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public onItemHover = (itemValue: T): void => {
     this.mouseOverHandler(itemValue);
-  }
+  };
   public onItemLeave(itemValue: T) {
     itemValue.hidePopupDelayed(this.subItemsHideDelay);
   }
@@ -249,7 +249,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .append(this.cssClasses.itemsContainer)
       .append(this.cssClasses.itemsContainerFiltering, !!this.filterString && this.visibleActions.length !== this.visibleItems.length)
       .toString();
-  }
+  };
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     const isSelected = this.isItemSelected(itemValue);
     return new CssClassBuilder()

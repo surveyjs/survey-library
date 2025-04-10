@@ -2534,7 +2534,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.footerToolbarValue;
   }
   @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
-  legacyNavigation: boolean
+    legacyNavigation: boolean;
   private updateFooterActionsCallback: any;
   private updateFooterActions() {
     if (!!this.updateFooterActionsCallback) {

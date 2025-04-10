@@ -180,7 +180,6 @@ export const registerCustomToolboxComponent = ClientFunction(
         };
         render() {
           return (
-            // eslint-disable-next-line react/react-in-jsx-scope
             <span className="my-custom-action-class" onClick={this.click}>
               {" "}
               {this.props.item.title}
@@ -205,7 +204,6 @@ export const registerCustomToolboxComponent = ClientFunction(
         };
         render() {
           return (
-            // eslint-disable-next-line react/react-in-jsx-scope
             <span className="my-custom-action-class" onClick={this.click}>
               {" "}
               {this.props.item.title}

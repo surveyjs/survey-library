@@ -11,7 +11,7 @@ export class RankingQuestionComponent extends SelectBaseComponent<QuestionRankin
   public override inputType: string = "";
   override trackItemBy = (index: number, item: ItemValue): string => {
     return item.value + "-" + index + "-item";
-  }
+  };
   public override getDefaultComponentName(): string {
     return "sv-ng-ranking-item";
   }

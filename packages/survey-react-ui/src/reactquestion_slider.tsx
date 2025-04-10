@@ -171,7 +171,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     const inputNode = this.rangeInputRef.current;
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", `calc(${percent}% - 20px - 20px)`); //TODO 20px is thumb width remove hardcode
-    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${percentFirstValue}% + 20px)`); //TODO 10px
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${percentFirstValue}% + 20px)`);
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "absolute");
   }
 
@@ -193,8 +193,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private handlePointerDown = (e)=> {
     const { step } = this.question;
     if (step) {
-      const input:any = document.getElementById("sjs-slider-input-0"); //TODO
-      input.step = 0.1;
+      for (let i = 0; i < this.question.value.length; i++) {
+        const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
+        input.step = 0.1;
+      }
     }
   }
 
@@ -205,9 +207,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+        const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
+        input.step = step;
       }
-      const input:any = document.getElementById("sjs-slider-input-0"); //TODO
-      input.step = step;
+
     }
     this.question.value = renderedValue;
     this.refreshInputRange();
@@ -276,7 +279,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       }
     }
 
-    // TODO ensure all borders logic ensureBorders(newValue) {...}; rendederValue = ensureBorders(newValue);
     if (renderedValue.length > 1) {
       newValue = this.ensureRightBorder(newValue, thumbIndex);
       newValue = this.ensureLeftBorder(newValue, thumbIndex);

@@ -10,6 +10,7 @@
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "@rushstack/eslint-patch": "^1.1.4",
     "@commitlint/cli": "^19.8.0",
     "@commitlint/config-conventional": "^19.8.0",
     "@babel/plugin-transform-runtime": "7.23.3",

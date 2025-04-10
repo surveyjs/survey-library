@@ -2108,7 +2108,7 @@ export class QuestionSelectBase extends Question {
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {
     super.onValueChanged();
-    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected && !this.isSettingDefaultValue) {
       this.focusOtherComment();
     }
     this.prevIsOtherSelected = this.isOtherSelected;

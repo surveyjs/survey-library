@@ -26,6 +26,7 @@
     "eslint": "^8.57.0",
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
     "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-vue": "^9.3.0",
     "get-func-name": "2.0.0",
     "husky": "^9.1.7",
     "node-uuid": "1.4.7",

@@ -1,5 +1,5 @@
-import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionBoolean, QuestionRadiogroup } from "../questionHelper";
+import { frameworks, url_test, initSurvey } from "../e2e/helper";
+import { QuestionBoolean, QuestionRadiogroup } from "../e2e/questionHelper";
 import { test, expect } from "@playwright/test";
 
 const themeName = "default";
@@ -9,7 +9,7 @@ frameworks.forEach((framework) => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url_test}${themeName}/${framework}`);
     });
-    test.skip("Check TOC on the first page after start", async ({ page }) => {
+    test("Check TOC on the first page after start", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 800 });
       await initSurvey(page, framework, {
         "title": "Survey",

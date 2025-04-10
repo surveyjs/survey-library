@@ -211,7 +211,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    *
    * Default value: `false`
    *
-   * Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {

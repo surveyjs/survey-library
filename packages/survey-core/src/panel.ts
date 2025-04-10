@@ -1046,10 +1046,11 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     if(rec.fireCallback && firstErroredEl) {
-      if((!!singleQ || firstErroredEl === rec.firstErrorQuestion) && rec.focusOnFirstError) {
-        rec.firstErrorQuestion.focus(true);
+      const selQ = singleQ ? (rec.firstErrorQuestion || firstErroredEl) : firstErroredEl;
+      if(rec.focusOnFirstError) {
+        selQ.focus(true);
       } else {
-        firstErroredEl.expandAllParents();
+        selQ.expandAllParents();
       }
     }
   }

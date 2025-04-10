@@ -731,6 +731,8 @@ export class Question extends SurveyElement<Question>
     return undefined;
   }
   public get singleInputQuestion(): Question {
+    const survey = this.survey;
+    if(!survey || !survey.isSingleVisibleInput) return undefined;
     return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
   private get currentSingleInputQuestion(): Question {

@@ -39,7 +39,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        <div className={cssClasses.visualSliderContainer} onPointerUp={ (e)=>{ this.moveThumbByClick(e); }}>
+        <div className={cssClasses.visualSliderContainer} onPointerUp={ (e)=>{ this.setValueByClick(e); }}>
           <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
           <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
           <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
@@ -65,7 +65,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={0.1} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
+      const input = <input className={cssClasses.input} id={"sjs-slider-input-"+i} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
       inputs.push(input);
     }
     return inputs;
@@ -74,12 +74,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getRangeInput() {
     const { max, min, step, cssClasses, allowDragRange } = this.question;
     if (!allowDragRange) return null;
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={0.1} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={ (e)=>{ this.handleRangePointerUp(e); } } />;
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={ (e)=>{ this.handleRangePointerUp(e); } } />;
   }
 
   private getThumbs() {
     const thumbs = [];
-    const { isIndeterminate, cssClasses, tooltipFormat, focusedThumb, tooltipVisibility } = this.question;
+    const { isIndeterminate, cssClasses, tooltipFormat, focusedThumb, tooltipVisibility, step } = this.question;
 
     let value:number[] = this.getRenderedValue();
 
@@ -87,9 +87,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       let percent: string = this.getPercent(value[i]) + "%";
 
       let tooltip: ReactElement | null = null;
+      let toolTipValue = step ? this.getClosestToStepValue(value[i]) : value[i];
+
       if (tooltipVisibility !== "never") {
         tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`} style={{ left: percent }}>
-          <span className={cssClasses.tooltipValue} id={"sign-value-"+i}>{isIndeterminate? "—" : tooltipFormat.replace("{0}", ""+value[i]) }</span>
+          <span className={cssClasses.tooltipValue} id={"sjs-slider-sign-value-"+i}>{isIndeterminate? "—" : tooltipFormat.replace("{0}", ""+toolTipValue)}</span>
         </div>;
       }
 
@@ -188,17 +190,32 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     this.question.value = renderedValue;
   }
 
+  private handlePointerDown = (e)=> {
+    const { step } = this.question;
+    if (step) {
+      const input:any = document.getElementById("sjs-slider-input-0"); //TODO
+      input.step = 0.1;
+    }
+  }
+
   private handlePointerUp = (e) => {
     const { step } = this.question;
     const renderedValue:number[] = this.getRenderedValue();
     renderedValue.sort((a, b)=>a-b);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
-        renderedValue[i] = Math.round(renderedValue[i]/step)*step;
+        renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
       }
+      const input:any = document.getElementById("sjs-slider-input-0"); //TODO
+      input.step = step;
     }
     this.question.value = renderedValue;
     this.refreshInputRange();
+  }
+
+  private getClosestToStepValue(value: number): number {
+    const { step } = this.question;
+    return Math.round(value/step)*step;
   }
 
   private oldInputValue: number | null = null;
@@ -239,12 +256,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "0px");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
-    this.moveThumbByClick(event);
+    this.setValueByClick(event);
   }
 
-  private moveThumbByClick = (event: React.PointerEvent<HTMLDivElement>) => {
-    console.log("handle click!");
-    const { max, min, maxRangeLength, minRangeLength } = this.question;
+  private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {
+    const { max, min, step } = this.question;
 
     const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
     let newValue = Math.round(percent/100*(max-min) + min);
@@ -266,6 +282,26 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       newValue = this.ensureLeftBorder(newValue, thumbIndex);
     }
     renderedValue[thumbIndex] = newValue;
+
+    if (step) {
+      const currentValue = Array.isArray(this.question.value) ? this.question.value : [this.question.value];
+      for (let i = 0; i < renderedValue.length; i++) {
+        const currentValueStep = currentValue[i] / step;
+        const newValueStep = renderedValue[i] / step;
+        const newValueRound = Math.round(newValueStep);
+
+        if (newValueRound === currentValueStep) {
+          if (newValueStep > currentValueStep) {
+            renderedValue[i] = renderedValue[i] + step;
+          } else if (newValueStep < currentValueStep) {
+            renderedValue[i] = renderedValue[i] - step;
+          }
+        }
+
+        renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+      }
+    }
+
     this.question.value = renderedValue;
     this.refreshInputRange();
   }

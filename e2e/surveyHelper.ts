@@ -4,13 +4,17 @@ import { expect } from "@playwright/test";
 export class Survey {
   public readonly completeButtonValue = "Complete";
   public readonly nextButtonValue = "Next";
+  public readonly previousButtonValue = "Previous";
   constructor(public readonly page: Page) {
   }
   public async nextPage(): Promise<void> {
-    await this.getNavigatorButton(this.nextButtonValue).click();
+    await this.clicNavigatorButton(this.nextButtonValue);
+  }
+  public async prevPage(): Promise<void> {
+    await this.clicNavigatorButton(this.previousButtonValue);
   }
   public async complete(): Promise<void> {
-    await this.getNavigatorButton(this.completeButtonValue).click();
+    await this.clicNavigatorButton(this.completeButtonValue);
   }
   public async checkNextButtonVisibility(isVisible: boolean): Promise<void> {
     await this.checkButtonVisibility(this.nextButtonValue, isVisible);
@@ -40,6 +44,11 @@ export class Survey {
   }
   public getNavigatorButton(value: string): Locator {
     return this.page.locator("input[value='" + value + "']").last();
+  }
+  public async clicNavigatorButton(btnName: string): Promise<void> {
+    const btn = this.getNavigatorButton(btnName);
+    await btn.waitFor({ state: "visible" });
+    await btn.click();
   }
   private async checkButtonVisibility(btnValue: string, isVisible: boolean): Promise<void> {
     const l = this.getNavigatorButton(btnValue);

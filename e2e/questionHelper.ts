@@ -91,7 +91,7 @@ export class QuestionSelect extends Question {
 export class QuestionText extends Question {
   public async fill(text: string): Promise<void> {
     this.scrollIntoViewIfNeeded();
-    this.question.locator("input").fill(text);
+    await this.question.locator("input").fill(text);
   }
 }
 export class QuestionComment extends Question {

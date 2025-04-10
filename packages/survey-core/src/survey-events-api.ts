@@ -1150,7 +1150,16 @@ export interface ResizeEvent {
   height: number;
 }
 export interface CreateCustomChoiceItemEvent {
+  /**
+   * A question for which the event is raised.
+   */
   question: QuestionSelectBase;
+  /**
+   * A custom choice item. To access its value and display text, use the `options.item.value` and `options.item.text` properties.
+   */
   item: ItemValue;
+  /**
+   * A Boolean property that you can set to `false` if you want to prevent the item from being added.
+   */
   allow: boolean;
 }

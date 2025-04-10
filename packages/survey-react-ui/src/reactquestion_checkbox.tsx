@@ -195,7 +195,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   handleOnChange = (event: any) => {
     this.question.clickItemHandler(this.item, event.target.checked);
-  }
+  };
   protected canRender(): boolean {
     return !!this.item && !!this.question;
   }

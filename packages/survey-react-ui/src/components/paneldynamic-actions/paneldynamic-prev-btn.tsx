@@ -6,7 +6,7 @@ import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 export class SurveyQuestionPanelDynamicPrevButton extends SurveyQuestionPanelDynamicAction {
   protected handleClick = (event: any) => {
     this.question.goToPrevPanel();
-  }
+  };
   protected renderElement(): React.JSX.Element {
     return (
       <div title={this.question.panelPrevText} onClick={this.handleClick} className={this.question.getPrevButtonCss()}>

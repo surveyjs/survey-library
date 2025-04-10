@@ -222,6 +222,10 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
           npx puppeteer browsers install chrome
         displayName: "install chrome"
 
@@ -259,8 +263,14 @@ jobs:
 
       - script: |
           cd packages/survey-angular-ui
+          npm run scr:ci
+        displayName: "run scr tests"
+
+      - script: |
+          cd packages/survey-angular-ui
           npm run vrt:ci
         displayName: "Visual Regression Tests"
+
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
@@ -277,6 +287,34 @@ jobs:
           publishLocation: "Container"
         condition: always()
         displayName: "publish vrt artifacts"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_SCR/"
+          ArtifactName: "Library_Angular_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Angular SCR Tests"
+        condition: succeededOrFailed()
 
   - job: Vue3
     dependsOn: Core
@@ -309,6 +347,10 @@ jobs:
           command: install
           verbose: false
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
 
       - script: |
           npx puppeteer browsers install chrome
@@ -348,6 +390,11 @@ jobs:
 
       - script: |
           cd packages/survey-vue3-ui
+          npm run scr:ci
+        displayName: "run scr tests"
+
+      - script: |
+          cd packages/survey-vue3-ui
           npm run vrt:ci
         displayName: "Visual Regression Tests"
 
@@ -367,6 +414,34 @@ jobs:
           publishLocation: "Container"
         condition: always()
         displayName: "publish vrt artifacts"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
+          ArtifactName: "Library_Vue3_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 SCR Tests"
+        condition: succeededOrFailed()
 
   - job: SurveyUI_and_CSSFrameworks
     dependsOn: Core

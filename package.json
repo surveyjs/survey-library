@@ -22,6 +22,7 @@
     "devextreme-screenshot-comparer": "^2.0.11",
     "eslint": "^8.57.0",
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
+    "eslint-plugin-react": "^7.33.0",
     "get-func-name": "2.0.0",
     "husky": "^7.0.4",
     "node-uuid": "1.4.7",

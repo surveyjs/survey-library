@@ -192,8 +192,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private handlePointerDown = (e)=> {
     const { step } = this.question;
+    const renderedValue = this.getRenderedValue();
     if (step) {
-      for (let i = 0; i < this.question.value.length; i++) {
+      for (let i = 0; i < renderedValue.length; i++) {
         const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
         input.step = 0.1;
       }
@@ -286,7 +287,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     renderedValue[thumbIndex] = newValue;
 
     if (step) {
-      const currentValue = Array.isArray(this.question.value) ? this.question.value : [this.question.value];
+      const currentValue = this.getRenderedValue();
       for (let i = 0; i < renderedValue.length; i++) {
         const currentValueStep = currentValue[i] / step;
         const newValueStep = renderedValue[i] / step;

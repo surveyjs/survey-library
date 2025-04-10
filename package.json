@@ -17,6 +17,7 @@
     "@types/lodash": "4.14.186",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
+    "@vue/eslint-config-typescript": "^11.0.0",
     "axe-core": "^4.8.2",
     "axe-playwright": "^2.1.0",
     "axe-testcafe": "^3.0.0",

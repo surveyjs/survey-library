@@ -67,7 +67,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
       );
     }
     var header = !this.question.showHeader ? null : (
-      <thead>
+      <thead role="presentation">
         <tr>
           {rowsTH}
           {headers}
@@ -79,9 +79,9 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         className={cssClasses.tableWrapper}
         ref={root => (this.setControl(root))}
       >
-        <fieldset>
-          <legend className="sv-hidden">{this.question.locTitle.renderedHtml}</legend>
-          <table className={this.question.getTableCss()}>
+        <fieldset role="radiogroup">
+          <legend className="sv-visuallyhidden">{this.question.locTitle.renderedHtml}</legend>
+          <table className={this.question.getTableCss()} role="presentation">
             {header}
             <tbody>{rows}</tbody>
           </table>

@@ -13,5 +13,6 @@ module.exports = {
   },
   parserOptions: {
     ecmaVersion: "latest",
+    "warnOnUnsupportedTypeScriptVersion": false
   },
 };

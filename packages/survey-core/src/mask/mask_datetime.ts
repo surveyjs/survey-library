@@ -31,20 +31,20 @@ interface IDateTimeComposition {
 
 function getMaxCountLexem(currentLexemType: string, count: number): number {
   switch(currentLexemType) {
-  case "hour":
-  case "minute":
-  case "second":
-  case "day":
-  case "month": {
-    return 2;
-  }
-  case "timeMarker":
-  case "year": {
-    return count;
-  }
-  default: {
-    return 1;
-  }
+    case "hour":
+    case "minute":
+    case "second":
+    case "day":
+    case "month": {
+      return 2;
+    }
+    case "timeMarker":
+    case "year": {
+      return count;
+    }
+    default: {
+      return 1;
+    }
   }
 }
 function trimDatePart(lexem: IDateTimeMaskLexem, data: string): string {
@@ -74,36 +74,36 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   for(let index = 0; index < pattern.length; index++) {
     const currentChar = pattern[index];
     switch(currentChar) {
-    case "m":
-      createOrUpdateLexem("month", currentChar);
-      break;
-    case "d":
-      createOrUpdateLexem("day", currentChar);
-      break;
-    case "y":
-      createOrUpdateLexem("year", currentChar);
-      break;
-    case "h":
-      createOrUpdateLexem("hour", currentChar, false);
-      break;
-    case "H":
-      createOrUpdateLexem("hour", currentChar, true);
-      break;
-    case "M":
-      createOrUpdateLexem("minute", currentChar);
-      break;
-    case "s":
-      createOrUpdateLexem("second", currentChar);
-      break;
-    case "t":
-      createOrUpdateLexem("timeMarker", currentChar);
-      break;
-    case "T":
-      createOrUpdateLexem("timeMarker", currentChar, true);
-      break;
-    default:
-      result.push({ type: "separator", value: currentChar, count: 1, maxCount: 1, upperCase: false });
-      break;
+      case "m":
+        createOrUpdateLexem("month", currentChar);
+        break;
+      case "d":
+        createOrUpdateLexem("day", currentChar);
+        break;
+      case "y":
+        createOrUpdateLexem("year", currentChar);
+        break;
+      case "h":
+        createOrUpdateLexem("hour", currentChar, false);
+        break;
+      case "H":
+        createOrUpdateLexem("hour", currentChar, true);
+        break;
+      case "M":
+        createOrUpdateLexem("minute", currentChar);
+        break;
+      case "s":
+        createOrUpdateLexem("second", currentChar);
+        break;
+      case "t":
+        createOrUpdateLexem("timeMarker", currentChar);
+        break;
+      case "T":
+        createOrUpdateLexem("timeMarker", currentChar, true);
+        break;
+      default:
+        result.push({ type: "separator", value: currentChar, count: 1, maxCount: 1, upperCase: false });
+        break;
     }
     prevLexemType = result[result.length - 1].type;
   }
@@ -204,44 +204,44 @@ export class InputMaskDateTime extends InputMaskPattern {
         inputData.isCompleted = true;
 
         switch(lexem.type) {
-        case "hour": {
-          if(!this.is12Hours) {
-            inputData.value = date.getHours().toString();
-          } else {
-            inputData.value = ((date.getHours() - 1) % this.twelve + 1).toString();
+          case "hour": {
+            if(!this.is12Hours) {
+              inputData.value = date.getHours().toString();
+            } else {
+              inputData.value = ((date.getHours() - 1) % this.twelve + 1).toString();
+            }
+            break;
           }
-          break;
-        }
-        case "minute": {
-          inputData.value = date.getMinutes().toString();
-          break;
-        }
-        case "second": {
-          inputData.value = date.getSeconds().toString();
-          break;
-        }
-        case "timeMarker": {
-          const marker = (date.getHours() >= this.twelve) ? "pm" : "am";
-          inputData.value = lexem.upperCase ? marker.toUpperCase() : marker;
-          break;
-        }
-        case "day": {
-          inputData.value = date.getDate().toString();
-          break;
-        }
-        case "month": {
-          inputData.value = (date.getMonth() + 1).toString();
-          break;
-        }
-        case "year": {
-          let year = date.getFullYear();
-          if(lexem.count == 2) year = year % 100;
-          inputData.value = year.toString();
-          break;
-        }
-        default: {
-          break;
-        }
+          case "minute": {
+            inputData.value = date.getMinutes().toString();
+            break;
+          }
+          case "second": {
+            inputData.value = date.getSeconds().toString();
+            break;
+          }
+          case "timeMarker": {
+            const marker = (date.getHours() >= this.twelve) ? "pm" : "am";
+            inputData.value = lexem.upperCase ? marker.toUpperCase() : marker;
+            break;
+          }
+          case "day": {
+            inputData.value = date.getDate().toString();
+            break;
+          }
+          case "month": {
+            inputData.value = (date.getMonth() + 1).toString();
+            break;
+          }
+          case "year": {
+            let year = date.getFullYear();
+            if(lexem.count == 2) year = year % 100;
+            inputData.value = year.toString();
+            break;
+          }
+          default: {
+            break;
+          }
         }
       });
     }
@@ -526,27 +526,27 @@ export class InputMaskDateTime extends InputMaskPattern {
     for(let index = 0; index < this.inputDateTimeData.length; index++) {
       const inputData = this.inputDateTimeData[index];
       switch(inputData.lexem.type) {
-      case "timeMarker":
-      case "hour":
-      case "minute":
-      case "second":
-      case "day":
-      case "month":
-      case "year":
-        if(inputData.value === undefined && !matchWholeMask) {
-          result += (prevIsCompleted ? prevSeparator : "");
-          return result;
-        } else {
-          const _matchWholeMask = matchWholeMask || lastItemWithDataIndex > index;
-          const data = this.getCorrectDatePartFormat(inputData, _matchWholeMask);
-          result += (prevSeparator + data);
-          prevIsCompleted = inputData.isCompleted;
-        }
-        break;
+        case "timeMarker":
+        case "hour":
+        case "minute":
+        case "second":
+        case "day":
+        case "month":
+        case "year":
+          if(inputData.value === undefined && !matchWholeMask) {
+            result += (prevIsCompleted ? prevSeparator : "");
+            return result;
+          } else {
+            const _matchWholeMask = matchWholeMask || lastItemWithDataIndex > index;
+            const data = this.getCorrectDatePartFormat(inputData, _matchWholeMask);
+            result += (prevSeparator + data);
+            prevIsCompleted = inputData.isCompleted;
+          }
+          break;
 
-      case "separator":
-        prevSeparator = inputData.lexem.value;
-        break;
+        case "separator":
+          prevSeparator = inputData.lexem.value;
+          break;
       }
     }
 

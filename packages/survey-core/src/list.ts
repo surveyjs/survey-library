@@ -149,17 +149,17 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       const options = (items as any) as IListModel;
       Object.keys(options).forEach((key: keyof IListModel) => {
         switch(key) {
-        case "items":
-          this.setItems(options.items);
-          break;
-        case "onFilterStringChangedCallback":
-          this.setOnFilterStringChangedCallback(options.onFilterStringChangedCallback);
-          break;
-        case "onTextSearchCallback":
-          this.setOnTextSearchCallback(options.onTextSearchCallback);
-          break;
-        default:
-          (this as any)[key] = options[key];
+          case "items":
+            this.setItems(options.items);
+            break;
+          case "onFilterStringChangedCallback":
+            this.setOnFilterStringChangedCallback(options.onFilterStringChangedCallback);
+            break;
+          case "onTextSearchCallback":
+            this.setOnTextSearchCallback(options.onTextSearchCallback);
+            break;
+          default:
+            (this as any)[key] = options[key];
         }
       });
       this.updateActionsIds();

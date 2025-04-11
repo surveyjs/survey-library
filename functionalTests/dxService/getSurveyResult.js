@@ -2,12 +2,12 @@ import { frameworks, url, initSurvey } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const setupSurvey = ClientFunction(() => {
   window["survey"].onSendResult.add(function(s, options) {
-    if (options.success) {
+    if(options.success) {
       s.getResult("a15eee7a-9418-4eb4-9671-2009c8ff6b24", "langs");
     }
   });
   window["survey"].onGetResult.add(function(s, options) {
-    if (options.success) {
+    if(options.success) {
       var element = document.createElement("div");
       element.id = "hasResult";
       document.querySelector("body").appendChild(element);

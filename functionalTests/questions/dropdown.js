@@ -105,18 +105,18 @@ frameworks.forEach((framework) => {
     await t.expect(Selector("select option").count).notEql(1); // "need to more than one choices"
 
     first = await getFirst();
-    for (let i = 0; i < 15; i++) {
+    for(let i = 0; i < 15; i++) {
       await setOptions(questionName, { choicesOrder: "asc" });
       await setOptions(questionName, { choicesOrder: "random" });
       first_2 = await getFirst();
 
-      if (first.textContent.trim() !== first_2.textContent.trim()) {
+      if(first.textContent.trim() !== first_2.textContent.trim()) {
         rnd_count++;
       }
 
       first = first_2;
 
-      if (rnd_count >= 4) {
+      if(rnd_count >= 4) {
         break;
       }
     }
@@ -147,18 +147,18 @@ frameworks.forEach((framework) => {
     let rnd_count = 0;
     let prevFirstItemValue = await listItems.nth(0).textContent;
     let firstItemValueCurrent;
-    for (let i = 0; i < 15; i++) {
+    for(let i = 0; i < 15; i++) {
       await setOptions("car", { choicesOrder: "asc" });
       await setOptions("car", { choicesOrder: "random" });
       firstItemValueCurrent = await listItems.nth(0).textContent;
 
-      if (prevFirstItemValue.trim() !== firstItemValueCurrent.trim()) {
+      if(prevFirstItemValue.trim() !== firstItemValueCurrent.trim()) {
         rnd_count++;
       }
 
       prevFirstItemValue = firstItemValueCurrent;
 
-      if (rnd_count >= 4) {
+      if(rnd_count >= 4) {
         break;
       }
     }
@@ -185,7 +185,7 @@ frameworks.forEach((framework) => {
       await t.expect(listItems.count).eql(choices.length);
       await t.click(questionDropdownSelect);
 
-      for (let i = 0; i < choices.length; i++) {
+      for(let i = 0; i < choices.length; i++) {
         await t
           .click(questionDropdownSelect)
           .click(listItems.nth(i));
@@ -1761,7 +1761,7 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
-    const input =questionDropdownSelect.find("input").filterVisible();
+    const input = questionDropdownSelect.find("input").filterVisible();
     const str = questionValue.find(".sv-string-viewer");
 
     await t
@@ -2240,7 +2240,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
   test("Fix react dropdown value after matrix row re-render #9001", async (t) => {
-    if (framework == "vue") return;
+    if(framework == "vue") return;
     const json = {
       elements: [
         {

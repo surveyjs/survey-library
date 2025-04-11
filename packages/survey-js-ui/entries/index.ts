@@ -66,16 +66,16 @@ function doPopupSurvey(props: any): void {
 }
 
 let gcontext = globalThis;
-if (typeof globalThis === "undefined") gcontext = window;
+if(typeof globalThis === "undefined") gcontext = window;
 let jQueryInst = (gcontext as any)["jQuery"] || (gcontext as any)["$"];
 
-if (typeof jQueryInst !== "undefined") {
+if(typeof jQueryInst !== "undefined") {
   initJquery(jQueryInst);
 } else {
   try {
     jQueryInst = require("jquery");
     initJquery(jQueryInst);
-  } catch (ex) {
+  } catch(ex) {
   }
 }
 
@@ -93,7 +93,7 @@ function initJquery(instance: any) {
 
 SurveyModel.platform = "js-ui";
 SurveyModel.prototype["render"] = function (element: any = null) {
-  if (this.renderCallback) {
+  if(this.renderCallback) {
     this.renderCallback();
   } else {
     renderSurvey(this, element);

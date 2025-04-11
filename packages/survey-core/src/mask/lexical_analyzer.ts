@@ -40,23 +40,23 @@ export class LexicalAnalyzer {
           currentTocken = <ILexemToken>{ data: currentChar, isConst: true };
         } else {
           switch(currentChar) {
-          case this.escapeChar:
-            prevChartIsEscaped = true;
-            break;
-          case "|":
-            currentTocken = <ILexemToken>{ data: currentChar, type: "or" };
-            break;
-          case "(":
-            bracketCounter++;
-            break;
-          case "*":
-            prevTocken.quantifier = "*";
-            break;
-          case "+":
-            prevTocken.quantifier = "+";
-            break;
-          default:
-            currentTocken = <ILexemToken>{ data: currentChar, type: "literal" };
+            case this.escapeChar:
+              prevChartIsEscaped = true;
+              break;
+            case "|":
+              currentTocken = <ILexemToken>{ data: currentChar, type: "or" };
+              break;
+            case "(":
+              bracketCounter++;
+              break;
+            case "*":
+              prevTocken.quantifier = "*";
+              break;
+            case "+":
+              prevTocken.quantifier = "+";
+              break;
+            default:
+              currentTocken = <ILexemToken>{ data: currentChar, type: "literal" };
           }
         }
       }

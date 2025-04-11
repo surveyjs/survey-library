@@ -13,13 +13,13 @@ const json = {
 
 const disposeSurvey = ClientFunction(framework => {
   window["survey"].dispose();
-  if (framework === "react") {
+  if(framework === "react") {
     window["ReactDOMClient"].unmountComponentAtNode(document.getElementById("surveyElement"));
   }
 });
 
 function addTitleAction(_, opt) {
-  for (var i = 0; i < 30; i++) {
+  for(var i = 0; i < 30; i++) {
     opt.titleActions.push({
       title: "Custom Action " + i,
       component: "svc-custom-action",
@@ -31,7 +31,7 @@ function addTitleAction(_, opt) {
 
 function addTitleActions2(_, opt) {
   let items = [];
-  for (let index = 0; index < 10; index++) {
+  for(let index = 0; index < 10; index++) {
     items[index] = new window["Survey"].Action({ title: "item" + index });
   }
   const item1 = window["Survey"].createDropdownActionModel({
@@ -45,7 +45,7 @@ function addTitleActions2(_, opt) {
     showTitle: true,
     action: () => {
       let items2 = [];
-      for (let index = 0; index < 20; index++) {
+      for(let index = 0; index < 20; index++) {
         items2[index] = { title: "item" + index };
       }
       item1.data.setItems(items2);
@@ -76,7 +76,7 @@ frameworks.forEach(async framework => {
   function addDropdownAction(_, opt) {
     const getItems = (count: number, startIndex = 0) => {
       const list: Array<any> = [];
-      for (let index = startIndex; index < count; index++) {
+      for(let index = startIndex; index < count; index++) {
         list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
       }
       return list;
@@ -110,7 +110,7 @@ frameworks.forEach(async framework => {
 });
 
 ["knockout", "react"].forEach(async framework => {
-  if (frameworks.indexOf(framework) === -1) return;
+  if(frameworks.indexOf(framework) === -1) return;
 
   fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: "(function(){})()" }).beforeEach(async t => {
   });

@@ -6,23 +6,23 @@ const setupSurvey = ClientFunction(() => {
     return n && !isNaN(parseFloat(n)) && isFinite(n);
   }
   window["survey"].onValidateQuestion.add(function(s, options) {
-    if (options.name == "pricelimit") {
+    if(options.name == "pricelimit") {
       var leastamount = options.value["leastamount"];
       var mostamount = options.value["mostamount"];
-      if (!isNumber(leastamount)) {
+      if(!isNumber(leastamount)) {
         options.error = "The 'least amount' should be a numeric.";
       } else {
-        if (!isNumber(mostamount)) {
+        if(!isNumber(mostamount)) {
           options.error = "The 'most amount' should be a numeric.";
         } else {
-          if (leastamount > mostamount) {
+          if(leastamount > mostamount) {
             options.error = "The 'most amount' should be more 'less amount'.";
           }
         }
       }
     }
-    if (options.name == "firstcomputer") {
-      if (options.value.indexOf("computer") < 0) {
+    if(options.name == "firstcomputer") {
+      if(options.value.indexOf("computer") < 0) {
         options.error = "Please type the word 'computer'.";
       }
     }
@@ -70,7 +70,7 @@ frameworks.forEach(framework => {
     const getError = Selector((text, index) => {
       var nodes = [];
       document.querySelectorAll("*").forEach(function(node) {
-        if (node.innerHTML === text) nodes.push(node);
+        if(node.innerHTML === text) nodes.push(node);
       });
 
       return nodes[index];

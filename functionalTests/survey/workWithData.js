@@ -13,7 +13,7 @@ const set_data = ClientFunction(() => {
 const add_value_changed_listener = ClientFunction(() => {
   window["survey"].onValueChanged.add(function (sender, options) {
     let divElement = document.body.getElementsByClassName("new-element")[0];
-    if (!divElement) {
+    if(!divElement) {
       divElement = document.createElement("div");
       divElement.className = "new-element";
       document.body.appendChild(divElement);

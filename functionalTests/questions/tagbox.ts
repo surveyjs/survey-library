@@ -231,7 +231,7 @@ frameworks.forEach((framework) => {
       .click(questionTagbox)
       .expect(popupContainer.offsetTop).within(170, 200);
 
-    for (let i = 1; i < 27; i++) {
+    for(let i = 1; i < 27; i++) {
       await t.click(getListItemByText("item" + i.toString()));
     }
 

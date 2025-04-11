@@ -27,10 +27,10 @@ frameworks.forEach((framework) => {
 
     await enableLR();
     await t.expect(Selector("#surveyElement").exists).ok();
-    for(var i=0; i<50; i++) {
+    for(var i = 0; i < 50; i++) {
       json.elements.push({
         type: "radiogroup",
-        name: "q" + (i+1),
+        name: "q" + (i + 1),
         choices: ["item1", "item2", "item3"],
       });
     }
@@ -38,7 +38,7 @@ frameworks.forEach((framework) => {
 
     await ClientFunction(() => {
       window["survey"].getAllQuestions().forEach((q, i) => {
-        q.id = "my_id_" + (i+1);
+        q.id = "my_id_" + (i + 1);
       });
       window["survey"].render("surveyElement");
     })();

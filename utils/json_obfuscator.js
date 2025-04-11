@@ -7,15 +7,15 @@ const path = require("path");
 
 // eslint-disable-next-line no-undef
 let args = process.argv;
-if (!Array.isArray(args)) return;
-if (args.length < 3) {
+if(!Array.isArray(args)) return;
+if(args.length < 3) {
   // eslint-disable-next-line no-console
   console.error("Please provide a path to the survey JSON file.");
   return;
 }
 const fileName = args[2];
 fs.readFile(fileName, (err, data) => {
-  if (err) {
+  if(err) {
     // eslint-disable-next-line no-console
     console.error("Cannot read the file: " + err);
     return;
@@ -24,7 +24,7 @@ fs.readFile(fileName, (err, data) => {
   const ext = path.extname(fileName);
   const newFileName = fileName.substring(0, fileName.length - ext.length) + ".obf" + ext;
   fs.writeFile(newFileName, newJSON, err => {
-    if (err) {
+    if(err) {
       // eslint-disable-next-line no-console
       console.error(err);
     } else {
@@ -57,7 +57,7 @@ function obfuscateJSON(data) {
 
   let questions = model.getAllQuestions(false, true, false);
   questions.forEach(q => {
-    if (q.getType() === "html") {
+    if(q.getType() === "html") {
       q.delete();
       return;
     }
@@ -88,22 +88,22 @@ function obfuscatePropsText(el, props) {
     prop => {
       let isDone = false;
       const loc = el["loc" + prop[0].toUpperCase() + prop.substring(1)];
-      if (!!loc && !loc.isEmpty) {
+      if(!!loc && !loc.isEmpty) {
         data = loc.getJson();
-        if (!!data && typeof data === "object") {
-          for (let key in data) {
+        if(!!data && typeof data === "object") {
+          for(let key in data) {
             data[key] = obfuscateText(data[key]);
           }
           loc.setJson(data);
           isDone = true;
         }
       }
-      if (!isDone && !!el[prop]) el[prop] = obfuscateText(el[prop]);
+      if(!isDone && !!el[prop]) el[prop] = obfuscateText(el[prop]);
     }
   );
 }
 function obfuscateArrayText(items) {
-  if (Array.isArray(items)) {
+  if(Array.isArray(items)) {
     items.forEach(item => {
       obfuscatePropsText(item, ["text", "title"]);
       /*
@@ -118,13 +118,13 @@ function obfuscateArrayText(items) {
   }
 }
 function obfuscateText(text) {
-  if (!text) return text;
+  if(!text) return text;
   let newText = "";
-  for (let i = 0; i < text.length; i++) {
+  for(let i = 0; i < text.length; i++) {
     const ch = text[i];
     let newCh = ch;
-    if (ch >= "a" && ch <= "z") newCh = getRandomChar("a", "z");
-    if (ch >= "A" && ch <= "Z") newCh = getRandomChar("A", "Z");
+    if(ch >= "a" && ch <= "z") newCh = getRandomChar("a", "z");
+    if(ch >= "A" && ch <= "Z") newCh = getRandomChar("A", "Z");
     newText += newCh;
   }
   return newText;

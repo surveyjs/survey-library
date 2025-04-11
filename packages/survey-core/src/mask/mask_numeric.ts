@@ -221,30 +221,30 @@ export class InputMaskNumeric extends InputMaskBase {
     for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
       const currentChar = input[inputIndex];
       switch(currentChar) {
-      case "-": {
-        if(this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
-          minusCharCount++;
+        case "-": {
+          if(this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
+            minusCharCount++;
+          }
+          break;
         }
-        break;
-      }
-      case this.decimalSeparator: {
-        if(this.precision > 0) {
-          result.hasDecimalSeparator = true;
+        case this.decimalSeparator: {
+          if(this.precision > 0) {
+            result.hasDecimalSeparator = true;
+          }
+          break;
         }
-        break;
-      }
-      case this.thousandsSeparator: {
-        break;
-      }
-      default: {
-        if(currentChar.match(numberDefinition)) {
-          if(result.hasDecimalSeparator) {
-            result.fractionalPart += currentChar;
-          } else {
-            result.integralPart += currentChar;
+        case this.thousandsSeparator: {
+          break;
+        }
+        default: {
+          if(currentChar.match(numberDefinition)) {
+            if(result.hasDecimalSeparator) {
+              result.fractionalPart += currentChar;
+            } else {
+              result.integralPart += currentChar;
+            }
           }
         }
-      }
       }
     }
 

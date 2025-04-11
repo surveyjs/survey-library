@@ -13,10 +13,10 @@ const initSurvey = ClientFunction((framework, json) => {
     navigationButton: "button btn-lg",
   };
 
-  if (framework === "knockout") {
+  if(framework === "knockout") {
     model.css = myCss;
     model.render("surveyElement");
-  } else if (framework === "react") {
+  } else if(framework === "react") {
     const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
     root.render(
       window["React"].createElement(window["SurveyReact"].Survey, {
@@ -24,7 +24,7 @@ const initSurvey = ClientFunction((framework, json) => {
         css: myCss,
       }),
     );
-  } else if (framework === "vue") {
+  } else if(framework === "vue") {
     model.css = myCss;
     var app = new window["Vue"]({
       el: "#surveyElement",
@@ -32,16 +32,16 @@ const initSurvey = ClientFunction((framework, json) => {
         survey: model,
       },
     });
-  } else if (framework === "angular" || framework === "vue3") {
+  } else if(framework === "angular" || framework === "vue3") {
     model.css = myCss;
     window.setSurvey(model);
-  } else if (framework === "jquery-ui") {
+  } else if(framework === "jquery-ui") {
     model.css = myCss;
     document.getElementById("surveyElement").innerHTML = "";
     window["$"]("#surveyElement").Survey({
       model: model
     });
-  } else if (framework === "survey-js-ui") {
+  } else if(framework === "survey-js-ui") {
     model.css = myCss;
     document.getElementById("surveyElement").innerHTML = "";
     window["SurveyUI"].renderSurvey(model, document.getElementById("surveyElement"));

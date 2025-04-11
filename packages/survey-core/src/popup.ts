@@ -117,26 +117,26 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
       } else {
         let result: DisplayPopupMode;
         switch(this.overlayDisplayMode) {
-        case "plain": {
-          result = "menu-popup";
-          break;
-        }
-        case "dropdown-overlay": {
-          result = "menu-overlay";
-          break;
-        }
-        case "tablet-dropdown-overlay": {
-          result = "menu-popup-overlay";
-          break;
-        }
-        case "auto": {
-          if(!IsTouch) {
-            result = "menu-popup"; // desktop
-          } else {
-            result = "menu-popup-overlay"; //tablet
+          case "plain": {
+            result = "menu-popup";
+            break;
           }
-          break;
-        }
+          case "dropdown-overlay": {
+            result = "menu-overlay";
+            break;
+          }
+          case "tablet-dropdown-overlay": {
+            result = "menu-popup-overlay";
+            break;
+          }
+          case "auto": {
+            if(!IsTouch) {
+              result = "menu-popup"; // desktop
+            } else {
+              result = "menu-popup-overlay"; //tablet
+            }
+            break;
+          }
         }
         return result;
       }
@@ -150,20 +150,20 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
       this.isFocusedContent = !isDropdown;
     }
     switch(menuType) {
-    case "dropdown": {
-      this.displayMode = "popup";
-      break;
-    }
-    case "popup": {
-      this.displayMode = "overlay";
-      this.overlayDisplayMode = "tablet-dropdown-overlay";
-      break;
-    }
-    case "overlay": {
-      this.displayMode = "overlay";
-      this.overlayDisplayMode = "dropdown-overlay";
-      break;
-    }
+      case "dropdown": {
+        this.displayMode = "popup";
+        break;
+      }
+      case "popup": {
+        this.displayMode = "overlay";
+        this.overlayDisplayMode = "tablet-dropdown-overlay";
+        break;
+      }
+      case "overlay": {
+        this.displayMode = "overlay";
+        this.overlayDisplayMode = "dropdown-overlay";
+        break;
+      }
     }
   }
   public onHiding(): void {

@@ -6,7 +6,7 @@ export class Question {
   protected isCell: boolean;
   constructor(public readonly page: Page, protected name: string, locator?: Locator) {
     this.isCell = !!locator;
-    this.questionValue = !locator ? this.page.locator("[data-name='"+ name + "']").first() : locator;
+    this.questionValue = !locator ? this.page.locator("[data-name='" + name + "']").first() : locator;
   }
   public get question(): Locator { return this.questionValue; }
   public async scrollIntoViewIfNeeded(): Promise<void> {
@@ -145,7 +145,7 @@ export class QuestionBoolean extends Question {
   }
   public async clickThumb(isTrue: boolean): Promise<void> {
     await this.scrollIntoViewIfNeeded();
-    await this.question.locator(".sd-boolean__thumb-ghost").nth(isTrue ? 1: 0).click();
+    await this.question.locator(".sd-boolean__thumb-ghost").nth(isTrue ? 1 : 0).click();
   }
   /*
   public async clickSwitch(offsetX: number): Promise<void> {
@@ -180,8 +180,8 @@ export class QuestionSignaturePad extends QuestionFileCore {}
 export class QuestionMatrix extends Question {
   public async clickCell(rowText: string, colVal: string): Promise<void> {
     await this.scrollIntoViewIfNeeded();
-    const row = this.question.locator("tr:has-text('"+ rowText +"')");
-    await row.locator("td").filter({ has: this.page.locator("[value='"+ colVal + "']") }).first().click();
+    const row = this.question.locator("tr:has-text('" + rowText + "')");
+    await row.locator("td").filter({ has: this.page.locator("[value='" + colVal + "']") }).first().click();
   }
 }
 export class QuestionMatrixDropdownBase extends Question {

@@ -457,7 +457,7 @@ frameworks.forEach(framework => {
       })();
       await ClientFunction(() => {
         window["survey"].onOpenDropdownMenu.add((sender, options) => {
-          if (options.menuType === "popup") options.menuType = "overlay";
+          if(options.menuType === "popup") options.menuType = "overlay";
         });
       })();
 

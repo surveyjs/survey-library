@@ -84,22 +84,22 @@ frameworks.forEach(framework => {
     await t.expect(chocies.nth(3).find("label").withExactText("Vauxhall").exists).ok();
 
     //random
-    if (chocies.count === 1) {
+    if(chocies.count === 1) {
       assert(false, "need to more than one choices");
     }
 
     let first = chocies.nth(0);
     let random_count = 0;
-    for (let i = 0; i < 15; i++) {
+    for(let i = 0; i < 15; i++) {
       await setOptions("car", { choicesOrder: "asc" });
       await setOptions("car", { choicesOrder: "random" });
       const first_2 = chocies.nth(0);
 
-      if (first.innerText !== first_2.innerText) {
+      if(first.innerText !== first_2.innerText) {
         random_count++;
       }
       first = first_2;
-      if (random_count >= 4) break;
+      if(random_count >= 4) break;
     }
 
     //because of 'none', 'asc', 'desc' and if 4 it is really random
@@ -126,7 +126,7 @@ frameworks.forEach(framework => {
     let checkIntegrity = async () => {
       const choicesCount = await getChoicesCount();
       assert.equal(choicesCount, choices.length);
-      for (let i = 0; i < choices.length; i++) {
+      for(let i = 0; i < choices.length; i++) {
         await t.click(`input[value=${choices[i]}]`);
       }
     };

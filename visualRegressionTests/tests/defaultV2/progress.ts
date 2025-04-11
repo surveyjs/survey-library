@@ -238,7 +238,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check survey progress bar freezes on top", async (t) => {
-    if (framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
+    if(framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
       await wrapVisualTest(t, async (t, comparer) => {
         await t.resizeWindow(1500, 720);
         const json = {
@@ -292,7 +292,7 @@ frameworks.forEach(framework => {
         await applyHeaderAccentBackgroundColor();
         await ClientFunction(() => {
           const surveyElement = document.getElementById("surveyElement");
-          if (surveyElement) {
+          if(surveyElement) {
             surveyElement.style.height = "90vh";
             surveyElement.style.overflowY = "auto";
             document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);

@@ -144,7 +144,7 @@ frameworks.forEach((framework) => {
         .click(questionDropdownSelect.nth(rowNumber))
         .click(getListItemByText("Science: Physical Science"));
 
-      for (let i = 0; i < 11; i++) {
+      for(let i = 0; i < 11; i++) {
         // answer radios
         await t.click(matrixRowSelector.nth(rowNumber).find(".sd-table__cell .sd-radio__control[value='1']").nth(i));
       }

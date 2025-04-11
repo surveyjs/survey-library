@@ -7,7 +7,7 @@ export const getSurveyJSFramework = ClientFunction(() => {
 
 export const explicitErrorHandler = ClientFunction(() => {
   window.addEventListener("error", e => {
-    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
       e.message === "ResizeObserver loop limit exceeded") {
       e.stopImmediatePropagation();
     }

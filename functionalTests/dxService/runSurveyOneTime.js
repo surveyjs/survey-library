@@ -38,8 +38,8 @@ const initSurvey = ClientFunction(framework => {
     );
 
   function onIsSurveyCompleted(success, result, response) {
-    if (!success) return;
-    if (result == "completed") {
+    if(!success) return;
+    if(result == "completed") {
       document.getElementById("surveyMsg").innerHTML =
         "You have already run the survey!";
     } else {
@@ -73,7 +73,7 @@ const initSurvey = ClientFunction(framework => {
     document.getElementById("clientIdContainer").style.display = "inline";
   }
 
-  if (framework === "knockout") {
+  if(framework === "knockout") {
     window["runSurvey"] = () => {
       var survey = new window["Survey"].Survey(
         {
@@ -103,7 +103,7 @@ const initSurvey = ClientFunction(framework => {
       document.getElementById("clientIdContainer").style.display = "none";
     };
 
-  } else if (framework === "react") {
+  } else if(framework === "react") {
     window["runSurvey"] = () => {
       var survey = new window["Survey"].Model({
         surveyId: "e7866476-e901-4ab7-9f38-574416387f73",
@@ -122,7 +122,7 @@ const initSurvey = ClientFunction(framework => {
         }),
       );
     };
-  } else if (framework === "vue") {
+  } else if(framework === "vue") {
     window["runSurvey"] = () => {
       var survey = new window["Survey"].Model(
         {

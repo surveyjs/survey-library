@@ -26,7 +26,7 @@ const registerComponet_onValueChanging = ClientFunction(() => {
       }
     ],
     onValueChanging(question, name, value) {
-      if (name === "item1" && value === "1") {
+      if(name === "item1" && value === "1") {
         return "100";
       }
       return value;

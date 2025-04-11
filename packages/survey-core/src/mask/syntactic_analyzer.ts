@@ -58,18 +58,18 @@ export class SyntacticAnalyzer {
       currentTocken = null;
 
       switch(currentLexem.type) {
-      case "expression":
-        currentTocken = this.syntacticAnalysis(currentLexem.data);
-        break;
-      case "or":
-        leftTocken = prevTocken;
-        prevTocken = null;
-        break;
-      case "literal":
-        currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
-        break;
-      default:
-        currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
+        case "expression":
+          currentTocken = this.syntacticAnalysis(currentLexem.data);
+          break;
+        case "or":
+          leftTocken = prevTocken;
+          prevTocken = null;
+          break;
+        case "literal":
+          currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
+          break;
+        default:
+          currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
       }
       if(!!currentLexem.quantifier) {
         currentTocken = this.createUnaryTocken(currentLexem.quantifier === "*" ? "repeat" : "plus", currentLexem.data, currentTocken);

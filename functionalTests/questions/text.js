@@ -142,7 +142,7 @@ frameworks.forEach((framework) => {
       "week",
     ];
 
-    for (let i = 0; i < types.length; i++) {
+    for(let i = 0; i < types.length; i++) {
       await t.hover(`input[type=${types[i]}]`);
     }
   });

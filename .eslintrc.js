@@ -18,17 +18,20 @@ module.exports = {
     "surveyjs/no-test-debug": 2,
     "surveyjs/no-imports-from-entries": 2,
     "no-console": 2, // Remember, this means error!
-    "indent": ["error", 2],
+    "indent": ["error", 2, {
+      "SwitchCase": 1,
+      // "MemberExpression": 1,
+      // "CallExpression": {
+      //   "arguments": 1
+      // }
+    }],
     "semi": ["error", "always"],
-    // "quotes": ["error", "double"],
     "quotes": ["error", "double", { "avoidEscape": true }],
-
     "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     "space-before-blocks": "error",
     "space-infix-ops": "error",
     "comma-spacing": ["error", { "before": false, "after": true }],
     "no-multiple-empty-lines": ["error", { "max": 1 }],
-    // "eol-last": ["error", "always"],
     "no-trailing-spaces": "error",
     "object-curly-spacing": ["error", "always"],
     "array-bracket-spacing": ["error", "never"],

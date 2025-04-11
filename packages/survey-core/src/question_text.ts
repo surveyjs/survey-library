@@ -74,9 +74,9 @@ export class QuestionTextModel extends QuestionTextBase {
 
   get maskTypeIsEmpty(): boolean {
     switch(this.inputType) {
-    case "tel":
-    case "text": return this.maskType === "none";
-    default: return true;
+      case "tel":
+      case "text": return this.maskType === "none";
+      default: return true;
     }
   }
 

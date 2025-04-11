@@ -50,11 +50,11 @@ frameworks.forEach((framework) => {
   test("afterRenderQuestion fires for initially hidden questions", async (t) => {
 
     var f = function (survey, options) {
-      if (options.question.name == "question4a") {
+      if(options.question.name == "question4a") {
         var title = options.htmlElement.querySelector("input[value='valueYes']");
         title.style.color = "tomato";
       }
-      if (options.question.name == "question4b") {
+      if(options.question.name == "question4b") {
         options.htmlElement.style.border = "1px solid #CCC";
       }
     };
@@ -80,7 +80,7 @@ frameworks.forEach((framework) => {
   });
   const prepare = ClientFunction(
     (framework) => {
-      if (framework === "react") {
+      if(framework === "react") {
         document.getElementById("surveyElement").innerHTML = "";
         const App = () => {
           let [survey, setSurvey] = window["React"].useState(undefined);

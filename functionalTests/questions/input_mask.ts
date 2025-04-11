@@ -137,7 +137,7 @@ frameworks.forEach((framework) => {
   });
 
   test("Test mask in western timezone", async (t) => {
-    if (framework === "vue") return;
+    if(framework === "vue") return;
     const oldTimeZone = await getTimeZone();
     await setTimeZoneUnsafe(t, "America/Los_Angeles");
     await initSurvey(framework, {

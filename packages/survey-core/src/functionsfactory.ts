@@ -14,7 +14,7 @@ export class FunctionFactory {
     isAsync: boolean = false
   ): void {
     this.functionHash[name] = func;
-    if (isAsync) this.isAsyncHash[name] = true;
+    if(isAsync)this.isAsyncHash[name] = true;
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
@@ -32,7 +32,7 @@ export class FunctionFactory {
   }
   public getAll(): Array<string> {
     var result = [];
-    for (var key in this.functionHash) {
+    for(var key in this.functionHash) {
       result.push(key);
     }
     return result.sort();
@@ -44,7 +44,7 @@ export class FunctionFactory {
     originalParams: any[]
   ): any {
     var func = this.functionHash[name];
-    if (!func) {
+    if(!func) {
       ConsoleWarnings.warn("Unknown function name: " + name);
       return null;
     }
@@ -52,8 +52,8 @@ export class FunctionFactory {
       func: func,
     };
 
-    if (properties) {
-      for (var key in properties) {
+    if(properties) {
+      for(var key in properties) {
         (<any>classRunner)[key] = properties[key];
       }
     }
@@ -64,13 +64,13 @@ export class FunctionFactory {
 export var registerFunction = FunctionFactory.Instance.register;
 
 function getParamsAsArray(value: any, arr: any[]) {
-  if (value === undefined || value === null) return;
-  if (Array.isArray(value)) {
-    for (var i = 0; i < value.length; i++) {
+  if(value === undefined || value === null) return;
+  if(Array.isArray(value)) {
+    for(var i = 0; i < value.length; i++) {
       getParamsAsArray(value[i], arr);
     }
   } else {
-    if (Helpers.isNumber(value)) {
+    if(Helpers.isNumber(value)) {
       value = Helpers.getNumber(value);
     }
     arr.push(value);
@@ -81,7 +81,7 @@ function sum(params: any[]): any {
   var arr: any[] = [];
   getParamsAsArray(params, arr);
   var res = 0;
-  for (var i = 0; i < arr.length; i++) {
+  for(var i = 0; i < arr.length; i++) {
     res = Helpers.correctAfterPlusMinis(res, arr[i], res + arr[i]);
   }
   return res;
@@ -92,14 +92,14 @@ function min_max(params: any[], isMin: boolean): any {
   var arr: any[] = [];
   getParamsAsArray(params, arr);
   var res = undefined;
-  for (var i = 0; i < arr.length; i++) {
-    if (res === undefined) {
+  for(var i = 0; i < arr.length; i++) {
+    if(res === undefined) {
       res = arr[i];
     }
-    if (isMin) {
-      if (res > arr[i]) res = arr[i];
+    if(isMin) {
+      if(res > arr[i]) res = arr[i];
     } else {
-      if (res < arr[i]) res = arr[i];
+      if(res < arr[i]) res = arr[i];
     }
   }
   return res;
@@ -131,14 +131,14 @@ function avg(params: any[]): any {
 FunctionFactory.Instance.register("avg", avg);
 
 function getInArrayParams(params: any[], originalParams: any[]): any {
-  if (params.length < 2 || params.length > 3) return null;
+  if(params.length < 2 || params.length > 3) return null;
   const arr = params[0];
-  if (!arr) return null;
-  if (!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
+  if(!arr) return null;
+  if(!Array.isArray(arr) && !Array.isArray(Object.keys(arr))) return null;
   const name = params[1];
-  if (typeof name !== "string" && !(name instanceof String)) return null;
+  if(typeof name !== "string" && !(name instanceof String)) return null;
   let expression = params.length > 2 ? params[2] : undefined;
-  if (typeof expression !== "string" && !(expression instanceof String)) {
+  if(typeof expression !== "string" && !(expression instanceof String)) {
     expression = undefined;
   }
   if(!expression) {
@@ -166,18 +166,18 @@ function calcInArray(
   func: (res: number, val: number) => number, needToConvert: boolean = true
 ): any {
   var v = getInArrayParams(params, originalParams);
-  if (!v) return undefined;
+  if(!v) return undefined;
   let condition = !!v.expression ? new ConditionRunner(v.expression) : undefined;
   if(condition && condition.isAsync) {
     condition = undefined;
   }
   var res = undefined;
-  if (Array.isArray(v.data)) {
-    for (var i = 0; i < v.data.length; i++) {
+  if(Array.isArray(v.data)) {
+    for(var i = 0; i < v.data.length; i++) {
       res = processItemInArray(v.data[i], v.name, res, func, needToConvert, condition);
     }
   } else {
-    for (var key in v.data) {
+    for(var key in v.data) {
       res = processItemInArray(v.data[key], v.name, res, func, needToConvert, condition);
     }
   }
@@ -186,7 +186,7 @@ function calcInArray(
 
 function sumInArray(params: any[], originalParams: any[]): any {
   var res = calcInArray(params, originalParams, function(res: number, val: number): number {
-    if (res == undefined) res = 0;
+    if(res == undefined) res = 0;
     if(val == undefined || val == null) return res;
     return Helpers.correctAfterPlusMinis(res, val, res + val);
   });
@@ -196,7 +196,7 @@ FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function minInArray(params: any[], originalParams: any[]): any {
   return calcInArray(params, originalParams, function(res: number, val: number): number {
-    if (res == undefined) return val;
+    if(res == undefined) return val;
     if(val == undefined || val == null) return res;
     return res < val ? res : val;
   });
@@ -205,7 +205,7 @@ FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[], originalParams: any[]): any {
   return calcInArray(params, originalParams, function(res: number, val: number): number {
-    if (res == undefined) return val;
+    if(res == undefined) return val;
     if(val == undefined || val == null) return res;
     return res > val ? res : val;
   });
@@ -214,7 +214,7 @@ FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[], originalParams: any[]): any {
   var res = calcInArray(params, originalParams, function(res: number, val: number): number {
-    if (res == undefined) res = 0;
+    if(res == undefined) res = 0;
     if(val == undefined || val == null) return res;
     return res + 1;
   }, false);
@@ -224,20 +224,20 @@ FunctionFactory.Instance.register("countInArray", countInArray);
 
 function avgInArray(params: any[], originalParams: any[]): any {
   var count = countInArray(params, originalParams);
-  if (count == 0) return 0;
+  if(count == 0) return 0;
   return sumInArray(params, originalParams) / count;
 }
 FunctionFactory.Instance.register("avgInArray", avgInArray);
 
 function iif(params: any[]): any {
-  if (!Array.isArray(params) || params.length < 2) return null;
+  if(!Array.isArray(params) || params.length < 2) return null;
   const va2 = params.length > 2 ? params[2] : undefined;
   return params[0] ? params[1] : va2;
 }
 FunctionFactory.Instance.register("iif", iif);
 
 function getDate(params: any[]): any {
-  if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
+  if(!Array.isArray(params) || params.length < 1 || !params[0]) return null;
   return createDate("function-getDate", params[0]);
 }
 FunctionFactory.Instance.register("getDate", getDate);
@@ -249,7 +249,7 @@ function dateDiffMonths(date1Param: any, date2Param: any, type: string): number 
   const age = date2.getFullYear() - date1.getFullYear();
   type = type || "years";
   let ageInMonths = age * 12 + date2.getMonth() - date1.getMonth();
-  if (date2.getDate() < date1.getDate()) {
+  if(date2.getDate() < date1.getDate()) {
     ageInMonths -= 1;
   }
   return type === "months" ? ageInMonths : ~~(ageInMonths / 12);
@@ -288,13 +288,13 @@ function dateAdd(params: any[]): any {
   const date = createDate("function-dateAdd", params[0]);
   const valToAdd = params[1];
   const interval = params[2] || "days";
-  if (interval === "days") {
+  if(interval === "days") {
     date.setDate(date.getDate() + valToAdd);
   }
-  if (interval === "months") {
+  if(interval === "months") {
     date.setMonth(date.getMonth() + valToAdd);
   }
-  if (interval === "years") {
+  if(interval === "years") {
     date.setFullYear(date.getFullYear() + valToAdd);
   }
   return date;
@@ -303,19 +303,19 @@ function dateAdd(params: any[]): any {
 FunctionFactory.Instance.register("dateAdd", dateAdd);
 
 function isContainerReadyCore(container: any): boolean {
-  if (!container) return false;
+  if(!container) return false;
   var questions = container.questions;
-  for (var i = 0; i < questions.length; i++) {
-    if (!questions[i].validate(false)) return false;
+  for(var i = 0; i < questions.length; i++) {
+    if(!questions[i].validate(false)) return false;
   }
   return true;
 }
 function isContainerReady(params: any[]): any {
-  if (!params && params.length < 1) return false;
-  if (!params[0] || !this.survey) return false;
+  if(!params && params.length < 1) return false;
+  if(!params[0] || !this.survey) return false;
   const name = params[0];
   let container = this.survey.getPageByName(name);
-  if (!container) container = this.survey.getPanelByName(name);
+  if(!container) container = this.survey.getPanelByName(name);
   if(!container) {
     const question = this.survey.getQuestionByName(name);
     if(!question || !Array.isArray(question.panels)) return false;
@@ -351,7 +351,7 @@ function today(params: any[]) {
   } else {
     res.setUTCHours(0, 0, 0, 0);
   }
-  if (Array.isArray(params) && params.length == 1) {
+  if(Array.isArray(params) && params.length == 1) {
     res.setDate(res.getDate() + params[0]);
   }
   return res;
@@ -370,8 +370,8 @@ function currentYear() {
 FunctionFactory.Instance.register("currentYear", currentYear);
 
 function diffDays(params: any[]) {
-  if (!Array.isArray(params) || params.length !== 2) return 0;
-  if (!params[0] || !params[1]) return 0;
+  if(!Array.isArray(params) || params.length !== 2) return 0;
+  if(!params[0] || !params[1]) return 0;
   const date1: any = createDate("function-diffDays", params[0]);
   const date2: any = createDate("function-diffDays", params[1]);
   const diffTime = Math.abs(date2 - date1);
@@ -381,7 +381,7 @@ FunctionFactory.Instance.register("diffDays", diffDays);
 
 function dateFromFirstParameterOrToday(name: string, params: any[]) {
   let date = today(undefined);
-  if (params && params[0]) {
+  if(params && params[0]) {
     date = createDate("function-" + name, params[0]);
   }
   return date;

@@ -17,7 +17,7 @@ export class TextAreaComponent extends EmbeddedViewContentComponent implements O
   }
 
   public ngAfterViewInit(): void {
-    if (!!this.model && !!this.elementContentRef?.nativeElement) {
+    if(!!this.model && !!this.elementContentRef?.nativeElement) {
       const element = this.elementContentRef.nativeElement;
       this.model.setElement(element as HTMLTextAreaElement);
     }

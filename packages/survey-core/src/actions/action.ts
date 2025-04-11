@@ -169,8 +169,8 @@ export function createDropdownActionModel(actionOptions: IAction, dropdownOption
 export function createDropdownActionModelAdvanced(actionOptions: IAction, listOptions: IListModel, popupOptions?: IPopupOptionsBase): Action {
   const originalSelectionChanged = listOptions.onSelectionChanged;
   listOptions.onSelectionChanged = (item: Action, ...params: any[]) => {
-    if (newAction.hasTitle) { newAction.title = item.title; }
-    if (originalSelectionChanged) {
+    if(newAction.hasTitle) { newAction.title = item.title; }
+    if(originalSelectionChanged) {
       originalSelectionChanged(item, params);
     }
   };
@@ -194,7 +194,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
 export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
   const listModel: ListModel = new ListModel(listOptions as any);
   listModel.onSelectionChanged = (item: Action) => {
-    if (listOptions.onSelectionChanged) {
+    if(listOptions.onSelectionChanged) {
       listOptions.onSelectionChanged(item);
     }
     popupModel.hide();
@@ -205,7 +205,7 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
   const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
   popupModel.isFocusedContent = listModel.showFilter;
   popupModel.onShow = () => {
-    if (!!_popupOptions.onShow) _popupOptions.onShow();
+    if(!!_popupOptions.onShow) _popupOptions.onShow();
     listModel.scrollToSelectedItem();
   };
 
@@ -252,7 +252,7 @@ export abstract class BaseAction extends Base implements IAction {
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
-    if (val !== this.owner) {
+    if(val !== this.owner) {
       this.ownerValue = val;
       this.locStrsChanged();
     }
@@ -342,18 +342,18 @@ export abstract class BaseAction extends Base implements IAction {
     return this.tooltip || this.title;
   }
   public getIsTrusted(args: any): boolean {
-    if (!!args.originalEvent) {
+    if(!!args.originalEvent) {
       return args.originalEvent.isTrusted;
     }
     return args.isTrusted;
   }
   public showPopup(): void {
-    if (!!this.popupModel) {
+    if(!!this.popupModel) {
       this.popupModel.show();
     }
   }
   public hidePopup(): void {
-    if (!!this.popupModel) {
+    if(!!this.popupModel) {
       this.popupModel.hide();
     }
   }
@@ -364,8 +364,8 @@ export abstract class BaseAction extends Base implements IAction {
   private showPopupTimeout: any;
   private hidePopupTimeout: any;
   private clearPopupTimeouts() {
-    if (this.showPopupTimeout) clearTimeout(this.showPopupTimeout);
-    if (this.hidePopupTimeout) clearTimeout(this.hidePopupTimeout);
+    if(this.showPopupTimeout) clearTimeout(this.showPopupTimeout);
+    if(this.hidePopupTimeout) clearTimeout(this.hidePopupTimeout);
   }
   public showPopupDelayed(delay: number) {
 
@@ -379,7 +379,7 @@ export abstract class BaseAction extends Base implements IAction {
   }
 
   public hidePopupDelayed(delay: number) {
-    if (this.popupModel?.isVisible) {
+    if(this.popupModel?.isVisible) {
 
       this.clearPopupTimeouts();
       this.hidePopupTimeout = setTimeout(() => {
@@ -420,13 +420,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.innerItem = innerItem;
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
     //Object.assign(this, item) to support IE11
-    if (!!innerItem) {
-      for (var key in innerItem) {
-        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+    if(!!innerItem) {
+      for(var key in innerItem) {
+        if(key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
         (<any>this)[key] = (<any>innerItem)[key];
       }
     }
-    if (!!this.locTitleName) {
+    if(!!this.locTitleName) {
       this.locTitleChanged();
     }
     this.registerFunctionOnPropertyValueChanged("_title", () => {
@@ -442,7 +442,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.markerIconName = "icon-next_16x16";
     this.component = this.getGroupComponentName();
     this.items = [...options.items];
-    if (!this.popupModel) {
+    if(!this.popupModel) {
       this.createPopupForSubitems(options);
     } else {
       const list: ListModel = this.popupModel.contentComponentData.model as ListModel;
@@ -479,7 +479,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() items: any;
   @property({
     onSet: (val, target) => {
-      if (target.locTitleValue.text === val) return;
+      if(target.locTitleValue.text === val) return;
       target.locTitleValue.text = val;
     }
   }) _title: string;
@@ -487,10 +487,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this.locTitleValue;
   }
   protected setLocTitle(val: LocalizableString): void {
-    if (!val && !this.locTitleValue) {
+    if(!val && !this.locTitleValue) {
       val = this.createLocTitle();
     }
-    if (!!this.locTitleValue) {
+    if(!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }
     this.locTitleValue = val;
@@ -526,19 +526,19 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.isMouseDown = true;
   }
   public doFocus(args: any): void {
-    if (!!this.onFocus) {
+    if(!!this.onFocus) {
       const evt = !!args.originalEvent ? args.originalEvent : args;
       this.onFocus(this.isMouseDown, evt);
     }
     this.isMouseDown = false;
   }
   private locStrChangedInPopupModel(): void {
-    if (!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
+    if(!this.popupModel || !this.popupModel.contentComponentData || !this.popupModel.contentComponentData.model) return;
     const model = this.popupModel.contentComponentData.model;
-    if (Array.isArray(model.actions)) {
+    if(Array.isArray(model.actions)) {
       const actions: Array<any> = model.actions;
       actions.forEach(item => {
-        if (!!(<any>item).locStrsChanged) {
+        if(!!(<any>item).locStrsChanged) {
           (<any>item).locStrsChanged();
         }
       });
@@ -549,7 +549,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.setPropertyValue("_title", !!val ? val : undefined);
   };
   private locTooltipChanged(): void {
-    if (!this.locTooltipName) return;
+    if(!this.locTooltipName) return;
     this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);
   }
 
@@ -561,7 +561,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any { return this.owner ? this.owner.getRendererContext(locStr) : locStr; }
 
   public setVisible(val: boolean): void {
-    if (this.visible !== val) {
+    if(this.visible !== val) {
       this._visible = val;
     }
   }
@@ -574,7 +574,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this._enabled = val;
   }
   public getEnabled(): boolean {
-    if (this.enabledIf) return this.enabledIf();
+    if(this.enabledIf) return this.enabledIf();
     return this._enabled;
   }
   public setComponent(val: string): void {
@@ -588,13 +588,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public dispose(): void {
     this.updateCallback = undefined;
-    if (!!this.locTitleValue) {
+    if(!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }
     this.locTitleChanged = undefined;
     this.action = undefined;
     super.dispose();
-    if (this.popupModel) {
+    if(this.popupModel) {
       this.popupModel.dispose();
     }
   }
@@ -653,9 +653,9 @@ export class ActionDropdownViewModel {
   }
   private setupPopupCallbacks() {
     const popupModel = this.popupModel = this.item.popupModel;
-    if (!popupModel) return;
+    if(!popupModel) return;
     popupModel.registerPropertyChangedHandlers(["isVisible"], () => {
-      if (!popupModel.isVisible) {
+      if(!popupModel.isVisible) {
         this.item.pressed = false;
       } else {
         this.item.pressed = true;
@@ -663,7 +663,7 @@ export class ActionDropdownViewModel {
     }, this.funcKey);
   }
   private removePopupCallbacks() {
-    if (!!this.popupModel) {
+    if(!!this.popupModel) {
       this.popupModel.unregisterPropertyChangedHandlers(["isVisible"], this.funcKey);
     }
   }

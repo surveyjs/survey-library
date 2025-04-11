@@ -79,7 +79,7 @@ export class Camera {
     if(Camera.cameraIndex < 0) Camera.cameraIndex = 0;
     const selDevice = devices[Camera.cameraIndex];
     const videoConstraints: any = {};
-    if (selDevice && selDevice.deviceId) {
+    if(selDevice && selDevice.deviceId) {
       videoConstraints.deviceId = { exact: selDevice.deviceId };
     } else {
       videoConstraints.facingMode = Camera.cameraFacingMode;
@@ -150,7 +150,7 @@ export class Camera {
   private updateCanFlipValue() {
     const list = Camera.cameraList;
     this.canFlipValue = Array.isArray(list) && list.length > 1 || Camera.canSwitchFacingMode;
-    if(this.onCanFlipChangedCallback) this.onCanFlipChangedCallback(this.canFlipValue);
+    if(this.onCanFlipChangedCallback)this.onCanFlipChangedCallback(this.canFlipValue);
   }
   private onCanFlipChangedCallback?: (res: boolean) => void;
 
@@ -167,8 +167,7 @@ export class Camera {
     if(!this.canFlip()) return;
     if(Camera.canSwitchFacingMode) {
       Camera.cameraFacingMode = Camera.cameraFacingMode === userStr ? "environment" : userStr;
-    }
-    else if(Camera.cameraIndex >= Camera.cameraList.length - 1) {
+    } else if(Camera.cameraIndex >= Camera.cameraList.length - 1) {
       Camera.cameraIndex = 0;
     } else {
       Camera.cameraIndex ++;
@@ -180,7 +179,7 @@ export class Camera {
   private setVideoInputs(devices: Array<MediaDeviceInfo>): void {
     const list: Array<MediaDeviceInfo> = [];
     devices.forEach(device => {
-      if (device.kind === "videoinput") {
+      if(device.kind === "videoinput") {
         list.push(device);
       }
     });

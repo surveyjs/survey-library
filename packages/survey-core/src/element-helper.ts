@@ -6,7 +6,7 @@ export class ElementHelper {
   }
   static visibility(node: Element): boolean {
     var style = DomDocumentHelper.getComputedStyle(node);
-    if (style.display === "none" || style.visibility === "hidden") return false;
+    if(style.display === "none" || style.visibility === "hidden") return false;
     return node.parentElement ? this.visibility(node.parentElement) : true;
   }
   static getNextElementPreorder(element: Element): Element {
@@ -26,13 +26,13 @@ export class ElementHelper {
     }
   }
   static hasHorizontalScroller(element: HTMLElement): boolean {
-    if (!!element) {
+    if(!!element) {
       return element.scrollWidth > element.offsetWidth;
     }
     return false;
   }
   static hasVerticalScroller(element: HTMLElement): boolean {
-    if (!!element) {
+    if(!!element) {
       return element.scrollHeight > element.offsetHeight;
     }
     return false;

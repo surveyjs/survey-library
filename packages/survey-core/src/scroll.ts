@@ -15,9 +15,9 @@ export class ScrollViewModel {
     this._scrollbarElement = element?.querySelector(".sv-scroll__scrollbar");
     this._scrollbarSizerElement = element?.querySelector(".sv-scroll__scrollbar-sizer");
     this._containerBodyElement = element?.querySelector(".sv-scroll__container");
-    if (!element) return;
+    if(!element) return;
     this._containerBodyResizeObserver = new ResizeObserver(entries => {
-      for (let entry of entries) {
+      for(let entry of entries) {
         const height = entry.contentBoxSize
           ? entry.contentBoxSize[0].blockSize
           : entry.contentRect.width;
@@ -33,7 +33,7 @@ export class ScrollViewModel {
   }
 
   public onScrollScrollbar() {
-    if (this._lockScroll) {
+    if(this._lockScroll) {
       this._lockScroll = false;
       return;
     }
@@ -41,7 +41,7 @@ export class ScrollViewModel {
   }
 
   public unsubscribeRootElement() {
-    if (!!this._containerBodyResizeObserver) {
+    if(!!this._containerBodyResizeObserver) {
       this._containerBodyResizeObserver.disconnect();
       this._containerBodyResizeObserver = undefined;
     }

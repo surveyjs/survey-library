@@ -27,7 +27,7 @@ const englishJSON = utils.readJson("english");
 const languages = [];
 if(parameter === "all") {
   fs.readdir(".", function (err, files) {
-    if (err) {
+    if(err) {
       utils.reportMessage("Unable to scan directory: " + err);
       return;
     }

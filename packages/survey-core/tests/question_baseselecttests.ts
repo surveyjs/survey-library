@@ -389,7 +389,7 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
   assert.equal(question.visibleChoices[3].value, "other");
 
   survey.onShowingChoiceItem.add((sender, options) => {
-    if (options.question.name !== "q1") return;
+    if(options.question.name !== "q1") return;
     options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
   });
 
@@ -421,7 +421,7 @@ QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem"
   assert.equal(question.visibleChoices[5].value, "other");
 
   survey.onShowingChoiceItem.add((sender, options) => {
-    if (options.question.name !== "q1") return;
+    if(options.question.name !== "q1") return;
     options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
   });
 
@@ -2445,7 +2445,7 @@ QUnit.test("question checkbox add a custom property into choicesByUrl, Bug#8783"
 });
 QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) => {
   const survey = new SurveyModel();
-  survey.css =survey.css = { root: "sd-root-modern" };
+  survey.css = survey.css = { root: "sd-root-modern" };
   survey.fromJSON({
     elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
   });

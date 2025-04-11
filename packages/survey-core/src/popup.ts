@@ -72,8 +72,8 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     super();
     this.contentComponentName = contentComponentName;
     this.contentComponentData = contentComponentData;
-    if (!!options) {
-      for (var key in options) {
+    if(!!options) {
+      for(var key in options) {
         (<any>this)[key] = (<any>options)[key];
       }
     }
@@ -82,7 +82,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     return this.getPropertyValue("isVisible", false);
   }
   public set isVisible(value: boolean) {
-    if (this.isVisible === value) {
+    if(this.isVisible === value) {
       return;
     }
     this.setPropertyValue("isVisible", value);
@@ -92,11 +92,11 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     this.isVisible = !this.isVisible;
   }
   public show(): void {
-    if (!this.isVisible)
+    if(!this.isVisible)
       this.isVisible = true;
   }
   public hide(): void {
-    if (this.isVisible)
+    if(this.isVisible)
       this.isVisible = false;
   }
   public recalculatePosition(isResetHeight: boolean): void {
@@ -109,34 +109,34 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   }
 
   public getDisplayMode(): DisplayPopupMode {
-    if (this.isModal) {
+    if(this.isModal) {
       return this.displayMode === "popup" ? "modal-popup" : "modal-overlay";
     } else {
-      if (this.displayMode === "popup") {
+      if(this.displayMode === "popup") {
         return "menu-popup";
       } else {
         let result: DisplayPopupMode;
-        switch (this.overlayDisplayMode) {
-          case "plain": {
-            result = "menu-popup";
-            break;
+        switch(this.overlayDisplayMode) {
+        case "plain": {
+          result = "menu-popup";
+          break;
+        }
+        case "dropdown-overlay": {
+          result = "menu-overlay";
+          break;
+        }
+        case "tablet-dropdown-overlay": {
+          result = "menu-popup-overlay";
+          break;
+        }
+        case "auto": {
+          if(!IsTouch) {
+            result = "menu-popup"; // desktop
+          } else {
+            result = "menu-popup-overlay"; //tablet
           }
-          case "dropdown-overlay": {
-            result = "menu-overlay";
-            break;
-          }
-          case "tablet-dropdown-overlay": {
-            result = "menu-popup-overlay";
-            break;
-          }
-          case "auto": {
-            if (!IsTouch) {
-              result = "menu-popup"; // desktop
-            } else {
-              result = "menu-popup-overlay"; //tablet
-            }
-            break;
-          }
+          break;
+        }
         }
         return result;
       }
@@ -149,21 +149,21 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
       this.setWidthByTarget = isDropdown;
       this.isFocusedContent = !isDropdown;
     }
-    switch (menuType) {
-      case "dropdown": {
-        this.displayMode = "popup";
-        break;
-      }
-      case "popup": {
-        this.displayMode = "overlay";
-        this.overlayDisplayMode = "tablet-dropdown-overlay";
-        break;
-      }
-      case "overlay": {
-        this.displayMode = "overlay";
-        this.overlayDisplayMode = "dropdown-overlay";
-        break;
-      }
+    switch(menuType) {
+    case "dropdown": {
+      this.displayMode = "popup";
+      break;
+    }
+    case "popup": {
+      this.displayMode = "overlay";
+      this.overlayDisplayMode = "tablet-dropdown-overlay";
+      break;
+    }
+    case "overlay": {
+      this.displayMode = "overlay";
+      this.overlayDisplayMode = "dropdown-overlay";
+      break;
+    }
     }
   }
   public onHiding(): void {

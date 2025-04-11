@@ -20,7 +20,7 @@ export class ListItemContent extends SurveyElementBase<IListItemProps, any> {
     return this.item;
   }
   render(): React.JSX.Element | null {
-    if (!this.item) return null;
+    if(!this.item) return null;
 
     const text = this.renderLocString(this.item.locTitle, undefined, "locString");
     const icon = (this.item.iconName) ?

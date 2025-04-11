@@ -47,7 +47,7 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
   protected override afterUpdate(isSync: boolean = false): void {
     super.afterUpdate(isSync);
     if(!isSync) {
-      if (!this.model.isPositionSet && this.model.isVisible) {
+      if(!this.model.isPositionSet && this.model.isVisible) {
         this.model.updateOnShowing();
       }
     }

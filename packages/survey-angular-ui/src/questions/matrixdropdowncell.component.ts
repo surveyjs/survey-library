@@ -68,7 +68,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
 
   getComponentName(element: Question) { return getComponentName(element); }
   getCellStyle() {
-    if (!!this.cell.width || !!this.cell.minWidth)
+    if(!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };
     return null;
   }
@@ -76,7 +76,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
     return !!this.cell.column && this.cell.column.isRenderedRequired;
   }
   ngAfterViewInit() {
-    if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
+    if(!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     const el = this.cellContainer?.nativeElement;
     if(el) {
       const cellQ = this.cell.question;

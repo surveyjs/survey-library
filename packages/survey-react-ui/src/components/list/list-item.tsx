@@ -23,7 +23,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     return this.item;
   }
   render(): React.JSX.Element | null {
-    if (!this.item) return null;
+    if(!this.item) return null;
     const className = this.model.getItemClass(this.item);
     const itemContent = this.item.component || this.model.itemComponent;
     const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });

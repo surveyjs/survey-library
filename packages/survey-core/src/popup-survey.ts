@@ -19,7 +19,7 @@ export class PopupSurveyModel extends Base {
 
   constructor(jsonObj: any, initialModel: SurveyModel = null) {
     super();
-    if (initialModel) {
+    if(initialModel) {
       this.surveyValue = initialModel;
     } else {
       this.surveyValue = this.createSurvey(jsonObj);
@@ -30,7 +30,7 @@ export class PopupSurveyModel extends Base {
       this.onSurveyComplete();
     });
     this.registerPropertyChangedHandlers(["isShowing"], () => {
-      if (!!this.showingChangedCallback) this.showingChangedCallback();
+      if(!!this.showingChangedCallback)this.showingChangedCallback();
     });
     this.registerPropertyChangedHandlers(["isExpanded"], () => {
       this.onExpandedChanged();
@@ -74,7 +74,7 @@ export class PopupSurveyModel extends Base {
     return this.getPropertyValue("isFullScreen", false);
   }
   public set isFullScreen(val: boolean) {
-    if (!this.isExpanded && !!val) {
+    if(!this.isExpanded && !!val) {
       this.isExpanded = true;
     }
     this.setPropertyValue("isFullScreen", val);
@@ -112,7 +112,7 @@ export class PopupSurveyModel extends Base {
     return this.getPropertyValue("isExpanded", false);
   }
   public set isExpanded(val: boolean) {
-    if (!!this.isFullScreen && !val) {
+    if(!!this.isFullScreen && !val) {
       this.isFullScreen = false;
     }
     this.setPropertyValue("isExpanded", val);
@@ -121,7 +121,7 @@ export class PopupSurveyModel extends Base {
     return !this.isExpanded;
   }
   protected onExpandedChanged(): void {
-    if (!!this.expandedChangedCallback) {
+    if(!!this.expandedChangedCallback) {
       this.expandedChangedCallback();
     }
     this.updateCssButton();
@@ -136,11 +136,11 @@ export class PopupSurveyModel extends Base {
     this.survey.title = value;
   }
   get locTitle(): LocalizableString {
-    if (this.survey.locTitle.isEmpty) return null;
+    if(this.survey.locTitle.isEmpty) return null;
     return this.survey.locTitle;
   }
   get locDescription(): LocalizableString {
-    if (this.survey.locTitle.isEmpty) return null;
+    if(this.survey.locTitle.isEmpty) return null;
     return this.survey.locDescription;
   }
   /**
@@ -199,7 +199,7 @@ export class PopupSurveyModel extends Base {
   }
   public get cssRoot(): string {
     let result = this.getPropertyValue("cssRoot", "");
-    if (this.isCollapsed) result += " " + this.getPropertyValue("cssRootCollapsedMod", "");
+    if(this.isCollapsed) result += " " + this.getPropertyValue("cssRootCollapsedMod", "");
     return result;
   }
   public get cssRootCollapsedMod(): string {
@@ -231,20 +231,20 @@ export class PopupSurveyModel extends Base {
   }
   public get renderedWidth(): string {
     let width = this.getPropertyValue("width", "60%");
-    if (width && !isNaN(width)) width = width + "px";
+    if(width && !isNaN(width)) width = width + "px";
     return width;
   }
   @property() width: string;
 
   private updateCss() {
-    if (!this.css || !this.css.window) return;
+    if(!this.css || !this.css.window) return;
     const cssWindow = this.css.window;
     this.setCssRoot();
     this.setPropertyValue("cssRootCollapsedMod", cssWindow.rootCollapsedMod);
     this.setPropertyValue("cssRootContent", cssWindow.rootContent);
     this.setPropertyValue("cssBody", cssWindow.body);
     const cssHeader = cssWindow.header;
-    if (!cssHeader) return;
+    if(!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
     this.setPropertyValue("cssHeaderTitleCollapsed", cssHeader.titleCollapsed);
     this.setPropertyValue("cssHeaderButtonsContainer", cssHeader.buttonsContainer);
@@ -255,7 +255,7 @@ export class PopupSurveyModel extends Base {
   }
   private setCssRoot() {
     const cssWindow = this.css.window;
-    if (this.isFullScreen) {
+    if(this.isFullScreen) {
       this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootFullScreenMode);
     } else {
       this.setPropertyValue("cssRoot", cssWindow.root);
@@ -263,19 +263,19 @@ export class PopupSurveyModel extends Base {
   }
   private updateCssButton() {
     const cssHeader = !!this.css.window ? this.css.window.header : null;
-    if (!cssHeader) return;
+    if(!cssHeader) return;
     this.setCssButton(this.isExpanded ? cssHeader.buttonExpanded : cssHeader.buttonCollapsed);
   }
   private setCssButton(val: string): void {
-    if (!val) return;
+    if(!val) return;
     this.setPropertyValue("cssButton", val);
   }
   protected createSurvey(jsonObj: any): SurveyModel {
     return new SurveyModel(jsonObj);
   }
   protected onSurveyComplete(): void {
-    if (this.closeOnCompleteTimeout < 0) return;
-    if (this.closeOnCompleteTimeout == 0) {
+    if(this.closeOnCompleteTimeout < 0) return;
+    if(this.closeOnCompleteTimeout == 0) {
       this.hide();
     } else {
       var self = this;

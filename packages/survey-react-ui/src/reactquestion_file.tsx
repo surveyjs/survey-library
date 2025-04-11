@@ -31,7 +31,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     ) : null;
     const fileNavigator = this.question.fileNavigatorVisible ? (<SurveyActionBar model={this.question.fileNavigator}></SurveyActionBar>) : null;
     let fileInput;
-    if (this.question.isReadOnlyAttr) {
+    if(this.question.isReadOnlyAttr) {
       fileInput = <input
         readOnly
         type="file"
@@ -43,7 +43,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         placeholder={this.question.title}
         accept={this.question.acceptedTypes}
       />;
-    } else if (this.question.isDisabledAttr) {
+    } else if(this.question.isDisabledAttr) {
       fileInput = <input
         disabled
         type="file"
@@ -55,7 +55,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         placeholder={this.question.title}
         accept={this.question.acceptedTypes}
       />;
-    } else if (this.question.hasFileUI) {
+    } else if(this.question.hasFileUI) {
       fileInput = <input
         type="file"
         disabled={this.isDisplayMode}

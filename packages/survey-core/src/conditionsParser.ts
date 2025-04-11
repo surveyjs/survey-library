@@ -25,15 +25,15 @@ export class ConditionsParser {
   public parseExpression(text: string): Operand {
     try {
       var result = ConditionsParser.parserCache[text];
-      if (result === undefined) {
+      if(result === undefined) {
         result = parse(this.patchExpression(text));
-        if (!result.hasAsyncFunction()) {
+        if(!result.hasAsyncFunction()) {
           ConditionsParser.parserCache[text] = result;
         }
       }
       return result;
-    } catch (e) {
-      if (e instanceof SyntaxError) {
+    } catch(e) {
+      if(e instanceof SyntaxError) {
         this.conditionError = new ConditionsParserError(
           e.location.start.offset,
           e.message

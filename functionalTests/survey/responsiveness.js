@@ -18,12 +18,14 @@ frameworks.forEach((framework) => {
     await t.resizeWindow(1000, 1000);
   });
   test("check survey root class on isMobile switch ", async (t) => {
-    await ClientFunction(() => { window.addEventListener("error", e => {
-      if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    await ClientFunction(() => {
+      window.addEventListener("error", e => {
+        if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
         e.message === "ResizeObserver loop limit exceeded") {
-        e.stopImmediatePropagation();
-      }
-    }); })();
+          e.stopImmediatePropagation();
+        }
+      });
+    })();
     const rootSelector = Selector(".sd-root-modern");
     const mobileClass = "sd-root-modern--mobile";
     await t.expect(rootSelector.hasClass(mobileClass)).notOk()
@@ -39,12 +41,14 @@ frameworks.forEach((framework) => {
     .page`${url}${framework}`.beforeEach(async (t) => {
   });
   test("check rating question in survey with multiple pages on small screen", async (t) => {
-    await ClientFunction(() => { window.addEventListener("error", e => {
-      if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    await ClientFunction(() => {
+      window.addEventListener("error", e => {
+        if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
         e.message === "ResizeObserver loop limit exceeded") {
-        e.stopImmediatePropagation();
-      }
-    }); })();
+          e.stopImmediatePropagation();
+        }
+      });
+    })();
     await initSurvey(framework, {
       "pages": [
         {

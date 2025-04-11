@@ -18,7 +18,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   }
   componentDidMount() {
     super.componentDidMount();
-    if (this.question) {
+    if(this.question) {
       var self = this;
       this.question.visibleRowsChangedCallback = function () {
         self.setState({ rowsChanged: self.state.rowsChanged + 1 });
@@ -27,7 +27,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if (this.question) {
+    if(this.question) {
       this.question.visibleRowsChangedCallback = null as any;
     }
   }
@@ -36,12 +36,12 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var rowsTH = this.question.hasRows ? <td /> : null;
     var headers: Array<React.JSX.Element> = [];
-    for (var i = 0; i < this.question.visibleColumns.length; i++) {
+    for(var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
       var key = "column" + i;
       var columText = this.renderLocString(column.locText);
       const style: any = {};
-      if (!!this.question.columnMinWidth) {
+      if(!!this.question.columnMinWidth) {
         style.minWidth = this.question.columnMinWidth;
         style.width = this.question.columnMinWidth;
       }
@@ -53,7 +53,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     }
     var rows: Array<React.JSX.Element> = [];
     var visibleRows = this.question.visibleRows;
-    for (var i = 0; i < visibleRows.length; i++) {
+    for(var i = 0; i < visibleRows.length; i++) {
       var row = visibleRows[i];
       var key = "row-" + row.name + "-" + i;
       rows.push(
@@ -96,7 +96,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     super(props);
   }
   protected getStateElement(): Base | null {
-    if (!!this.row) return this.row.item;
+    if(!!this.row) return this.row.item;
     return super.getStateElement();
   }
   private get question(): QuestionMatrixModel {
@@ -106,12 +106,12 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return this.props.row;
   }
   protected wrapCell(cell: any, element: React.JSX.Element, reason: string): React.JSX.Element {
-    if (!reason) {
+    if(!reason) {
       return element;
     }
     const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: React.JSX.Element | null = null;
-    if (survey) {
+    if(survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
@@ -122,10 +122,10 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   protected renderElement(): React.JSX.Element {
     var rowsTD: React.JSX.Element | null = null;
 
-    if (this.question.hasRows) {
+    if(this.question.hasRows) {
       var rowText = this.renderLocString(this.row.locText);
       const style: any = {};
-      if (!!this.question.rowTitleWidth) {
+      if(!!this.question.rowTitleWidth) {
         style.minWidth = this.question.rowTitleWidth;
         style.width = this.question.rowTitleWidth;
       }
@@ -147,13 +147,13 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     const tds: Array<React.JSX.Element> = [];
     const row = this.row;
     const cellComponent = this.question.cellComponent;
-    for (var i = 0; i < this.question.visibleColumns.length; i++) {
+    for(var i = 0; i < this.question.visibleColumns.length; i++) {
       let td: React.JSX.Element | null = null;
       const column = this.question.visibleColumns[i];
       const key = "value" + i;
 
       let itemClass = this.question.getItemClass(row, column);
-      if (this.question.hasCellText) {
+      if(this.question.hasCellText) {
         const getHandler = (column: any) => () => this.cellClick(row, column);
         td = (
           <td
@@ -195,7 +195,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event: any): void {
-    if (!!this.props.cellChanged) {
+    if(!!this.props.cellChanged) {
       this.props.cellChanged();
     }
   }

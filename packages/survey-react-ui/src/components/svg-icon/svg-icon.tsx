@@ -10,7 +10,7 @@ export class SvgIcon extends React.Component<any, any> {
   }
 
   updateSvg() {
-    if (this.props.iconName)
+    if(this.props.iconName)
       createSvg(
         this.props.size,
         this.props.width,
@@ -25,7 +25,7 @@ export class SvgIcon extends React.Component<any, any> {
   }
   render() {
     let className = "sv-svg-icon";
-    if (this.props.className) {
+    if(this.props.className) {
       className += " " + this.props.className;
     }
     return (

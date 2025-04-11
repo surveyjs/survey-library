@@ -33,7 +33,7 @@ QUnit.test("onHasValue event", function (assert) {
   var processor = new TextPreProcessor();
   processor.onProcess = function (textValue: TextPreProcessorValue) {
     textValue.isExists = textValue.name == "myname";
-    if (textValue.isExists) {
+    if(textValue.isExists) {
       textValue.value = "Andrew";
     }
   };

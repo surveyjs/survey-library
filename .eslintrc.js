@@ -18,67 +18,52 @@ module.exports = {
     "surveyjs/no-test-debug": 2,
     "surveyjs/no-imports-from-entries": 2,
     "no-console": 2, // Remember, this means error!
-    "indent": [
-      "error",
-      2,
-      {
-        "SwitchCase": 1,
-        "MemberExpression": 1,
-        "CallExpression": {
-          "arguments": 1
-        }
-      }
-    ],
+    "indent": ["error", 2],
+    "semi": ["error", "always"],
+    // "quotes": ["error", "double"],
+    "quotes": ["error", "double", { "avoidEscape": true }],
+
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+    "space-before-blocks": "error",
+    "space-infix-ops": "error",
+    "comma-spacing": ["error", { "before": false, "after": true }],
+    "no-multiple-empty-lines": ["error", { "max": 1 }],
+    // "eol-last": ["error", "always"],
     "no-trailing-spaces": "error",
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+    "space-in-parens": ["error", "never"],
     "no-multi-spaces": "error",
     "block-spacing": "error",
-    "comma-spacing": "error",
     "key-spacing": "error",
-    "semi-spacing": "error",
-    "object-curly-spacing": [
-      "error",
-      "always"
-    ],
-    "space-before-blocks": [
-      "error",
-      "always"
-    ],
-    "space-in-parens": [
-      "error",
-      "never"
-    ],
-    "array-bracket-spacing": [
-      "error",
-      "never"
-    ],
-    "computed-property-spacing": "error",
-    // "keyword-spacing": ["error", {
-    // 	"overrides": {
-    // 		"if": { "after": false },
-    // 		"for": { "after": false },
-    // 		"while": { "after": false },
-    // 		"switch": { "after": false },
-    // 		//"this": { "after": false, "before": false },
-    // 		"new": { "before": false },
-    // 		"function":  { "after": false, "before": false },
-    // 		"catch": { "after": false }
-    // 	}
-    // }],
-    "no-multiple-empty-lines": [
-      "error",
-      {
-        "max": 1
+    "keyword-spacing": ["error", {
+      "overrides": {
+        "this": { "after": false, "before": false },
+        "function": { "after": false, "before": false },
+        "if": { "after": false },
+        "for": { "after": false },
+        "while": { "after": false },
+        "switch": { "after": false },
+        "new": { "before": false },
+        "catch": { "after": false }
       }
-    ],
+    }],
+    "semi-spacing": "error",
+    "computed-property-spacing": "error",
     "no-whitespace-before-property": "error",
-    // sub group: semicolons
-    "semi": [
-      "error",
-      "always"
-    ],
-    "no-extra-semi": [
-      "error"
-    ],
+    "no-extra-semi": ["error"],
+    "linebreak-style": ["error", "windows"],
+    "no-useless-escape": "off",
+    "no-case-declarations": "off",
+    "no-constant-condition": "off",
+    "no-prototype-builtins": "off",
+    "no-var": "off",
+    "prefer-const": "off",
+    "prefer-rest-params": "off",
+    "no-extra-boolean-cast": "off",
+    "prefer-spread": "off",
+    "no-empty": "off",
+
     "@typescript-eslint/member-delimiter-style": [
       "error",
       {
@@ -100,54 +85,21 @@ module.exports = {
         }
       }
     ],
-    "no-case-declarations": "off",
-    "quotes": [
-      "error",
-      "double",
-      {
-        "avoidEscape": true
-      }
-    ],
-    "no-useless-escape": "off",
-    // group: add in future
-    "@typescript-eslint/no-var-requires": "off", // TODO add ignores
-    "no-unexpected-multiline": "off",
-    "no-constant-condition": "off",
+
+    "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/class-name-casing": "off",
     "@typescript-eslint/camelcase": "off",
-    "no-extra-boolean-cast": "off",
-    //sub group: js native functions
-    "no-prototype-builtins": "off",
-    "prefer-spread": "off",
-    //sub group: var definition:
-    "no-var": "off",
-    "prefer-const": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "no-unsafe-finally": "off",
-    //"curly": [ "error", "multi-line", "consistent" ],
-    //"eqeqeq": ["error", "allow-null"],
     "@typescript-eslint/no-unused-vars": "off",
-    // group: add in very far future
-    //"no-eval": "error",
-    //"no-extend-native": "error",
     "@typescript-eslint/interface-name-prefix": "off",
-    "prefer-rest-params": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/consistent-type-assertions": "off",
     "@typescript-eslint/no-inferrable-types": "off",
-    // group: usless rules
-    "no-empty": "off",
     "@typescript-eslint/no-empty-interface": "off",
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/ban-types": "off",
-    // group: ok
-    //"@typescript-eslint/consistent-type-assertions": [ "error", { "assertionStyle": "angle-bracket" }],
-    "linebreak-style": [
-      "off",
-      "windows"
-    ]
   },
   "overrides": [
     {

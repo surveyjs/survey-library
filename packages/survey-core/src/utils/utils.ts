@@ -10,10 +10,10 @@ function compareVersions(a: any, b: any): number {
   const segmentsA: string[] = a.replace(regExStrip0, "").split(".");
   const segmentsB: string[] = b.replace(regExStrip0, "").split(".");
   const len: number = Math.min(segmentsA.length, segmentsB.length);
-  for (let i: number = 0; i < len; i++) {
+  for(let i: number = 0; i < len; i++) {
     const diff: number =
       parseInt(segmentsA[i], 10) - parseInt(segmentsB[i], 10);
-    if (diff) {
+    if(diff) {
       return diff;
     }
   }
@@ -21,19 +21,19 @@ function compareVersions(a: any, b: any): number {
 }
 
 function confirmAction(message: string): boolean {
-  if (!!settings && !!settings.confirmActionFunc)
+  if(!!settings && !!settings.confirmActionFunc)
     return settings.confirmActionFunc(message);
   return confirm(message);
 }
 
 function confirmActionAsync(options: IConfirmDialogOptions): void {
   const callbackFunc = (res: boolean): void => {
-    if (res) options.funcOnYes();
-    else if (!!options.funcOnNo) options.funcOnNo();
+    if(res) options.funcOnYes();
+    else if(!!options.funcOnNo) options.funcOnNo();
   };
 
-  if (!!settings && !!settings.confirmActionAsync) {
-    if (settings.confirmActionAsync(options.message, callbackFunc, options)) return;
+  if(!!settings && !!settings.confirmActionAsync) {
+    if(settings.confirmActionAsync(options.message, callbackFunc, options)) return;
   }
 
   callbackFunc(confirmAction(options.message));
@@ -45,7 +45,7 @@ function detectIEBrowser(): boolean {
   return oldIe > -1 || elevenIe > -1;
 }
 function detectIEOrEdge(): boolean {
-  if (typeof (<any>detectIEOrEdge).isIEOrEdge === "undefined") {
+  if(typeof (<any>detectIEOrEdge).isIEOrEdge === "undefined") {
     const ua: string = navigator.userAgent;
     const msie: number = ua.indexOf("MSIE ");
     const trident: number = ua.indexOf("Trident/");
@@ -67,15 +67,15 @@ function loadFileFromBase64(b64Data: string, fileName: string): void {
     // write the bytes of the string to an ArrayBuffer
     const ab: ArrayBuffer = new ArrayBuffer(byteString.length);
     const ia: Uint8Array = new Uint8Array(ab);
-    for (let i = 0; i < byteString.length; i++) {
+    for(let i = 0; i < byteString.length; i++) {
       ia[i] = byteString.charCodeAt(i);
     }
     // write the ArrayBuffer to a blob, and you're done
     const bb: Blob = new Blob([ab], { type: mimeString });
-    if (!!navigator && (<any>navigator)["msSaveBlob"]) {
+    if(!!navigator && (<any>navigator)["msSaveBlob"]) {
       (<any>navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
-  } catch (err) { }
+  } catch(err) { }
 }
 function isMobile(): boolean {
   return (DomWindowHelper.isAvailable() && DomWindowHelper.hasOwn("orientation"));
@@ -94,7 +94,7 @@ function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  if (typeof settings.environment === "undefined") {
+  if(typeof settings.environment === "undefined") {
     return false;
   }
 
@@ -119,12 +119,12 @@ function isElementVisible(
 
 function findScrollableParent(element: HTMLElement): HTMLElement {
   const { root }: ISurveyEnvironment = settings.environment;
-  if (!element) {
+  if(!element) {
     return isShadowDOM(root)
       ? root.host as HTMLElement
       : root.documentElement;
   }
-  if (
+  if(
     element.scrollHeight > element.clientHeight &&
     (getComputedStyle(element).overflowY === "scroll" ||
       getComputedStyle(element).overflowY === "auto")
@@ -132,7 +132,7 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
     return element;
   }
 
-  if (
+  if(
     element.scrollWidth > element.clientWidth &&
     (getComputedStyle(element).overflowX === "scroll" ||
       getComputedStyle(element).overflowX === "auto")
@@ -145,19 +145,19 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
 
 function activateLazyRenderingChecks(id: string): void {
   const environment: ISurveyEnvironment = settings.environment;
-  if (!environment) return;
+  if(!environment) return;
   const { root } = environment;
   const el = root.getElementById(id);
-  if (!el) return;
+  if(!el) return;
   const scrollableEl = findScrollableParent(el);
-  if (!!scrollableEl) {
+  if(!!scrollableEl) {
     setTimeout(() => scrollableEl.dispatchEvent(new CustomEvent("scroll")), 10);
   }
 }
 
 function navigateToUrl(url: string): void {
   const location = DomWindowHelper.getLocation();
-  if (!url || !location) return;
+  if(!url || !location) return;
   location.href = getSafeUrl(url);
 }
 
@@ -165,7 +165,7 @@ function wrapUrlForBackgroundImage(url: string): string {
   return !!url ? ["url(", url, ")"].join("") : "";
 }
 function isBase64URL(url: string): boolean {
-  if (typeof url == "string") {
+  if(typeof url == "string") {
     return /^data:((?:\w+\/(?:(?!;).)+)?)((?:;[^;]+?)*),(.+)$/.test(url);
   }
   return null;
@@ -330,11 +330,11 @@ export function getNewIconName(iconName: string): string {
 export function getCustomNewIconNameIfExists(iconName: string): string {
   // only for settings.customIcons["icon-import"] = "icon-export"; feature
   let result = (<any>settings.customIcons)[iconName];
-  if (result) return getNewIconName(result);
+  if(result) return getNewIconName(result);
 
   iconName = getNewIconName(iconName);
   result = (<any>settings.customIcons)[iconName];
-  if (result) return result;
+  if(result) return result;
 
   return null;
 }
@@ -347,8 +347,8 @@ function createSvg(
   svgElem: any,
   title: string,
 ): void {
-  if (!svgElem) return;
-  if (size !== "auto") {
+  if(!svgElem) return;
+  if(size !== "auto") {
     svgElem.style.width = (size || width || 16) + "px";
     svgElem.style.height = (size || height || 16) + "px";
   }
@@ -361,13 +361,13 @@ function createSvg(
   );
 
   let titleElement = svgElem.getElementsByTagName("title")[0];
-  if (!title) {
-    if (!!titleElement) {
+  if(!title) {
+    if(!!titleElement) {
       svgElem.removeChild(titleElement);
     }
     return;
   } else {
-    if (!titleElement) {
+    if(!titleElement) {
       titleElement = DomDocumentHelper.getDocument().createElementNS("http://www.w3.org/2000/svg", "title");
       svgElem.appendChild(titleElement);
     }
@@ -375,13 +375,13 @@ function createSvg(
   titleElement.textContent = title;
 }
 export function getSafeUrl(url: string): string {
-  if (!url) return url;
-  if (url.toLocaleLowerCase().indexOf("javascript:") > -1) return encodeURIComponent(url);
+  if(!url) return url;
+  if(url.toLocaleLowerCase().indexOf("javascript:") > -1) return encodeURIComponent(url);
   return url;
 }
 
 export function unwrap<T>(value: T | (() => T)): T {
-  if (typeof value !== "function") {
+  if(typeof value !== "function") {
     return value;
   } else {
     return (<() => T>value)();
@@ -408,21 +408,20 @@ export function unwrap<T>(value: T | (() => T)): T {
 // }
 
 export function getRenderedSize(val: string | number): number {
-  if (typeof val == "string") {
-    if (!isNaN(Number(val))) {
+  if(typeof val == "string") {
+    if(!isNaN(Number(val))) {
       return Number(val);
-    }
-    else if (val.includes("px")) {
+    } else if(val.includes("px")) {
       return parseFloat(val);
     }
   }
-  if (typeof val == "number") {
+  if(typeof val == "number") {
     return val;
   }
   return undefined;
 }
 export function getRenderedStyleSize(val: string | number): string {
-  if (getRenderedSize(val) !== undefined) {
+  if(getRenderedSize(val) !== undefined) {
     return undefined;
   }
   return val as string;
@@ -436,58 +435,58 @@ export interface IAttachKey2clickOptions {
 const keyFocusedClassName = "sv-focused--by-key";
 export function doKey2ClickBlur(evt: KeyboardEvent): void {
   const element: any = evt.target;
-  if (!element || !element.classList) return;
+  if(!element || !element.classList) return;
   element.classList.remove(keyFocusedClassName);
 }
 
 export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
-  if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
   const element: any = evt.target;
-  if (!element) return;
+  if(!element) return;
   const char: number = evt.which || evt.keyCode;
-  if (char === 9) {
-    if (!!element.classList && !element.classList.contains(keyFocusedClassName)) {
+  if(char === 9) {
+    if(!!element.classList && !element.classList.contains(keyFocusedClassName)) {
       element.classList.add(keyFocusedClassName);
     }
     return;
   }
 
-  if (options) {
-    if (!options.__keyDownReceived) return;
+  if(options) {
+    if(!options.__keyDownReceived) return;
     options.__keyDownReceived = false;
   }
 
-  if (char === 13 || char === 32) {
-    if (element.click) element.click();
-  } else if ((!options || options.processEsc) && char === 27) {
-    if (element.blur) element.blur();
+  if(char === 13 || char === 32) {
+    if(element.click) element.click();
+  } else if((!options || options.processEsc) && char === 27) {
+    if(element.blur) element.blur();
   }
 }
 
 export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
-  if (options) options.__keyDownReceived = true;
-  if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
+  if(options) options.__keyDownReceived = true;
+  if(!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
   var char = evt.which || evt.keyCode;
   const supportedCodes = [13, 32];
-  if (options.processEsc) {
+  if(options.processEsc) {
     supportedCodes.push(27);
   }
-  if (supportedCodes.indexOf(char) !== -1) {
+  if(supportedCodes.indexOf(char) !== -1) {
     evt.preventDefault();
   }
 }
 
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
-  if (!element) return;
-  if (!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
+  if(!element) return;
+  if(!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
 
   const style = getComputedStyle(element);
   element.style.height = "auto";
-  if (!!element.scrollHeight) {
+  if(!!element.scrollHeight) {
     element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
   }
 }
@@ -499,7 +498,7 @@ function preventDefaults(event: any) {
   event.stopPropagation();
 }
 function classesToSelector(str: string): string {
-  if (!str) return str;
+  if(!str) return str;
   const re = /\s*?([\w-]+)\s*?/g;
   return str.replace(re, ".$1");
 }
@@ -518,16 +517,16 @@ function isContainerVisible(el: HTMLElement) {
 
 function getFirstVisibleChild(el: HTMLElement) {
   let result;
-  for (let index = 0; index < el.children.length; index++) {
-    if (!result && getComputedStyle(el.children[index]).display !== "none") {
+  for(let index = 0; index < el.children.length; index++) {
+    if(!result && getComputedStyle(el.children[index]).display !== "none") {
       result = el.children[index];
     }
   }
   return result;
 }
 function findParentByClassNames(element: HTMLElement, classNames: Array<string>): Element {
-  if (!!element) {
-    if (classNames.every(className => !className || element.classList.contains(className))) {
+  if(!!element) {
+    if(classNames.every(className => !className || element.classList.contains(className))) {
       return element;
     } else {
       return findParentByClassNames(element.parentElement, classNames);
@@ -535,9 +534,9 @@ function findParentByClassNames(element: HTMLElement, classNames: Array<string>)
   }
 }
 export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean = true) {
-  if (DomWindowHelper.isAvailable() && DomDocumentHelper.isAvailable() && element.childNodes.length > 0) {
+  if(DomWindowHelper.isAvailable() && DomDocumentHelper.isAvailable() && element.childNodes.length > 0) {
     const selection = DomWindowHelper.getSelection();
-    if (selection.rangeCount == 0) {
+    if(selection.rangeCount == 0) {
       return;
     }
 
@@ -549,7 +548,7 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     let tail = selection.toString();
     let innerText = element.innerText;
     tail = tail.replace(/\r/g, "");
-    if (cleanLineBreaks) {
+    if(cleanLineBreaks) {
       tail = tail.replace(/\n/g, "");
       innerText = innerText.replace(/\n/g, "");
     }
@@ -564,22 +563,22 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     selection.removeAllRanges();
     selection.addRange(range);
 
-    while (selection.toString().length < innerText.length - tail_len) {
+    while(selection.toString().length < innerText.length - tail_len) {
       const selLen = selection.toString().length;
       (selection as any).modify("extend", "forward", "character");
-      if (selection.toString().length == selLen) break;
+      if(selection.toString().length == selLen) break;
     }
     range = selection.getRangeAt(0);
     range.setStart(range.endContainer, range.endOffset);
   }
 }
 function mergeValues(src: any, dest: any): void {
-  if (!dest || !src) return;
-  if (typeof dest !== "object") return;
-  for (var key in src) {
+  if(!dest || !src) return;
+  if(typeof dest !== "object") return;
+  for(var key in src) {
     var value = src[key];
-    if (!Array.isArray(value) && value && typeof value === "object") {
-      if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
+    if(!Array.isArray(value) && value && typeof value === "object") {
+      if(!dest[key] || typeof dest[key] !== "object") dest[key] = {};
       mergeValues(value, dest[key]);
     } else {
       dest[key] = value;
@@ -613,7 +612,7 @@ export interface IConfirmDialogOptions {
   cssClass?: string;
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions= {}): boolean {
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions = {}): boolean {
   const locStr = new LocalizableString(undefined, false);
   locStr.defaultValue = message || options.message;
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
@@ -646,13 +645,13 @@ export function configConfirmDialog(popupViewModel: PopupBaseViewModel): void {
 }
 
 function chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void): void {
-  if (!DomWindowHelper.isFileReaderAvailable()) return;
+  if(!DomWindowHelper.isFileReaderAvailable()) return;
   input.value = "";
   input.onchange = (event) => {
-    if (!DomWindowHelper.isFileReaderAvailable()) return;
-    if (!input || !input.files || input.files.length < 1) return;
+    if(!DomWindowHelper.isFileReaderAvailable()) return;
+    if(!input || !input.files || input.files.length < 1) return;
     let files = [];
-    for (let i = 0; i < input.files.length; i++) {
+    for(let i = 0; i < input.files.length; i++) {
       files.push(input.files[i]);
     }
     callback(files);
@@ -666,7 +665,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   const commonItemsInOldMap = new Map<any, number>();
   oldValue.forEach((item) => {
     const itemKey = getKey(item);
-    if (!oldItemsMap.has(itemKey)) {
+    if(!oldItemsMap.has(itemKey)) {
       oldItemsMap.set(getKey(item), item);
     } else {
       //if keys are set incorrectly do not process comparing
@@ -675,7 +674,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   });
   newValue.forEach((item) => {
     const itemKey = getKey(item);
-    if (!newItemsMap.has(itemKey)) {
+    if(!newItemsMap.has(itemKey)) {
       newItemsMap.set(itemKey, item);
     } else {
       //if keys are set incorrectly do not process comparing
@@ -687,7 +686,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
 
   //calculating addedItems and items that exist in both arrays
   newItemsMap.forEach((item, key) => {
-    if (!oldItemsMap.has(key)) {
+    if(!oldItemsMap.has(key)) {
       addedItems.push(item);
     } else {
       commonItemsInNewMap.set(key, commonItemsInNewMap.size);
@@ -697,7 +696,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   //calculating deletedItems and items that exist in both arrays
 
   oldItemsMap.forEach((item, key) => {
-    if (!newItemsMap.has(key)) {
+    if(!newItemsMap.has(key)) {
       deletedItems.push(item);
     } else {
       commonItemsInOldMap.set(key, commonItemsInOldMap.size);
@@ -709,7 +708,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   commonItemsInNewMap.forEach((index, key) => {
     const oldIndex = commonItemsInOldMap.get(key);
     const item = newItemsMap.get(key);
-    if (oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
+    if(oldIndex !== index) reorderedItems.push({ item: item, movedForward: oldIndex < index });
   });
 
   //calculating merged array if multiple operations are applied at once
@@ -718,7 +717,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   let commonItemsIndex = 0;
   const commonItemsKeysOrder = Array.from(commonItemsInNewMap.keys());
   oldValue.forEach((item, index) => {
-    if (commonItemsInNewMap.has(getKey(item))) {
+    if(commonItemsInNewMap.has(getKey(item))) {
       oldItemsWithCorrectOrder[index] = newItemsMap.get(commonItemsKeysOrder[commonItemsIndex]);
       commonItemsIndex++;
     } else {
@@ -730,8 +729,8 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   let tempValuesArray: Array<T> = [];
   oldItemsWithCorrectOrder.forEach((item) => {
     const itemKey = getKey(item);
-    if (newItemsMap.has(itemKey)) {
-      if (tempValuesArray.length > 0) {
+    if(newItemsMap.has(itemKey)) {
+      if(tempValuesArray.length > 0) {
         valuesToInsertBeforeKey.set(itemKey, tempValuesArray);
         tempValuesArray = [];
       }
@@ -741,7 +740,7 @@ export function compareArrays<T>(oldValue: Array<T>, newValue: Array<T>, getKey:
   });
   const mergedItems = new Array<T>();
   newItemsMap.forEach((item, key) => {
-    if (valuesToInsertBeforeKey.has(key)) {
+    if(valuesToInsertBeforeKey.has(key)) {
       valuesToInsertBeforeKey.get(key).forEach((item) => {
         mergedItems.push(item);
       });
@@ -766,10 +765,10 @@ interface IVerticalDimensions {
 }
 
 export function getVerticalDimensions(el: HTMLElement): IVerticalDimensions {
-  if (DomDocumentHelper.isAvailable()) {
+  if(DomDocumentHelper.isAvailable()) {
     const { paddingTop, paddingBottom, borderTopWidth, borderBottomWidth, marginTop, marginBottom, boxSizing } = DomDocumentHelper.getComputedStyle(el);
     let heightTo = el.offsetHeight + "px";
-    if (boxSizing == "content-box") {
+    if(boxSizing == "content-box") {
       let heightPx = el.offsetHeight;
       [borderBottomWidth, borderTopWidth, paddingBottom, paddingTop].forEach((style) => {
         heightPx -= parseFloat(style);
@@ -805,7 +804,7 @@ export function prepareElementForVerticalAnimation(el: HTMLElement): void {
 }
 
 export function cleanHtmlElementAfterAnimation(el: HTMLElement): void {
-  if (Array.isArray((el as any)["__sv_created_properties"])) {
+  if(Array.isArray((el as any)["__sv_created_properties"])) {
     (el as any)["__sv_created_properties"].forEach((propertyName: string) => {
       el.style.removeProperty(propertyName);
     });

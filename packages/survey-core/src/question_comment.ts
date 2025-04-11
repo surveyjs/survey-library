@@ -26,7 +26,7 @@ export class QuestionCommentModel extends QuestionTextBase {
   private getTextAreaOptions(): ITextArea {
     const _this = this;
     const updateQuestionValue = (newValue: any) => {
-      if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
+      if(!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {
         _this.value = newValue;
       }
     };
@@ -116,7 +116,7 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   public get renderedAllowResize(): boolean {
     const res = this.allowResize;
-    if (res === undefined && this.survey) {
+    if(res === undefined && this.survey) {
       return this.survey.allowResizeComment;
     } else {
       return !!res;
@@ -138,7 +138,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.element = undefined;
   }
   public onInput(event: any): void {
-    if (this.isInputTextUpdate)
+    if(this.isInputTextUpdate)
       this.value = event.target.value;
     this.updateRemainingCharacterCounter(event.target.value);
   }
@@ -147,13 +147,13 @@ export class QuestionCommentModel extends QuestionTextBase {
   }
   public onKeyDown(event: any): void {
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
-    if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {
+    if(!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {
       event.preventDefault();
       event.stopPropagation();
     }
   }
   protected setNewValue(newValue: string): any {
-    if (!this.acceptCarriageReturn && !!newValue) {
+    if(!this.acceptCarriageReturn && !!newValue) {
       // eslint-disable-next-line no-control-regex
       newValue = newValue.replace(new RegExp("(\r\n|\n|\r)", "gm"), "");
     }
@@ -162,7 +162,7 @@ export class QuestionCommentModel extends QuestionTextBase {
   protected getValueSeparator(): string { return "\n"; }
   protected notifyStateChanged(prevState: string): void {
     super.notifyStateChanged(prevState);
-    if (!this.isCollapsed) {
+    if(!this.isCollapsed) {
       this.textAreaModel.updateElement();
     }
   }

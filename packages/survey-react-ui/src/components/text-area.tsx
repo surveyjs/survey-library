@@ -26,7 +26,7 @@ export class TextAreaComponent extends SurveyElementBase<ITextAreaProps, any> {
   componentDidMount() {
     super.componentDidMount();
     let el = this.textareaRef.current;
-    if (!!el) {
+    if(!!el) {
       this.viewModel.setElement(el);
     }
   }

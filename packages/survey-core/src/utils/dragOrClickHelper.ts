@@ -13,7 +13,7 @@ export class DragOrClickHelper {
   constructor(private dragHandler: any) { }
 
   public onPointerDown(pointerDownEvent: any, itemModel?: any) {
-    if (IsTouch) {
+    if(IsTouch) {
       this.dragHandler(pointerDownEvent, pointerDownEvent.currentTarget, itemModel); //TODO handle inside in the library's drag drop core, need refactoring
       return;
     }
@@ -33,7 +33,7 @@ export class DragOrClickHelper {
   private tryToStartDrag = (pointerMoveEvent: any) => {
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
-    if (this.isMicroMovement) return;
+    if(this.isMicroMovement) return;
 
     this.clearListeners();
 
@@ -49,7 +49,7 @@ export class DragOrClickHelper {
     return diffX < delta && diffY < delta;
   }
   private clearListeners() {
-    if (!this.pointerDownEvent) return;
+    if(!this.pointerDownEvent) return;
     DomDocumentHelper.removeEventListener("pointermove", this.tryToStartDrag);
     this.currentTarget.removeEventListener("pointerup", this.onPointerUp);
   }

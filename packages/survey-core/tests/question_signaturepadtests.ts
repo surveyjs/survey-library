@@ -596,7 +596,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   assert.equal(question.isReady, false, "question is not ready");
   assert.equal(log, "->file1.svg");
   assert.equal(callbacks.length, 1, "One callback");
-  for (let i = 0; i < callbacks.length; i++) {
+  for(let i = 0; i < callbacks.length; i++) {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(question.isReady, true, "question is ready");
@@ -704,7 +704,7 @@ QUnit.test("Check signature image cached in loadedData and loaded only once unti
   assert.equal(question.value, "file1.svg");
   assert.equal(question.loadedData, undefined);
   assert.equal(question.isReady, false, "question is not ready after data assignment");
-  for (let i = 0; i < callbacks.length; i++) {
+  for(let i = 0; i < callbacks.length; i++) {
     callbacks[i]("success", contents[i]);
   }
   callbacks.length = 0;
@@ -745,7 +745,7 @@ QUnit.test("Check signature image cached in loadedData and loaded only once unti
   assert.equal(question.loadedData, undefined, "No data available for a while after value changed");
   assert.equal(dataFromUrlLog, "->" + loadedData["file1.svg"], "signaturepad.fromDataURL after resize");
   assert.equal(question.isReady, false, "question is not ready after data assignment");
-  for (let i = 0; i < callbacks.length; i++) {
+  for(let i = 0; i < callbacks.length; i++) {
     callbacks[i]("success", contents[i]);
   }
   callbacks.length = 0;

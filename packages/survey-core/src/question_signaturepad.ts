@@ -48,7 +48,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       (this.dataFormat === "svg" ? "image/svg+xml" : "");
   }
   protected updateValue() {
-    if (this.signaturePad) {
+    if(this.signaturePad) {
 
       var data = this.signaturePad.toDataURL(this.getFormat());
       this.valueIsUpdatingInternally = true;
@@ -64,19 +64,19 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return "signaturepad";
   }
   public afterRenderQuestionElement(el: HTMLElement) {
-    if (!!el) {
-      if (!this.isDesignMode) this.initSignaturePad(el);
+    if(!!el) {
+      if(!this.isDesignMode)this.initSignaturePad(el);
       this.element = el;
     }
     super.afterRenderQuestionElement(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement) {
-    if (!!el) {
+    if(!!el) {
       this.destroySignaturePad(el);
     }
   }
   public themeChanged(theme: ITheme): void {
-    if (!!this.signaturePad) {
+    if(!!this.signaturePad) {
       this.updateColors(this.signaturePad);
     }
   }
@@ -94,7 +94,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private scaleCanvas(refresh: boolean = true, resize: boolean = false) {
     const canvas = this.canvas;
     const scale = canvas.offsetWidth / this.containerWidth;
-    if (this.scale != scale || resize) {
+    if(this.scale != scale || resize) {
       this.scale = scale;
       canvas.style.width = this.renderedCanvasWidth;
       this.resizeCanvas();
@@ -102,7 +102,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       this.signaturePad.maxWidth = this.penMaxWidth * scale;
       canvas.getContext("2d").scale(1 / scale, 1 / scale);
 
-      if (refresh) {
+      if(refresh) {
         this.loadPreview(this.value);
       }
     }
@@ -110,7 +110,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   private fromUrl(url: string): void {
     this.isFileLoading = true;
-    if (isBase64URL(url)) {
+    if(isBase64URL(url)) {
       this.fromDataUrl(url);
       this.isFileLoading = false;
     } else {
@@ -118,7 +118,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       img.crossOrigin = "anonymous";
       img.src = url;
       img.onload = () => {
-        if (!!this.canvas) {
+        if(!!this.canvas) {
           const canvas = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
           canvas.width = this.containerWidth;
           canvas.height = this.containerHeight;
@@ -136,7 +136,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   private fromDataUrl(data: string) {
     this._loadedData = data;
-    if (this.signaturePad) {
+    if(this.signaturePad) {
       const devicePixelRatio = DomWindowHelper.getDevicePixelRatio();
       const ratio = (this.dataFormat === "svg" && !!devicePixelRatio) ? devicePixelRatio : 1;
 
@@ -152,30 +152,30 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return this._loadedData;
   }
   protected loadPreview(newValue: any): void {
-    if (!newValue) {
-      if (this.signaturePad && this.canvas) {
+    if(!newValue) {
+      if(this.signaturePad && this.canvas) {
         this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
         this.signaturePad.clear();
       }
       this.valueWasChangedFromLastUpload = false;
       return;
     }
-    if (this.storeDataAsText) {
+    if(this.storeDataAsText) {
       this.fromDataUrl(newValue);
     } else {
-      if (this.loadedData) {
+      if(this.loadedData) {
         this.fromDataUrl(this.loadedData);
       } else {
         var newValues = !!newValue ? [newValue] : [];
-        if (!!this._previewLoader) {
+        if(!!this._previewLoader) {
           this._previewLoader.dispose();
         }
         this.isFileLoading = true;
         this._previewLoader = new FileLoader(this, (status, loaded) => {
-          if (status === "success" && loaded && loaded.length > 0 && loaded[0].content) {
+          if(status === "success" && loaded && loaded.length > 0 && loaded[0].content) {
             this.fromDataUrl(loaded[0].content);
             this.isFileLoading = false;
-          } else if (status === "skipped") {
+          } else if(status === "skipped") {
             this.fromUrl(newValue);
           }
           this._previewLoader.dispose();
@@ -188,7 +188,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
-    if (!this.isLoadingFromJson) {
+    if(!this.isLoadingFromJson) {
       this._loadedData = undefined;
       this.loadPreview(newValue);
     }
@@ -210,12 +210,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.resizeCanvas();
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
     this.signaturePad = signaturePad;
-    if (this.isInputReadOnly) {
+    if(this.isInputReadOnly) {
       signaturePad.off();
     }
 
     this.readOnlyChangedCallback = () => {
-      if (this.isInputReadOnly) {
+      if(this.isInputReadOnly) {
         signaturePad.off();
       } else {
         signaturePad.on();
@@ -232,7 +232,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
     (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
-      if (this.storeDataAsText) {
+      if(this.storeDataAsText) {
         this.updateValue();
       } else {
         this.valueWasChangedFromLastUpload = true;
@@ -242,15 +242,15 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.updateValueHandler();
     this.readOnlyChangedCallback();
     var propertyChangedHandler = (sender: any, options: any) => {
-      if (options.name === "signatureWidth" || options.name === "signatureHeight") {
-        if (!this.valueIsUpdatingInternally) this.updateValueHandler();
+      if(options.name === "signatureWidth" || options.name === "signatureHeight") {
+        if(!this.valueIsUpdatingInternally)this.updateValueHandler();
       }
     };
     this.onPropertyChanged.add(propertyChangedHandler);
     this.signaturePad.propertyChangedHandler = propertyChangedHandler;
   }
   destroySignaturePad(el: HTMLElement) {
-    if (this.signaturePad) {
+    if(this.signaturePad) {
       this.onPropertyChanged.remove(this.signaturePad.propertyChangedHandler);
       this.signaturePad.off();
     }
@@ -433,9 +433,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly" } }) placeholderReadOnly: string;
   protected onBlurCore(event: any): void {
     super.onBlurCore(event);
-    if (!this.storeDataAsText) {
-      if (!this.element.contains(event.relatedTarget)) {
-        if (!this.valueWasChangedFromLastUpload) return;
+    if(!this.storeDataAsText) {
+      if(!this.element.contains(event.relatedTarget)) {
+        if(!this.valueWasChangedFromLastUpload) return;
         this.uploadFiles([dataUrl2File(this.signaturePad.toDataURL(this.getFormat()), this.name + "." + correctFormatData(this.dataFormat), this.getFormat())]);
         this.valueWasChangedFromLastUpload = false;
       }
@@ -458,12 +458,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     //todo: need to remove this code
-    if (this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
+    if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
       ConsoleWarnings.warn("Use signatureWidth property to set width for the signature pad");
       this.signatureWidth = this.width;
       this.width = undefined;
     }
-    if (this.signatureHeight === 200 && !!this.height) {
+    if(this.signatureHeight === 200 && !!this.height) {
       ConsoleWarnings.warn("Use signatureHeight property to set width for the signature pad");
       this.signatureHeight = this.height;
       this.height = undefined;
@@ -472,9 +472,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 }
 
 function correctFormatData(val: string): string {
-  if (!val) val = "png";
+  if(!val) val = "png";
   val = val.replace("image/", "").replace("+xml", "");
-  if (val !== "jpeg" && val !== "svg") val = "png";
+  if(val !== "jpeg" && val !== "svg") val = "png";
   return val;
 }
 

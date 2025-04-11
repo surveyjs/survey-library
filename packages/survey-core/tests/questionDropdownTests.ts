@@ -691,13 +691,12 @@ QUnit.test("Dropdown displays a value if list of choices is empty", (assert) => 
 function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<number> = [];
   let index = skip;
-  while ((skip + result.length) < (skip + count)) {
-    if (!!filter) {
-      if (index.toString().toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
+  while((skip + result.length) < (skip + count)) {
+    if(!!filter) {
+      if(index.toString().toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
         result.push(index);
       }
-    }
-    else {
+    } else {
       result.push(index);
     }
     index++;
@@ -1287,14 +1286,14 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue, selected last item", assert 
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
-    if (options.skip + options.take < total) {
+    if(options.skip + options.take < total) {
       options.setItems(getObjectArray(options.skip + 1, options.take), total);
     } else {
       options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
     }
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1825,7 +1824,7 @@ QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
     const total = 55;
     const result: Array<any> = [];
     const filter = !opt.filter ? "" : "des";
-    for (let index = 0; index < total; index++) {
+    for(let index = 0; index < total; index++) {
       result.push({ value: "item" + index, text: "item" + filter + index });
     }
     if(opt.filter === "des") {
@@ -2531,7 +2530,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
     }]
   });
   survey.onCreateCustomChoiceItem.add(((sender, options) => {
-    if (options.item.value === "item10") {
+    if(options.item.value === "item10") {
       options.item.text = options.item.value.toUpperCase();
     } else {
       options.allow = false;
@@ -2587,7 +2586,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   });
   survey.onChoicesLazyLoad.add((_, opt) => {
     setTimeout(() => {
-      if (!!opt.filter && opt.filter !== "2") {
+      if(!!opt.filter && opt.filter !== "2") {
         opt.setItems([], 0);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);
@@ -2696,7 +2695,7 @@ QUnit.test("allowCustomChoices: Add custom value if choicesLazyLoadEnabled is tr
   });
   survey.onChoicesLazyLoad.add((_, opt) => {
     setTimeout(() => {
-      if (!!opt.filter) {
+      if(!!opt.filter) {
         opt.setItems([], 0);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);

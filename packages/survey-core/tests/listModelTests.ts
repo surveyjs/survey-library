@@ -427,7 +427,7 @@ QUnit.test("ListModel search in subitems", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
 
   const items: Array<IAction> = [];
-  for (let index = 0; index < 7; ++index) {
+  for(let index = 0; index < 7; ++index) {
     items.push(new Action({ id: "test" + index, title: "test" + index }));
   }
 
@@ -462,7 +462,7 @@ QUnit.test("ListModel search in subitems with icons", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
 
   const items: Array<IAction> = [];
-  for (let index = 0; index < 7; ++index) {
+  for(let index = 0; index < 7; ++index) {
     items.push(new Action({ id: "test" + index, title: "test" + index, iconName: "icon" + index }));
   }
 
@@ -491,7 +491,7 @@ QUnit.test("ListModel search in subitems with icons", function (assert) {
 QUnit.test("ListModel onItemClick", function (assert) {
 
   let items: Array<Action> = [];
-  for (let index = 0; index < 4; ++index) {
+  for(let index = 0; index < 4; ++index) {
     items.push(new Action({ id: "test" + index, title: "test" + index }));
   }
   let actionCalled = 0;

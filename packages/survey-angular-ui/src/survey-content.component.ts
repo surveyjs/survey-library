@@ -15,11 +15,11 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     return this.model;
   }
   protected override onModelChanged(): void {
-    if (!!this.previousModel) {
+    if(!!this.previousModel) {
       this.previousModel.destroyResizeObserver();
       this.previousModel.renderCallback = <any>undefined;
     }
-    if (!!this.model) {
+    if(!!this.model) {
       this.model.renderCallback = () => {
         this.detectChanges();
       };
@@ -28,7 +28,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if (!!this.model) {
+    if(!!this.model) {
       this.model.rootElement = undefined as any;
       this.model.destroyResizeObserver();
       this.model.renderCallback = <any>undefined;
@@ -38,7 +38,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     this.isSurveyUpdated = true;
   }
   override ngAfterViewChecked(): void {
-    if (!!this.model && this.isSurveyUpdated) {
+    if(!!this.model && this.isSurveyUpdated) {
       this.model.afterRenderSurvey(this.rootEl.nativeElement);
       this.model.startTimerFromUI();
     }

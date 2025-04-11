@@ -147,7 +147,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.fireCallback(this.visibleRowsChangedCallback);
   }
   protected updateVisibilityBasedOnRows(): void {
-    if ((<any>this).hideIfRowsEmpty) {
+    if((<any>this).hideIfRowsEmpty) {
       this.onVisibleChanged();
     }
   }
@@ -166,12 +166,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     let hasChanges = this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
     const hasColumnsChanged = this.runConditionsForColumns(values, properties);
     hasChanges = hasColumnsChanged || hasChanges;
-    if (hasChanges) {
-      if (this.isClearValueOnHidden && hasColumnsChanged) {
+    if(hasChanges) {
+      if(this.isClearValueOnHidden && hasColumnsChanged) {
         this.clearInvisibleColumnValues();
       }
       this.clearGeneratedRows();
-      if (hasColumnsChanged) {
+      if(hasColumnsChanged) {
         this.onColumnsChanged();
       }
       this.onRowsChanged();
@@ -189,7 +189,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     const hasChanged = ItemValue.runConditionsForItems(this.rows, this.filteredRows, runner,
       values, properties, !showInvisibile);
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    if (this.filteredRows.length === this.rows.length) {
+    if(this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
     }
     return hasChanged;

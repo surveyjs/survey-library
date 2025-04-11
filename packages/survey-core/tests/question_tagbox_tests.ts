@@ -309,14 +309,13 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
 function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<any> = [];
   let index = skip;
-  while ((skip + result.length) < (skip + count)) {
+  while((skip + result.length) < (skip + count)) {
     const displayText = "DisplayText_" + index;
-    if (!!filter) {
-      if (displayText.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
+    if(!!filter) {
+      if(displayText.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
         result.push({ value: index, text: displayText });
       }
-    }
-    else {
+    } else {
       result.push({ value: index, text: displayText });
     }
     index++;
@@ -330,7 +329,7 @@ const callbackTimeOutDelta = 1;
 const callback = (_, opt) => {
   const total = opt.filter == "888" ? 17 : 70;
   setTimeout(() => {
-    if (opt.skip + opt.take < total) {
+    if(opt.skip + opt.take < total) {
       opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
     } else {
       opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
@@ -592,7 +591,7 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
 
 function getObjectArray(skip = 1, count = 25): Array<{ value: any, text: string }> {
   const result: Array<{ value: any, text: string }> = [];
-  for (let index = skip; index < (skip + count); index++) {
+  for(let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }
   return result;
@@ -617,7 +616,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if (options.skip + options.take < total) {
+      if(options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -625,7 +624,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -671,7 +670,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if (options.skip + options.take < total) {
+      if(options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -679,7 +678,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item.id)));
     }
   });
@@ -722,7 +721,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if (options.skip + options.take < total) {
+      if(options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -730,7 +729,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -785,7 +784,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if (options.skip + options.take < total) {
+      if(options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -793,7 +792,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -833,7 +832,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if (options.skip + options.take < total) {
+      if(options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -841,7 +840,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1403,7 +1402,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
   setTimeout(() => {
     assert.deepEqual(question.value, [1]);
     assert.equal(question.choices.length, 30);
-    for (let index = 0; index < list.actions.length - 1; index++) {
+    for(let index = 0; index < list.actions.length - 1; index++) {
       assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before clear");
     }
 
@@ -1411,7 +1410,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
     assert.deepEqual(question.value, [1, 2]);
     assert.ok(list.actions[0].enabled, "action 1 is enabled before clear");
     assert.ok(list.actions[1].enabled, "action 2 is enabled before clear");
-    for (let index = 2; index < list.actions.length - 1; index++) {
+    for(let index = 2; index < list.actions.length - 1; index++) {
       assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before clear");
     }
     question.dropdownListModel.popupModel.hide();
@@ -1427,7 +1426,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
       list.onItemClick(list.actions[0]);
       assert.deepEqual(question.value, [1], "question value is [1]");
 
-      for (let index = 0; index < list.actions.length - 1; index++) {
+      for(let index = 0; index < list.actions.length - 1; index++) {
         assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after clear");
       }
 
@@ -1435,7 +1434,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
       assert.deepEqual(question.value, [1, 2], "question value is [1, 2] after clear");
       assert.ok(list.actions[0].enabled, "action 1 is enabled after clear");
       assert.ok(list.actions[1].enabled, "action 2 is enabled after clear");
-      for (let index = 2; index < list.actions.length - 1; index++) {
+      for(let index = 2; index < list.actions.length - 1; index++) {
         assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled after clear");
       }
 
@@ -1471,7 +1470,7 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
   setTimeout(() => {
     assert.deepEqual(question.value, [1]);
     assert.equal(question.choices.length, 30);
-    for (let index = 0; index < list.actions.length - 1; index++) {
+    for(let index = 0; index < list.actions.length - 1; index++) {
       assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before unselecting choice");
     }
 
@@ -1479,7 +1478,7 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
     assert.deepEqual(question.value, [1, 2]);
     assert.ok(list.actions[0].enabled, "action 1 is enabled before unselecting choice");
     assert.ok(list.actions[1].enabled, "action 2 is enabled before unselecting choice");
-    for (let index = 2; index < list.actions.length - 1; index++) {
+    for(let index = 2; index < list.actions.length - 1; index++) {
       assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before unselecting choice");
     }
     question.dropdownListModel.popupModel.hide;
@@ -1488,13 +1487,13 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
       assert.deepEqual(question.value, [1, 2], "question value is [1, 2]");
       assert.ok(list.actions[0].enabled, "action 1 is enabled");
       assert.ok(list.actions[1].enabled, "action 2 is enabled");
-      for (let index = 2; index < list.actions.length - 1; index++) {
+      for(let index = 2; index < list.actions.length - 1; index++) {
         assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled");
       }
 
       list.onItemClick(list.actions[1]);
       assert.deepEqual(question.value, [1], "question value is [1]");
-      for (let index = 0; index < list.actions.length - 1; index++) {
+      for(let index = 0; index < list.actions.length - 1; index++) {
         assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after unselecting choice");
       }
 
@@ -1648,7 +1647,7 @@ QUnit.test("Prevoiusly selected options disappear", (assert) => {
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add(callback);
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1711,7 +1710,7 @@ QUnit.test("The new selected value is replaced with the the default value while 
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add(callback);
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1768,7 +1767,7 @@ QUnit.test("The new selected value is always replaced with the the first selecte
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add(callback);
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -2167,7 +2166,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
     }]
   });
   survey.onCreateCustomChoiceItem.add(((sender, options) => {
-    if (options.item.value === "item10") {
+    if(options.item.value === "item10") {
       options.item.text = options.item.value.toUpperCase();
     } else {
       options.allow = false;
@@ -2235,7 +2234,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   });
   survey.onChoicesLazyLoad.add((_, opt) => {
     setTimeout(() => {
-      if (!!opt.filter && opt.filter !== "DisplayText_2") {
+      if(!!opt.filter && opt.filter !== "DisplayText_2") {
         opt.setItems([], 0);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);
@@ -2344,7 +2343,7 @@ QUnit.test("allowCustomChoices: Add custom value if choicesLazyLoadEnabled is tr
   });
   survey.onChoicesLazyLoad.add((_, opt) => {
     setTimeout(() => {
-      if (!!opt.filter) {
+      if(!!opt.filter) {
         opt.setItems([], 0);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), 55);

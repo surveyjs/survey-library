@@ -31,14 +31,14 @@ export class DragDropRankingChoices extends DragDropChoices {
     const shortcutHeight = draggedElementShortcut.offsetHeight;
     let clientY = event.clientY;
 
-    if (clientY > rect.y + shortcutHeight) {
+    if(clientY > rect.y + shortcutHeight) {
       clientY = rect.y + shortcutHeight - 10; //TODO
     }
 
     draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
     draggedElementShortcut.shortcutYOffset = clientY - rect.y;
 
-    if (this.parentElement && this.parentElement.useFullItemSizeForShortcut) {
+    if(this.parentElement && this.parentElement.useFullItemSizeForShortcut) {
       draggedElementShortcut.style.width = draggedElementNode.offsetWidth + "px";
       draggedElementShortcut.style.height = draggedElementNode.offsetHeight + "px";
     }
@@ -75,7 +75,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;
-    if (choices.indexOf(dropTarget) === -1)
+    if(choices.indexOf(dropTarget) === -1)
       // shouldn't allow to drop on "adorners" (selectall, none, other)
       return false;
 
@@ -99,7 +99,7 @@ export class DragDropRankingChoices extends DragDropChoices {
       this.draggedElement = ItemValue.getItemByValue(fromChoicesArray, this.draggedElement.value) || this.draggedElement;
       fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     }
-    if (toIndex === -1) {
+    if(toIndex === -1) {
       const length = model.value.length;
       toIndex = length;
     } else if(fromChoicesArray == toChoicesArray) {
@@ -146,7 +146,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected doBanDropHere = (): any => {
-    if (this.isDragOverRootNode) {
+    if(this.isDragOverRootNode) {
       this.allowDropHere = true;
       return;
     }
@@ -154,7 +154,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "not-allowed";
 
-    if (IsTouch) {
+    if(IsTouch) {
       this.parentElement.updateRankingChoices(true);
     }
   };

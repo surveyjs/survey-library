@@ -2,7 +2,7 @@ export var surveyCss: any = {
   currentType: "default",
   getCss: function () {
     var loc = this.currentType ? this[this.currentType] : defaultCss;
-    if (!loc) loc = defaultCss;
+    if(!loc) loc = defaultCss;
     return loc;
   },
   getAvailableThemes: function () {

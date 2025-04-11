@@ -53,7 +53,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     return this.getLocalizationString("modalApplyButtonText");
   }
   public apply(): void {
-    if (!!this.model.onApply && !this.model.onApply()) return;
+    if(!!this.model.onApply && !this.model.onApply()) return;
     this.hidePopup();
   }
 

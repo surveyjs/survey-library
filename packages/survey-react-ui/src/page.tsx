@@ -40,7 +40,7 @@ export class SurveyPage extends SurveyPanelBase {
     return <TitleElement element={this.page}></TitleElement>;
   }
   protected renderDescription(): React.JSX.Element | null {
-    if (!this.page._showDescription) return null;
+    if(!this.page._showDescription) return null;
     var text = SurveyElementBase.renderLocString(this.page.locDescription);
     return (
       <div className={this.panelBase.cssClasses.page.description}>{text}</div>

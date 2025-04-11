@@ -11,7 +11,7 @@ export class SvgIconRegistry {
   private iconPrefix = "icon-";
 
   private processId(iconId: string, iconPrefix: string) {
-    if (iconId.indexOf(iconPrefix) == 0) {
+    if(iconId.indexOf(iconPrefix) == 0) {
       iconId = iconId.substring(iconPrefix.length);
     }
     iconId = renamedIcons[iconId] || iconId;
@@ -21,7 +21,7 @@ export class SvgIconRegistry {
     this.icons[iconId] = iconSymbolSvg;
   }
   public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix): void {
-    if (!DomDocumentHelper.isAvailable()) return;
+    if(!DomDocumentHelper.isAvailable()) return;
     iconId = this.processId(iconId, iconPrefix);
     let divSvg = DomDocumentHelper.createElement("div");
     divSvg.innerHTML = iconSvg;
@@ -29,7 +29,7 @@ export class SvgIconRegistry {
     let svg = divSvg.querySelector("svg");
     symbol.innerHTML = svg.innerHTML;
 
-    for (var i = 0; i < svg.attributes.length; i++) {
+    for(var i = 0; i < svg.attributes.length; i++) {
       symbol.setAttributeNS("http://www.w3.org/2000/svg", svg.attributes[i].name, svg.attributes[i].value);
     }
     symbol.id = iconPrefix + iconId;
@@ -43,15 +43,14 @@ export class SvgIconRegistry {
     iconSvg = iconSvg.trim();
     const str = iconSvg.toLowerCase();
 
-    if (str.substring(0, startStr.length) === startStr &&
+    if(str.substring(0, startStr.length) === startStr &&
       str.substring(str.length - endStr.length, str.length) === endStr) {
       this.registerIconFromSymbol(iconId, "<symbol " +
         "id=\"" + iconPrefix + iconId + "\" " +
         iconSvg.substring(startStr.length, str.length - endStr.length) +
         "</symbol>");
       return true;
-    }
-    else {
+    } else {
       return false;
     }
 
@@ -63,7 +62,7 @@ export class SvgIconRegistry {
     });
   }
   public registerIcons(icons: SvgIconData): void {
-    for (const iconId in icons) {
+    for(const iconId in icons) {
       this.registerIconFromSvg(iconId, icons[iconId]);
     }
     this.updateMarkup();
@@ -89,7 +88,7 @@ export function addIconsToThemeSet(name: string, iconsData: SvgIconData): void {
     SvgThemeSets[name] = {};
   }
   const set = SvgThemeSets[name];
-  for (const iconId in iconsData) {
+  for(const iconId in iconsData) {
     set[iconId] = iconsData[iconId];
   }
 }

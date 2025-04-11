@@ -44,7 +44,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return "";
   }
   public get dropdownListModel(): DropdownMultiSelectListModel {
-    if (!this.dropdownListModelValue) {
+    if(!this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
     }
     return this.dropdownListModelValue;
@@ -65,7 +65,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModelValue) {
+      if(!!target.dropdownListModelValue) {
         target.dropdownListModel.setAllowCustomChoices(newValue);
       }
     }
@@ -80,7 +80,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModelValue) {
+      if(!!target.dropdownListModelValue) {
         target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
@@ -91,7 +91,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModelValue) {
+      if(!!target.dropdownListModelValue) {
         target.dropdownListModel.setHideSelectedItems(newValue);
       }
     }
@@ -104,7 +104,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if (!!target.dropdownListModelValue) {
+      if(!!target.dropdownListModelValue) {
         target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
       }
     }
@@ -182,7 +182,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if (this.dropdownListModelValue) {
+    if(this.dropdownListModelValue) {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
@@ -205,12 +205,12 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if (!!this.dropdownListModelValue) {
+    if(!!this.dropdownListModelValue) {
       this.dropdownListModel.updateItems();
     }
   }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if (this.choicesLazyLoadEnabled) {
+    if(this.choicesLazyLoadEnabled) {
       return this.createItemValue(value, text);
     } else {
       return super.getItemIfChoicesNotContainThisValue(value, text);
@@ -248,7 +248,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return this.allowCustomChoices;
   }
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled || this.allowCustomChoices? "_0" : "");
+    return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");
   }
   public getInputId(): string {
     return this.inputId + "_0";

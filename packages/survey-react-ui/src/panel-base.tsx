@@ -46,13 +46,13 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   componentWillUnmount() {
     super.componentWillUnmount();
     var el = this.rootRef.current;
-    if (!!el) {
+    if(!!el) {
       el.removeAttribute("data-rendered");
     }
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if (
+    if(
       !!prevProps.page &&
       !!this.survey &&
       !!this.survey.activePage &&
@@ -63,8 +63,8 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
   }
   private doAfterRender() {
     var el = this.rootRef.current;
-    if (el && this.survey) {
-      if (this.panelBase.isPanel) {
+    if(el && this.survey) {
+      if(this.panelBase.isPanel) {
         this.panelBase.afterRender(el);
       } else {
         this.survey.afterRenderPage(el);

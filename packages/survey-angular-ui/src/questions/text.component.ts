@@ -21,9 +21,9 @@ export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
   }
 
   updateInputDomElement(): void {
-    if (!!this.inputElementRef?.nativeElement) {
+    if(!!this.inputElementRef?.nativeElement) {
       const control: any = this.inputElementRef.nativeElement;
-      if (!Helpers.isTwoValueEquals(this.value, control.value, false, true, false)) {
+      if(!Helpers.isTwoValueEquals(this.value, control.value, false, true, false)) {
         control.value = this.value;
       }
     }

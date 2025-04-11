@@ -46,8 +46,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
         this.updateIsVisible(val);
         this.updateAfterHiding();
         this._isPositionSetValue = false;
-      }
-      else {
+      } else {
         this.updateBeforeShowing();
         this.updateIsVisible(val);
       }
@@ -93,7 +92,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   private createdContainer: HTMLElement;
 
   public getLocale(): string {
-    if (!!this.locale) return this.locale;
+    if(!!this.locale) return this.locale;
     return super.getLocale();
   }
   protected hidePopup(): void {
@@ -133,7 +132,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   };
 
   private setupModel(model: PopupModel) {
-    if (!!this.model) {
+    if(!!this.model) {
       this.model.onVisibilityChanged.remove(this.onModelIsVisibleChangedCallback);
     }
     this.onModelChanging(model);
@@ -193,16 +192,16 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     return this.getLocalizationString("modalCancelButtonText");
   }
   public get footerToolbar(): ActionContainer {
-    if (!this.footerToolbarValue) {
+    if(!this.footerToolbarValue) {
       this.createFooterActionBar();
     }
     return this.footerToolbarValue;
   }
 
   public onKeyDown(event: any): void {
-    if (event.key === "Tab" || event.keyCode === 9) {
+    if(event.key === "Tab" || event.keyCode === 9) {
       this.trapFocus(event);
-    } else if (event.key === "Escape" || event.keyCode === 27) {
+    } else if(event.key === "Escape" || event.keyCode === 27) {
       this.hidePopup();
     }
   }
@@ -210,13 +209,13 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     const focusableElements = this.container.querySelectorAll(FOCUS_INPUT_SELECTOR);
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
-    if (event.shiftKey) {
-      if (settings.environment.root.activeElement === firstFocusableElement) {
+    if(event.shiftKey) {
+      if(settings.environment.root.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (settings.environment.root.activeElement === lastFocusableElement) {
+      if(settings.environment.root.activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }
@@ -224,9 +223,9 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
 
   public switchFocus(): void {
-    if (this.isFocusedContent) {
+    if(this.isFocusedContent) {
       this.focusFirstInput();
-    } else if (this.isFocusedContainer) {
+    } else if(this.isFocusedContainer) {
       this.focusContainer();
     }
   }
@@ -238,7 +237,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   public updateOnShowing(): void {
     this.prevActiveElement = <HTMLElement>settings.environment.root.activeElement;
 
-    if (this.isOverlay) {
+    if(this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();
     }
 
@@ -247,20 +246,20 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
 
   public updateOnHiding(): void {
-    if (this.isFocusedContent && this.prevActiveElement) {
+    if(this.isFocusedContent && this.prevActiveElement) {
       this.prevActiveElement.focus({ preventScroll: true });
     }
   }
   private focusContainer() {
-    if (!this.container) return;
+    if(!this.container) return;
     const popup = (<HTMLElement>this.container.querySelector(this.popupSelector));
     popup?.focus();
   }
   private focusFirstInput() {
     setTimeout(() => {
-      if (!this.container) return;
+      if(!this.container) return;
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
-      if (!!el) (<HTMLElement>el).focus();
+      if(!!el) (<HTMLElement>el).focus();
       else this.focusContainer();
     }, 100);
   }
@@ -274,27 +273,27 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   public dispose(): void {
     super.dispose();
-    if (this.model) {
+    if(this.model) {
       this.model.onVisibilityChanged.remove(this.onModelIsVisibleChangedCallback);
     }
-    if (!!this.createdContainer) {
+    if(!!this.createdContainer) {
       this.createdContainer.remove();
       this.createdContainer = undefined;
     }
-    if (!!this.footerToolbarValue) {
+    if(!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
     this.resetComponentElement();
   }
   public initializePopupContainer(): void {
-    if (!this.container) {
+    if(!this.container) {
       const container: HTMLElement = DomDocumentHelper.createElement("div");
       this.createdContainer = container;
       getElement(settings.environment.popupMountContainer).appendChild(container);
     }
   }
   public setComponentElement(componentRoot: HTMLElement): void {
-    if (!!componentRoot) {
+    if(!!componentRoot) {
       this.containerElement = componentRoot;
     }
   }
@@ -304,16 +303,16 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;
-    while (currentElement !== this.container) {
-      if (DomDocumentHelper.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+    while(currentElement !== this.container) {
+      if(DomDocumentHelper.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
         const { scrollHeight, scrollTop, clientHeight } = currentElement;
-        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
+        if(!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
           return;
         }
       }
       currentElement = currentElement.parentElement;
     }
-    if (event.cancelable) {
+    if(event.cancelable) {
       event.preventDefault();
     }
   }

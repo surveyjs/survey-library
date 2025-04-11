@@ -17,8 +17,8 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var tableRows = this.question.getRows();
     var rows: Array<React.JSX.Element> = [];
-    for (var i = 0; i < tableRows.length; i++) {
-      if (tableRows[i].isVisible) {
+    for(var i = 0; i < tableRows.length; i++) {
+      if(tableRows[i].isVisible) {
         rows.push(this.renderRow(i, tableRows[i].cells, cssClasses));
       }
     }
@@ -32,7 +32,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   protected renderCell(cell: MultipleTextCell, cssClasses: any, index: number): React.JSX.Element {
     let cellContent: React.JSX.Element;
     const focusIn = () => { cell.item.focusIn(); };
-    if (cell.isErrorsCell) {
+    if(cell.isErrorsCell) {
       cellContent = <SurveyQuestionErrorCell question={cell.item.editor} creator={this.creator}></SurveyQuestionErrorCell>;
     } else {
       cellContent = <SurveyMultipleTextItem question={this.question} item={cell.item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>;
@@ -47,7 +47,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   ): React.JSX.Element {
     const key: string = "item" + rowIndex;
     const tds: Array<React.JSX.Element> = [];
-    for (let i = 0; i < cells.length; i++) {
+    for(let i = 0; i < cells.length; i++) {
       const cell = cells[i];
       tds.push(
         this.renderCell(cell, cssClasses, i)
@@ -79,7 +79,7 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
     const item = this.item;
     const cssClasses = this.cssClasses;
     const titleStyle: any = {};
-    if (!!this.question.itemTitleWidth) {
+    if(!!this.question.itemTitleWidth) {
       titleStyle.minWidth = this.question.itemTitleWidth;
       titleStyle.width = this.question.itemTitleWidth;
     }

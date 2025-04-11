@@ -18,12 +18,12 @@ export class SurveyQuestionOptionItem extends ReactSurveyElement {
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if (!!this.item) {
+    if(!!this.item) {
       this.item.locText.onChanged = () => { };
     }
   }
   private setupModel(): void {
-    if (!this.item.locText) return;
+    if(!this.item.locText) return;
     const self = this;
     this.item.locText.onChanged = () => {
       self.setState({ changed: self.state.changed + 1 });

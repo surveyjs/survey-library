@@ -17,11 +17,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementNode: HTMLElement,
     event: PointerEvent
   ): HTMLElement {
-    if (this.parentElement.getType() === "imagepicker") {
+    if(this.parentElement.getType() === "imagepicker") {
       return this.createImagePickerShortcut(this.draggedElement, text, draggedElementNode, event);
     }
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
-    if (!draggedElementShortcut) return;
+    if(!draggedElementShortcut) return;
 
     // draggedElementShortcut.innerText = text;
     draggedElementShortcut.className = "sv-drag-drop-choices-shortcut";
@@ -53,7 +53,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
     this.isBottom = null;
 
-    if (typeof this.onShortcutCreated === "function") {
+    if(typeof this.onShortcutCreated === "function") {
       this.onShortcutCreated(draggedElementShortcut);
     }
 
@@ -64,7 +64,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   private createImagePickerShortcut(item: ImageItemValue, text: string, draggedElementNode: HTMLElement, event: PointerEvent) {
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
-    if (!draggedElementShortcut) return;
+    if(!draggedElementShortcut) return;
 
     draggedElementShortcut.classList.add("sv-drag-drop-image-picker-shortcut");
 
@@ -73,7 +73,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const imageContainerNode: any = itemValueNode.querySelector(".sd-imagepicker__image-container");
     let imageNode: any = itemValueNode.querySelector(item.imageLink ? "img" : ".sd-imagepicker__no-image").cloneNode(true);
 
-    if (!!this.imagepickerControlsNode) {
+    if(!!this.imagepickerControlsNode) {
       this.imagepickerControlsNode.style.display = "none";
     }
     imageContainerNode.style.width = imageNode.width + "px";
@@ -101,8 +101,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   private getChoices() {
     const parent = this.parentElement;
-    if (parent.getType() === "ranking") {
-      if (parent.selectToRankEnabled) {
+    if(parent.getType() === "ranking") {
+      if(parent.selectToRankEnabled) {
         return parent.unRankingChoices;
       } else {
         return <QuestionRankingModel>parent.rankingChoices;
@@ -112,7 +112,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   protected doDragOver = (): any => {
-    if (this.parentElement.getType() === "imagepicker") return;
+    if(this.parentElement.getType() === "imagepicker") return;
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".svc-item-value-controls__button");
     node.style.cursor = "grabbing";
   };
@@ -123,29 +123,29 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   ): boolean {
     const choices = this.getChoices();
 
-    if (this.parentElement.getType() !== "imagepicker") {
+    if(this.parentElement.getType() !== "imagepicker") {
       const dropTargetIndex = choices.indexOf(this.dropTarget);
       const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-      if (draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
+      if(draggedElementIndex > dropTargetIndex && this.dropTarget.isDragDropMoveUp) {
         this.dropTarget.isDragDropMoveUp = false;
         return false;
       }
 
-      if (draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
+      if(draggedElementIndex < dropTargetIndex && this.dropTarget.isDragDropMoveDown) {
         this.dropTarget.isDragDropMoveDown = false;
         return false;
       }
     }
 
     // shouldn't allow to drop on "adorners" (selectall, none, other)
-    if (choices.indexOf(dropTarget) === -1) return false;
+    if(choices.indexOf(dropTarget) === -1) return false;
 
     return true;
   }
 
   protected doBanDropHere = (): any => {
-    if (this.parentElement.getType() === "imagepicker") return;
+    if(this.parentElement.getType() === "imagepicker") return;
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".svc-item-value-controls__button");
     node.style.cursor = "not-allowed";
   };
@@ -168,11 +168,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    if (draggedElementIndex < dropTargetIndex && this.isBottom === true) {
+    if(draggedElementIndex < dropTargetIndex && this.isBottom === true) {
       // drag "down"
       choices.splice(draggedElementIndex, 1);
       choices.splice(dropTargetIndex, 0, this.draggedElement);
-    } else if (draggedElementIndex > dropTargetIndex && this.isBottom === false) {
+    } else if(draggedElementIndex > dropTargetIndex && this.isBottom === false) {
       // drag "up"
       choices.splice(dropTargetIndex, 1);
       choices.splice(draggedElementIndex, 0, this.dropTarget);
@@ -180,20 +180,20 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       return;
     }
 
-    if (this.parentElement.getType() === "imagepicker") return;
+    if(this.parentElement.getType() === "imagepicker") return;
 
-    if (draggedElementIndex !== dropTargetIndex) {
+    if(draggedElementIndex !== dropTargetIndex) {
       dropTargetNode.classList.remove("svc-item-value--moveup");
       dropTargetNode.classList.remove("svc-item-value--movedown");
       this.dropTarget.isDragDropMoveDown = false;
       this.dropTarget.isDragDropMoveUp = false;
     }
 
-    if (draggedElementIndex > dropTargetIndex) {
+    if(draggedElementIndex > dropTargetIndex) {
       this.dropTarget.isDragDropMoveDown = true;
     }
 
-    if (draggedElementIndex < dropTargetIndex) {
+    if(draggedElementIndex < dropTargetIndex) {
       this.dropTarget.isDragDropMoveUp = true;
     }
     super.ghostPositionChanged();
@@ -215,10 +215,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   }
 
   public clear(): void {
-    if (!!this.parentElement) {
+    if(!!this.parentElement) {
       this.updateVisibleChoices(this.parentElement);
     }
-    if (!!this.imagepickerControlsNode) {
+    if(!!this.imagepickerControlsNode) {
       this.imagepickerControlsNode.style.display = "flex";
       this.imagepickerControlsNode = null;
     }

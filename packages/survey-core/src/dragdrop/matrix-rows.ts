@@ -62,7 +62,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     const renderedRows = this.parentElement.renderedTable.rows;
     renderedRows.forEach((renderedRow, index) => {
-      if (renderedRow.row === this.draggedElement) {
+      if(renderedRow.row === this.draggedElement) {
         renderedRow.isGhostRow = true;
       }
     });
@@ -118,7 +118,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    if (this.isDropTargetDoesntChanged(this.isBottom)) return;
+    if(this.isDropTargetDoesntChanged(this.isBottom)) return;
 
     let dropTargetIndex;
     let draggedElementIndex;
@@ -126,11 +126,11 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     const renderedRows = this.parentElement.renderedTable.rows;
     renderedRows.forEach((renderedRow, index) => {
-      if (renderedRow.row === this.dropTarget) {
+      if(renderedRow.row === this.dropTarget) {
         // renderedRow.isGhostRow = true;
         dropTargetIndex = index;
       }
-      if (renderedRow.row === this.draggedElement) {
+      if(renderedRow.row === this.draggedElement) {
         draggedRenderedRow = renderedRow;
         draggedElementIndex = index;
         draggedRenderedRow.isGhostRow = true;

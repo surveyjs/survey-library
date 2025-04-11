@@ -40,7 +40,7 @@ export class ModalComponent {
   ngOnDestroy() {
     this.portalHost?.detach();
     this.model?.dispose();
-    if (this.functionDefined) {
+    if(this.functionDefined) {
       settings.showDialog = <any>undefined;
     }
   }

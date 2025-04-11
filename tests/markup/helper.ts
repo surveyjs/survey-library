@@ -31,13 +31,13 @@ function format(html: string) {
   var indent = "";
 
   html.split(/>\s*</).forEach(function (element) {
-    if (element.match(/^\/\w/)) {
+    if(element.match(/^\/\w/)) {
       indent = indent.substring(tab.length);
     }
 
     result += indent + "<" + element + ">\r\n";
 
-    if (element.match(/^<?\w[^>]*[^\/]$/) && !element.startsWith("input")) {
+    if(element.match(/^<?\w[^>]*[^\/]$/) && !element.startsWith("input")) {
       indent += tab;
     }
   });
@@ -46,13 +46,13 @@ function format(html: string) {
 }
 
 function sortAttributes(elements: Array<HTMLElement>) {
-  for (var j = 0; j < elements.length; j++) {
+  for(var j = 0; j < elements.length; j++) {
     var attributes = [];
-    for (var i = 0; i < elements[j].attributes.length; i++) {
+    for(var i = 0; i < elements[j].attributes.length; i++) {
       var name = elements[j].attributes[i].name;
       var value = elements[j].attributes[i].value;
       ["disabled", "controls"].forEach((tag) => {
-        if (name == tag && value == tag)
+        if(name == tag && value == tag)
           value = "";
       });
       attributes.push({
@@ -65,21 +65,21 @@ function sortAttributes(elements: Array<HTMLElement>) {
       (a1, b1) => {
         let a = a1.name.toUpperCase();
         let b = b1.name.toUpperCase();
-        if (a > b) {
+        if(a > b) {
           return 1;
         }
-        if (a < b) {
+        if(a < b) {
           return -1;
         }
         return 0;
       }
     );
 
-    for (var i = 0; i < sortedAttributes.length; i++) {
+    for(var i = 0; i < sortedAttributes.length; i++) {
       elements[j].removeAttribute(sortedAttributes[i]["name"]);
     }
 
-    for (var i = 0; i < sortedAttributes.length; i++) {
+    for(var i = 0; i < sortedAttributes.length; i++) {
       elements[j].setAttribute(sortedAttributes[i]["name"], sortedAttributes[i]["value"]);
     }
   }
@@ -88,22 +88,21 @@ function sortAttributes(elements: Array<HTMLElement>) {
 export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, platform: any): void {
   var id = "surveyElement" + platform.name;
   var surveyElement = document.getElementById(id);
-  var reportElement = document.getElementById(id+"_report");
-  if (surveyElement) {
+  var reportElement = document.getElementById(id + "_report");
+  if(surveyElement) {
     surveyElement.innerHTML = "";
-  }
-  else {
+  } else {
     surveyElement = document.createElement("div");
     surveyElement.id = id;
     surveyElement.style.display = "none";
     document.body.appendChild(surveyElement);
     reportElement = document.createElement("div");
-    reportElement.id = id+"_report";
+    reportElement.id = id + "_report";
     document.body.appendChild(reportElement);
   }
   var done = assert.async();
   settings.animationEnabled = false;
-  if (test.before)
+  if(test.before)
     test.before();
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
@@ -115,14 +114,14 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         htmlElement = test.getElement(options.htmlElement);
       }
       var all = htmlElement.getElementsByTagName("*");
-      for (var i = 0, max = all.length; i < max; i++) {
+      for(var i = 0, max = all.length; i < max; i++) {
         clearAttributes(all[i], test.removeIds);
         clearClasses(all[i]);
       }
       sortAttributes(all);
       let newEl = document.createElement("div");
       newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
-      if (!test.getElement) {
+      if(!test.getElement) {
         newEl = newEl.children[0] as any;
       }
       let str = newEl.innerHTML;
@@ -151,10 +150,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
           platform.name + " " + test.name + " rendered correctly" :
           platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
       settings.animationEnabled = true;
-      if (test.after) { test.after(); }
-      if (platform.finish)
+      if(test.after) { test.after(); }
+      if(platform.finish)
         platform.finish(surveyElement);
-      if (newstr != oldStr) {
+      if(newstr != oldStr) {
         var form = document.createElement("form");
         form.action = "https://text-compare.com/";
         form.target = "_blank";
@@ -211,7 +210,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
     }, test.timeout || 10);
   });
   platform.survey.focusFirstQuestionAutomatic = false;
-  if (test.initSurvey)
+  if(test.initSurvey)
     test.initSurvey(platform.survey);
   platform.survey.getAllQuestions().map((q, i) => {
     q.id = "testid" + i;
@@ -274,7 +273,7 @@ function removeExtraElement(el: HTMLElement) {
   const parentEl = el.parentElement || el;
   let nextSibling:any = el.nextSibling;
   el.remove();
-  while (el.children.length > 0) {
+  while(el.children.length > 0) {
     const childEl = el.children[el.children.length - 1];
     parentEl.insertBefore(el.children[el.children.length - 1], nextSibling);
     nextSibling = childEl;
@@ -336,16 +335,16 @@ function clearAttributes(el: Element, removeIds = false) {
     el.setAttribute("readonly", "");
   if(el.hasAttribute("required"))
     el.setAttribute("required", "");
-  if (el.hasAttribute("disabled"))
+  if(el.hasAttribute("disabled"))
     el.setAttribute("disabled", "");
   if(el.hasAttribute("ng-reflect-value")) {
     el.setAttribute("value", <string>el.getAttribute("ng-reflect-value"));
   }
 
   const attributesToRemove = [];
-  for (let i = 0; i < el.attributes.length; i ++) {
+  for(let i = 0; i < el.attributes.length; i ++) {
     const attr = el.attributes[i];
-    if (attr.name.search(/^(_ng|ng-|sv-ng)/) > -1) {
+    if(attr.name.search(/^(_ng|ng-|sv-ng)/) > -1) {
       attributesToRemove.push(el.attributes[i].name);
     }
   }
@@ -375,7 +374,7 @@ function sortInlineStyles(str: string) {
       if(el.tagName === "CANVAS") {
         const excludeStyles = ["touch-action: none", "touch-action: auto"];
         excludeStyles.forEach(excludeStyle => {
-          if (inlineStyle.indexOf(excludeStyle) !== -1) {
+          if(inlineStyle.indexOf(excludeStyle) !== -1) {
             inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
           }
         });

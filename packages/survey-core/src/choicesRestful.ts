@@ -9,11 +9,11 @@ import { SurveyError } from "./survey-error";
 class XmlParser {
   private parser = new DOMParser();
   public assignValue(target: any, name: string, value: any) {
-    if (Array.isArray(target[name])) {
+    if(Array.isArray(target[name])) {
       target[name].push(value);
-    } else if (target[name] !== undefined) {
+    } else if(target[name] !== undefined) {
       target[name] = [target[name]].concat(value);
-    } else if (
+    } else if(
       typeof value === "object" &&
       Object.keys(value).length === 1 &&
       Object.keys(value)[0] === name
@@ -24,8 +24,8 @@ class XmlParser {
     }
   }
   public xml2Json(xmlNode: any, result: any) {
-    if (xmlNode.children && xmlNode.children.length > 0) {
-      for (let i = 0; i < xmlNode.children.length; i++) {
+    if(xmlNode.children && xmlNode.children.length > 0) {
+      for(let i = 0; i < xmlNode.children.length; i++) {
         let childNode = xmlNode.children[i];
         let childObject = {};
         this.xml2Json(childNode, childObject);
@@ -80,10 +80,10 @@ export class ChoicesRestful extends Base {
     [index: string]: Array<ChoicesRestful>,
   } = {};
   private static addSameRequest(obj: ChoicesRestful): boolean {
-    if (!obj.isUsingCache) return false;
+    if(!obj.isUsingCache) return false;
     var hash = obj.objHash;
     var res = ChoicesRestful.sendingSameRequests[hash];
-    if (!res) {
+    if(!res) {
       ChoicesRestful.sendingSameRequests[obj.objHash] = [];
       return false;
     }
@@ -92,13 +92,13 @@ export class ChoicesRestful extends Base {
     return true;
   }
   private static unregisterSameRequests(obj: ChoicesRestful, items: any) {
-    if (!obj.isUsingCache) return;
+    if(!obj.isUsingCache) return;
     var res = ChoicesRestful.sendingSameRequests[obj.objHash];
     delete ChoicesRestful.sendingSameRequests[obj.objHash];
-    if (!res) return;
-    for (var i = 0; i < res.length; i++) {
+    if(!res) return;
+    for(var i = 0; i < res.length; i++) {
       res[i].isRunningValue = false;
-      if (!!res[i].getResultCallback) {
+      if(!!res[i].getResultCallback) {
         res[i].getResultCallback(items);
       }
     }
@@ -117,8 +117,8 @@ export class ChoicesRestful extends Base {
   private static getCachedItemsResult(obj: ChoicesRestful): boolean {
     var hash = obj.objHash;
     var res = ChoicesRestful.itemsResult[hash];
-    if (!res) return false;
-    if (obj.getResultCallback) {
+    if(!res) return false;
+    if(obj.getResultCallback) {
       obj.getResultCallback(res);
     }
     return true;
@@ -151,23 +151,23 @@ export class ChoicesRestful extends Base {
     return !!this.owner ? this.owner.survey : null;
   }
   public run(textProcessor: ITextProcessor = null) {
-    if (!this.url || !this.getResultCallback) return;
+    if(!this.url || !this.getResultCallback) return;
     this.processedText(textProcessor);
-    if (!this.processedUrl) {
+    if(!this.processedUrl) {
       this.doEmptyResultCallback({});
       this.lastObjHash = this.objHash;
       return;
     }
-    if (this.lastObjHash === this.objHash) return;
+    if(this.lastObjHash === this.objHash) return;
     this.lastObjHash = this.objHash;
     this.error = null;
-    if (this.useChangedItemsResults()) return;
-    if (ChoicesRestful.addSameRequest(this)) return;
+    if(this.useChangedItemsResults()) return;
+    if(ChoicesRestful.addSameRequest(this)) return;
     this.sendRequest();
   }
   public get isUsingCache(): boolean {
-    if (this.isUsingCacheFromUrl === true) return true;
-    if (this.isUsingCacheFromUrl === false) return false;
+    if(this.isUsingCacheFromUrl === true) return true;
+    if(this.isUsingCacheFromUrl === false) return false;
     return settings.web.cacheLoadedChoices;
   }
   public get isRunning(): boolean {
@@ -185,22 +185,22 @@ export class ChoicesRestful extends Base {
   }
   private doEmptyResultCallback(serverResult: any) {
     var items: Array<any> = [];
-    if (this.updateResultCallback) {
+    if(this.updateResultCallback) {
       items = this.updateResultCallback(items, serverResult);
     }
     this.getResultCallback(items);
   }
   private processedText(textProcessor: ITextProcessor) {
     var urlText = this.url;
-    if (!!urlText) {
+    if(!!urlText) {
       urlText = urlText
         .replace(ChoicesRestful.cacheText, "")
         .replace(ChoicesRestful.noCacheText, "");
     }
-    if (textProcessor) {
+    if(textProcessor) {
       var pUrl = textProcessor.processTextEx({ text: urlText, runAtDesign: true });
       var pPath = textProcessor.processTextEx({ text: this.path, runAtDesign: true });
-      if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
+      if(!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
         this.processedPath = "";
       } else {
@@ -211,13 +211,13 @@ export class ChoicesRestful extends Base {
       this.processedUrl = urlText;
       this.processedPath = this.path;
     }
-    if (this.onProcessedUrlCallback) {
+    if(this.onProcessedUrlCallback) {
       this.onProcessedUrlCallback(this.processedUrl, this.processedPath);
     }
   }
   protected parseResponse(response: any) {
     let parsedResponse;
-    if (
+    if(
       !!response &&
       typeof response.indexOf === "function" &&
       response.indexOf("<") === 0
@@ -227,7 +227,7 @@ export class ChoicesRestful extends Base {
     } else {
       try {
         parsedResponse = JSON.parse(response);
-      } catch {
+      } catch{
         parsedResponse = (response || "")
           .split("\n")
           .map((s: any) => s.trim(" "))
@@ -244,14 +244,14 @@ export class ChoicesRestful extends Base {
     var loadingObjHash = this.objHash;
     xhr.onload = function () {
       self.beforeLoadRequest();
-      if (xhr.status === 200) {
+      if(xhr.status === 200) {
         self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
       } else {
         self.onError(xhr.statusText, xhr.responseText);
       }
     };
     var options = { request: xhr };
-    if (!!settings.web.onBeforeRequestChoices) {
+    if(!!settings.web.onBeforeRequestChoices) {
       settings.web.onBeforeRequestChoices(this, options);
     }
     this.beforeSendRequest();
@@ -266,7 +266,7 @@ export class ChoicesRestful extends Base {
   public getCustomPropertiesNames(): Array<string> {
     var properties = this.getCustomProperties();
     var res = new Array<string>();
-    for (var i = 0; i < properties.length; i++) {
+    for(var i = 0; i < properties.length; i++) {
       res.push(this.getCustomPropertyName(properties[i].name));
     }
     return res;
@@ -277,8 +277,8 @@ export class ChoicesRestful extends Base {
   private getCustomProperties(): Array<JsonObjectProperty> {
     var properties = Serializer.getProperties(this.itemValueType);
     var res = [];
-    for (var i = 0; i < properties.length; i++) {
-      if (
+    for(var i = 0; i < properties.length; i++) {
+      if(
         properties[i].name === "value" ||
         properties[i].name === "text" ||
         properties[i].name === "visibleIf" ||
@@ -333,11 +333,11 @@ export class ChoicesRestful extends Base {
   public set url(val: string) {
     this.setPropertyValue("url", val);
     this.isUsingCacheFromUrl = undefined;
-    if (!val) return;
-    if (val.indexOf(ChoicesRestful.cacheText) > -1) {
+    if(!val) return;
+    if(val.indexOf(ChoicesRestful.cacheText) > -1) {
       this.isUsingCacheFromUrl = true;
     } else {
-      if (val.indexOf(ChoicesRestful.noCacheText) > -1) {
+      if(val.indexOf(ChoicesRestful.noCacheText) > -1) {
         this.isUsingCacheFromUrl = false;
       }
     }
@@ -428,10 +428,10 @@ export class ChoicesRestful extends Base {
     this.setPropertyValue("attachOriginalItems", val);
   }
   public get itemValueType(): string {
-    if (!this.owner) return "itemvalue";
+    if(!this.owner) return "itemvalue";
     var prop = Serializer.findProperty(this.owner.getType(), "choices");
-    if (!prop) return "itemvalue";
-    if (prop.type == "itemvalue[]") return "itemvalue";
+    if(!prop) return "itemvalue";
+    if(prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
   }
   public clear(): void {
@@ -439,7 +439,7 @@ export class ChoicesRestful extends Base {
   }
   protected beforeSendRequest() {
     this.isRunningValue = true;
-    if (!!this.beforeSendRequestCallback) {
+    if(!!this.beforeSendRequestCallback) {
       this.beforeSendRequestCallback();
     }
   }
@@ -447,39 +447,39 @@ export class ChoicesRestful extends Base {
     this.isRunningValue = false;
   }
   protected onLoad(result: any, loadingObjHash: string = null) {
-    if (!loadingObjHash) {
+    if(!loadingObjHash) {
       loadingObjHash = this.objHash;
     }
     var items = new Array<ItemValue>();
     var updatedResult = this.getResultAfterPath(result);
-    if (updatedResult && updatedResult["length"]) {
-      for (var i = 0; i < updatedResult.length; i++) {
+    if(updatedResult && updatedResult["length"]) {
+      for(var i = 0; i < updatedResult.length; i++) {
         var itemValue = updatedResult[i];
-        if (!itemValue) continue;
+        if(!itemValue) continue;
         var value = !!this.getItemValueCallback
           ? this.getItemValueCallback(itemValue)
           : this.getValue(itemValue);
         var item = this.createItemValue(value);
         this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
-        if (this.attachOriginalItems) {
+        if(this.attachOriginalItems) {
           item.originalItem = itemValue;
         }
         var imageLink = this.getImageLink(itemValue);
-        if (!!imageLink) {
+        if(!!imageLink) {
           item.imageLink = imageLink;
         }
         items.push(item);
       }
     } else {
-      if (!this.allowEmptyResponse) {
+      if(!this.allowEmptyResponse) {
         this.error = new WebRequestEmptyError(null, this.owner);
       }
     }
-    if (this.updateResultCallback) {
+    if(this.updateResultCallback) {
       items = this.updateResultCallback(items, result);
     }
-    if (this.isUsingCache) {
+    if(this.isUsingCache) {
       ChoicesRestful.itemsResult[loadingObjHash] = items;
     }
     this.callResultCallback(items, loadingObjHash);
@@ -489,26 +489,26 @@ export class ChoicesRestful extends Base {
     items: Array<ItemValue>,
     loadingObjHash: string
   ) {
-    if (loadingObjHash != this.objHash) return;
+    if(loadingObjHash != this.objHash) return;
     this.getResultCallback(items);
   }
   private setCustomProperties(item: ItemValue, itemValue: any) {
     var properties = this.getCustomProperties();
-    for (var i = 0; i < properties.length; i++) {
+    for(var i = 0; i < properties.length; i++) {
       var prop = properties[i];
       var val = this.getValueCore(
         itemValue,
         this.getPropertyBinding(prop.name)
       );
-      if (!this.isValueEmpty(val)) {
+      if(!this.isValueEmpty(val)) {
         (<any>item)[prop.name] = val;
       }
     }
   }
   private getPropertyBinding(propertyName: string) {
-    if ((<any>this)[this.getCustomPropertyName(propertyName)])
+    if((<any>this)[this.getCustomPropertyName(propertyName)])
       return (<any>this)[this.getCustomPropertyName(propertyName)];
-    if ((<any>this)[propertyName]) return (<any>this)[propertyName];
+    if((<any>this)[propertyName]) return (<any>this)[propertyName];
     return propertyName;
   }
   private onError(status: string, response: string) {
@@ -517,40 +517,40 @@ export class ChoicesRestful extends Base {
     ChoicesRestful.unregisterSameRequests(this, []);
   }
   private getResultAfterPath(result: any) {
-    if (!result) return result;
-    if (!this.processedPath) return result;
+    if(!result) return result;
+    if(!this.processedPath) return result;
     var pathes = this.getPathes();
-    for (var i = 0; i < pathes.length; i++) {
+    for(var i = 0; i < pathes.length; i++) {
       result = result[pathes[i]];
-      if (!result) return null;
+      if(!result) return null;
     }
     return result;
   }
   private getPathes(): Array<string> {
     var pathes = [];
-    if (this.processedPath.indexOf(";") > -1) {
+    if(this.processedPath.indexOf(";") > -1) {
       pathes = this.path.split(";");
-    } else if (this.processedPath.indexOf(",") > -1) {
+    } else if(this.processedPath.indexOf(",") > -1) {
       pathes = this.processedPath.split(",");
     } else {
       pathes = this.processedPath.split(".");
     }
-    if (pathes.length == 0) pathes.push(this.processedPath);
+    if(pathes.length == 0) pathes.push(this.processedPath);
     return pathes;
   }
   private getValue(item: any): any {
-    if (!item) return null;
-    if (this.valueName) return this.getValueCore(item, this.valueName);
-    if (!(item instanceof Object)) return item;
+    if(!item) return null;
+    if(this.valueName) return this.getValueCore(item, this.valueName);
+    if(!(item instanceof Object)) return item;
     var len = Object.keys(item).length;
-    if (len < 1) return null;
+    if(len < 1) return null;
     return item[Object.keys(item)[0]];
   }
   private setTitle(item: ItemValue, itemValue: any): any {
     var title = this.titleName ? this.titleName : "title";
     var val = this.getValueCore(itemValue, title);
-    if (!val) return;
-    if (typeof val === "string") {
+    if(!val) return;
+    if(typeof val === "string") {
       item.text = val;
     } else {
       item.locText.setJson(val);
@@ -561,12 +561,12 @@ export class ChoicesRestful extends Base {
     return this.getValueCore(item, imageLink);
   }
   private getValueCore(item: any, property: string): any {
-    if (!item) return null;
-    if (property.indexOf(".") < 0) return item[property];
+    if(!item) return null;
+    if(property.indexOf(".") < 0) return item[property];
     var properties = property.split(".");
-    for (var i = 0; i < properties.length; i++) {
+    for(var i = 0; i < properties.length; i++) {
       item = item[properties[i]];
-      if (!item) return null;
+      if(!item) return null;
     }
     return item;
   }

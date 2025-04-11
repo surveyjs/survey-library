@@ -36,7 +36,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
 
   componentDidMount(): void {
     super.componentDidMount();
-    if (this.rootRef.current) {
+    if(this.rootRef.current) {
       (this.element).setWrapperElement(this.rootRef.current);
     }
   }
@@ -47,12 +47,12 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   }
 
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    if (nextProps.element !== this.element) {
-      if (nextProps.element) {
+    if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if(nextProps.element !== this.element) {
+      if(nextProps.element) {
         nextProps.element.setWrapperElement(this.rootRef.current);
       }
-      if (this.element) {
+      if(this.element) {
         this.element.setWrapperElement(undefined);
       }
     }
@@ -67,7 +67,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
     const css = (element as Question).cssClassesValue;
     const focusIn = () => {
       const el: any = element;
-      if (el && el.isQuestion) {
+      if(el && el.isQuestion) {
         el.focusIn();
       }
     };
@@ -85,11 +85,11 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   }
 
   protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {
-    if (!this.row.isNeedRender) {
+    if(!this.row.isNeedRender) {
       return ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, });
     }
     let elementType = (element as any).getTemplate();
-    if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
+    if(!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }
     return ReactElementFactory.Instance.createElement(elementType, {

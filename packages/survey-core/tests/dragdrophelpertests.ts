@@ -305,7 +305,7 @@ function createRankingQuestionModel(withDefaultValue = false) {
     ]
   };
 
-  if (withDefaultValue) {
+  if(withDefaultValue) {
     json["defaultValue"] = ["33", "22"];
   }
 

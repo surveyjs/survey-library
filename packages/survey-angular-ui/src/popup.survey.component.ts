@@ -27,7 +27,7 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   }
   public getHeaderCss(): string {
     let headerCss = this.popup.cssHeaderRoot;
-    if (this.popup.isCollapsed) {
+    if(this.popup.isCollapsed) {
       headerCss += " " + this.popup.cssRootCollapsedMod;
     }
     return headerCss;
@@ -35,25 +35,25 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
 
   public closeHandler() {
     this.popup.hide();
-    if (!!this.onClose) {
+    if(!!this.onClose) {
       this.onClose();
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes["model"]?.currentValue !== changes["model"]?.previousValue) {
+    if(changes["model"]?.currentValue !== changes["model"]?.previousValue) {
       this.popup = new PopupSurveyModel(null, this.model);
     }
-    if (this.isExpanded !== undefined) {
+    if(this.isExpanded !== undefined) {
       this.popup.isExpanded = this.isExpanded;
     }
-    if (this.allowClose !== undefined) {
+    if(this.allowClose !== undefined) {
       this.popup.allowClose = this.allowClose;
     }
-    if (this.allowFullScreen !== undefined) {
+    if(this.allowFullScreen !== undefined) {
       this.popup.allowFullScreen = this.allowFullScreen;
     }
-    if (this.closeOnCompleteTimeout !== undefined) {
+    if(this.closeOnCompleteTimeout !== undefined) {
       this.popup.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
     }
     this.popup.isShowing = true;

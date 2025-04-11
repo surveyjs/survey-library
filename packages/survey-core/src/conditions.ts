@@ -50,7 +50,7 @@ export class ExpressionExecutorRunner {
     this.processValue.properties = properties;
   }
   public run(isAsync: boolean): any {
-    if (!isAsync) return this.runValues();
+    if(!isAsync) return this.runValues();
     this.processValue.values = Helpers.createCopy(this.processValue.values);
     this.processValue.onCompleteAsyncFunc = (op: any): void => {
       const item = this.getAsyncItemByOperand(op, this.asyncFuncList);
@@ -60,7 +60,7 @@ export class ExpressionExecutorRunner {
     };
     this.asyncFuncList = new Array<AsyncFunctionItem>();
     this.operand.addToAsyncList(this.asyncFuncList);
-    for (var i = 0; i < this.asyncFuncList.length; i++) {
+    for(var i = 0; i < this.asyncFuncList.length; i++) {
       this.runAsyncItem(this.asyncFuncList[i]);
     }
     return false;
@@ -93,8 +93,8 @@ export class ExpressionExecutorRunner {
       this.runAsyncItemCore(item.parent);
       return;
     }
-    for (var i = 0; i < this.asyncFuncList.length; i++) {
-      if (!this.isAsyncFuncReady(this.asyncFuncList[i])) return;
+    for(var i = 0; i < this.asyncFuncList.length; i++) {
+      if(!this.isAsyncFuncReady(this.asyncFuncList[i])) return;
     }
     this.runValues();
   }
@@ -135,7 +135,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
     return this.expressionValue;
   }
   private setExpression(value: string): void {
-    if (this.expression === value) return;
+    if(this.expression === value) return;
     this.expressionValue = value;
     this.operand = this.parser.parseExpression(value);
     this.hasFunctionValue = this.canRun() ? this.operand.hasFunction() : false;
@@ -144,7 +144,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
       : false;
   }
   public getVariables(): Array<string> {
-    if (!this.operand) return [];
+    if(!this.operand) return [];
 
     var variables: Array<string> = [];
     this.operand.setVariables(variables);
@@ -163,7 +163,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
   }
 
   public run(values: HashTable<any>, properties: HashTable<any> = null, id: number): any {
-    if (!this.operand) {
+    if(!this.operand) {
       if(!!this.expression) {
         ConsoleWarnings.warn("Invalid expression: " + this.expression);
       }
@@ -237,7 +237,7 @@ export class ConditionRunner extends ExpressionRunnerBase {
     return this.runCore(values, properties) == true;
   }
   protected doOnComplete(res: any, id: number): void {
-    if (!!this.onRunComplete) this.onRunComplete(res == true);
+    if(!!this.onRunComplete)this.onRunComplete(res == true);
     super.doOnComplete(res, id);
   }
 }
@@ -248,7 +248,7 @@ export class ExpressionRunner extends ExpressionRunnerBase {
     return this.runCore(values, properties);
   }
   protected doOnComplete(res: any, id: number): void {
-    if (!!this.onRunComplete) this.onRunComplete(res);
+    if(!!this.onRunComplete)this.onRunComplete(res);
     super.doOnComplete(res, id);
   }
 }

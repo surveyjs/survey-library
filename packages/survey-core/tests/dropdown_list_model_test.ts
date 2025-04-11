@@ -547,7 +547,7 @@ QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   survey.onChoicesLazyLoad.add((sender, options) => {
     var result: any = [];
-    for (let index = 3; index < 23; index++) {
+    for(let index = 3; index < 23; index++) {
       result.push({ value: "item" + index, text: "item" + index });
     }
     result = result.filter(i => i.text.indexOf(options.filter) != -1);
@@ -600,7 +600,7 @@ QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
   let callback;
   survey.onChoicesLazyLoad.add((sender, options) => {
     var result: any = [];
-    for (let index = 46; index < 55; index++) {
+    for(let index = 46; index < 55; index++) {
       result.push({ value: "item" + index, text: "item" + index });
     }
     result = result.filter(i => i.text.indexOf(options.filter) != -1);
@@ -631,7 +631,7 @@ QUnit.test("dropdown incorrect popup open test: lazy load, many items", function
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   survey.onChoicesLazyLoad.add((sender, options) => {
     var result: any = [];
-    for (let index = 3; index < 1000; index++) {
+    for(let index = 3; index < 1000; index++) {
       result.push({ value: "item" + index, text: "item" + index });
     }
     result = result.filter(i => i.text.indexOf(options.filter) != -1);

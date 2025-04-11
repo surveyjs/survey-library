@@ -44,9 +44,9 @@ export class MatrixRowModel extends Base {
       this.value = column.value;
     };
     this.registerPropertyChangedHandlers(["value"], () => {
-      if (this.data) this.data.onMatrixRowChanged(this);
+      if(this.data)this.data.onMatrixRowChanged(this);
     });
-    if (this.data && this.data.hasErrorInRow(this)) {
+    if(this.data && this.data.hasErrorInRow(this)) {
       this.hasError = true;
     }
   }
@@ -63,7 +63,7 @@ export class MatrixRowModel extends Base {
     return this.getPropertyValue("value");
   }
   public set value(val: any) {
-    if (!this.isReadOnly) {
+    if(!this.isReadOnly) {
       this.setValueDirectly(this.data.getCorrectedRowValue(val));
     }
   }
@@ -110,7 +110,7 @@ export class MatrixCells extends Base {
   public onValuesChanged: () => void;
   private locNotification: boolean;
   private valuesChanged(): void {
-    if (!this.locNotification && !!this.onValuesChanged) {
+    if(!this.locNotification && !!this.onValuesChanged) {
       this.onValuesChanged();
     }
   }
@@ -123,18 +123,18 @@ export class MatrixCells extends Base {
   private getCellLocCore(row: any, col: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
     col = this.getCellRowColumnValue(col, this.columns);
-    if (Helpers.isValueEmpty(row) || Helpers.isValueEmpty(col)) return null;
-    if (!this.locs[row]) {
+    if(Helpers.isValueEmpty(row) || Helpers.isValueEmpty(col)) return null;
+    if(!this.locs[row]) {
       this.locs[row] = {};
     }
     let res = <LocalizableString>this.locs[row][col];
-    if (!res) {
+    if(!res) {
       res = this.createString();
       res.setJson(this.getCellLocData(row, col));
       res.onGetTextCallback = (str: string): string => {
-        if (!str) {
+        if(!str) {
           const column = ItemValue.getItemByValue(this.columns, col);
-          if (column) {
+          if(column) {
             return column.locText.getJson() || column.value;
           }
         }
@@ -150,12 +150,12 @@ export class MatrixCells extends Base {
   private get defaultRowValue() { return settings.matrix.defaultRowName; }
   private getCellLocData(row: any, col: any): any {
     let data = this.getCellLocDataFromValue(row, col);
-    if (data) return data;
+    if(data) return data;
     return this.getCellLocDataFromValue(this.defaultRowValue, col);
   }
   private getCellLocDataFromValue(row: any, column: any): any {
-    if (!this.values[row]) return null;
-    if (!this.values[row][column]) return null;
+    if(!this.values[row]) return null;
+    if(!this.values[row][column]) return null;
     return this.values[row][column];
   }
   public getCellText(row: any, column: any): string {
@@ -164,19 +164,19 @@ export class MatrixCells extends Base {
   }
   public setCellText(row: any, column: any, val: string): void {
     const loc = this.getCellLocCore(row, column);
-    if (loc) {
+    if(loc) {
       loc.text = val;
     }
   }
   private updateValues(row: any, column: any, val: any): void {
-    if (val) {
-      if (!this.values[row]) this.values[row] = {};
+    if(val) {
+      if(!this.values[row])this.values[row] = {};
       this.values[row][column] = val;
       this.valuesChanged();
     } else {
-      if (this.values[row] && this.values[row][column]) {
+      if(this.values[row] && this.values[row][column]) {
         delete this.values[row][column];
-        if (Object.keys(this.values[row]).length == 0) {
+        if(Object.keys(this.values[row]).length == 0) {
           delete this.values[row];
         }
         this.valuesChanged();
@@ -201,23 +201,23 @@ export class MatrixCells extends Base {
     return this.cellsOwner ? this.cellsOwner.getColumns() : [];
   }
   private getCellRowColumnValue(val: any, values: Array<any>): any {
-    if (val === null || val === undefined) return null;
-    if (typeof val == "number") {
-      if (val < 0 || val >= values.length) return null;
+    if(val === null || val === undefined) return null;
+    if(typeof val == "number") {
+      if(val < 0 || val >= values.length) return null;
       val = values[val].value;
     }
-    if (val.value) return val.value;
+    if(val.value) return val.value;
     return val;
   }
   public getJson(): any {
-    if (this.isEmpty) return null;
+    if(this.isEmpty) return null;
     const defaultRow = this.values[this.defaultRowValue];
     const res: { [index: string]: any } = {};
-    for (let row in this.values) {
+    for(let row in this.values) {
       const resRow: { [index: string]: any } = {};
       const rowValues = this.values[row];
-      for (let col in rowValues) {
-        if (row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
+      for(let col in rowValues) {
+        if(row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
           const loc = this.getCellLocCore(row, col);
           resRow[col] = loc ? loc.getJson() : rowValues[col];
         }
@@ -228,13 +228,13 @@ export class MatrixCells extends Base {
   }
   public setJson(value: any, isLoading?: boolean): void {
     this.values = {};
-    if (!!value) {
-      for (var row in value) {
-        if (row == "pos") continue;
+    if(!!value) {
+      for(var row in value) {
+        if(row == "pos") continue;
         var rowValues = value[row];
         this.values[row] = {};
-        for (var col in rowValues) {
-          if (col == "pos") continue;
+        for(var col in rowValues) {
+          if(col == "pos") continue;
           this.values[row][col] = rowValues[col];
         }
       }
@@ -248,9 +248,9 @@ export class MatrixCells extends Base {
     this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged());
   }
   private runFuncOnLocs(func: (row: any, col: any, loc: LocalizableString) => void): void {
-    for (let row in this.locs) {
+    for(let row in this.locs) {
       const rowValues = this.locs[row];
-      for (let col in rowValues) {
+      for(let col in rowValues) {
         func(row, col, rowValues[col]);
       }
     }
@@ -353,7 +353,7 @@ export class QuestionMatrixModel
   }
   public set rowOrder(val: string) {
     val = val.toLowerCase();
-    if (val == this.rowOrder) return;
+    if(val == this.rowOrder) return;
     this.setPropertyValue("rowOrder", val);
     this.onRowsChanged();
   }
@@ -405,7 +405,7 @@ export class QuestionMatrixModel
       .toString();
   }
   public get itemSvgIcon(): string {
-    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+    if(this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
       return this.cssClasses.itemPreviewSvgIconId;
     }
     return this.cssClasses.itemSvgIconId;
@@ -416,17 +416,17 @@ export class QuestionMatrixModel
   }
   protected getQuizQuestionCount() {
     var res = 0;
-    for (var i = 0; i < this.rows.length; i++) {
-      if (!this.isValueEmpty(this.correctAnswer[this.rows[i].value])) res++;
+    for(var i = 0; i < this.rows.length; i++) {
+      if(!this.isValueEmpty(this.correctAnswer[this.rows[i].value])) res++;
     }
     return res;
   }
   protected getCorrectAnswerCount(): number {
     var res = 0;
     var value = this.value;
-    for (var i = 0; i < this.rows.length; i++) {
+    for(var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i].value;
-      if (
+      if(
         !this.isValueEmpty(value[row]) &&
         this.isTwoValueEquals(this.correctAnswer[row], value[row])
       )
@@ -446,14 +446,14 @@ export class QuestionMatrixModel
     super.onRowsChanged();
   }
   protected getVisibleRows(): Array<MatrixRowModel> {
-    if (!!this.generatedVisibleRows) return this.generatedVisibleRows;
+    if(!!this.generatedVisibleRows) return this.generatedVisibleRows;
     const result = new Array<MatrixRowModel>();
     let val = this.value;
-    if (!val) val = {};
+    if(!val) val = {};
     const rows = this.filteredRows || this.rows;
-    for (let i = 0; i < rows.length; i++) {
+    for(let i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (this.isValueEmpty(row.value)) continue;
+      if(this.isValueEmpty(row.value)) continue;
       const rowId = this.id + "_" + row.value.toString().replace(/\s/g, "_");
       result.push(this.createMatrixRow(row, rowId, val[row.value]));
     }
@@ -463,10 +463,10 @@ export class QuestionMatrixModel
   protected sortVisibleRows(
     array: Array<MatrixRowModel>
   ): Array<MatrixRowModel> {
-    if (!!this.survey && this.survey.isDesignMode)
+    if(!!this.survey && this.survey.isDesignMode)
       return array;
     var order = this.rowOrder.toLowerCase();
-    if (order === "random")
+    if(order === "random")
       return Helpers.randomizeArray<MatrixRowModel>(array);
     return array;
   }
@@ -528,13 +528,13 @@ export class QuestionMatrixModel
   private errorsInRow: HashTable<boolean>;
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (!isOnValueChanged || this.hasCssError()) {
+    if(!isOnValueChanged || this.hasCssError()) {
       const rowsErrors = { noValue: false, isNotUnique: false };
       this.checkErrorsAllRows(fireCallback, rowsErrors);
-      if (rowsErrors.noValue) {
+      if(rowsErrors.noValue) {
         errors.push(new RequiredInAllRowsError(null, this));
       }
-      if (rowsErrors.isNotUnique) {
+      if(rowsErrors.isNotUnique) {
         errors.push(new EachRowUniqueError(null, this));
       }
     }
@@ -546,44 +546,44 @@ export class QuestionMatrixModel
   }
   private checkErrorsAllRows(modifyErrors: boolean, res: { noValue: boolean, isNotUnique: boolean }, allRowsRequired?: boolean): void {
     var rows = this.generatedVisibleRows;
-    if (!rows) rows = this.visibleRows;
-    if (!rows) return;
+    if(!rows) rows = this.visibleRows;
+    if(!rows) return;
     const rowsRequired = this.eachRowRequired || allRowsRequired;
     const rowsUnique = this.eachRowUnique;
     res.noValue = false;
     res.isNotUnique = false;
-    if (modifyErrors) {
+    if(modifyErrors) {
       this.errorsInRow = undefined;
     }
-    if (!rowsRequired && !rowsUnique) return;
+    if(!rowsRequired && !rowsUnique) return;
     const hash: HashTable<any> = {};
-    for (var i = 0; i < rows.length; i++) {
+    for(var i = 0; i < rows.length; i++) {
       const val = rows[i].value;
       let isEmpty = this.isValueEmpty(val);
       const isNotUnique = rowsUnique && (!isEmpty && hash[val] === true);
       isEmpty = isEmpty && rowsRequired;
-      if (modifyErrors && (isEmpty || isNotUnique)) {
+      if(modifyErrors && (isEmpty || isNotUnique)) {
         this.addErrorIntoRow(rows[i]);
       }
-      if (!isEmpty) {
+      if(!isEmpty) {
         hash[val] = true;
       }
       res.noValue = res.noValue || isEmpty;
       res.isNotUnique = res.isNotUnique || isNotUnique;
     }
-    if (modifyErrors) {
+    if(modifyErrors) {
       rows.forEach(row => {
         row.hasError = this.hasErrorInRow(row);
       });
     }
   }
   private addErrorIntoRow(row: MatrixRowModel): void {
-    if (!this.errorsInRow) this.errorsInRow = {};
+    if(!this.errorsInRow)this.errorsInRow = {};
     this.errorsInRow[row.name] = true;
     row.hasError = true;
   }
   private refreshRowsErrors(): void {
-    if (!this.errorsInRow) return;
+    if(!this.errorsInRow) return;
     this.checkErrorsAllRows(true, { noValue: false, isNotUnique: false });
   }
   protected getIsAnswered(): boolean {
@@ -601,18 +601,18 @@ export class QuestionMatrixModel
   protected onMatrixRowCreated(row: MatrixRowModel) { }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, this.isRowChanging || updateIsAnswered);
-    if (!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
+    if(!this.generatedVisibleRows || this.generatedVisibleRows.length == 0)
       return;
     this.isRowChanging = true;
     var val = this.value;
-    if (!val) val = {};
-    if (this.rows.length == 0) {
+    if(!val) val = {};
+    if(this.rows.length == 0) {
       this.generatedVisibleRows[0].setValueDirectly(val);
     } else {
-      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      for(var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
         var rowVal = val[row.name];
-        if (this.isValueEmpty(rowVal)) rowVal = null;
+        if(this.isValueEmpty(rowVal)) rowVal = null;
         this.generatedVisibleRows[i].setValueDirectly(rowVal);
       }
     }
@@ -622,13 +622,13 @@ export class QuestionMatrixModel
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res: { [index: string]: any } = {};
-    for (var key in value) {
+    for(var key in value) {
       var newKey = keysAsText
         ? ItemValue.getTextOrHtmlByValue(this.rows, key)
         : key;
-      if (!newKey) newKey = key;
+      if(!newKey) newKey = key;
       var newValue = ItemValue.getTextOrHtmlByValue(this.columns, value[key]);
-      if (!newValue) newValue = value[key];
+      if(!newValue) newValue = value[key];
       res[newKey] = newValue;
     }
     return res;
@@ -639,7 +639,7 @@ export class QuestionMatrixModel
     }
   ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
-    if (!!questionPlainData) {
+    if(!!questionPlainData) {
       var values = this.createValueCopy();
       questionPlainData.isNode = true;
       questionPlainData.data = Object.keys(values || {}).map((rowName) => {
@@ -662,7 +662,7 @@ export class QuestionMatrixModel
           this.visibleColumns,
           values[rowName]
         );
-        if (!!item) {
+        if(!!item) {
           (options.calculations || []).forEach((calculation) => {
             rowDataItem[calculation.propertyName] =
               item[calculation.propertyName];
@@ -677,9 +677,9 @@ export class QuestionMatrixModel
     objects: Array<IConditionObject>,
     context: any
   ) {
-    for (var i = 0; i < this.rows.length; i++) {
+    for(var i = 0; i < this.rows.length; i++) {
       var row = this.rows[i];
-      if (!!row.value) {
+      if(!!row.value) {
         objects.push({
           name: this.getValueName() + "." + row.value,
           text: this.processedTitle + "." + row.calculatedText,
@@ -689,7 +689,7 @@ export class QuestionMatrixModel
     }
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if (!path) return super.getConditionJson(operator);
+    if(!path) return super.getConditionJson(operator);
     var question = new QuestionDropdownModel(path);
     question.choices = this.columns;
     var json = new JsonObject().toJsonObject(question);
@@ -711,24 +711,24 @@ export class QuestionMatrixModel
     this.clearInvisibleValuesInRowsAndColumns(true, false, false);
   }
   protected clearInvisibleValuesInRowsAndColumns(inRows: boolean, inColumns: boolean, inCorrectRows: boolean): void {
-    if (this.isEmpty()) return;
+    if(this.isEmpty()) return;
     let updatedData = this.getUnbindValue(this.value);
     const newData: any = {};
     var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
+    for(var i = 0; i < rows.length; i++) {
       var key = rows[i].value;
-      if (!!updatedData[key]) {
-        if (inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
+      if(!!updatedData[key]) {
+        if(inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
           delete updatedData[key];
         } else {
           newData[key] = updatedData[key];
         }
       }
     }
-    if (inCorrectRows) {
+    if(inCorrectRows) {
       updatedData = newData;
     }
-    if (this.isTwoValueEquals(updatedData, this.value)) return;
+    if(this.isTwoValueEquals(updatedData, this.value)) return;
     this.value = updatedData;
   }
   private getVisibleColumnByValue(val: any): ItemValue {
@@ -737,21 +737,21 @@ export class QuestionMatrixModel
   }
   protected getFirstInputElementId(): string {
     var rows = this.generatedVisibleRows;
-    if (!rows) rows = this.visibleRows;
-    if (rows.length > 0 && this.visibleColumns.length > 0) {
+    if(!rows) rows = this.visibleRows;
+    if(rows.length > 0 && this.visibleColumns.length > 0) {
       return this.inputId + "_" + rows[0].name + "_" + 0;
     }
     return super.getFirstInputElementId();
   }
   //IMatrixData
   onMatrixRowChanged(row: MatrixRowModel) {
-    if (this.isRowChanging) return;
+    if(this.isRowChanging) return;
     this.isRowChanging = true;
-    if (!this.hasRows) {
+    if(!this.hasRows) {
       this.setNewValue(row.value);
     } else {
       var newValue = this.value;
-      if (!newValue) {
+      if(!newValue) {
         newValue = {};
       }
       newValue[row.name] = row.value;
@@ -760,11 +760,11 @@ export class QuestionMatrixModel
     this.isRowChanging = false;
   }
   getCorrectedRowValue(value: any): any {
-    for (var i = 0; i < this.columns.length; i++) {
-      if (value === this.columns[i].value) return value;
+    for(var i = 0; i < this.columns.length; i++) {
+      if(value === this.columns[i].value) return value;
     }
-    for (var i = 0; i < this.columns.length; i++) {
-      if (this.isTwoValueEquals(value, this.columns[i].value))
+    for(var i = 0; i < this.columns.length; i++) {
+      if(this.isTwoValueEquals(value, this.columns[i].value))
         return this.columns[i].value;
     }
     return value;

@@ -16,7 +16,7 @@ settings.version = Version;
 ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {
-  if (Version != ver) {
+  if(Version != ver) {
     const str = "survey-core has version '" + Version + "' and " + libraryName
       + " has version '" + ver + "'. SurveyJS libraries should have the same versions to work correctly.";
     /* eslint no-console: ["error", { allow: ["error"] }] */
@@ -34,43 +34,43 @@ export function hasLicense(index: number): boolean {
 }
 const lic: any = {};
 function _slk(k: any, lh: any, rd: any) {
-  if (!k) return;
+  if(!k) return;
   const en = (s: string) => {
     var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
     var A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
-    for (x = 0; x < L; x++) {
+    for(i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
+    for(x = 0; x < L; x++) {
       let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
-      while (l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
+      while(l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
     }
     return r;
   };
   let v = en(k);
-  if (!v) return;
+  if(!v) return;
   let index = v.indexOf(";");
-  if (index < 0) return;
-  if (!checkPrefix(v.substring(0, index))) return;
+  if(index < 0) return;
+  if(!checkPrefix(v.substring(0, index))) return;
   v = v.substring(index + 1);
   v.split(",").forEach(s => {
     let i = s.indexOf("=");
-    if (i > 0) {
+    if(i > 0) {
       lh[s.substring(0, i)] = new Date(rd) <= new Date(s.substring(i + 1));
     }
   });
 }
 function checkPrefix(prefix: string): boolean {
-  if (!prefix) return true;
+  if(!prefix) return true;
   const s = "domains:";
   const index = prefix.indexOf(s);
-  if (index < 0) return true;
+  if(index < 0) return true;
   const ds = prefix.substring(index + s.length).toLowerCase().split(",");
-  if (!Array.isArray(ds) || ds.length === 0) return true;
+  if(!Array.isArray(ds) || ds.length === 0) return true;
   const location = DomWindowHelper.getLocation();
-  if (!!location && !!location.hostname) {
+  if(!!location && !!location.hostname) {
     const hn = location.hostname.toLowerCase();
     ds.push("localhost");
-    for (let i = 0; i < ds.length; i++) {
-      if (hn.indexOf(ds[i]) > -1) return true;
+    for(let i = 0; i < ds.length; i++) {
+      if(hn.indexOf(ds[i]) > -1) return true;
     }
     return false;
   }

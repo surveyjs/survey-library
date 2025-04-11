@@ -8,7 +8,7 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/co
 export class SvgBundleComponent implements OnInit, OnDestroy {
   @ViewChild("svgContainer", { static: true }) svgContainer!: ElementRef<SVGElement>;
   private onIconsChanged = () => {
-    if (!!this.svgContainer?.nativeElement) {
+    if(!!this.svgContainer?.nativeElement) {
       this.svgContainer.nativeElement.innerHTML = SvgRegistry.iconsRenderedHtml();
     }
   };

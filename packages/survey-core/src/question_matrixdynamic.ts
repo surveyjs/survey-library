@@ -100,15 +100,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT" || !this.isDragHandleAreaValid(target);
   }
   public isDragHandleAreaValid(node:HTMLElement): boolean {
-    if (this.survey.matrixDragHandleArea === "icon") {
+    if(this.survey.matrixDragHandleArea === "icon") {
       return node.classList.contains(this.cssClasses.dragElementDecorator);
     }
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
-    if (!row || !this.isRowsDragAndDrop || this.isDesignMode) return;
-    if (this.isBanStartDrag(pointerDownEvent)) return;
-    if (row.isDetailPanelShowing) return;
+    if(!row || !this.isRowsDragAndDrop || this.isDesignMode) return;
+    if(this.isBanStartDrag(pointerDownEvent)) return;
+    if(row.isDetailPanelShowing) return;
     this.draggedRow = row;
     this.dragOrClickHelper.onPointerDown(pointerDownEvent);
   }
@@ -185,32 +185,32 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   }
   protected valueFromData(val: any): any {
-    if (this.minRowCount < 1 || this.isEmpty()) return super.valueFromData(val);
-    if (!Array.isArray(val)) val = [];
-    for (var i = val.length; i < this.minRowCount; i++) val.push({});
+    if(this.minRowCount < 1 || this.isEmpty()) return super.valueFromData(val);
+    if(!Array.isArray(val)) val = [];
+    for(var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
   }
   protected isNewValueCorrect(val: any): boolean {
     return Array.isArray(val);
   }
   protected setDefaultValue() {
-    if (
+    if(
       this.isValueEmpty(this.defaultRowValue) ||
       !this.isValueEmpty(this.defaultValue)
     ) {
       super.setDefaultValue();
       return;
     }
-    if (!this.isEmpty() || this.rowCount == 0) return;
+    if(!this.isEmpty() || this.rowCount == 0) return;
     var newValue = [];
-    for (var i = 0; i < this.rowCount; i++) {
+    for(var i = 0; i < this.rowCount; i++) {
       newValue.push(this.defaultRowValue);
     }
     this.value = newValue;
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
     const value = this.createNewValue();
-    if (!Array.isArray(value) && Math.max(fromIndex, toIndex) >= value.length) return;
+    if(!Array.isArray(value) && Math.max(fromIndex, toIndex) >= value.length) return;
     const movableRow = value[fromIndex];
     value.splice(fromIndex, 1);
     value.splice(toIndex, 0, movableRow);
@@ -237,26 +237,26 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set rowCount(val: number) {
     val = Helpers.getNumber(val);
-    if (val < 0 || val > settings.matrix.maxRowCount) return;
+    if(val < 0 || val > settings.matrix.maxRowCount) return;
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
-    if (this.value && this.value.length > val) {
+    if(this.value && this.value.length > val) {
       var qVal = this.value;
       qVal.splice(val);
       this.value = qVal;
     }
-    if (this.isUpdateLocked) {
+    if(this.isUpdateLocked) {
       this.initialRowCount = val;
       return;
     }
-    if (this.generatedVisibleRows || prevValue == 0) {
-      if (!this.generatedVisibleRows) {
+    if(this.generatedVisibleRows || prevValue == 0) {
+      if(!this.generatedVisibleRows) {
         this.clearGeneratedRows();
         this.generatedVisibleRows = [];
       }
       this.generatedVisibleRows.splice(val);
-      for (var i = prevValue; i < val; i++) {
+      for(var i = prevValue; i < val; i++) {
         var newRow = this.createMatrixRow(this.getValueForNewRow());
         this.generatedVisibleRows.push(newRow);
         this.onMatrixRowCreated(newRow);
@@ -291,7 +291,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private getValueForNewRow(): any {
     var res = null;
-    if (!!this.onGetValueForNewRowCallBack) {
+    if(!!this.onGetValueForNewRowCallBack) {
       res = this.onGetValueForNewRowCallBack(this);
     }
     return res;
@@ -352,14 +352,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getPropertyValue("minRowCount");
   }
   public set minRowCount(val: number) {
-    if (val < 0) val = 0;
+    if(val < 0) val = 0;
     this.setPropertyValue("minRowCount", val);
   }
   private onMinRowCountChanged(): void {
     const val = this.minRowCount;
-    if (val > this.maxRowCount) this.maxRowCount = val;
-    if(this.initialRowCount < val) this.initialRowCount = val;
-    if (this.rowCount < val) this.rowCount = val;
+    if(val > this.maxRowCount)this.maxRowCount = val;
+    if(this.initialRowCount < val)this.initialRowCount = val;
+    if(this.rowCount < val)this.rowCount = val;
   }
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
@@ -373,16 +373,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.getPropertyValue("maxRowCount");
   }
   public set maxRowCount(val: number) {
-    if (val <= 0) return;
-    if (val > settings.matrix.maxRowCount)
+    if(val <= 0) return;
+    if(val > settings.matrix.maxRowCount)
       val = settings.matrix.maxRowCount;
-    if (val == this.maxRowCount) return;
+    if(val == this.maxRowCount) return;
     this.setPropertyValue("maxRowCount", val);
   }
   private onMaxRowCountChanged(): void {
     const val = this.maxRowCount;
-    if (val < this.minRowCount) this.minRowCount = val;
-    if (this.rowCount > val) this.rowCount = val;
+    if(val < this.minRowCount)this.minRowCount = val;
+    if(this.rowCount > val)this.rowCount = val;
   }
   /**
    * Specifies whether users are allowed to add new rows.
@@ -409,7 +409,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set allowRemoveRows(val: boolean) {
     this.setPropertyValue("allowRemoveRows", val);
-    if (!this.isUpdateLocked) {
+    if(!this.isUpdateLocked) {
       this.resetRenderedTable();
     }
   }
@@ -455,7 +455,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return !!this.canRemoveRowsCallback ? this.canRemoveRowsCallback(res) : res;
   }
   public canRemoveRow(row: MatrixDropdownRowModelBase): boolean {
-    if (!this.survey) return true;
+    if(!this.survey) return true;
     const index = (<MatrixDynamicRowModel>row).rowIndex - 1;
     if(this.lockedRowCount > 0 && index < this.lockedRowCount) return false;
     return this.survey.matrixAllowRemoveRow(this, index, row);
@@ -466,9 +466,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private getQuestionToFocusOnAddingRow(): Question {
     if(this.visibleRows.length === 0) return null;
     var row = this.visibleRows[this.visibleRows.length - 1];
-    for (var i = 0; i < row.cells.length; i++) {
+    for(var i = 0; i < row.cells.length; i++) {
       var q = row.cells[i].question;
-      if (!!q && q.isVisible && !q.isReadOnly) {
+      if(!!q && q.isVisible && !q.isReadOnly) {
         return q;
       }
     }
@@ -482,21 +482,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const oldRowCount = this.rowCount;
     const allow = this.canAddRow;
     var options = { question: this, canAddRow: allow, allow: allow };
-    if (!!this.survey) {
+    if(!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
     }
     const newAllow = allow !== options.allow ? options.allow :
       (allow !== options.canAddRow ? options.canAddRow : allow);
-    if (!newAllow) return;
+    if(!newAllow) return;
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
-    if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
+    if(this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
     }
-    if (setFocus && oldRowCount !== this.rowCount) {
+    if(setFocus && oldRowCount !== this.rowCount) {
       const q = this.getQuestionToFocusOnAddingRow();
-      if (!!q) {
+      if(!!q) {
         q.focus();
       }
     }
@@ -528,14 +528,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.rowCount = this.rowCount + 1;
     var defaultValue = this.getDefaultRowValue(true);
     var newValue = null;
-    if (!this.isValueEmpty(defaultValue)) {
+    if(!this.isValueEmpty(defaultValue)) {
       newValue = this.createNewValue();
-      if (newValue.length == this.rowCount) {
+      if(newValue.length == this.rowCount) {
         newValue[newValue.length - 1] = defaultValue;
         this.value = newValue;
       }
     }
-    if (this.data) {
+    if(this.data) {
       this.runCellsCondition(
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
@@ -543,11 +543,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const rows = this.visibleRows;
       if(this.isValueEmpty(defaultValue) && rows.length > 0) {
         const row = rows[rows.length - 1];
-        if (!this.isValueEmpty(row.value)) {
-          if (!newValue) {
+        if(!this.isValueEmpty(row.value)) {
+          if(!newValue) {
             newValue = this.createNewValue();
           }
-          if (
+          if(
             !this.isValueSurveyElement(newValue) &&
             !this.isTwoValueEquals(newValue[newValue.length - 1], row.value)
           ) {
@@ -557,9 +557,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         }
       }
     }
-    if (this.survey) {
+    if(this.survey) {
       const rows = this.visibleRows;
-      if (prevRowCount + 1 == this.rowCount && rows.length > 0) {
+      if(prevRowCount + 1 == this.rowCount && rows.length > 0) {
         const row = rows[rows.length - 1];
         this.survey.matrixRowAdded(this, row);
         this.onRowsChanged();
@@ -568,24 +568,24 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private getDefaultRowValue(isRowAdded: boolean): any {
     var res = null;
-    for (var i = 0; i < this.columns.length; i++) {
+    for(var i = 0; i < this.columns.length; i++) {
       var q = this.columns[i].templateQuestion;
-      if (!!q && !this.isValueEmpty(q.getDefaultValue())) {
+      if(!!q && !this.isValueEmpty(q.getDefaultValue())) {
         res = res || {};
         (<any>res)[this.columns[i].name] = q.getDefaultValue();
       }
     }
-    if (!this.isValueEmpty(this.defaultRowValue)) {
-      for (var key in this.defaultRowValue) {
+    if(!this.isValueEmpty(this.defaultRowValue)) {
+      for(var key in this.defaultRowValue) {
         res = res || {};
         (<any>res)[key] = this.defaultRowValue[key];
       }
     }
-    if (isRowAdded && this.copyDefaultValueFromLastEntry) {
+    if(isRowAdded && this.copyDefaultValueFromLastEntry) {
       var val = this.value;
-      if (!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
+      if(!!val && Array.isArray(val) && val.length >= this.rowCount - 1) {
         var rowValue = val[this.rowCount - 2];
-        for (var key in rowValue) {
+        for(var key in rowValue) {
           res = res || {};
           (<any>res)[key] = rowValue[key];
         }
@@ -595,22 +595,22 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public focusAddBUtton(): void {
     const rootElement = this.getRootElement();
-    if (!!rootElement && !!this.cssClasses.buttonAdd) {
+    if(!!rootElement && !!this.cssClasses.buttonAdd) {
       const addButton = rootElement.querySelectorAll("." + this.cssClasses.buttonAdd)[0] as HTMLButtonElement;
       addButton && addButton.focus();
     }
   }
   public getActionCellIndex(row: MatrixDropdownRowModelBase): number {
     const headerShift = this.showHeader ? 1 : 0;
-    if (this.isColumnLayoutHorizontal) {
+    if(this.isColumnLayoutHorizontal) {
       return row.cells.length - 1 + headerShift;
     }
     return this.visibleRows.indexOf(row) + headerShift;
   }
   public removeRowUI(value: any): void {
-    if (!!value && !!value.rowName) {
+    if(!!value && !!value.rowName) {
       var index = this.visibleRows.indexOf(value);
-      if (index < 0) return;
+      if(index < 0) return;
       value = index;
     }
     this.removeRow(value, undefined, () => {
@@ -618,7 +618,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       const nextIndex = index >= rowCount ? rowCount - 1 : index;
       const nextRow = nextIndex > -1 ? this.visibleRows[nextIndex] : undefined;
       setTimeout(() => {
-        if (nextRow) {
+        if(nextRow) {
           this.renderedTable.focusActionCell(nextRow, this.getActionCellIndex(nextRow));
         } else {
           this.focusAddBUtton();
@@ -627,11 +627,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     });
   }
   public isRequireConfirmOnRowDelete(index: number): boolean {
-    if (!this.confirmDelete) return false;
-    if (index < 0 || index >= this.rowCount) return false;
+    if(!this.confirmDelete) return false;
+    if(index < 0 || index >= this.rowCount) return false;
     var value = this.createNewValue();
-    if (this.isValueEmpty(value) || !Array.isArray(value)) return false;
-    if (index >= value.length) return false;
+    if(this.isValueEmpty(value) || !Array.isArray(value)) return false;
+    if(index >= value.length) return false;
     return !this.isValueEmpty(value[index]);
   }
   /**
@@ -640,16 +640,16 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * @param confirmDelete *(Optional)* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
   public removeRow(index: number, confirmDelete?: boolean, onRowRemoved?: () => void): void {
-    if (!this.canRemoveRows) return;
-    if (index < 0 || index >= this.rowCount) return;
+    if(!this.canRemoveRows) return;
+    if(index < 0 || index >= this.rowCount) return;
     var row =
       !!this.visibleRows && index < this.visibleRows.length
         ? this.visibleRows[index]
         : null;
-    if (confirmDelete === undefined) {
+    if(confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
-    if (confirmDelete) {
+    if(confirmDelete) {
       confirmActionAsync({
         message: this.confirmDeleteText,
         funcOnYes: () => {
@@ -666,7 +666,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     onRowRemoved && onRowRemoved();
   }
   private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
-    if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
+    if(!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
     this.onEndRowRemoving(row);
@@ -675,13 +675,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     var row = this.generatedVisibleRows
       ? this.generatedVisibleRows[index]
       : null;
-    if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
+    if(this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
       this.generatedVisibleRows.splice(index, 1);
     }
     this.rowCountValue--;
-    if (this.value) {
+    if(this.value) {
       var val = [];
-      if (Array.isArray(this.value) && index < this.value.length) {
+      if(Array.isArray(this.value) && index < this.value.length) {
         val = this.createValueCopy();
       } else {
         val = this.createNewValue();
@@ -693,7 +693,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isRowChanging = false;
     }
     this.onRowsChanged();
-    if (this.survey) {
+    if(this.survey) {
       this.survey.matrixRowRemoved(this, index, row);
     }
   }
@@ -811,12 +811,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.locNoRowsText;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!value || !Array.isArray(value)) return value;
+    if(!value || !Array.isArray(value)) return value;
     var values = this.getUnbindValue(value);
     var rows = this.visibleRows;
-    for (var i = 0; i < rows.length && i < values.length; i++) {
+    for(var i = 0; i < rows.length && i < values.length; i++) {
       var val = values[i];
-      if (!val) continue;
+      if(!val) continue;
       values[i] = this.getRowDisplayValue(keysAsText, rows[i], val);
     }
     return values;
@@ -827,7 +827,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getConditionObjectsRowIndeces() : Array<number> {
     const res = [];
     const rowCount = Math.max(this.rowCount, 1);
-    for (var i = 0; i < Math.min(settings.matrix.maxRowCountInCondition, rowCount); i++) {
+    for(var i = 0; i < Math.min(settings.matrix.maxRowCountInCondition, rowCount); i++) {
       res.push(i);
     }
     return res;
@@ -840,40 +840,40 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (!isOnValueChanged && this.hasErrorInMinRows()) {
+    if(!isOnValueChanged && this.hasErrorInMinRows()) {
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
   private hasErrorInMinRows(): boolean {
-    if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
+    if(this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
       return false;
     var setRowCount = 0;
-    for (
+    for(
       var rowIndex = 0;
       rowIndex < this.generatedVisibleRows.length;
       rowIndex++
     ) {
       var row = this.generatedVisibleRows[rowIndex];
-      if (!row.isEmpty) setRowCount++;
+      if(!row.isEmpty) setRowCount++;
     }
     return setRowCount < this.minRowCount;
   }
   protected getUniqueColumnsNames(): Array<string> {
     var res = super.getUniqueColumnsNames();
     const name = this.keyName;
-    if (!!name && res.indexOf(name) < 0) {
+    if(!!name && res.indexOf(name) < 0) {
       res.push(name);
     }
     return res;
   }
   protected generateRows(): Array<MatrixDynamicRowModel> {
     var result = new Array<MatrixDynamicRowModel>();
-    if (this.rowCount === 0) return result;
+    if(this.rowCount === 0) return result;
     var val = this.createNewValue();
-    for (var i = 0; i < this.rowCount; i++) {
+    for(var i = 0; i < this.rowCount; i++) {
       result.push(this.createMatrixRow(this.getRowValueByIndex(val, i)));
     }
-    if (!this.isValueEmpty(this.getDefaultRowValue(false))) {
+    if(!this.isValueEmpty(this.getDefaultRowValue(false))) {
       this.value = val;
     }
     return result;
@@ -948,10 +948,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   protected onBeforeValueChanged(val: any): void {
-    if (!val || !Array.isArray(val)) return;
+    if(!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
-    if (newRowCount == this.rowCount) return;
-    if (!this.setRowCountValueFromData && newRowCount < this.initialRowCount)
+    if(newRowCount == this.rowCount) return;
+    if(!this.setRowCountValueFromData && newRowCount < this.initialRowCount)
       return;
     if(this.isEditingObjectValueChanged()) return;
     this.setRowCountValueFromData = true;
@@ -973,11 +973,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected createNewValue(): any {
     var result = this.createValueCopy();
-    if (!result || !Array.isArray(result)) result = [];
-    if (result.length > this.rowCount) result.splice(this.rowCount);
+    if(!result || !Array.isArray(result)) result = [];
+    if(result.length > this.rowCount) result.splice(this.rowCount);
     var rowValue = this.getDefaultRowValue(false);
     rowValue = rowValue || {};
-    for (var i = result.length; i < this.rowCount; i++) {
+    for(var i = result.length; i < this.rowCount; i++) {
       result.push(this.getUnbindValue(rowValue));
     }
     return result;
@@ -985,8 +985,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected deleteRowValue(newValue: any, row: MatrixDropdownRowModelBase): any {
     if(!Array.isArray(newValue)) return newValue;
     var isEmpty = true;
-    for (var i = 0; i < newValue.length; i++) {
-      if (this.isObject(newValue[i]) && Object.keys(newValue[i]).length > 0) {
+    for(var i = 0; i < newValue.length; i++) {
+      if(this.isObject(newValue[i]) && Object.keys(newValue[i]).length > 0) {
         isEmpty = false;
         break;
       }
@@ -1006,12 +1006,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     questionValue: any,
     create: boolean = false
   ): any {
-    if (!this.generatedVisibleRows) return {};
+    if(!this.generatedVisibleRows) return {};
     var res = this.getRowValueByIndex(
       questionValue,
       this.generatedVisibleRows.indexOf(row)
     );
-    if (!res && create) res = {};
+    if(!res && create) res = {};
     return res;
   }
   public getAddRowButtonCss(isEmptySection: boolean = false): string {

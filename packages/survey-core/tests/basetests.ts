@@ -477,8 +477,8 @@ QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function (
     sender: Base,
     arrayChanges: ArrayChanges
   ) => {
-    if (name == "name" && oldValue == "col1" && newValue == "col2") counter1++;
-    if (name == "value") counter2++;
+    if(name == "name" && oldValue == "col1" && newValue == "col2") counter1++;
+    if(name == "value") counter2++;
   };
 
   assert.equal(counter1, 0, "initial");

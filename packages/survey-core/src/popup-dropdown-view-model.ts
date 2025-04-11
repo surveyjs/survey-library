@@ -12,7 +12,7 @@ import { IAction } from "./actions/action";
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
   private scrollEventCallBack = (event: any) => {
-    if (this.isOverlay && IsTouch) {
+    if(this.isOverlay && IsTouch) {
       event.stopPropagation();
       event.preventDefault();
       return;
@@ -68,7 +68,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected getAvailableAreaRect(): Rect {
     const areaElement: HTMLElement = this.model.getAreaCallback ? this.model.getAreaCallback(this.container) : undefined;
-    if (areaElement) {
+    if(areaElement) {
       const areaRect = areaElement.getBoundingClientRect();
       return new Rect(areaRect.x, areaRect.y, areaRect.width, areaRect.height);
     }
@@ -78,10 +78,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const componentRoot = this.container;
     let targetElement: HTMLElement = this.model.getTargetCallback ? this.model.getTargetCallback(componentRoot) : undefined;
 
-    if (!!componentRoot && !!componentRoot.parentElement && !this.isModal && !targetElement) {
+    if(!!componentRoot && !!componentRoot.parentElement && !this.isModal && !targetElement) {
       targetElement = componentRoot.parentElement;
     }
-    if (!targetElement) return null;
+    if(!targetElement) return null;
     const rect = targetElement.getBoundingClientRect();
     return new Rect(rect.left - areaRect.left, rect.top - areaRect.top, rect.width, rect.height);
   }
@@ -89,9 +89,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   private _updatePosition() {
     const area = this.getAvailableAreaRect();
     const targetElementRect = this.getTargetElementRect(area);
-    if (!targetElementRect) return;
+    if(!targetElementRect) return;
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
-    if (!popupContainer) return;
+    if(!popupContainer) return;
     const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
     const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = DomDocumentHelper.getComputedStyle(popupContainer);
@@ -106,7 +106,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
     let actualHorizontalPosition = this.getActualHorizontalPosition();
 
-    if (DomWindowHelper.isAvailable()) {
+    if(DomWindowHelper.isAvailable()) {
       const heightValues = [height, DomWindowHelper.getInnerHeight() * 0.9, DomWindowHelper.getVisualViewport()?.height];
       height = Math.ceil(Math.min(...heightValues.filter((each) => typeof each === "number")));
       verticalPosition = PopupUtils.updateVerticalPosition(
@@ -137,7 +137,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.model.positionMode
     );
 
-    if (DomWindowHelper.isAvailable()) {
+    if(DomWindowHelper.isAvailable()) {
       const newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(
         pos.top,
         height,
@@ -146,12 +146,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.model.canShrink,
         { top: marginTop, bottom: marginBottom }
       );
-      if (!!newVerticalDimensions) {
+      if(!!newVerticalDimensions) {
         this.height = newVerticalDimensions.height + "px";
         pos.top = newVerticalDimensions.top;
       }
 
-      if (this.model.setWidthByTarget) {
+      if(this.model.setWidthByTarget) {
         this.width = targetElementRect.width + "px";
         pos.left = targetElementRect.left;
       } else {
@@ -163,19 +163,19 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
           this.model.positionMode,
           { left: marginLeft, right: marginRight }
         );
-        if (!!newHorizontalDimensions) {
+        if(!!newHorizontalDimensions) {
           this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
           pos.left = newHorizontalDimensions.left;
         }
       }
     }
-    if (!!fixedPopupContainer) {
+    if(!!fixedPopupContainer) {
       const rect = fixedPopupContainer.getBoundingClientRect();
       pos.top -= rect.top;
       pos.left -= rect.left;
     }
 
-    if (this.showHeader) {
+    if(this.showHeader) {
       this.pointerTarget = PopupUtils.calculatePointerTarget(
         targetElementRect,
         pos.top,
@@ -198,12 +198,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {
     let actualHorizontalPosition = this.model.horizontalPosition;
-    if (DomDocumentHelper.isAvailable()) {
+    if(DomDocumentHelper.isAvailable()) {
       let isRtl = DomDocumentHelper.getComputedStyle(DomDocumentHelper.getBody()).direction == "rtl";
-      if (isRtl) {
-        if (this.model.horizontalPosition === "left") {
+      if(isRtl) {
+        if(this.model.horizontalPosition === "left") {
           actualHorizontalPosition = "right";
-        } else if (this.model.horizontalPosition === "right") {
+        } else if(this.model.horizontalPosition === "right") {
           actualHorizontalPosition = "left";
         }
       }
@@ -245,7 +245,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const { root } = settings.environment;
     this.prevActiveElement = <HTMLElement>root.activeElement;
 
-    if (this.isOverlay) {
+    if(this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();
     } else {
       this.updatePosition(true, false);
@@ -253,9 +253,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
     this.switchFocus();
     DomWindowHelper.addEventListener("resize", this.resizeWindowCallback);
-    if (this.shouldCreateResizeCallback) {
+    if(this.shouldCreateResizeCallback) {
       DomWindowHelper.getVisualViewport().addEventListener("resize", this.resizeEventCallback);
-      if (this.container) {
+      if(this.container) {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
@@ -269,11 +269,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
-    if (isResetHeight) {
+    if(isResetHeight) {
       this.height = "auto";
     }
 
-    if (isDelayUpdating) {
+    if(isDelayUpdating) {
       setTimeout(() => {
         this._updatePosition();
       }, 1);
@@ -285,16 +285,16 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   public updateOnHiding(): void {
     super.updateOnHiding();
     DomWindowHelper.removeEventListener("resize", this.resizeWindowCallback);
-    if (this.shouldCreateResizeCallback) {
+    if(this.shouldCreateResizeCallback) {
       DomWindowHelper.getVisualViewport().removeEventListener("resize", this.resizeEventCallback);
-      if (this.container) {
+      if(this.container) {
         this.container.removeEventListener("touchstart", this.touchStartEventCallback);
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
       }
     }
     DomWindowHelper.removeEventListener("scroll", this.scrollEventCallBack);
 
-    if (!this.isDisposed) {
+    if(!this.isDisposed) {
       this.top = undefined;
       this.left = undefined;
       this.height = undefined;
@@ -304,12 +304,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   protected onModelChanging(newModel: PopupModel) {
-    if (!!this.model) {
+    if(!!this.model) {
       this.model.onRecalculatePosition.remove(this.recalculatePositionHandler);
     }
-    if (!this.recalculatePositionHandler) {
+    if(!this.recalculatePositionHandler) {
       this.recalculatePositionHandler = (_: any, options: { isResetHeight: boolean }) => {
-        if (!this.isOverlay) {
+        if(!this.isOverlay) {
           this.updatePosition(options.isResetHeight);
         }
       };
@@ -321,7 +321,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   public dispose(): void {
     super.dispose();
     this.updateOnHiding();
-    if (!!this.model) {
+    if(!!this.model) {
       this.model.onRecalculatePosition.remove(this.recalculatePositionHandler);
       this.recalculatePositionHandler = undefined;
     }

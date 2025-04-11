@@ -8,7 +8,7 @@ const input = {
 function patchEntries() {
   fs.readdirSync(path.resolve(__dirname, "./src/localization")).forEach(file => {
     var extension = path.extname(file);
-    if (extension.toLowerCase() === ".ts") {
+    if(extension.toLowerCase() === ".ts") {
       input[`i18n/${path.basename(file, extension)}`] = (path.resolve(__dirname, "./src/localization") + "/" + file);
     }
   });

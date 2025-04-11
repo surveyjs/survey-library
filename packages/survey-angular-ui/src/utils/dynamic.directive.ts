@@ -28,7 +28,7 @@ export class DynamicComponentDirective implements OnChanges {
     this.containerRef.clear();
     if(AngularComponentFactory.Instance.isComponentRegistered(this.component.name)) {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.name, this.resolver).instance;
-    } else if (this.component.default) {
+    } else if(this.component.default) {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.default, this.resolver).instance;
     }
     if(!this.componentInstance) {

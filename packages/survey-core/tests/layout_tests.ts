@@ -742,7 +742,7 @@ QUnit.skip("Do not call survey.onPropertyValueChangedCallback on loading choices
   let counter = 0;
   let survey = new SurveyModel({ gridLayoutEnabled: true });
   survey.onPropertyValueChangedCallback = function (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges) {
-    if (!Serializer.findProperty(sender.getType(), name)) return;
+    if(!Serializer.findProperty(sender.getType(), name)) return;
     counter++;
   };
   counter = 0;

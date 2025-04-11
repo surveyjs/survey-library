@@ -147,7 +147,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
         newActions.push(this.createAction(item));
       }
     });
-    if (sortByVisibleIndex) {
+    if(sortByVisibleIndex) {
       this.sortItems(newActions);
     }
     this.actions = newActions;
@@ -181,14 +181,14 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     let needToShowPopup = false;
     let otherPopupVisible = false;
     this.actions.forEach(action => {
-      if (action === itemValue && !!itemValue.popupModel) {
+      if(action === itemValue && !!itemValue.popupModel) {
         needToShowPopup = true;
       }
-      if (action.popupModel && action.popupModel.isVisible) {
+      if(action.popupModel && action.popupModel.isVisible) {
         otherPopupVisible = true;
       }
     });
-    if (needToShowPopup) {
+    if(needToShowPopup) {
       const delay = otherPopupVisible ? Math.max(this.subItemsShowDelay, this.subItemsHideDelay) : this.subItemsShowDelay;
       itemValue.showPopupDelayed(delay);
       this.popupAfterShowCallback(itemValue);
@@ -200,8 +200,8 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public resetResponsivityManager(): void { }
   public getActionById(id: string): T {
-    for (var i = 0; i < this.actions.length; i++) {
-      if (this.actions[i].id === id) return this.actions[i];
+    for(var i = 0; i < this.actions.length; i++) {
+      if(this.actions[i].id === id) return this.actions[i];
     }
     return null;
   }

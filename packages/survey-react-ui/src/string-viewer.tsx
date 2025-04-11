@@ -18,26 +18,26 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     this.reactOnStrChanged();
   }
   componentWillUnmount() {
-    if (!this.locStr) return;
+    if(!this.locStr) return;
     this.locStr.onStringChanged.remove(this.onChangedHandler);
   }
   componentDidUpdate(prevProps: any, prevState: any) {
-    if (!!prevProps.locStr) {
+    if(!!prevProps.locStr) {
       prevProps.locStr.onStringChanged.remove(this.onChangedHandler);
     }
     this.reactOnStrChanged();
   }
   private isRendering: boolean;
   private onChangedHandler = (sender: any, options: any) => {
-    if (this.isRendering) return;
+    if(this.isRendering) return;
     this.setState({ changed: !!this.state && this.state.changed ? this.state.changed + 1 : 1 });
   };
   private reactOnStrChanged() {
-    if (!this.locStr) return;
+    if(!this.locStr) return;
     this.locStr.onStringChanged.add(this.onChangedHandler);
   }
   render(): React.JSX.Element | null {
-    if (!this.locStr) return null;
+    if(!this.locStr) return null;
     this.isRendering = true;
     const strEl = this.renderString();
     this.isRendering = false;
@@ -45,7 +45,7 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   }
   protected renderString(): React.JSX.Element {
     const className = this.locStr.allowLineBreaks ? "sv-string-viewer sv-string-viewer--multiline" : "sv-string-viewer";
-    if (this.locStr.hasHtml) {
+    if(this.locStr.hasHtml) {
       let htmlValue = { __html: this.locStr.renderedHtml };
       return <span ref={this.rootRef} className={className} style={this.style} dangerouslySetInnerHTML={htmlValue} />;
     }

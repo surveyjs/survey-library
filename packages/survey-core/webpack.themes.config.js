@@ -54,7 +54,7 @@ const config = {
 };
 function patchEntries(config) {
   Object.keys(config.entry).forEach(key => {
-    if (key == "index") return;
+    if(key == "index") return;
     const importEntry = config.entry[key];
     const umdName = key.replace(/([_-]\w|^\w)/g, k => (k[1] ?? k[0]).toUpperCase());
     config.entry[key] = {

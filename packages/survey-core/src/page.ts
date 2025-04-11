@@ -123,7 +123,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   getMarkdownHtml(text: string, name: string, item?: any): string {
     const result = super.getMarkdownHtml(text, name, item);
-    if (name === "navigationTitle" && this.canShowPageNumber() && result) {
+    if(name === "navigationTitle" && this.canShowPageNumber() && result) {
       return this.num + ". " + result;
     }
     return result;
@@ -135,7 +135,7 @@ export class PageModel extends PanelModel implements IPage {
     this.setPropertyValue("passed", val);
   }
   protected removeFromParent(): void {
-    if (!!this.survey) {
+    if(!!this.survey) {
       this.removeSelfFromList(this.survey.pages);
     }
   }
@@ -167,37 +167,37 @@ export class PageModel extends PanelModel implements IPage {
     const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
-    if (!!css.pageTitle) {
+    if(!!css.pageTitle) {
       classes.pageTitle = css.pageTitle;
     }
-    if (!!css.pageDescription) {
+    if(!!css.pageDescription) {
       classes.pageDescription = css.pageDescription;
     }
-    if (!!css.row) {
+    if(!!css.row) {
       classes.row = css.row;
     }
-    if (!!css.pageRow) {
+    if(!!css.pageRow) {
       classes.pageRow = css.pageRow;
     }
-    if (!!css.rowMultiple) {
+    if(!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
     }
-    if (!!css.rowCompact) {
+    if(!!css.rowCompact) {
       classes.rowCompact = css.rowCompact;
     }
-    if (!!css.rowEnter) {
+    if(!!css.rowEnter) {
       classes.rowEnter = css.rowEnter;
     }
-    if (!!css.rowDelayedEnter) {
+    if(!!css.rowDelayedEnter) {
       classes.rowDelayedEnter = css.rowDelayedEnter;
     }
-    if (!!css.rowLeave) {
+    if(!!css.rowLeave) {
       classes.rowLeave = css.rowLeave;
     }
-    if (!!css.rowReplace) {
+    if(!!css.rowReplace) {
       classes.rowReplace = css.rowReplace;
     }
-    if (this.survey) {
+    if(this.survey) {
       this.survey.updatePageCssClasses(this, classes);
     }
     return classes;
@@ -229,13 +229,13 @@ export class PageModel extends PanelModel implements IPage {
    */
   public get navigationButtonsVisibility(): string {
     const result = this.showNavigationButtons;
-    if (result === undefined || result === null) {
+    if(result === undefined || result === null) {
       return "inherit";
     }
     return result ? "show" : "hide";
   }
   public set navigationButtonsVisibility(val: string) {
-    if (typeof val == "string") {
+    if(typeof val == "string") {
       val = val.toLowerCase();
     }
     this.showNavigationButtons = val;
@@ -252,11 +252,11 @@ export class PageModel extends PanelModel implements IPage {
     this.setShowNavigationButtonsProperty(val);
   }
   public setShowNavigationButtonsProperty(val: boolean | string) {
-    if (val === true || val === false) {
+    if(val === true || val === false) {
       this.setPropertyValue("showNavigationButtons", val);
-    } else if (val === "show") {
+    } else if(val === "show") {
       this.setPropertyValue("showNavigationButtons", true);
-    } else if (val === "hide") {
+    } else if(val === "hide") {
       this.setPropertyValue("showNavigationButtons", false);
     } else {
       this.setPropertyValue("showNavigationButtons", undefined);
@@ -279,12 +279,12 @@ export class PageModel extends PanelModel implements IPage {
     return this.wasShown;
   }
   public setWasShown(val: boolean): void {
-    if (val == this.hasShownValue) return;
+    if(val == this.hasShownValue) return;
     this.hasShownValue = val;
-    if (this.isDesignMode || val !== true) return;
+    if(this.isDesignMode || val !== true) return;
     var els = this.elements;
-    for (var i = 0; i < els.length; i++) {
-      if (els[i].isPanel) {
+    for(var i = 0; i < els.length; i++) {
+      if(els[i].isPanel) {
         (<PanelModelBase><any>els[i]).randomizeElements(this.areQuestionsRandomized);
       }
     }
@@ -299,7 +299,7 @@ export class PageModel extends PanelModel implements IPage {
    * Scrolls this page to the top.
    */
   public scrollToTop() {
-    if (!!this.survey) {
+    if(!!this.survey) {
       this.survey.scrollElementToTop(this, null, this, this.id);
     }
   }
@@ -354,9 +354,9 @@ export class PageModel extends PanelModel implements IPage {
   }
   protected onNumChanged(value: number) { }
   protected onVisibleChanged() {
-    if (this.isRandomizing) return;
+    if(this.isRandomizing) return;
     super.onVisibleChanged();
-    if (this.survey != null) {
+    if(this.survey != null) {
       this.survey.pageVisibilityChanged(this, this.isVisible);
     }
   }

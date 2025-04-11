@@ -140,22 +140,22 @@ frameworks.forEach((framework) => {
     assert.equal(second.textContent.trim(), "Vauxhall");
 
     // rnd
-    if (choicesCount === 1) {
+    if(choicesCount === 1) {
       assert(false, "need to more than one choices");
     }
 
-    for (let i = 0; i < 15; i++) {
+    for(let i = 0; i < 15; i++) {
       await setOptions("car", { choicesOrder: "asc" });
       await setOptions("car", { choicesOrder: "random" });
       first_2 = await getFirst();
 
-      if (first.textContent.trim() !== first_2.textContent.trim()) {
+      if(first.textContent.trim() !== first_2.textContent.trim()) {
         rnd_count++;
       }
 
       first = first_2;
 
-      if (rnd_count >= 4) {
+      if(rnd_count >= 4) {
         break;
       }
     }
@@ -190,8 +190,8 @@ frameworks.forEach((framework) => {
         "Other (describe)",
       ];
       var result;
-      for (var i = 0; i < choices.length; i++) {
-        if (document.documentElement.innerHTML.indexOf(choices[i]) === -1)
+      for(var i = 0; i < choices.length; i++) {
+        if(document.documentElement.innerHTML.indexOf(choices[i]) === -1)
           return false;
       }
       return true;
@@ -320,8 +320,7 @@ frameworks.forEach((framework) => {
   });
 
   test("checked class", async (t) => {
-    const isCheckedClassExistsByIndex = ClientFunction((index) =>
-    {
+    const isCheckedClassExistsByIndex = ClientFunction((index) => {
       const columnClassName = ".sd-selectbase__column";
       return document
         .querySelector(

@@ -86,7 +86,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     event?: PointerEvent
   ): HTMLElement {
     const draggedElementShortcut = DomDocumentHelper.createElement("div");
-    if (!!draggedElementShortcut) {
+    if(!!draggedElementShortcut) {
       draggedElementShortcut.innerText = text;
       draggedElementShortcut.className = this.getDraggedElementClass();
     }
@@ -125,19 +125,19 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     const displayProp = this.domAdapter.draggedElementShortcut.style.display;
     this.domAdapter.draggedElementShortcut.style.display = "none";
 
-    if (!DomDocumentHelper.isAvailable()) return null;
+    if(!DomDocumentHelper.isAvailable()) return null;
 
     let dragOverNodes = <Array<HTMLElement>>this.domAdapter.documentOrShadowRoot.elementsFromPoint(clientX, clientY);
     this.domAdapter.draggedElementShortcut.style.display = displayProp || "block";
 
     let index = 0;
     let dragOverNode: HTMLElement = dragOverNodes[index];
-    while (dragOverNode && dragOverNode.className && typeof dragOverNode.className.indexOf == "function" && dragOverNode.className.indexOf("sv-drag-target-skipped") != -1) {
+    while(dragOverNode && dragOverNode.className && typeof dragOverNode.className.indexOf == "function" && dragOverNode.className.indexOf("sv-drag-target-skipped") != -1) {
       index++;
       dragOverNode = dragOverNodes[index];
     }
 
-    if (!dragOverNode) return null;
+    if(!dragOverNode) return null;
 
     return this.findDropTargetNodeByDragOverNode(dragOverNode);
   }
@@ -200,7 +200,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       event.clientY
     );
 
-    if (!dropTargetNode) {
+    if(!dropTargetNode) {
       this.banDropHere();
       return;
     }
@@ -214,7 +214,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
     this.doDragOver();
 
-    if (!isDropTargetValid) {
+    if(!isDropTargetValid) {
       this.banDropHere();
       return;
     }
@@ -223,11 +223,11 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
     this.allowDropHere = true;
 
-    if (this.isDropTargetDoesntChanged(isBottom)) return;
+    if(this.isDropTargetDoesntChanged(isBottom)) return;
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
-    if (this.draggedElement != this.dropTarget) {
+    if(this.draggedElement != this.dropTarget) {
       this.afterDragOver(dropTargetNode);
     }
     this.prevDropTarget = this.dropTarget;
@@ -235,7 +235,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   protected abstract doDrop(): any;
   public drop(): void {
-    if (this.allowDropHere) {
+    if(this.allowDropHere) {
       const fromElement = this.draggedElement.parent;
       const newElement = this.doDrop();
       this.onDragEnd.fire(this, { fromElement: fromElement, draggedElement: newElement, toElement: this.dropTarget });

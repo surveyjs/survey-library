@@ -18,26 +18,26 @@ export class QuestionCustomWidget {
     this.widgetJson.afterRender(question, el);
   }
   public willUnmount(question: IQuestion, el: any) {
-    if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
+    if(this.widgetJson.willUnmount)this.widgetJson.willUnmount(question, el);
   }
   public getDisplayValue(question: IQuestion, value: any = undefined): string {
-    if (this.widgetJson.getDisplayValue)
+    if(this.widgetJson.getDisplayValue)
       return this.widgetJson.getDisplayValue(question, value);
     return null;
   }
   public validate(question: IQuestion): string {
-    if (this.widgetJson.validate)
+    if(this.widgetJson.validate)
       return this.widgetJson.validate(question);
     return undefined;
   }
   public isFit(question: IQuestion): boolean {
-    if (this.isLibraryLoaded() && this.widgetJson.isFit)
+    if(this.isLibraryLoaded() && this.widgetJson.isFit)
       return this.widgetJson.isFit(question);
     return false;
   }
   public get canShowInToolbox(): boolean {
-    if (this.widgetJson.showInToolbox === false) return false;
-    if (
+    if(this.widgetJson.showInToolbox === false) return false;
+    if(
       CustomWidgetCollection.Instance.getActivatedBy(this.name) != "customtype"
     )
       return false;
@@ -50,17 +50,17 @@ export class QuestionCustomWidget {
     this.widgetJson.showInToolbox = val;
   }
   public init() {
-    if (this.widgetJson.init) {
+    if(this.widgetJson.init) {
       this.widgetJson.init();
     }
   }
   public activatedByChanged(activatedBy: string) {
-    if (this.isLibraryLoaded() && this.widgetJson.activatedByChanged) {
+    if(this.isLibraryLoaded() && this.widgetJson.activatedByChanged) {
       this.widgetJson.activatedByChanged(activatedBy);
     }
   }
   private isLibraryLoaded(): boolean {
-    if (this.widgetJson.widgetIsLoaded)
+    if(this.widgetJson.widgetIsLoaded)
       return this.widgetJson.widgetIsLoaded() == true;
     return true;
   }
@@ -97,7 +97,7 @@ export class CustomWidgetCollection {
     activatedBy: string = "property"
   ): QuestionCustomWidget {
     var name = widgetJson.name;
-    if (!name) {
+    if(!name) {
       name = "widget_" + this.widgets.length + 1;
     }
     var customWidget = new QuestionCustomWidget(name, widgetJson);
@@ -123,9 +123,9 @@ export class CustomWidgetCollection {
    * @param activatedBy there are three possible variants: "property", "type" and "customtype"
    */
   public setActivatedBy(widgetName: string, activatedBy: string) {
-    if (!widgetName || !activatedBy) return;
+    if(!widgetName || !activatedBy) return;
     var widget = this.getCustomWidgetByName(widgetName);
-    if (!widget) return;
+    if(!widget) return;
     (<any>this).widgetsActivatedBy[widgetName] = activatedBy;
     widget.activatedByChanged(activatedBy);
   }
@@ -133,14 +133,14 @@ export class CustomWidgetCollection {
     this.widgetsValues = [];
   }
   public getCustomWidgetByName(name: string): QuestionCustomWidget {
-    for (var i = 0; i < this.widgets.length; i++) {
-      if (this.widgets[i].name == name) return this.widgets[i];
+    for(var i = 0; i < this.widgets.length; i++) {
+      if(this.widgets[i].name == name) return this.widgets[i];
     }
     return null;
   }
   public getCustomWidget(question: IQuestion): QuestionCustomWidget {
-    for (var i = 0; i < this.widgetsValues.length; i++) {
-      if (this.widgetsValues[i].isFit(question)) return this.widgetsValues[i];
+    for(var i = 0; i < this.widgetsValues.length; i++) {
+      if(this.widgetsValues[i].isFit(question)) return this.widgetsValues[i];
     }
     return null;
   }

@@ -33,7 +33,7 @@ export class DropdownListModel extends Base {
   protected readonly selectedItemSelector = ".sv-list__item--selected";
   protected readonly itemSelector = ".sv-list__item";
   protected getFocusFirstInputSelector(): string {
-    if (IsTouch) {
+    if(IsTouch) {
       return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
     } else {
       return (!this.listModel.showFilter && !!this.question.value) ? this.selectedItemSelector : "";
@@ -42,9 +42,9 @@ export class DropdownListModel extends Base {
   private itemsSettings: { skip: number, take: number, totalCount: number, items: any[] } = { skip: 0, take: 0, totalCount: 0, items: [] };
   protected listModel: ListModel<ItemValue>;
   protected listModelFilterStringChanged = (newValue: string) => {
-    if (this.filterString !== newValue) {
+    if(this.filterString !== newValue) {
       this.filterString = newValue;
-      if (!this.choicesLazyLoadEnabled) {
+      if(!this.choicesLazyLoadEnabled) {
         this.processCustomValue();
       }
     }
@@ -72,7 +72,7 @@ export class DropdownListModel extends Base {
       setItems: (items: Array<any>, totalCount: number) => {
         this.setItems(items || [], totalCount || 0);
         this.popupRecalculatePosition(this.itemsSettings.skip === this.itemsSettings.take);
-        if (!!callbackAfterItemsLoaded) {
+        if(!!callbackAfterItemsLoaded) {
           callbackAfterItemsLoaded();
         }
         this.processCustomValue(_filterString);
@@ -81,11 +81,11 @@ export class DropdownListModel extends Base {
     this.itemsSettings.skip += this.itemsSettings.take;
   }
   private processCustomValue(newValue?: string) {
-    if (!this.allowCustomChoices) return;
+    if(!this.allowCustomChoices) return;
 
     const value = newValue || this.filterString;
     const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
-    if (!!item) {
+    if(!!item) {
       this.customValue = undefined;
     } else {
       this.customValue = value;
@@ -95,10 +95,10 @@ export class DropdownListModel extends Base {
   }
   private updateQuestionChoices(callbackAfterItemsLoaded?: () => void): void {
     const isUpdate = (this.itemsSettings.skip + 1) < this.itemsSettings.totalCount;
-    if (!this.itemsSettings.skip || isUpdate) {
+    if(!this.itemsSettings.skip || isUpdate) {
 
       this.resetTimer();
-      if (!!this.filterString && settings.dropdownSearchDelay > 0) {
+      if(!!this.filterString && settings.dropdownSearchDelay > 0) {
         this.timer = setTimeout(() => {
           this.loadQuestionChoices(callbackAfterItemsLoaded);
         }, settings.dropdownSearchDelay);
@@ -109,7 +109,7 @@ export class DropdownListModel extends Base {
   }
 
   private resetTimer(): void {
-    if (!!this.timer) {
+    if(!!this.timer) {
       clearTimeout(this.timer);
       this.timer = undefined;
     }
@@ -126,7 +126,7 @@ export class DropdownListModel extends Base {
 
     let menuType: "overlay" | "popup" | "dropdown" = "dropdown";
     let deviceType: "mobile" | "tablet" | "desktop" = "desktop";
-    if (IsTouch) {
+    if(IsTouch) {
       menuType = "popup";
       deviceType = isTablet ? "tablet" : "mobile";
     }
@@ -159,31 +159,31 @@ export class DropdownListModel extends Base {
   }
 
   private popupVisibilityChanged(isVisible: boolean) {
-    if (isVisible) {
+    if(isVisible) {
       this.listModel.renderElements = true;
     }
-    if (isVisible && this.choicesLazyLoadEnabled) {
+    if(isVisible && this.choicesLazyLoadEnabled) {
       this.listModel.actions = [];
       this.resetItemsSettings();
       this.updateQuestionChoices();
     }
 
-    if (isVisible) {
+    if(isVisible) {
       this.updatePopupFocusFirstInputSelector();
 
       const dropdownMenuOptions = this.getDropdownMenuOptions();
       const prevMenuType = dropdownMenuOptions.menuType;
       this.question.processOpenDropdownMenu(dropdownMenuOptions);
-      if (prevMenuType !== dropdownMenuOptions.menuType) {
+      if(prevMenuType !== dropdownMenuOptions.menuType) {
         this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
         this.listModel.setSearchEnabled(this.inputAvailable && dropdownMenuOptions.menuType !== "dropdown");
       }
 
-      if (!!this.question.onOpenedCallBack) {
+      if(!!this.question.onOpenedCallBack) {
         this.question.onOpenedCallBack();
       }
     }
-    if (!isVisible) {
+    if(!isVisible) {
       this.onHidePopup();
     }
     this.question.ariaExpanded = isVisible ? "true" : "false";
@@ -193,15 +193,15 @@ export class DropdownListModel extends Base {
   private setFilterStringToListModel(newValue: string): void {
     this.listModel.filterString = newValue;
     this.listModel.resetFocusedItem();
-    if (this.question.selectedItem && this.question.selectedItem.text.indexOf(newValue) >= 0) {
+    if(this.question.selectedItem && this.question.selectedItem.text.indexOf(newValue) >= 0) {
       this.listModel.focusedItem = <any>this.getAvailableItems().filter(item => item.id == this.question.selectedItem.value)[0];
-      if (this.listModel.filterString) {
+      if(this.listModel.filterString) {
         this.listModel.actions.map(a => a.selectedValue = false);
       }
 
       return;
     }
-    if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
+    if(!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
   }
@@ -219,7 +219,7 @@ export class DropdownListModel extends Base {
   protected onHidePopup(): void {
     this.resetFilterString();
     this.question.suggestedItem = null;
-    if (this.choicesLazyLoadEnabled) {
+    if(this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
     }
     this.customValue = undefined;
@@ -227,15 +227,15 @@ export class DropdownListModel extends Base {
   }
 
   protected getAvailableItems(): Array<ItemValue> {
-    if (this.allowCustomChoices) {
+    if(this.allowCustomChoices) {
       return [].concat(this.question.visibleChoices, [this.customItemValue]);
     }
     return this.question.visibleChoices;
   }
   protected setOnTextSearchCallbackForListModel(listModel: ListModel<ItemValue>) {
     listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
-      if (item.id === this.customItemValue.id) return item.visible;
-      if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
+      if(item.id === this.customItemValue.id) return item.visible;
+      if(this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
       let textInLow = item.text.toLocaleLowerCase();
       textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
       const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
@@ -245,7 +245,7 @@ export class DropdownListModel extends Base {
   protected createListModel(): ListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
-    if (!_onSelectionChanged) {
+    if(!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.setQuestionValue(item);
         this.popupModel.hide();
@@ -269,15 +269,15 @@ export class DropdownListModel extends Base {
   }
 
   private setQuestionValue(item: IAction) {
-    if (this.allowCustomChoices && item.id === this.customItemValue.id) {
+    if(this.allowCustomChoices && item.id === this.customItemValue.id) {
       const newChoice = this.createCustomItem();
-      if (!!newChoice) {
+      if(!!newChoice) {
         this.question.value = newChoice.id;
         this.hintString = "";
       }
     } else {
       this.question.value = item.id;
-      if (this.searchEnabled) this.applyInputString(item as ItemValue);
+      if(this.searchEnabled)this.applyInputString(item as ItemValue);
     }
   }
 
@@ -289,7 +289,7 @@ export class DropdownListModel extends Base {
       allow: true
     };
     this.question.survey.createCustomChoiceItem(options);
-    if (!options.allow) {
+    if(!options.allow) {
       this.clear();
       return null;
     }
@@ -303,7 +303,7 @@ export class DropdownListModel extends Base {
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
     model.isItemSelected = (action: ItemValue) => !!action.selected;
     model.onPropertyChanged.add((sender: any, options: any) => {
-      if (options.name == "hasVerticalScroller") {
+      if(options.name == "hasVerticalScroller") {
         this.hasScroll = options.newValue;
       }
     });
@@ -317,7 +317,7 @@ export class DropdownListModel extends Base {
     this.listModel.cssClasses = listCssClasses;
   }
   protected resetFilterString(): void {
-    if (!!this.filterString) {
+    if(!!this.filterString) {
       this.filterString = undefined;
     }
   }
@@ -329,21 +329,21 @@ export class DropdownListModel extends Base {
   }
   protected onSetFilterString(): void {
     this.filteredItems = undefined;
-    if (!this.filterString && !this.popupModel.isVisible) return;
+    if(!this.filterString && !this.popupModel.isVisible) return;
     const options = { question: this.question, choices: this.getAvailableItems(), filter: this.filterString, filteredChoices: undefined as Array<ItemValue> };
     (this.question.survey as SurveyModel).onChoicesSearch.fire(this.question.survey as SurveyModel, options);
     this.filteredItems = options.filteredChoices;
 
-    if (!!this.filterString && !this.popupModel.isVisible) {
+    if(!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.show();
     }
     const updateAfterFilterStringChanged = () => {
       this.setFilterStringToListModel(this.filterString);
-      if (this.filterString) this.applyHintString();
+      if(this.filterString)this.applyHintString();
       this.popupRecalculatePosition(true);
     };
 
-    if (this.choicesLazyLoadEnabled) {
+    if(this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
       this.updateQuestionChoices(updateAfterFilterStringChanged);
     } else {
@@ -359,7 +359,7 @@ export class DropdownListModel extends Base {
   }
 
   public updateCustomItemValue(): void {
-    if (this.customValue) {
+    if(this.customValue) {
       this.customItemValue.text = this.getLocalizationFormatString("createCustomItem", this.customValue);
       this.customItemValue.visible = true;
     } else {
@@ -374,7 +374,7 @@ export class DropdownListModel extends Base {
 
   private _customItemValue: ItemValue;
   public get customItemValue(): ItemValue {
-    if (!this._customItemValue) {
+    if(!this._customItemValue) {
       this._customItemValue = new ItemValue("newCustomItem", this.getLocalizationFormatString("createCustomItem", this.customValue));
       this._customItemValue.css = "sv-list-item--custom-value";
     }
@@ -409,7 +409,7 @@ export class DropdownListModel extends Base {
 
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
-    if (hasHtml || this.question.inputFieldComponentName) {
+    if(hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
       this.inputString = this.cleanHtml(item?.locText.getHtmlValue());
       this.hintString = "";
@@ -420,23 +420,23 @@ export class DropdownListModel extends Base {
   }
 
   private cleanHtml(html: string): string {
-    if (!this.htmlCleanerElement) return "";
+    if(!this.htmlCleanerElement) return "";
     this.htmlCleanerElement.innerHTML = html;
     return this.htmlCleanerElement.textContent;
   }
 
   protected fixInputCase() {
     const hintStringMiddle = this.hintStringMiddle;
-    if (hintStringMiddle && this.inputString != hintStringMiddle) this.inputString = hintStringMiddle;
+    if(hintStringMiddle && this.inputString != hintStringMiddle)this.inputString = hintStringMiddle;
   }
 
   protected applyHintString() {
     const item: ItemValue = this.listModel.focusedItem || this.question.selectedItem;
     const hasHtml = item?.locText.hasHtml;
-    if (hasHtml || this.question.inputFieldComponentName) {
+    if(hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
       this.hintString = "";
-    } else if (item === this.customItemValue) {
+    } else if(item === this.customItemValue) {
       this.hintString = "";
     } else {
       this.hintString = item?.title;
@@ -451,10 +451,10 @@ export class DropdownListModel extends Base {
     this.inputString = val;
     this.filterString = val;
 
-    if (!this.choicesLazyLoadEnabled) {
+    if(!this.choicesLazyLoadEnabled) {
       this.processCustomValue();
     }
-    if (!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
+    if(!val || !this.searchEnabled || this.listModel.focusedItem?.id === this.customItemValue.id) {
       this.hintString = "";
     }
   }
@@ -470,7 +470,7 @@ export class DropdownListModel extends Base {
   @property({
     defaultValue: false,
     onSet: (newVal: boolean, target: DropdownListModel) => {
-      if (newVal) {
+      if(newVal) {
         target.listModel.addScrollEventListener((e: any) => { target.onScroll(e); });
       } else {
         target.listModel.removeScrollEventListener();
@@ -491,7 +491,7 @@ export class DropdownListModel extends Base {
     return !!this.inputString && this.hintStringLC.indexOf(this.inputStringLC) > 0;
   }
   public get hintStringPrefix(): string {
-    if (!this.inputString) return null;
+    if(!this.inputString) return null;
     return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
   }
   public get showHintString(): boolean {
@@ -503,7 +503,7 @@ export class DropdownListModel extends Base {
   }
   public get hintStringMiddle(): string {
     const start = this.hintStringLC.indexOf(this.inputStringLC);
-    if (start == -1) return null;
+    if(start == -1) return null;
     return this.hintString.substring(start, start + this.inputStringLC.length);
   }
   private questionPropertyChangedHandler = (sender: any, options: any) => {
@@ -567,34 +567,34 @@ export class DropdownListModel extends Base {
   }
 
   public onClick(event: any): void {
-    if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
+    if(this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
     this.question.focusInputElement(false);
   }
   public chevronPointerDown(event: any): void {
-    if (this._popupModel.isVisible) {
+    if(this._popupModel.isVisible) {
       event.preventDefault();
     }
   }
 
   protected onPropertyChangedHandler(sender: any, options: any) {
-    if (options.name == "value") {
+    if(options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
     }
-    if (options.name == "textWrapEnabled") {
+    if(options.name == "textWrapEnabled") {
       this.setTextWrapEnabled(options.newValue);
     }
   }
   protected focusItemOnClickAndPopup() {
-    if (this._popupModel.isVisible && this.question.value)
+    if(this._popupModel.isVisible && this.question.value)
       this.changeSelectionWithKeyboard(false);
   }
 
   public onClear(event: any): void {
     this.question.clearValue(true);
     this._popupModel.hide();
-    if (event) {
+    if(event) {
       event.preventDefault();
       event.stopPropagation();
     }
@@ -606,16 +606,14 @@ export class DropdownListModel extends Base {
 
   changeSelectionWithKeyboard(reverse: boolean): void {
     let focusedItem = this.listModel.focusedItem;
-    if (!focusedItem && this.question.selectedItem) {
-      if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
+    if(!focusedItem && this.question.selectedItem) {
+      if(ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
         this.listModel.focusedItem = this.question.selectedItem;
       }
-    }
-    else {
-      if (reverse) {
+    } else {
+      if(reverse) {
         this.listModel.focusPrevVisibleItem();
-      }
-      else {
+      } else {
         this.listModel.focusNextVisibleItem();
       }
     }
@@ -628,7 +626,7 @@ export class DropdownListModel extends Base {
   }
 
   protected beforeScrollToFocusedItem(focusedItem: ItemValue) {
-    if (this.question.value && focusedItem) {
+    if(this.question.value && focusedItem) {
       focusedItem.selectedValue = false;
       this.listModel.focusedItem.selectedValue = !this.listModel.filterString;
       this.question.suggestedItem = this.listModel.focusedItem;
@@ -636,10 +634,9 @@ export class DropdownListModel extends Base {
   }
 
   protected afterScrollToFocusedItem() {
-    if (this.question.value && !this.listModel.filterString && this.searchEnabled) {
+    if(this.question.value && !this.listModel.filterString && this.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
-    }
-    else {
+    } else {
       this.applyHintString();
     }
 
@@ -650,69 +647,68 @@ export class DropdownListModel extends Base {
   keyHandler(event: any): void {
     let isStopPropagation = false;
     const char: number = event.which || event.keyCode;
-    if (this.popupModel.isVisible && event.keyCode === 38) {
+    if(this.popupModel.isVisible && event.keyCode === 38) {
       this.changeSelectionWithKeyboard(true);
       isStopPropagation = true;
-    } else if (event.keyCode === 40) {
+    } else if(event.keyCode === 40) {
       this.popupModel.show();
       this.changeSelectionWithKeyboard(false);
       isStopPropagation = true;
-    } else if (event.keyCode === 9) {
+    } else if(event.keyCode === 9) {
       this.popupModel.hide();
-    } else if (!this.popupModel.isVisible && event.keyCode === 32) {
+    } else if(!this.popupModel.isVisible && event.keyCode === 32) {
       this.popupModel.show();
       this.changeSelectionWithKeyboard(false);
       isStopPropagation = true;
-    } else if (!this.popupModel.isVisible && event.keyCode === 13) {
+    } else if(!this.popupModel.isVisible && event.keyCode === 13) {
       (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
       isStopPropagation = true;
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.searchEnabled || !this.inputString))) {
-      if (event.keyCode === 13 && this.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
+    } else if(this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.searchEnabled || !this.inputString))) {
+      if(event.keyCode === 13 && this.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.hide();
         this.onClear(event);
-      }
-      else {
+      } else {
         this.listModel.selectFocusedItem();
         this.onFocus(event);
       }
       isStopPropagation = true;
-    } else if (char === 46 || char === 8) {
-      if (!this.inputAvailable) {
+    } else if(char === 46 || char === 8) {
+      if(!this.inputAvailable) {
         this.onClear(event);
       }
-    } else if (event.keyCode === 27) {
+    } else if(event.keyCode === 27) {
       this._popupModel.hide();
       this.hintString = "";
       this.onEscape();
     } else {
-      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.searchEnabled) {
+      if(event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.searchEnabled) {
         isStopPropagation = true;
       }
-      if (event.keyCode === 32 && this.searchEnabled) {
+      if(event.keyCode === 32 && this.searchEnabled) {
         return;
       }
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }
 
-    if (isStopPropagation) {
+    if(isStopPropagation) {
       event.preventDefault();
       event.stopPropagation();
     }
   }
   protected onEscape() {
-    if (this.searchEnabled)
+    if(this.searchEnabled)
       this.applyInputString(this.question.selectedItem);
   }
 
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
-    if ((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
+    if((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
       this.updateQuestionChoices();
     }
   }
   onBlur(event: any): void {
     this.focused = false;
-    if (this.popupModel.isVisible && this.popupModel.displayMode == "overlay") {
+    if(this.popupModel.isVisible && this.popupModel.displayMode == "overlay") {
       return;
     }
     doKey2ClickBlur(event);
@@ -728,8 +724,8 @@ export class DropdownListModel extends Base {
   }
 
   public setInputStringFromSelectedItem(newValue: any): void {
-    if (!this.focused) return;
-    if (this.searchEnabled && !!newValue) {
+    if(!this.focused) return;
+    if(this.searchEnabled && !!newValue) {
       this.applyInputString(newValue);
     } else {
       this.inputString = null;
@@ -740,10 +736,10 @@ export class DropdownListModel extends Base {
     super.dispose();
     this.question && this.question.onPropertyChanged.remove(this.questionPropertyChangedHandler);
     this.questionPropertyChangedHandler = undefined;
-    if (!!this.listModel) {
+    if(!!this.listModel) {
       this.listModel.dispose();
     }
-    if (!!this.popupModel) {
+    if(!!this.popupModel) {
       this.popupModel.dispose();
     }
     this.htmlCleanerElement = undefined;

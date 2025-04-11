@@ -36,7 +36,7 @@ export class SurveyTaskManagerModel extends Base {
 
   private taskFinished(task: SurveyTaskModel) {
     const index = this.taskList.indexOf(task);
-    if (index > -1) {
+    if(index > -1) {
       this.taskList.splice(index, 1);
     }
     if(this.hasActiveTasks && this.taskList.length == 0) {

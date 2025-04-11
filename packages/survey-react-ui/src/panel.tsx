@@ -32,14 +32,14 @@ export class SurveyPanel extends SurveyPanelBase {
       display: this.panel.renderedIsExpanded ? undefined : "none",
     };
     let content: React.JSX.Element | null = null;
-    if (this.panel.renderedIsExpanded) {
+    if(this.panel.renderedIsExpanded) {
       // this.hasBeenExpanded = true;
       const rows: React.JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
       const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);
     }
     const focusIn = () => {
-      if (this.panelBase) (this.panelBase as PanelModel).focusIn();
+      if(this.panelBase) (this.panelBase as PanelModel).focusIn();
     };
     return (
       <div
@@ -57,7 +57,7 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderHeader() {
-    if (!this.panel.hasTitle && !this.panel.hasDescription) {
+    if(!this.panel.hasTitle && !this.panel.hasDescription) {
       return null;
     }
     return <SurveyElementHeader element={this.panel}></SurveyElementHeader>;
@@ -65,7 +65,7 @@ export class SurveyPanel extends SurveyPanelBase {
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.panel.survey as SurveyModel;
     let wrapper: React.JSX.Element | null = null;
-    if (survey) {
+    if(survey) {
       wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.panel);
     }
     return wrapper ?? element;
@@ -80,11 +80,11 @@ export class SurveyPanel extends SurveyPanelBase {
     );
   }
   protected renderTitle(): React.JSX.Element | null {
-    if (!this.panelBase.title) return null;
+    if(!this.panelBase.title) return null;
     return <TitleElement element={this.panelBase}></TitleElement>;
   }
   protected renderDescription(): React.JSX.Element | null {
-    if (!this.panelBase.description) return null;
+    if(!this.panelBase.description) return null;
     var text = SurveyElementBase.renderLocString(this.panelBase.locDescription);
     return (
       <div className={this.panel.cssClasses.panel.description}>{text}</div>
@@ -92,7 +92,7 @@ export class SurveyPanel extends SurveyPanelBase {
   }
   protected renderBottom(): React.JSX.Element | null {
     const footerToolbar = this.panel.getFooterToolbar();
-    if (!footerToolbar.hasActions) return null;
+    if(!footerToolbar.hasActions) return null;
     return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
   }
   protected getIsVisible(): boolean {

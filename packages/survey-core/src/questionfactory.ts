@@ -63,7 +63,7 @@ export class ElementFactory {
   }
   public unregisterElement(elementType: string, removeFromSerializer: boolean = false): void {
     delete this.creatorHash[elementType];
-    if (removeFromSerializer) {
+    if(removeFromSerializer) {
       Serializer.removeClass(elementType);
     }
   }
@@ -75,14 +75,14 @@ export class ElementFactory {
   }
   public createElement(elementType: string, name: string): IElement {
     var item = this.creatorHash[elementType];
-    if (!!item && !!item.creator) return item.creator(name);
+    if(!!item && !!item.creator) return item.creator(name);
     const compJSON = ComponentCollection.Instance.getCustomQuestionByName(elementType);
     if(!!compJSON) return ComponentCollection.Instance.createQuestion(name, compJSON);
     return null;
   }
   private getAllTypesCore(showInToolboxOnly: boolean): Array<string> {
     var result = new Array<string>();
-    for (var key in this.creatorHash) {
+    for(var key in this.creatorHash) {
       if(!showInToolboxOnly || this.creatorHash[key].showInToolbox) {
         result.push(key);
       }

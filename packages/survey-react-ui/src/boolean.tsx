@@ -45,9 +45,9 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
   }
 
   protected updateDomElement() {
-    if (!this.question) return;
+    if(!this.question) return;
     const el = this.checkRef.current;
-    if (el) {
+    if(el) {
       el.indeterminate = this.question.isIndeterminate;
     }
     this.setControl(el);

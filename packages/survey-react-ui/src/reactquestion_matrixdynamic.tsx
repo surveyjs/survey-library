@@ -31,11 +31,11 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
     );
   }
   protected renderAddRowButtonOnTop(cssClasses: any): React.JSX.Element | null {
-    if (!this.matrix.renderedTable.showAddRowOnTop) return null;
+    if(!this.matrix.renderedTable.showAddRowOnTop) return null;
     return this.renderAddRowButton(cssClasses);
   }
   protected renderAddRowButtonOnBottom(cssClasses: any): React.JSX.Element | null {
-    if (!this.matrix.renderedTable.showAddRowOnBottom) return null;
+    if(!this.matrix.renderedTable.showAddRowOnBottom) return null;
     return this.renderAddRowButton(cssClasses);
   }
   protected renderNoRowsContent(cssClasses: any): React.JSX.Element {

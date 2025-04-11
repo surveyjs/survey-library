@@ -335,7 +335,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
       });
     },
     onPropertyChanged: function (question, propertyName, newValue) {
-      if (propertyName == "showLastName") {
+      if(propertyName == "showLastName") {
         question.contentPanel.getQuestionByName("lastName").visible = newValue;
       }
     },
@@ -918,9 +918,9 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
     },
     buildRows(question) {
       var rows = [];
-      for (var i = 0; i < question.orders.length; i++) {
+      for(var i = 0; i < question.orders.length; i++) {
         var item = question.orders[i];
-        if (!!item.value) {
+        if(!!item.value) {
           rows.push(question.orders[i].value);
         }
       }
@@ -928,9 +928,9 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
     },
     setDefaultValues(question) {
       var defaultValue = {};
-      for (var i = 0; i < question.orders.length; i++) {
+      for(var i = 0; i < question.orders.length; i++) {
         var item = question.orders[i];
-        if (!!item.value && !!item.price) {
+        if(!!item.value && !!item.price) {
           defaultValue[item.value] = { price: item.price };
         }
       }
@@ -993,13 +993,13 @@ QUnit.test("Complex: hide content question in designMode", function (assert) {
       this.changeMiddleVisibility(question);
     },
     onPropertyChanged(question, propertyName, newValue) {
-      if (propertyName == "showMiddleName") {
+      if(propertyName == "showMiddleName") {
         this.changeMiddleVisibility(question);
       }
     },
     changeMiddleVisibility(question) {
       let middle = question.contentPanel.getQuestionByName("middleName");
-      if (!!middle) {
+      if(!!middle) {
         middle.visible = question.showMiddleName === true;
       }
     },
@@ -1230,7 +1230,7 @@ QUnit.test("Composite: onValueChanged function", function (assert) {
       },
     ],
     onValueChanged: (question: Question, name: string, value: any) => {
-      if (name == "q2") {
+      if(name == "q2") {
         question.setValue("q1", value + value);
       }
     },
@@ -1255,9 +1255,9 @@ QUnit.test("Single: onValueChanged function, value is array", function (assert) 
       type: "html",
     },
     onValueChanged: (question: Question, name: string, value: any) => {
-      if (!value) value = [];
+      if(!value) value = [];
       var res = "";
-      for (var i = 0; i < value.length; i++) {
+      for(var i = 0; i < value.length; i++) {
         res += value[i];
       }
       question.contentQuestion.html = res;
@@ -1288,7 +1288,7 @@ QUnit.test("Composite: onValueChanging function", function (assert) {
       },
     ],
     onValueChanging: (question: Question, name: string, value: any): any => {
-      if (name == "q2" && value === 1) {
+      if(name == "q2" && value === 1) {
         return 2;
       }
       return value;
@@ -1344,7 +1344,7 @@ QUnit.test("Single: onValueChanging function, value is array", function (assert)
       type: "text",
     },
     onValueChanging: (question: Question, name: string, value: any) => {
-      if (value === 1) {
+      if(value === 1) {
         return 2;
       }
       return value;
@@ -1488,7 +1488,7 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var objs = [];
   q.addConditionObjectsByContext(objs, null);
-  for (var i = 0; i < objs.length; i++) {
+  for(var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.getType();
   }
   assert.deepEqual(
@@ -3119,10 +3119,10 @@ QUnit.test("Composite: validate", function (assert) {
       { type: "text", name: "q3", choices: [1, 2, 3], visibleIf: "{composite.q2} notempty" }
     ],
     onValueChanged(question, name, newValue) {
-      if (name === "q1") {
+      if(name === "q1") {
         question.contentPanel.getQuestionByName("q2").clearValue();
       }
-      if (name === "q2") {
+      if(name === "q2") {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
     },
@@ -3198,10 +3198,10 @@ QUnit.test("Composite: onValueChanging and survey.onValueChanging", function (as
       { type: "text", name: "q3", choices: [1, 2, 3] }
     ],
     onValueChanging(question, name, newValue) {
-      if (name === "q1") {
+      if(name === "q1") {
         question.contentPanel.getQuestionByName("q2").clearValue();
       }
-      if (name === "q2") {
+      if(name === "q2") {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
       return newValue;
@@ -3235,11 +3235,11 @@ QUnit.test("Composite: onValueChanged and survey.data", function (assert) {
       { type: "text", name: "q3", choices: [1, 2, 3] }
     ],
     onValueChanged(question, name, newValue) {
-      if (name === "q1") {
+      if(name === "q1") {
         question.contentPanel.getQuestionByName("q2").clearValue();
         question.contentPanel.getQuestionByName("q3").clearValue();
       }
-      if (name === "q2") {
+      if(name === "q2") {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
     },

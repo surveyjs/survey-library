@@ -2173,7 +2173,7 @@ QUnit.test("question.addConditionObjectsByContext", function (assert) {
   qValueName.valueName = "valueText";
   qValueName.title = "Text Question";
   qValueName.addConditionObjectsByContext(objs, null);
-  for (var i = 0; i < objs.length; i++) {
+  for(var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
   }
   assert.deepEqual(
@@ -3835,9 +3835,9 @@ QUnit.test(
       return false;
     }
     var returnResult = function (res) {
-      if (!!returnResult1) returnResult1(res);
-      if (!!returnResult2) returnResult2(res);
-      if (!!returnResult3) returnResult3(res);
+      if(!!returnResult1) returnResult1(res);
+      if(!!returnResult2) returnResult2(res);
+      if(!!returnResult3) returnResult3(res);
     };
     FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
     FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
@@ -4619,7 +4619,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
     "None"
   );
   survey.onUpdateChoiceItemCss.add((sender, options) => {
-    if (options.item.value == 2) {
+    if(options.item.value == 2) {
       options.css = options.css + " custom";
     }
   });
@@ -4905,11 +4905,11 @@ QUnit.test("matirix and survey.onValueChanged event, Bug#2408", function (
   var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
   survey.onValueChanging.add(function (sender, options) {
     var keys = [];
-    for (var key in options.value) {
+    for(var key in options.value) {
       keys.push(key);
     }
-    if (keys.length == 2 && !!options.oldValue) {
-      for (var key in options.oldValue) {
+    if(keys.length == 2 && !!options.oldValue) {
+      for(var key in options.oldValue) {
         delete options.value[key];
         break;
       }
@@ -6100,7 +6100,7 @@ QUnit.test("Use question onDisplayValueCallback", function (assert) {
   var survey = new SurveyModel(json);
   var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
   q1.displayValueCallback = (val: string): string => {
-    if (q1.isEmpty()) return q1.optionsCaption;
+    if(q1.isEmpty()) return q1.optionsCaption;
     return val;
   };
   assert.equal(q1.displayValue, "Empty", "We get display Value on callback");
@@ -6252,7 +6252,7 @@ QUnit.test("checkbox question item methods", function (assert) {
 });
 QUnit.test("Check that we do not set valueChangedCallback internally", function (assert) {
   const questionClasses = Serializer.getChildrenClasses("question", true);
-  for (let i = 0; i < questionClasses.length; i++) {
+  for(let i = 0; i < questionClasses.length; i++) {
     const className = questionClasses[i].name;
     const question = Serializer.createClass(className);
     assert.notOk(question.valueChangedCallback, "We should no set valueChangedCallback, class: " + className);
@@ -6283,7 +6283,7 @@ QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (asse
   };
   let hasVisibleChoicesInHash = false;
   question.iteratePropertiesHash((hash, key) => {
-    if (key === "visibleChoices") {
+    if(key === "visibleChoices") {
       hasVisibleChoicesInHash = true;
     }
   });
@@ -6493,7 +6493,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onCom
     ]
   });
   const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for (var key in q) {
+  for(var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
     q[key].visible = false;
@@ -6521,7 +6521,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'
     ]
   });
   const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for (var key in q) {
+  for(var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
     q[key].visible = false;
@@ -6549,7 +6549,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
     ]
   });
   const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for (var key in q) {
+  for(var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
     q[key].visible = false;
@@ -6582,7 +6582,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
     ]
   });
   const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
-  for (var key in q) {
+  for(var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
   }
@@ -6767,7 +6767,7 @@ QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
     ]
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if (options.question.name == "q1") {
+    if(options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });

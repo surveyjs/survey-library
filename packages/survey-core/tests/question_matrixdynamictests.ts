@@ -707,7 +707,7 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
   survey.addNewPage("p1");
   survey.pages[0].addQuestion(matrix);
   survey.onMatrixCellCreated.add(function (survey, options) {
-    if (options.columnName == "col2") {
+    if(options.columnName == "col2") {
       options.cellQuestion.visible = options.rowValue["col1"] ? true : false;
     }
   });
@@ -716,11 +716,11 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
   survey.onMatrixCellValueChanged.add(function (survey, options) {
     columnName = options.column.name;
     cellQuestionName = options.cellQuestion.name;
-    if (options.columnName != "col1") return;
+    if(options.columnName != "col1") return;
     var question = options.getCellQuestion("col2");
     question.visible = options.value ? true : false;
-    if (options.value == 1) question.choices = ["item1", "item2"];
-    if (options.value == 2) question.choices = ["item3", "item4"];
+    if(options.value == 1) question.choices = ["item1", "item2"];
+    if(options.value == 2) question.choices = ["item3", "item4"];
   });
   matrix.rowCount = 1;
   var rows = matrix.visibleRows;
@@ -761,7 +761,7 @@ QUnit.test(
     survey.addNewPage("p1");
     survey.pages[0].addQuestion(matrix);
     survey.onMatrixCellCreated.add(function (survey, options) {
-      if (options.columnName === "col2") {
+      if(options.columnName === "col2") {
         options.cellQuestion.value = "A";
       }
       // if (options.columnName === "col1") {
@@ -795,7 +795,7 @@ QUnit.test(
     });
     var col1Question = undefined;
     survey.onMatrixCellValidate.add(function (survey, options) {
-      if (options.value == "notallow") {
+      if(options.value == "notallow") {
         options.error = "This cell is not allow";
       }
       col1Question = options.getCellQuestion("col1");
@@ -839,10 +839,10 @@ QUnit.test(
     });
     survey.onMatrixCellValidate.add(function (survey, options) {
       var rows = options.question.visibleRows;
-      for (var i = 0; i < rows.length; i++) {
+      for(var i = 0; i < rows.length; i++) {
         //we have the same row
-        if (rows[i] === options.row) continue;
-        if (rows[i].value && rows[i].value["col1"] == options.value) {
+        if(rows[i] === options.row) continue;
+        if(rows[i].value && rows[i].value["col1"] == options.value) {
           options.error = "You have already select the same value";
         }
       }
@@ -871,7 +871,7 @@ QUnit.test(
     survey.addNewPage("p1");
     survey.pages[0].addQuestion(matrix);
     survey.onMatrixCellCreating.add((sender, options) => {
-      if (options.column.name !== "col1") return;
+      if(options.column.name !== "col1") return;
       options.cellType = options.row.rowName;
     });
     var rows = matrix.visibleRows;
@@ -907,7 +907,7 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     survey.onMatrixCellValueChanging.add(function (sender, options) {
-      if (options.columnName == "experience" && !options.value) {
+      if(options.columnName == "experience" && !options.value) {
         options.value = options.oldValue;
       }
     });
@@ -958,12 +958,12 @@ QUnit.test("Matrixdropdown different cell types", function (assert) {
   question.columns.push(new MatrixDropdownColumn("comment"));
   question.columns.push(new MatrixDropdownColumn("boolean"));
 
-  for (var i = 0; i < question.columns.length; i++) {
+  for(var i = 0; i < question.columns.length; i++) {
     question.columns[i].cellType = question.columns[i].name;
   }
   question.rows = ["row1", "row2", "row3"];
 
-  for (var i = 0; i < question.columns.length; i++) {
+  for(var i = 0; i < question.columns.length; i++) {
     var col = question.columns[i];
     var row = question.visibleRows[0];
     assert.equal(
@@ -1541,7 +1541,7 @@ QUnit.test("MatrixDropdownColumn cellType property, choices", function (assert) 
   var prop = Serializer.findProperty("matrixdropdowncolumn", "cellType");
   assert.ok(prop, "Property is here");
   let counter = 1; //default
-  for (let key in matrixDropdownColumnTypes) counter++;
+  for(let key in matrixDropdownColumnTypes) counter++;
   assert.equal(prop.choices.length, counter, "get cell types from matrixDropdownColumnTypes");
   assert.equal(prop.choices[0], "default", "The first value is default");
   assert.equal(prop.choices[1], "dropdown", "The second value is default");
@@ -1628,13 +1628,13 @@ QUnit.test(
 );
 
 function updateObjsQuestions(objs: Array<any>, removeQuestion: boolean = false): void {
-  for (var i = 0; i < objs.length; i++) {
-    if (removeQuestion) {
+  for(var i = 0; i < objs.length; i++) {
+    if(removeQuestion) {
       delete objs[i].question;
     } else {
       objs[i].question = objs[i].question.name;
     }
-    if (!!objs[i].context) {
+    if(!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
   }
@@ -2170,7 +2170,7 @@ QUnit.test("Matrixdropdown column.index", function (assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.columns.push(new MatrixDropdownColumn("column3"));
-  for (var i = 0; i < question.columns.length; i++) {
+  for(var i = 0; i < question.columns.length; i++) {
     assert.equal(
       question.columns[i].index,
       i,
@@ -2179,7 +2179,7 @@ QUnit.test("Matrixdropdown column.index", function (assert) {
   }
   question.columns.splice(1, 1);
   assert.equal(question.columns.length, 2, "now 2 columns");
-  for (var i = 0; i < question.columns.length; i++) {
+  for(var i = 0; i < question.columns.length; i++) {
     assert.equal(
       question.columns[i].index,
       i,
@@ -2788,7 +2788,7 @@ QUnit.test(
       var question = !!this.row
         ? this.row.getQuestionByColumnName(params[0])
         : null;
-      if (!question) return 0;
+      if(!question) return 0;
       var selItem = question.selectedItem;
       return !!selItem ? selItem.price : 0;
     };
@@ -3460,7 +3460,7 @@ QUnit.test(
       name: "customWidget",
       isFit: (question) => {
         var res = question.getType() == "text";
-        if (res) {
+        if(res) {
           isFitValue = true;
           const onReadOnlyChangedCallback = function () {
             isReadOnly = question.isReadOnly;
@@ -4330,7 +4330,7 @@ QUnit.test(
   function (assert) {
     var rowCount = 0;
     function newIndexFor(params) {
-      if (!params[0]) {
+      if(!params[0]) {
         rowCount++;
       }
       return params[0] || rowCount;
@@ -7005,7 +7005,7 @@ QUnit.test("Detail panel, create elements in code", function (assert) {
   ) => {
     panel.addNewQuestion("text", "q1");
     panel.addNewQuestion("text", "q2");
-    if (createThirdQuestion) {
+    if(createThirdQuestion) {
       panel.addNewQuestion("text", "q3");
     }
   };
@@ -7781,7 +7781,7 @@ QUnit.test(
       removedRowIndex = options.rowIndex;
       visibleRowsCount = options.question.visibleRows.length;
       options.allow = options.question.rowCount > 1;
-      if (!options.allow) {
+      if(!options.allow) {
         options.row.clearValue();
       }
     });
@@ -8338,7 +8338,7 @@ QUnit.test("Drag&drop row with dropdown and column visibleIf", function (assert)
   rows[0].cells[1].question.value = "b";
   matrix.renderedTable.rows.forEach(row => {
     row.cells.forEach(cell => {
-      if (cell.hasQuestion) cell.question?.afterRenderCore({} as any);
+      if(cell.hasQuestion) cell.question?.afterRenderCore({} as any);
     });
   });
 

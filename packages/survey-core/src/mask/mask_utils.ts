@@ -27,7 +27,7 @@ export function getAvailableMaskTypeChoices() {
   const classes = Serializer.getChildrenClasses("masksettings") || [];
   const choices = classes.map((cl: JsonMetadataClass) => {
     let value = cl.name;
-    if (cl.name.indexOf("mask") !== -1) {
+    if(cl.name.indexOf("mask") !== -1) {
       value = value.slice(0, value.indexOf("mask"));
     }
     return value;

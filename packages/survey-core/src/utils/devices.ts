@@ -4,15 +4,15 @@ import { DomWindowHelper } from "../global_variables_utils";
 let _isMobile = false;
 let vendor = null;
 
-if (typeof navigator !== "undefined" && !!navigator && DomWindowHelper.isAvailable()) {
+if(typeof navigator !== "undefined" && !!navigator && DomWindowHelper.isAvailable()) {
   vendor = navigator.userAgent || navigator.vendor || DomWindowHelper.hasOwn("opera");
 }
 
 (function (a: any) {
-  if (!a) return;
-  if ((navigator.platform === "MacIntel" && navigator.maxTouchPoints > 0) || navigator.platform === "iPad") {
+  if(!a) return;
+  if((navigator.platform === "MacIntel" && navigator.maxTouchPoints > 0) || navigator.platform === "iPad") {
     _isMobile = true;
-  } else if (
+  } else if(
     /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
       a
     ) ||
@@ -65,8 +65,8 @@ export function calculateIsTablet(windowWidth?: number, windowHeight?: number, t
 
 export type MatchMediaMethod = ((query:string) => {matches:boolean} | null) | null;
 export function detectMouseSupport(matchMedia: MatchMediaMethod):boolean {
-  if (!matchMedia) return false;
-  if (IsMobile) return false;
+  if(!matchMedia) return false;
+  if(IsMobile) return false;
 
   const pointerQuery = matchMedia("(pointer:fine)");
   const hoverQuery = matchMedia("(any-hover:hover)");

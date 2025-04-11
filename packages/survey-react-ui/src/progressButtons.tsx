@@ -107,7 +107,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     listContainerElement: Element | null,
     isLeftScroll: boolean
   ): void {
-    if (!!listContainerElement) {
+    if(!!listContainerElement) {
       listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
     }
   }
@@ -118,7 +118,7 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     }, 10);
   }
   componentWillUnmount() {
-    if (!!this.respManager) {
+    if(!!this.respManager) {
       this.respManager.dispose();
     }
     super.componentWillUnmount();

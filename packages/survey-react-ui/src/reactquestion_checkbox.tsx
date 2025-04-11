@@ -42,7 +42,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 
   protected getHeader() {
-    if (this.question.hasHeadItems) {
+    if(this.question.hasHeadItems) {
       return this.question.headItems.map((item: any, ii: number) =>
         this.renderItem(
           item,
@@ -53,7 +53,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     }
   }
   protected getFooter() {
-    if (this.question.hasFootItems) {
+    if(this.question.hasFootItems) {
       return this.question.footItems.map((item: any, ii: number) =>
         this.renderItem(
           item,
@@ -89,18 +89,19 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
 
   protected getBody(cssClasses: any): React.JSX.Element {
-    if (this.question.blockedRow) {
+    if(this.question.blockedRow) {
       return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
+    } else {
+      return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
     }
-    else return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
   }
   protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
     var renderedItems: Array<React.JSX.Element> = [];
-    for (var i = 0; i < choices.length; i++) {
+    for(var i = 0; i < choices.length; i++) {
       var item = choices[i];
       var key = "item" + item.value;
       var renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i);
-      if (!!renderedItem) {
+      if(!!renderedItem) {
         renderedItems.push(renderedItem);
       }
     }
@@ -140,7 +141,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     });
     const survey = this.question.survey as SurveyModel;
     let wrappedItem: React.JSX.Element | null = null;
-    if (!!survey && !!renderedItem) {
+    if(!!survey && !!renderedItem) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
@@ -175,17 +176,17 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   public componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if (prevProps.item !== this.props.item && !this.question.isDesignMode) {
-      if (this.props.item) {
+    if(prevProps.item !== this.props.item && !this.question.isDesignMode) {
+      if(this.props.item) {
         this.props.item.setRootElement(this.rootRef.current);
       }
-      if (prevProps.item) {
+      if(prevProps.item) {
         prevProps.item.setRootElement(undefined);
       }
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
@@ -253,13 +254,13 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   componentDidMount(): void {
     super.componentDidMount();
-    if (!this.question.isDesignMode) {
+    if(!this.question.isDesignMode) {
       this.item.setRootElement(this.rootRef.current as HTMLElement);
     }
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if (!this.question.isDesignMode) {
+    if(!this.question.isDesignMode) {
       this.item.setRootElement(undefined as any);
     }
   }

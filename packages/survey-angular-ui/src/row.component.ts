@@ -21,7 +21,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
   }
   public ngAfterViewInit(): void {
     const el = this.container?.nativeElement;
-    if (!!el) {
+    if(!!el) {
       this.row.setRootElement(el);
       if(!this.row.isNeedRender) {
         this.ngZone.runOutsideAngular(() => {

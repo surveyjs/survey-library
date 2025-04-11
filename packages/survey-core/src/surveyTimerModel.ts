@@ -33,8 +33,8 @@ export class SurveyTimerModel extends Base {
   public onCreating(): void { }
   private timerFunc: any = null;
   public start(): void {
-    if (!this.survey) return;
-    if (this.isRunning || this.isDesignMode) return;
+    if(!this.survey) return;
+    if(this.isRunning || this.isDesignMode) return;
     this.survey.onCurrentPageChanged.add(() => {
       this.update();
     });
@@ -44,7 +44,7 @@ export class SurveyTimerModel extends Base {
     SurveyTimer.instance.start(this.timerFunc);
   }
   public stop(): void {
-    if (!this.isRunning) return;
+    if(!this.isRunning) return;
     this.setIsRunning(false);
     SurveyTimer.instance.stop(this.timerFunc);
   }
@@ -60,7 +60,7 @@ export class SurveyTimerModel extends Base {
   }
   private doTimer(seconds: number): void {
     var page = <PageModel>(<ISurvey><any>this.survey).currentPage;
-    if (page) {
+    if(page) {
       const pageMaxTime = page.getMaxTimeToFinish();
       if(pageMaxTime > 0 && pageMaxTime < page.timeSpent + seconds) {
         seconds = pageMaxTime - page.timeSpent;
@@ -69,25 +69,24 @@ export class SurveyTimerModel extends Base {
     }
     this.spent = this.spent + seconds;
     this.update();
-    if (this.onTimerTick) {
+    if(this.onTimerTick) {
       this.onTimerTick(page);
     }
   }
   private updateProgress() {
     let { spent, limit } = this.survey.timerInfo;
-    if (!limit) {
+    if(!limit) {
       this.progress = undefined;
     } else {
-      if (spent == 0) {
+      if(spent == 0) {
         this.progress = 0;
         setTimeout(() => {
           this.progress = Math.floor((spent + 1) / limit * 100) / 100;
         }, 0);
-      }
-      else if (spent <= limit) {
+      } else if(spent <= limit) {
         this.progress = Math.floor((spent + 1) / limit * 100) / 100;
       }
-      if (this.progress > 1) {
+      if(this.progress > 1) {
         this.progress = undefined;
       }
     }

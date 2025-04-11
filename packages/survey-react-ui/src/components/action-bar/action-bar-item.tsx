@@ -54,7 +54,7 @@ export class SurveyAction extends SurveyElementBase<IActionBarItemProps, any> {
     super.componentDidMount();
     this.item.updateModeCallback = (mode, callback) => {
       queueMicrotask(() => {
-        if ((ReactDOM as any)["flushSync"]) {
+        if((ReactDOM as any)["flushSync"]) {
           (ReactDOM as any)["flushSync"](() => {
             this.item.mode = mode;
           });
@@ -86,7 +86,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
 
   renderText() {
-    if (!this.item.hasTitle) return null;
+    if(!this.item.hasTitle) return null;
     const titleClass = this.item.getActionBarItemTitleCss();
     return <span className={titleClass}>{this.item.title}</span>;
   }

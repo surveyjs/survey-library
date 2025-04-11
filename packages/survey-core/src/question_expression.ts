@@ -17,7 +17,7 @@ export class QuestionExpressionModel extends Question {
     super(name);
     this.createLocalizableString("format", this);
     this.registerPropertyChangedHandlers(["expression"], () => {
-      if (this.expressionRunner) {
+      if(this.expressionRunner) {
         this.expressionRunner = this.createRunner();
       }
     });
@@ -63,14 +63,14 @@ export class QuestionExpressionModel extends Question {
   }
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>) {
     super.runConditionCore(values, properties);
-    if (
+    if(
       !this.expression ||
       this.expressionIsRunning ||
       (!this.runIfReadOnly && this.isReadOnly)
     )
       return;
     this.locCalculation();
-    if (!this.expressionRunner) {
+    if(!this.expressionRunner) {
       this.expressionRunner = this.createRunner();
     }
     this.expressionRunner.run(values, properties);
@@ -101,7 +101,7 @@ export class QuestionExpressionModel extends Question {
     return this.getPropertyValue("maximumFractionDigits");
   }
   public set maximumFractionDigits(val: number) {
-    if (val < -1 || val > 20) return;
+    if(val < -1 || val > 20) return;
     this.setPropertyValue("maximumFractionDigits", val);
   }
   /**
@@ -115,7 +115,7 @@ export class QuestionExpressionModel extends Question {
     return this.getPropertyValue("minimumFractionDigits");
   }
   public set minimumFractionDigits(val: number) {
-    if (val < -1 || val > 20) return;
+    if(val < -1 || val > 20) return;
     this.setPropertyValue("minimumFractionDigits", val);
   }
   private runIfReadOnlyValue: boolean;
@@ -141,11 +141,11 @@ export class QuestionExpressionModel extends Question {
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var val = value === undefined || value === null ? this.defaultValue : value;
     var res = "";
-    if (!this.isValueEmpty(val)) {
+    if(!this.isValueEmpty(val)) {
       var str = this.getValueAsStr(val);
       res = !this.format ? str : (<any>this.format)["format"](str);
     }
-    if (!!this.survey) {
+    if(!!this.survey) {
       res = this.survey.getExpressionDisplayValue(this, val, res);
     }
     return res;
@@ -186,7 +186,7 @@ export class QuestionExpressionModel extends Question {
     return this.getPropertyValue("currency");
   }
   public set currency(val: string) {
-    if (getCurrecyCodes().indexOf(val) < 0) return;
+    if(getCurrecyCodes().indexOf(val) < 0) return;
     this.setPropertyValue("currency", val);
   }
   /**
@@ -219,22 +219,22 @@ export class QuestionExpressionModel extends Question {
     return parseFloat(val.toFixed(this.precision));
   }
   protected getValueAsStr(val: any): string {
-    if (this.displayStyle == "date") {
+    if(this.displayStyle == "date") {
       const d = createDate("question-expression", val);
-      if (!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
+      if(!!d && !!d.toLocaleDateString) return d.toLocaleDateString();
     }
-    if (this.displayStyle != "none" && Helpers.isNumber(val)) {
+    if(this.displayStyle != "none" && Helpers.isNumber(val)) {
       var locale = this.getLocale();
-      if (!locale) locale = "en";
+      if(!locale) locale = "en";
       var options = {
         style: this.displayStyle,
         currency: this.currency,
         useGrouping: this.useGrouping,
       };
-      if (this.maximumFractionDigits > -1) {
+      if(this.maximumFractionDigits > -1) {
         (<any>options)["maximumFractionDigits"] = this.maximumFractionDigits;
       }
-      if (this.minimumFractionDigits > -1) {
+      if(this.minimumFractionDigits > -1) {
         (<any>options)["minimumFractionDigits"] = this.minimumFractionDigits;
       }
       return val.toLocaleString(locale, options);

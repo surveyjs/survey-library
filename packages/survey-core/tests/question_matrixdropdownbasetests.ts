@@ -1171,7 +1171,7 @@ QUnit.test("survey.onMatrixDetailPanelVisibleChanged event", function (assert) {
   survey.onMatrixDetailPanelVisibleChanged.add((sender, options) => {
     const action = (options.visible ? "show" : "hide") + ":" + options.rowIndex;
     actions.push(action);
-    if (options.visible) {
+    if(options.visible) {
       options.detailPanel.getQuestionByName("q1").title = "Question 1";
     }
   });

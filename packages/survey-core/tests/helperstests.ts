@@ -131,7 +131,7 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
 QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function(assert) {
   assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), false, "#1");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): str;
+    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
   };
   assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
@@ -512,7 +512,7 @@ QUnit.test("Check compareStrings function", function(assert) {
   assert.equal(Helpers.compareStrings("60", "401"), -1, "#16");
 
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): str;
+    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
   };
   assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };

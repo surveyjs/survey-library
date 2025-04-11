@@ -39,7 +39,7 @@ export interface IAnimationGroupConsumer<T> extends IAnimationConsumer<[T]> {
 
 export class AnimationUtils {
   private getMsFromRule(value: string) {
-    if (value === "auto") return 0;
+    if(value === "auto") return 0;
     return Number(value.slice(0, -1).replace(",", ".")) * 1000;
   }
   private reflow(element: HTMLElement) {
@@ -57,7 +57,7 @@ export class AnimationUtils {
     const delays = style["animationDelay"].split(", ");
     const durations = style["animationDuration"].split(", ");
     let duration = 0;
-    for (let i = 0; i < Math.max(durations.length, delays.length); i ++) {
+    for(let i = 0; i < Math.max(durations.length, delays.length); i ++) {
       duration = Math.max(duration, this.getMsFromRule(durations[i % durations.length]) + this.getMsFromRule(delays[i % delays.length]));
     }
     return duration;
@@ -203,7 +203,7 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
     });
     let counter = addedItems.length + removedItems.length + reorderedHtmlElements.length;
     const onAnimationEndCallback = (isCancel: boolean) => {
-      if(--counter <=0) {
+      if(--counter <= 0) {
         callback && callback();
         this.onNextRender(() => {
           addedItems.forEach((_, i) => {
@@ -275,7 +275,7 @@ export abstract class AnimationProperty<T, S extends IAnimationConsumer<any> = I
     this.cancelAnimations();
     try {
       this._sync(newValue);
-    } catch {
+    } catch{
       this.update(newValue);
     }
   });

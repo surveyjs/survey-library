@@ -76,7 +76,7 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
     );
   }
   protected renderIcon() {
-    if (!!this.model.iconName) {
+    if(!!this.model.iconName) {
       return (
         <SvgIcon
           className={this.model.css.icon}
@@ -108,7 +108,7 @@ export class SurveyButtonGroupItem extends SurveyElementBase<any, any> {
     );
   }
   protected renderCaption() {
-    if (!this.model.showCaption) return null;
+    if(!this.model.showCaption) return null;
     let caption = this.renderLocString(this.model.caption);
     return (
       <span

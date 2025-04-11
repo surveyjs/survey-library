@@ -16,7 +16,7 @@ export class Scroll extends React.Component<IScrollComponentProps, any> {
   }
   componentDidMount() {
     const container = this.rootRef.current;
-    if (!container) return;
+    if(!container) return;
     this.model.setRootElement(container);
   }
   componentWillUnmount() {

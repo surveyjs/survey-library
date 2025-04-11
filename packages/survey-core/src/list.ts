@@ -80,9 +80,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public areSameItemsCallback: (item1: IAction, item2: IAction) => boolean;
 
   private hasText(item: T, filterStringInLow: string): boolean {
-    if (!filterStringInLow) return true;
+    if(!filterStringInLow) return true;
     const text = item.title || "";
-    if (this.onTextSearchCallback) return this.onTextSearchCallback(item, filterStringInLow);
+    if(this.onTextSearchCallback) return this.onTextSearchCallback(item, filterStringInLow);
     let textInLow = text.toLocaleLowerCase();
     textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
@@ -95,14 +95,14 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   protected getRenderedActions(): Array<T> {
     let actions = super.getRenderedActions();
 
-    if (this.filterString) {
+    if(this.filterString) {
       let newActions: Array<T> = [];
       actions.forEach(action => {
         newActions.push(action);
-        if (action.items) {
+        if(action.items) {
           action.items.forEach(item => {
             const a = new Action(item);
-            if (!a.iconName) { a.iconName = action.iconName; }
+            if(!a.iconName) { a.iconName = action.iconName; }
             newActions.push(a as IAction as T);
           });
         }
@@ -116,7 +116,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.visibleActions.filter(item => this.isItemVisible(item));
   }
   private onFilterStringChanged(text: string) {
-    if (!!this.onFilterStringChangedCallback) {
+    if(!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
     this.updateIsEmpty();
@@ -126,10 +126,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   private scrollToItem(classes: string, ms = 0): void {
     setTimeout(() => {
-      if (!this.listContainerHtmlElement) return;
+      if(!this.listContainerHtmlElement) return;
 
       const item = this.listContainerHtmlElement.querySelector(classesToSelector(classes));
-      if (item) {
+      if(item) {
         setTimeout(() => {
           item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
         }, ms);
@@ -145,21 +145,21 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     public elementId?: string
   ) {
     super();
-    if (Object.keys(items).indexOf("items") !== -1) {
+    if(Object.keys(items).indexOf("items") !== -1) {
       const options = (items as any) as IListModel;
       Object.keys(options).forEach((key: keyof IListModel) => {
-        switch (key) {
-          case "items":
-            this.setItems(options.items);
-            break;
-          case "onFilterStringChangedCallback":
-            this.setOnFilterStringChangedCallback(options.onFilterStringChangedCallback);
-            break;
-          case "onTextSearchCallback":
-            this.setOnTextSearchCallback(options.onTextSearchCallback);
-            break;
-          default:
-            (this as any)[key] = options[key];
+        switch(key) {
+        case "items":
+          this.setItems(options.items);
+          break;
+        case "onFilterStringChangedCallback":
+          this.setOnFilterStringChangedCallback(options.onFilterStringChangedCallback);
+          break;
+        case "onTextSearchCallback":
+          this.setOnTextSearchCallback(options.onTextSearchCallback);
+          break;
+        default:
+          (this as any)[key] = options[key];
         }
       });
       this.updateActionsIds();
@@ -177,12 +177,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
     this.updateActionsIds();
-    if (!this.isAllDataLoaded && !!this.actions.length) {
+    if(!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
     }
   }
   private updateActionsIds(): void {
-    if (this.elementId) {
+    if(this.elementId) {
       this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
     }
   }
@@ -199,18 +199,18 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public onItemClick = (itemValue: T): void => {
-    if (this.isItemDisabled(itemValue)) {
+    if(this.isItemDisabled(itemValue)) {
       return;
     }
     this.isExpanded = false;
-    if (this.allowSelection) {
+    if(this.allowSelection) {
       this.selectedItem = itemValue;
     }
-    if (!!this.onSelectionChanged) {
+    if(!!this.onSelectionChanged) {
       this.onSelectionChanged(itemValue);
     }
     const action = (itemValue as IAction).action;
-    if (!!action) {
+    if(!!action) {
       action(itemValue);
     }
   };
@@ -240,7 +240,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.areSameItems(this.focusedItem, itemValue);
   };
   protected areSameItems(item1: IAction, item2: IAction): boolean {
-    if (!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
+    if(!!this.areSameItemsCallback) return this.areSameItemsCallback(item1, item2);
     return !!item1 && !!item2 && item1.id == item2.id;
   }
 
@@ -289,7 +289,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.listContainerHtmlElement.querySelector(classesToSelector(this.cssClasses.itemsContainer));
   }
   public get loadingIndicator(): T {
-    if (!this.loadingIndicatorValue) {
+    if(!this.loadingIndicatorValue) {
       this.loadingIndicatorValue = <T><any>(new Action({
         id: "loadingIndicator",
         title: this.getLocalizationString("loadingPage"),
@@ -301,11 +301,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public goToItems(event: KeyboardEvent): void {
-    if (event.key === "ArrowDown" || event.keyCode === 40) {
+    if(event.key === "ArrowDown" || event.keyCode === 40) {
       const currentElement = (<HTMLElement>event.target).parentElement;
       const listElement = currentElement.parentElement.querySelector("ul");
       const firstChild = getFirstVisibleChild(listElement);
-      if (!!listElement && !!firstChild) {
+      if(!!listElement && !!firstChild) {
         ElementHelper.focusElement(firstChild);
         event.preventDefault();
       }
@@ -316,10 +316,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public onKeyDown(event: KeyboardEvent): void {
     const currentElement = <Element>event.target;
-    if (event.key === "ArrowDown" || event.keyCode === 40) {
+    if(event.key === "ArrowDown" || event.keyCode === 40) {
       ElementHelper.focusElement(ElementHelper.getNextElementPreorder(currentElement));
       event.preventDefault();
-    } else if (event.key === "ArrowUp" || event.keyCode === 38) {
+    } else if(event.key === "ArrowUp" || event.keyCode === 38) {
       ElementHelper.focusElement(ElementHelper.getNextElementPostorder(currentElement));
       event.preventDefault();
     }
@@ -341,7 +341,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.focusedItem = undefined;
   }
   public focusFirstVisibleItem(): void {
-    if (!IsTouch) {
+    if(!IsTouch) {
       this.focusedItem = this.visibleItems[0];
     }
   }
@@ -350,18 +350,18 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public initFocusedItem() {
     this.focusedItem = this.visibleItems.filter(item => item.visible && this.isItemSelected(item))[0];
-    if (!this.focusedItem) {
+    if(!this.focusedItem) {
       this.focusFirstVisibleItem();
     }
   }
   public focusNextVisibleItem(): void {
-    if (!this.focusedItem) {
+    if(!this.focusedItem) {
       this.initFocusedItem();
     } else {
       const items = this.visibleItems;
       const currentFocusedItemIndex = items.indexOf(this.focusedItem);
       const nextItem = items[currentFocusedItemIndex + 1];
-      if (nextItem) {
+      if(nextItem) {
         this.focusedItem = nextItem;
       } else {
         this.focusFirstVisibleItem();
@@ -369,13 +369,13 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   public focusPrevVisibleItem(): void {
-    if (!this.focusedItem) {
+    if(!this.focusedItem) {
       this.initFocusedItem();
     } else {
       const items = this.visibleItems;
       const currentFocusedItemIndex = items.indexOf(this.focusedItem);
       const prevItem = items[currentFocusedItemIndex - 1];
-      if (prevItem) {
+      if(prevItem) {
         this.focusedItem = prevItem;
       } else {
         this.focusLastVisibleItem();
@@ -389,9 +389,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.listContainerHtmlElement = htmlElement;
   }
   public onLastItemRended(item: T): void {
-    if (this.isAllDataLoaded) return;
+    if(this.isAllDataLoaded) return;
 
-    if (item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
+    if(item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
       this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.scrollableContainer);
     }
   }
@@ -399,7 +399,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.scrollToItem(this.cssClasses.itemFocused);
   }
   public scrollToSelectedItem(): void {
-    if (!!this.selectedItem && this.selectedItem.items && this.selectedItem.items.length > 0) {
+    if(!!this.selectedItem && this.selectedItem.items && this.selectedItem.items.length > 0) {
       this.scrollToItem(this.cssClasses.itemGroupSelected, 110);
     } else {
       this.scrollToItem(this.cssClasses.itemSelected, 110);
@@ -407,23 +407,23 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public addScrollEventListener(handler: (e?: any) => void): void {
-    if (!!handler) {
+    if(!!handler) {
       this.removeScrollEventListener();
       this.scrollHandler = handler;
     }
-    if (!!this.scrollHandler) {
+    if(!!this.scrollHandler) {
       this.scrollableContainer.addEventListener("scroll", this.scrollHandler);
     }
   }
   public removeScrollEventListener(): void {
-    if (!!this.scrollHandler) {
+    if(!!this.scrollHandler) {
       this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
     }
   }
 
   public dispose(): void {
     super.dispose();
-    if (!!this.loadingIndicatorValue) {
+    if(!!this.loadingIndicatorValue) {
       this.loadingIndicatorValue.dispose();
     }
     this.listContainerHtmlElement = undefined;

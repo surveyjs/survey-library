@@ -17,7 +17,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   private isModelSubsribed: boolean = false;
 
   public ngDoCheck(): void {
-    if (this.previousModel !== this.getModel()) {
+    if(this.previousModel !== this.getModel()) {
       this.unMakeBaseElementAngular(this.previousModel);
       this.makeBaseElementAngular(this.getModel());
       this.onModelChanged();
@@ -30,7 +30,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
 
   private setIsRendering(val: boolean) {
     const model = this.getModel();
-    if (!!model) {
+    if(!!model) {
       (<any>model).isRendering = val;
     }
   }
@@ -58,7 +58,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       (<any>stateElement).__ngImplemented = true;
       stateElement.iteratePropertiesHash((hash, key) => {
         var val: any = hash[key];
-        if (Array.isArray(val)) {
+        if(Array.isArray(val)) {
           var val: any = val;
           val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
             this.update(key);
@@ -70,14 +70,14 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         key: string,
         val: any
       ) => {
-        if (hash[key] !== val) {
+        if(hash[key] !== val) {
           hash[key] = val;
           this.update(key);
         }
       };
       stateElement.enableOnElementRerenderedEvent();
     };
-    if (!!stateElement) {
+    if(!!stateElement) {
       if(!(<any>stateElement).__ngImplemented) {
         this.makeBaseElementAngularCallback();
       } else {
@@ -86,14 +86,14 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
-    if (!!stateElement) {
+    if(!!stateElement) {
       if(this.isModelSubsribed) {
         this.isModelSubsribed = false;
         (<any>stateElement).__ngImplemented = false;
         stateElement.setPropertyValueCoreHandler = <any>undefined;
         stateElement.iteratePropertiesHash((hash, key) => {
           var val: any = hash[key];
-          if (Array.isArray(val)) {
+          if(Array.isArray(val)) {
             var val: any = val;
             val["onArrayChanged"] = () => { };
           }
@@ -102,8 +102,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         const callbacks = this.getBaseElementCallbacks(stateElement);
         const callback = callbacks.shift();
         callback && callback();
-      }
-      else if(this.makeBaseElementAngularCallback) {
+      } else if(this.makeBaseElementAngularCallback) {
         const callbacks = this.getBaseElementCallbacks(stateElement);
         const index = callbacks.indexOf(this.makeBaseElementAngularCallback);
         if(index > -1) {
@@ -114,14 +113,14 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   protected update(key?: string): void {
-    if (this.getIsRendering()) return;
+    if(this.getIsRendering()) return;
     this.beforeUpdate();
-    if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
+    if(key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
       this.detectChanges();
       this.afterUpdate(true);
     } else {
       queueMicrotask(() => {
-        if (!this.isDestroyed) {
+        if(!this.isDestroyed) {
           this.setIsRendering(true);
           this.detectChanges();
         }

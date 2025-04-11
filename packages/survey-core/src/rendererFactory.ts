@@ -16,7 +16,7 @@ export class RendererFactory {
   }
 
   public registerRenderer(questionType: string, renderAs: string, renderer: any, useAsDefault: boolean = false): void {
-    if (!this.renderersHash[questionType]) {
+    if(!this.renderersHash[questionType]) {
       this.renderersHash[questionType] = {};
     }
     this.renderersHash[questionType][renderAs] = renderer;

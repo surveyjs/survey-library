@@ -22,7 +22,7 @@ export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDyna
     this.question.addPanelUI();
   };
   protected renderElement(): React.JSX.Element | null {
-    if (!this.question.canAddPanel) return null;
+    if(!this.question.canAddPanel) return null;
     const btnText = this.renderLocString(this.question.locAddPanelText);
     return (
       <button type="button" id={this.question.addButtonId} className={this.question.getAddButtonCss()} onClick={this.handleClick} >

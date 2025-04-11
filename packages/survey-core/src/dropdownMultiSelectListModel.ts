@@ -25,7 +25,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   private syncFilterStringPlaceholder() {
     const selectedActions = this.getSelectedActions();
-    if (selectedActions.length || this.question.selectedItems.length || this.listModel.focusedItem) {
+    if(selectedActions.length || this.question.selectedItems.length || this.listModel.focusedItem) {
       this.filterStringPlaceholder = undefined;
     } else {
       this.filterStringPlaceholder = this.question.placeholder;
@@ -35,7 +35,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     return this.listModel.actions.filter(item => item.selected);
   }
   protected getFocusFirstInputSelector(): string {
-    if ((<MultiSelectListModel<ItemValue>>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
+    if((<MultiSelectListModel<ItemValue>>this.listModel).hideSelectedItems && IsTouch && !this.isValueEmpty(this.question.value)) {
       return this.itemSelector;
     } else {
       return super.getFocusFirstInputSelector();
@@ -45,20 +45,20 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   protected createListModel(): MultiSelectListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
-    if (!_onSelectionChanged) {
+    if(!_onSelectionChanged) {
       _onSelectionChanged = (item: ItemValue, status: string) => {
         this.resetFilterString();
-        if (item.id === "selectall") {
+        if(item.id === "selectall") {
           this.selectAllItems();
-        } else if (status === "added" && item.value === settings.noneItemValue) {
+        } else if(status === "added" && item.value === settings.noneItemValue) {
           this.selectNoneItem();
-        } else if (status === "added") {
+        } else if(status === "added") {
           this.selectItem(item.value);
-        } else if (status === "removed") {
+        } else if(status === "removed") {
           this.deselectItem(item.value);
         }
         this.popupRecalculatePosition(false);
-        if (this.closeOnSelect) {
+        if(this.closeOnSelect) {
           this.popupModel.isVisible = false;
         }
       };
@@ -88,7 +88,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   protected createPopup(): void {
     super.createPopup();
     this.popupModel.onFooterActionsCreated.add((_, opt) => {
-      if (this.shouldResetAfterCancel) {
+      if(this.shouldResetAfterCancel) {
         opt.actions.push(<IAction>{
           id: "sv-dropdown-done-button",
           title: this.doneButtonCaption,
@@ -100,12 +100,12 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       }
     });
     this.popupModel.onVisibilityChanged.add((_, opt: { isVisible: boolean }) => {
-      if (this.shouldResetAfterCancel && opt.isVisible) {
+      if(this.shouldResetAfterCancel && opt.isVisible) {
         this.previousValue = [].concat(this.question.renderedValue || []);
       }
     });
     this.popupModel.onCancel = () => {
-      if (this.shouldResetAfterCancel) {
+      if(this.shouldResetAfterCancel) {
         this.question.renderedValue = this.previousValue;
         this.updateListState();
       }
@@ -114,7 +114,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   public selectAllItems(): void {
     this.question.toggleSelectAll();
-    if (this.question.isAllSelected && this.question.hideSelectedItems) {
+    if(this.question.isAllSelected && this.question.hideSelectedItems) {
       this.popupModel.hide();
     }
     this.updateListState();
@@ -126,16 +126,16 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   public selectItem(id: string): void {
     let addedItem;
 
-    if (this.allowCustomChoices && id === this.customItemValue.id) {
+    if(this.allowCustomChoices && id === this.customItemValue.id) {
       const newChoice = this.createCustomItem();
-      if (!!newChoice) {
+      if(!!newChoice) {
         addedItem = newChoice.id;
       }
     } else {
       addedItem = id;
     }
 
-    if (addedItem) {
+    if(addedItem) {
       let newValue = [].concat(this.question.renderedValue || []);
       newValue.push(addedItem);
       this.question.renderedValue = newValue;
@@ -174,7 +174,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   public inputKeyHandler(event: any): void {
-    if (event.keyCode === 8 && !this.filterString) {
+    if(event.keyCode === 8 && !this.filterString) {
       this.removeLastSelectedItem();
       event.preventDefault();
       event.stopPropagation();
@@ -182,7 +182,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   public setInputStringFromSelectedItem(newValue: any): void {
-    if (this.question.searchEnabled) {
+    if(this.question.searchEnabled) {
       this.inputString = null;
     }
   }
@@ -198,7 +198,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   }
 
   protected afterScrollToFocusedItem() {
-    if (!this.listModel.focusedItem?.selected) {
+    if(!this.listModel.focusedItem?.selected) {
       this.applyHintString();
     } else {
       this.hintString = "";
@@ -208,7 +208,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   protected onPropertyChangedHandler(sender: any, options: any) {
     super.onPropertyChangedHandler(sender, options);
-    if (options.name === "value" || options.name === "renderedValue" || options.name === "placeholder") {
+    if(options.name === "value" || options.name === "renderedValue" || options.name === "placeholder") {
       this.syncFilterStringPlaceholder();
     }
   }

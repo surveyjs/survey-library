@@ -16,7 +16,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected renderElement(): React.JSX.Element {
 
-    if (!this.question.selectToRankEnabled) {
+    if(!this.question.selectToRankEnabled) {
       return (
         <div
           className={this.question.rootClass}
@@ -50,7 +50,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected getItems(choices: any = this.question.renderedRankingChoices, unrankedItem?: boolean): Array<any> {
     const items: Array<React.JSX.Element> = [];
-    for (let i = 0; i < choices.length; i++) {
+    for(let i = 0; i < choices.length; i++) {
       const item = choices[i];
       items.push(
         this.renderItem(
@@ -125,7 +125,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     );
     const survey = this.question.survey as SurveyModel;
     let wrappedItem: React.JSX.Element | null = null;
-    if (!!survey) {
+    if(!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;

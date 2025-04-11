@@ -62,7 +62,7 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   }
 
   public set contentNotLoaded(val: boolean) {
-    if (this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video") {
+    if(this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video") {
       this.videoNotLoaded = val;
     } else {
       this.imageNotLoaded = val;
@@ -84,7 +84,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     super(name);
     this.colCount = 0;
     this.registerPropertyChangedHandlers(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], () => {
-      if (!!this._width) {
+      if(!!this._width) {
         this.processResponsiveness(0, this._width);
       }
     });
@@ -116,7 +116,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public supportRefuse(): boolean { return false; }
   public supportDontKnow(): boolean { return false; }
   public isAnswerCorrect(): boolean {
-    if (!this.multiSelect) return super.isAnswerCorrect();
+    if(!this.multiSelect) return super.isAnswerCorrect();
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
   }
   /**
@@ -133,36 +133,36 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     const imageItemValue = item as ImageItemValue;
-    if (this.isValueEmpty(val)) return false;
-    if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
-    if (!this.multiSelect) return this.isTwoValueEquals(val, item.value);
-    if (!Array.isArray(val)) return false;
-    for (var i = 0; i < val.length; i++) {
-      if (this.isTwoValueEquals(val[i], item.value)) return true;
+    if(this.isValueEmpty(val)) return false;
+    if(!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
+    if(!this.multiSelect) return this.isTwoValueEquals(val, item.value);
+    if(!Array.isArray(val)) return false;
+    for(var i = 0; i < val.length; i++) {
+      if(this.isTwoValueEquals(val[i], item.value)) return true;
     }
     return false;
   }
   public getItemEnabled(item: ItemValue): boolean {
     const imageItemValue = item as ImageItemValue;
-    if (!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
+    if(!imageItemValue.imageLink || imageItemValue.contentNotLoaded) return false;
     return super.getItemEnabled(item);
   }
   public clearIncorrectValues() {
-    if (this.multiSelect) {
+    if(this.multiSelect) {
       var val = this.value;
-      if (!val) return;
-      if (!Array.isArray(val) || val.length == 0) {
+      if(!val) return;
+      if(!Array.isArray(val) || val.length == 0) {
         this.clearValue(true);
         return;
       }
       var newValue = [];
-      for (var i = 0; i < val.length; i++) {
-        if (!this.hasUnknownValue(val[i], true)) {
+      for(var i = 0; i < val.length; i++) {
+        if(!this.hasUnknownValue(val[i], true)) {
           newValue.push(val[i]);
         }
       }
-      if (newValue.length == val.length) return;
-      if (newValue.length == 0) {
+      if(newValue.length == val.length) return;
+      if(newValue.length == 0) {
         this.clearValue(true);
       } else {
         this.value = newValue;
@@ -172,7 +172,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!this.multiSelect && !Array.isArray(value)) return super.getDisplayValueCore(keysAsText, value);
+    if(!this.multiSelect && !Array.isArray(value)) return super.getDisplayValueCore(keysAsText, value);
     return this.getDisplayArrayValue(keysAsText, value);
   }
 
@@ -188,7 +188,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    if (!this.isDesignMode && this.multiSelect) {
+    if(!this.isDesignMode && this.multiSelect) {
       this.createNewArray("renderedValue");
       this.createNewArray("value");
     }
@@ -196,17 +196,17 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   protected getValueCore() {
     var value = super.getValueCore();
-    if (value !== undefined) {
+    if(value !== undefined) {
       return value;
     }
-    if (this.multiSelect) {
+    if(this.multiSelect) {
       return [];
     }
     return value;
   }
   private convertValToArrayForMultSelect(val: any): any {
-    if (!this.multiSelect) return val;
-    if (this.isValueEmpty(val) || Array.isArray(val)) return val;
+    if(!this.multiSelect) return val;
+    if(this.isValueEmpty(val) || Array.isArray(val)) return val;
     return [val];
   }
   protected renderedValueFromDataCore(val: any): any {
@@ -287,7 +287,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   public set contentMode(val: string) {
     this.setPropertyValue("contentMode", val);
-    if (val === "video") {
+    if(val === "video") {
       this.showLabel = true;
     }
   }
@@ -377,7 +377,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public onContentLoaded = (item: ImageItemValue, event: any) => {
     item.contentNotLoaded = false;
     const content: any = event.target;
-    if (this.contentMode == "video") {
+    if(this.contentMode == "video") {
       item["aspectRatio"] = content.videoWidth / content.videoHeight;
     } else {
       item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
@@ -388,7 +388,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) private responsiveColCount: number;
 
   protected getCurrentColCount(): number {
-    if (this.responsiveColCount === undefined || this.colCount === 0) {
+    if(this.responsiveColCount === undefined || this.colCount === 0) {
       return this.colCount;
     }
     return this.responsiveColCount;
@@ -398,7 +398,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     if(!this.isResponsive) return {};
     return {
       gridAutoFlow: !this.gridColCount ? "column" : null,
-      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)`: null
+      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)` : null
     };
   }
 
@@ -406,10 +406,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this._width = availableWidth = Math.floor(availableWidth);
     const calcAvailableColumnsCount = (availableWidth: number, minWidth: number, gap: number): number => {
       let itemsInRow = Math.floor(availableWidth / (minWidth + gap));
-      if ((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow++;
+      if((itemsInRow + 1) * (minWidth + gap) - gap <= availableWidth) itemsInRow++;
       return itemsInRow;
     };
-    if (this.isResponsive) {
+    if(this.isResponsive) {
       const itemsCount = this.choices.length + (this.isDesignMode ? 1 : 0);
       const gap = (this.gapBetweenItems || 0) * this.imageScale;
       const minWidth = this.minImageWidth * this.imageScale;
@@ -419,8 +419,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       let colCount = this.colCount;
       let width: number;
       const availableColumnsCount: number = calcAvailableColumnsCount(availableWidth, minWidth, gap);
-      if (colCount === 0) {
-        if ((gap + minWidth) * itemsCount - gap > availableWidth) {
+      if(colCount === 0) {
+        if((gap + minWidth) * itemsCount - gap > availableWidth) {
           width = Math.floor((availableWidth - gap * (availableColumnsCount - 1)) / availableColumnsCount);
         } else {
           width = Math.floor(((availableWidth - gap * (itemsCount - 1)) / itemsCount));
@@ -428,7 +428,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         this.gridColCount = Math.max(Math.min(itemsCount, availableColumnsCount), 1);
 
       } else {
-        if (availableColumnsCount < colCount) {
+        if(availableColumnsCount < colCount) {
           this.responsiveColCount = Math.max(availableColumnsCount, 1);
           colCount = this.responsiveColCount;
         } else {
@@ -443,9 +443,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
         const tempHeight = width / item["aspectRatio"];
         height = tempHeight > height ? tempHeight : height;
       });
-      if (height > maxHeight) {
+      if(height > maxHeight) {
         height = maxHeight;
-      } else if (height < minHeight) {
+      } else if(height < minHeight) {
         height = minHeight;
       }
       const oldResponsiveImageWidth = this.responsiveImageWidth;
@@ -458,7 +458,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   public triggerResponsiveness(hard: boolean = true): void {
-    if (hard && this.reCalcGapBetweenItemsCallback) {
+    if(hard && this.reCalcGapBetweenItemsCallback) {
       this.reCalcGapBetweenItemsCallback();
     }
     super.triggerResponsiveness(hard);
@@ -470,7 +470,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     super.afterRender(el);
     const selector = this.getObservedElementSelector();
     const observedElement = el && selector ? el.querySelector(selector) : undefined;
-    if (!!observedElement) {
+    if(!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
         this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).gap)) || 16;
       };

@@ -21,10 +21,10 @@ class TriggerTester extends Trigger {
     super();
   }
   protected onSuccess() {
-    if (this.succFunc) this.succFunc();
+    if(this.succFunc)this.succFunc();
   }
   protected onFailure() {
-    if (this.failureFunc) this.failureFunc();
+    if(this.failureFunc)this.failureFunc();
   }
 }
 class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {

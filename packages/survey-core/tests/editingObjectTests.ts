@@ -1041,7 +1041,7 @@ QUnit.test("simple validation, checkErrorsMode: onValueChanging", function (
     ],
   });
   survey.onValidateQuestion.add(function (sender, options) {
-    if (options.name !== "name") return;
+    if(options.name !== "name") return;
     options.error = options.value.length != 3 ? "require3symbols" : null;
   });
   survey.editingObj = question;
@@ -1074,7 +1074,7 @@ QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function (
     ],
   });
   survey.onMatrixCellValidate.add(function (sender, options) {
-    if (options.columnName != "name") return;
+    if(options.columnName != "name") return;
     options.error = options.value.length != 4 ? "Error in name" : undefined;
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
@@ -1101,11 +1101,11 @@ QUnit.test("Edit question string[] property type", function (assert) {
   });
   var dataListQuestion = survey.getQuestionByName("dataList");
   dataListQuestion.valueFromDataCallback = function (val: any): any {
-    if (!Array.isArray(val)) return "";
+    if(!Array.isArray(val)) return "";
     return val.join("\n");
   };
   dataListQuestion.valueToDataCallback = function (val: any): any {
-    if (!val) return [];
+    if(!val) return [];
     return val.split("\n");
   };
   survey.editingObj = question;
@@ -1391,7 +1391,7 @@ QUnit.test("Edit question.page property", function (assert) {
     return !!val ? val.name : "";
   };
   pageQuestion.valueToDataCallback = (val: any): any => {
-    if (!val) return undefined;
+    if(!val) return undefined;
     return questionSurvey.getPageByName(val);
   };
   survey.editingObj = question;
@@ -1509,10 +1509,10 @@ QUnit.test("Do not break reactive array in original object", function (assert) {
   var colCountOnChanged = {};
   var reactiveFunc = (hash: any, key: any): void => {
     var val: any = hash[key];
-    if (typeof val === "function") {
+    if(typeof val === "function") {
       val = val();
     }
-    if (Array.isArray(val)) {
+    if(Array.isArray(val)) {
       val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
         colCountOnChanged[key] = val.length;
       };

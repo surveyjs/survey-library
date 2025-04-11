@@ -11,7 +11,7 @@ export class TitleElement extends React.Component<any, any> {
     return this.props.element;
   }
   renderTitleExpandableSvg() {
-    if (!this.element.getCssTitleExpandableSvg()) return null;
+    if(!this.element.getCssTitleExpandableSvg()) return null;
     let iconName = this.element.isExpanded ? "icon-collapse-16x16" : "icon-expand-16x16";
 
     return <SvgIcon
@@ -22,7 +22,7 @@ export class TitleElement extends React.Component<any, any> {
   }
   render(): React.JSX.Element | any {
     const element = this.element;
-    if (!element || !element.hasTitle) return null;
+    if(!element || !element.hasTitle) return null;
     const ariaLabel = element.titleAriaLabel || undefined;
 
     const titleExpandableSvg = this.renderTitleExpandableSvg();
@@ -36,7 +36,7 @@ export class TitleElement extends React.Component<any, any> {
 
     let onClick: undefined | ((e: any) => void) = undefined;
     let onKeyUp: undefined | ((e: any) => void) = undefined;
-    if (element.hasTitleEvents) {
+    if(element.hasTitleEvents) {
       onKeyUp = (evt: any) => {
         doKey2ClickUp(evt.nativeEvent);
       };

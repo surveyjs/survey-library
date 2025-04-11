@@ -11,7 +11,7 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
     return <div>{this.renderIcon()}</div>;
   }
   protected renderIcon(): React.JSX.Element {
-    if (this.question.iconDragElement) {
+    if(this.question.iconDragElement) {
       return (<svg className={this.question.cssClasses.dragElementDecorator} >
         <use xlinkHref={this.question.iconDragElement}></use>
       </svg>);

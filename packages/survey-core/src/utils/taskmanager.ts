@@ -9,7 +9,7 @@ export class Task implements IExecutable {
   private _isCompleted = false;
   constructor(private func: () => void, private isMultiple = false) {}
   execute = () => {
-    if (!this._isCompleted) {
+    if(!this._isCompleted) {
       this.func();
       this._isCompleted = !this.isMultiple;
     }
@@ -29,7 +29,7 @@ export class TaskManger {
   }
   // dispose
   public static Instance() {
-    if (!TaskManger.instance) {
+    if(!TaskManger.instance) {
       TaskManger.instance = new TaskManger();
     }
     return TaskManger.instance;
@@ -37,13 +37,13 @@ export class TaskManger {
   private tick() {
     try {
       var newTasks = [];
-      for (var i = 0; i < TaskManger.tasks.length; i++) {
+      for(var i = 0; i < TaskManger.tasks.length; i++) {
         let task = TaskManger.tasks[i];
         task.execute();
-        if (!task.isCompleted) {
+        if(!task.isCompleted) {
           newTasks.push(task);
         } else {
-          if (typeof task.dispose === "function") {
+          if(typeof task.dispose === "function") {
             task.dispose();
           }
         }

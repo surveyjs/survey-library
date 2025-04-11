@@ -23,12 +23,12 @@ export class ResponsivityManager {
     public container: HTMLDivElement, private model: AdaptiveActionContainer) {
     this.model.updateCallback =
     (isResetInitialized: boolean) => {
-      if (isResetInitialized) {
+      if(isResetInitialized) {
         this.isInitialized = false;
       }
       this.debouncedProcess.run();
     };
-    if (typeof ResizeObserver !== "undefined") {
+    if(typeof ResizeObserver !== "undefined") {
       let skipCallbackInResizeObserver = true;
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
         if(skipCallbackInResizeObserver) { skipCallbackInResizeObserver = false; return; }
@@ -55,7 +55,7 @@ export class ResponsivityManager {
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
     let space = this.container.offsetWidth;
-    if (style.boxSizing === "border-box") {
+    if(style.boxSizing === "border-box") {
       space -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
     }
     return space;
@@ -74,7 +74,7 @@ export class ResponsivityManager {
   }
 
   private updateItemsDimensions(callback: () => void) {
-    if (!this.container) return;
+    if(!this.container) return;
     const actionsToUpdateDimension = this.isInitialized
       ? this.model.renderedActions.filter(action => action.needUpdateMaxDimension || action.needUpdateMinDimension)
       : this.model.renderedActions;
@@ -83,7 +83,7 @@ export class ResponsivityManager {
       callback();
     }
     const onItemDimensionsUpdated = () => {
-      if(--actionsCounter<= 0) {
+      if(--actionsCounter <= 0) {
         callback();
       }
     };
@@ -105,7 +105,7 @@ export class ResponsivityManager {
     return this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
   }
   private process(): void {
-    if (this.shouldProcessResponsiveness()) {
+    if(this.shouldProcessResponsiveness()) {
       this.updateItemsDimensions(() => {
         if(this.shouldProcessResponsiveness()) {
           this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
@@ -118,7 +118,7 @@ export class ResponsivityManager {
   public dispose(): void {
     this.isDisposed = true;
     this.model.updateCallback = undefined;
-    if (!!this.resizeObserver) {
+    if(!!this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
     this.resizeObserver = undefined;
@@ -141,7 +141,7 @@ export class VerticalResponsivityManager extends ResponsivityManager {
   protected getAvailableSpace(): number {
     const style: CSSStyleDeclaration = this.getComputedStyle(this.container);
     let space: number = this.container.offsetHeight;
-    if (style.boxSizing === "border-box") {
+    if(style.boxSizing === "border-box") {
       space -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
     }
     return space;

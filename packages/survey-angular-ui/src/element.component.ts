@@ -14,7 +14,7 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
     return this.model;
   }
   protected get elementComponentName(): string {
-    return this.model.isPanel ? "panel": "question";
+    return this.model.isPanel ? "panel" : "question";
   }
 
   protected override onModelChanged(): void {

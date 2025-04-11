@@ -1636,8 +1636,7 @@ QUnit.test(
       page1.addNewQuestion("text", "qN2");
       assert.equal(page1.rows.length, 23, "There are 23 rows");
       assert.equal(page1.rows[22].isNeedRender, true, "isNeedRender rows[22] for creator v2");
-    }
-    finally {
+    } finally {
       settings.lazyRowsRendering = prevLazyRowsRendering;
       settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
     }
@@ -3430,13 +3429,13 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   });
   survey.onGetQuestionNumber.add((sender, options) => {
     const parent: any = options.question.parent;
-    if (!!parent && parent.no) {
+    if(!!parent && parent.no) {
       options.number = parent.no + options.number;
     }
   });
   survey.onGetPanelNumber.add((sender, options) => {
     const parent: any = options.panel.parent;
-    if (!!parent && parent.no) {
+    if(!!parent && parent.no) {
       options.number = parent.no + options.number;
     }
   });

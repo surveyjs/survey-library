@@ -65,10 +65,10 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
-    if (this.rootRef.current) {
+    if(this.rootRef.current) {
       this.row.setRootElement(this.rootRef.current);
     }
-    if (!!el && !this.row.isNeedRender) {
+    if(!!el && !this.row.isNeedRender) {
       var rowContainerDiv = el;
       setTimeout(() => {
         this.row.startLazyRendering(rowContainerDiv);
@@ -76,8 +76,8 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     }
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    if (nextProps.row !== this.row) {
+    if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if(nextProps.row !== this.row) {
       nextProps.row.isNeedRender = this.row.isNeedRender;
       nextProps.row.setRootElement(this.rootRef.current);
       this.row.setRootElement(undefined);
@@ -92,7 +92,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if (this.isCurrentStateElement(this.getStateElement())) {
+    if(this.isCurrentStateElement(this.getStateElement())) {
       this.row.setRootElement(undefined);
       this.stopLazyRendering();
     }
@@ -101,7 +101,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   protected createElement(element: IElement, elementIndex?: number): React.JSX.Element {
     const index = elementIndex ? "-" + elementIndex : 0;
     var elementType = element.getType();
-    if (!ReactElementFactory.Instance.isElementRegistered(elementType)) {
+    if(!ReactElementFactory.Instance.isElementRegistered(elementType)) {
       elementType = "question";
     }
     return ReactElementFactory.Instance.createElement(elementType, {

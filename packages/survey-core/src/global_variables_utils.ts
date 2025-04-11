@@ -4,11 +4,11 @@ export class DomWindowHelper {
     return "undefined" !== typeof window;
   }
   public static isFileReaderAvailable(): boolean {
-    if (!DomWindowHelper.isAvailable()) return false;
+    if(!DomWindowHelper.isAvailable()) return false;
     return !!(<any>window)["FileReader"];
   }
   public static getLocation(): Location {
-    if (!DomWindowHelper.isAvailable()) return;
+    if(!DomWindowHelper.isAvailable()) return;
     return window.location;
   }
   public static getVisualViewport(): VisualViewport | null {
@@ -36,12 +36,12 @@ export class DomWindowHelper {
     return propertyName in window;
   }
   public static getSelection(): Selection | null {
-    if (DomWindowHelper.isAvailable() && window.getSelection) {
+    if(DomWindowHelper.isAvailable() && window.getSelection) {
       return window.getSelection();
     }
   }
   public static requestAnimationFrame(callback: FrameRequestCallback): number {
-    if (DomWindowHelper.isAvailable()) {
+    if(DomWindowHelper.isAvailable()) {
       return window.requestAnimationFrame(callback);
     }
   }

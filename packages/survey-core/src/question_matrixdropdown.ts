@@ -94,20 +94,20 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if (!value) return value;
+    if(!value) return value;
     var rows = this.visibleRows;
     var res = {};
-    if (!rows) return res;
-    for (var i = 0; i < rows.length; i++) {
+    if(!rows) return res;
+    for(var i = 0; i < rows.length; i++) {
       var rowName = rows[i].rowName;
       var val = value[rowName];
-      if (!val) continue;
-      if (keysAsText) {
+      if(!val) continue;
+      if(keysAsText) {
         var displayRowValue = ItemValue.getTextOrHtmlByValue(
           this.rows,
           rowName
         );
-        if (!!displayRowValue) {
+        if(!!displayRowValue) {
           rowName = displayRowValue;
         }
       }
@@ -123,7 +123,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getConditionObjectsRowIndeces() : Array<number> {
     const res = [];
-    for (var i = 0; i < this.rows.length; i++) res.push(i);
+    for(var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
   protected isNewValueCorrect(val: any): boolean {
@@ -154,7 +154,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {
-    if (!this.generatedVisibleRows) return;
+    if(!this.generatedVisibleRows) return;
     if(!this.isDisposed) {
       this.generatedVisibleRows.forEach(row => {
         this.defaultValuesInRows[row.rowName] = row.getNamesWithDefaultValues();
@@ -175,12 +175,12 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   protected generateRows(): Array<MatrixDropdownRowModel> {
     var result = new Array<MatrixDropdownRowModel>();
     var rows = this.rows;
-    if (!rows || rows.length === 0) return result;
+    if(!rows || rows.length === 0) return result;
     var val = this.value;
-    if (!val) val = {};
-    for (var i = 0; i < rows.length; i++) {
+    if(!val) val = {};
+    for(var i = 0; i < rows.length; i++) {
       const row = rows[i];
-      if (this.isValueEmpty(row.value)) continue;
+      if(this.isValueEmpty(row.value)) continue;
       result.push(this.createMatrixRow(row, this.getRowValueForCreation(val, row.value)));
     }
     return result;

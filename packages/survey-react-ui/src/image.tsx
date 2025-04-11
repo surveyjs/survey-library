@@ -26,11 +26,11 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit, width: this.question.renderedStyleWidth, height: this.question.renderedStyleHeight };
-    if (!this.question.imageLink || this.question.contentNotLoaded) {
+    if(!this.question.imageLink || this.question.contentNotLoaded) {
       style["display"] = "none";
     }
     var control: React.JSX.Element | null = null;
-    if (this.question.renderedMode === "image") {
+    if(this.question.renderedMode === "image") {
       control = (
         <img
           className={cssClasses}
@@ -45,7 +45,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         />
       );
     }
-    if (this.question.renderedMode === "video") {
+    if(this.question.renderedMode === "video") {
       control = (
         <video controls
           className={cssClasses}
@@ -58,7 +58,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         ></video>
       );
     }
-    if (this.question.renderedMode === "youtube") {
+    if(this.question.renderedMode === "youtube") {
       control = (
         <iframe
           className={cssClasses}
@@ -70,7 +70,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
       );
     }
     var noImage: React.JSX.Element | null = null;
-    if (!this.question.imageLink || this.question.contentNotLoaded) {
+    if(!this.question.imageLink || this.question.contentNotLoaded) {
       noImage = (
         <div className={this.question.cssClasses.noImage}>
           <SvgIcon

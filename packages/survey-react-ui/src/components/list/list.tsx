@@ -33,17 +33,17 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
   componentDidMount(): void {
     super.componentDidMount();
-    if (!!this.listContainerRef && !!this.listContainerRef.current) {
+    if(!!this.listContainerRef && !!this.listContainerRef.current) {
       this.model.initListContainerHtmlElement(this.listContainerRef.current);
     }
   }
   public componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
-    if (this.model !== prevProps.model) {
-      if (this.model && !!this.listContainerRef?.current) {
+    if(this.model !== prevProps.model) {
+      if(this.model && !!this.listContainerRef?.current) {
         this.model.initListContainerHtmlElement(this.listContainerRef.current);
       }
-      if (prevProps.model) {
+      if(prevProps.model) {
         prevProps.model.initListContainerHtmlElement(undefined as any);
       }
     }
@@ -51,7 +51,7 @@ export class List extends SurveyElementBase<IListProps, any> {
 
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if (!!this.model) {
+    if(!!this.model) {
       this.model.initListContainerHtmlElement(undefined as any);
     }
   }
@@ -65,7 +65,7 @@ export class List extends SurveyElementBase<IListProps, any> {
     );
   }
   renderList() {
-    if (!this.model.renderElements) return null;
+    if(!this.model.renderElements) return null;
 
     const items = this.renderItems();
     const ulStyle = { display: this.model.isEmpty ? "none" : null };
@@ -86,11 +86,11 @@ export class List extends SurveyElementBase<IListProps, any> {
       </ul>);
   }
   renderItems() {
-    if (!this.model) {
+    if(!this.model) {
       return null;
     }
     const items = this.model.renderedActions;
-    if (!items) {
+    if(!items) {
       return null;
     }
     return items.map((item: IAction, itemIndex: number) => {
@@ -101,11 +101,11 @@ export class List extends SurveyElementBase<IListProps, any> {
   }
 
   searchElementContent() {
-    if (!this.model.showFilter) return null;
+    if(!this.model.showFilter) return null;
     else {
       const onChange = (e: any) => {
         const { root } = settings.environment;
-        if (e.target === root.activeElement) {
+        if(e.target === root.activeElement) {
           this.model.filterString = e.target.value;
         }
       };

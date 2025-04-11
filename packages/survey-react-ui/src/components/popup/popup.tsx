@@ -42,9 +42,9 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     this.popup.resetComponentElement();
   }
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
-    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
     const isNeedUpdate = nextProps.model !== this.popup.model;
-    if (isNeedUpdate) {
+    if(isNeedUpdate) {
       this.popup?.dispose();
       this.createModel();
     }
@@ -53,7 +53,7 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   render(): React.JSX.Element {
     this.popup.model = this.model;
     let popupContainer;
-    if (this.model.isModal) {
+    if(this.model.isModal) {
       popupContainer = <PopupContainer model={this.popup}></PopupContainer>;
     } else {
       popupContainer = <PopupDropdownContainer model={this.popup}></PopupDropdownContainer>;
@@ -87,7 +87,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   };
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
-    if (!this.model.isPositionSet && this.model.isVisible) {
+    if(!this.model.isPositionSet && this.model.isVisible) {
       this.model.updateOnShowing();
     }
   }
@@ -165,7 +165,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
   }
   componentDidMount(): void {
     super.componentDidMount();
-    if (this.model.isVisible) {
+    if(this.model.isVisible) {
       this.model.updateOnShowing();
     }
   }
@@ -174,7 +174,7 @@ export class PopupDropdownContainer extends PopupContainer {
 
   protected renderHeaderPopup(popupModel: PopupBaseViewModel): React.JSX.Element | null {
     const popupDropdownModel = popupModel as PopupDropdownViewModel;
-    if (!popupDropdownModel) return null;
+    if(!popupDropdownModel) return null;
 
     return (
       <span

@@ -12,7 +12,7 @@ export class AngularComponentFactory {
   }
   public getAllTypes(): Array<string> {
     var result = new Array<string>();
-    for (var key in this.creatorHash) {
+    for(var key in this.creatorHash) {
       result.push(key);
     }
     return result.sort();
@@ -22,7 +22,7 @@ export class AngularComponentFactory {
   }
   public create(containerRef: ViewContainerRef, elementType: string, resolver: ComponentFactoryResolver): ComponentRef<Component> {
     var componentType = this.creatorHash[elementType];
-    if (!componentType) return (null as any);
+    if(!componentType) return (null as any);
     return containerRef.createComponent(resolver.resolveComponentFactory(componentType));
   }
 }

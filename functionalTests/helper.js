@@ -44,30 +44,30 @@ export const initSurvey = ClientFunction(
         model.data
       );
     };
-    if (!!events) {
-      for (var str in events) {
+    if(!!events) {
+      for(var str in events) {
         model[str].add(events[str]);
       }
     }
-    if (!!props) {
-      for (var key in props) {
+    if(!!props) {
+      for(var key in props) {
         model[key] = props[key];
       }
     }
     model.onComplete.add(surveyComplete);
 
-    if (framework === "knockout") {
+    if(framework === "knockout") {
       document.getElementById("surveyElement").innerHTML = "";
       model.render("surveyElement");
-    } else if (framework === "jquery-ui") {
+    } else if(framework === "jquery-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       window["$"]("#surveyElement").Survey({
         model: model
       });
-    } else if (framework === "survey-js-ui") {
+    } else if(framework === "survey-js-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
-    } else if (framework === "react") {
+    } else if(framework === "react") {
       if(!!window.root) {
         window.root.unmount();
       }
@@ -76,7 +76,7 @@ export const initSurvey = ClientFunction(
       root.render(
         React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
       );
-    } else if (framework === "vue") {
+    } else if(framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
         "<survey :survey='survey'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
@@ -84,7 +84,7 @@ export const initSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
-    } else if (framework === "angular" || framework == "vue3") {
+    } else if(framework === "angular" || framework == "vue3") {
       window.setSurvey(model);
     }
     window["survey"] = model;
@@ -108,13 +108,13 @@ export const initSurveyPopup = ClientFunction(
     const model = popupSurvey.survey;
     model.setDesignMode(isDesignMode);
 
-    if (framework === "knockout") {
+    if(framework === "knockout") {
       popupSurvey.isExpanded = true;
       popupSurvey.allowClose = true;
       popupSurvey.closeOnCompleteTimeout = -1;
       popupSurvey.allowFullScreen = true;
       popupSurvey.show();
-    } else if (framework === "jquery-ui") {
+    } else if(framework === "jquery-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       window["$"]("#surveyElement").PopupSurvey({
         model: model,
@@ -122,14 +122,14 @@ export const initSurveyPopup = ClientFunction(
         allowClose: true,
         allowFullScreen: true
       });
-    } else if (framework === "survey-js-ui") {
+    } else if(framework === "survey-js-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
         isExpanded: true,
         allowClose: true,
         allowFullScreen: true
       });
-    } else if (framework === "react") {
+    } else if(framework === "react") {
       if(!!window.root) {
         window.root.unmount();
       }
@@ -144,7 +144,7 @@ export const initSurveyPopup = ClientFunction(
             allowFullScreen: true
           }
         ) }));
-    } else if (framework === "vue") {
+    } else if(framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
         "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :allowFullScreen='true'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
@@ -152,7 +152,7 @@ export const initSurveyPopup = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
-    } else if (framework === "angular" || framework == "vue3") {
+    } else if(framework === "angular" || framework == "vue3") {
       const isPopup = true;
       window.setSurvey(model, isPopup);
     }
@@ -163,7 +163,7 @@ export const initSurveyPopup = ClientFunction(
 
 export const registerCustomToolboxComponent = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
-    if (framework === "knockout") {
+    if(framework === "knockout") {
       window["ko"].components.register("svc-custom-action", {
         viewModel: {
           createViewModel: (params) => {
@@ -173,7 +173,7 @@ export const registerCustomToolboxComponent = ClientFunction(
         template:
           '<span class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></span>',
       });
-    } else if (framework === "react") {
+    } else if(framework === "react") {
       class CustomActionButton extends window["React"].Component {
         click = () => {
           this.props.item.action();
@@ -194,7 +194,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           return window["React"].createElement(CustomActionButton, props);
         }
       );
-    } else if (framework === "jquery-ui" || framework === "survey-js-ui") {
+    } else if(framework === "jquery-ui" || framework === "survey-js-ui") {
       const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
 
@@ -218,7 +218,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           return preact.createElement(CustomActionButton, props);
         }
       );
-    } else if (framework === "vue") {
+    } else if(framework === "vue") {
       window["Vue"].component("svc-custom-action", {
         props: {
           item: {},
@@ -232,7 +232,7 @@ export const registerCustomToolboxComponent = ClientFunction(
 
 export const registerCustomItemComponent = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
-    if (framework === "knockout") {
+    if(framework === "knockout") {
       window["ko"].components.register("new-item", {
         viewModel: {
           createViewModel: function (params, componentInfo) {
@@ -245,7 +245,7 @@ export const registerCustomItemComponent = ClientFunction(
         template:
           '<div class="my-list-item" style="display:flex;" data-bind="attr: { title: hint } "><span><sv-svg-icon params=\'iconName: iconName, size: iconSize\'></sv-svg-icon></span><span data-bind="text: title, css: getActionBarItemTitleCss()"></span></div>',
       });
-    } else if (framework === "react") {
+    } else if(framework === "react") {
       class ItemTemplateComponent extends window["React"].Component {
         render() {
           const item = this.props.item;
@@ -280,7 +280,7 @@ export const registerCustomItemComponent = ClientFunction(
           return window["React"].createElement(ItemTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui" || framework === "survey-js-ui") {
+    } else if(framework === "jquery-ui" || framework === "survey-js-ui") {
       const preact = (window["SurveyJquery"] || window["SurveyUI"])["preact"];
       window.React = { createElement: preact.createElement };
       class ItemTemplateComponent extends preact.Component {
@@ -317,8 +317,7 @@ export const registerCustomItemComponent = ClientFunction(
           return preact.createElement(ItemTemplateComponent, props);
         }
       );
-    }
-    else if (framework === "vue") {
+    } else if(framework === "vue") {
       window["Vue"].component("new-item", {
         props: {
           item: {},
@@ -337,7 +336,7 @@ export const registerCustomItemComponent = ClientFunction(
 
 export const registerCustomItemContentComponent = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
-    if (framework === "knockout") {
+    if(framework === "knockout") {
       window["ko"].components.register("new-item-content", {
         viewModel: {
           createViewModel: function (params, componentInfo) {
@@ -352,7 +351,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           </div>
         `
       });
-    } else if (framework === "react") {
+    } else if(framework === "react") {
       class ItemContentTemplateComponent extends React.Component {
         render() {
           const locText = this.props.item.locText;
@@ -375,7 +374,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           return window["React"].createElement(ItemContentTemplateComponent, props);
         }
       );
-    } else if (framework === "jquery-ui") {
+    } else if(framework === "jquery-ui") {
       const preact = window["SurveyJquery"]["preact"];
       window.React = { createElement: preact.createElement };
       class ItemContentTemplateComponent extends preact.Component {
@@ -400,7 +399,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           return preact.createElement(ItemContentTemplateComponent, props);
         }
       );
-    } else if (framework === "survey-js-ui") {
+    } else if(framework === "survey-js-ui") {
       const preact = window["SurveyUI"]["preact"];
       window.React = { createElement: preact.createElement };
       class ItemContentTemplateComponent extends preact.Component {
@@ -425,7 +424,7 @@ export const registerCustomItemContentComponent = ClientFunction(
           return preact.createElement(ItemContentTemplateComponent, props);
         }
       );
-    } else if (framework === "vue") {
+    } else if(framework === "vue") {
       Vue.component("new-item-content", {
         props: {
           item: {}
@@ -443,7 +442,7 @@ export const registerCustomItemContentComponent = ClientFunction(
 
 export const getSurveyResult = ClientFunction(() => {
   var result = window["SurveyResult"];
-  if (typeof result === "undefined") {
+  if(typeof result === "undefined") {
     return result;
   }
   //clean result object from the vuejs stuff
@@ -461,7 +460,7 @@ export const setData = ClientFunction((newData) => {
 
 export const setOptions = ClientFunction((questionName, modValue) => {
   const mergeOptions = function (obj1, obj2) {
-    for (const attrname in obj2) {
+    for(const attrname in obj2) {
       obj1[attrname] = obj2[attrname];
     }
   };
@@ -474,12 +473,12 @@ export const joinElementInnerText = ClientFunction((tagName, index) => {
   const el = document.getElementsByTagName(tagName)[index];
   const spans = el.querySelectorAll("span");
   let res = "";
-  for (let i = 0; i < spans.length; i++) {
+  for(let i = 0; i < spans.length; i++) {
     const sp = spans[i];
-    if (!sp.innerHTML || sp.innerHTML == "&nbsp;") continue;
+    if(!sp.innerHTML || sp.innerHTML == "&nbsp;") continue;
     const childs = sp.getElementsByTagName("span");
-    if (childs.length > 0) continue;
-    if (!!res) res += " ";
+    if(childs.length > 0) continue;
+    if(!!res) res += " ";
     res += sp.innerHTML;
   }
   return res;
@@ -529,7 +528,7 @@ export var completeButton = Selector(".sd-navigation__complete-btn");
 
 export const explicitErrorHandler = ClientFunction(() => {
   window.addEventListener("error", e => {
-    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
       e.message === "ResizeObserver loop limit exceeded") {
       e.stopImmediatePropagation();
     }

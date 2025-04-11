@@ -83,10 +83,10 @@ export class QuestionRatingModel extends Question {
     });
     this.registerSychProperties(["autoGenerate"],
       () => {
-        if (!this.autoGenerate && this.rateValues.length === 0) {
+        if(!this.autoGenerate && this.rateValues.length === 0) {
           this.setPropertyValue("rateValues", this.visibleRateValues);
         }
-        if (this.autoGenerate) {
+        if(this.autoGenerate) {
           this.rateValues.splice(0, this.rateValues.length);
           this.updateRateMax();
         }
@@ -105,20 +105,20 @@ export class QuestionRatingModel extends Question {
 
   }
   private setIconsToRateValues() {
-    if (this.rateType == "smileys") {
+    if(this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
     }
   }
 
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
+    if(this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
       this.updateRateMax();
     }
-    if (this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
+    if(this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
       this.updateRateMin();
     }
-    if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
+    if(this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined)this.autoGenerate = !this.jsonObj.rateValues.length;
     this.updateRateCount();
     this.setIconsToRateValues();
   }
@@ -126,7 +126,7 @@ export class QuestionRatingModel extends Question {
   private registerSychProperties(names: Array<string>, func: any) {
     this.registerFunctionOnPropertiesValueChanged(names,
       () => {
-        if (!this._syncPropertiesChanging) {
+        if(!this._syncPropertiesChanging) {
           this._syncPropertiesChanging = true;
           func();
           this._syncPropertiesChanging = false;
@@ -144,29 +144,28 @@ export class QuestionRatingModel extends Question {
   }
   private updateRateCount() {
     let newCount = 0;
-    if (this.useRateValues()) {
+    if(this.useRateValues()) {
       newCount = this.rateValues.length;
-    }
-    else {
+    } else {
       newCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
     }
-    if (newCount > 10 && this.rateDisplayMode == "smileys") {
+    if(newCount > 10 && this.rateDisplayMode == "smileys") {
       newCount = 10;
     }
     this.rateCount = newCount;
-    if (this.rateValues.length > newCount) this.rateValues.splice(newCount, this.rateValues.length - newCount);
+    if(this.rateValues.length > newCount)this.rateValues.splice(newCount, this.rateValues.length - newCount);
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],
       () => {
-        if (!this.useRateValues()) {
+        if(!this.useRateValues()) {
           this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
         } else {
-          if (this.rateCount < this.rateValues.length) {
-            if (this.rateCount >= 10 && this.rateDisplayMode == "smileys") return;
+          if(this.rateCount < this.rateValues.length) {
+            if(this.rateCount >= 10 && this.rateDisplayMode == "smileys") return;
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
-            for (let i = this.rateValues.length; i < this.rateCount; i++) {
+            for(let i = this.rateValues.length; i < this.rateCount; i++) {
               this.rateValues.push(new ItemValue(getLocaleString("choices_Item") + (i + 1)));
             }
           }
@@ -286,9 +285,9 @@ export class QuestionRatingModel extends Question {
   private static goodColorLight: Array<number>;
 
   private updateColors(themeVariables: any) {
-    if (this.colorMode === "monochrome") return;
-    if (!DomDocumentHelper.isAvailable()) return;
-    if (QuestionRatingModel.colorsCalculated) return;
+    if(this.colorMode === "monochrome") return;
+    if(!DomDocumentHelper.isAvailable()) return;
+    if(QuestionRatingModel.colorsCalculated) return;
 
     function getColorFromProperty(varName: string) {
       const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
@@ -296,19 +295,19 @@ export class QuestionRatingModel extends Question {
     }
     function getRGBColor(colorName: string, varName: string) {
       let str: string = !!themeVariables && themeVariables[colorName] as any;
-      if (!str) str = getColorFromProperty(varName);
-      if (!str) return null;
+      if(!str) str = getColorFromProperty(varName);
+      if(!str) return null;
       const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
-      if (!canvasElement) return null;
+      if(!canvasElement) return null;
       var ctx = canvasElement.getContext("2d");
       ctx.fillStyle = str;
 
-      if (ctx.fillStyle == "#000000") {
+      if(ctx.fillStyle == "#000000") {
         ctx.fillStyle = getColorFromProperty(varName);
       }
       const newStr = ctx.fillStyle;
 
-      if (newStr.startsWith("rgba")) {
+      if(newStr.startsWith("rgba")) {
         return newStr.substring(5, newStr.length - 1).split(",").map(c => +(c.trim()));
       }
       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(newStr);
@@ -341,7 +340,7 @@ export class QuestionRatingModel extends Question {
   }
   protected supportEmptyValidation(): boolean { return this.renderAs === "dropdown"; }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
-    if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
+    if(!this.useRateValues() && newValue !== undefined)this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
@@ -381,18 +380,18 @@ export class QuestionRatingModel extends Question {
   }
   private calculateRateValues(): Array<ItemValue> {
     let rateValues = this.getRateValuesCore();
-    if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
+    if(this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
     return rateValues;
   }
   private calculateRenderedRateItems() : Array<RenderedRatingItem> {
     const rateValues = this.calculateRateValues();
     return rateValues.map((v, i) => {
       let renderedItem: RenderedRatingItem = null;
-      if (this.displayRateDescriptionsAsExtremeItems) {
-        if (i == 0) renderedItem = new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
-        if (i == rateValues.length - 1) renderedItem = new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
+      if(this.displayRateDescriptionsAsExtremeItems) {
+        if(i == 0) renderedItem = new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
+        if(i == rateValues.length - 1) renderedItem = new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
       }
-      if (!renderedItem) renderedItem = new RenderedRatingItem(v);
+      if(!renderedItem) renderedItem = new RenderedRatingItem(v);
       return renderedItem;
     });
   }
@@ -402,7 +401,7 @@ export class QuestionRatingModel extends Question {
   }
   private iCounter = 0;
   private resetRenderedItems() {
-    if (this.autoGenerate) {
+    if(this.autoGenerate) {
       const rateValues = this.getRateValuesCore();
       this.rateMax = rateValues[rateValues.length - 1].value;
     }
@@ -424,7 +423,7 @@ export class QuestionRatingModel extends Question {
     var res = [];
     var value = this.rateMin;
     var step = this.rateStep;
-    while (value <= this.rateMax &&
+    while(value <= this.rateMax &&
       res.length < settings.ratingMaximumRateValueCount) {
 
       let item = new ItemValue(value);
@@ -436,13 +435,13 @@ export class QuestionRatingModel extends Question {
     return res;
   }
   private getRatingItemValue(item: ItemValue, index: number) {
-    if (!item) return null;
+    if(!item) return null;
     const value = item.value;
     let description: LocalizableString;
-    if (index === 0) {
+    if(index === 0) {
       description = this.minRateDescription && this.locMinRateDescription;
     }
-    if (index === (this.rateCount - 1)) {
+    if(index === (this.rateCount - 1)) {
       description = this.maxRateDescription && this.locMaxRateDescription;
     }
     let newItem = new RatingItemValue(value, item.text, description);
@@ -452,10 +451,10 @@ export class QuestionRatingModel extends Question {
   }
 
   private correctValue(value: number, step: number): number {
-    if (!value) return value;
-    if (Math.round(value) == value) return value;
+    if(!value) return value;
+    if(Math.round(value) == value) return value;
     var fr = 0;
-    while (Math.round(step) != step) {
+    while(Math.round(step) != step) {
       step *= 10;
       fr++;
     }
@@ -565,7 +564,7 @@ export class QuestionRatingModel extends Question {
       }
     } else {
       if(isOnChange || this.displayMode !== "auto") {
-        this.renderAs = this.displayMode === "dropdown" ? "dropdown": "default";
+        this.renderAs = this.displayMode === "dropdown" ? "dropdown" : "default";
       }
     }
   }
@@ -642,9 +641,9 @@ export class QuestionRatingModel extends Question {
     return this.rateType == "smileys";
   }
   getDefaultItemComponent(): string {
-    if (this.renderAs == "dropdown") return "sv-rating-dropdown-item";
-    if (this.isStar) return "sv-rating-item-star";
-    if (this.isSmiley) return "sv-rating-item-smiley";
+    if(this.renderAs == "dropdown") return "sv-rating-dropdown-item";
+    if(this.isStar) return "sv-rating-item-star";
+    if(this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
   }
   /**
@@ -658,40 +657,40 @@ export class QuestionRatingModel extends Question {
   }
 
   protected valueToData(val: any): any {
-    if (this.useRateValues()) {
+    if(this.useRateValues()) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
       return !!item ? item.value : val;
     }
     return !isNaN(val) ? parseFloat(val) : val;
   }
   public setValueFromClick(value: any) {
-    if (this.isReadOnlyAttr) return;
-    if (this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
+    if(this.isReadOnlyAttr) return;
+    if(this.value === ((typeof (this.value) === "string") ? value : parseFloat(value))) {
       this.clearValue(true);
     } else {
       this.value = value;
     }
-    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+    for(let i: number = 0; i < this.renderedRateItems.length; i++) {
       this.renderedRateItems[i].highlight = "none";
     }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
-    if (IsTouch) return;
-    if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
+    if(IsTouch) return;
+    if(this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
     let high = true;
     let selected = this.value != null;
-    if (this.rateType !== "stars") {
+    if(this.rateType !== "stars") {
       item.highlight = "highlighted";
       return;
     }
-    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+    for(let i: number = 0; i < this.renderedRateItems.length; i++) {
       this.renderedRateItems[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
-      if (this.renderedRateItems[i] == item) high = false;
-      if (this.renderedRateItems[i].itemValue.value == this.value) selected = false;
+      if(this.renderedRateItems[i] == item) high = false;
+      if(this.renderedRateItems[i].itemValue.value == this.value) selected = false;
     }
   }
   public onItemMouseOut(item: RenderedRatingItem) {
-    if (IsTouch) return;
+    if(IsTouch) return;
     this.renderedRateItems.forEach(item => item.highlight = "none");
   }
 
@@ -724,7 +723,7 @@ export class QuestionRatingModel extends Question {
     const count = this.useRateValues() ? this.rateValues.length : this.rateMax - this.rateMin + 1;
     const selectedPriority = priority.slice(0, count);
     const selectedIcons = icons.filter(i => selectedPriority.indexOf(i) != -1);
-    if (!this.useRateValues()) {
+    if(!this.useRateValues()) {
       return selectedIcons[item.value - this.rateMin];
     } else {
       return selectedIcons[this.rateValues.indexOf(item)];
@@ -744,23 +743,23 @@ export class QuestionRatingModel extends Question {
     let endColor = light ? QuestionRatingModel.goodColorLight : QuestionRatingModel.goodColor;
     const normalIndex = (this.rateCount - 1) / 2.0;
     const middleColor = light ? QuestionRatingModel.normalColorLight : QuestionRatingModel.normalColor;
-    if (index < normalIndex) {
+    if(index < normalIndex) {
       endColor = middleColor;
     } else {
       startColor = middleColor;
       index -= normalIndex;
     }
-    if (!startColor || !endColor) return null;
+    if(!startColor || !endColor) return null;
     const curColor = [0, 0, 0, 0];
-    for (let i = 0; i < 4; i++) {
+    for(let i = 0; i < 4; i++) {
       curColor[i] = startColor[i] + (endColor[i] - startColor[i]) * index / normalIndex;
-      if (i < 3) curColor[i] = Math.trunc(curColor[i]);
+      if(i < 3) curColor[i] = Math.trunc(curColor[i]);
     }
     return "rgba(" + curColor[0] + ", " + curColor[1] + ", " + curColor[2] + ", " + curColor[3] + ")";
   }
 
   public getItemStyle(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
+    if(this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
       this.isPreviewStyle ||
       this.isReadOnlyStyle) return {};
     const index = this.visibleRateValues.indexOf(item);
@@ -771,8 +770,8 @@ export class QuestionRatingModel extends Question {
 
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
     let isSelected = this.value == item.value;
-    if (this.isStar) {
-      if (!this.useRateValues()) {
+    if(this.isStar) {
+      if(!this.useRateValues()) {
         isSelected = this.value >= item.value;
       } else {
         isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
@@ -796,7 +795,7 @@ export class QuestionRatingModel extends Question {
     let itemRateColoredClass = null;
     let itemSmallClass = null;
 
-    if (this.isStar) {
+    if(this.isStar) {
       itemClass = this.cssClasses.itemStar;
       itemSelectedClass = this.cssClasses.itemStarSelected;
       itemDisabledClass = this.cssClasses.itemStarDisabled;
@@ -808,7 +807,7 @@ export class QuestionRatingModel extends Question {
       itemUnhighlightedClass = this.cssClasses.itemStarUnhighlighted;
       itemSmallClass = this.cssClasses.itemStarSmall;
     }
-    if (this.isSmiley) {
+    if(this.isSmiley) {
       itemClass = this.cssClasses.itemSmiley;
       itemSelectedClass = this.cssClasses.itemSmileySelected;
       itemDisabledClass = this.cssClasses.itemSmileyDisabled;
@@ -885,7 +884,7 @@ export class QuestionRatingModel extends Question {
     return item.value == this.value;
   }
   public get readOnlyText() {
-    if (this.readOnly) return (this.displayValue || this.placeholder);
+    if(this.readOnly) return (this.displayValue || this.placeholder);
     return this.isEmpty() ? this.placeholder : "";
   }
 
@@ -904,7 +903,7 @@ export class QuestionRatingModel extends Question {
     return !this.inMatrixMode;
   }
   protected onBeforeSetCompactRenderer(): void {
-    if (!this.dropdownListModelValue) {
+    if(!this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
       this.ariaExpanded = "false";
     }
@@ -923,7 +922,7 @@ export class QuestionRatingModel extends Question {
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
-    if (this.renderAs === "dropdown") {
+    if(this.renderAs === "dropdown") {
       this.onBeforeSetCompactRenderer();
     }
     return this.dropdownListModelValue;
@@ -949,7 +948,7 @@ export class QuestionRatingModel extends Question {
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
-    if (!this.survey) return;
+    if(!this.survey) return;
     this.updateColors((this.survey as SurveyModel).themeVariables);
     this.updateRenderAsBasedOnDisplayMode();
   }
@@ -1006,9 +1005,9 @@ Serializer.addClass(
       category: "rateValues",
       visibleIndex: 4,
       onSettingValue: (obj: any, val: any): any => {
-        if (val < 2) return 2;
-        if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
-        if (val > 10 && obj.rateDisplayMode == "smileys") return 10;
+        if(val < 2) return 2;
+        if(val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
+        if(val > 10 && obj.rateDisplayMode == "smileys") return 10;
         return val;
       },
     },
@@ -1046,8 +1045,8 @@ Serializer.addClass(
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
       onSettingValue: (obj: any, val: any): any => {
-        if (val <= 0) val = 1;
-        if (val > obj.rateMax - obj.rateMin)
+        if(val <= 0) val = 1;
+        if(val > obj.rateMax - obj.rateMin)
           val = obj.rateMax - obj.rateMin;
         return val;
       },

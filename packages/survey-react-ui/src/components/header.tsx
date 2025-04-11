@@ -94,12 +94,12 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   renderElement(): React.JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if (!(this.props.survey.headerView === "advanced") || this.model.isEmpty) {
+    if(!(this.props.survey.headerView === "advanced") || this.model.isEmpty) {
       return null;
     }
 
     let headerContent: React.JSX.Element | null = null;
-    if (this.props.survey.isMobile) {
+    if(this.props.survey.isMobile) {
       headerContent = <HeaderMobile model={this.model} />;
     } else {
       headerContent = (<div className={this.model.contentClasses} style={{ maxWidth: this.model.maxWidth }}>

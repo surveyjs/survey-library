@@ -29,5 +29,6 @@
     },
     "editor.formatOnSave": true,
     "eslint.format.enable": true,
+    "endOfLine": "crlf",
     "testing.automaticallyOpenTestResults": "neverOpen",
 }

@@ -272,7 +272,7 @@ QUnit.test("Dispose dots item and all it content", (assert) => {
 });
 QUnit.test("createDropdownActionModel: switch action title", (assert) => {
   let items: Array<any> = [];
-  for (let index = 0; index < 20; index++) {
+  for(let index = 0; index < 20; index++) {
     items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
   }
 
@@ -296,7 +296,7 @@ QUnit.test("createDropdownActionModel: switch action title", (assert) => {
 });
 QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
   let items: Array<any> = [];
-  for (let index = 0; index < 20; index++) {
+  for(let index = 0; index < 20; index++) {
     items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
   }
 

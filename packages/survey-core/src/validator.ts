@@ -44,7 +44,7 @@ export class SurveyValidator extends Base {
     return this.getLocalizableString("text");
   }
   protected getErrorText(name: string): string {
-    if (this.text) return this.text;
+    if(this.text) return this.text;
     return this.getDefaultErrorText(name);
   }
   protected getDefaultErrorText(name: string): string {
@@ -88,7 +88,7 @@ export class SurveyValidator extends Base {
   }
   public toString(): string {
     var res = this.getType().replace("validator", "");
-    if (!!this.text) {
+    if(!!this.text) {
       res += ", " + this.text;
     }
     return res;
@@ -111,26 +111,26 @@ export class ValidatorRunner {
     this.prepareAsyncValidators();
     var asyncResults: Array<SurveyError> = [];
     var validators = owner.getValidators();
-    for (var i = 0; i < validators.length; i++) {
+    for(var i = 0; i < validators.length; i++) {
       var validator = validators[i];
-      if (!values && validator.isValidateAllValues) {
+      if(!values && validator.isValidateAllValues) {
         values = owner.getDataFilteredValues();
         properties = owner.getDataFilteredProperties();
       }
-      if (validator.isAsync) {
+      if(validator.isAsync) {
         this.asyncValidators.push(validator);
         validator.onAsyncCompleted = (result: ValidatorResult) => {
-          if (!!result && !!result.error) asyncResults.push(result.error);
-          if (!this.onAsyncCompleted) return;
-          for (var i = 0; i < this.asyncValidators.length; i++) {
-            if (this.asyncValidators[i].isRunning) return;
+          if(!!result && !!result.error) asyncResults.push(result.error);
+          if(!this.onAsyncCompleted) return;
+          for(var i = 0; i < this.asyncValidators.length; i++) {
+            if(this.asyncValidators[i].isRunning) return;
           }
           this.onAsyncCompleted(asyncResults);
         };
       }
     }
     validators = owner.getValidators();
-    for (var i = 0; i < validators.length; i++) {
+    for(var i = 0; i < validators.length; i++) {
       var validator = validators[i];
 
       var validatorResult = validator.validate(
@@ -139,17 +139,17 @@ export class ValidatorRunner {
         values,
         properties
       );
-      if (!!validatorResult && !!validatorResult.error) {
+      if(!!validatorResult && !!validatorResult.error) {
         res.push(validatorResult.error);
       }
     }
-    if (this.asyncValidators.length == 0 && !!this.onAsyncCompleted)
+    if(this.asyncValidators.length == 0 && !!this.onAsyncCompleted)
       this.onAsyncCompleted([]);
     return res;
   }
   private prepareAsyncValidators() {
-    if (!!this.asyncValidators) {
-      for (var i = 0; i < this.asyncValidators.length; i++) {
+    if(!!this.asyncValidators) {
+      for(var i = 0; i < this.asyncValidators.length; i++) {
         this.asyncValidators[i].onAsyncCompleted = null;
       }
     }
@@ -176,19 +176,19 @@ export class NumericValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (this.isValueEmpty(value)) return null;
-    if (!Helpers.isNumber(value)) {
+    if(this.isValueEmpty(value)) return null;
+    if(!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
         new RequreNumericError(this.text, this.errorOwner)
       );
     }
     var result = new ValidatorResult(Helpers.getNumber(value));
-    if (this.minValue !== null && this.minValue > result.value) {
+    if(this.minValue !== null && this.minValue > result.value) {
       result.error = this.createCustomError(name);
       return result;
     }
-    if (this.maxValue !== null && this.maxValue < result.value) {
+    if(this.maxValue !== null && this.maxValue < result.value) {
       result.error = this.createCustomError(name);
       return result;
     }
@@ -196,11 +196,11 @@ export class NumericValidator extends SurveyValidator {
   }
   protected getDefaultErrorText(name: string) {
     var vName = name ? name : this.getLocalizationString("value");
-    if (this.minValue !== null && this.maxValue !== null) {
+    if(this.minValue !== null && this.maxValue !== null) {
       return this.getLocalizationFormatString("numericMinMax",
         vName, this.minValue, this.maxValue);
     } else {
-      if (this.minValue !== null) {
+      if(this.minValue !== null) {
         return this.getLocalizationFormatString("numericMin", vName, this.minValue);
       }
       return this.getLocalizationFormatString("numericMax", vName, this.maxValue);
@@ -248,26 +248,26 @@ export class TextValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (this.isValueEmpty(value)) return null;
-    if (!this.allowDigits) {
+    if(this.isValueEmpty(value)) return null;
+    if(!this.allowDigits) {
       var reg = /\d+$/;
-      if (reg.test(value)) {
+      if(reg.test(value)) {
         return new ValidatorResult(null, this.createCustomError("textNoDigitsAllow"));
       }
     }
-    if (this.minLength > 0 && value.length < this.minLength) {
+    if(this.minLength > 0 && value.length < this.minLength) {
       return new ValidatorResult(null, this.createCustomError(name));
     }
-    if (this.maxLength > 0 && value.length > this.maxLength) {
+    if(this.maxLength > 0 && value.length > this.maxLength) {
       return new ValidatorResult(null, this.createCustomError(name));
     }
     return null;
   }
   protected getDefaultErrorText(name: string): string {
     if(name === "textNoDigitsAllow") return this.getLocalizationString(name);
-    if (this.minLength > 0 && this.maxLength > 0)
+    if(this.minLength > 0 && this.maxLength > 0)
       return this.getLocalizationFormatString("textMinMaxLength", this.minLength, this.maxLength);
-    if (this.minLength > 0)
+    if(this.minLength > 0)
       return this.getLocalizationFormatString("textMinLength", this.minLength);
     return this.getLocalizationFormatString("textMaxLength", this.maxLength);
   }
@@ -330,16 +330,16 @@ export class AnswerCountValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (value == null || value.constructor != Array) return null;
+    if(value == null || value.constructor != Array) return null;
     var count = value.length;
-    if (count == 0) return null;
-    if (this.minCount && count < this.minCount) {
+    if(count == 0) return null;
+    if(this.minCount && count < this.minCount) {
       return new ValidatorResult(
         null,
         this.createCustomError(
           this.getLocalizationFormatString("minSelectError", this.minCount)));
     }
-    if (this.maxCount && count > this.maxCount) {
+    if(this.maxCount && count > this.maxCount) {
       return new ValidatorResult(
         null,
         this.createCustomError(
@@ -394,18 +394,18 @@ export class RegexValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (!this.regex || this.isValueEmpty(value)) return null;
+    if(!this.regex || this.isValueEmpty(value)) return null;
     var re = this.createRegExp();
-    if (Array.isArray(value)) {
-      for (var i = 0; i < value.length; i++) {
+    if(Array.isArray(value)) {
+      for(var i = 0; i < value.length; i++) {
         var res = this.hasError(re, value[i], name);
-        if (res) return res;
+        if(res) return res;
       }
     }
     return this.hasError(re, value, name);
   }
   private hasError(re: RegExp, value: any, name: string): ValidatorResult {
-    if (re.test(value)) return null;
+    if(re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
   }
   /**
@@ -457,8 +457,8 @@ export class EmailValidator extends SurveyValidator {
     values: any = null,
     properties: any = null
   ): ValidatorResult {
-    if (!value) return null;
-    if (this.re.test(value)) return null;
+    if(!value) return null;
+    if(this.re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
   }
   protected getDefaultErrorText(name: string): string {
@@ -485,32 +485,32 @@ export class ExpressionValidator extends SurveyValidator {
     return true;
   }
   public get isAsync(): boolean {
-    if (!this.ensureConditionRunner(false)) return false;
+    if(!this.ensureConditionRunner(false)) return false;
     return this.conditionRunner.isAsync;
   }
   public get isRunning(): boolean {
     return this.isRunningValue;
   }
   public validate(value: any, name: string = null, values: any = null, properties: any = null): ValidatorResult {
-    if (!this.expression) return null;
+    if(!this.expression) return null;
     if(!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
     this.ensureConditionRunner(true);
     this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
-      if (!!this.onAsyncCompleted) {
+      if(!!this.onAsyncCompleted) {
         this.onAsyncCompleted(this.generateError(res, value, name));
       }
     };
     this.isRunningValue = true;
     var res = this.conditionRunner.run(values, properties);
-    if (this.conditionRunner.isAsync) return null;
+    if(this.conditionRunner.isAsync) return null;
     this.isRunningValue = false;
     return this.generateError(res, value, name);
   }
   protected generateError(res: boolean, value: any, name: string): ValidatorResult {
-    if (!res) {
+    if(!res) {
       return new ValidatorResult(value, this.createCustomError(name));
     }
     return null;
@@ -519,7 +519,7 @@ export class ExpressionValidator extends SurveyValidator {
     return this.getLocalizationFormatString("invalidExpression", this.expression);
   }
   private ensureConditionRunner(reNew: boolean): boolean {
-    if (!this.expression) return false;
+    if(!this.expression) return false;
     if(reNew || !this.conditionRunner) {
       this.conditionRunner = new ConditionRunner(this.expression);
     } else {

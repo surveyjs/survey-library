@@ -20,7 +20,7 @@ export function createDate(reason: string, val?: number | string | Date): Date {
 
 function isISODateOnly(str: string): boolean {
   if(str.indexOf("T") > 0) return false;
-  if (!/\d{4}-\d{2}-\d{2}/.test(str)) return false;
+  if(!/\d{4}-\d{2}-\d{2}/.test(str)) return false;
   return !isNaN(new Date(str).getTime());
 }
 
@@ -30,10 +30,10 @@ export class Helpers {
    * @param value
    */
   public static isValueEmpty(value: any): boolean {
-    if (Array.isArray(value) && value.length === 0) return true;
-    if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
-      for (var key in value) {
-        if (!Helpers.isValueEmpty(value[key])) return false;
+    if(Array.isArray(value) && value.length === 0) return true;
+    if(!!value && Helpers.isValueObject(value) && value.constructor === Object) {
+      for(var key in value) {
+        if(!Helpers.isValueEmpty(value[key])) return false;
       }
       return true;
     }
@@ -43,25 +43,25 @@ export class Helpers {
     return (value === undefined || value === null) || (typeof value === "number" && isNaN(value));
   }
   public static isArrayContainsEqual(x: any, y: any): boolean {
-    if (!Array.isArray(x) || !Array.isArray(y)) return false;
-    if (x.length !== y.length) return false;
-    for (var i = 0; i < x.length; i++) {
+    if(!Array.isArray(x) || !Array.isArray(y)) return false;
+    if(x.length !== y.length) return false;
+    for(var i = 0; i < x.length; i++) {
       var j = 0;
-      for (; j < y.length; j++) {
-        if (Helpers.isTwoValueEquals(x[i], y[j])) break;
+      for(; j < y.length; j++) {
+        if(Helpers.isTwoValueEquals(x[i], y[j])) break;
       }
-      if (j === y.length) return false;
+      if(j === y.length) return false;
     }
     return true;
   }
   public static checkIfArraysEqual(x: any, y: any, params: IEqualValuesParameters): boolean {
-    if (!Array.isArray(x) || !Array.isArray(y)) return false;
-    if (x.length !== y.length) return false;
+    if(!Array.isArray(x) || !Array.isArray(y)) return false;
+    if(x.length !== y.length) return false;
     const ignoreOrder: boolean = params.ignoreOrder !== undefined ? params.ignoreOrder : false;
-    if (ignoreOrder) {
+    if(ignoreOrder) {
       var xSorted = [];
       var ySorted = [];
-      for (var i = 0; i < x.length; i++) {
+      for(var i = 0; i < x.length; i++) {
         xSorted.push(x[i]);
         ySorted.push(y[i]);
       }
@@ -70,8 +70,8 @@ export class Helpers {
       x = xSorted;
       y = ySorted;
     }
-    for (var i = 0; i < x.length; i++) {
-      if (!Helpers.checkIfValuesEqual(x[i], y[i], params)) return false;
+    for(var i = 0; i < x.length; i++) {
+      if(!Helpers.checkIfValuesEqual(x[i], y[i], params)) return false;
     }
     return true;
   }
@@ -110,14 +110,14 @@ export class Helpers {
     return x > y ? 1 : -1;
   }
   public static checkIfValuesEqual(x: any, y: any, params: IEqualValuesParameters): boolean {
-    if (x === y) return true;
+    if(x === y) return true;
 
-    if (Array.isArray(x) && x.length === 0 && typeof y === "undefined")
+    if(Array.isArray(x) && x.length === 0 && typeof y === "undefined")
       return true;
-    if (Array.isArray(y) && y.length === 0 && typeof x === "undefined")
+    if(Array.isArray(y) && y.length === 0 && typeof x === "undefined")
       return true;
-    if ((x === undefined || x === null) && y === "") return true;
-    if ((y === undefined || y === null) && x === "") return true;
+    if((x === undefined || x === null) && y === "") return true;
+    if((y === undefined || y === null) && x === "") return true;
     const caseSensitive = params.caseSensitive !== undefined ? params.caseSensitive : settings.comparator.caseSensitive;
     const trimStrings = params.trimStrings !== undefined ? params.trimStrings : settings.comparator.trimStrings;
 
@@ -137,39 +137,39 @@ export class Helpers {
     }
     if(x instanceof Date && y instanceof Date) return x.getTime() == y.getTime();
     const convertNumbers = !params.doNotConvertNumbers;
-    if (convertNumbers && Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
-      if (parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
+    if(convertNumbers && Helpers.isConvertibleToNumber(x) && Helpers.isConvertibleToNumber(y)) {
+      if(parseInt(x) === parseInt(y) && parseFloat(x) === parseFloat(y)) {
         return true;
       }
     }
 
-    if (
+    if(
       (!Helpers.isValueEmpty(x) && Helpers.isValueEmpty(y)) ||
       (Helpers.isValueEmpty(x) && !Helpers.isValueEmpty(y))
     )
       return false;
-    if ((x === true || x === false) && typeof y == "string") {
+    if((x === true || x === false) && typeof y == "string") {
       return x.toString() === y.toLocaleLowerCase();
     }
-    if ((y === true || y === false) && typeof x == "string") {
+    if((y === true || y === false) && typeof x == "string") {
       return y.toString() === x.toLocaleLowerCase();
     }
     const isXObj = Helpers.isValueObject(x);
     const isYObj = Helpers.isValueObject(y);
-    if (!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) return x == y;
-    if (!isXObj || !isYObj) return false;
-    if (x["equals"] && y["equals"]) return x.equals(y);
-    if (Array.isArray(x) && Array.isArray(y)) {
+    if(!isXObj && !isYObj && (convertNumbers || (typeof x !== "number" && typeof y !== "number"))) return x == y;
+    if(!isXObj || !isYObj) return false;
+    if(x["equals"] && y["equals"]) return x.equals(y);
+    if(Array.isArray(x) && Array.isArray(y)) {
       return Helpers.checkIfArraysEqual(x, y, params);
     }
 
-    for (var p in x) {
-      if (!x.hasOwnProperty(p)) continue;
-      if (!y.hasOwnProperty(p)) return false;
-      if (!this.checkIfValuesEqual(x[p], y[p], params)) return false;
+    for(var p in x) {
+      if(!x.hasOwnProperty(p)) continue;
+      if(!y.hasOwnProperty(p)) return false;
+      if(!this.checkIfValuesEqual(x[p], y[p], params)) return false;
     }
-    for (p in y) {
-      if (y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
+    for(p in y) {
+      if(y.hasOwnProperty(p) && !x.hasOwnProperty(p)) return false;
     }
     return true;
   }
@@ -183,7 +183,7 @@ export class Helpers {
     return this.checkIfValuesEqual(x, y, { ignoreOrder: ignoreOrder, caseSensitive: caseSensitive, trimStrings: trimStrings });
   }
   public static randomizeArray<T>(array: Array<T>): Array<T> {
-    for (var i = array.length - 1; i > 0; i--) {
+    for(var i = array.length - 1; i > 0; i--) {
       var j = Math.floor(Math.random() * (i + 1));
       var temp = array[i];
       array[i] = array[j];
@@ -199,15 +199,15 @@ export class Helpers {
       }
       return res;
     }
-    if (!!value && Helpers.isValueObject(value) && !(value instanceof Date)) {
+    if(!!value && Helpers.isValueObject(value) && !(value instanceof Date)) {
       return JSON.parse(JSON.stringify(value));
     }
     return value;
   }
   public static createCopy(obj: any): any {
     var res: any = {};
-    if (!obj) return res;
-    for (var key in obj) {
+    if(!obj) return res;
+    for(var key in obj) {
       res[key] = obj[key];
     }
     return res;
@@ -231,7 +231,7 @@ export class Helpers {
     return settings.parseNumber(value, newValue);
   }
   private static getNumberCore(value: any): number {
-    if (typeof value == "string") {
+    if(typeof value == "string") {
       value = value.trim();
       if(!value) return NaN;
       if(value.indexOf("0x") == 0) {
@@ -264,7 +264,7 @@ export class Helpers {
     return val;
   }
   public static getMaxLength(maxLength: number, surveyLength: number): any {
-    if (maxLength < 0) {
+    if(maxLength < 0) {
       maxLength = surveyLength;
     }
     return maxLength > 0 ? maxLength : null;
@@ -277,7 +277,7 @@ export class Helpers {
     return [value, maxLength].join("/");
   }
   public static getNumberByIndex(index: number, startIndexStr: string, parentIndex?: number): string {
-    if (index < 0) return "";
+    if(index < 0) return "";
     var startIndex = 1;
     var prefix = "";
     var postfix = ".";
@@ -286,12 +286,12 @@ export class Helpers {
     var str = "";
     const hasDigitFunc = (str: string): boolean => {
       if(!str) return false;
-      for (var i = 0; i < str.length; i++) {
-        if (Helpers.isCharDigit(str[i])) return true;
+      for(var i = 0; i < str.length; i++) {
+        if(Helpers.isCharDigit(str[i])) return true;
       }
       return false;
     };
-    if (!!startIndexStr) {
+    if(!!startIndexStr) {
       str = startIndexStr;
       var ind = str.length - 1;
       var hasDigit = hasDigitFunc(str);
@@ -301,30 +301,30 @@ export class Helpers {
           Helpers.isCharNotLetterAndDigit(str[ind])
         );
       };
-      while (ind >= 0 && checkLetter()) ind--;
+      while(ind >= 0 && checkLetter()) ind--;
       var newPostfix = "";
-      if (ind < str.length - 1) {
+      if(ind < str.length - 1) {
         newPostfix = str.substring(ind + 1);
         str = str.substring(0, ind + 1);
       }
       ind = str.length - 1;
-      while (ind >= 0) {
-        if (checkLetter()) break;
+      while(ind >= 0) {
+        if(checkLetter()) break;
         ind--;
-        if (!hasDigit) break;
+        if(!hasDigit) break;
       }
       strIndex = str.substring(ind + 1);
       prefix = str.substring(0, ind + 1);
-      if (parseInt(strIndex)) startIndex = parseInt(strIndex);
-      else if (strIndex.length == 1) isNumeric = false;
-      if (!!newPostfix || !!prefix) {
+      if(parseInt(strIndex)) startIndex = parseInt(strIndex);
+      else if(strIndex.length == 1) isNumeric = false;
+      if(!!newPostfix || !!prefix) {
         postfix = newPostfix;
       }
     }
     if(parentIndex > -1 && hasDigitFunc(prefix)) {
       prefix = this.getNumberByIndex(parentIndex, prefix);
     }
-    if (isNumeric) {
+    if(isNumeric) {
       let val = (index + startIndex).toString();
       while(val.length < strIndex.length) val = "0" + val;
       return prefix + val + postfix;
@@ -357,7 +357,7 @@ export class Helpers {
     return this.getNumber(nStr);
   }
   private static countDecimals(value: number): number {
-    if (Helpers.isNumber(value) && Math.floor(value) !== value) {
+    if(Helpers.isNumber(value) && Math.floor(value) !== value) {
       const strs = value.toString().split(".");
       return strs.length > 1 && strs[1].length || 0;
     }
@@ -373,7 +373,7 @@ export class Helpers {
     return res;
   }
   public static sumAnyValues(a: any, b: any): any {
-    if (!Helpers.isNumber(a) || !Helpers.isNumber(b)) {
+    if(!Helpers.isNumber(a) || !Helpers.isNumber(b)) {
       if(Array.isArray(a) && Array.isArray(b))
         return [].concat(a).concat(b);
       if(Array.isArray(a) || Array.isArray(b)) {
@@ -451,7 +451,7 @@ export class Helpers {
     return this.convertDateToString(date) + " " + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
   }
   public static convertValToQuestionVal(val: any, inputType?: string): any {
-    if (val instanceof Date) {
+    if(val instanceof Date) {
       if(inputType === "datetime-local") return Helpers.convertDateTimeToString(val);
       return Helpers.convertDateToString(val);
     }
@@ -477,17 +477,17 @@ export class Helpers {
     return len1 === len2 ? 0 : (len1 < len2 ? -1 : 1);
   }
   public static isUrlYoutubeVideo(url: string): boolean {
-    if (!url) return false;
+    if(!url) return false;
     const youtubeDomains = ["www.youtube.com", "m.youtube.com", "youtube.com", "youtu.be"];
     url = url.toLowerCase();
     url = url.replace(/^https?:\/\//, "");
-    for (let i = 0; i < youtubeDomains.length; i++) {
-      if (url.indexOf(youtubeDomains[i] + "/") === 0) return true;
+    for(let i = 0; i < youtubeDomains.length; i++) {
+      if(url.indexOf(youtubeDomains[i] + "/") === 0) return true;
     }
     return false;
   }
 }
-if (!(<any>String.prototype)["format"]) {
+if(!(<any>String.prototype)["format"]) {
   (<any>String.prototype)["format"] = function() {
     var args = arguments;
     return this.replace(/{(\d+)}/g, function(match: any, number: any) {

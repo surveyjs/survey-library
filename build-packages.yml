@@ -346,10 +346,10 @@ jobs:
           npm run test
         displayName: "run markup tests"
 
-      # - script: |
-      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-      #     npm run e2e:ci
-      #   displayName: "run e2e tests"
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui

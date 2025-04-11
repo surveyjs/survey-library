@@ -732,7 +732,7 @@ export class SurveyModel extends SurveyElementCore
   public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
   /**
-   * An event that is raised for every matrix cell after it is rendered to the DOM.
+   * An event that is raised after a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is rendered to the DOM.
    * @see onMatrixCellCreated
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
@@ -914,6 +914,13 @@ export class SurveyModel extends SurveyElementCore
 
   public onElementWrapperComponentName: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   public onElementWrapperComponentData: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  /**
+   * An event that is raised when users add a custom choice option to a [Single-](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) or [Multi-Select Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model) question. Handle this event to save the choice option in a data storage.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * To let users add their own choice options, enable the [`allowCustomChoices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices) property for individual dropdown questions.
+   */
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
 

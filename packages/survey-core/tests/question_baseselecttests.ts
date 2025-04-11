@@ -13,6 +13,7 @@ import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
 import { ItemValue } from "../src/itemvalue";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("baseselect");
 
@@ -456,6 +457,45 @@ QUnit.test("check focus comment of other select", (assert) => {
   q.value = ["item1", "other"];
   assert.equal(counter, 2);
 });
+QUnit.test("Do not focus element on setting defaultValue & on setting value to survey.data, Bug#9700", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+
+  let survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": ["Item 2", "Some other value"],
+        "choices": ["Item 1", "Item 2", "Item 3"],
+        "showOtherItem": true
+      }
+    ]
+  });
+  assert.equal(counter, 0, "Do not focus element on setting defaultValue");
+  survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["Item 1", "Item 2", "Item 3"],
+        "showOtherItem": true
+      }
+    ]
+  });
+  survey.data = { q1: ["Item 1", "other"] };
+  assert.equal(counter, 0, "Do not focus element on setting survey.data");
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.value = ["Item 1"];
+  question.value = ["Item 1", "other"];
+  assert.equal(counter, 1, "Focus on setting the question value");
+  SurveyElement.FocusElement = oldFunc;
+});
+
 QUnit.test("check separateSpecialChoices property visibility", (assert) => {
   assert.notOk(Serializer.findProperty("selectbase", "separateSpecialChoices").visible);
   assert.ok(Serializer.findProperty("checkbox", "separateSpecialChoices").visible);

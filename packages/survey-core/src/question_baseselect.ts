@@ -819,6 +819,12 @@ export class QuestionSelectBase extends Question {
     this.updateVisibleChoices();
   }
   public clearIncorrectValuesCallback: () => void;
+  /**
+   * An array of choice items that were added by a user. Applies only if the [`allowCustomChoices`](#allowCustomChoices) is set to `true` for this question.
+   *
+   * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
+   */
   public get customChoices(): Array<any> {
     return this.getPropertyValue("customChoices");
   }
@@ -2105,7 +2111,7 @@ export class QuestionSelectBase extends Question {
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {
     super.onValueChanged();
-    if(!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+    if(!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected && !this.isSettingDefaultValue) {
       this.focusOtherComment();
     }
     this.prevIsOtherSelected = this.isOtherSelected;

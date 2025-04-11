@@ -1,7 +1,7 @@
-import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionBoolean, QuestionRadiogroup } from "../questionHelper";
+import { frameworks, url_test, initSurvey } from "../e2e/helper";
+import { QuestionBoolean, QuestionRadiogroup } from "../e2e/questionHelper";
 import { test, expect } from "@playwright/test";
-import { Survey } from "../surveyHelper";
+import { Survey } from "../e2e/surveyHelper";
 
 const themeName = "default";
 const title = "Boolean Screenshot";

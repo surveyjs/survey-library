@@ -152,6 +152,7 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
 
   //#region Event declarations
+  public onEndLoadingFromJson: EventBase<SurveyModel, Object> = this.addEvent<SurveyModel, Object>();
   /**
    * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
    *
@@ -731,7 +732,7 @@ export class SurveyModel extends SurveyElementCore
   public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
   /**
-   * An event that is raised for every matrix cell after it is rendered to the DOM.
+   * An event that is raised after a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is rendered to the DOM.
    * @see onMatrixCellCreated
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
@@ -913,6 +914,13 @@ export class SurveyModel extends SurveyElementCore
 
   public onElementWrapperComponentName: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   public onElementWrapperComponentData: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  /**
+   * An event that is raised when users add a custom choice option to a [Single-](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) or [Multi-Select Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model) question. Handle this event to save the choice option in a data storage.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * To let users add their own choice options, enable the [`allowCustomChoices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices) property for individual dropdown questions.
+   */
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
 
@@ -6583,6 +6591,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
     this.updateCurrentPage();
     this.setCalculatedWidthModeUpdater();
+    this.onEndLoadingFromJson.fire(this, {});
   }
 
   private updateNavigationCss() {
@@ -7148,14 +7157,13 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
-    this.updateVisibleIndexes(panel.page);
-    if(!newValue) {
-      this.changeCurrentSingleElementOnVisibilityChanged();
+    if(!!panel.page) {
+      this.updateVisibleIndexes(panel.page);
+      if(!newValue) {
+        this.changeCurrentSingleElementOnVisibilityChanged();
+      }
     }
-    this.onPanelVisibleChanged.fire(this, {
-      panel: panel,
-      visible: newValue,
-    });
+    this.onPanelVisibleChanged.fire(this, { panel: panel, visible: newValue });
   }
   questionCreated(question: Question): any {
     this.onQuestionCreated.fire(this, { question: question });
@@ -8190,7 +8198,7 @@ export class SurveyModel extends SurveyElementCore
           const advHeader = layoutElement && layoutElement.data as Cover;
           if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
             if (container === "center") {
-          containerLayoutElements.push(layoutElement);
+              containerLayoutElements.push(layoutElement);
             }
           } else {
             if (layoutElement.container === container) {

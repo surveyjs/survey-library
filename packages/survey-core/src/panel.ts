@@ -2286,7 +2286,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.showQuestionNumbers !== "off" && !this.isQuestionIndexOnPanel;
   }
   private notifySurveyOnVisibilityChanged() {
-    if (this.survey != null && !this.isLoadingFromJson && !!this.page) {
+    if (this.survey != null && !this.isLoadingFromJson) {
       this.survey.panelVisibilityChanged(this, this.isVisible);
     }
   }
@@ -2445,6 +2445,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   /**
    * Expands the panel.
    * @param focusFirstQuestion Specifies whether to focus the first question within the expanded panel. Default value: `true`.
+   * @hidefor PageModel
    * @see state
    * @see toggleState
    * @see collapse

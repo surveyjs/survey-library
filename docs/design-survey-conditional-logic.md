@@ -480,13 +480,13 @@ Adds or subtracts a specified number of full days (default), months, or years to
 
 #### `dateDiff`
 
-*Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "months" | "years"): number`
+*Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "hours" | "minutes" | "months" | "years"): number`
 
-Returns a difference between two given dates in full days (default), months, or years.
+Returns a difference between two given dates in full days (default), hours, minutes, months, or years.
 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/1b94692b94bd219a5620e9da647ce0953bf2fba4/src/functionsfactory.ts#L263-L267 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/fc9516e1f243b62be846d5490965e87e1c626ad6/packages/survey-core/src/functionsfactory.ts#L245-L256 (linkStyle))
 
 ---
 

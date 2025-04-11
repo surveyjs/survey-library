@@ -222,7 +222,7 @@ export class Question extends SurveyElement<Question>
     const options: ITextArea = {
       question: this,
       id: () => this.commentId,
-      propertyName: "comment",
+      propertyNames: ["comment"],
       className: () => this.cssClasses.comment,
       placeholder: () => this.renderedCommentPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -1459,35 +1459,7 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
-  /**
-   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
-   *
-   * @see otherText
-   * @see otherItem
-   * @see otherErrorText
-   * @see showCommentArea
-   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
-   */
-  public get showOtherItem(): boolean {
-    return this.getPropertyValue("showOtherItem", false);
-  }
-  public set showOtherItem(val: boolean) {
-    if (!this.supportOther() || this.showOtherItem == val) return;
-    this.setPropertyValue("showOtherItem", val);
-    this.hasOtherChanged();
-  }
-
-  public get hasOther(): boolean {
-    return this.showOtherItem;
-  }
-  public set hasOther(val: boolean) {
-    this.showOtherItem = val;
-  }
-
-  protected hasOtherChanged(): void { }
-  public get requireUpdateCommentValue(): boolean {
-    return this.hasComment || this.hasOther;
-  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;

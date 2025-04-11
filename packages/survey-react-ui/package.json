@@ -1,6 +1,6 @@
 {
     "name": "survey-react-ui",
-    "version": "2.0.0",
+    "version": "2.0.4",
     "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
     "keywords": [
         "Survey",
@@ -33,6 +33,8 @@
         "accessibility-tests:ci": "cross-env env=react playwright test --project a11y --reporter dot --quiet",
         "e2e": "cross-env env=react playwright test --project e2e --ui",
         "e2e:ci": "cross-env env=react playwright test --project e2e",
+        "scr": "cross-env env=react playwright test --project vrt --ui",
+        "scr:ci": "cross-env env=react playwright test --project vrt",
         "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
     },
     "typings": "./typings/src/entries/react-ui.d.ts",

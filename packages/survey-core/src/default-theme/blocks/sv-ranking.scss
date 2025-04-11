@@ -86,7 +86,6 @@
 }
 
 .sv-ranking-item__index.sv-ranking-item__index {
-  @include useEditorFontSize;
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -116,7 +115,6 @@
 }
 
 .sv-ranking-item__text {
-  @include useEditorFontSize;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;

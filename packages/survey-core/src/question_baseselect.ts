@@ -120,7 +120,7 @@ export class QuestionSelectBase extends Question {
     const options: ITextArea = {
       question: this,
       id: () => this.otherId,
-      propertyName: "otherValue",
+      propertyNames: ["otherValue", "comment"],
       className: () => this.cssClasses.other,
       placeholder: () => this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -820,6 +820,12 @@ export class QuestionSelectBase extends Question {
     this.updateVisibleChoices();
   }
   public clearIncorrectValuesCallback: () => void;
+  /**
+   * An array of choice items that were added by a user. Applies only if the [`allowCustomChoices`](#allowCustomChoices) is set to `true` for this question.
+   *
+   * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
+   */
   public get customChoices(): Array<any> {
     return this.getPropertyValue("customChoices");
   }
@@ -963,9 +969,6 @@ export class QuestionSelectBase extends Question {
   }
   public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);
-  }
-  protected hasOtherChanged() {
-    this.onVisibleChoicesChanged();
   }
   /**
    * Specifies the sort order of choice items.
@@ -1395,6 +1398,31 @@ export class QuestionSelectBase extends Question {
   protected getChoices(): Array<ItemValue> {
     return this.choices;
   }
+  /**
+   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
+   *
+   * @see otherText
+   * @see otherItem
+   * @see otherErrorText
+   * @see showCommentArea
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+   */
+  public get showOtherItem(): boolean {
+    return this.getPropertyValue("showOtherItem", false);
+  }
+  public set showOtherItem(val: boolean) {
+    if (!this.supportOther() || this.showOtherItem == val) return;
+    this.setPropertyValue("showOtherItem", val);
+    this.onVisibleChoicesChanged();
+  }
+
+  public get hasOther(): boolean {
+    return this.showOtherItem;
+  }
+  public set hasOther(val: boolean) {
+    this.showOtherItem = val;
+  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment || this.showOtherItem; }
   public supportOther(): boolean {
     return this.isSupportProperty("showOtherItem");
   }
@@ -2086,7 +2114,7 @@ export class QuestionSelectBase extends Question {
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {
     super.onValueChanged();
-    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected && !this.isSettingDefaultValue) {
       this.focusOtherComment();
     }
     this.prevIsOtherSelected = this.isOtherSelected;

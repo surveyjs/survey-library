@@ -206,6 +206,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() searchMode: "contains" | "startsWith";
 
+  /**
+   * Specifies whether users can add their own choices if the desired option isn't available in the dropdown.
+   *
+   * Default value: `false`
+   *
+   * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
       if (!!target.dropdownListModelValue) {

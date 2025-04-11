@@ -366,7 +366,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * - `"default"` (default) - The survey element is displayed in full and cannot be collapsed in the UI.
    * - `"expanded"` - The survey element is displayed in full and can be collapsed in the UI.
    * - `"collapsed"` - The survey element displays only `title` and `description` and can be expanded in the UI.
-   *
+   * @hidefor PageModel
    * @see toggleState
    * @see collapse
    * @see expand
@@ -387,6 +387,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * Returns `true` if the survey element is collapsed.
+   * @hidefor PageModel
    * @see state
    * @see toggleState
    * @see collapse
@@ -398,6 +399,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * Returns `true` if the survey element is expanded.
+   * @hidefor PageModel
    * @see state
    * @see toggleState
    * @see collapse
@@ -411,6 +413,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Collapses the survey element.
    *
    * In collapsed state, the element displays only `title` and `description`.
+   * @hidefor PageModel
    * @see title
    * @see description
    * @see state
@@ -436,6 +439,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   /**
    * Toggles the survey element's `state` between collapsed and expanded.
+   * @hidefor PageModel
    * @see state
    * @see collapse
    * @see expand

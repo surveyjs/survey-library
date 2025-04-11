@@ -7629,6 +7629,66 @@ QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
   panel.maxPanelCount = 2;
   assert.equal(btnAdd.isVisible, true, "#4");
 });
+QUnit.test("maxRowCount & footer buttons in detail matrix panel, Bug#9714", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ],
+            "maxPanelCount": 2
+          }
+        ],
+        "detailPanelMode": "underRowSingle",
+        "cellType": "text",
+        "rowCount": 2
+      }
+    ]
+  });
+  survey.pages[0].onFirstRendering();
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  let panel = row.getQuestionByName("panel");
+  const getAddBtn = () => {
+    return panel.footerToolbar.getActionById("sv-pd-add-btn");
+  };
+  assert.equal(getAddBtn().isVisible, true, "addBtn #1");
+  panel.value = [{ q1: "abc" }];
+  assert.equal(getAddBtn().isVisible, true, "#addBtn 2");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #2");
+  panel.value = [{ q1: "abc" }, { q1: "def" }];
+  assert.equal(panel.panelCount, 2, "panelCount #3");
+  assert.equal(panel.maxPanelCount, 2, "maxPanelCount #3");
+  assert.equal(panel.canAddPanel, false, "canAddPanel #3");
+  assert.equal(getAddBtn().isVisible, false, "addBtn #3");
+  panel.removePanel(0);
+  assert.equal(getAddBtn().isVisible, true, "addBtn #4");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #4");
+  row = matrix.visibleRows[1];
+  row.showDetailPanel();
+  panel = row.getQuestionByName("panel");
+  panel.addPanel();
+  assert.equal(getAddBtn().isVisible, true, "addBtn #5");
+  panel.addPanel();
+  assert.equal(getAddBtn().isVisible, false, "addBtn #6");
+  panel.removePanel(0);
+  assert.equal(getAddBtn().isVisible, true, "addBtn #7");
+});
 QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic panel, Bug#8892", function (assert) {
   const survey = new SurveyModel({
     "elements": [

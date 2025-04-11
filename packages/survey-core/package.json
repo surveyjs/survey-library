@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "2.0.0",
+  "version": "2.0.4",
   "scripts": {
     "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && rollup -c",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod && rollup -c rollup.i18n.config.js",
@@ -60,7 +60,7 @@
     "ts-node": "3.3.0",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "^5.7.0",
-    "webpack": "^5.93.0",
+    "webpack": "5.98.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4",
     "webpack-fix-style-only-entries": "^0.6.1",

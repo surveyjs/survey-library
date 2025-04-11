@@ -27,7 +27,7 @@ trigger:
       - v*.*.*
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: "Ubuntu-22.04"
 
 jobs:
   - job: NPMCache
@@ -369,7 +369,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-react-ui/test-results/"
           Contents: "**"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
           OverWrite: true
@@ -383,6 +383,17 @@ jobs:
           publishLocation: "Container"
         condition: always()
         displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-react-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React End-To-End Tests"
+        condition: succeededOrFailed()
 
   - job: Angular
     dependsOn:
@@ -528,7 +539,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/survey-library/e2e"
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/test-results/"
           Contents: "**"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E"
           OverWrite: true
@@ -542,6 +553,17 @@ jobs:
           publishLocation: "Container"
         condition: always()
         displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Angular End-To-End Tests"
+        condition: succeededOrFailed()
 
   - job: Vue3
     dependsOn:
@@ -701,6 +723,17 @@ jobs:
           publishLocation: "Container"
         condition: always()
         displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 End-To-End Tests"
+        condition: succeededOrFailed()
 
   - job: SurveyUI_and_CSSFrameworks
     dependsOn:

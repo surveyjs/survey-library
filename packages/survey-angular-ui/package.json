@@ -1,6 +1,6 @@
 {
   "name": "survey-angular-ui",
-  "version": "2.0.2",
+  "version": "2.0.4",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -75,6 +75,8 @@
     "accessibility-tests:ci": "cross-env env=angular playwright test --project a11y --reporter dot --quiet",
     "e2e": "cross-env env=angular playwright test --project e2e --ui",
     "e2e:ci": "cross-env env=angular playwright test --project e2e",
+    "scr": "cross-env env=angular playwright test --project vrt --ui",
+    "scr:ci": "cross-env env=angular playwright test --project vrt",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "commit-and-tag-version": {

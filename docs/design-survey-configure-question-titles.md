@@ -12,12 +12,38 @@ You can specify the [`title`](https://surveyjs.io/Documentation/Library?id=Quest
 
 ## Question Numbers
 
-Questions are not numbered by default. If you want to show question numbers, set the [`showQuestionNumbers`](https://surveyjs.io/Documentation/Library/?id=surveymodel#showQuestionNumbers) to `true`:
+Surveys support the following numbering modes:
+
+- Sequential numbering      
+Survey elements are numbered in order, regardless of whether they are nested in panels or not.
+
+- Recursive numbering       
+Survey elements are numbered in a manner that takes into account their nesting level (for example, 1 → 1.1 → 1.1.1).
+
+- Sequential numbering with a reset on each page      
+Survey elements are numbered in order, but the numbering starts anew on each page.
+
+By default, questions are not numbered. To enable one of the numbering modes, set `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property to `true` (sequential numbering), `"recursive"`, or `"onpage"`. 
 
 ```js
 const surveyJson = {
   // ...
-  "showQuestionNumbers": true
+  "showQuestionNumbers": true // or "recursive" | "onpage"
+}
+```
+
+Questions within panels can participate in survey-level numbering or have an individual numbering sequence. Use `PanelModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showQuestionNumbers) property to specify the desired numbering mode: `"default"` to continue survey-level numbering, `"recursive"` to number nested questions recursively, `"onpanel"` to start numbering within the panel from scratch, or `"off"` to hide numbers for nested questions. For example, the following code enables sequential numbering across the survey but resets numbering for questions within the panel.
+
+```js
+const surveyJson = {
+  // ...
+  "showQuestionNumbers": true,
+  "elements": [{
+    "type": "panel",
+    // ...
+    "elements": [ /* ... */ ],
+    "showQuestionNumbers": "onpanel"
+  }]
 }
 ```
 
@@ -29,15 +55,6 @@ const surveyJson = {
   "questionStartIndex": "a.", // a., b., c., ...
   "questionStartIndex": "#3", // #3, #4, #5, ...
   "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
-}
-```
-
-Surveys use continuous numbering across all pages. If you want to start numbering on each page from scratch, set the `showQuestionNumbers` property to `"onpage"`:
-
-```js
-const surveyJson = {
-  // ...
-  "showQuestionNumbers": "onpage"
 }
 ```
 

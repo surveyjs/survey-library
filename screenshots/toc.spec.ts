@@ -1,5 +1,5 @@
-import { frameworks, url_test, initSurvey } from "../helper";
-import { QuestionBoolean, QuestionRadiogroup } from "../questionHelper";
+import { frameworks, url_test, initSurvey } from "../e2e/helper";
+import { QuestionBoolean, QuestionRadiogroup } from "../e2e/questionHelper";
 import { test, expect } from "@playwright/test";
 
 const themeName = "default";

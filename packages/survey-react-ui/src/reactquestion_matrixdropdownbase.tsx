@@ -255,11 +255,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return this.renderTableDiv();
   }
   renderTableDiv(): React.JSX.Element {
-    var divStyle = this.question.showHorizontalScroll
-      ? ({ overflowX: "scroll" } as React.CSSProperties)
-      : ({} as React.CSSProperties);
     return (
-      <div style={divStyle} className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
+      <div className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
         <SurveyQuestionMatrixTable question={this.question} creator={this.creator} wrapCell={(cell, element, reason) => this.wrapCell(cell, element, reason)}></SurveyQuestionMatrixTable>
       </div>
     );

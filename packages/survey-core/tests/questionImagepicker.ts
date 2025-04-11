@@ -404,7 +404,6 @@ QUnit.test("supports survey width scale", function (assert) {
   survey.css = defaultCss;
   const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
 
-  assert.ok(question.isDefaultV2Theme);
   assert.ok(question["isResponsiveValue"]);
   assert.ok(question["isResponsive"]);
 

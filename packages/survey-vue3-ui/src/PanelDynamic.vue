@@ -20,11 +20,7 @@
     </div>
     <div
       :class="question.cssClasses.progress"
-      v-if="
-        !getShowLegacyNavigation() &&
-        question.isProgressTopShowing &&
-        question.isRangeShowing
-      "
+      v-if="question.isProgressTopShowing && question.isRangeShowing"
     >
       <div
         :class="question.cssClasses.progressBar"
@@ -32,11 +28,6 @@
         role="progressbar"
       ></div>
     </div>
-    <SvComponent
-      :is="'survey-paneldynamicprogress'"
-      v-if="getShowLegacyNavigation() && question.isProgressTopShowing"
-      :question="question"
-    />
     <div :class="question.cssClasses.panelsContainer">
       <template
         v-for="(panel, index) in question.renderedPanels"
@@ -62,16 +53,6 @@
         />
       </template>
     </div>
-    <SvComponent
-      :is="'survey-paneldynamicprogress'"
-      v-if="getShowLegacyNavigation() && question.isProgressBottomShowing"
-      :question="question"
-    />
-    <SvComponent
-      :is="'sv-paneldynamic-add-btn'"
-      v-if="getShowLegacyNavigation() && question.isRenderModeList"
-      :data="{ question }"
-    />
     <SvComponent
       :is="'survey-paneldynamicprogress-v2'"
       v-if="question.showNavigation"
@@ -114,10 +95,6 @@ useQuestion(
     value.renderModeChangedCallback = undefined as any;
   }
 );
-
-const getShowLegacyNavigation = () => {
-  return props.question["showLegacyNavigation"];
-};
 
 const getPanelComponentName = (panel: PanelModel): string => {
   const survey = props.question.getSurvey() as SurveyModel;

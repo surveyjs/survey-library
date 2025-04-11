@@ -3864,51 +3864,6 @@ function percentageToNum(width: string): Number {
   width = width.replace("%", "");
   return parseFloat(width);
 }
-QUnit.test("Several questions in one row", function (assert) {
-  var page = new PageModel();
-  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  assert.equal(page.rows.length, 10, "10 rows for each question");
-
-  page = new PageModel();
-  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  page.questions[0].startWithNewLine = false;
-  assert.equal(page.rows.length, 10, "still 10 rows for each question");
-  assert.equal(
-    percentageToNum(page.rows[0].elements[0].renderWidth),
-    100,
-    "the render width is 100%"
-  );
-
-  page = new PageModel();
-  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  for (var i = 0; i < 10; i++) {
-    page.questions[i].startWithNewLine = i % 2 == 0;
-  }
-  assert.equal(
-    page.rows.length,
-    5,
-    "every second has startWithNewLine equals false, there 5 rows now"
-  );
-  for (var i = 0; i < 5; i++) {
-    assert.equal(
-      page.rows[i].elements.length,
-      2,
-      "two questions for every row"
-    );
-    assert.equal(
-      percentageToNum(page.rows[i].elements[0].renderWidth),
-      50,
-      "the render width is 50%"
-    );
-    assert.equal(page.rows[i].elements[0].rightIndent, 1, "the indent is 1");
-    assert.equal(
-      percentageToNum(page.rows[i].elements[1].renderWidth),
-      50,
-      "the render width is 50%"
-    );
-    assert.equal(page.rows[i].elements[1].rightIndent, 0, "the indent is 0");
-  }
-});
 
 QUnit.test("Several questions in one row - defaultV2", function (assert) {
   let survey = new SurveyModel({});

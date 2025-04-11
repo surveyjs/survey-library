@@ -58,11 +58,6 @@
         </span>
         <div :class="question.cssClasses.wrapper">
           <SvComponent
-            :is="'sv-file-choose-btn'"
-            v-if="question.showChooseButton"
-            :data="{ question: question }"
-          ></SvComponent>
-          <SvComponent
             :is="'sv-action-bar'"
             v-if="question.actionsContainerVisible"
             :model="question.actionsContainer"
@@ -74,12 +69,6 @@
           >
         </div>
       </div>
-      <SvComponent
-        :is="'sv-file-clean-btn'"
-        v-if="question.showRemoveButton"
-        :question="question"
-        :css="question.showRemoveButton"
-      ></SvComponent>
       <div
         :class="question.cssClasses.loadingIndicator"
         v-if="question.showLoadingIndicator"
@@ -94,12 +83,6 @@
       <template v-if="question.allowShowPreview">
         <SvComponent :is="'sv-file-preview'" :question="question" />
       </template>
-      <SvComponent
-        :is="'sv-file-clean-btn'"
-        v-if="question.showRemoveButtonBottom"
-        :question="question"
-        :css="question.showRemoveButtonBottom"
-      ></SvComponent>
       <SvComponent
         :is="'sv-action-bar'"
         v-if="question.fileNavigatorVisible"

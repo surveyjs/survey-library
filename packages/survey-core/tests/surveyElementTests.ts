@@ -167,24 +167,8 @@ QUnit.test("Check errors location", function (assert) {
     }
     ]
   });
-  setOldTheme(survey);
   const q1 = survey.getQuestionByName("q1");
   const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
-  assert.notOk(q1.showErrorsAboveQuestion);
-  assert.notOk(q1.showErrorOnBottom);
-  assert.ok(q1.showErrorOnTop);
-
-  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
-  assert.notOk(questionInMatrix.showErrorOnBottom);
-  assert.ok(questionInMatrix.showErrorOnTop);
-
-  survey.questionErrorLocation = "bottom";
-  assert.notOk(q1.showErrorOnTop);
-  assert.ok(q1.showErrorOnBottom);
-
-  assert.notOk(questionInMatrix.showErrorOnTop);
-  assert.ok(questionInMatrix.showErrorOnBottom);
-
   survey.css = defaultCss;
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
@@ -210,19 +194,7 @@ QUnit.test("Check error location for questions in panel", function (assert) {
       }
     ]
   });
-  setOldTheme(survey);
   const q1 = survey.getQuestionByName("q1");
-  assert.notOk(q1.showErrorOnBottom);
-  assert.notOk(q1.showErrorsBelowQuestion);
-  assert.notOk(q1.showErrorsAboveQuestion);
-  assert.ok(q1.showErrorOnTop);
-
-  survey.questionErrorLocation = "bottom";
-  assert.notOk(q1.showErrorOnTop);
-  assert.notOk(q1.showErrorsBelowQuestion);
-  assert.notOk(q1.showErrorsAboveQuestion);
-  assert.ok(q1.showErrorOnBottom);
-
   survey.css = defaultCss;
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnBottom);

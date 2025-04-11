@@ -12,6 +12,8 @@ export type ISurveyEnvironment = {
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }
+export interface IBeforeRequestChoicesOptions { request?: XMLHttpRequest, url: string, fetchOptions?: RequestInit }
+
 const document = typeof globalThis !== "undefined" ? globalThis.document : (this as any).document;
 const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
@@ -131,7 +133,7 @@ export var settings = {
    *     ```
    */
   web: {
-    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => { },
+    onBeforeRequestChoices: (sender: any, options: IBeforeRequestChoicesOptions): void => { },
     encodeUrlParams: true,
     cacheLoadedChoices: true,
     disableQuestionWhileLoadingChoices: false

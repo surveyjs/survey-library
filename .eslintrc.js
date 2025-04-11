@@ -53,7 +53,6 @@ module.exports = {
     "computed-property-spacing": "error",
     "no-whitespace-before-property": "error",
     "no-extra-semi": ["error"],
-    "linebreak-style": ["error", "windows"],
     "no-useless-escape": "off",
     "no-case-declarations": "off",
     "no-constant-condition": "off",

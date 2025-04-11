@@ -27,7 +27,7 @@ frameworks.forEach((framework) => {
 
     await enableLR();
     await t.expect(Selector("#surveyElement").exists).ok();
-    for(var i = 0; i < 50; i++) {
+    for (var i = 0; i < 50; i++) {
       json.elements.push({
         type: "radiogroup",
         name: "q" + (i + 1),

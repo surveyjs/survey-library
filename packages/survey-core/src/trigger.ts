@@ -16,7 +16,7 @@ export class Trigger extends Base {
   static idCounter: number = 1;
   static operatorsValue: HashTable<Function> = null;
   static get operators() {
-    if(Trigger.operatorsValue != null) return Trigger.operatorsValue;
+    if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
     Trigger.operatorsValue = {
       empty: function(value: any, expectedValue: any) {
         return !value;
@@ -69,7 +69,7 @@ export class Trigger extends Base {
   public toString(): string {
     var res = this.getType().replace("trigger", "");
     var exp = !!this.expression ? this.expression : this.buildExpression();
-    if(exp) {
+    if (exp) {
       res += ", " + exp;
     }
     return res;
@@ -82,9 +82,9 @@ export class Trigger extends Base {
     return this.getPropertyValue("operator", "equal");
   }
   public set operator(value: string) {
-    if(!value) return;
+    if (!value) return;
     value = value.toLowerCase();
-    if(!Trigger.operators[value]) return;
+    if (!Trigger.operators[value]) return;
     this.setPropertyValue("operator", value);
   }
   public get value(): any {
@@ -118,13 +118,13 @@ export class Trigger extends Base {
     keys: any, values: HashTable<any>, properties?: HashTable<any>, }): void {
     this.isExecutingOnNextPage = options.isOnNextPage;
     this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
-    if(!this.canBeExecuted(options.isOnNextPage)) return;
-    if(options.isOnComplete && !this.canBeExecutedOnComplete()) return;
-    if(!this.isCheckRequired(options.keys)) return;
-    if(!!this.conditionRunner) {
+    if (!this.canBeExecuted(options.isOnNextPage)) return;
+    if (options.isOnComplete && !this.canBeExecutedOnComplete()) return;
+    if (!this.isCheckRequired(options.keys)) return;
+    if (!!this.conditionRunner) {
       this.perform(options.values, options.properties || null);
     } else {
-      if(this.canSuccessOnEmptyExpression()) {
+      if (this.canSuccessOnEmptyExpression()) {
         this.triggerResult(true, options.values, options.properties || null);
       }
     }
@@ -132,7 +132,7 @@ export class Trigger extends Base {
   protected canSuccessOnEmptyExpression(): boolean { return false; }
   public check(value: any): void {
     var triggerResult = Trigger.operators[this.operator](value, this.value);
-    if(triggerResult) {
+    if (triggerResult) {
       this.onSuccess({}, null);
     } else {
       this.onFailure();
@@ -150,7 +150,7 @@ export class Trigger extends Base {
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    if(res) {
+    if (res) {
       this.onSuccess(values, properties);
       this.onSuccessExecuted();
     } else {
@@ -171,8 +171,8 @@ export class Trigger extends Base {
     this.conditionRunner = null;
   }
   public buildExpression(): string {
-    if(!this.name) return "";
-    if(this.isValueEmpty(this.value) && this.isRequireValue) return "";
+    if (!this.name) return "";
+    if (this.isValueEmpty(this.value) && this.isRequireValue) return "";
     return (
       "{" +
       this.name +
@@ -183,19 +183,19 @@ export class Trigger extends Base {
     );
   }
   private isCheckRequired(keys: any): boolean {
-    if(!keys) return false;
+    if (!keys) return false;
     this.createConditionRunner();
-    if(this.conditionRunner && this.conditionRunner.hasFunction() === true) return true;
+    if (this.conditionRunner && this.conditionRunner.hasFunction() === true) return true;
     return new ProcessValue().isAnyKeyChanged(keys, this.getUsedVariables());
   }
   protected getUsedVariables(): string[] {
-    if(!this.conditionRunner) return [];
+    if (!this.conditionRunner) return [];
     const res = this.conditionRunner.getVariables();
-    if(Array.isArray(res)) {
+    if (Array.isArray(res)) {
       const unw = "-unwrapped";
-      for(let i = res.length - 1; i >= 0; i--) {
+      for (let i = res.length - 1; i >= 0; i--) {
         const s = res[i];
-        if(s.endsWith(unw)) {
+        if (s.endsWith(unw)) {
           res.push(s.substring(0, s.length - unw.length));
         }
       }
@@ -203,12 +203,12 @@ export class Trigger extends Base {
     return res;
   }
   private createConditionRunner() {
-    if(!!this.conditionRunner) return;
+    if (!!this.conditionRunner) return;
     var expression = this.expression;
-    if(!expression) {
+    if (!expression) {
       expression = this.buildExpression();
     }
-    if(!expression) return;
+    if (!expression) return;
     this.conditionRunner = new ConditionRunner(expression);
   }
   private get isRequireValue(): boolean {
@@ -249,7 +249,7 @@ export class SurveyTrigger extends Trigger {
     return true;
   }
   protected onSuccessExecuted(): void {
-    if(!!this.owner && this.isRealExecution()) {
+    if (!!this.owner && this.isRealExecution()) {
       this.owner.triggerExecuted(this);
     }
   }
@@ -274,9 +274,9 @@ export class SurveyTriggerVisible extends SurveyTrigger {
     this.onTrigger(this.onItemFailure);
   }
   private onTrigger(func: Function) {
-    if(!this.owner) return;
+    if (!this.owner) return;
     var objects = this.owner.getObjects(this.pages, this.questions);
-    for(var i = 0; i < objects.length; i++) {
+    for (var i = 0; i < objects.length; i++) {
       func(objects[i]);
     }
   }
@@ -302,8 +302,8 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNavigation;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
-    if(!this.owner) return;
-    if(this.isRealExecution()) {
+    if (!this.owner) return;
+    if (this.isRealExecution()) {
       this.owner.setCompleted(this);
     } else {
       this.owner.canBeCompleted(this, true);
@@ -328,9 +328,9 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if(name !== "setToName") return;
+    if (name !== "setToName") return;
     var survey = this.getSurvey();
-    if(survey && !survey.isLoadingFromJson && survey.isDesignMode) {
+    if (survey && !survey.isLoadingFromJson && survey.isDesignMode) {
       this.setValue = undefined;
     }
   }
@@ -353,7 +353,7 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
     this.setPropertyValue("isVariable", val);
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
-    if(!this.setToName || !this.owner) return;
+    if (!this.setToName || !this.owner) return;
     this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
   }
 }
@@ -378,7 +378,7 @@ export class SurveyTriggerSkip extends SurveyTrigger {
     return isOnNextPage === !settings.triggers.executeSkipOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
-    if(!this.gotoName || !this.owner) return;
+    if (!this.gotoName || !this.owner) return;
     this.owner.focusQuestion(this.gotoName);
   }
 }
@@ -408,9 +408,9 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
     return !isOnNextPage;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): boolean {
-    if(!this.owner || !this.runExpression) return;
+    if (!this.owner || !this.runExpression) return;
     var expression = new ExpressionRunner(this.runExpression);
-    if(expression.canRun) {
+    if (expression.canRun) {
       expression.onRunComplete = (res) => {
         this.onCompleteRunExpression(res);
       };
@@ -418,7 +418,7 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
     }
   }
   private onCompleteRunExpression(newValue: any) {
-    if(!!this.setToName && newValue !== undefined) {
+    if (!!this.setToName && newValue !== undefined) {
 
       this.owner.setTriggerValue(this.setToName, Helpers.convertValToQuestionVal(newValue), false);
     }
@@ -457,13 +457,13 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
     return "copyvaluetrigger";
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
-    if(!this.setToName || !this.owner) return;
+    if (!this.setToName || !this.owner) return;
     this.owner.copyTriggerValue(this.setToName, this.fromName, this.copyDisplayValue);
   }
   protected canSuccessOnEmptyExpression(): boolean { return true; }
   protected getUsedVariables(): string[] {
     const res = super.getUsedVariables();
-    if(res.length === 0 && !!this.fromName) {
+    if (res.length === 0 && !!this.fromName) {
       res.push(this.fromName);
     }
     return res;

@@ -7,7 +7,7 @@ export const getSurveyJSFramework = ClientFunction(() => {
 
 export const explicitErrorHandler = ClientFunction(() => {
   window.addEventListener("error", e => {
-    if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
+    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
       e.message === "ResizeObserver loop limit exceeded") {
       e.stopImmediatePropagation();
     }
@@ -36,7 +36,7 @@ export async function wrapVisualTest(t: TestController, fn: (t: TestController, 
 
 export async function takeElementScreenshot(screenshotName: string, element: Selector | string | null, t: TestController, comparer: ScreenshotsComparer): Promise<void> {
   await t.wait(1000);
-  if(!!element) {
+  if (!!element) {
     await t.expect(Selector(element).visible).ok("element is invisible for " + screenshotName);
   }
   await comparer.takeScreenshot(screenshotName, element, screenshotComparerOptions);

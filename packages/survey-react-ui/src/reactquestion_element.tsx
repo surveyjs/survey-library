@@ -50,14 +50,14 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private prevStateElements: Array<Base> = [];
   shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if(this._allowComponentUpdate) {
+    if (this._allowComponentUpdate) {
       this.unMakeBaseElementsReact();
       this.prevStateElements = this.getStateElements();
     }
     return this._allowComponentUpdate;
   }
   render(): React.JSX.Element | null {
-    if(!this.canRender()) {
+    if (!this.canRender()) {
       return null;
     }
 
@@ -65,7 +65,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     var res = this.renderElement();
     this.startEndRendering(-1);
 
-    if(!!res) {
+    if (!!res) {
       res = this.wrapElement(res);
     }
 
@@ -77,8 +77,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   protected get isRendering(): boolean {
     var stateEls: Array<any> = this.getRenderedElements();
-    for(let stateEl of stateEls) {
-      if(stateEl.reactRendering > 0) return true;
+    for (let stateEl of stateEls) {
+      if (stateEl.reactRendering > 0) return true;
     }
     return false;
   }
@@ -87,8 +87,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private startEndRendering(val: number) {
     var stateEls: Array<any> = this.getRenderedElements();
-    for(let stateEl of stateEls) {
-      if(!stateEl.reactRendering) stateEl.reactRendering = 0;
+    for (let stateEl of stateEls) {
+      if (!stateEl.reactRendering) stateEl.reactRendering = 0;
       stateEl.reactRendering += val;
     }
   }
@@ -103,7 +103,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   private makeBaseElementsReact() {
     var els = this.getStateElements();
-    for(var i = 0; i < els.length; i++) {
+    for (var i = 0; i < els.length; i++) {
       els[i].enableOnElementRerenderedEvent();
       this.makeBaseElementReact(els[i]);
     }
@@ -113,7 +113,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     this.unMakeBaseElementsReactive(els);
   }
   private unMakeBaseElementsReactive(els: Array<Base>) {
-    for(var i = 0; i < els.length; i++) {
+    for (var i = 0; i < els.length; i++) {
       this.unMakeBaseElementReact(els[i]);
     }
   }
@@ -144,10 +144,10 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return !!stateElement && !!stateElement.iteratePropertiesHash;
   }
   private propertyValueChangedHandler = (hash: any, key: string, val: any) => {
-    if(hash[key] !== val) {
+    if (hash[key] !== val) {
       hash[key] = val;
-      if(!this.canUsePropInState(key)) return;
-      if(this.isRendering) return;
+      if (!this.canUsePropInState(key)) return;
+      if (this.isRendering) return;
       this.changedStatePropNameValue = key;
       this.setState((state: any) => {
         var newState: { [index: string]: any } = {};
@@ -160,14 +160,14 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return !!stateElement && !!stateElement.setPropertyValueCoreHandler && stateElement.setPropertyValueCoreHandler === this.propertyValueChangedHandler;
   }
   private makeBaseElementReact(stateElement: Base) {
-    if(!this.canMakeReact(stateElement)) return;
+    if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
-      if(!this.canUsePropInState(key)) return;
+      if (!this.canUsePropInState(key)) return;
       var val: any = hash[key];
-      if(Array.isArray(val)) {
+      if (Array.isArray(val)) {
         var val: any = val;
         val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-          if(this.isRendering) return;
+          if (this.isRendering) return;
           this.changedStatePropNameValue = key;
           this.setState((state: any) => {
             var newState: { [index: string]: any } = {};
@@ -183,8 +183,8 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return true;
   }
   private unMakeBaseElementReact(stateElement: Base) {
-    if(!this.canMakeReact(stateElement)) return;
-    if(!this.isCurrentStateElement(stateElement)) {
+    if (!this.canMakeReact(stateElement)) return;
+    if (!this.isCurrentStateElement(stateElement)) {
       // eslint-disable-next-line no-console
       // console.warn("Looks like the component is bound to another survey element. It is not supported and can lead to issues.");
       // return;
@@ -192,7 +192,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     stateElement.setPropertyValueCoreHandler = undefined as any;
     stateElement.iteratePropertiesHash((hash, key) => {
       var val: any = hash[key];
-      if(Array.isArray(val)) {
+      if (Array.isArray(val)) {
         var val: any = val;
         val["onArrayChanged"] = () => { };
       }
@@ -225,18 +225,18 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if(!!this.questionBase) {
+    if (!!this.questionBase) {
       const contentElement: HTMLElement = this.content || this.control;
       this.questionBase.beforeDestroyQuestionElement(contentElement);
-      if(!!contentElement) {
+      if (!!contentElement) {
         contentElement.removeAttribute("data-rendered");
       }
     }
   }
   protected updateDomElement() {
     const contentElement = this.content || this.control;
-    if(!!contentElement) {
-      if(contentElement.getAttribute("data-rendered") !== "r") {
+    if (!!contentElement) {
+      if (contentElement.getAttribute("data-rendered") !== "r") {
         contentElement.setAttribute("data-rendered", "r");
         this.questionBase.afterRenderQuestionElement(contentElement);
       }
@@ -255,7 +255,7 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     return !!this.questionBase && !!this.creator;
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
-    if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
 
     return (
       !this.questionBase.customWidget ||
@@ -276,24 +276,24 @@ export class SurveyQuestionElementBase extends SurveyElementBase<any, any> {
     element: React.JSX.Element,
     reason: string
   ): React.JSX.Element {
-    if(!reason) {
+    if (!reason) {
       return element;
     }
     const survey: SurveyModel = this.questionBase
       .survey as SurveyModel;
     let wrapper: React.JSX.Element | null = null;
-    if(survey) {
+    if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, reason);
     }
     return wrapper ?? element;
   }
   public setControl(element: HTMLElement | null): void {
-    if(!!element) {
+    if (!!element) {
       this.control = element;
     }
   }
   public setContent(element: HTMLElement | null): void {
-    if(!!element) {
+    if (!!element) {
       this.content = element;
     }
   }
@@ -310,7 +310,7 @@ export class SurveyQuestionUncontrolledElement<
     return this.questionBase as T;
   }
   updateValueOnEvent = (event: any) => {
-    if(
+    if (
       !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value, false, true, false)
     ) {
       this.setValueCore(event.target.value);
@@ -323,17 +323,17 @@ export class SurveyQuestionUncontrolledElement<
     return this.questionBase.value;
   }
   protected updateDomElement() {
-    if(!!this.control) {
+    if (!!this.control) {
       const control: any = this.control;
       const newValue = this.getValueCore();
-      if(!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.getValue(newValue);
       }
     }
     super.updateDomElement();
   }
   private getValue(val: any): any {
-    if(Helpers.isValueEmpty(val)) return "";
+    if (Helpers.isValueEmpty(val)) return "";
     return val;
   }
 }

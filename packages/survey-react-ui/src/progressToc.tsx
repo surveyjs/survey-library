@@ -15,7 +15,7 @@ export class SurveyProgressToc extends SurveyNavigationBase {
   render(): React.JSX.Element {
     const tocModel = this.props.model;
     let content: React.JSX.Element;
-    if(tocModel.isMobile) {
+    if (tocModel.isMobile) {
       content = <div onClick={tocModel.togglePopup}>
         <SvgIcon iconName={tocModel.icon} size={24} />
         <Popup model={tocModel.popupModel} />

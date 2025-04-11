@@ -17,7 +17,7 @@ export class TagboxComponent implements OnInit {
     }
 
     ngOnInit(): void {
-      if(!this.model.dropdownListModel) {
+      if (!this.model.dropdownListModel) {
         this.model.dropdownListModel = new DropdownMultiSelectListModel(this.model);
       }
     }

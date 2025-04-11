@@ -864,7 +864,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check question min size inside panels in design mode", async (t) => {
-    if(framework == "vue") return;
+    if (framework == "vue") return;
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(370, 800);
       await initSurvey(framework, {

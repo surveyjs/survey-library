@@ -37,10 +37,10 @@ class ChoicesRestfulTester extends ChoicesRestful {
     return this.delaySentRequestValue;
   }
   public set delaySentRequest(val: boolean) {
-    if(this.delaySentRequest == val) return;
+    if (this.delaySentRequest == val) return;
     this.delaySentRequestValue = val;
-    if(!val) {
-      for(var key in this.nonProceedUrls) {
+    if (!val) {
+      for (var key in this.nonProceedUrls) {
         this.callResultCallback(this.nonProceedUrls[key], key);
       }
       this.nonProceedUrls = {};
@@ -48,7 +48,7 @@ class ChoicesRestfulTester extends ChoicesRestful {
   }
   public isRequestRunning: boolean;
   public getIsRunning(): boolean {
-    if(this.isRequestRunning !== undefined) return this.isRequestRunning;
+    if (this.isRequestRunning !== undefined) return this.isRequestRunning;
     return super.getIsRunning();
   }
   public blockSendingRequest: boolean;
@@ -58,25 +58,25 @@ class ChoicesRestfulTester extends ChoicesRestful {
   }
   protected sendRequest() {
     this.beforeSendRequest();
-    if(this.blockSendingRequest === true) return;
+    if (this.blockSendingRequest === true) return;
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
-    if(this.processedUrl.indexOf("empty") > -1)this.onLoad([]);
-    if(this.processedUrl.indexOf("countries") > -1) {
+    if (this.processedUrl.indexOf("empty") > -1)this.onLoad([]);
+    if (this.processedUrl.indexOf("countries") > -1) {
       this.onLoad(getCountries());
     }
-    if(this.processedUrl.indexOf("localizedstrings") > -1) {
+    if (this.processedUrl.indexOf("localizedstrings") > -1) {
       this.onLoad(getLocalized());
     }
-    if(!!this.items) {
+    if (!!this.items) {
       this.onLoad(this.items);
       return;
     }
-    if(this.processedUrl.indexOf("ca_cities") > -1)this.onLoad(getCACities());
-    if(this.processedUrl.indexOf("tx_cities") > -1)this.onLoad(getTXCities());
-    if(this.processedUrl.indexOf("xml") > -1)
+    if (this.processedUrl.indexOf("ca_cities") > -1)this.onLoad(getCACities());
+    if (this.processedUrl.indexOf("tx_cities") > -1)this.onLoad(getTXCities());
+    if (this.processedUrl.indexOf("xml") > -1)
       this.onLoad(this.parseResponse(getXmlResponse()));
-    if(this.processedUrl.indexOf("text") > -1)
+    if (this.processedUrl.indexOf("text") > -1)
       this.onLoad(this.parseResponse(getTextResponse()));
   }
   protected onLoad(result: any, loadingObjHash: string = null) {
@@ -84,14 +84,14 @@ class ChoicesRestfulTester extends ChoicesRestful {
     super.onLoad(result, loadingObjHash);
   }
   protected useChangedItemsResults(): boolean {
-    if(this.noCaching) return false;
+    if (this.noCaching) return false;
     return super.useChangedItemsResults();
   }
   protected callResultCallback(
     items: Array<ItemValue>,
     loadingObjHash: string
   ) {
-    if(this.delaySentRequest) {
+    if (this.delaySentRequest) {
       this.nonProceedUrls[loadingObjHash] = items;
     } else {
       super.callResultCallback(items, loadingObjHash);
@@ -137,20 +137,20 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   public hasItemsCallbackDelay: boolean = false;
   private loadedItems: Array<ItemValue>;
   public doResultsCallback() {
-    if(this.loadedItems) {
+    if (this.loadedItems) {
       this.oldGetResultCallback(this.loadedItems);
     }
     this.loadedItems = null;
   }
   protected newGetResultCallback(items: Array<ItemValue>) {
     this.loadedItems = items;
-    if(!this.hasItemsCallbackDelay) {
+    if (!this.hasItemsCallbackDelay) {
       this.doResultsCallback();
     }
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if(!this.processor)this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -179,20 +179,20 @@ class QuestionCheckboxModelTester extends QuestionCheckboxModel {
   public hasItemsCallbackDelay: boolean = false;
   private loadedItems: Array<ItemValue>;
   public doResultsCallback() {
-    if(this.loadedItems) {
+    if (this.loadedItems) {
       this.oldGetResultCallback(this.loadedItems);
     }
     this.loadedItems = null;
   }
   protected newGetResultCallback(items: Array<ItemValue>) {
     this.loadedItems = items;
-    if(!this.hasItemsCallbackDelay) {
+    if (!this.hasItemsCallbackDelay) {
       this.doResultsCallback();
     }
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if(!this.processor)this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -214,7 +214,7 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
     row: MatrixDropdownRowModelBase,
     column: MatrixDropdownColumn
   ): Question {
-    if(column.cellType == "dropdown") {
+    if (column.cellType == "dropdown") {
       var newQuestion = new QuestionDropdownModelTester(this.name);
       newQuestion.hasItemsCallbackDelay = true;
       var json = column.templateQuestion.toJSON();
@@ -227,7 +227,7 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
 
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if(!this.processor)this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -246,7 +246,7 @@ class QuestionDropdownImageTester extends QuestionDropdownModel {
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if(!this.processor)this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -487,7 +487,7 @@ QUnit.test("encode parameters", function(assert) {
 QUnit.test("Process text in event", function(assert) {
   var survey = new SurveyModel();
   survey.onProcessDynamicText.add(function (sender, options) {
-    if(options.name == "q1") {
+    if (options.name == "q1") {
       options.value = "R&D";
       //options.isExists = true;
     }
@@ -697,9 +697,9 @@ QUnit.test("onLoadItemsFromServer event", function(assert) {
   question.choicesByUrl.url = "{state}";
 
   survey.onChoicesLoaded.add(function (survey, options) {
-    if(options.question.name != "q1") return;
+    if (options.question.name != "q1") return;
     options.question.visible = options.choices.length > 0;
-    if(options.choices.length > 1) {
+    if (options.choices.length > 1) {
       options.choices.shift();
     }
   });
@@ -1054,12 +1054,12 @@ QUnit.test(
     var onStrChangedCounter = 0;
     var onPageStrChangedCounter = 0;
     titleQuestion.locTitle.onChanged = () => {
-      if(titleQuestion.locTitle.renderedHtml == "test:AAA") {
+      if (titleQuestion.locTitle.renderedHtml == "test:AAA") {
         onStrChangedCounter ++;
       }
     };
     page.locTitle.onChanged = () => {
-      if(page.locTitle.renderedHtml == "pagetest:AAA") {
+      if (page.locTitle.renderedHtml == "pagetest:AAA") {
         onPageStrChangedCounter ++;
       }
     };
@@ -1651,7 +1651,7 @@ QUnit.test(
       sender: Base,
       arrayChanges: ArrayChanges
     ) {
-      if(!Serializer.findProperty(sender.getType(), name)) return;
+      if (!Serializer.findProperty(sender.getType(), name)) return;
       counter++;
     };
     var json = {
@@ -1678,7 +1678,7 @@ QUnit.test("Load localized itemvalue text, bug#2735", function(assert) {
   var question = new QuestionDropdownModelTester("q1");
   question.choicesByUrl.url = "{state}";
   survey.onChoicesLoaded.add(function (survey, options) {
-    if(options.question.name != "q1") return;
+    if (options.question.name != "q1") return;
     var item = new ItemValue(1);
     item.locText.setJson({ default: "item en", de: "item de" });
     options.choices = [item];

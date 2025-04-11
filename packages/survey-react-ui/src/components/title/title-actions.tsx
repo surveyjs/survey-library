@@ -14,7 +14,7 @@ export class TitleActions extends React.Component<any, any> {
 
   render(): React.JSX.Element {
     const titleContent: React.JSX.Element = <TitleContent element={this.element} cssClasses={this.cssClasses}></TitleContent>;
-    if(!this.element.hasTitleActions) return titleContent;
+    if (!this.element.hasTitleActions) return titleContent;
     return (
       <div className="sv-title-actions">
         <span className="sv-title-actions__title">{titleContent}</span>

@@ -72,13 +72,13 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return !this.isDefaultV2Theme && this.canShowClearButton;
   }
   public clickItemHandler(item: ItemValue): void {
-    if(this.isReadOnlyAttr) return;
+    if (this.isReadOnlyAttr) return;
     this.renderedValue = item.value;
   }
 
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];
-    if(this.isDefaultV2Theme && !this.isDesignMode) {
+    if (this.isDefaultV2Theme && !this.isDesignMode) {
       const clearAction = new Action(
         {
           locTitleName: "clearCaption",

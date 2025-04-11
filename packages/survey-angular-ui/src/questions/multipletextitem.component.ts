@@ -10,7 +10,7 @@ export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> im
   @Input() question!: QuestionMultipleTextModel;
   @Input() model!: MultipleTextCell;
   protected getModel(): QuestionTextModel {
-    if(!this.model.isErrorsCell) {
+    if (!this.model.isErrorsCell) {
       return this.model.item.editor;
     }
     return null as any;
@@ -23,7 +23,7 @@ export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> im
   }
   override ngDoCheck(): void {
     super.ngDoCheck();
-    if(this.model.isErrorsCell) {
+    if (this.model.isErrorsCell) {
       this.editor.registerFunctionOnPropertyValueChanged("errors", () => {
         this.update();
       }, "__ngSubscription");
@@ -31,7 +31,7 @@ export class MultipleTextItemComponent extends BaseAngular<QuestionTextModel> im
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if(this.model.isErrorsCell) {
+    if (this.model.isErrorsCell) {
       this.editor.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription");
     }
   }

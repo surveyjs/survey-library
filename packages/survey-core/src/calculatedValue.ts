@@ -17,10 +17,10 @@ export class CalculatedValue extends Base {
   private expressionRunner: ExpressionRunner;
   constructor(name: string = null, expression: string = null) {
     super();
-    if(!!name) {
+    if (!!name) {
       this.name = name;
     }
-    if(!!expression) {
+    if (!!expression) {
       this.expression = expression;
     }
   }
@@ -83,7 +83,7 @@ export class CalculatedValue extends Base {
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    if(this.isCalculated) return;
+    if (this.isCalculated) return;
     this.runExpressionCore(calculatedValues, values, properties);
     this.isCalculated = true;
   }
@@ -91,11 +91,11 @@ export class CalculatedValue extends Base {
     this.runExpressionCore(null, values, properties);
   }
   public get value(): any {
-    if(!this.data) return undefined;
+    if (!this.data) return undefined;
     return this.data.getVariable(this.name);
   }
   protected setValue(val: any) {
-    if(!this.data) return;
+    if (!this.data) return;
     this.data.setVariable(this.name, val);
   }
   private get canRunExpression(): boolean {
@@ -108,7 +108,7 @@ export class CalculatedValue extends Base {
     );
   }
   private rerunExpression() {
-    if(!this.canRunExpression) return;
+    if (!this.canRunExpression) return;
     this.runExpression(
       this.data.getFilteredValues(),
       this.data.getFilteredProperties()
@@ -119,10 +119,10 @@ export class CalculatedValue extends Base {
     values: HashTable<any>,
     properties: HashTable<any>
   ) {
-    if(!this.canRunExpression) return;
+    if (!this.canRunExpression) return;
     this.ensureExpression(values);
     this.locCalculation();
-    if(!!calculatedValues) {
+    if (!!calculatedValues) {
       this.runDependentExpressions(calculatedValues, values, properties);
     }
     this.expressionRunner.run(values, properties);
@@ -133,19 +133,19 @@ export class CalculatedValue extends Base {
     properties: HashTable<any>
   ) {
     var variables = this.expressionRunner.getVariables();
-    if(!variables) return;
-    for(var i = 0; i < calculatedValues.length; i++) {
+    if (!variables) return;
+    for (var i = 0; i < calculatedValues.length; i++) {
       var calcItem = calculatedValues[i];
-      if(calcItem === this || variables.indexOf(calcItem.name) < 0) continue;
+      if (calcItem === this || variables.indexOf(calcItem.name) < 0) continue;
       calcItem.doCalculation(calculatedValues, values, properties);
       values[calcItem.name] = calcItem.value;
     }
   }
   private ensureExpression(values: HashTable<any>) {
-    if(!!this.expressionRunner) return;
+    if (!!this.expressionRunner) return;
     this.expressionRunner = new ExpressionRunner(this.expression);
     this.expressionRunner.onRunComplete = newValue => {
-      if(!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
+      if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
         this.setValue(newValue);
       }
       this.unlocCalculation();

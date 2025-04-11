@@ -6,21 +6,21 @@ const setupSurvey = ClientFunction(() => {
     //options.data contains the data for the current page.
     var countryName = options.data["country"];
     //If the question is empty then do nothing
-    if(!countryName) options.complete();
+    if (!countryName) options.complete();
     //call the ajax method
     window["$"].ajax({
       url: "http://127.0.0.1:8080/testCafe/countriesMock.json"
     }).then(function(data) {
       var found = false;
       var countries = data.RestResponse.result;
-      for(var i = 0; i < countries.length; i++) {
-        if(countries[i].name == countryName) {
+      for (var i = 0; i < countries.length; i++) {
+        if (countries[i].name == countryName) {
           found = true;
           break;
         }
       }
       //if the country is unknown, add the error
-      if(!found)
+      if (!found)
         options.errors["country"] =
           "The country name '" +
           countryName +

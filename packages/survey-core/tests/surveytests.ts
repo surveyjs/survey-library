@@ -81,7 +81,7 @@ function getContainerContentFunction(survey: SurveyModel) {
     content.forEach(item => {
       const resItem: any = {};
       Object.keys(item).forEach(key => {
-        if(["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
+        if (["data", "getData", "processResponsiveness"].indexOf(key) === -1) {
           resItem[key] = item[key];
         }
       });
@@ -1434,7 +1434,7 @@ QUnit.test("survey.checkErrorsMode = 'onValueChanging'", function (assert) {
   question.validators.push(new EmailValidator());
   survey.checkErrorsMode = "onValueChanging";
   survey.onValidateQuestion.add(function (sender, options) {
-    if(options.name !== "question2") return;
+    if (options.name !== "question2") return;
     options.error = options.value.length != 3 ? "Require3Symbols" : null;
   });
   assert.equal(question.errors.length, 0, "there is no errors yet");
@@ -1932,7 +1932,7 @@ QUnit.test("onValueChanging event", function (assert) {
     name = options.name;
     questionName = !!options.question ? options.question.name : "";
     newValue = options.value;
-    if((options.value = "value0")) options.value = "value";
+    if ((options.value = "value0")) options.value = "value";
     counter++;
   });
   survey.setValue("question1", "value1");
@@ -1972,7 +1972,7 @@ QUnit.test("onValueChanging event for comment, #8292", function (
   q1.showCommentArea = true;
   let oldComment, newComment, questionName;
   survey.onValueChanging.add((sender, options) => {
-    if(options.name == "q1-Comment") {
+    if (options.name == "q1-Comment") {
       questionName = options.question.name;
       oldComment = options.oldValue;
       newComment = options.value;
@@ -1998,10 +1998,10 @@ QUnit.test("onValueChanging event - do not allow clear value, #8292", function (
   let counter = 0;
   let oldComment, newComment, questionName;
   survey.onValueChanging.add((sender, options) => {
-    if(options.name === "q1-Comment") {
+    if (options.name === "q1-Comment") {
       counter++;
       questionName = options.question.name;
-      if(!options.value) {
+      if (!options.value) {
         options.value = options.oldValue;
       }
       oldComment = options.oldValue;
@@ -2010,7 +2010,7 @@ QUnit.test("onValueChanging event - do not allow clear value, #8292", function (
   });
   let onValueChangedValue;
   survey.onValueChanged.add((sender, options) => {
-    if(options.name === "q1-Comment") {
+    if (options.name === "q1-Comment") {
       onValueChangedValue = options.value;
     }
   });
@@ -2033,7 +2033,7 @@ QUnit.test("onValueChanging event - do not allow clear value in comment, #1542",
   var page = survey.addNewPage("page");
   var q1 = page.addNewQuestion("text", "q1");
   survey.onValueChanging.add(function (sender, options) {
-    if(options.name == "q1" && !options.value) {
+    if (options.name == "q1" && !options.value) {
       options.value = options.oldValue;
     }
   });
@@ -2499,7 +2499,7 @@ QUnit.test("Pages num", function (assert) {
 QUnit.test("Server validation", function (assert) {
   var survey = twoPageSimplestSurvey();
   var serverFunction = function (options) {
-    if(options.data["question1"] && options.data["question1"] > 100) {
+    if (options.data["question1"] && options.data["question1"] > 100) {
       options.errors["question1"] = "Question 1 should be higher than 100";
     }
     options.complete();
@@ -2517,7 +2517,7 @@ QUnit.test("Server validation", function (assert) {
 QUnit.test("Server validation (old api version)", function (assert) {
   var survey = twoPageSimplestSurvey();
   var serverFunction = function (options) {
-    if(options.data["question1"] && options.data["question1"] > 100) {
+    if (options.data["question1"] && options.data["question1"] > 100) {
       options.errors["question1"] = "Question 1 should be higher than 100";
     }
     options.complete();
@@ -2595,7 +2595,7 @@ QUnit.test(
 QUnit.test("onVisibleChanged call validation", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.onValidateQuestion.add(function (sender, options) {
-    if(options.name == "question1" && options.value > 100) {
+    if (options.name == "question1" && options.value > 100) {
       options.error = "Question 1 should be higher than 100";
     }
   });
@@ -2631,9 +2631,9 @@ QUnit.test("onValidatePanel test", function (assert) {
     var pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
     var pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
     var sum = pq1.value + pq1.value;
-    if(sum < 10 || pq1.isEmpty() || pq2.isEmpty())
+    if (sum < 10 || pq1.isEmpty() || pq2.isEmpty())
       options.error = "q1+q2 should be more than 9";
-    if(sum >= 100) options.error = "q1+q2 should be less than 100";
+    if (sum >= 100) options.error = "q1+q2 should be less than 100";
   });
 
   assert.equal(
@@ -2670,10 +2670,10 @@ QUnit.test("survey.onValidatePanel & options.errors", function (assert) {
     const pq1 = <QuestionTextModel>panel.getQuestionByName("q1");
     const pq2 = <QuestionTextModel>panel.getQuestionByName("q2");
     const sum = pq1.value + pq1.value;
-    if(sum < 10 || pq1.isEmpty() || pq2.isEmpty()) {
+    if (sum < 10 || pq1.isEmpty() || pq2.isEmpty()) {
       options.errors.push(new CustomError("q1+q2 should be more than 9"));
     }
-    if(sum >= 100) {
+    if (sum >= 100) {
       options.errors.push(new CustomError("q1+q2 should be less than 100"));
     }
   });
@@ -2927,7 +2927,7 @@ QUnit.test("survey.onCurrentPageChanging + isNextPage/isPrevPage", function (
     changingBeforeChanged = 1;
   });
   survey.onCurrentPageChanged.add(function (surey, options) {
-    if(changingBeforeChanged == 1) {
+    if (changingBeforeChanged == 1) {
       changingBeforeChanged = 2;
     }
   });
@@ -2983,16 +2983,16 @@ QUnit.test("survey.onCurrentPageChanging/Changed + isNextPage/isPrevPage/isGoing
   var isGoingForwardPageChangedCounter = 0;
   var isGoingBackwardPageChangedCounter = 0;
   survey.onCurrentPageChanging.add(function (survey, options) {
-    if(options.isPrevPage) isPrevPageChangingCounter++;
-    if(options.isNextPage) isNextPageChangingCounter++;
-    if(options.isGoingBackward) isGoingBackwardPageChangingCounter++;
-    if(options.isGoingForward) isGoingForwardPageChangingCounter++;
+    if (options.isPrevPage) isPrevPageChangingCounter++;
+    if (options.isNextPage) isNextPageChangingCounter++;
+    if (options.isGoingBackward) isGoingBackwardPageChangingCounter++;
+    if (options.isGoingForward) isGoingForwardPageChangingCounter++;
   });
   survey.onCurrentPageChanged.add(function (surey, options) {
-    if(options.isPrevPage) isPrevPageChangedCounter++;
-    if(options.isNextPage) isNextPageChangedCounter++;
-    if(options.isGoingBackward) isGoingBackwardPageChangedCounter++;
-    if(options.isGoingForward) isGoingForwardPageChangedCounter++;
+    if (options.isPrevPage) isPrevPageChangedCounter++;
+    if (options.isNextPage) isNextPageChangedCounter++;
+    if (options.isGoingBackward) isGoingBackwardPageChangedCounter++;
+    if (options.isGoingForward) isGoingForwardPageChangedCounter++;
   });
   survey.nextPage();
   assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage");
@@ -3133,11 +3133,11 @@ QUnit.test(
     var onCurrentPageChangedCounter = 0;
     var onCompleteCounter = 0;
     survey.onCurrentPageChanged.add(function (survey, options) {
-      if(!firstFiredEvent) firstFiredEvent = "onCurrentPageChanged";
+      if (!firstFiredEvent) firstFiredEvent = "onCurrentPageChanged";
       onCurrentPageChangedCounter++;
     });
     survey.onComplete.add(function (survey, options) {
-      if(!firstFiredEvent) firstFiredEvent = "onComplete";
+      if (!firstFiredEvent) firstFiredEvent = "onComplete";
       onCompleteCounter++;
     });
 
@@ -3239,7 +3239,7 @@ QUnit.test(
   "RunExpression trigger test with custom function, bug#T1734",
   function (assert) {
     function getQuestionValueByTitle(params) {
-      if(!params && params.length < 1) return undefined;
+      if (!params && params.length < 1) return undefined;
       var question = this.survey.getAllQuestions().filter(function (q) {
         return q.title === params[0];
       })[0];
@@ -3617,7 +3617,7 @@ QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();
   survey.showPageNumbers = true;
   survey.onGetPageNumber.add((sender, options) => {
-    if(options.page.isStartPage) {
+    if (options.page.isStartPage) {
       options.number = "";
     } else {
       options.number = (survey.pages.indexOf(options.page) + 1) + "-";
@@ -3866,11 +3866,11 @@ function percentageToNum(width: string): Number {
 }
 QUnit.test("Several questions in one row", function (assert) {
   var page = new PageModel();
-  for(var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
+  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
   assert.equal(page.rows.length, 10, "10 rows for each question");
 
   page = new PageModel();
-  for(var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
+  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
   page.questions[0].startWithNewLine = false;
   assert.equal(page.rows.length, 10, "still 10 rows for each question");
   assert.equal(
@@ -3880,8 +3880,8 @@ QUnit.test("Several questions in one row", function (assert) {
   );
 
   page = new PageModel();
-  for(var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  for(var i = 0; i < 10; i++) {
+  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
+  for (var i = 0; i < 10; i++) {
     page.questions[i].startWithNewLine = i % 2 == 0;
   }
   assert.equal(
@@ -3889,7 +3889,7 @@ QUnit.test("Several questions in one row", function (assert) {
     5,
     "every second has startWithNewLine equals false, there 5 rows now"
   );
-  for(var i = 0; i < 5; i++) {
+  for (var i = 0; i < 5; i++) {
     assert.equal(
       page.rows[i].elements.length,
       2,
@@ -3959,7 +3959,7 @@ QUnit.test(
   "Rendered width with setting width in the same row, using calc",
   function (assert) {
     var page = new PageModel();
-    for(var i = 0; i < 5; i++) {
+    for (var i = 0; i < 5; i++) {
       page.addNewQuestion("text", "q" + (i + 1));
       page.questions[i].startWithNewLine = false;
     }
@@ -4315,13 +4315,13 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
   });
 
   var pageIndex = 0;
-  for(var i = 0; i < questions.length; i++) {
+  for (var i = 0; i < questions.length; i++) {
     var q = questions[i];
     var survey = new SurveyModel();
     var page = survey.addNewPage("firstpage");
     page.addQuestion(q.question);
     survey.goNextPageAutomatic = true;
-    if(q.value) {
+    if (q.value) {
       q.question.onMouseDown();
       q.question.value = q.value;
     }
@@ -4698,11 +4698,11 @@ QUnit.test(
   "visibleIf, expression custom function has property this.survey",
   function (assert) {
     function isAllChecksSet(params: any[]): any {
-      if(!params && params.length !== 1) return false;
+      if (!params && params.length !== 1) return false;
       var q = this.survey.getQuestionByName(params[0]);
-      if(!q) return false;
+      if (!q) return false;
       var val = q.value;
-      if(!val || !Array.isArray(val)) return false;
+      if (!val || !Array.isArray(val)) return false;
       return val.length == q.visibleChoices.length;
     }
     FunctionFactory.Instance.register("isAllChecksSet", isAllChecksSet);
@@ -4914,11 +4914,11 @@ QUnit.test("enableIf for matrix questions, Bug#736", function (assert) {
   var qVisible = null;
   var qEnable = null;
   survey.onMatrixCellCreated.add(function (survey, options) {
-    if(options.row.rowName == "angularv2" && options.columnName == "using") {
+    if (options.row.rowName == "angularv2" && options.columnName == "using") {
       qVisible = options.cellQuestion;
       qVisible.visibleIf = "{q1.angularv1.using} = 'Yes'";
     }
-    if(options.row.rowName == "angularv4" && options.columnName == "using") {
+    if (options.row.rowName == "angularv4" && options.columnName == "using") {
       qEnable = options.cellQuestion;
       qEnable.enableIf = "{q1.angularv1.using} = 'Yes'";
     }
@@ -5224,7 +5224,7 @@ QUnit.test("customWidgets support displayValue", function (assert) {
       return question.getType() == "text";
     },
     getDisplayValue: (question: Question): string => {
-      if(question.value === 1) return "one";
+      if (question.value === 1) return "one";
       return "";
     },
   });
@@ -5253,7 +5253,7 @@ QUnit.test("customWidgets camel name", function (assert) {
       return question.getType() == "camelname";
     },
   });
-  if(!Serializer.findClass("camelName")) {
+  if (!Serializer.findClass("camelName")) {
     Serializer.addClass("camelName", [], undefined, "text");
   }
 
@@ -5282,7 +5282,7 @@ QUnit.test("Create custom widget from addQuestion", function (assert) {
       return question.getType() == cType;
     },
   });
-  if(!Serializer.findClass(cType)) {
+  if (!Serializer.findClass(cType)) {
     Serializer.addClass(cType, [], undefined, "text");
     QuestionFactory.Instance.registerCustomQuestion(cType);
   }
@@ -5313,7 +5313,7 @@ QUnit.test("readOnlyCallback, bug #1818", function (assert) {
     name: "first",
     isFit: (question) => {
       var res = question.name == "question1";
-      if(res) {
+      if (res) {
         question.readOnlyChangedCallback = () => {
           readOnlyCounter++;
         };
@@ -5604,7 +5604,7 @@ QUnit.test("survey.getUsedLocales()", function (assert) {
   var locales = survey.getUsedLocales();
   const checkLocales = ["en", "fr", "es", "ru", "gr", "pt", "it"];
   assert.equal(locales.length, checkLocales.length, "Get all locales");
-  for(var i = 0; i < checkLocales.length; i++) {
+  for (var i = 0; i < checkLocales.length; i++) {
     assert.ok(
       locales.indexOf(checkLocales[i]) > -1,
       "Locale: " + checkLocales[i] + " not found"
@@ -5783,7 +5783,7 @@ QUnit.test("Survey text preprocessing: survey.onGetQuestionDisplayValue", functi
     ]
   });
   survey.onGetQuestionDisplayValue.add((sender, options) => {
-    if(options.question.isEmpty()) {
+    if (options.question.isEmpty()) {
       options.displayValue = "{" + options.question.title + "}";
     } else {
       options.displayValue = "[" + options.displayValue + "]";
@@ -5808,7 +5808,7 @@ QUnit.test("Survey Markdown - dropdown.choices", function (assert) {
     { value: 1, text: "text2markdown" },
   ];
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   var loc1 = (<ItemValue>q1.choices[0]).locText;
@@ -5823,13 +5823,13 @@ QUnit.test("Survey Markdown - question title", function (assert) {
   var q1 = <Question>page.addNewQuestion("text", "q1");
   var q2 = <Question>page.addNewQuestion("text", "q2");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.name == "commentText") return;
+    if (options.name == "commentText") return;
     assert.equal(
       options.name,
       "title",
       "question title markdown preprocessing"
     );
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   q2.value = "value2";
@@ -5909,11 +5909,11 @@ QUnit.test("Survey Markdown - question title calls count", function (assert) {
   let counter = 0;
   survey.onTextMarkdown.add((survey, options) => {
     counter++;
-    if(options.element.name == "q1") {
+    if (options.element.name == "q1") {
       options.html = options.text + "!";
     }
   });
-  for(var i = 0; i < 10; i++) {
+  for (var i = 0; i < 10; i++) {
     assert.equal(q1.title, "q1");
     assert.equal(q1.locTitle.renderedHtml, "q1!");
     assert.equal(q2.title, "q2");
@@ -5968,7 +5968,7 @@ QUnit.test("Survey Markdown - page title", function (assert) {
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   q1.value = "value1";
@@ -5992,9 +5992,9 @@ QUnit.test("Survey Markdown - page title + showPageNumbers = true", function (as
   var page = survey.addNewPage("Page 1");
   var q1 = <Question>page.addNewQuestion("text", "q1");
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.name == "commentText") return;
+    if (options.name == "commentText") return;
     assert.equal(options.name, "title", "page title markdown preprocessing");
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   q1.value = "value1";
@@ -6009,7 +6009,7 @@ QUnit.test(
     var survey = new SurveyModel();
     survey.setValue("val1", "-newvalue-");
     survey.onTextMarkdown.add(function (survey, options) {
-      if(options.text.indexOf("markdown") > -1)
+      if (options.text.indexOf("markdown") > -1)
         options.html = options.text.replace("markdown", "!");
     });
     var page = survey.addNewPage("Page 1");
@@ -6038,7 +6038,7 @@ QUnit.test("Survey Markdown and text processing - nmatrix.rows", function (
 ) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   var page = survey.addNewPage("Page 1");
@@ -6089,7 +6089,7 @@ QUnit.test("Survey Markdown - survey title", function (assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function (survey, options) {
     assert.equal(options.name, "title", "survey title markdown preprocessing");
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   survey.setValue("q1", "value1");
@@ -6110,11 +6110,11 @@ QUnit.test("Survey Markdown - survey title", function (assert) {
 QUnit.test("Survey Markdown - question.validators", function (assert) {
   var survey = new SurveyModel();
   survey.onTextMarkdown.add(function (survey, options) {
-    if(options.text.indexOf("markdown") > -1)
+    if (options.text.indexOf("markdown") > -1)
       options.html = options.text.replace("markdown", "!");
   });
   survey.onValidateQuestion.add(function (servey, options) {
-    if(options.name == "q2") options.error = "markdown";
+    if (options.name == "q2") options.error = "markdown";
   });
   var page = survey.addNewPage("p1");
   var question1 = <QuestionTextModel>page.addNewQuestion("text", "q1");
@@ -6234,9 +6234,9 @@ QUnit.test("onMatrixRowAdded", function (assert) {
   survey.onMatrixRowAdded.add(function (survey, options) {
     var q = options.question;
     var newValue = {};
-    for(var i = q.rowCount - 1; i >= 0; i--) {
+    for (var i = q.rowCount - 1; i >= 0; i--) {
       var rowValue = q.getRowValue(i);
-      if(rowValue && rowValue["col1"]) {
+      if (rowValue && rowValue["col1"]) {
         newValue["col1"] = rowValue["col1"];
         q.setRowValue(q.rowCount - 1, newValue);
         break;
@@ -6331,8 +6331,8 @@ QUnit.test("onMatrixRowAdding, support options.canAddRow & options.allow", funct
   let allow: any = undefined;
   let canAddRow: any = undefined;
   survey.onMatrixRowAdding.add(function (sender, options) {
-    if(allow !== undefined) options.allow = allow;
-    if(canAddRow !== undefined) options.canAddRow = canAddRow;
+    if (allow !== undefined) options.allow = allow;
+    if (canAddRow !== undefined) options.canAddRow = canAddRow;
   });
   const page = survey.addNewPage("Page 1");
   const matrix = new QuestionMatrixDynamicModel("matrixdynamic");
@@ -6407,7 +6407,7 @@ QUnit.test(
     var survey = new SurveyModel();
     survey.setCss(css, false);
     survey.onUpdatePanelCssClasses.add(function (survey, options) {
-      if(options.panel.name == "panel1")
+      if (options.panel.name == "panel1")
         options.cssClasses.panel["container"] = "hereIam";
     });
     var page = survey.addNewPage("page1");
@@ -6482,7 +6482,7 @@ QUnit.test("Survey Elements css", function (assert) {
   const survey = new SurveyModel();
   setOldTheme(survey);
   survey.onUpdateQuestionCssClasses.add(function (survey, options) {
-    if(options.question.name === "q2")
+    if (options.question.name === "q2")
       options.cssClasses["newItem"] = "hereIam";
   });
   const page = survey.addNewPage("page1");
@@ -6538,7 +6538,7 @@ QUnit.test("Question cssRoot", function (assert) {
   survey = new SurveyModel(json);
   setOldTheme(survey);
   survey.onUpdateQuestionCssClasses.add(function (survey, options) {
-    if(options.question.getType() == "checkbox") {
+    if (options.question.getType() == "checkbox") {
       options.cssClasses.mainRoot = "testMainRoot";
       options.cssClasses.root = "testRoot";
     }
@@ -6596,7 +6596,7 @@ QUnit.test("Notify the user about the status of sending data to custom server", 
   let notifierLog = "";
   survey.notify = (msg, type) => {
     notifierLog += msg;
-    if(type) {
+    if (type) {
       notifierLog += " - " + type;
     }
   };
@@ -6632,7 +6632,7 @@ QUnit.test("Notifier button", function (assert) {
   let notifierLog = "";
   survey.notify = (msg, type) => {
     notifierLog += msg;
-    if(type) {
+    if (type) {
       notifierLog += " - " + type;
     }
   };
@@ -7095,7 +7095,7 @@ QUnit.test("Question property.page getChoices", function (assert) {
 
 QUnit.test("firstPageIsStartPage = true", function (assert) {
   var survey = new SurveyModel();
-  for(var i = 0; i < 3; i++) {
+  for (var i = 0; i < 3; i++) {
     let page = survey.addNewPage("p" + i + 1);
     page.addNewQuestion("text");
   }
@@ -7732,7 +7732,7 @@ QUnit.test("Questions are randomized", function (assert) {
 
 class HelpTest {
   public static randomizeArray<T>(array: Array<T>): Array<T> {
-    if(array.length < 2) return array;
+    if (array.length < 2) return array;
     const el0 = array[0];
     array.splice(0, 1, array[array.length - 1]);
     array.splice(array.length - 1, 1, el0);
@@ -7872,7 +7872,7 @@ QUnit.test("Quiz, correct, incorrect answers", function (assert) {
     4,
     "There are 4 questions in total"
   );
-  for(var i = 1; i <= 4; i++) {
+  for (var i = 1; i <= 4; i++) {
     (<Question>survey.getQuestionByName("q" + i)).correctAnswer = "q" + i;
   }
   var page = new PageModel("start");
@@ -8243,7 +8243,7 @@ QUnit.test(
     var questionName = "";
     survey.onGetQuestionTitle.add(function (survey, options) {
       questionName = options.question.name;
-      if(options.question.title == options.question.name) options.title = "";
+      if (options.question.title == options.question.name) options.title = "";
     });
     assert.equal(question.fullTitle, "", "it is empty now");
     //check bug: #2298
@@ -8305,7 +8305,7 @@ QUnit.test("condition function isContainerReady", function (assert) {
 
 QUnit.test("Use 'question' in function context", function (assert) {
   function isFirstLastChoiceSelected(params): boolean {
-    if(!this.question || question.isEmpty()) return false;
+    if (!this.question || question.isEmpty()) return false;
     var first = question.choices[0].value;
     var last = question.choices[question.choices.length - 1].value;
     return (
@@ -8363,7 +8363,7 @@ QUnit.test(
     q3.visibleIf = "{q1} = 3";
 
     survey.onVisibleChanged.add(function (survey, options) {
-      if(options.visible) {
+      if (options.visible) {
         var question = options.question;
         survey.currentPage.removeQuestion(question);
         survey.currentPage.addQuestion(question);
@@ -10751,10 +10751,10 @@ QUnit.test(
     ): number => {
       return plainData.reduce((result, current) => {
         var currentScore = current.score;
-        if(current.isNode) {
+        if (current.isNode) {
           currentScore = calculate(current.data);
         }
-        if(currentScore) {
+        if (currentScore) {
           return result + currentScore;
         }
         return result;
@@ -10846,10 +10846,10 @@ QUnit.test("getPlainData - calculate itemvalue.score in rate question, Bug#6804"
     ): number => {
       return plainData.reduce((result, current) => {
         var currentScore = current.score;
-        if(current.isNode) {
+        if (current.isNode) {
           currentScore = calculate(current.data);
         }
-        if(currentScore) {
+        if (currentScore) {
           return result + currentScore;
         }
         return result;
@@ -11064,7 +11064,7 @@ QUnit.test(
     );
     page.addQuestion(question);
     survey.onTextMarkdown.add(function (survey, options) {
-      if(options.text.indexOf("*") > -1)
+      if (options.text.indexOf("*") > -1)
         options.html = options.text.replace(/\*/g, "<>");
     });
 
@@ -11255,7 +11255,7 @@ QUnit.test("getCustomErrorText for error", function (assert) {
     ],
   });
   survey.onErrorCustomText.add(function (sender, options) {
-    if(options.name == "required") {
+    if (options.name == "required") {
       options.text = "!!!" + options.obj.title;
     }
   });
@@ -12345,10 +12345,10 @@ QUnit.test("survey.onSettingQuestionErrors", function (assert) {
   var q2 = survey.getQuestionByName("question2");
   q1.isRequired = true;
   survey.onSettingQuestionErrors.add(function (sender, options) {
-    if(options.question.name == "question1") {
+    if (options.question.name == "question1") {
       options.errors[0].visible = false;
     }
-    if(options.question.name == "question2") {
+    if (options.question.name == "question2") {
       options.errors.push(new AnswerRequiredError());
     }
   });
@@ -12363,10 +12363,10 @@ QUnit.test("survey.onValidateQuestion wors as survey.onSettingQuestionErrors", f
   var q2 = survey.getQuestionByName("question2");
   q1.isRequired = true;
   survey.onValidateQuestion.add(function (sender, options) {
-    if(options.question.name == "question1") {
+    if (options.question.name == "question1") {
       options.errors[0].visible = false;
     }
-    if(options.question.name == "question2") {
+    if (options.question.name == "question2") {
       options.errors.push(new AnswerRequiredError());
     }
   });
@@ -12699,17 +12699,17 @@ class ExpressionToDisplayText {
   public toDisplayText(expression: string): string {
     var parser = new ConditionsParser();
     var node = parser.parseExpression(expression);
-    if(!node) return expression;
+    if (!node) return expression;
     this.currentQuestion = null;
     var self = this;
     var strFunc = function (op: Operand): string {
-      if(op.getType() == "variable") {
+      if (op.getType() == "variable") {
         return self.getQuestionText(<Variable>op);
       }
-      if(op.getType() == "const") {
+      if (op.getType() == "const") {
         return self.getDisplayText(<Const>op);
       }
-      if(op.getType() == "binary") {
+      if (op.getType() == "binary") {
         self.proceedBinary(<BinaryOperand>op);
       }
       return undefined;
@@ -12718,16 +12718,16 @@ class ExpressionToDisplayText {
   }
   private getQuestionText(op: Variable): string {
     var question = this.survey.getQuestionByName(op.variable);
-    if(!question || !question.title) return undefined;
+    if (!question || !question.title) return undefined;
     return "{" + question.title + "}";
   }
   private getDisplayText(op: Const): string {
-    if(!this.currentQuestion) return undefined;
+    if (!this.currentQuestion) return undefined;
     var res = this.currentQuestion.getDisplayValue(true, op.correctValue);
     return !!res ? new Const(res).toString() : undefined;
   }
   private proceedBinary(op: BinaryOperand) {
-    if(op.isArithmetic || op.isConjunction) {
+    if (op.isArithmetic || op.isConjunction) {
       this.currentQuestion = null;
       return;
     }
@@ -12735,7 +12735,7 @@ class ExpressionToDisplayText {
       op.leftOperand,
       op.rightOperand
     );
-    if(!this.currentQuestion) {
+    if (!this.currentQuestion) {
       this.currentQuestion = this.getQuestionFromOperands(
         op.rightOperand,
         op.leftOperand
@@ -12743,9 +12743,9 @@ class ExpressionToDisplayText {
     }
   }
   private getQuestionFromOperands(op1: Operand, op2: Operand) {
-    if(!op1 || !op2) return null;
-    if(op1.getType() != "variable") return null;
-    if(
+    if (!op1 || !op2) return null;
+    if (op1.getType() != "variable") return null;
+    if (
       op2.getType() != "const" &&
       op2.getType() != "function" &&
       op2.getType() != "array"
@@ -13554,7 +13554,7 @@ QUnit.test(
     assert.equal(survey.pages.length, 1, "One page");
     assert.equal(survey.pages[0].elements.length, 1, "One element");
     survey.dispose();
-    if(!!survey.pages) {
+    if (!!survey.pages) {
       assert.equal(survey.pages.length, 0, "No pages");
     }
   }
@@ -14562,7 +14562,7 @@ QUnit.test(
     var generateError = false;
     survey.onServerValidateQuestions.add(function (sender, options) {
       counter++;
-      if(generateError) {
+      if (generateError) {
         options.errors["question3"] = "We have error here";
       }
       options.complete();
@@ -14856,7 +14856,7 @@ QUnit.test("onTextRenderAs event", function (assert) {
   const customRendererView = "my-custom-renderer-view";
   const customRendererEdit = "my-custom-renderer-edit";
   survey.onTextRenderAs.add((s, e) => {
-    if(s.isDesignMode) e.renderAs = customRendererEdit;
+    if (s.isDesignMode) e.renderAs = customRendererEdit;
     else e.renderAs = customRendererView;
   });
 
@@ -14884,8 +14884,8 @@ QUnit.test("onElementWrapperComponentName event vs string getRenderer", function
   const customRendererView = "my-custom-renderer-view";
   const customRendererEdit = "my-custom-renderer-edit";
   survey.onElementWrapperComponentName.add((s, e) => {
-    if(e.wrapperName !== "string") return;
-    if(s.isDesignMode) e.componentName = customRendererEdit;
+    if (e.wrapperName !== "string") return;
+    if (s.isDesignMode) e.componentName = customRendererEdit;
     else e.componentName = customRendererView;
   });
 
@@ -14909,7 +14909,7 @@ QUnit.test("onElementWrapperComponentData event vs getRendererContextForString",
   const locString = new LocalizableString(survey, false, "name");
 
   survey.onElementWrapperComponentData.add((s, e) => {
-    if(e.wrapperName !== "string") return;
+    if (e.wrapperName !== "string") return;
     e.data = { str: e.data, el: e.element };
   });
   const res = survey.getRendererContextForString(survey.pages[0], locString);
@@ -15348,16 +15348,16 @@ QUnit.test("onElementWrapperComponentName event", function (assert) {
   const q1 = survey.getQuestionByName("q1");
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   survey.onElementWrapperComponentName.add((sender, options) => {
-    if(options.wrapperName === "component" && options.reason === "test1") {
+    if (options.wrapperName === "component" && options.reason === "test1") {
       options.componentName += "#1";
     }
-    if(options.wrapperName === "content-component" && options.reason === undefined) {
+    if (options.wrapperName === "content-component" && options.reason === undefined) {
       options.componentName += "#2";
     }
-    if(options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+    if (options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
       options.componentName += "#3";
     }
-    if(options.wrapperName === "itemvalue" && options.item?.value === 1) {
+    if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
       options.componentName += "#4";
     }
   });
@@ -15376,16 +15376,16 @@ QUnit.test("onElementWrapperComponentName event", function (assert) {
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   const q3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q3");
   survey.onElementWrapperComponentData.add((sender, options) => {
-    if(options.wrapperName === "component" && options.reason === "test1") {
+    if (options.wrapperName === "component" && options.reason === "test1") {
       options.data = "#1";
     }
-    if(options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
+    if (options.wrapperName === "row" && !!options.element.setIsLazyRendering) {
       options.data = "#2";
     }
-    if(options.wrapperName === "itemvalue" && options.item?.value === 1) {
+    if (options.wrapperName === "itemvalue" && options.item?.value === 1) {
       options.data = "#3";
     }
-    if(options.wrapperName === "cell" && options.element.name === "col1") {
+    if (options.wrapperName === "cell" && options.element.name === "col1") {
       options.data = "#4";
     }
   });
@@ -16105,7 +16105,7 @@ QUnit.test("Set values with trimming and caseSensitive", assert => {
   const question = survey.getAllQuestions()[0];
   const hash = { name: 0, title: 0 };
   question.onPropertyChanged.add((sender, options) => {
-    if(hash[options.name] >= 0) {
+    if (hash[options.name] >= 0) {
       hash[options.name] = hash[options.name] + 1;
     }
   });
@@ -16191,7 +16191,7 @@ QUnit.test("start page is invisible", assert => {
 });
 QUnit.test("firstPageIsStartPage = true and prevPage()", function (assert) {
   var survey = new SurveyModel();
-  for(var i = 0; i < 3; i++) {
+  for (var i = 0; i < 3; i++) {
     let page = survey.addNewPage("p" + i + 1);
     page.addNewQuestion("text");
   }
@@ -17381,7 +17381,7 @@ QUnit.test("progress is not changed on the start page", function (assert) {
   const question = survey.pages[0].elements[0] as any;
   let progressChangeCount = 0;
   survey.onPropertyChanged.add((s, o) => {
-    if(o.name === "progressText") {
+    if (o.name === "progressText") {
       progressChangeCount++;
     }
   });
@@ -18656,14 +18656,14 @@ QUnit.test("Try again button should call onComplete", function (assert) {
   class SurveyModelTester extends SurveyModel {
     public doErrorAction(): void {
       const action = this.createTryAgainAction().action;
-      if(!!action) action();
+      if (!!action) action();
     }
   }
   var survey = new SurveyModelTester({ elements: [{ type: "text", name: "q1" }] });
   let attempts = 0;
   survey.onComplete.add((sender, options) => {
     attempts++;
-    if(attempts < 3) {
+    if (attempts < 3) {
       survey.doErrorAction();
     }
   });
@@ -19041,7 +19041,7 @@ QUnit.test("Expression with dates & defaultValueExpression & expression question
     ]
   });
   const checkFunc = function (res: Array<boolean>, no: number) {
-    for(var i = 0; i < res.length; i++) {
+    for (var i = 0; i < res.length; i++) {
       const name = "check" + (i + 1).toString();
       const val = survey.getValue(name);
       assert.equal(val, res[i], "check no: " + no + ", value name: " + name);
@@ -21220,7 +21220,7 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
     getType() { return "screenouttrigger"; }
 
     onSuccess(values: any, properties: any) {
-      if(this.isRealExecution()) {
+      if (this.isRealExecution()) {
         this.owner.setTriggerValue("result", "screenout", false);
       }
       // Parent call
@@ -21258,7 +21258,7 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
     getType() { return "screenouttrigger"; }
 
     onSuccess(values: any, properties: any) {
-      if(this.isRealExecution()) {
+      if (this.isRealExecution()) {
         this.owner.setCompleted(this);
       }
       // Parent call

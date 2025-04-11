@@ -10,7 +10,7 @@ export class EmbeddedViewContentComponent implements OnInit {
   constructor(protected viewContainerRef?: ViewContainerRef) {}
 
   ngOnInit(): void {
-    if(!!this.templateRef) {
+    if (!!this.templateRef) {
       this.embeddedView = this.viewContainerRef?.createEmbeddedView(this.templateRef);
     }
   }

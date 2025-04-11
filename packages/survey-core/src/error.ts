@@ -57,7 +57,7 @@ export class ExceedSizeError extends SurveyError {
   private getTextSize() {
     var sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     var fixed = [0, 0, 2, 3, 3];
-    if(this.maxSize === 0) {
+    if (this.maxSize === 0) {
       return "0 Byte";
     }
     var i = Math.floor(Math.log(this.maxSize) / Math.log(1024));

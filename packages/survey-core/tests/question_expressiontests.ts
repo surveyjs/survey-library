@@ -218,7 +218,7 @@ QUnit.test("survey.onValueChanging, bug#6548", function (assert) {
   });
   const q = <QuestionExpressionModel>survey.getQuestionByName("bmi");
   survey.onValueChanging.add((sender, options) => {
-    if(options.question.name === "bmi" && !!options.value) {
+    if (options.question.name === "bmi" && !!options.value) {
       options.value = parseFloat(options.value.toFixed(0));
     }
   });
@@ -253,7 +253,7 @@ QUnit.test("Handle Infinity", function (assert) {
   });
   let counter = 0;
   survey.onValueChanged.add((sender, options) => {
-    if(options.name === "q3") counter ++;
+    if (options.name === "q3") counter ++;
   });
   const q3 = survey.getQuestionByName("q3");
   survey.setValue("q2", 1);

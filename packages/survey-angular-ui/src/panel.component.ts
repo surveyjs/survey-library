@@ -13,7 +13,7 @@ export class PanelComponent extends BaseAngular<PanelModel> implements AfterView
     return this.model;
   }
   ngAfterViewInit(): void {
-    if(!!this.panelContainerRef?.nativeElement) {
+    if (!!this.panelContainerRef?.nativeElement) {
       this.model.afterRender(this.panelContainerRef.nativeElement);
     }
   }

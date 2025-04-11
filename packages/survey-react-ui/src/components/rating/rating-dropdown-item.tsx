@@ -14,7 +14,7 @@ export class RatingDropdownItem extends SurveyElementBase<IRatingItemProps, any>
     return this.item;
   }
   render(): React.JSX.Element | null {
-    if(!this.item) return null;
+    if (!this.item) return null;
     const item = this.props.item;
     const description = this.renderDescription(item);
 
@@ -26,7 +26,7 @@ export class RatingDropdownItem extends SurveyElementBase<IRatingItemProps, any>
     );
   }
   renderDescription(item: any) {
-    if(!item.description) return null;
+    if (!item.description) return null;
 
     return (
       <div className="sd-rating-dropdown-item_description">

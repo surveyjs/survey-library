@@ -40,16 +40,16 @@ export class Survey extends SurveyElementBase<any, any>
   }
   private isSurveyUpdated = false;
   private onSurveyUpdated() {
-    if(!!this.survey) {
+    if (!!this.survey) {
       const el = this.rootRef.current;
-      if(!!el)this.survey.afterRenderSurvey(el);
+      if (!!el)this.survey.afterRenderSurvey(el);
       this.survey.startTimerFromUI();
       this.setSurveyEvents();
     }
   }
   shouldComponentUpdate(nextProps: any, nextState: any) {
-    if(!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    if(this.isModelJSONChanged(nextProps)) {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+    if (this.isModelJSONChanged(nextProps)) {
       this.destroySurvey();
       this.createSurvey(nextProps);
       this.updateSurvey(nextProps, {});
@@ -60,7 +60,7 @@ export class Survey extends SurveyElementBase<any, any>
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     this.updateSurvey(this.props, prevProps);
-    if(this.isSurveyUpdated) {
+    if (this.isSurveyUpdated) {
       this.onSurveyUpdated();
       this.isSurveyUpdated = false;
     }
@@ -70,7 +70,7 @@ export class Survey extends SurveyElementBase<any, any>
     this.onSurveyUpdated();
   }
   destroySurvey() {
-    if(this.survey) {
+    if (this.survey) {
       this.survey.renderCallback = undefined as any;
       this.survey.onPartialSend.clear();
       this.survey.stopTimer();
@@ -83,13 +83,13 @@ export class Survey extends SurveyElementBase<any, any>
   }
   doRender(): React.JSX.Element {
     let renderResult: React.JSX.Element | null;
-    if(this.survey.state == "completed") {
+    if (this.survey.state == "completed") {
       renderResult = this.renderCompleted();
-    } else if(this.survey.state == "completedbefore") {
+    } else if (this.survey.state == "completedbefore") {
       renderResult = this.renderCompletedBefore();
-    } else if(this.survey.state == "loading") {
+    } else if (this.survey.state == "loading") {
       renderResult = this.renderLoading();
-    } else if(this.survey.state == "empty") {
+    } else if (this.survey.state == "empty") {
       renderResult = this.renderEmptySurvey();
     } else {
       renderResult = this.renderSurvey();
@@ -101,7 +101,7 @@ export class Survey extends SurveyElementBase<any, any>
       event.preventDefault();
     };
     let customHeader: React.JSX.Element | null = <div className="sv_custom_header" />;
-    if(this.survey.hasLogo) {
+    if (this.survey.hasLogo) {
       customHeader = null;
     }
     const rootCss = this.survey.getRootCss();
@@ -141,7 +141,7 @@ export class Survey extends SurveyElementBase<any, any>
     this.survey.css = value;
   }
   protected renderCompleted(): React.JSX.Element | null {
-    if(!this.survey.showCompletedPage) return null;
+    if (!this.survey.showCompletedPage) return null;
 
     var htmlValue = { __html: this.survey.processedCompletedHtml };
     return (
@@ -175,7 +175,7 @@ export class Survey extends SurveyElementBase<any, any>
 
     let className = this.survey.bodyCss;
     const style: any = {};
-    if(!!this.survey.renderedWidth) {
+    if (!!this.survey.renderedWidth) {
       style.maxWidth = this.survey.renderedWidth;
     }
     return (
@@ -212,13 +212,13 @@ export class Survey extends SurveyElementBase<any, any>
     return <div className={this.css.bodyEmpty}>{this.survey.emptySurveyText}</div>;
   }
   protected createSurvey(newProps: any) {
-    if(!newProps) newProps = {};
+    if (!newProps) newProps = {};
     this.previousJSON = {};
-    if(newProps) {
-      if(newProps.model) {
+    if (newProps) {
+      if (newProps.model) {
         this.survey = newProps.model;
       } else {
-        if(newProps.json) {
+        if (newProps.json) {
           this.previousJSON = newProps.json;
           this.survey = new SurveyModel(newProps.json);
         }
@@ -226,35 +226,35 @@ export class Survey extends SurveyElementBase<any, any>
     } else {
       this.survey = new SurveyModel();
     }
-    if(!!newProps.css) {
+    if (!!newProps.css) {
       this.survey.css = this.css;
     }
   }
   private isModelJSONChanged(newProps: any): boolean {
-    if(!!newProps["model"]) {
+    if (!!newProps["model"]) {
       return this.survey !== newProps["model"];
     }
-    if(!!newProps["json"]) {
+    if (!!newProps["json"]) {
       return !Helpers.isTwoValueEquals(newProps["json"], this.previousJSON);
     }
     return false;
   }
   protected updateSurvey(newProps: any, oldProps?: any) {
-    if(!newProps) return;
+    if (!newProps) return;
     oldProps = oldProps || {};
-    for(var key in newProps) {
-      if(key == "model" || key == "children" || key == "json") {
+    for (var key in newProps) {
+      if (key == "model" || key == "children" || key == "json") {
         continue;
       }
-      if(key == "css") {
+      if (key == "css") {
         this.survey.mergeValues(newProps.css, this.survey.getCss());
         this.survey["updateNavigationCss"]();
         this.survey["updateElementCss"]();
         continue;
       }
-      if(newProps[key] === oldProps[key]) continue;
-      if(key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
-        if(!!oldProps[key]) {
+      if (newProps[key] === oldProps[key]) continue;
+      if (key.indexOf("on") == 0 && this.survey[key] && this.survey[key].add) {
+        if (!!oldProps[key]) {
           this.survey[key].remove(oldProps[key]);
         }
         this.survey[key].add(newProps[key]);
@@ -273,7 +273,7 @@ export class Survey extends SurveyElementBase<any, any>
       self.setState({ modelChanged: counter + 1 });
     };
     this.survey.onPartialSend.add((sender) => {
-      if(!!self.state) {
+      if (!!self.state) {
         self.setState(self.state);
       }
     });
@@ -310,7 +310,7 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
 });
 
 export function attachKey2click(element: React.JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }): React.JSX.Element {
-  if((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
+  if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
     return React.cloneElement(element, { tabIndex: -1 });
   }
   options = { ...options };

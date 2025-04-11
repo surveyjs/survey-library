@@ -5,8 +5,8 @@ export class CssClassBuilder {
     return this.toString() === "";
   }
   public append(value: string, condition: boolean = true): CssClassBuilder {
-    if(!!value && condition) {
-      if(typeof value === "string") {
+    if (!!value && condition) {
+      if (typeof value === "string") {
         value = value.trim();
       }
       this.classes.push(value);

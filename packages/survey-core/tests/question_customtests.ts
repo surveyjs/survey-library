@@ -335,7 +335,7 @@ QUnit.test("Composite: onPropertyChanged", function (assert) {
       });
     },
     onPropertyChanged: function (question, propertyName, newValue) {
-      if(propertyName == "showLastName") {
+      if (propertyName == "showLastName") {
         question.contentPanel.getQuestionByName("lastName").visible = newValue;
       }
     },
@@ -627,7 +627,7 @@ QUnit.test("Composite: defaultValue and question.valueChangedCallback", function
       const firstQuestion = question.contentPanel.getQuestionByName("firstName");
       const lastQuestion = question.contentPanel.getQuestionByName("lastName");
       boolQuestion.valueChangedCallback = function() {
-        if(boolQuestion.value === false) {
+        if (boolQuestion.value === false) {
           firstQuestion.clearValue();
           lastQuestion.clearValue();
         }
@@ -918,9 +918,9 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
     },
     buildRows(question) {
       var rows = [];
-      for(var i = 0; i < question.orders.length; i++) {
+      for (var i = 0; i < question.orders.length; i++) {
         var item = question.orders[i];
-        if(!!item.value) {
+        if (!!item.value) {
           rows.push(question.orders[i].value);
         }
       }
@@ -928,9 +928,9 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
     },
     setDefaultValues(question) {
       var defaultValue = {};
-      for(var i = 0; i < question.orders.length; i++) {
+      for (var i = 0; i < question.orders.length; i++) {
         var item = question.orders[i];
-        if(!!item.value && !!item.price) {
+        if (!!item.value && !!item.price) {
           defaultValue[item.value] = { price: item.price };
         }
       }
@@ -993,13 +993,13 @@ QUnit.test("Complex: hide content question in designMode", function (assert) {
       this.changeMiddleVisibility(question);
     },
     onPropertyChanged(question, propertyName, newValue) {
-      if(propertyName == "showMiddleName") {
+      if (propertyName == "showMiddleName") {
         this.changeMiddleVisibility(question);
       }
     },
     changeMiddleVisibility(question) {
       let middle = question.contentPanel.getQuestionByName("middleName");
-      if(!!middle) {
+      if (!!middle) {
         middle.visible = question.showMiddleName === true;
       }
     },
@@ -1230,7 +1230,7 @@ QUnit.test("Composite: onValueChanged function", function (assert) {
       },
     ],
     onValueChanged: (question: Question, name: string, value: any) => {
-      if(name == "q2") {
+      if (name == "q2") {
         question.setValue("q1", value + value);
       }
     },
@@ -1255,9 +1255,9 @@ QUnit.test("Single: onValueChanged function, value is array", function (assert) 
       type: "html",
     },
     onValueChanged: (question: Question, name: string, value: any) => {
-      if(!value) value = [];
+      if (!value) value = [];
       var res = "";
-      for(var i = 0; i < value.length; i++) {
+      for (var i = 0; i < value.length; i++) {
         res += value[i];
       }
       question.contentQuestion.html = res;
@@ -1288,7 +1288,7 @@ QUnit.test("Composite: onValueChanging function", function (assert) {
       },
     ],
     onValueChanging: (question: Question, name: string, value: any): any => {
-      if(name == "q2" && value === 1) {
+      if (name == "q2" && value === 1) {
         return 2;
       }
       return value;
@@ -1319,7 +1319,7 @@ QUnit.test("Composite: onMatrixCellValueChanging function", function (assert) {
     onCreated: (question: Question): void => {
       const matrix = question.contentPanel.getQuestionByName("q2");
       matrix.cellValueChangingCallback = (row: any, columnName: string, value: any): any => {
-        if(columnName === "col1" && value === 1) return 2;
+        if (columnName === "col1" && value === 1) return 2;
         return value;
       };
     }
@@ -1344,7 +1344,7 @@ QUnit.test("Single: onValueChanging function, value is array", function (assert)
       type: "text",
     },
     onValueChanging: (question: Question, name: string, value: any) => {
-      if(value === 1) {
+      if (value === 1) {
         return 2;
       }
       return value;
@@ -1488,7 +1488,7 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var objs = [];
   q.addConditionObjectsByContext(objs, null);
-  for(var i = 0; i < objs.length; i++) {
+  for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.getType();
   }
   assert.deepEqual(
@@ -2210,10 +2210,10 @@ QUnit.test("Composite: Change css rules for content questions", function (assert
       firstName.value = "Jon";
     },
     onUpdateQuestionCssClasses: (question: Question, element: Question, css: any) => {
-      if(element.name === "firstName") {
+      if (element.name === "firstName") {
         css.root = "css_question1";
       }
-      if(element.name === "lastName") {
+      if (element.name === "lastName") {
         css.root = "css_question2";
       }
     }
@@ -2392,16 +2392,16 @@ QUnit.test("Composite & valueToQuestion/valueFromQuestion, #6475", function (ass
       }
     ],
     valueToQuestion(val: any): any {
-      if(!val) return "";
+      if (!val) return "";
       let res = !!val.item1 ? val.item1 : "";
       res += ",";
       res += !!val.item2 ? val.item2 : "";
       return res;
     },
     valueFromQuestion(val: any): any {
-      if(!val) return {};
+      if (!val) return {};
       const res = val.split(",");
-      if(res.length < 2) res.push("");
+      if (res.length < 2) res.push("");
       return { item1: res[0], item2: res[1] };
     }
   });
@@ -2499,11 +2499,11 @@ QUnit.test("Single & getValue/setValue, #6475", function (assert) {
     showInToolbox: false,
     questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
     getValue(val: any): any {
-      if(!val) return val;
+      if (!val) return val;
       return "val:" + val.toString();
     },
     setValue(val: any): any {
-      if(!val) return val;
+      if (!val) return val;
       val = val.replace("val:", "");
       return Number.parseInt(val);
     }
@@ -3089,7 +3089,7 @@ QUnit.test("Single: validate", function (assert) {
     name: "test",
     questionJSON: { type: "dropdown", choices: [1, 2, 3] },
     getErrorText: (question): string => {
-      if(question.value !== 1) {
+      if (question.value !== 1) {
         errorText = "val";
         return "value should be 1";
       }
@@ -3119,17 +3119,17 @@ QUnit.test("Composite: validate", function (assert) {
       { type: "text", name: "q3", choices: [1, 2, 3], visibleIf: "{composite.q2} notempty" }
     ],
     onValueChanged(question, name, newValue) {
-      if(name === "q1") {
+      if (name === "q1") {
         question.contentPanel.getQuestionByName("q2").clearValue();
       }
-      if(name === "q2") {
+      if (name === "q2") {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
     },
     getErrorText: (question): string => {
       const q1 = question.contentPanel.getQuestionByName("q1");
       const q3 = question.contentPanel.getQuestionByName("q3");
-      if(!q1.isEmpty() && q3.isEmpty()) return "Select q2";
+      if (!q1.isEmpty() && q3.isEmpty()) return "Select q2";
       return "";
     }
   });
@@ -3169,7 +3169,7 @@ QUnit.test("Composite: update questions on a value change", function (assert) {
       { type: "text", name: "q3" }
     ],
     onValueSet: (question, newValue: any): void => {
-      if(!!newValue && !!newValue.q3) {
+      if (!!newValue && !!newValue.q3) {
         question.contentPanel.getQuestionByName("q2").choices = [newValue.q3];
       }
     }
@@ -3198,10 +3198,10 @@ QUnit.test("Composite: onValueChanging and survey.onValueChanging", function (as
       { type: "text", name: "q3", choices: [1, 2, 3] }
     ],
     onValueChanging(question, name, newValue) {
-      if(name === "q1") {
+      if (name === "q1") {
         question.contentPanel.getQuestionByName("q2").clearValue();
       }
-      if(name === "q2") {
+      if (name === "q2") {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
       return newValue;
@@ -3235,11 +3235,11 @@ QUnit.test("Composite: onValueChanged and survey.data", function (assert) {
       { type: "text", name: "q3", choices: [1, 2, 3] }
     ],
     onValueChanged(question, name, newValue) {
-      if(name === "q1") {
+      if (name === "q1") {
         question.contentPanel.getQuestionByName("q2").clearValue();
         question.contentPanel.getQuestionByName("q3").clearValue();
       }
-      if(name === "q2") {
+      if (name === "q2") {
         question.contentPanel.getQuestionByName("q3").value = newValue;
       }
     },
@@ -3313,7 +3313,7 @@ QUnit.test("single component: inheritBaseProps - do not duplicate description pr
   const props = Serializer.getPropertiesByObj(q1);
   let descriptionCounter = 0;
   props.forEach(prop => {
-    if(prop.name === "description") {
+    if (prop.name === "description") {
       descriptionCounter ++;
     }
   });
@@ -3533,7 +3533,7 @@ QUnit.test("Composite: survey.onPanelVisibleChanged, Bug#9698", function (assert
   });
   let questionNumberCounter = 0;
   survey.onGetQuestionNumber.add((survey, options) => {
-    if(options.question.name === "q4") {
+    if (options.question.name === "q4") {
       questionNumberCounter ++;
     }
   });

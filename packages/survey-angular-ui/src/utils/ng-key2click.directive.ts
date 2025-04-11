@@ -32,7 +32,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
   }
 
   subscribeEventListeners() {
-    if(this.isSubscribed) return;
+    if (this.isSubscribed) return;
 
     this.element.tabIndex = 0;
     this.element.addEventListener("keyup", this.onkeyup.bind(this));
@@ -42,7 +42,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     this.isSubscribed = true;
   }
   unsubscribeEventListeners() {
-    if(!this.isSubscribed) return;
+    if (!this.isSubscribed) return;
 
     this.element.tabIndex = -1;
     this.element.removeEventListener("keyup", this.onkeyup.bind(this));
@@ -54,7 +54,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     const curValue = changes["key2click"].currentValue;
-    if(curValue.disableTabStop) {
+    if (curValue.disableTabStop) {
       this.unsubscribeEventListeners();
     } else {
       this.subscribeEventListeners();

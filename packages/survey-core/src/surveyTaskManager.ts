@@ -27,7 +27,7 @@ export class SurveyTaskManagerModel extends Base {
   }
 
   public waitAndExecute(action: any): void {
-    if(!this.hasActiveTasks) {
+    if (!this.hasActiveTasks) {
       action();
       return;
     }
@@ -36,10 +36,10 @@ export class SurveyTaskManagerModel extends Base {
 
   private taskFinished(task: SurveyTaskModel) {
     const index = this.taskList.indexOf(task);
-    if(index > -1) {
+    if (index > -1) {
       this.taskList.splice(index, 1);
     }
-    if(this.hasActiveTasks && this.taskList.length == 0) {
+    if (this.hasActiveTasks && this.taskList.length == 0) {
       this.hasActiveTasks = false;
       this.onAllTasksCompleted.fire(this, {});
     }

@@ -12,7 +12,7 @@ RemoveCoreFromNamePlugin.prototype.apply = function (compiler) {
         const chunk = data.chunk;
         const chunkName = chunk && (chunk.name || chunk.id);
 
-        if(typeof path === "function") {
+        if (typeof path === "function") {
           path = path(data);
         }
 

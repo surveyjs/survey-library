@@ -256,7 +256,7 @@ frameworks.forEach(framework => {
       const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
         (<HTMLElement>document.getElementById("surveyElement")).style.height = "300px";
         const surveyContainer = (<HTMLElement>document.getElementById("surveyElement")).querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
-        if(!!surveyContainer) {
+        if (!!surveyContainer) {
           surveyContainer.scrollTop = 50;
         }
 

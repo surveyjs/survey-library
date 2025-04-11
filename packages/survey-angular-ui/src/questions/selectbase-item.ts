@@ -20,23 +20,23 @@ export class SelectBaseItemComponent extends BaseAngular<ItemValue> implements A
   }
   protected override onModelChanged(): void {
     super.onModelChanged();
-    if(!this.question.isDesignMode) {
-      if(this.previousModel) {
+    if (!this.question.isDesignMode) {
+      if (this.previousModel) {
         this.previousModel.setRootElement(undefined as any);
       }
-      if(this.model && this.container?.nativeElement) {
+      if (this.model && this.container?.nativeElement) {
         this.model.setRootElement(this.container.nativeElement);
       }
     }
   }
   ngAfterViewInit(): void {
-    if(this.model && this.container?.nativeElement && !this.question.isDesignMode) {
+    if (this.model && this.container?.nativeElement && !this.question.isDesignMode) {
       this.model.setRootElement(this.container.nativeElement);
     }
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if(this.model && !this.question.isDesignMode) {
+    if (this.model && !this.question.isDesignMode) {
       this.model.setRootElement(undefined);
     }
   }

@@ -20,7 +20,7 @@ export class ModalComponent {
   showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
     const popupViewModel = this.model = createPopupModalViewModel(dialogOptions, rootElement);
     const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
-      if(!options.isVisible) {
+      if (!options.isVisible) {
         this.portalHost.detach();
         this.model.dispose();
       }
@@ -40,7 +40,7 @@ export class ModalComponent {
   ngOnDestroy() {
     this.portalHost?.detach();
     this.model?.dispose();
-    if(this.functionDefined) {
+    if (this.functionDefined) {
       settings.showDialog = <any>undefined;
     }
   }

@@ -22,7 +22,7 @@ export class PopupSurvey extends Survey {
     var header = this.renderWindowHeader();
     var body = this.renderBody();
     let style: React.CSSProperties = {};
-    if(!!this.popup.renderedWidth) {
+    if (!!this.popup.renderedWidth) {
       style.width = this.popup.renderedWidth;
       style.maxWidth = this.popup.renderedWidth;
     }
@@ -43,7 +43,7 @@ export class PopupSurvey extends Survey {
     var closeButton: React.JSX.Element | null = null;
     var allowFullScreenButon: React.JSX.Element | null = null;
 
-    if(popup.isCollapsed) {
+    if (popup.isCollapsed) {
       headerCss += " " + popup.cssRootCollapsedMod;
       titleCollapsed = this.renderTitleCollapsed(popup);
       expandCollapseIcon = this.renderExpandIcon();
@@ -51,11 +51,11 @@ export class PopupSurvey extends Survey {
       expandCollapseIcon = this.renderCollapseIcon();
     }
 
-    if(popup.allowClose) {
+    if (popup.allowClose) {
       closeButton = this.renderCloseButton(this.popup);
     }
 
-    if(popup.allowFullScreen) {
+    if (popup.allowFullScreen) {
       allowFullScreenButon = this.renderAllowFullScreenButon(this.popup);
     }
 
@@ -73,7 +73,7 @@ export class PopupSurvey extends Survey {
     );
   }
   protected renderTitleCollapsed(popup: PopupSurveyModel): React.JSX.Element | null {
-    if(!popup.locTitle) return null;
+    if (!popup.locTitle) return null;
     return <div className={popup.cssHeaderTitleCollapsed}>{popup.locTitle.renderedHtml}</div>;
   }
   protected renderExpandIcon(): React.JSX.Element {
@@ -86,7 +86,7 @@ export class PopupSurvey extends Survey {
     return (
       <div className={popup.cssHeaderCloseButton} onClick={() => {
         popup.hide();
-        if(typeof this.props.onClose == "function") {
+        if (typeof this.props.onClose == "function") {
           this.props.onClose();
         }
       }}>
@@ -97,7 +97,7 @@ export class PopupSurvey extends Survey {
   protected renderAllowFullScreenButon(popup: PopupSurveyModel): React.JSX.Element {
     let Icon;
 
-    if(popup.isFullScreen) {
+    if (popup.isFullScreen) {
       Icon = <SvgIcon iconName={"icon-back-to-panel_16x16"} size={16}></SvgIcon>;
     } else {
       Icon = <SvgIcon iconName={"icon-full-screen_16x16"} size={16}></SvgIcon>;
@@ -113,16 +113,16 @@ export class PopupSurvey extends Survey {
     return <div className={this.popup.cssBody}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
-    if(!newProps) newProps = {};
+    if (!newProps) newProps = {};
     super.createSurvey(newProps);
     this.popup = new PopupSurveyModel(null, this.survey);
-    if(newProps.closeOnCompleteTimeout) {
+    if (newProps.closeOnCompleteTimeout) {
       this.popup.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
     this.popup.allowClose = newProps.allowClose;
     this.popup.allowFullScreen = newProps.allowFullScreen;
     this.popup.isShowing = true;
-    if(!this.popup.isExpanded && (newProps.expanded || newProps.isExpanded))
+    if (!this.popup.isExpanded && (newProps.expanded || newProps.isExpanded))
       this.popup.expand();
   }
 }

@@ -6,15 +6,15 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {
-    if(dragOverNode.dataset.ranking === "from-container" || dragOverNode.dataset.ranking === "to-container") {
+    if (dragOverNode.dataset.ranking === "from-container" || dragOverNode.dataset.ranking === "to-container") {
       return dragOverNode;
     }
 
     let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
     let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
 
-    if(this.parentElement.unRankingChoices.length === 0 && fromContainer) return fromContainer;
-    if(this.parentElement.rankingChoices.length === 0 && toContainer) return toContainer;
+    if (this.parentElement.unRankingChoices.length === 0 && fromContainer) return fromContainer;
+    if (this.parentElement.rankingChoices.length === 0 && toContainer) return toContainer;
 
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
@@ -27,11 +27,11 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     dropTargetNode: HTMLElement,
     event: PointerEvent
   ): any {
-    if(dropTargetNode.dataset.ranking === "to-container") {
+    if (dropTargetNode.dataset.ranking === "to-container") {
       return "to-container";
     }
 
-    if(dropTargetNode.dataset.ranking === "from-container" || dropTargetNode.closest("[data-ranking='from-container']")) {
+    if (dropTargetNode.dataset.ranking === "from-container" || dropTargetNode.closest("[data-ranking='from-container']")) {
       return "from-container";
     }
 
@@ -42,7 +42,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     dropTarget: ItemValue | string,
     dropTargetNode?: HTMLElement
   ): boolean {
-    if(dropTarget === "to-container" || dropTarget === "from-container") {
+    if (dropTarget === "to-container" || dropTarget === "from-container") {
       return true;
     } else {
       return super.isDropTargetValid(<ItemValue>dropTarget, dropTargetNode);
@@ -54,17 +54,17 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
 
-    if(this.isDraggedElementUnranked && this.isDropTargetRanked) {
+    if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
       this.doRankBetween(dropTargetNode, unRankingChoices, rankingChoices, this.selectToRank);
       return;
     }
 
-    if(this.isDraggedElementRanked && this.isDropTargetRanked) {
+    if (this.isDraggedElementRanked && this.isDropTargetRanked) {
       this.doRankBetween(dropTargetNode, rankingChoices, rankingChoices, this.reorderRankedItem);
       return;
     }
 
-    if(this.isDraggedElementRanked && !this.isDropTargetRanked) {
+    if (this.isDraggedElementRanked && !this.isDropTargetRanked) {
       this.doRankBetween(dropTargetNode, rankingChoices, unRankingChoices, this.unselectFromRank);
       return;
     }
@@ -88,7 +88,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   }
 
   private get isDropTargetRanked() {
-    if(this.dropTarget === "to-container") return true;
+    if (this.dropTarget === "to-container") return true;
     return this.parentElement.rankingChoices.indexOf(this.dropTarget) !== -1;
   }
 

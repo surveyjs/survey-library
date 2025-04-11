@@ -53,7 +53,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     return this.getLocalizationString("modalApplyButtonText");
   }
   public apply(): void {
-    if(!!this.model.onApply && !this.model.onApply()) return;
+    if (!!this.model.onApply && !this.model.onApply()) return;
     this.hidePopup();
   }
 
@@ -61,7 +61,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     return;
   }
   public onKeyDown(event: any): void {
-    if(event.key === "Escape" || event.keyCode === 27) {
+    if (event.key === "Escape" || event.keyCode === 27) {
       this.model.onCancel();
     }
     super.onKeyDown(event);
@@ -72,13 +72,13 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   };
 
   public updateOnShowing(): void {
-    if(this.container) {
+    if (this.container) {
       this.container.addEventListener("wheel", this.onScrollOutsideCallback, { passive: false });
     }
     super.updateOnShowing();
   }
   public updateOnHiding(): void {
-    if(this.container) {
+    if (this.container) {
       this.container.removeEventListener("wheel", this.onScrollOutsideCallback);
     }
     super.updateOnHiding();

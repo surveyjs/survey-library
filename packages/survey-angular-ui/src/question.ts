@@ -15,12 +15,12 @@ export class QuestionAngular<T extends Question = Question> extends BaseAngular<
   }
 
   ngAfterViewInit() {
-    if(!!this.model) {
+    if (!!this.model) {
       this.model.afterRenderQuestionElement(this.elementContentRef?.nativeElement);
     }
   }
   override ngOnDestroy() {
-    if(!!this.model) {
+    if (!!this.model) {
       this.model.beforeDestroyQuestionElement(this.elementContentRef?.nativeElement);
     }
     super.ngOnDestroy();
@@ -28,8 +28,8 @@ export class QuestionAngular<T extends Question = Question> extends BaseAngular<
 }
 
 export function getComponentName(question: Question): string {
-  if(question.customWidget) return "survey-customwidget";
-  if(question.isDefaultRendering()) {
+  if (question.customWidget) return "survey-customwidget";
+  if (question.isDefaultRendering()) {
     return question.getTemplate() + "-question";
   }
   return question.getComponentName();

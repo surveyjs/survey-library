@@ -307,7 +307,7 @@ frameworks.forEach(async framework => {
       });
       await ClientFunction(() => {
         window["survey"].onOpenDropdownMenu.add((sender, options) => {
-          if(options.menuType === "popup") options.menuType = "overlay";
+          if (options.menuType === "popup") options.menuType = "overlay";
         });
       })();
       await t.click(Selector(".sd-dropdown__filter-string-input"))

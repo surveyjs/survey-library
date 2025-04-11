@@ -30,8 +30,8 @@ export class Bindings {
   public getNames(): Array<string> {
     var res: Array<string> = [];
     this.fillProperties();
-    for(var i = 0; i < this.properties.length; i++) {
-      if(this.properties[i].isVisible("", this.obj)) {
+    for (var i = 0; i < this.properties.length; i++) {
+      if (this.properties[i].isVisible("", this.obj)) {
         res.push(this.properties[i].name);
       }
     }
@@ -40,20 +40,20 @@ export class Bindings {
   public getProperties(): Array<JsonObjectProperty> {
     var res: Array<JsonObjectProperty> = [];
     this.fillProperties();
-    for(var i = 0; i < this.properties.length; i++) {
+    for (var i = 0; i < this.properties.length; i++) {
       res.push(this.properties[i]);
     }
     return res;
   }
   public setBinding(propertyName: string, valueName: string) {
-    if(!this.values)this.values = {};
+    if (!this.values)this.values = {};
     const oldValue = this.getJson();
-    if(oldValue === valueName) return;
-    if(!!valueName) {
+    if (oldValue === valueName) return;
+    if (!!valueName) {
       this.values[propertyName] = valueName;
     } else {
       delete this.values[propertyName];
-      if(Object.keys(this.values).length == 0) {
+      if (Object.keys(this.values).length == 0) {
         this.values = null;
       }
     }
@@ -63,29 +63,29 @@ export class Bindings {
     this.setBinding(propertyName, "");
   }
   public isEmpty(): boolean {
-    if(!this.values) return true;
-    for(var key in this.values) return false;
+    if (!this.values) return true;
+    for (var key in this.values) return false;
     return true;
   }
   public getValueNameByPropertyName(propertyName: string): string {
-    if(!this.values) return undefined;
+    if (!this.values) return undefined;
     return this.values[propertyName];
   }
   public getPropertiesByValueName(valueName: string): Array<string> {
-    if(!this.values) return [];
+    if (!this.values) return [];
     var res: Array<string> = [];
-    for(var key in this.values) {
-      if(this.values[key] == valueName) {
+    for (var key in this.values) {
+      if (this.values[key] == valueName) {
         res.push(key);
       }
     }
     return res;
   }
   public getJson(): any {
-    if(this.isEmpty()) return undefined;
+    if (this.isEmpty()) return undefined;
     const res: any = {};
     this.getNames().forEach(key => {
-      if(this.values[key] !== undefined) {
+      if (this.values[key] !== undefined) {
         res[key] = this.values[key];
       }
     });
@@ -94,30 +94,30 @@ export class Bindings {
   public setJson(value: any, isLoading?: boolean): void {
     const oldValue = this.getJson();
     this.values = null;
-    if(!!value) {
+    if (!!value) {
       this.getNames().forEach(key => {
-        if(value[key] !== undefined) {
-          if(!this.values)this.values = {};
+        if (value[key] !== undefined) {
+          if (!this.values)this.values = {};
           this.values[key] = value[key];
         }
       });
     }
-    if(!isLoading && !Helpers.isTwoValueEquals(oldValue, this.values)) {
+    if (!isLoading && !Helpers.isTwoValueEquals(oldValue, this.values)) {
       this.onChangedJSON(oldValue);
     }
   }
   private fillProperties() {
-    if(this.properties !== null) return;
+    if (this.properties !== null) return;
     this.properties = [];
     var objProperties = Serializer.getPropertiesByObj(this.obj);
-    for(var i = 0; i < objProperties.length; i++) {
-      if(objProperties[i].isBindable) {
+    for (var i = 0; i < objProperties.length; i++) {
+      if (objProperties[i].isBindable) {
         this.properties.push(objProperties[i]);
       }
     }
   }
   private onChangedJSON(oldValue: any): void {
-    if(this.obj) {
+    if (this.obj) {
       this.obj.onBindingChanged(oldValue, this.getJson());
     }
   }
@@ -130,9 +130,9 @@ export class Dependencies {
   dependencies: Array<{ obj: Base, prop: string, id: string }> = [];
   id: string = "" + (++Dependencies.DependenciesCount);
   addDependency(target: Base, property: string): void {
-    if(this.target === target && this.property === property)
+    if (this.target === target && this.property === property)
       return;
-    if(this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
+    if (this.dependencies.some(dependency => dependency.obj === target && dependency.prop === property))
       return;
 
     this.dependencies.push({
@@ -168,7 +168,7 @@ export class ComputedUpdater<T = any> {
     return this.dependencies;
   }
   private clearDependencies() {
-    if(this.dependencies) {
+    if (this.dependencies) {
       this.dependencies.dispose();
       this.dependencies = undefined;
     }
@@ -190,13 +190,13 @@ export class Base {
     return deps;
   }
   public static startCollectDependencies(updater: () => void, target: Base, property: string): void {
-    if(Base.currentDependencis !== undefined) {
+    if (Base.currentDependencis !== undefined) {
       throw new Error("Attempt to collect nested dependencies. Nested dependencies are not supported.");
     }
     Base.currentDependencis = new Dependencies(updater, target, property);
   }
   protected static collectDependency(target: Base, property: string): void {
-    if(Base.currentDependencis === undefined) return;
+    if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }
   public dependencies: { [key: string]: ComputedUpdater } = {};
@@ -221,23 +221,23 @@ export class Base {
    * @param trimString *(Optional)* When this parameter is `true`, the method ignores whitespace characters at the beginning and end of a string value. Pass `false` to disable this functionality.
    */
   public isValueEmpty(value: any, trimString: boolean = true): boolean {
-    if(trimString) {
+    if (trimString) {
       value = this.trimValue(value);
     }
     return Helpers.isValueEmpty(value);
   }
   public equals(obj: Base): boolean {
-    if(!obj) return false;
-    if(this.isDisposed || obj.isDisposed) return false;
-    if(this.getType() != obj.getType()) return false;
+    if (!obj) return false;
+    if (this.isDisposed || obj.isDisposed) return false;
+    if (this.getType() != obj.getType()) return false;
     return this.equalsCore(obj);
   }
   protected equalsCore(obj: Base): boolean {
-    if((<any>this).name !== (<any>obj).name) return false;
+    if ((<any>this).name !== (<any>obj).name) return false;
     return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
   }
   protected trimValue(value: any): any {
-    if(!!value && (typeof value === "string" || value instanceof String))
+    if (!!value && (typeof value === "string" || value instanceof String))
       return value.trim();
     return value;
   }
@@ -318,7 +318,7 @@ export class Base {
     this.isCreating = false;
   }
   public dispose(): void {
-    for(var i = 0; i < this.eventList.length; i++) {
+    for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
     this.onPropertyValueChangedCallback = undefined;
@@ -327,7 +327,7 @@ export class Base {
     // this.dependencies = {};
     Object.keys(this.propertyHash).forEach(key => {
       const propVal = this.getPropertyValueCore(this.propertyHash, key);
-      if(!!propVal && propVal.type == ComputedUpdater.ComputedUpdaterType) {
+      if (!!propVal && propVal.type == ComputedUpdater.ComputedUpdaterType) {
         (propVal as ComputedUpdater).dispose();
       }
     });
@@ -378,7 +378,7 @@ export class Base {
   }
   private bindingsValue: Bindings;
   public get bindings(): Bindings {
-    if(!this.bindingsValue) {
+    if (!this.bindingsValue) {
       this.bindingsValue = new Bindings(this);
     }
     return this.bindingsValue;
@@ -388,9 +388,9 @@ export class Base {
   }
   checkBindings(valueName: string, value: any): void { }
   protected updateBindings(propertyName: string, value: any): void {
-    if(!this.bindingsValue) return;
+    if (!this.bindingsValue) return;
     var valueName = this.bindings.getValueNameByPropertyName(propertyName);
-    if(!!valueName) {
+    if (!!valueName) {
       this.updateBindingValue(valueName, value);
     }
   }
@@ -405,7 +405,7 @@ export class Base {
     return this.isLoadingFromJsonValue || this.getIsLoadingFromJson();
   }
   protected getIsLoadingFromJson(): boolean {
-    if(!!this.loadingOwner && this.loadingOwner.isLoadingFromJson) return true;
+    if (!!this.loadingOwner && this.loadingOwner.isLoadingFromJson) return true;
     return this.isLoadingFromJsonValue;
   }
   startLoadingFromJson(json?: any): void {
@@ -454,7 +454,7 @@ export class Base {
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
     const type = this.getType();
-    if(!this.classMetaData || this.classMetaData.name !== type) {
+    if (!this.classMetaData || this.classMetaData.name !== type) {
       this.classMetaData = Serializer.findClass(type);
     }
     return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
@@ -476,20 +476,20 @@ export class Base {
   }
   public localeChanged(): void { }
   public locStrsChanged(): void {
-    if(!!this.arraysInfo) {
-      for(let key in this.arraysInfo) {
+    if (!!this.arraysInfo) {
+      for (let key in this.arraysInfo) {
         let item = this.arraysInfo[key];
-        if(item && item.isItemValues) {
+        if (item && item.isItemValues) {
           var arr = this.getPropertyValue(key);
-          if(arr && !!Base.itemValueLocStrChanged)
+          if (arr && !!Base.itemValueLocStrChanged)
             Base.itemValueLocStrChanged(arr);
         }
       }
     }
-    if(!!this.localizableStrings) {
-      for(let key in this.localizableStrings) {
+    if (!!this.localizableStrings) {
+      for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if(item) item.strChanged();
+        if (item) item.strChanged();
       }
     }
   }
@@ -503,14 +503,14 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
-    if(this.isValueUndefined(res)) {
+    if (this.isValueUndefined(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-      if(locStr) return locStr.text;
-      if(!this.isValueUndefined(defaultValue)) return defaultValue;
-      if(!!calcFunc) {
+      if (locStr) return locStr.text;
+      if (!this.isValueUndefined(defaultValue)) return defaultValue;
+      if (!!calcFunc) {
         const newVal = calcFunc();
-        if(newVal !== undefined) {
-          if(Array.isArray(newVal)) {
+        if (newVal !== undefined) {
+          if (Array.isArray(newVal)) {
             const array = this.createNewArray(name);
             array.splice(0, 0, ...newVal);
             return array;
@@ -521,7 +521,7 @@ export class Base {
         }
       }
       const propDefaultValue = this.getDefaultPropertyValue(name);
-      if(propDefaultValue !== undefined) return propDefaultValue;
+      if (propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
   }
@@ -530,14 +530,14 @@ export class Base {
   }
   public getDefaultPropertyValue(name: string): any {
     const prop = this.getPropertyByName(name);
-    if(!prop || prop.isCustom && this.isCreating) return undefined;
-    if(!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
+    if (!prop || prop.isCustom && this.isCreating) return undefined;
+    if (!!prop.defaultValueFunc) return prop.defaultValueFunc(this);
     const dValue = prop.getDefaultValue(this);
-    if(!this.isValueUndefined(dValue) && !Array.isArray(dValue)) return dValue;
+    if (!this.isValueUndefined(dValue) && !Array.isArray(dValue)) return dValue;
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-    if(locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
-    if(prop.type == "boolean" || prop.type == "switch") return false;
-    if(prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
+    if (locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
+    if (prop.type == "boolean" || prop.type == "switch") return false;
+    if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
   }
   public hasDefaultPropertyValue(name: string): boolean {
@@ -545,7 +545,7 @@ export class Base {
   }
   public resetPropertyValue(name: string): void {
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
-    if(locStr) {
+    if (locStr) {
       this.setLocalizableStringText(name, undefined);
       locStr.clear();
     } else {
@@ -556,10 +556,10 @@ export class Base {
     return this.getPropertyValueCore(this.propertyHash, name);
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       Base.collectDependency(this, name);
     }
-    if(this.getPropertyValueCoreHandler)
+    if (this.getPropertyValueCoreHandler)
       return this.getPropertyValueCoreHandler(propertiesHash, name);
     else return propertiesHash[name];
   }
@@ -567,8 +567,8 @@ export class Base {
     return this.propertyHash["value"];
   }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any): void {
-    if(this.setPropertyValueCoreHandler) {
-      if(!this.isDisposedValue) {
+    if (this.setPropertyValueCoreHandler) {
+      if (!this.isDisposedValue) {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);
       } else {
         ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
@@ -581,8 +581,8 @@ export class Base {
   }
   public iteratePropertiesHash(func: (hash: any, key: string) => void) {
     var keys: string[] = [];
-    for(var key in this.propertyHash) {
-      if(
+    for (var key in this.propertyHash) {
+      if (
         key === "value" &&
         this.isEditingSurveyElement &&
         Array.isArray((<any>this).value)
@@ -599,27 +599,27 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
-    if(this.isDisposedValue) return;
-    if(!this.isLoadingFromJson) {
+    if (this.isDisposedValue) return;
+    if (!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
-      if(!!prop) {
+      if (!!prop) {
         val = prop.settingValue(this, val);
       }
     }
     var oldValue = this.getPropertyValue(name);
-    if(
+    if (
       oldValue &&
       Array.isArray(oldValue) &&
       !!this.arraysInfo &&
       (!val || Array.isArray(val))
     ) {
-      if(!this.isTwoValueEquals(oldValue, val)) {
+      if (!this.isTwoValueEquals(oldValue, val)) {
         this.setArrayPropertyDirectly(name, val);
       }
     } else {
-      if(val !== oldValue) {
+      if (val !== oldValue) {
         this.setPropertyValueDirectly(name, val);
-        if(!this.isTwoValueEquals(oldValue, val)) {
+        if (!this.isTwoValueEquals(oldValue, val)) {
           this.propertyValueChanged(name, oldValue, val);
         }
       }
@@ -665,7 +665,7 @@ export class Base {
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-    if(this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) return;
     this.updateBindings(name, newValue);
     this.onPropertyValueChanged(name, oldValue, newValue);
     this.onPropertyChanged.fire(this, {
@@ -683,14 +683,14 @@ export class Base {
       this
     );
     this.checkConditionPropertyChanged(name);
-    if(!this.onPropChangeFunctions) return;
-    for(var i = 0; i < this.onPropChangeFunctions.length; i++) {
-      if(this.onPropChangeFunctions[i].name == name)
+    if (!this.onPropChangeFunctions) return;
+    for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
+      if (this.onPropChangeFunctions[i].name == name)
         this.onPropChangeFunctions[i].func(newValue, arrayChanges);
     }
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
-    if(this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) return;
     this.doPropertyValueChangedCallback("bindings", oldValue, newValue);
   }
   protected get isInternal(): boolean {
@@ -704,24 +704,24 @@ export class Base {
     target?: Base
   ) {
     const fireCallback = (obj: Base): void => {
-      if(!!obj && !!obj.onPropertyValueChangedCallback) {
+      if (!!obj && !!obj.onPropertyValueChangedCallback) {
         obj.onPropertyValueChangedCallback(name, oldValue, newValue, target, arrayChanges);
       }
     };
-    if(this.isInternal) {
+    if (this.isInternal) {
       fireCallback(this);
       return;
     }
-    if(!target) target = this;
+    if (!target) target = this;
     var notifier: any = this.getSurvey();
-    if(!notifier) notifier = this;
+    if (!notifier) notifier = this;
     fireCallback(notifier);
-    if(notifier !== this) {
+    if (notifier !== this) {
       fireCallback(this);
     }
   }
   public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {
-    if(!this.expressionInfo) {
+    if (!this.expressionInfo) {
       this.expressionInfo = {};
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
@@ -733,8 +733,8 @@ export class Base {
     return {};
   }
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    if(!this.expressionInfo) return;
-    for(var key in this.expressionInfo) {
+    if (!this.expressionInfo) return;
+    for (var key in this.expressionInfo) {
       this.runConditionItemCore(key, values, properties);
     }
   }
@@ -742,16 +742,16 @@ export class Base {
     return !this.isDesignMode;
   }
   private checkConditionPropertyChanged(propName: string): void {
-    if(!this.expressionInfo || !this.expressionInfo[propName]) return;
-    if(!this.canRunConditions()) return;
+    if (!this.expressionInfo || !this.expressionInfo[propName]) return;
+    if (!this.canRunConditions()) return;
     this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {
     const info = this.expressionInfo[propName];
     const expression = this.getPropertyValue(propName);
-    if(!expression) return;
-    if(!!info.canRun && !info.canRun(this)) return;
-    if(!info.runner) {
+    if (!expression) return;
+    if (!!info.canRun && !info.canRun(this)) return;
+    if (!info.runner) {
       info.runner = this.createExpressionRunner(expression);
       info.runner.onRunComplete = (res: any) => {
         info.onExecute(this, res);
@@ -762,17 +762,17 @@ export class Base {
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
-    if(!this.asynExpressionHash)this.asynExpressionHash = {};
+    if (!this.asynExpressionHash)this.asynExpressionHash = {};
     const isChanged = !this.isAsyncExpressionRunning;
     this.asynExpressionHash[id] = true;
-    if(isChanged) {
+    if (isChanged) {
       this.onAsyncRunningChanged();
     }
   }
   private doAfterAsynRun(id: number): void {
-    if(!!this.asynExpressionHash) {
+    if (!!this.asynExpressionHash) {
       delete this.asynExpressionHash[id];
-      if(!this.isAsyncExpressionRunning) {
+      if (!this.isAsyncExpressionRunning) {
         this.onAsyncRunningChanged();
       }
     }
@@ -797,7 +797,7 @@ export class Base {
    * @see unregisterPropertyChangedHandlers
    */
   public registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string = null): void {
-    for(var i = 0; i < propertyNames.length; i++) {
+    for (var i = 0; i < propertyNames.length; i++) {
       this.registerFunctionOnPropertyValueChanged(propertyNames[i], handler, key);
     }
   }
@@ -808,18 +808,18 @@ export class Base {
    * @see registerPropertyChangedHandlers
    */
   public unregisterPropertyChangedHandlers(propertyNames: Array<string>, key: string = null): void {
-    for(var i = 0; i < propertyNames.length; i++) {
+    for (var i = 0; i < propertyNames.length; i++) {
       this.unRegisterFunctionOnPropertyValueChanged(propertyNames[i], key);
     }
   }
   public registerFunctionOnPropertyValueChanged(name: string, func: any, key: string = null): void {
-    if(!this.onPropChangeFunctions) {
+    if (!this.onPropChangeFunctions) {
       this.onPropChangeFunctions = [];
     }
-    if(key) {
-      for(var i = 0; i < this.onPropChangeFunctions.length; i++) {
+    if (key) {
+      for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
         var item = this.onPropChangeFunctions[i];
-        if(item.name == name && item.key == key) {
+        if (item.name == name && item.key == key) {
           item.func = func;
           return;
         }
@@ -831,10 +831,10 @@ export class Base {
     this.registerPropertyChangedHandlers(names, func, key);
   }
   public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): Array<any> {
-    if(!this.onPropChangeFunctions) return;
-    for(var i = 0; i < this.onPropChangeFunctions.length; i++) {
+    if (!this.onPropChangeFunctions) return;
+    for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       var item = this.onPropChangeFunctions[i];
-      if(item.name == name && item.key == key) {
+      if (item.name == name && item.key == key) {
         return this.onPropChangeFunctions.splice(i, 1);
       }
     }
@@ -844,7 +844,7 @@ export class Base {
   }
   public createCustomLocalizableObj(name: string): LocalizableString {
     const locStr = this.getLocalizableString(name);
-    if(locStr) return locStr;
+    if (locStr) return locStr;
     return this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   public getLocale(): string {
@@ -856,7 +856,7 @@ export class Base {
   }
   public getLocalizationFormatString(strName: string, ...args: any[]): string {
     const str: any = this.getLocalizationString(strName);
-    if(!str || !str.format) return "";
+    if (!str || !str.format) return "";
     return str.format(...args);
   }
   protected createLocalizableString(
@@ -866,14 +866,14 @@ export class Base {
     defaultStr: boolean | string = false
   ): LocalizableString {
     let locName = undefined;
-    if(defaultStr) {
+    if (defaultStr) {
       locName = defaultStr === true ? name : defaultStr;
     }
     const locStr = new LocalizableString(owner, useMarkDown, name, locName);
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);
     };
-    if(!this.localizableStrings) {
+    if (!this.localizableStrings) {
       this.localizableStrings = {};
     }
     this.localizableStrings[name] = locStr;
@@ -882,7 +882,7 @@ export class Base {
     return locStr;
   }
   protected removeLocalizableString(name: string): void {
-    if(this.localizableStrings) {
+    if (this.localizableStrings) {
       delete this.localizableStrings[name];
     }
   }
@@ -895,35 +895,35 @@ export class Base {
   ): string {
     Base.collectDependency(this, name);
     var locStr = this.getLocalizableString(name);
-    if(!locStr) return "";
+    if (!locStr) return "";
     var res = locStr.text;
     return res ? res : defaultStr;
   }
   public setLocalizableStringText(name: string, value: string) {
     let locStr = this.getLocalizableString(name);
-    if(!locStr) return;
+    if (!locStr) return;
     let oldValue = locStr.text;
-    if(oldValue != value) {
+    if (oldValue != value) {
       locStr.text = value;
       // this.propertyValueChanged(name, oldValue, value);
     }
   }
   public addUsedLocales(locales: Array<string>): void {
-    if(!!this.localizableStrings) {
-      for(let key in this.localizableStrings) {
+    if (!!this.localizableStrings) {
+      for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if(item)this.AddLocStringToUsedLocales(item, locales);
+        if (item)this.AddLocStringToUsedLocales(item, locales);
       }
     }
-    if(!!this.arraysInfo) {
-      for(let key in this.arraysInfo) {
+    if (!!this.arraysInfo) {
+      for (let key in this.arraysInfo) {
         const prop = this.getPropertyByName(key);
-        if(!prop || !prop.isPropertySerializable(this)) continue;
+        if (!prop || !prop.isPropertySerializable(this)) continue;
         let items = this.getPropertyValue(key);
-        if(!items || !items.length) continue;
-        for(let i = 0; i < items.length; i++) {
+        if (!items || !items.length) continue;
+        for (let i = 0; i < items.length; i++) {
           let item = items[i];
-          if(item && item.addUsedLocales) {
+          if (item && item.addUsedLocales) {
             item.addUsedLocales(locales);
           }
         }
@@ -933,28 +933,28 @@ export class Base {
   public searchText(text: string, founded: Array<IFindElement>) {
     var strs: Array<LocalizableString> = [];
     this.getSearchableLocalizedStrings(strs);
-    for(var i = 0; i < strs.length; i++) {
-      if(strs[i].setFindText(text)) {
+    for (var i = 0; i < strs.length; i++) {
+      if (strs[i].setFindText(text)) {
         founded.push({ element: this, str: strs[i] });
       }
     }
   }
   private getSearchableLocalizedStrings(arr: Array<LocalizableString>) {
-    if(!!this.localizableStrings) {
+    if (!!this.localizableStrings) {
       let keys: Array<string> = [];
       this.getSearchableLocKeys(keys);
-      for(var i = 0; i < keys.length; i++) {
+      for (var i = 0; i < keys.length; i++) {
         let item = this.getLocalizableString(keys[i]);
-        if(item) arr.push(item);
+        if (item) arr.push(item);
       }
     }
-    if(!this.arraysInfo) return;
+    if (!this.arraysInfo) return;
     let keys: Array<string> = [];
     this.getSearchableItemValueKeys(keys);
-    for(var i = 0; i < keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       var items = this.getPropertyValue(keys[i]);
-      if(!items) continue;
-      for(var j = 0; j < items.length; j++) {
+      if (!items) continue;
+      for (var j = 0; j < items.length; j++) {
         arr.push(items[j].locText);
       }
     }
@@ -966,8 +966,8 @@ export class Base {
     locales: Array<string>
   ) {
     var locs = locStr.getLocales();
-    for(var i = 0; i < locs.length; i++) {
-      if(locales.indexOf(locs[i]) < 0) {
+    for (var i = 0; i < locs.length; i++) {
+      if (locales.indexOf(locs[i]) < 0) {
         locales.push(locs[i]);
       }
     }
@@ -977,9 +977,9 @@ export class Base {
     var result = this.createNewArray(name, function (item: any) {
       item.locOwner = self;
       item.ownerPropertyName = name;
-      if(typeof item.getSurvey == "function") {
+      if (typeof item.getSurvey == "function") {
         const survey: any = item.getSurvey();
-        if(!!survey && typeof survey.makeReactive == "function") {
+        if (!!survey && typeof survey.makeReactive == "function") {
           survey.makeReactive(item);
         }
       }
@@ -992,10 +992,10 @@ export class Base {
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;
-    if(!!this.createArrayCoreHandler) {
+    if (!!this.createArrayCoreHandler) {
       res = this.createArrayCoreHandler(this.propertyHash, name);
     }
-    if(!res) {
+    if (!res) {
       res = new Array<any>();
       this.setPropertyValueCore(this.propertyHash, name, res);
     }
@@ -1006,7 +1006,7 @@ export class Base {
     onPush: any = null,
     onRemove: any = null
   ) {
-    if(this.arraysInfo && this.arraysInfo[name]) {
+    if (this.arraysInfo && this.arraysInfo[name]) {
       return;
     }
 
@@ -1019,15 +1019,15 @@ export class Base {
     onRemove: any = null
   ): Array<any> {
     var newArray = this.createNewArrayCore(name);
-    if(!this.arraysInfo) {
+    if (!this.arraysInfo) {
       this.arraysInfo = {};
     }
     this.arraysInfo[name] = { onPush: onPush, isItemValues: false };
     var self = this;
     newArray.push = function (value): number {
       var result = Object.getPrototypeOf(newArray).push.call(newArray, value);
-      if(!self.isDisposedValue) {
-        if(onPush) onPush(value, newArray.length - 1);
+      if (!self.isDisposedValue) {
+        if (onPush) onPush(value, newArray.length - 1);
         const arrayChanges = new ArrayChanges(
           newArray.length - 1,
           0,
@@ -1041,8 +1041,8 @@ export class Base {
     };
     newArray.shift = function (): number {
       var result = Object.getPrototypeOf(newArray).shift.call(newArray);
-      if(!self.isDisposedValue && result) {
-        if(onRemove) onRemove(result);
+      if (!self.isDisposedValue && result) {
+        if (onRemove) onRemove(result);
         const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
         self.notifyArrayChanged(newArray, arrayChanges);
@@ -1054,8 +1054,8 @@ export class Base {
         newArray,
         value
       );
-      if(!self.isDisposedValue) {
-        if(onPush) onPush(value, newArray.length - 1);
+      if (!self.isDisposedValue) {
+        if (onPush) onPush(value, newArray.length - 1);
         const arrayChanges = new ArrayChanges(0, 0, [value], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
         self.notifyArrayChanged(newArray, arrayChanges);
@@ -1064,8 +1064,8 @@ export class Base {
     };
     newArray.pop = function (): number {
       var result = Object.getPrototypeOf(newArray).pop.call(newArray);
-      if(!self.isDisposedValue) {
-        if(onRemove) onRemove(result);
+      if (!self.isDisposedValue) {
+        if (onRemove) onRemove(result);
         const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
         self.notifyArrayChanged(newArray, arrayChanges);
@@ -1077,23 +1077,23 @@ export class Base {
       deleteCount?: number,
       ...items: any[]
     ): any[] {
-      if(!start) start = 0;
-      if(!deleteCount) deleteCount = 0;
+      if (!start) start = 0;
+      if (!deleteCount) deleteCount = 0;
       var result = Object.getPrototypeOf(newArray).splice.call(
         newArray,
         start,
         deleteCount,
         ...items
       );
-      if(!items) items = [];
-      if(!self.isDisposedValue) {
-        if(onRemove && result) {
-          for(var i = 0; i < result.length; i++) {
+      if (!items) items = [];
+      if (!self.isDisposedValue) {
+        if (onRemove && result) {
+          for (var i = 0; i < result.length; i++) {
             onRemove(result[i]);
           }
         }
-        if(onPush) {
-          for(var i = 0; i < items.length; i++) {
+        if (onPush) {
+          for (var i = 0; i < items.length; i++) {
             onPush(items[i], start + i);
           }
         }
@@ -1123,16 +1123,16 @@ export class Base {
   ) {
     var deletedItems = [].concat(src);
     Object.getPrototypeOf(src).splice.call(src, 0, src.length);
-    if(!!dest) {
-      for(var i = 0; i < dest.length; i++) {
+    if (!!dest) {
+      for (var i = 0; i < dest.length; i++) {
         var item = dest[i];
-        if(isItemValues) {
-          if(!!Base.createItemValue) {
+        if (isItemValues) {
+          if (!!Base.createItemValue) {
             item = Base.createItemValue(item, this.getItemValueType());
           }
         }
         Object.getPrototypeOf(src).push.call(src, item);
-        if(onPush) onPush(src[i]);
+        if (onPush) onPush(src[i]);
       }
     }
     const arrayChanges = new ArrayChanges(
@@ -1153,9 +1153,9 @@ export class Base {
     return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: !caseInSensitive, trimStrings: trimString, doNotConvertNumbers: true });
   }
   private static copyObject(dst: any, src: any) {
-    for(var key in src) {
+    for (var key in src) {
       var source = src[key];
-      if(typeof source === "object") {
+      if (typeof source === "object") {
         source = {};
         this.copyObject(source, src[key]);
       }
@@ -1163,15 +1163,15 @@ export class Base {
     }
   }
   protected copyCssClasses(dest: any, source: any): void {
-    if(!source) return;
-    if(typeof source === "string" || source instanceof String) {
+    if (!source) return;
+    if (typeof source === "string" || source instanceof String) {
       dest["root"] = source;
     } else {
       Base.copyObject(dest, source);
     }
   }
   private getValueInLowCase(val: any): any {
-    if(!!val && typeof val == "string") return val.toLowerCase();
+    if (!!val && typeof val == "string") return val.toLowerCase();
     return val;
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -1228,44 +1228,44 @@ export class Event<CallbackFunction extends Function, Sender, Options> {
     return !!this.callbacks ? this.callbacks.length : 0;
   }
   public fireByCreatingOptions(sender: any, createOptions: () => Options): void {
-    if(!this.callbacks) return;
-    for(var i = 0; i < this.callbacks.length; i++) {
+    if (!this.callbacks) return;
+    for (var i = 0; i < this.callbacks.length; i++) {
       this.callbacks[i](sender, createOptions());
-      if(!this.callbacks) return;
+      if (!this.callbacks) return;
     }
   }
   public fire(sender: Sender, options: Options): void {
-    if(!this.callbacks) return;
+    if (!this.callbacks) return;
     const callbacks = [].concat(this.callbacks);
-    for(var i = 0; i < callbacks.length; i++) {
+    for (var i = 0; i < callbacks.length; i++) {
       callbacks[i](sender, options);
-      if(!this.callbacks) return;
+      if (!this.callbacks) return;
     }
   }
   public clear(): void {
     this.callbacks = undefined;
   }
   public add(func: CallbackFunction): void {
-    if(this.hasFunc(func)) return;
-    if(!this.callbacks) {
+    if (this.hasFunc(func)) return;
+    if (!this.callbacks) {
       this.callbacks = new Array<CallbackFunction>();
     }
     this.callbacks.push(func);
     this.fireCallbackChanged();
   }
   public remove(func: CallbackFunction): void {
-    if(this.hasFunc(func)) {
+    if (this.hasFunc(func)) {
       var index = this.callbacks.indexOf(func, 0);
       this.callbacks.splice(index, 1);
       this.fireCallbackChanged();
     }
   }
   public hasFunc(func: CallbackFunction): boolean {
-    if(this.callbacks == null) return false;
+    if (this.callbacks == null) return false;
     return this.callbacks.indexOf(func, 0) > -1;
   }
   private fireCallbackChanged(): void {
-    if(!!this.onCallbacksChanged) {
+    if (!!this.onCallbacksChanged) {
       this.onCallbacksChanged();
     }
   }

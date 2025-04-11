@@ -12,26 +12,26 @@ const registerButtongroup = ClientFunction((framework) => {
   Survey.QuestionFactory.Instance.registerQuestion("buttongroup", (name) => {
     return new Survey.QuestionButtonGroupModel(name);
   });
-  if(framework === "react") {
+  if (framework === "react") {
     (<any>window).SurveyReact.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
       return (<any>window).React.createElement((<any>window).SurveyReact.SurveyQuestionButtonGroup, props);
     });
   }
-  if(framework === "jquery-ui") {
+  if (framework === "jquery-ui") {
     const SurveyJquery = (<any>window).SurveyJquery;
     const preact = SurveyJquery["preact"];
     SurveyJquery.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
       return preact.createElement(SurveyJquery.SurveyQuestionButtonGroup, props);
     });
   }
-  if(framework === "survey-js-ui") {
+  if (framework === "survey-js-ui") {
     const SurveyUI = (<any>window).SurveyUI;
     const preact = SurveyUI["preact"];
     SurveyUI.ReactQuestionFactory.Instance.registerQuestion("buttongroup", props => {
       return preact.createElement(SurveyUI.SurveyQuestionButtonGroup, props);
     });
   }
-  if(framework === "knockout") {
+  if (framework === "knockout") {
     Survey.Serializer.overrideClassCreator("buttongroup", function () {
       return new Survey.QuestionButtonGroup("");
     });
@@ -51,7 +51,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await registerButtongroup(framework);
-      if(framework === "vue" || framework === "angular") {
+      if (framework === "vue" || framework === "angular") {
         return;
       }
       await initSurvey(framework, {

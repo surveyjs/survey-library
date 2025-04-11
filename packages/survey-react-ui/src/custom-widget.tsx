@@ -8,9 +8,9 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     this.widgetRef = React.createRef();
   }
   private _afterRender() {
-    if(this.questionBase.customWidget) {
+    if (this.questionBase.customWidget) {
       let el = this.widgetRef.current;
-      if(!!el) {
+      if (!!el) {
         this.questionBase.customWidget.afterRender(this.questionBase, el);
         this.questionBase.customWidgetData.isNeedRender = false;
       }
@@ -18,7 +18,7 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
   }
   componentDidMount() {
     super.componentDidMount();
-    if(this.questionBase) {
+    if (this.questionBase) {
       this._afterRender();
     }
   }
@@ -27,15 +27,15 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     var isDefaultRender =
       !!this.questionBase.customWidget &&
       this.questionBase.customWidget.isDefaultRender;
-    if(this.questionBase && !isDefaultRender) {
+    if (this.questionBase && !isDefaultRender) {
       this._afterRender();
     }
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if(this.questionBase.customWidget) {
+    if (this.questionBase.customWidget) {
       let el = this.widgetRef.current;
-      if(!!el) {
+      if (!!el) {
         this.questionBase.customWidget.willUnmount(this.questionBase, el);
       }
     }
@@ -46,7 +46,7 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
   protected renderElement(): React.JSX.Element {
     let customWidget = this.questionBase.customWidget;
 
-    if(customWidget.isDefaultRender) {
+    if (customWidget.isDefaultRender) {
       return (
         <div ref={this.widgetRef}>
           {this.creator.createQuestionElement(this.questionBase)}
@@ -55,10 +55,10 @@ export class SurveyCustomWidget extends SurveyQuestionElementBase {
     }
 
     let widget = null;
-    if(customWidget.widgetJson.render) {
+    if (customWidget.widgetJson.render) {
       widget = customWidget.widgetJson.render(this.questionBase);
     } else {
-      if(customWidget.htmlTemplate) {
+      if (customWidget.htmlTemplate) {
         let htmlValue = { __html: customWidget.htmlTemplate };
         return <div ref={this.widgetRef} dangerouslySetInnerHTML={htmlValue} />;
       }

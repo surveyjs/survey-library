@@ -1310,7 +1310,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-compact-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
       await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
       await t.click("input[title='Complete']");
-      if(framework !== "vue" && framework !== "knockout") {
+      if (framework !== "vue" && framework !== "knockout") {
         await takeElementScreenshot("survey-compact-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
       }
       await ClientFunction(() => (window as any).survey.isCompact = false)();

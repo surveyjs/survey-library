@@ -21,10 +21,10 @@ const initPopupSurvey = ClientFunction(
       );
     };
     model.onComplete.add(surveyComplete);
-    if(framework === "knockout") {
+    if (framework === "knockout") {
       const popupSurvey = new window["Survey"].PopupSurvey(undefined, model);
       popupSurvey.show();
-    } else if(framework === "react") {
+    } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = ReactDOMClient.createRoot(document.getElementById("surveyElement"));
       root.render(React.createElement(React.StrictMode, { children: React.createElement(window["SurveyReact"].PopupSurvey, {
@@ -33,7 +33,7 @@ const initPopupSurvey = ClientFunction(
       })
       }
       ));
-    } else if(framework === "vue") {
+    } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
         "<popup-survey :survey='survey'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
@@ -41,14 +41,14 @@ const initPopupSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
-    } else if(framework === "angular" || framework == "vue3") {
+    } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model, true, false);
-    } else if(framework === "jquery-ui") {
+    } else if (framework === "jquery-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       window["$"]("#surveyElement").PopupSurvey({
         model: model
       });
-    } else if(framework === "survey-js-ui") {
+    } else if (framework === "survey-js-ui") {
       document.getElementById("surveyElement").innerHTML = "";
       window["SurveyUI"].renderPopupSurvey(model, document.getElementById("surveyElement"));
     }

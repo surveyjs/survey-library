@@ -1595,7 +1595,7 @@ QUnit.test("show only 10 items when switching to smileys mode", (assert) => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   var changed = false;
   q1.onPropertyChanged.add(function (sender, options) {
-    if(options.name == "rateValues") changed = true;
+    if (options.name == "rateValues") changed = true;
   });
 
   q1.rateCount = 20;

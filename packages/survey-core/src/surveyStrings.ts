@@ -17,7 +17,7 @@ export var surveyLocalization = {
     this.locales[loc] = localeConfig.strings;
     this.localeNames[loc] = localeConfig.nativeName;
     this.localeNamesInEnglish[loc] = localeConfig.englishName;
-    if(localeConfig.rtl !== undefined) {
+    if (localeConfig.rtl !== undefined) {
       this.localeDirections[loc] = localeConfig.rtl ? "rtl" : "ltr";
     }
   },
@@ -25,14 +25,14 @@ export var surveyLocalization = {
     return this.currentLocaleValue === this.defaultLocaleValue ? "" : this.currentLocaleValue;
   },
   set currentLocale(val: string) {
-    if(val === "cz") val = "cs";
+    if (val === "cz") val = "cs";
     this.currentLocaleValue = val;
   },
   get defaultLocale() {
     return this.defaultLocaleValue;
   },
   set defaultLocale(val: string) {
-    if(val === "cz") val = "cs";
+    if (val === "cz") val = "cs";
     this.defaultLocaleValue = val;
   },
   getLocaleStrings(loc: string): any {
@@ -42,31 +42,31 @@ export var surveyLocalization = {
     const locs = new Array<any>();
     const addLocaleCore = (locName: string): void => {
       const strs = this.locales[locName];
-      if(!!strs) locs.push(strs);
+      if (!!strs) locs.push(strs);
     };
     const addLocale = (locName: string): void => {
-      if(!locName) return;
+      if (!locName) return;
       addLocaleCore(locName);
       const index = locName.indexOf("-");
-      if(index < 1) return;
+      if (index < 1) return;
       locName = locName.substring(0, index);
       addLocaleCore(locName);
     };
     addLocale(locale);
     addLocale(this.currentLocale);
     addLocale(this.defaultLocale);
-    if(this.defaultLocale !== "en") {
+    if (this.defaultLocale !== "en") {
       addLocaleCore("en");
     }
-    for(let i = 0; i < locs.length; i++) {
+    for (let i = 0; i < locs.length; i++) {
       const res = locs[i][strName];
-      if(res !== undefined) return res;
+      if (res !== undefined) return res;
     }
     return this.onGetExternalString(strName, locale);
   },
   getLocaleName(loc: string, inEnglish?: boolean): string {
-    if(!loc) return "";
-    if(inEnglish === undefined) inEnglish = this.showNamesInEnglish;
+    if (!loc) return "";
+    if (inEnglish === undefined) inEnglish = this.showNamesInEnglish;
     const firstNames = inEnglish ? this.localeNamesInEnglish : this.localeNames;
     const secondNames = inEnglish ? this.localeNames : this.localeNamesInEnglish;
     return firstNames[loc] || secondNames[loc] || loc;
@@ -75,14 +75,14 @@ export var surveyLocalization = {
     var res = [];
     res.push("");
     var locs = this.locales;
-    if(this.supportedLocales && this.supportedLocales.length > 0) {
+    if (this.supportedLocales && this.supportedLocales.length > 0) {
       locs = {};
-      for(var i = 0; i < this.supportedLocales.length; i++) {
+      for (var i = 0; i < this.supportedLocales.length; i++) {
         locs[this.supportedLocales[i]] = true;
       }
     }
-    for(var key in locs) {
-      if(removeDefaultLoc && key == this.defaultLocale) continue;
+    for (var key in locs) {
+      if (removeDefaultLoc && key == this.defaultLocale) continue;
       res.push(key);
     }
     var locName = (loc: string): string => {
@@ -91,7 +91,7 @@ export var surveyLocalization = {
     res.sort((a, b): number => {
       var str1 = locName(a);
       var str2 = locName(b);
-      if(str1 === str2) return 0;
+      if (str1 === str2) return 0;
       return str1 < str2 ? -1 : 1;
     });
     return res;

@@ -166,10 +166,10 @@ QUnit.test("QuestionFile value initialization array of objects", function (
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
   var q2: QuestionFileModel = <any>survey.getQuestionByName("image2");
   survey.onDownloadFile.add((survey, options) => {
-    if(options.name == "image1" && options.question.name === "image1") {
+    if (options.name == "image1" && options.question.name === "image1") {
       assert.equal(q1.inputTitle, " ");
     }
-    if(options.name == "image2" && options.question.name === "image2") {
+    if (options.name == "image2" && options.question.name === "image2") {
       assert.equal(q2.inputTitle, " ");
     }
     options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
@@ -476,7 +476,7 @@ QUnit.test(
     var isSuccess = true;
     survey.onUploadFiles.add((survey, options) => {
       setTimeout(() => {
-        if(isSuccess) {
+        if (isSuccess) {
           options.callback(
             "success",
             options.files.map((file) => {
@@ -953,7 +953,7 @@ QUnit.test(
 
     var isSuccess = true;
     survey.onUploadFiles.add((survey, options) => {
-      if(isSuccess) {
+      if (isSuccess) {
         options.callback(
           "success",
           options.files.map((file) => {
@@ -1088,7 +1088,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   assert.equal(question.isReady, false, "question is not ready");
   assert.equal(log, "->file1.png->file2.png");
   assert.equal(callbacks.length, 2, "Two callbacks");
-  for(let i = 0; i < callbacks.length; i++) {
+  for (let i = 0; i < callbacks.length; i++) {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(question.isReady, true, "question is ready");

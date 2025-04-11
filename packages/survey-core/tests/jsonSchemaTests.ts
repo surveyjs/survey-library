@@ -155,8 +155,8 @@ QUnit.test("generate survey schema", function (assert) {
   );
   function findInElements(elType: string): boolean {
     //elType = "#/definitions/" + elType;
-    for(var i = 0; i < panelElements.length; i++)
-      if(panelElements[i].$ref == elType) return true;
+    for (var i = 0; i < panelElements.length; i++)
+      if (panelElements[i].$ref == elType) return true;
     return false;
   }
   assert.ok(findInElements("text"), "question text is in panel.elements");

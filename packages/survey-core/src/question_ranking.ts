@@ -37,7 +37,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public getItemTabIndex(item: ItemValue) {
-    if(this.isDesignMode || item.disabled) return undefined;
+    if (this.isDesignMode || item.disabled) return undefined;
     return 0;
   }
   protected supportContainerQueries() {
@@ -61,7 +61,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
-    if(this.selectToRankEnabled) {
+    if (this.selectToRankEnabled) {
       return super.isItemSelectedCore(item);
     }
     return true;
@@ -78,9 +78,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const isToContainer = containerType === "to";
     const isFromContainer = containerType === "from";
 
-    if(isToContainer) {
+    if (isToContainer) {
       isEmpty = this.renderedRankingChoices.length === 0;
-    } else if(isFromContainer) {
+    } else if (isFromContainer) {
       isEmpty = this.renderedUnRankingChoices.length === 0;
     }
 
@@ -97,9 +97,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public get ghostPositionCssClass(): string {
-    if(this.ghostPosition === "top")
+    if (this.ghostPosition === "top")
       return this.cssClasses.dragDropGhostPositionTop;
-    if(this.ghostPosition === "bottom")
+    if (this.ghostPosition === "bottom")
       return this.cssClasses.dragDropGhostPositionBottom;
     return "";
   }
@@ -107,7 +107,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getItemIndexClasses(item: ItemValue) {
     let noNumber;
 
-    if(this.selectToRankEnabled) {
+    if (this.selectToRankEnabled) {
       noNumber = this.unRankingChoices.indexOf(item) !== -1;
     } else {
       noNumber = this.isEmpty();
@@ -140,7 +140,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   get requireStrictCompare(): boolean { return true; }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
-    if(this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) return;
     this.updateRankingChoices();
   }
   onSurveyLoad(): void {
@@ -153,38 +153,38 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
-    if(this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled && !this.defaultValue) {
+    if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled && !this.defaultValue) {
       this.value = [];
     }
 
     // ranking question with only one choice doesn't make sense
-    if(this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
+    if (this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
       this.value = [];
       this.value.push(this.visibleChoices[0].value);
       this.updateRankingChoices();
       return;
     }
 
-    if(this.isEmpty()) {
+    if (this.isEmpty()) {
       this.updateRankingChoices();
       return;
     }
 
-    if(this.selectToRankEnabled) {
+    if (this.selectToRankEnabled) {
       this.updateRankingChoices();
       return;
     }
 
-    if(this.visibleChoices.length > this.value.length)
+    if (this.visibleChoices.length > this.value.length)
       this.addToValueByVisibleChoices();
-    if(this.visibleChoices.length < this.value.length)
+    if (this.visibleChoices.length < this.value.length)
       this.removeFromValueByVisibleChoices();
     this.updateRankingChoices();
   };
 
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     super.updateValueFromSurvey(newValue, clearData);
-    if(newValue)this.isValueSetByUser = true;
+    if (newValue)this.isValueSetByUser = true;
   }
 
   public localeChanged = (): void => {
@@ -196,7 +196,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const newValue = this.value.slice();
 
     this.visibleChoices.forEach((choice) => {
-      if(newValue.indexOf(choice.value) === -1) {
+      if (newValue.indexOf(choice.value) === -1) {
         newValue.push(choice.value);
       }
     });
@@ -206,8 +206,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private removeFromValueByVisibleChoices() {
     const newValue = this.value.slice();
     const choices = this.visibleChoices;
-    for(let i = this.value.length - 1; i >= 0; i --) {
-      if(!ItemValue.getItemByValue(choices, this.value[i])) {
+    for (let i = this.value.length - 1; i >= 0; i --) {
+      if (!ItemValue.getItemByValue(choices, this.value[i])) {
         newValue.splice(i, 1);
       }
     }
@@ -225,14 +225,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       isAnimationEnabled: () => this.animationAllowed && !this.isDesignMode && this.isVisible && !!this.domNode,
       getReorderOptions: (item: ItemValue, movedForward: boolean) => {
         let cssClass = "";
-        if(item !== this.currentDropTarget) {
+        if (item !== this.currentDropTarget) {
           cssClass = movedForward ? "sv-dragdrop-movedown" : "sv-dragdrop-moveup";
         }
         return { cssClass };
       },
       getLeaveOptions: (item: ItemValue) => {
         const choices = isRankingChoices ? this.renderedRankingChoices : this.renderedUnRankingChoices;
-        if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
+        if (this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
         }
         return { cssClass: "sv-ranking-item--animate-item-removing", onBeforeRunAnimation: (el) => {
@@ -241,7 +241,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       },
       getEnterOptions: (item: ItemValue) => {
         const choices = isRankingChoices ? this.renderedRankingChoices : this.renderedUnRankingChoices;
-        if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
+        if (this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
         }
         return { cssClass: "sv-ranking-item--animate-item-adding", onBeforeRunAnimation: (el) => {
@@ -251,10 +251,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       getAnimatedElement: (item: ItemValue) => {
         const cssClasses = this.cssClasses;
         let containerSelector = "";
-        if(this.selectToRankEnabled) {
-          if(!isRankingChoices && cssClasses.containerFromMode) {
+        if (this.selectToRankEnabled) {
+          if (!isRankingChoices && cssClasses.containerFromMode) {
             containerSelector = classesToSelector(cssClasses.containerFromMode);
-          } else if(isRankingChoices && cssClasses.containerToMode) {
+          } else if (isRankingChoices && cssClasses.containerToMode) {
             containerSelector = classesToSelector(cssClasses.containerToMode);
           }
         }
@@ -317,7 +317,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
-    if(this.selectToRankEnabled) {
+    if (this.selectToRankEnabled) {
       this.updateRankingChoicesSelectToRankMode(forceUpdate);
       return;
     }
@@ -330,16 +330,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     //   return;
     // }
 
-    if(forceUpdate)this.rankingChoices = [];
+    if (forceUpdate)this.rankingChoices = [];
 
-    if(this.isEmpty()) {
+    if (this.isEmpty()) {
       this.rankingChoices = this.visibleChoices;
       return;
     }
 
     this.value.forEach((valueItem: string) => {
       this.visibleChoices.forEach((choice) => {
-        if(choice.value === valueItem) newRankingChoices.push(choice);
+        if (choice.value === valueItem) newRankingChoices.push(choice);
       });
     });
     this.rankingChoices = newRankingChoices;
@@ -351,17 +351,17 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     });
     newRankingChoices.forEach((rankingChoice: ItemValue) => {
       unRankingChoices.forEach((choice, index) => {
-        if(choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
+        if (choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
       });
     });
     this.unRankingChoices = unRankingChoices;
   }
   private updateRankingChoicesSelectToRankMode(forceUpdate:boolean) {
     const newRankingChoices: ItemValue[] = [];
-    if(!this.isEmpty()) {
+    if (!this.isEmpty()) {
       this.value.forEach((valueItem: string) => {
         this.visibleChoices.forEach((choice) => {
-          if(choice.value === valueItem) newRankingChoices.push(choice);
+          if (choice.value === valueItem) newRankingChoices.push(choice);
         });
       });
     }
@@ -382,7 +382,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.dragDropRankingChoices = this.createDragDropRankingChoices();
   }
   protected createDragDropRankingChoices() {
-    if(this.selectToRankEnabled)
+    if (this.selectToRankEnabled)
       return new DragDropRankingSelectToRank(this.survey, null, this.longTap);
     return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
@@ -396,9 +396,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   ): void => {
     const target: HTMLElement = <HTMLElement>event.target;
 
-    if(!this.isDragStartNodeValid(target)) return;
+    if (!this.isDragStartNodeValid(target)) return;
 
-    if(
+    if (
       this.isAllowStartDrag(target, choice)
     ) {
       this.draggedChoiceValue = choice.value;
@@ -417,11 +417,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     choice: ItemValue,
     node: HTMLElement
   ): void => {
-    if(!this.selectToRankEnabled) return;
+    if (!this.selectToRankEnabled) return;
 
     const target: HTMLElement = <HTMLElement>event.target;
 
-    if(
+    if (
       this.isAllowStartDrag(target, choice)
     ) {
       this.handleKeydownSelectToRank(<any>event, choice, " ", false);
@@ -429,7 +429,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   };
 
   private isDragStartNodeValid(target: HTMLElement): boolean {
-    if(settings.rankingDragHandleArea === "icon") {
+    if (settings.rankingDragHandleArea === "icon") {
       return target.classList.contains(this.cssClasses.itemIconHoverMod);
     }
 
@@ -444,10 +444,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private canStartDragDueMaxSelectedChoices(target: HTMLElement):boolean {
-    if(!this.selectToRankEnabled) return true;
+    if (!this.selectToRankEnabled) return true;
 
     let fromContainer: HTMLElement = target.closest("[data-ranking='from-container']");
-    if(fromContainer) {
+    if (fromContainer) {
       return this.checkMaxSelectedChoicesUnreached();
     }
     return true;
@@ -458,7 +458,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public checkMaxSelectedChoicesUnreached() {
-    if(this.maxSelectedChoices < 1) return true;
+    if (this.maxSelectedChoices < 1) return true;
     var val = this.value;
     var len = !Array.isArray(val) ? 0 : val.length;
     return len < this.maxSelectedChoices;
@@ -476,16 +476,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
-    if(this.isReadOnlyAttr) return;
-    if(!this.isDesignMode) {
+    if (this.isReadOnlyAttr) return;
+    if (!this.isDesignMode) {
       const key: any = event.key;
       const index = this.rankingChoices.indexOf(choice);
 
-      if(this.selectToRankEnabled) {
+      if (this.selectToRankEnabled) {
         this.handleKeydownSelectToRank(event, choice);
         return;
       }
-      if((key === "ArrowUp" && index) || (key === "ArrowDown" && index !== this.rankingChoices.length - 1)) {
+      if ((key === "ArrowUp" && index) || (key === "ArrowDown" && index !== this.rankingChoices.length - 1)) {
         const toIndex = key == "ArrowUp" ? index - 1 : index + 1;
         this.dragDropRankingChoices.reorderRankedItem(this, index, toIndex);
         this.setValueAfterKeydown(toIndex, "", true, event);
@@ -500,38 +500,38 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public supportDontKnow(): boolean { return false; }
 
   public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue, hardKey?:string, isNeedFocus: boolean = true): void {
-    if(this.isDesignMode) return;
+    if (this.isDesignMode) return;
 
     let key: any = event.key;
-    if(hardKey) key = hardKey;
-    if(key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
+    if (hardKey) key = hardKey;
+    if (key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
 
     const dnd:any = this.dragDropRankingChoices; //????
     const rankingChoices = this.rankingChoices;
     const isMovedElementRanked = rankingChoices.indexOf(movedElement) !== -1;
     const choices = isMovedElementRanked ? rankingChoices : this.unRankingChoices;
     const fromIndex = choices.indexOf(movedElement);
-    if(fromIndex < 0) return;
+    if (fromIndex < 0) return;
     let toIndex;
 
-    if(key === " " && !isMovedElementRanked) {
-      if(!this.checkMaxSelectedChoicesUnreached() || !this.canStartDragDueItemEnabled(movedElement)) return;
+    if (key === " " && !isMovedElementRanked) {
+      if (!this.checkMaxSelectedChoicesUnreached() || !this.canStartDragDueItemEnabled(movedElement)) return;
       toIndex = this.value.length;
       dnd.selectToRank(this, fromIndex, toIndex);
       this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus, event);
       return;
     }
-    if(!isMovedElementRanked) return;
-    if(key === " ") {
+    if (!isMovedElementRanked) return;
+    if (key === " ") {
       dnd.unselectFromRank(this, fromIndex);
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
       this.setValueAfterKeydown(toIndex, "from-container", isNeedFocus, event);
       return;
     }
     const delta = key === "ArrowUp" ? -1 : (key === "ArrowDown" ? 1 : 0);
-    if(delta === 0) return;
+    if (delta === 0) return;
     toIndex = fromIndex + delta;
-    if(toIndex < 0 || toIndex >= rankingChoices.length) return;
+    if (toIndex < 0 || toIndex >= rankingChoices.length) return;
     dnd.reorderRankedItem(this, fromIndex, toIndex);
     this.setValueAfterKeydown(toIndex, "to-container", isNeedFocus, event);
   }
@@ -539,7 +539,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private setValueAfterKeydown(index: number, container: string, isNeedFocus: boolean = true, event: KeyboardEvent) {
     this.setValue();
 
-    if(isNeedFocus) {
+    if (isNeedFocus) {
       setTimeout(() => {
         this.focusItem(index, container);
       }, 1);
@@ -548,8 +548,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private focusItem = (index: number, container?: string) => {
-    if(!this.domNode) return;
-    if(this.selectToRankEnabled && container) {
+    if (!this.domNode) return;
+    if (this.selectToRankEnabled && container) {
       const containerSelector = "[data-ranking='" + container + "']";
       const itemsNodes: any = this.domNode.querySelectorAll(
         containerSelector + " " + "." + this.cssClasses.item
@@ -645,7 +645,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public get renderedSelectToRankAreasLayout(): string {
-    if(this.isMobileMode()) return "vertical";
+    if (this.isMobileMode()) return "vertical";
     return this.selectToRankAreasLayout;
   }
 

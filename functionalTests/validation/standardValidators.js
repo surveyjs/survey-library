@@ -52,7 +52,7 @@ frameworks.forEach((framework) => {
     const getError = Selector((text, index) => {
       var nodes = [];
       document.querySelectorAll("*").forEach(function (node) {
-        if(node.innerHTML === text) nodes.push(node);
+        if (node.innerHTML === text) nodes.push(node);
       });
 
       return nodes[index];

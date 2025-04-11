@@ -41,11 +41,11 @@ export class QuestionBooleanModel extends Question {
    * @see valueFalse
    */
   public get booleanValue(): any {
-    if(this.isEmpty()) return null;
+    if (this.isEmpty()) return null;
     return this.value == this.getValueTrue();
   }
   public set booleanValue(val: any) {
-    if(this.isReadOnly || this.isDesignMode) {
+    if (this.isReadOnly || this.isDesignMode) {
       return;
     }
     this.setBooleanValue(val);
@@ -55,7 +55,7 @@ export class QuestionBooleanModel extends Question {
   public get checkedValue(): any { return this.booleanValue; }
   public set checkedValue(val: any) { this.booleanValue = val; }
   private setBooleanValue(val: any) {
-    if(this.isValueEmpty(val)) {
+    if (this.isValueEmpty(val)) {
       this.value = undefined;
       this.booleanValueRendered = undefined;
     } else {
@@ -67,19 +67,19 @@ export class QuestionBooleanModel extends Question {
     return this.getPropertyValue("defaultValue");
   }
   public set defaultValue(val: any) {
-    if(val === true) val = "true";
-    if(val === false) val = "false";
+    if (val === true) val = "true";
+    if (val === false) val = "false";
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }
   public getDefaultValue(): any {
     const val = this.defaultValue;
-    if(val === "indeterminate" || val === undefined || val === null) return undefined;
+    if (val === "indeterminate" || val === undefined || val === null) return undefined;
     return val == "true" ? this.getValueTrue() : this.getValueFalse();
   }
   public get locTitle(): LocalizableString {
     const original = this.getLocalizableString("title");
-    if((this.isLabelRendered && !this.showTitle || this.isValueEmpty(original.text)) && !this.isValueEmpty(this.locLabel.text)) return this.locLabel;
+    if ((this.isLabelRendered && !this.showTitle || this.isValueEmpty(original.text)) && !this.isValueEmpty(this.locLabel.text)) return this.locLabel;
     return original;
   }
   public get labelRenderedAriaID(): string {
@@ -181,16 +181,16 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse !== undefined ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
-    if(this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);
-    if(this.isDefaultValueSet("false", this.valueFalse))this.setBooleanValue(false);
+    if (this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);
+    if (this.isDefaultValueSet("false", this.valueFalse))this.setBooleanValue(false);
     const val = this.defaultValue;
-    if(val === "indeterminate" || val === null || val === undefined)this.setBooleanValue(undefined);
+    if (val === "indeterminate" || val === null || val === undefined)this.setBooleanValue(undefined);
   }
   private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any): boolean {
     return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if(value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
+    if (value == this.getValueTrue()) return this.locLabelTrue.textOrHtml;
     return this.locLabelFalse.textOrHtml;
   }
   private getItemCssValue(css: any): string {
@@ -245,14 +245,14 @@ export class QuestionBooleanModel extends Question {
   }
 
   public get svgIcon(): string {
-    if(this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
-    if(!this.isDeterminated && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
-    if(!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
+    if (this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
+    if (!this.isDeterminated && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
+    if (!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
   }
 
   public get itemSvgIcon(): string {
-    if(this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
+    if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
       return this.cssClasses.itemPreviewSvgIconId;
     }
     return this.cssClasses.itemSvgIconId;
@@ -263,21 +263,21 @@ export class QuestionBooleanModel extends Question {
   }
 
   public getCheckedLabel(): LocalizableString {
-    if(this.booleanValue === true) {
+    if (this.booleanValue === true) {
       return this.locLabelTrue;
-    } else if(this.booleanValue === false) {
+    } else if (this.booleanValue === false) {
       return this.locLabelFalse;
     }
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
-    if(newValue === "true" && this.valueTrue !== "true") newValue = true;
-    if(newValue === "false" && this.valueFalse !== "false") newValue = false;
-    if(newValue === "indeterminate" || newValue === null) newValue = undefined;
+    if (newValue === "true" && this.valueTrue !== "true") newValue = true;
+    if (newValue === "false" && this.valueFalse !== "false") newValue = false;
+    if (newValue === "indeterminate" || newValue === null) newValue = undefined;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */
   public onLabelClick(event: any, value: boolean) {
-    if(this.allowClick) {
+    if (this.allowClick) {
       preventDefaults(event);
       this.booleanValue = value;
     }
@@ -285,13 +285,13 @@ export class QuestionBooleanModel extends Question {
   }
   private calculateBooleanValueByEvent(event: any, isRightClick: boolean) {
     let isRtl = false;
-    if(DomDocumentHelper.isAvailable()) {
+    if (DomDocumentHelper.isAvailable()) {
       isRtl = DomDocumentHelper.getComputedStyle(event.target).direction == "rtl";
     }
     this.booleanValue = isRtl ? !isRightClick : isRightClick;
   }
   public onSwitchClickModel(event: any) {
-    if(this.allowClick) {
+    if (this.allowClick) {
       preventDefaults(event);
       var isRightClick =
         event.offsetX / event.target.offsetWidth > 0.5;
@@ -301,7 +301,7 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   public onKeyDownCore(event: any): boolean {
-    if(event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
       event.stopPropagation();
       this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
     }
@@ -311,19 +311,19 @@ export class QuestionBooleanModel extends Question {
 
   public getRadioItemClass(css: any, value: any): string {
     let className = undefined;
-    if(css.radioItem) {
+    if (css.radioItem) {
       className = css.radioItem;
     }
-    if(css.radioItemChecked && value === this.booleanValue) {
+    if (css.radioItemChecked && value === this.booleanValue) {
       className = (className ? className + " " : "") + css.radioItemChecked;
     }
-    if(this.isDisabledStyle) {
+    if (this.isDisabledStyle) {
       className += " " + css.radioItemDisabled;
     }
-    if(this.isReadOnlyStyle) {
+    if (this.isReadOnlyStyle) {
       className += " " + css.radioItemReadOnly;
     }
-    if(this.isPreviewStyle) {
+    if (this.isPreviewStyle) {
       className += " " + css.radioItemPreview;
     }
     return className;

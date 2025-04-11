@@ -42,7 +42,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   protected renderSelect(cssClasses: any): React.JSX.Element {
     let selectElement: React.JSX.Element | null = null;
-    if(this.question.isReadOnly) {
+    if (this.question.isReadOnly) {
       const text = (this.question.selectedItemLocText) ? this.renderLocString(this.question.selectedItemLocText) : "";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -72,9 +72,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   renderValueElement(dropdownListModel: DropdownListModel): React.JSX.Element | null {
-    if(this.question.showInputFieldComponent) {
+    if (this.question.showInputFieldComponent) {
       return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: dropdownListModel.getSelectedAction(), question: this.question });
-    } else if(this.question.showSelectedItemLocText) {
+    } else if (this.question.showSelectedItemLocText) {
       return this.renderLocString(this.question.selectedItemLocText);
     }
     return null;
@@ -85,7 +85,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
-      if(e.target === root.activeElement) {
+      if (e.target === root.activeElement) {
         dropdownListModel.inputStringRendered = e.target.value;
       }
     };
@@ -148,7 +148,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   createClearButton(): React.JSX.Element | null {
-    if(!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
+    if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
     const style = { display: !this.question.showClearButton ? "none" : "" };
     return (
@@ -169,7 +169,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   createChevronButton(): React.JSX.Element | null {
-    if(!this.question.cssClasses.chevronButtonIconId) return null;
+    if (!this.question.cssClasses.chevronButtonIconId) return null;
 
     return (
       <div className={this.question.cssClasses.chevronButton}
@@ -208,13 +208,13 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if(this.question.dropdownListModel)this.question.dropdownListModel.focused = false;
+    if (this.question.dropdownListModel)this.question.dropdownListModel.focused = false;
   }
   updateInputDomElement() {
-    if(!!this.inputElement) {
+    if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.question.dropdownListModel.inputStringRendered;
-      if(!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.question.dropdownListModel.inputStringRendered;
       }
     }

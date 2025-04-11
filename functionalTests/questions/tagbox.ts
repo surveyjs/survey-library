@@ -231,7 +231,7 @@ frameworks.forEach((framework) => {
       .click(questionTagbox)
       .expect(popupContainer.offsetTop).within(170, 200);
 
-    for(let i = 1; i < 27; i++) {
+    for (let i = 1; i < 27; i++) {
       await t.click(getListItemByText("item" + i.toString()));
     }
 
@@ -511,7 +511,7 @@ frameworks.forEach((framework) => {
   function choicesLazyLoad(_, opt) {
     var getNumberArray = (skip = 1, count = 25) => {
       const result: Array<any> = [];
-      for(let index = skip; index < (skip + count); index++) {
+      for (let index = skip; index < (skip + count); index++) {
         result.push(index);
       }
       return result;
@@ -519,7 +519,7 @@ frameworks.forEach((framework) => {
 
     const total = 55;
     setTimeout(() => {
-      if(opt.skip + opt.take < total) {
+      if (opt.skip + opt.take < total) {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);

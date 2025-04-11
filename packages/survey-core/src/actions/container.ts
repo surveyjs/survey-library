@@ -64,7 +64,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.actions.forEach(item => {
-      if(item.locTitle) item.locTitle.strChanged();
+      if (item.locTitle) item.locTitle.strChanged();
       item.locStrsChanged();
     });
   }
@@ -124,7 +124,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     });
   }
   public get cssClasses(): ActionBarCssClasses {
-    if(!this.cssClassesValue) {
+    if (!this.cssClassesValue) {
       this.cssClassesValue = this.getDefaultCssClasses();
     }
     return this.cssClassesValue;
@@ -134,7 +134,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public addAction(val: IAction, sortByVisibleIndex = true): T {
     const res: T = this.createAction(val);
-    if(sortByVisibleIndex && !this.isActionVisible(res)) return res;
+    if (sortByVisibleIndex && !this.isActionVisible(res)) return res;
     const items = [].concat(this.actions, res);
     this.sortItems(items);
     this.actions = items;
@@ -143,24 +143,24 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     const newActions: Array<T> = [];
     items.forEach(item => {
-      if(!sortByVisibleIndex || this.isActionVisible(item)) {
+      if (!sortByVisibleIndex || this.isActionVisible(item)) {
         newActions.push(this.createAction(item));
       }
     });
-    if(sortByVisibleIndex) {
+    if (sortByVisibleIndex) {
       this.sortItems(newActions);
     }
     this.actions = newActions;
   }
   private sortItems(items: Array<IAction>): void {
-    if(this.hasSetVisibleIndex(items)) {
+    if (this.hasSetVisibleIndex(items)) {
       items.sort(this.compareByVisibleIndex);
     }
   }
   private hasSetVisibleIndex(items: Array<IAction>): boolean {
-    for(let i = 0; i < items.length; i ++) {
+    for (let i = 0; i < items.length; i ++) {
       const index = items[i].visibleIndex;
-      if(index !== undefined && index >= 0) return true;
+      if (index !== undefined && index >= 0) return true;
     }
     return false;
   }
@@ -181,14 +181,14 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     let needToShowPopup = false;
     let otherPopupVisible = false;
     this.actions.forEach(action => {
-      if(action === itemValue && !!itemValue.popupModel) {
+      if (action === itemValue && !!itemValue.popupModel) {
         needToShowPopup = true;
       }
-      if(action.popupModel && action.popupModel.isVisible) {
+      if (action.popupModel && action.popupModel.isVisible) {
         otherPopupVisible = true;
       }
     });
-    if(needToShowPopup) {
+    if (needToShowPopup) {
       const delay = otherPopupVisible ? Math.max(this.subItemsShowDelay, this.subItemsHideDelay) : this.subItemsShowDelay;
       itemValue.showPopupDelayed(delay);
       this.popupAfterShowCallback(itemValue);
@@ -200,8 +200,8 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public resetResponsivityManager(): void { }
   public getActionById(id: string): T {
-    for(var i = 0; i < this.actions.length; i++) {
-      if(this.actions[i].id === id) return this.actions[i];
+    for (var i = 0; i < this.actions.length; i++) {
+      if (this.actions[i].id === id) return this.actions[i];
     }
     return null;
   }

@@ -5,7 +5,7 @@ export class PanelLayoutColumnModel extends Base {
   @property() width: number;
   @property({
     onSet: (newValue, target, prevVal) => {
-      if(newValue !== prevVal) {
+      if (newValue !== prevVal) {
         target.width = newValue;
       }
     }

@@ -36,7 +36,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   }
 
   renderBackgroundImage(): React.JSX.Element | null {
-    if(!this.question.backgroundImage) return null;
+    if (!this.question.backgroundImage) return null;
 
     return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedCanvasWidth }}></img>;
   }
@@ -45,7 +45,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   }
 
   renderCleanButton(): React.JSX.Element | null {
-    if(!this.question.canShowClearButton) return null;
+    if (!this.question.canShowClearButton) return null;
 
     var cssClasses = this.question.cssClasses;
     return <div className={cssClasses.controls}>

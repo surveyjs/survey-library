@@ -14,7 +14,7 @@ export class SurveyNavigationBase extends React.Component<any, any> {
   }
   private updateStateFunction: any = null;
   componentDidMount() {
-    if(this.survey) {
+    if (this.survey) {
       var self = this;
       this.updateStateFunction = function () {
         self.setState({ update: self.state.update + 1 });
@@ -23,7 +23,7 @@ export class SurveyNavigationBase extends React.Component<any, any> {
     }
   }
   componentWillUnmount() {
-    if(this.survey && this.updateStateFunction) {
+    if (this.survey && this.updateStateFunction) {
       this.survey.onPageVisibleChanged.remove(this.updateStateFunction);
       this.updateStateFunction = null;
     }

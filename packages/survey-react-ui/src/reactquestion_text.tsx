@@ -16,7 +16,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     const inputClass = (this.question as QuestionTextModel).getControlClass();
 
     const placeholder = this.question.renderedPlaceholder;
-    if(this.question.isReadOnlyRenderDiv()) {
+    if (this.question.isReadOnlyRenderDiv()) {
       return <div>{this.question.inputValue}</div>;
     }
     const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
@@ -74,11 +74,11 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     return this.question.inputValue;
   }
   private renderDataList(): React.JSX.Element | null {
-    if(!this.question.dataListId) return null;
+    if (!this.question.dataListId) return null;
     var items = this.question.dataList;
-    if(items.length == 0) return null;
+    if (items.length == 0) return null;
     var options: Array<React.JSX.Element> = [];
-    for(var i = 0; i < items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
       options.push(<option key={"item" + i} value={items[i]}></option>);
     }
     return <datalist id={this.question.dataListId}>{options}</datalist>;

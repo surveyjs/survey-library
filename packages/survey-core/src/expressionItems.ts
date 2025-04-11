@@ -17,7 +17,7 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
     return "expressionitem";
   }
   public runCondition(values: any, properties: any): boolean {
-    if(!this.expression) return false;
+    if (!this.expression) return false;
     return new ConditionRunner(this.expression).run(values, properties);
   }
   /**

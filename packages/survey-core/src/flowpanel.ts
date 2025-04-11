@@ -48,13 +48,13 @@ export class FlowPanelModel extends PanelModel {
   }
   protected onContentChanged(): any {
     var html = "";
-    if(!!this.onCustomHtmlProducing) {
+    if (!!this.onCustomHtmlProducing) {
       html = this.onCustomHtmlProducing();
     } else {
       html = this.produceHtml();
     }
     this.html = html;
-    if(!!this.contentChangedCallback)this.contentChangedCallback();
+    if (!!this.contentChangedCallback)this.contentChangedCallback();
   }
   public produceHtml(): string {
     var html = [];
@@ -64,12 +64,12 @@ export class FlowPanelModel extends PanelModel {
     var startIndex = 0;
     var res = null;
     while((res = regEx.exec(str)) !== null) {
-      if(res.index > startIndex) {
+      if (res.index > startIndex) {
         html.push(str.substring(startIndex, res.index));
         startIndex = res.index;
       }
       var question = this.getQuestionFromText(res[0]);
-      if(!!question) {
+      if (!!question) {
         html.push(this.getHtmlForQuestion(question));
       } else {
         html.push(
@@ -78,7 +78,7 @@ export class FlowPanelModel extends PanelModel {
       }
       startIndex = res.index + res[0].length;
     }
-    if(startIndex < str.length) {
+    if (startIndex < str.length) {
       html.push(str.substring(startIndex, str.length));
     }
     return html.join("").replace(new RegExp("<br>", "g"), "<br/>");
@@ -89,7 +89,7 @@ export class FlowPanelModel extends PanelModel {
     return this.getQuestionByName(str);
   }
   protected getHtmlForQuestion(question: Question): string {
-    if(!!this.onGetHtmlForQuestion) return this.onGetHtmlForQuestion(question);
+    if (!!this.onGetHtmlForQuestion) return this.onGetHtmlForQuestion(question);
     return "";
   }
   protected getQuestionHtmlId(question: Question): string {
@@ -107,23 +107,23 @@ export class FlowPanelModel extends PanelModel {
   }
   dragDropMoveElement(src: IElement, target: IElement, targetIndex: number) {}
   private addElementToContent(element: IElement) {
-    if(this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson) return;
     var text = this.getElementContentText(element);
-    if(!this.insertTextAtCursor(text)) {
+    if (!this.insertTextAtCursor(text)) {
       this.content = this.content + text;
     }
   }
   private insertTextAtCursor(text: string, prevName: string = null): boolean {
-    if(!this.isDesignMode || !DomWindowHelper.isAvailable()) return false;
+    if (!this.isDesignMode || !DomWindowHelper.isAvailable()) return false;
 
     let sel = DomWindowHelper.getSelection();
-    if(sel.getRangeAt && sel.rangeCount) {
+    if (sel.getRangeAt && sel.rangeCount) {
       let range = sel.getRangeAt(0);
       range.deleteContents();
       const textElement = new Text(text);
       range.insertNode(textElement);
       var self = <any>this;
-      if(self.getContent) {
+      if (self.getContent) {
         var str = self.getContent(prevName);
         this.content = str;
       }

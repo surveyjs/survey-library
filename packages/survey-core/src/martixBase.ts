@@ -65,7 +65,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public get visibleColumns(): Array<any> {
     const res: Array<any> = [];
-    this.columns.forEach(col => { if(this.isColumnVisible(col)) { res.push(col); } });
+    this.columns.forEach(col => { if (this.isColumnVisible(col)) { res.push(col); } });
     return res;
   }
   protected isColumnVisible(column: any): boolean {
@@ -114,7 +114,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set rowsVisibleIf(val: string) {
     this.setPropertyValue("rowsVisibleIf", val);
-    if(!this.isLoadingFromJsonValue) {
+    if (!this.isLoadingFromJsonValue) {
       this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
@@ -133,7 +133,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set columnsVisibleIf(val: string) {
     this.setPropertyValue("columnsVisibleIf", val);
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
@@ -147,13 +147,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.fireCallback(this.visibleRowsChangedCallback);
   }
   protected updateVisibilityBasedOnRows(): void {
-    if((<any>this).hideIfRowsEmpty) {
+    if ((<any>this).hideIfRowsEmpty) {
       this.onVisibleChanged();
     }
   }
   protected isVisibleCore(): boolean {
     const res = super.isVisibleCore();
-    if(!res || !(<any>this).hideIfRowsEmpty) return res;
+    if (!res || !(<any>this).hideIfRowsEmpty) return res;
     return this.visibleRows?.length > 0;
   }
   protected shouldRunColumnExpression(): boolean {
@@ -166,12 +166,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     let hasChanges = this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
     const hasColumnsChanged = this.runConditionsForColumns(values, properties);
     hasChanges = hasColumnsChanged || hasChanges;
-    if(hasChanges) {
-      if(this.isClearValueOnHidden && hasColumnsChanged) {
+    if (hasChanges) {
+      if (this.isClearValueOnHidden && hasColumnsChanged) {
         this.clearInvisibleColumnValues();
       }
       this.clearGeneratedRows();
-      if(hasColumnsChanged) {
+      if (hasColumnsChanged) {
         this.onColumnsChanged();
       }
       this.onRowsChanged();
@@ -189,7 +189,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     const hasChanged = ItemValue.runConditionsForItems(this.rows, this.filteredRows, runner,
       values, properties, !showInvisibile);
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    if(this.filteredRows.length === this.rows.length) {
+    if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
     }
     return hasChanged;
@@ -279,7 +279,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   // EO a11y
   protected getIsMobile(): boolean {
-    if(this.displayMode == "auto") return super.getIsMobile();
+    if (this.displayMode == "auto") return super.getIsMobile();
     return this.displayMode === "list";
   }
 }

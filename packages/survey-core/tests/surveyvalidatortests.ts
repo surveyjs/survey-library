@@ -177,8 +177,8 @@ export class CamelCaseValidator extends SurveyValidator {
     return "CamelCaseValidator";
   }
   public validate(value: any, name: string = null): ValidatorResult {
-    if(!value) return null;
-    if(value.indexOf("CamelCase") < 0)
+    if (!value) return null;
+    if (value.indexOf("CamelCase") < 0)
       return new ValidatorResult(value, new CustomError("No Camel Case"));
     return null;
   }
@@ -501,7 +501,7 @@ QUnit.test("question with async validators", function(assert) {
   assert.equal(question.validators[1].isAsync, true, "The validator is async");
   var hasErrorsCounter = 0;
   question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-    if(hasErrors) hasErrorsCounter++;
+    if (hasErrors) hasErrorsCounter++;
   };
   assert.equal(
     question.isRunningValidators,
@@ -563,7 +563,7 @@ QUnit.test("Async expression validators creates several errors", function(assert
   function callAsyncList(): void {
     while(asynList.length > 0) {
       let i = asynList.length % 2;
-      if(i >= asynList.length) i = 0;
+      if (i >= asynList.length) i = 0;
       asynList[i](false);
       asynList.splice(i, 1);
     }

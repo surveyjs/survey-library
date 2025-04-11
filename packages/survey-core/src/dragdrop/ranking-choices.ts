@@ -15,7 +15,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     event: PointerEvent
   ): HTMLElement {
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
-    if(!draggedElementShortcut) return;
+    if (!draggedElementShortcut) return;
 
     draggedElementShortcut.className = this.shortcutClass + " sv-ranking-shortcut";
 
@@ -31,14 +31,14 @@ export class DragDropRankingChoices extends DragDropChoices {
     const shortcutHeight = draggedElementShortcut.offsetHeight;
     let clientY = event.clientY;
 
-    if(clientY > rect.y + shortcutHeight) {
+    if (clientY > rect.y + shortcutHeight) {
       clientY = rect.y + shortcutHeight - 10; //TODO
     }
 
     draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
     draggedElementShortcut.shortcutYOffset = clientY - rect.y;
 
-    if(this.parentElement && this.parentElement.useFullItemSizeForShortcut) {
+    if (this.parentElement && this.parentElement.useFullItemSizeForShortcut) {
       draggedElementShortcut.style.width = draggedElementNode.offsetWidth + "px";
       draggedElementShortcut.style.height = draggedElementNode.offsetHeight + "px";
     }
@@ -75,14 +75,14 @@ export class DragDropRankingChoices extends DragDropChoices {
     dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.parentElement.rankingChoices;
-    if(choices.indexOf(dropTarget) === -1)
+    if (choices.indexOf(dropTarget) === -1)
       // shouldn't allow to drop on "adorners" (selectall, none, other)
       return false;
 
     return true;
   }
   protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
-    if(this.dropTarget instanceof ItemValue && this.draggedElement !== this.dropTarget) {
+    if (this.dropTarget instanceof ItemValue && this.draggedElement !== this.dropTarget) {
       return super.calculateIsBottom(clientY, dropTargetNode);
     }
     return false;
@@ -95,18 +95,18 @@ export class DragDropRankingChoices extends DragDropChoices {
   public getIndices(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
     let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     let toIndex = toChoicesArray.indexOf(this.dropTarget);
-    if(fromIndex < 0 && !!this.draggedElement) {
+    if (fromIndex < 0 && !!this.draggedElement) {
       this.draggedElement = ItemValue.getItemByValue(fromChoicesArray, this.draggedElement.value) || this.draggedElement;
       fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     }
-    if(toIndex === -1) {
+    if (toIndex === -1) {
       const length = model.value.length;
       toIndex = length;
-    } else if(fromChoicesArray == toChoicesArray) {
-      if(!this.isBottom && fromIndex < toIndex) toIndex--;
-      if(this.isBottom && fromIndex > toIndex) toIndex ++;
-    } else if(fromChoicesArray != toChoicesArray) {
-      if(this.isBottom) toIndex++;
+    } else if (fromChoicesArray == toChoicesArray) {
+      if (!this.isBottom && fromIndex < toIndex) toIndex--;
+      if (this.isBottom && fromIndex > toIndex) toIndex ++;
+    } else if (fromChoicesArray != toChoicesArray) {
+      if (this.isBottom) toIndex++;
     }
 
     return { fromIndex, toIndex };
@@ -118,7 +118,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void => {
-    if(fromIndex == toIndex) return;
+    if (fromIndex == toIndex) return;
     const rankingChoices = questionModel.rankingChoices;
     const item = rankingChoices[fromIndex];
     questionModel.isValueSetByUser = true;
@@ -130,7 +130,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   };
 
   protected updateDraggedElementShortcut(newIndex: number) {
-    if(this.domAdapter?.draggedElementShortcut) {
+    if (this.domAdapter?.draggedElementShortcut) {
       const newIndexText = newIndex !== null ? newIndex + "" : "";
       // TODO should avoid direct DOM manipulation, do through the frameworks instead
       const indexNode: HTMLElement = this.domAdapter.draggedElementShortcut.querySelector(
@@ -146,7 +146,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected doBanDropHere = (): any => {
-    if(this.isDragOverRootNode) {
+    if (this.isDragOverRootNode) {
       this.allowDropHere = true;
       return;
     }
@@ -154,7 +154,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "not-allowed";
 
-    if(IsTouch) {
+    if (IsTouch) {
       this.parentElement.updateRankingChoices(true);
     }
   };
@@ -165,7 +165,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   public clear(): void {
-    if(!!this.parentElement) {
+    if (!!this.parentElement) {
       this.parentElement.dropTargetNodeMove = null;
       this.parentElement.updateRankingChoices(true);
     }

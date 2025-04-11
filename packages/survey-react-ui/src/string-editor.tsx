@@ -14,14 +14,14 @@ export class SurveyLocStringEditor extends React.Component<any, any> {
     return this.props.style;
   }
   componentDidMount() {
-    if(!this.locStr) return;
+    if (!this.locStr) return;
     var self = this;
     this.locStr.onChanged = function () {
       self.setState({ changed: self.state.changed + 1 });
     };
   }
   componentWillUnmount() {
-    if(!this.locStr) return;
+    if (!this.locStr) return;
     this.locStr.onChanged = function () { };
   }
   onInput = (event: any) => {
@@ -32,10 +32,10 @@ export class SurveyLocStringEditor extends React.Component<any, any> {
     event.stopPropagation();
   };
   render(): React.JSX.Element | null {
-    if(!this.locStr) {
+    if (!this.locStr) {
       return null;
     }
-    if(this.locStr.hasHtml) {
+    if (this.locStr.hasHtml) {
       const htmlValue = { __html: this.locStr.renderedHtml };
       return (
         <span

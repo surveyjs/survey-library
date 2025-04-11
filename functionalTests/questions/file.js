@@ -20,7 +20,7 @@ const json = {
 
 function onOpenFileChooserHandler(s, o) {
   var files = [];
-  for(var i = 0; i < o.input.files.length; i++) {
+  for (var i = 0; i < o.input.files.length; i++) {
     files.push(o.input.files[i]);
   }
   o.callback(files);

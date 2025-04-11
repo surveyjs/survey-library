@@ -82,7 +82,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
-    if(!!selectedItemByValue) {
+    if (!!selectedItemByValue) {
       this.lastSelectedItemValue = selectedItemByValue;
     }
   }
@@ -92,18 +92,18 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   private minMaxChoices = <Array<ItemValue>>[];
   protected getChoices(): Array<ItemValue> {
     var items = super.getChoices();
-    if(this.choicesMax <= this.choicesMin) return items;
+    if (this.choicesMax <= this.choicesMin) return items;
     var res = [];
-    for(var i = 0; i < items.length; i++) {
+    for (var i = 0; i < items.length; i++) {
       res.push(items[i]);
     }
-    if(
+    if (
       this.minMaxChoices.length === 0 ||
       this.minMaxChoices.length !==
       (this.choicesMax - this.choicesMin) / this.choicesStep + 1
     ) {
       this.minMaxChoices = [];
-      for(
+      for (
         var i = this.choicesMin;
         i <= this.choicesMax;
         i += this.choicesStep
@@ -165,7 +165,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.getPropertyValue("choicesStep");
   }
   public set choicesStep(val: number) {
-    if(val < 1) val = 1;
+    if (val < 1) val = 1;
     this.setPropertyValue("choicesStep", val);
   }
 
@@ -189,7 +189,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
@@ -215,7 +215,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setAllowCustomChoices(newValue);
       }
     }
@@ -234,10 +234,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.getPropertyValue("readOnlyText", undefined, () => this.calculateReadOnlyText());
   }
   protected calculateReadOnlyText(): string {
-    if(this.renderAs == "select") {
-      if(this.isOtherSelected) return this.otherText;
-      if(this.isNoneSelected) return this.noneText;
-      if(!!this.selectedItem) return this.selectedItemText;
+    if (this.renderAs == "select") {
+      if (this.isOtherSelected) return this.otherText;
+      if (this.isNoneSelected) return this.noneText;
+      if (!!this.selectedItem) return this.selectedItemText;
     }
     return !!this.selectedItem ? "" : this.placeholder;
   }
@@ -251,7 +251,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionDropdownModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
       }
     }
@@ -275,13 +275,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   protected updateCssClasses(res: any, css: any): void {
     super.updateCssClasses(res, css);
-    if(this.useDropdownList) {
+    if (this.useDropdownList) {
       updateListCssValues(res, css);
     }
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if(this.dropdownListModelValue) {
+    if (this.dropdownListModelValue) {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
@@ -307,7 +307,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   private get useDropdownList(): boolean { return this.renderAs !== "select"; }
   public get dropdownListModel(): DropdownListModel {
-    if(this.useDropdownList && !this.dropdownListModelValue) {
+    if (this.useDropdownList && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
     }
     return this.dropdownListModelValue;
@@ -333,16 +333,16 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     isFilteredChoices: boolean,
     checkEmptyValue: boolean
   ): boolean {
-    if(this.choicesLazyLoadEnabled) { return false; }
+    if (this.choicesLazyLoadEnabled) { return false; }
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     const val = this.otherValue?.trim();
-    if(!val) return false;
+    if (!val) return false;
     return super.hasUnknownValue(val, true, false);
   }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if(this.choicesLazyLoadEnabled) {
+    if (this.choicesLazyLoadEnabled) {
       return this.createItemValue(value, text);
     } else {
       return super.getItemIfChoicesNotContainThisValue(value, text);
@@ -351,7 +351,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModel.updateItems();
     }
   }
@@ -373,7 +373,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   public afterRenderCore(el: any): void {
     super.afterRenderCore(el);
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.clear();
     }
   }
@@ -384,7 +384,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   onKeyUp(event: any): void {
     const char: number = event.which || event.keyCode;
-    if(char === 46) {
+    if (char === 46) {
       this.clearValue(true);
       event.preventDefault();
       event.stopPropagation();
@@ -402,7 +402,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
       this.dropdownListModelValue = undefined;
     }

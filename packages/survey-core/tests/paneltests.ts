@@ -3429,13 +3429,13 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
   });
   survey.onGetQuestionNumber.add((sender, options) => {
     const parent: any = options.question.parent;
-    if(!!parent && parent.no) {
+    if (!!parent && parent.no) {
       options.number = parent.no + options.number;
     }
   });
   survey.onGetPanelNumber.add((sender, options) => {
     const parent: any = options.panel.parent;
-    if(!!parent && parent.no) {
+    if (!!parent && parent.no) {
       options.number = parent.no + options.number;
     }
   });

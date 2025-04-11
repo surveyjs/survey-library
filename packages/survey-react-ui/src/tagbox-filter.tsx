@@ -26,17 +26,17 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     this.updateDomElement();
   }
   updateDomElement() {
-    if(!!this.inputElement) {
+    if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.model.inputStringRendered;
-      if(!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.model.inputStringRendered;
       }
     }
   }
   onChange(e: any) {
     const { root } = settings.environment;
-    if(e.target === root.activeElement) {
+    if (e.target === root.activeElement) {
       this.model.inputStringRendered = e.target.value;
     }
   }

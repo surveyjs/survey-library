@@ -13,7 +13,7 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   componentDidMount() {
     super.componentDidMount();
-    if(!!this.flowPanel) {
+    if (!!this.flowPanel) {
       this.flowPanel.onCustomHtmlProducing = function () {
         return "";
       };
@@ -22,7 +22,7 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if(!!this.flowPanel) {
+    if (!!this.flowPanel) {
       this.flowPanel.onCustomHtmlProducing = null as any;
       this.flowPanel.onGetHtmlForQuestion = null as any;
     }
@@ -35,7 +35,7 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   protected renderRows(): Array<React.JSX.Element> {
     const result = this.renderHtml();
-    if(!!result) {
+    if (!!result) {
       return [result];
     } else {
       return [];
@@ -46,9 +46,9 @@ export class SurveyFlowPanel extends SurveyPanel {
     return this.renderedIndex++;
   }
   protected renderHtml(): React.JSX.Element | null {
-    if(!this.flowPanel) return null;
+    if (!this.flowPanel) return null;
     const html = "<span>" + this.flowPanel.produceHtml() + "</span>";
-    if(!DOMParser) {
+    if (!DOMParser) {
       const htmlValue = { __html: html };
       return <div dangerouslySetInnerHTML={htmlValue} />;
     }
@@ -58,9 +58,9 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   protected renderNodes(domNodes: Array<Node>): Array<React.JSX.Element> {
     const nodes: Array<React.JSX.Element> = [];
-    for(let i = 0; i < domNodes.length; i++) {
+    for (let i = 0; i < domNodes.length; i++) {
       const node = this.renderNode(domNodes[i]);
-      if(!!node) {
+      if (!!node) {
         nodes.push(node);
       }
     }
@@ -68,13 +68,13 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   private getStyle(nodeType: string) {
     const style: any = {};
-    if(nodeType.toLowerCase() === "b") {
+    if (nodeType.toLowerCase() === "b") {
       style.fontWeight = "bold";
     }
-    if(nodeType.toLowerCase() === "i") {
+    if (nodeType.toLowerCase() === "i") {
       style.fontStyle = "italic";
     }
-    if(nodeType.toLowerCase() === "u") {
+    if (nodeType.toLowerCase() === "u") {
       style.textDecoration = "underline";
     }
     return style;
@@ -82,7 +82,7 @@ export class SurveyFlowPanel extends SurveyPanel {
   protected renderParentNode(node: Node): React.JSX.Element {
     const nodeType = node.nodeName.toLowerCase();
     const children = this.renderNodes(this.getChildDomNodes(node));
-    if(nodeType === "div")
+    if (nodeType === "div")
       return <div key={this.getNodeIndex()}>{children}</div>;
     return (
       <span key={this.getNodeIndex()} style={this.getStyle(nodeType)}>
@@ -91,13 +91,13 @@ export class SurveyFlowPanel extends SurveyPanel {
     );
   }
   protected renderNode(node: Node): React.JSX.Element | null {
-    if(!this.hasTextChildNodesOnly(node)) {
+    if (!this.hasTextChildNodesOnly(node)) {
       return this.renderParentNode(node);
     }
     const nodeType = node.nodeName.toLowerCase();
-    if(nodeType === "question") {
+    if (nodeType === "question") {
       const question = this.flowPanel.getQuestionByName(node.textContent as any);
-      if(!question) return null;
+      if (!question) return null;
       const questionBody = (
         <SurveyQuestion
           key={question.name}
@@ -108,7 +108,7 @@ export class SurveyFlowPanel extends SurveyPanel {
       );
       return <span key={this.getNodeIndex()}>{questionBody}</span>;
     }
-    if(nodeType === "div") {
+    if (nodeType === "div") {
       return <div key={this.getNodeIndex()}>{node.textContent}</div>;
     }
     return (
@@ -119,15 +119,15 @@ export class SurveyFlowPanel extends SurveyPanel {
   }
   private getChildDomNodes(node: Node): Array<Node> {
     const domNodes: Array<Node> = [];
-    for(let i = 0; i < node.childNodes.length; i++) {
+    for (let i = 0; i < node.childNodes.length; i++) {
       domNodes.push(node.childNodes[i]);
     }
     return domNodes;
   }
   private hasTextChildNodesOnly(node: Node): boolean {
     const nodes = node.childNodes;
-    for(let i = 0; i < nodes.length; i++) {
-      if(nodes[i].nodeName.toLowerCase() !== "#text") return false;
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].nodeName.toLowerCase() !== "#text") return false;
     }
     return true;
   }

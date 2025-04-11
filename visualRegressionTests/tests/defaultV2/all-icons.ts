@@ -28,14 +28,14 @@ frameworks.forEach(framework => {
         svgContainer.id = "svgCointainer";
         document.body.appendChild(svgContainer);
         const surveyElement = document.getElementById("surveyElement");
-        if(!!surveyElement) {
+        if (!!surveyElement) {
           surveyElement.style.display = "none";
         }
 
         const svgCointainer = document.getElementById("svgCointainer");
         const globalContainer = document.getElementById("sv-icon-holder-global-container");
         let symbols;
-        if(!!globalContainer) {
+        if (!!globalContainer) {
           symbols = globalContainer.querySelectorAll("symbol");
         }
 
@@ -46,7 +46,7 @@ frameworks.forEach(framework => {
           svg.style.height = "48px";
 
           const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
-          if(!!svgCointainer) {
+          if (!!svgCointainer) {
             svgCointainer.appendChild(svg);
           }
           svg.appendChild(use);

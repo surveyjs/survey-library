@@ -6,11 +6,11 @@ import { IDragDropEngine } from "./engine";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
-if(typeof window !== "undefined") {
+if (typeof window !== "undefined") {
   window.addEventListener(
     "touchmove",
     (event) => {
-      if(!DragDropDOMAdapter.PreventScrolling) {
+      if (!DragDropDOMAdapter.PreventScrolling) {
         return;
       }
 
@@ -49,7 +49,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     return settings.environment.root;
   }
   public get rootElement():any {
-    if(isShadowDOM(settings.environment.root)) {
+    if (isShadowDOM(settings.environment.root)) {
       return this.rootContainer || settings.environment.root.host;
     } else {
       return this.rootContainer || settings.environment.root.documentElement || document.body;
@@ -59,7 +59,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     pointerMoveEvent.preventDefault();
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
-    if(this.isMicroMovement) return;
+    if (this.isMicroMovement) return;
     this.returnUserSelectBack();
     this.stopLongTap();
   };
@@ -95,7 +95,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
         parentElement,
         draggedElementNode
       );
-      if(!preventSaveTargetNode) {
+      if (!preventSaveTargetNode) {
         this.savedTargetNode = event.target;
         this.savedTargetNode.style.cssText =
             `
@@ -121,7 +121,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.clear();
   };
   private handleEscapeButton = (event: KeyboardEvent) => {
-    if(event.keyCode == 27) {
+    if (event.keyCode == 27) {
       this.clear();
     }
   };
@@ -144,7 +144,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let shortcutYOffset = this.draggedElementShortcut.shortcutYOffset || shortcutHeight / 2;
 
     // TODO this is hot fix for RTL support. Probably we need better global strategy for it. https://github.com/surveyjs/survey-library/issues/4554
-    if(document.querySelectorAll("[dir='rtl']").length !== 0) {
+    if (document.querySelectorAll("[dir='rtl']").length !== 0) {
       shortcutXOffset = shortcutWidth / 2;
       shortcutYOffset = shortcutHeight / 2;
     }
@@ -165,7 +165,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(clientX, shortcutWidth, shortcutXOffset);
 
-    if(shortcutRightCoordinate >= documentRight) { // right boundary
+    if (shortcutRightCoordinate >= documentRight) { // right boundary
       this.draggedElementShortcut.style.left =
         // pageX -
         // clientX +
@@ -178,7 +178,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       return;
     }
 
-    if(clientX - shortcutXOffset <= 0) { // left boundary
+    if (clientX - shortcutXOffset <= 0) { // left boundary
       this.draggedElementShortcut.style.left =
         pageX - clientX - rootElementX + "px";
       this.draggedElementShortcut.style.top =
@@ -186,7 +186,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       return;
     }
 
-    if(shortcutBottomCoordinate >= documentBottom) { // bottom boundary
+    if (shortcutBottomCoordinate >= documentBottom) { // bottom boundary
       this.draggedElementShortcut.style.left =
         /*pageX*/ clientX - shortcutXOffset - rootElementX + "px";
       this.draggedElementShortcut.style.top =
@@ -199,7 +199,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       return;
     }
 
-    if(clientY - shortcutYOffset <= 0) { // top  boundary
+    if (clientY - shortcutYOffset <= 0) { // top  boundary
       this.draggedElementShortcut.style.left =
         clientX - shortcutXOffset - rootElementX + "px";
       this.draggedElementShortcut.style.top =
@@ -231,7 +231,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let left: number;
     let right: number;
 
-    if(scrollableParentNode.tagName === "HTML") {
+    if (scrollableParentNode.tagName === "HTML") {
       top = 0;
       bottom = document.documentElement.clientHeight;
       left = 0;
@@ -248,13 +248,13 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       const isBottom = bottom - clientY <= startScrollBoundary;
       const isLeft = clientX - left <= startScrollBoundary;
       const isRight = right - clientX <= startScrollBoundary;
-      if(isTop && !isLeft && !isRight) {
+      if (isTop && !isLeft && !isRight) {
         scrollableParentNode.scrollTop -= 15;
-      } else if(isBottom && !isLeft && !isRight) {
+      } else if (isBottom && !isLeft && !isRight) {
         scrollableParentNode.scrollTop += 15;
-      } else if(isRight && !isTop && !isBottom) {
+      } else if (isRight && !isTop && !isBottom) {
         scrollableParentNode.scrollLeft += 15;
-      } else if(isLeft && !isTop && !isBottom) {
+      } else if (isLeft && !isTop && !isBottom) {
         scrollableParentNode.scrollLeft -= 15;
       }
       this.scrollIntervalId = this.requestAnimationFrame(repeat);
@@ -290,7 +290,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     document.removeEventListener("keydown", this.handleEscapeButton);
     document.removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
-    if(IsTouch) {
+    if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
     }
     this.draggedElementShortcut.parentElement.removeChild(this.draggedElementShortcut);
@@ -299,7 +299,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.draggedElementShortcut = null;
     this.scrollIntervalId = null;
 
-    if(IsTouch) {
+    if (IsTouch) {
       this.savedTargetNode.style.cssText = null;
       this.savedTargetNode && this.savedTargetNode.parentElement.removeChild(this.savedTargetNode);
       this.insertNodeToParentAtIndex(this.savedTargetNodeParent, this.savedTargetNode, this.savedTargetNodeIndex);
@@ -321,10 +321,10 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     parentElement?: any,
     draggedElementNode?: HTMLElement
   ): void {
-    if(IsTouch) {
+    if (IsTouch) {
       DragDropDOMAdapter.PreventScrolling = true;
     }
-    if(event.which === 3) return; //right mouse btn
+    if (event.which === 3) return; //right mouse btn
 
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
@@ -335,7 +335,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     document.addEventListener("pointercancel", this.handlePointerCancel);
     document.addEventListener("keydown", this.handleEscapeButton);
     document.addEventListener("pointerup", this.drop);
-    if(!IsTouch) {
+    if (!IsTouch) {
       this.draggedElementShortcut.addEventListener("pointerup", this.drop);
     } else {
       this.draggedElementShortcut.addEventListener("contextmenu", this.onContextMenu);
@@ -355,7 +355,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
     document.body.style.setProperty("user-select", "none", "important");
     document.body.style.setProperty("-webkit-user-select", "none", "important");
-    if(IsTouch) {
+    if (IsTouch) {
       this.startLongTapProcessing(
         event,
         draggedElement,

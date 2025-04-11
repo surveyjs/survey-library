@@ -1171,7 +1171,7 @@ QUnit.test("survey.onMatrixDetailPanelVisibleChanged event", function (assert) {
   survey.onMatrixDetailPanelVisibleChanged.add((sender, options) => {
     const action = (options.visible ? "show" : "hide") + ":" + options.rowIndex;
     actions.push(action);
-    if(options.visible) {
+    if (options.visible) {
       options.detailPanel.getQuestionByName("q1").title = "Question 1";
     }
   });
@@ -1728,7 +1728,7 @@ QUnit.test("The Undo operation doesn't work for matrix dropdown column 'choices'
     sender: any,
     arrayChanges: any
   ) => {
-    if(name === "choices") {
+    if (name === "choices") {
       counter ++;
       propName = name;
       senderName = sender.name;

@@ -27,7 +27,7 @@ QUnit.test("Test timer event", function(assert) {
 
 function doTimer(count: number, suspendedSeconds: number = 0) {
   nowValue += suspendedSeconds * 1000;
-  for(var i = 0; i < count; i++) {
+  for (var i = 0; i < count; i++) {
     SurveyTimer.instance.doTimer();
   }
 }

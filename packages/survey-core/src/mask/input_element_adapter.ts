@@ -5,14 +5,14 @@ export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
 
   private setInputValue(value: string) {
-    if(this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
+    if (this.inputElement.maxLength >= 0 && this.inputElement.maxLength < value.length) {
       value = value.slice(0, this.inputElement.maxLength);
     }
     this.inputElement.value = value;
   }
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value?: any) {
     let _value: any = value;
-    if(_value === null || _value === undefined) {
+    if (_value === null || _value === undefined) {
       _value = "";
     }
     this.setInputValue(inputMaskInstance.getMaskedValue(_value));
@@ -23,14 +23,14 @@ export class InputElementAdapter {
   }
 
   inputMaskInstancePropertyChangedHandler = (sender: any, options: any) => {
-    if(options.name !== "saveMaskedValue") {
+    if (options.name !== "saveMaskedValue") {
       const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
       this.setInputValue(maskedValue);
     }
   };
 
   clickHandler = (event: any) => {
-    if(this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
+    if (this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
       this.inputElement.setSelectionRange(0, 0);
     }
   };
@@ -40,7 +40,7 @@ export class InputElementAdapter {
     const result = this.inputMaskInstance.processInput(args);
     this.setInputValue(result.value);
     this.inputElement.setSelectionRange(result.caretPosition, result.caretPosition);
-    if(!result.cancelPreventDefault) {
+    if (!result.cancelPreventDefault) {
       event.preventDefault();
     }
   };
@@ -59,21 +59,21 @@ export class InputElementAdapter {
       inputDirection: "forward"
     };
 
-    if(event.inputType === "deleteContentBackward") {
+    if (event.inputType === "deleteContentBackward") {
       args.inputDirection = "backward";
 
-      if(args.selectionStart === args.selectionEnd) {
+      if (args.selectionStart === args.selectionEnd) {
         args.selectionStart = Math.max(args.selectionStart - 1, 0);
       }
     }
-    if(event.inputType === "deleteContentForward" && args.selectionStart === args.selectionEnd) {
+    if (event.inputType === "deleteContentForward" && args.selectionStart === args.selectionEnd) {
       args.selectionEnd += 1;
     }
 
     return args;
   }
   public addInputEventListener(): void {
-    if(!!this.inputElement) {
+    if (!!this.inputElement) {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.addEventListener("click", this.clickHandler);
       this.inputElement.addEventListener("focus", this.clickHandler);
@@ -81,7 +81,7 @@ export class InputElementAdapter {
     }
   }
   public removeInputEventListener(): void {
-    if(!!this.inputElement) {
+    if (!!this.inputElement) {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
       this.inputElement.removeEventListener("click", this.clickHandler);
       this.inputElement.removeEventListener("focus", this.clickHandler);

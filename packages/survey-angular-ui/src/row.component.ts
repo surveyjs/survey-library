@@ -21,9 +21,9 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
   }
   public ngAfterViewInit(): void {
     const el = this.container?.nativeElement;
-    if(!!el) {
+    if (!!el) {
       this.row.setRootElement(el);
-      if(!this.row.isNeedRender) {
+      if (!this.row.isNeedRender) {
         this.ngZone.runOutsideAngular(() => {
           setTimeout(() => {
             this.row.startLazyRendering(el);
@@ -34,11 +34,11 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
   }
   protected override onModelChanged(): void {
     super.onModelChanged();
-    if(!this.previousModel) {
+    if (!this.previousModel) {
       return;
     } else {
       this.previousModel.setRootElement(undefined);
-      if(this.container?.nativeElement) {
+      if (this.container?.nativeElement) {
         this.row.setRootElement(this.container.nativeElement);
       }
       this.row.isNeedRender = this.previousModel.isNeedRender;
@@ -51,7 +51,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
   }
   public override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if(!this.isBaseElementSubsribed(this.row)) {
+    if (!this.isBaseElementSubsribed(this.row)) {
       this.row.setRootElement(undefined);
       this.stopLazyRendering();
     }

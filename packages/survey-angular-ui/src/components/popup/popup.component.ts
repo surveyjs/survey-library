@@ -21,7 +21,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
     super(changeDetectorRef, viewContainerRef);
   }
   protected override onModelChanged(): void {
-    if(this.model) {
+    if (this.model) {
       this.model.resetComponentElement();
       this.model.dispose();
     }
@@ -30,7 +30,7 @@ export class PopupComponent extends BaseAngular<PopupModel> {
   }
 
   private setContainerElement(): void {
-    if(!!this.containerRef?.nativeElement) {
+    if (!!this.containerRef?.nativeElement) {
       const container = this.containerRef.nativeElement as HTMLElement;
       this.model.setComponentElement(container.parentElement as HTMLElement);
     }

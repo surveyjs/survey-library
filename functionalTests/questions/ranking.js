@@ -256,7 +256,7 @@ frameworks.forEach((framework) => {
     const addNewRankingQuestion = ClientFunction((newName) => {
       let qr;
 
-      if(window["sjsFramework"] === "knockout") { //see https://github.com/surveyjs/survey-library/issues/6396
+      if (window["sjsFramework"] === "knockout") { //see https://github.com/surveyjs/survey-library/issues/6396
         qr = new window["Survey"].QuestionRanking(newName);
       } else {
         qr = new window["Survey"].QuestionRankingModel(newName);

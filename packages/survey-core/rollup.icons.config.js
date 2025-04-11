@@ -20,14 +20,14 @@ module.exports = () => {
   config.plugins.push({
     name: "icons",
     resolveId: (id) => {
-      if(Object.keys(iconsMap).includes(id)) {
+      if (Object.keys(iconsMap).includes(id)) {
         return id;
       }
     },
     load: async (id) => {
-      if(Object.keys(iconsMap).includes(id)) {
+      if (Object.keys(iconsMap).includes(id)) {
         const icons = {};
-        for(const iconPath of await fg.glob(iconsMap[id])) {
+        for (const iconPath of await fg.glob(iconsMap[id])) {
           icons[path.basename(iconPath).replace(/\.svg$/, "").toLocaleLowerCase()] = svgLoader.getExtractedSVG(readFile(iconPath).toString());
         }
         return `export default ${JSON.stringify(icons, undefined, "\t")}`;

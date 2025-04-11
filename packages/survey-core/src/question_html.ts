@@ -27,7 +27,7 @@ export class QuestionHtmlModel extends QuestionNonValue {
     return true;
   }
   public getProcessedText(text: string): string {
-    if(this.ignoreHtmlProgressing) return text;
+    if (this.ignoreHtmlProgressing) return text;
     return super.getProcessedText(text);
   }
   /**

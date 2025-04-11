@@ -15,7 +15,7 @@ export class ElementHeaderComponent {
     return this.element.titleWidth;
   }
   @HostListener("click", ["$event"]) click(e: MouseEvent): void {
-    if(this.element.clickTitleFunction !== undefined) {
+    if (this.element.clickTitleFunction !== undefined) {
       this.element.clickTitleFunction(e);
     }
   }

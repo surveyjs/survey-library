@@ -15,7 +15,7 @@ export class TitleContent extends React.Component<any, any> {
     return this.props.element;
   }
   render(): React.JSX.Element {
-    if(this.element.isTitleRenderedAsString)
+    if (this.element.isTitleRenderedAsString)
       return SurveyElementBase.renderLocString(this.element.locTitle);
     var spans = this.renderTitleSpans(this.element.getTitleOwner(), this.cssClasses);
     return <>{spans}</>;
@@ -29,12 +29,12 @@ export class TitleContent extends React.Component<any, any> {
       );
     };
     var spans: Array<React.JSX.Element> = [];
-    if(element.isRequireTextOnStart) {
+    if (element.isRequireTextOnStart) {
       spans.push(this.renderRequireText(element));
       spans.push(getSpaceSpan("req-sp"));
     }
     var questionNumber = element.no;
-    if(questionNumber) {
+    if (questionNumber) {
       spans.push(
         <span
           data-key={"q_num"}
@@ -48,14 +48,14 @@ export class TitleContent extends React.Component<any, any> {
       );
       spans.push(getSpaceSpan("num-sp"));
     }
-    if(element.isRequireTextBeforeTitle) {
+    if (element.isRequireTextBeforeTitle) {
       spans.push(this.renderRequireText(element));
       spans.push(getSpaceSpan("req-sp"));
     }
     spans.push(
       SurveyElementBase.renderLocString(element.locTitle, null, "q_title")
     );
-    if(element.isRequireTextAfterTitle) {
+    if (element.isRequireTextAfterTitle) {
       spans.push(getSpaceSpan("req-sp"));
       spans.push(this.renderRequireText(element));
     }

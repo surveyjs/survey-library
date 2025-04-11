@@ -9,7 +9,7 @@ class DragDropTest extends DragDropDOMAdapter {
   private times = 0;
 
   protected requestAnimationFrame(callback: any): number {
-    if(this.times == 0) {
+    if (this.times == 0) {
       this.times++;
       callback();
     }

@@ -22,7 +22,7 @@ class LocalizableOwnerTester implements ILocalizableOwner {
     return this.locale;
   }
   public getMarkdownHtml(text: string): string {
-    if(text.indexOf("markdown") > -1)
+    if (text.indexOf("markdown") > -1)
       return LocalizableOwnerTester.MarkdownText;
     return undefined;
   }
@@ -33,7 +33,7 @@ class LocalizableOwnerTester implements ILocalizableOwner {
     return undefined;
   }
   public getProcessedText(text: string): string {
-    for(var key in this.values) {
+    for (var key in this.values) {
       text = text.replace("{" + key + "}", this.values[key]);
     }
     return text;
@@ -279,7 +279,7 @@ class BaseItemValueArrayTester extends Base implements ILocalizableOwner {
     return this.locale;
   }
   public getMarkdownHtml(text: string): string {
-    if(text.indexOf("markdown") > -1)
+    if (text.indexOf("markdown") > -1)
       return LocalizableOwnerTester.MarkdownText;
     return undefined as any;
   }
@@ -290,7 +290,7 @@ class BaseItemValueArrayTester extends Base implements ILocalizableOwner {
     return undefined;
   }
   public getProcessedText(text: string): string {
-    for(var key in this.values) {
+    for (var key in this.values) {
       text = text.replace("{" + key + "}", this.values[key]);
     }
     return text;
@@ -706,9 +706,9 @@ QUnit.test("Survey localization string name", function (assert) {
 });
 QUnit.test("External localization string name", function (assert) {
   surveyLocalization.onGetExternalString = (name: string, locale: string): string => {
-    if(name === "ed.test") {
-      if(locale === "de") return "ExternalStr-de";
-      if(locale === "en") return "ExternalStr-en";
+    if (name === "ed.test") {
+      if (locale === "de") return "ExternalStr-de";
+      if (locale === "en") return "ExternalStr-en";
       return "ExternalStr";
     }
     return "";
@@ -925,7 +925,7 @@ QUnit.test("locString placeholder", function (assert) {
   assert.equal(locStr.getPlaceholder(), "str-pt", "pt-BR placeholder");
   owner.locale = "";
   locStr.onGetTextCallback = (text: string) => {
-    if(!text) return "empty";
+    if (!text) return "empty";
     return text;
   };
   assert.equal(locStr.getPlaceholder(), "empty", "default placeholder, onGetTextCallback");

@@ -20,7 +20,7 @@ frameworks.forEach((framework) => {
   test("check survey root class on isMobile switch ", async (t) => {
     await ClientFunction(() => {
       window.addEventListener("error", e => {
-        if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
+        if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
         e.message === "ResizeObserver loop limit exceeded") {
           e.stopImmediatePropagation();
         }
@@ -43,7 +43,7 @@ frameworks.forEach((framework) => {
   test("check rating question in survey with multiple pages on small screen", async (t) => {
     await ClientFunction(() => {
       window.addEventListener("error", e => {
-        if(e.message === "ResizeObserver loop completed with undelivered notifications." ||
+        if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
         e.message === "ResizeObserver loop limit exceeded") {
           e.stopImmediatePropagation();
         }

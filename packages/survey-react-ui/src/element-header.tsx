@@ -23,7 +23,7 @@ export class SurveyElementHeader extends SurveyElementBase<any, any> {
     const additionalTitleToolbarElement = element.hasAdditionalTitleToolbar ? <SurveyActionBar model={element.additionalTitleToolbar}></SurveyActionBar> : null;
 
     const headerStyle: any = { width: undefined };
-    if(element instanceof Question) {
+    if (element instanceof Question) {
       headerStyle.width = element.titleWidth;
     }
 

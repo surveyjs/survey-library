@@ -99,7 +99,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   protected calcDescriptionVisibility(): boolean {
     const newDescription = this.description;
     let showPlaceholder = false;
-    if(this.isDesignMode) {
+    if (this.isDesignMode) {
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
       showPlaceholder = !!(property?.placeholder);
     }
@@ -171,8 +171,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     isRequired: boolean
   ): IProgressInfo {
     const info: IProgressInfo = Base.createProgressInfo();
-    for(let i = 0; i < children.length; i++) {
-      if(!children[i].isVisible) continue;
+    for (let i = 0; i < children.length; i++) {
+      if (!children[i].isVisible) continue;
       const childInfo: IProgressInfo = children[i].getProgressInfo();
       info.questionCount += childInfo.questionCount;
       info.answeredQuestionCount += childInfo.answeredQuestionCount;
@@ -180,9 +180,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       info.requiredAnsweredQuestionCount +=
         childInfo.requiredAnsweredQuestionCount;
     }
-    if(isRequired && info.questionCount > 0) {
-      if(info.requiredQuestionCount == 0) info.requiredQuestionCount = 1;
-      if(info.answeredQuestionCount > 0)
+    if (isRequired && info.questionCount > 0) {
+      if (info.requiredQuestionCount == 0) info.requiredQuestionCount = 1;
+      if (info.answeredQuestionCount > 0)
         info.requiredAnsweredQuestionCount = 1;
     }
     return info;
@@ -199,14 +199,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
     let elLeft: number = -1;
-    if(!needScroll && checkLeft) {
+    if (!needScroll && checkLeft) {
       elLeft = el.getBoundingClientRect().left;
       needScroll = elLeft < 0;
     }
-    if(!needScroll && DomWindowHelper.isAvailable()) {
+    if (!needScroll && DomWindowHelper.isAvailable()) {
       const height = DomWindowHelper.getInnerHeight();
       needScroll = height > 0 && height < elTop;
-      if(!needScroll && checkLeft) {
+      if (!needScroll && checkLeft) {
         const width = DomWindowHelper.getInnerWidth();
         needScroll = width > 0 && width < elLeft;
       }
@@ -215,13 +215,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public static ScrollIntoView(el: HTMLElement, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
     el.scrollIntoView(scrollIntoViewOptions);
-    if(typeof doneCallback === "function") {
+    if (typeof doneCallback === "function") {
       let lastPos: number = null;
       let same: number = 0;
       const checkPos = () => {
         const newPos = el.getBoundingClientRect().top;
-        if(newPos === lastPos) {
-          if(same++ > 2) {
+        if (newPos === lastPos) {
+          if (same++ > 2) {
             doneCallback();
             return;
           }
@@ -236,17 +236,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     const { root } = settings.environment;
-    if(!elementId || typeof root === "undefined") return false;
+    if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
     return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
   public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    if(!el || !el.scrollIntoView) {
+    if (!el || !el.scrollIntoView) {
       doneCallback && doneCallback();
       return false;
     }
     const needScroll = SurveyElement.IsNeedScrollIntoView(el, checkLeft, scrollIfVisible);
-    if(needScroll) {
+    if (needScroll) {
       SurveyElement.ScrollIntoView(el, scrollIntoViewOptions, doneCallback);
     } else {
       doneCallback && doneCallback();
@@ -254,23 +254,23 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return needScroll;
   }
   public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
-    if(!elements || !elements.length || elements.length == 0) return null;
-    if(removeSpaces) {
+    if (!elements || !elements.length || elements.length == 0) return null;
+    if (removeSpaces) {
       let tEl = elements[0];
-      if(tEl.nodeName === "#text") tEl.data = "";
+      if (tEl.nodeName === "#text") tEl.data = "";
       tEl = elements[elements.length - 1];
-      if(tEl.nodeName === "#text") tEl.data = "";
+      if (tEl.nodeName === "#text") tEl.data = "";
     }
-    for(let i = 0; i < elements.length; i++) {
-      if(elements[i].nodeName != "#text" && elements[i].nodeName != "#comment")
+    for (let i = 0; i < elements.length; i++) {
+      if (elements[i].nodeName != "#text" && elements[i].nodeName != "#comment")
         return elements[i];
     }
     return null;
   }
   public static FocusElement(elementId: string, isTimeOut?: boolean, containerEl?: HTMLElement): boolean {
-    if(!elementId || !DomDocumentHelper.isAvailable()) return false;
+    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
     const res: boolean = !isTimeOut ? SurveyElement.focusElementCore(elementId, containerEl) : false;
-    if(!res) {
+    if (!res) {
       setTimeout(() => {
         SurveyElement.focusElementCore(elementId, containerEl);
       }, isTimeOut ? 100 : 10);
@@ -279,10 +279,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private static focusElementCore(elementId: string, containerEl?: HTMLElement): boolean {
     const { root } = settings.environment;
-    if(!root && !containerEl) return false;
+    if (!root && !containerEl) return false;
     const el: HTMLElement = containerEl ? containerEl.querySelector(`#${CSS.escape(elementId)}`) : root.getElementById(elementId);
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
-    if(el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
+    if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
       SurveyElement.ScrollElementToViewCore(el, true, false);
       el.focus();
       return true;
@@ -295,7 +295,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     SurveyElement.CreateDisabledDesignElements;
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
-    if(res !== undefined) return res;
+    if (res !== undefined) return res;
     this.setRootStyle();
     return this.getPropertyValue("effectiveColSpan");
   }
@@ -324,14 +324,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if(name === "state") {
+    if (name === "state") {
       this.updateElementCss(false);
       this.notifyStateChanged(oldValue);
-      if(this.stateChangedCallback)this.stateChangedCallback();
+      if (this.stateChangedCallback)this.stateChangedCallback();
     }
   }
   protected getSkeletonComponentNameCore(): string {
-    if(this.survey) {
+    if (this.survey) {
       return this.survey.getSkeletonComponentName(this);
     }
     return "sv-skeleton";
@@ -381,7 +381,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.renderedIsExpanded = !this.isCollapsed;
   }
   protected notifyStateChanged(prevState: string): void {
-    if(this.survey) {
+    if (this.survey) {
       this.survey.elementContentVisibilityChanged(this);
     }
   }
@@ -423,7 +423,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isExpanded
    */
   public collapse() {
-    if(this.isDesignMode) return;
+    if (this.isDesignMode) return;
     this.state = "collapsed";
   }
   /**
@@ -447,11 +447,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isExpanded
    */
   public toggleState(): boolean {
-    if(this.isCollapsed) {
+    if (this.isCollapsed) {
       this.expand();
       return true;
     }
-    if(this.isExpanded) {
+    if (this.isExpanded) {
       this.collapse();
       return false;
     }
@@ -465,7 +465,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private titleToolbarValue: AdaptiveActionContainer;
   public getTitleToolbar(): AdaptiveActionContainer {
-    if(!this.titleToolbarValue) {
+    if (!this.titleToolbarValue) {
       this.titleToolbarValue = <AdaptiveActionContainer>this.createActionContainer(true);
       this.titleToolbarValue.locOwner = this;
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
@@ -475,7 +475,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     const actionContainer = allowAdaptiveActions ? new AdaptiveActionContainer() : new ActionContainer();
-    if(this.survey && !!this.survey.getCss().actionBar) {
+    if (this.survey && !!this.survey.getCss().actionBar) {
       actionContainer.cssClasses = this.survey.getCss().actionBar;
     }
 
@@ -486,7 +486,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private isTitleActionRequested: boolean;
   public getTitleActions(): Array<any> {
-    if(!this.isTitleActionRequested) {
+    if (!this.isTitleActionRequested) {
       this.updateTitleActions();
       this.isTitleActionRequested = true;
     }
@@ -497,14 +497,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private updateTitleActions() {
     let actions: Array<IAction> = this.getDefaultTitleActions();
-    if(!!this.survey) {
+    if (!!this.survey) {
       actions = this.survey.getUpdatedElementTitleActions(this, actions);
     }
     this.setPropertyValue("titleActions", actions);
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    if(!!this.titleToolbarValue) {
+    if (!!this.titleToolbarValue) {
       this.titleToolbarValue.locStrsChanged();
     }
   }
@@ -518,18 +518,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !this.isPage && this.state !== "default" ? 0 : undefined;
   }
   public get titleAriaExpanded(): any {
-    if(this.isPage || this.state === "default") return undefined;
+    if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded" ? "true" : "false";
   }
 
   public get titleAriaRole(): any {
-    if(this.isPage || this.state === "default") return undefined;
+    if (this.isPage || this.state === "default") return undefined;
     return "button";
   }
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.surveyImplValue = value;
-    if(!this.surveyImplValue) {
+    if (!this.surveyImplValue) {
       this.setSurveyCore(null);
       this.surveyDataValue = null;
     } else {
@@ -538,7 +538,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.textProcessorValue = this.surveyImplValue.getTextProcessor();
       this.onSetData();
     }
-    if(!!this.survey) {
+    if (!!this.survey) {
       this.resetDescriptionVisibility();
       this.clearCssClasses();
     }
@@ -574,21 +574,21 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.getSurvey();
   }
   public getSurvey(live: boolean = false): ISurvey {
-    if(!!this.surveyValue) return this.surveyValue;
-    if(!!this.surveyImplValue) {
+    if (!!this.surveyValue) return this.surveyValue;
+    if (!!this.surveyImplValue) {
       this.setSurveyCore(this.surveyImplValue.getSurvey());
     }
     return this.surveyValue;
   }
   protected setSurveyCore(value: ISurvey): void {
     this.surveyValue = value;
-    if(!!this.surveyChangedCallback) {
+    if (!!this.surveyChangedCallback) {
       this.surveyChangedCallback();
     }
   }
   public get skeletonHeight(): string {
     let skeletonHeight: string = undefined;
-    if(!!this.survey && (this.survey as any).skeletonHeight) {
+    if (!!this.survey && (this.survey as any).skeletonHeight) {
       skeletonHeight = (this.survey as any).skeletonHeight + "px";
     }
     return skeletonHeight;
@@ -628,14 +628,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.getPropertyValue("readOnly");
   }
   public set readOnly(val: boolean) {
-    if(this.readOnly == val) return;
+    if (this.readOnly == val) return;
     this.setPropertyValue("readOnly", val);
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.setPropertyValue("isReadOnly", this.isReadOnly);
     }
   }
   protected onReadOnlyChanged() {
-    if(!!this.readOnlyChangedCallback) {
+    if (!!this.readOnlyChangedCallback) {
       this.readOnlyChangedCallback();
     }
   }
@@ -645,7 +645,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private isCssValueCalculating: boolean;
   public get cssClassesValue(): any {
     let res = this.getPropertyValueWithoutDefault("cssClassesValue");
-    if(!res && !this.isCssValueCalculating) {
+    if (!res && !this.isCssValueCalculating) {
       this.isCssValueCalculating = true;
       res = this.createCssClassesValue();
       this.isCssValueCalculating = false;
@@ -672,15 +672,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    */
   public get cssClasses(): any {
     const _dummy = this.cssClassesValue;
-    if(!this.survey) return this.calcCssClasses(this.css);
-    if(!this.cssClassesValue) {
+    if (!this.survey) return this.calcCssClasses(this.css);
+    if (!this.cssClassesValue) {
       this.createCssClassesValue();
     }
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
     const css = this.cssClasses;
-    if(css.number) return css.number;
+    if (css.number) return css.number;
     return css.panel ? css.panel.number : undefined;
   }
   public get cssRequiredMark(): any {
@@ -688,7 +688,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
   public getCssTitleExpandableSvg(): string {
-    if(this.state === "default") return null;
+    if (this.state === "default") return null;
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }
@@ -701,7 +701,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.resetPropertyValue("cssClassesValue");
   }
   protected getIsLoadingFromJson(): boolean {
-    if(super.getIsLoadingFromJson()) return true;
+    if (super.getIsLoadingFromJson()) return true;
     return this.surveyValue ? this.surveyValue.isLoadingFromJson : false;
   }
   /**
@@ -715,7 +715,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set name(val: string) {
     var oldValue = this.name;
     this.setPropertyValue("name", this.getValidName(val));
-    if(!this.isLoadingFromJson && !!oldValue) {
+    if (!this.isLoadingFromJson && !!oldValue) {
       this.onNameChanged(oldValue);
     }
   }
@@ -724,7 +724,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected onNameChanged(oldValue: string) { }
   protected updateBindingValue(valueName: string, value: any) {
-    if(
+    if (
       !!this.data &&
       !this.isTwoValueEquals(value, this.data.getValue(valueName))
     ) {
@@ -744,8 +744,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   @property({ defaultValue: false }) hasVisibleErrors: boolean;
   private updateVisibleErrors() {
     var counter = 0;
-    for(var i = 0; i < this.errors.length; i++) {
-      if(this.errors[i].visible) counter++;
+    for (var i = 0; i < this.errors.length; i++) {
+      if (this.errors[i].visible) counter++;
     }
     this.hasVisibleErrors = counter > 0;
   }
@@ -776,7 +776,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
   public onFirstRendering(): void {
-    if(!this.wasRendered) {
+    if (!this.wasRendered) {
       this.wasRenderedValue = true;
       this.onFirstRenderingCore();
     }
@@ -784,7 +784,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected onFirstRenderingCore(): void {}
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    if(!this.survey) {
+    if (!this.survey) {
       this.onSurveyLoad();
     }
   }
@@ -835,17 +835,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         : locStr;
   }
   public getProcessedText(text: string): string {
-    if(this.isLoadingFromJson) return text;
-    if(this.textProcessor)
+    if (this.isLoadingFromJson) return text;
+    if (this.textProcessor)
       return this.textProcessor.processText(text, this.getUseDisplayValuesInDynamicTexts());
-    if(this.locOwner) return this.locOwner.getProcessedText(text);
+    if (this.locOwner) return this.locOwner.getProcessedText(text);
     return text;
   }
   protected getUseDisplayValuesInDynamicTexts(): boolean { return true; }
   protected removeSelfFromList(list: Array<any>) {
-    if(!list || !Array.isArray(list)) return;
+    if (!list || !Array.isArray(list)) return;
     const index: number = list.indexOf(this);
-    if(index > -1) {
+    if (index > -1) {
       list.splice(index, 1);
     }
   }
@@ -853,7 +853,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.textProcessorValue;
   }
   protected getProcessedHtml(html: string): string {
-    if(!html || !this.textProcessor) return html;
+    if (!html || !this.textProcessor) return html;
     return this.textProcessor.processText(html, true);
   }
   protected onSetData(): void { }
@@ -866,7 +866,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   protected getPage(parent: IPanel): IPage {
     while(parent && parent.parent) parent = parent.parent;
-    if(parent && parent.isPage) return <IPage>(<any>parent);
+    if (parent && parent.isPage) return <IPage>(<any>parent);
     return null;
   }
   protected moveToBase(
@@ -874,13 +874,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     container: IPanel,
     insertBefore: any = null
   ): boolean {
-    if(!container) return false;
+    if (!container) return false;
     parent.removeElement(<IElement>(<any>this));
     let index = -1;
-    if(Helpers.isNumber(insertBefore)) {
+    if (Helpers.isNumber(insertBefore)) {
       index = parseInt(insertBefore);
     }
-    if(index == -1 && !!insertBefore && !!insertBefore.getType) {
+    if (index == -1 && !!insertBefore && !!insertBefore.getType) {
       index = container.indexOf(insertBefore);
     }
     container.addElement(<IElement>(<any>this), index);
@@ -892,16 +892,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     (<any>this).prevSurvey = this.survey;
 
     //fix for the creator v1: https://github.com/surveyjs/survey-creator/issues/1744
-    if(typeof newPage === "string") {
+    if (typeof newPage === "string") {
       const survey = this.getSurvey();
       survey.pages.forEach((page: IPage) => {
-        if(<any>newPage === page.name) newPage = page;
+        if (<any>newPage === page.name) newPage = page;
       });
     }
 
-    if(oldPage === newPage) return;
-    if(parent) parent.removeElement(<IElement>(<any>this));
-    if(newPage) {
+    if (oldPage === newPage) return;
+    if (parent) parent.removeElement(<IElement>(<any>this));
+    if (newPage) {
       newPage.addElement(<IElement>(<any>this), -1);
     }
     (<any>this).prevSurvey = undefined;
@@ -929,7 +929,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   private canHaveFrameStyles() {
-    if(<any>this.survey?.currentSingleElement === this) return true;
+    if (<any>this.survey?.currentSingleElement === this) return true;
     return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }
 
@@ -1024,8 +1024,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public getRootStyle(): object {
     const style: any = {};
-    if(!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
-    if(!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
+    if (!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
+    if (!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
     return style;
   }
   get paddingLeft(): string {
@@ -1054,7 +1054,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set rootStyle(val: any) { this.setPropertyValue("rootStyle", val); }
   public updateRootStyle(): void {
-    if(!this.getPropertyValueWithoutDefault("rootStyle")) {
+    if (!this.getPropertyValueWithoutDefault("rootStyle")) {
       this.resetPropertyValue("effectiveColSpan");
     } else {
       this.setRootStyle();
@@ -1066,10 +1066,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected calcRootStyle(): any {
     const style: { [index: string]: any } = {};
     let _width;
-    if(!!this.parent) {
+    if (!!this.parent) {
       const columns = this.parent.getColumsForElement(this as any);
       _width = columns.reduce((sum, col) => col.effectiveWidth + sum, 0);
-      if(!!_width && _width !== 100) {
+      if (!!_width && _width !== 100) {
         style["flexGrow"] = 1;
         style["flexShrink"] = 0;
         style["flexBasis"] = _width + "%";
@@ -1077,20 +1077,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         style["maxWidth"] = this.maxWidth;
       }
     }
-    if(Object.keys(style).length == 0) {
+    if (Object.keys(style).length == 0) {
       let minWidth: string | number = "" + this.minWidth;
-      if(!!minWidth && minWidth != "auto") {
-        if(minWidth.indexOf("px") != -1 && this.survey) {
+      if (!!minWidth && minWidth != "auto") {
+        if (minWidth.indexOf("px") != -1 && this.survey) {
           minWidth = minWidth.replace("px", "");
           let minWidthNum = parseFloat(minWidth);
-          if(!isNaN(minWidthNum)) {
+          if (!isNaN(minWidthNum)) {
             minWidth = minWidthNum * (this.survey as any).widthScale / 100;
             minWidth = "" + minWidth + "px";
           }
         }
         minWidth = "min(100%, " + minWidth + ")";
       }
-      if(this.allowRootStyle && this.renderWidth) {
+      if (this.allowRootStyle && this.renderWidth) {
         style["flexGrow"] = 1;
         style["flexShrink"] = 1;
         style["flexBasis"] = this.renderWidth;
@@ -1103,13 +1103,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;
     const _document = DomDocumentHelper.getDocument();
-    if(DomDocumentHelper.isAvailable() && !!_document && (_document as any)["selection"]) {
+    if (DomDocumentHelper.isAvailable() && !!_document && (_document as any)["selection"]) {
       elementWithSelection = (_document as any)["selection"].createRange().parentElement();
     } else {
       var selection = DomWindowHelper.getSelection();
-      if(!!selection && selection.rangeCount > 0) {
+      if (!!selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
-        if(range.startOffset !== range.endOffset) {
+        if (range.startOffset !== range.endOffset) {
           elementWithSelection = range.startContainer.parentNode;
         }
       }
@@ -1117,9 +1117,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return elementWithSelection == el;
   }
   public get clickTitleFunction(): any {
-    if(this.needClickTitleFunction()) {
+    if (this.needClickTitleFunction()) {
       return (event?: MouseEvent) => {
-        if(!!event && this.isContainsSelection(event.target)) {
+        if (!!event && this.isContainsSelection(event.target)) {
           return;
         }
         return this.processTitleClick();
@@ -1131,7 +1131,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.state !== "default";
   }
   protected processTitleClick() {
-    if(this.state !== "default") {
+    if (this.state !== "default") {
       this.toggleState();
     }
   }
@@ -1145,7 +1145,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return null;
   }
   protected getCssTitle(cssClasses: any): string {
-    if(!cssClasses) return "";
+    if (!cssClasses) return "";
     const isExpandable = this.state !== "default";
     const numInlineLimit = 4;
     return new CssClassBuilder()
@@ -1177,7 +1177,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public localeChanged(): void {
     super.localeChanged();
     this.resetDescriptionVisibility();
-    if(this.errors.length > 0) {
+    if (this.errors.length > 0) {
       this.errors.forEach(err => {
         err.updateText();
       });
@@ -1195,7 +1195,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   @property() private _renderedIsExpanded: boolean = true;
   private _isAnimatingCollapseExpand: boolean = false;
   private set isAnimatingCollapseExpand(val: boolean) {
-    if(val !== this._isAnimatingCollapseExpand) {
+    if (val !== this._isAnimatingCollapseExpand) {
       this._isAnimatingCollapseExpand = val;
       this.updateElementCss(false);
     }
@@ -1237,9 +1237,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        if(cssClasses.content) {
+        if (cssClasses.content) {
           const selector = classesToSelector(cssClasses.content);
-          if(selector) {
+          if (selector) {
             return this.getWrapperElement()?.querySelector(`:scope ${selector}`);
           }
         }
@@ -1255,8 +1255,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
     this._renderedIsExpanded = val;
-    if(this.animationAllowed) {
-      if(val) {
+    if (this.animationAllowed) {
+      if (val) {
         this.isAnimatingCollapseExpand = true;
       } else {
         this.updateElementCss(false);
@@ -1266,7 +1266,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set renderedIsExpanded(val: boolean) {
     const oldValue = this._renderedIsExpanded;
     this.animationCollapsed.sync(val);
-    if(!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
+    if (!this.isExpandCollapseAnimationEnabled && !oldValue && this.renderedIsExpanded) {
       this.onElementExpanded(false);
     }
   }
@@ -1285,7 +1285,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public dispose(): void {
     super.dispose();
-    if(this.titleToolbarValue) {
+    if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
   }
@@ -1294,14 +1294,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 export class RenderingCompletedAwaiter {
   constructor(private _elements: Array<SurveyElement>, private _renderedHandler: () => void, waitingTimeout = 100) {
     this._elements.forEach(element => {
-      if(element.onAfterRenderElement) {
+      if (element.onAfterRenderElement) {
         element.onAfterRenderElement.add(this._elementRenderedHandler);
         this._elementsToRenderCount++;
       }
     });
-    if(this._elementsToRenderCount > 0) {
+    if (this._elementsToRenderCount > 0) {
       this._elementsToRenderTimer = setTimeout(() => {
-        if(this._elementsToRenderCount > 0) {
+        if (this._elementsToRenderCount > 0) {
           this.visibleElementsRendered();
         }
       }, waitingTimeout);
@@ -1314,12 +1314,12 @@ export class RenderingCompletedAwaiter {
   private _elementRenderedHandler = (s: SurveyElement, o: any) => {
     s.onAfterRenderElement?.remove(this._elementRenderedHandler);
     this._elementsToRenderCount--;
-    if(this._elementsToRenderCount <= 0) {
+    if (this._elementsToRenderCount <= 0) {
       this.visibleElementsRendered();
     }
   };
   private stopWaitingForElementsRendering() {
-    if(this._elementsToRenderTimer) {
+    if (this._elementsToRenderTimer) {
       clearTimeout(this._elementsToRenderTimer);
       this._elementsToRenderTimer = undefined;
     }
@@ -1331,7 +1331,7 @@ export class RenderingCompletedAwaiter {
   private visibleElementsRendered(): void {
     const renderedHandler = this._renderedHandler;
     this.dispose();
-    if(typeof renderedHandler == "function") {
+    if (typeof renderedHandler == "function") {
       renderedHandler();
     }
   }

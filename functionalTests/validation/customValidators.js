@@ -12,7 +12,7 @@ const setupSurvey = ClientFunction(() => {
     };
     MyTextValidator.prototype.validate = function(value, name) {
 
-      if(value.indexOf("survey") < 0) {
+      if (value.indexOf("survey") < 0) {
         //report an error
         return new window["Survey"].ValidatorResult(
           null,

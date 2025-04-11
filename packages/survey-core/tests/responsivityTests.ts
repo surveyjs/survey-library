@@ -327,7 +327,7 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
     offsetHeight: 100,
   });
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  for(var i = 0; i < 10; i++) {
+  for (var i = 0; i < 10; i++) {
     model.actions.push(new Action(<any>{}));
   }
   const manager: VerticalResponsivityManager = new VerticalResponsivityManager(

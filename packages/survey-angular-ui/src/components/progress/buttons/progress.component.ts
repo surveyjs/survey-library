@@ -39,12 +39,12 @@ export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnCha
   public clickScrollButton(
     isLeftScroll: boolean
   ): void {
-    if(this.progressButtonsListContainer) {
+    if (this.progressButtonsListContainer) {
       this.progressButtonsListContainer.nativeElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
     }
   }
   public ngAfterViewInit(): void {
-    if(!!this.progressButtonsListContainer?.nativeElement) {
+    if (!!this.progressButtonsListContainer?.nativeElement) {
       const element = this.progressButtonsListContainer.nativeElement;
       this.respManager = new ProgressButtonsResponsivityManager(this.model, element, this);
     }

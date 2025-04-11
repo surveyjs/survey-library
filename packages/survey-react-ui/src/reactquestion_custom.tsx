@@ -11,7 +11,7 @@ export class SurveyQuestionCustom extends SurveyQuestionUncontrolledElement<Ques
   }
   protected getStateElements(): Array<Base> {
     const res = super.getStateElements();
-    if(!!this.question.contentQuestion) {
+    if (!!this.question.contentQuestion) {
       res.push(this.question.contentQuestion);
     }
     return res;

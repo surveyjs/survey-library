@@ -42,20 +42,20 @@ function onUpdateSelectBaseCellQuestion(
   cellQuestion.storeOthersAsComment = !!question
     ? question.storeOthersAsComment
     : false;
-  if(
+  if (
     (!cellQuestion.choices || cellQuestion.choices.length == 0) &&
     cellQuestion.choicesByUrl.isEmpty
   ) {
     cellQuestion.choices = question.choices;
   }
-  if(!cellQuestion.choicesByUrl.isEmpty) {
+  if (!cellQuestion.choicesByUrl.isEmpty) {
     cellQuestion.choicesByUrl.run(data.getTextProcessor());
   }
 }
 function onUpdateSelectDropdownCellQuestion(cellQuestion: QuestionSelectBase, column: MatrixDropdownColumn,
   question: QuestionMatrixDropdownModelBase, data: any) {
   onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-  if(!!cellQuestion.locPlaceholder && cellQuestion.locPlaceholder.isEmpty && !question.locPlaceholder.isEmpty) {
+  if (!!cellQuestion.locPlaceholder && cellQuestion.locPlaceholder.isEmpty && !question.locPlaceholder.isEmpty) {
     cellQuestion.optionsCaption = question.optionsCaption;
   }
 }
@@ -104,7 +104,7 @@ export class MatrixDropdownColumn extends Base
   implements ILocalizableOwner, IWrapperObject {
   public static getColumnTypes(): Array<string> {
     var res = [];
-    for(var key in matrixDropdownColumnTypes) {
+    for (var key in matrixDropdownColumnTypes) {
       res.push(key);
     }
     return res;
@@ -145,7 +145,7 @@ export class MatrixDropdownColumn extends Base
     return "cellType";
   }
   getDynamicType(): string {
-    if(this.cellType === "default") return "question";
+    if (this.cellType === "default") return "question";
     return this.calcCellQuestionType(null);
   }
   public get colOwner(): IMatrixColumnOwner {
@@ -153,7 +153,7 @@ export class MatrixDropdownColumn extends Base
   }
   public set colOwner(value: IMatrixColumnOwner) {
     this.colOwnerValue = value;
-    if(!!value) {
+    if (!!value) {
       this.updateTemplateQuestion();
       this.setParentQuestionToTemplate(this.templateQuestion);
     }
@@ -202,7 +202,7 @@ export class MatrixDropdownColumn extends Base
     val = val.toLocaleLowerCase();
     this.updateTemplateQuestion(val);
     this.setPropertyValue("cellType", val);
-    if(!!this.colOwner) {
+    if (!!this.colOwner) {
       this.colOwner.onColumnCellTypeChanged(this);
     }
   }
@@ -217,7 +217,7 @@ export class MatrixDropdownColumn extends Base
     return true;
   }
   public get isColumnVisible(): boolean {
-    if(this.isDesignMode) return true;
+    if (this.isDesignMode) return true;
     return this.visible && this.hasVisibleCell;
   }
   /**
@@ -240,17 +240,17 @@ export class MatrixDropdownColumn extends Base
   public isColumnsVisibleIf: boolean = true;
   public getVisibleMultipleChoices(): Array<ItemValue> {
     const choices = this.templateQuestion.visibleChoices;
-    if(!Array.isArray(choices)) return [];
-    if(!Array.isArray(this._visiblechoices)) return choices;
+    if (!Array.isArray(choices)) return [];
+    if (!Array.isArray(this._visiblechoices)) return choices;
     const res = new Array<ItemValue>();
-    for(let i = 0; i < choices.length; i++) {
+    for (let i = 0; i < choices.length; i++) {
       const item = choices[i];
-      if(this._visiblechoices.indexOf(item.value) > -1) res.push(item);
+      if (this._visiblechoices.indexOf(item.value) > -1) res.push(item);
     }
     return res;
   }
   public get getVisibleChoicesInCell(): Array<any> {
-    if(Array.isArray(this._visiblechoices)) return this._visiblechoices;
+    if (Array.isArray(this._visiblechoices)) return this._visiblechoices;
     const res = this.templateQuestion.visibleChoices;
     return Array.isArray(res) ? res : [];
   }
@@ -258,11 +258,11 @@ export class MatrixDropdownColumn extends Base
     this._visiblechoices = val;
   }
   public get isFilteredMultipleColumns(): boolean {
-    if(!this.showInMultipleColumns) return false;
+    if (!this.showInMultipleColumns) return false;
     const choices = this.templateQuestion.choices;
-    if(!Array.isArray(choices)) return false;
-    for(let i = 0; i < choices.length; i++) {
-      if(choices[i].visibleIf) return true;
+    if (!Array.isArray(choices)) return false;
+    for (let i = 0; i < choices.length; i++) {
+      if (choices[i].visibleIf) return true;
     }
     return false;
   }
@@ -557,7 +557,7 @@ export class MatrixDropdownColumn extends Base
   }
   public set renderAs(val: string) {
     this.setPropertyValue("renderAs", val);
-    if(!!this.templateQuestion) {
+    if (!!this.templateQuestion) {
       this.templateQuestion.renderAs = val;
     }
   }
@@ -565,14 +565,14 @@ export class MatrixDropdownColumn extends Base
     return this.getPropertyValue("totalMaximumFractionDigits");
   }
   public set totalMaximumFractionDigits(val: number) {
-    if(val < -1 || val > 20) return;
+    if (val < -1 || val > 20) return;
     this.setPropertyValue("totalMaximumFractionDigits", val);
   }
   public get totalMinimumFractionDigits(): number {
     return this.getPropertyValue("totalMinimumFractionDigits");
   }
   public set totalMinimumFractionDigits(val: number) {
-    if(val < -1 || val > 20) return;
+    if (val < -1 || val > 20) return;
     this.setPropertyValue("totalMinimumFractionDigits", val);
   }
   /**
@@ -626,7 +626,7 @@ export class MatrixDropdownColumn extends Base
     return this.getPropertyValue("totalCurrency");
   }
   public set totalCurrency(val: string) {
-    if(getCurrecyCodes().indexOf(val) < 0) return;
+    if (getCurrecyCodes().indexOf(val) < 0) return;
     this.setPropertyValue("totalCurrency", val);
   }
   /**
@@ -658,7 +658,7 @@ export class MatrixDropdownColumn extends Base
     return this.getPropertyValue("colCount");
   }
   public set colCount(val: number) {
-    if(val < -1 || val > 4) return;
+    if (val < -1 || val > 4) return;
     this.setPropertyValue("colCount", val);
   }
   public getLocale(): string {
@@ -684,7 +684,7 @@ export class MatrixDropdownColumn extends Base
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
-    if(!!json && !json.cellType && !!json.choices) {
+    if (!!json && !json.cellType && !!json.choices) {
       json.cellType = this.colOwner.getCellType();
     }
   }
@@ -698,7 +698,7 @@ export class MatrixDropdownColumn extends Base
   private callOnCellQuestionUpdate(cellQuestion: Question, data: any) {
     var qType = cellQuestion.getType();
     var qDefinition = (<any>matrixDropdownColumnTypes)[qType];
-    if(qDefinition && qDefinition["onCellQuestionUpdate"]) {
+    if (qDefinition && qDefinition["onCellQuestionUpdate"]) {
       qDefinition["onCellQuestionUpdate"](
         cellQuestion,
         this,
@@ -712,15 +712,15 @@ export class MatrixDropdownColumn extends Base
   }
   protected calcCellQuestionType(row: MatrixDropdownRowModelBase): string {
     let cellType = this.getDefaultCellQuestionType();
-    if(!!row && !!this.colOwner) {
+    if (!!row && !!this.colOwner) {
       cellType = this.colOwner.getCustomCellType(this, row, cellType);
     }
     return cellType;
   }
   private getDefaultCellQuestionType(cellType?: string): string {
-    if(!cellType) cellType = this.cellType;
-    if(cellType !== "default") return cellType;
-    if(this.colOwner) return this.colOwner.getCellType();
+    if (!cellType) cellType = this.cellType;
+    if (cellType !== "default") return cellType;
+    if (this.colOwner) return this.colOwner.getCellType();
     return settings.matrix.defaultCellType;
   }
   protected updateTemplateQuestion(newCellType?: string, name?: string, title?: string): void {
@@ -728,22 +728,22 @@ export class MatrixDropdownColumn extends Base
     const prevCellType = this.templateQuestion
       ? this.templateQuestion.getType()
       : "";
-    if(curCellType === prevCellType) return;
-    if(this.templateQuestion) {
+    if (curCellType === prevCellType) return;
+    if (this.templateQuestion) {
       this.removeProperties(prevCellType);
     }
     this.templateQuestionValue = this.createNewQuestion(curCellType);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
-    if(!!name) {
+    if (!!name) {
       this.name = name;
     }
-    if(!!title) {
+    if (!!title) {
       this.title = title;
     } else {
       this.templateQuestion.locTitle.strChanged();
     }
-    if(settings.serialization.matrixDropdownColumnSerializeTitle) {
+    if (settings.serialization.matrixDropdownColumnSerializeTitle) {
       this.templateQuestion.locTitle.serializeCallBackText = true;
     }
     this.templateQuestion.onPropertyChanged.add((sender, options) => {
@@ -765,7 +765,7 @@ export class MatrixDropdownColumn extends Base
       );
     });
     this.templateQuestion.isContentElement = true;
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.templateQuestion.onGetSurvey = () => {
         return this.getSurvey();
       };
@@ -774,7 +774,7 @@ export class MatrixDropdownColumn extends Base
   }
   protected createNewQuestion(cellType: string): Question {
     var question = <Question>Serializer.createClass(cellType);
-    if(!question) {
+    if (!question) {
       question = <Question>Serializer.createClass("text");
     }
     question.loadingOwner = this;
@@ -785,7 +785,7 @@ export class MatrixDropdownColumn extends Base
     return question;
   }
   private setParentQuestionToTemplate(question: Question): void {
-    if(!!this.colOwner && (<any>this.colOwner).isQuestion) {
+    if (!!this.colOwner && (<any>this.colOwner).isQuestion) {
       question.setParentQuestion(<any>this.colOwner);
     }
   }
@@ -794,26 +794,26 @@ export class MatrixDropdownColumn extends Base
     question: Question,
     onUpdateJson: (json: any) => any = null
   ): void {
-    if(this.templateQuestion) {
+    if (this.templateQuestion) {
       var json = new JsonObject().toJsonObject(this.templateQuestion, true);
-      if(onUpdateJson) {
+      if (onUpdateJson) {
         onUpdateJson(json);
       }
       json.type = question.getType();
-      if(this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {
+      if (this.cellType === "default" && !!this.colOwner && this.colOwner.hasChoices()) {
         delete json["choices"];
       }
       delete json["itemComponent"];
 
-      if(this.jsonObj && json.type === "rating") {
+      if (this.jsonObj && json.type === "rating") {
         Object.keys(this.jsonObj).forEach((prop) => {
           json[prop] = this.jsonObj[prop];
         });
       }
-      if(json["choicesOrder"] === "random") {
+      if (json["choicesOrder"] === "random") {
         json["choicesOrder"] = "none";
         const visChoices = this.templateQuestion["visibleChoices"];
-        if(Array.isArray(visChoices)) {
+        if (Array.isArray(visChoices)) {
           json["choices"] = visChoices;
         }
       }
@@ -822,8 +822,8 @@ export class MatrixDropdownColumn extends Base
       question.isContentElement = this.templateQuestion.isContentElement;
       this.previousChoicesId = undefined;
       question.loadedChoicesFromServerCallback = () => {
-        if(!this.isShowInMultipleColumns) return;
-        if(!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
+        if (!this.isShowInMultipleColumns) return;
+        if (!!this.previousChoicesId && this.previousChoicesId !== question.id) return;
         this.previousChoicesId = question.id;
         const choices = question.visibleChoices;
         this.templateQuestion.choices = choices;
@@ -833,17 +833,17 @@ export class MatrixDropdownColumn extends Base
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
-    if(name === "isRequired") {
+    if (name === "isRequired") {
       this.updateIsRenderedRequired(newValue);
     }
-    if(!this.colOwner || this.isLoadingFromJson) return;
-    if(this.isShowInMultipleColumns) {
-      if(name === "choicesOrder") return;
-      if(["visibleChoices", "choices"].indexOf(name) > -1) {
+    if (!this.colOwner || this.isLoadingFromJson) return;
+    if (this.isShowInMultipleColumns) {
+      if (name === "choicesOrder") return;
+      if (["visibleChoices", "choices"].indexOf(name) > -1) {
         this.colOwner.onShowInMultipleColumnsChanged(this);
       }
     }
-    if(!Serializer.hasOriginalProperty(this, name)) return;
+    if (!Serializer.hasOriginalProperty(this, name)) return;
     this.colOwner.onColumnPropertyChanged(this, name, newValue);
   }
   private doItemValuePropertyChanged(
@@ -853,8 +853,8 @@ export class MatrixDropdownColumn extends Base
     newValue: any,
     oldValue: any
   ) {
-    if(!Serializer.hasOriginalProperty(obj, name)) return;
-    if(this.colOwner != null && !this.isLoadingFromJson) {
+    if (!Serializer.hasOriginalProperty(obj, name)) return;
+    if (this.colOwner != null && !this.isLoadingFromJson) {
       this.colOwner.onColumnItemValuePropertyChanged(
         this,
         propertyName,
@@ -867,15 +867,15 @@ export class MatrixDropdownColumn extends Base
   }
 
   private doShowInMultipleColumnsChanged(): void {
-    if(this.colOwner != null) {
+    if (this.colOwner != null) {
       this.colOwner.onShowInMultipleColumnsChanged(this);
     }
-    if(this.templateQuestion) {
+    if (this.templateQuestion) {
       this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
     }
   }
   private doColumnVisibilityChanged(): void {
-    if(this.colOwner != null && !this.isDesignMode) {
+    if (this.colOwner != null && !this.isDesignMode) {
       this.colOwner.onColumnVisibilityChanged(this);
     }
   }
@@ -884,10 +884,10 @@ export class MatrixDropdownColumn extends Base
   }
   private removeProperties(curCellType: string) {
     var properties = this.getProperties(curCellType);
-    for(var i = 0; i < properties.length; i++) {
+    for (var i = 0; i < properties.length; i++) {
       var prop = properties[i];
       delete (<any>this)[prop.name];
-      if(prop.serializationProperty) {
+      if (prop.serializationProperty) {
         delete (<any>this)[prop.serializationProperty];
       }
     }
@@ -905,7 +905,7 @@ Serializer.addClass(
     {
       name: "title", serializationProperty: "locTitle", dependsOn: "name",
       onPropertyEditorUpdate: function (obj: any, editor: any) {
-        if(!!obj && !!editor) {
+        if (!!obj && !!editor) {
           editor.placeholder = obj.locTitle.getPlaceholder();
         }
       }
@@ -931,7 +931,7 @@ Serializer.addClass(
     {
       name: "minWidth",
       onPropertyEditorUpdate: function (obj: any, editor: any) {
-        if(!!obj && !!editor) {
+        if (!!obj && !!editor) {
           editor.value = obj.minWidth;
         }
       }

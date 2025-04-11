@@ -31,28 +31,28 @@ export class TextPreProcessor {
   public process(text: string, returnDisplayValue?: boolean, doEncoding?: boolean,
     replaceUndefinedValues?: boolean): string {
     this.hasAllValuesOnLastRunValue = true;
-    if(!text) return text;
-    if(!this.onProcess) return text;
+    if (!text) return text;
+    if (!this.onProcess) return text;
     const items = this.getItems(text);
-    for(let i = items.length - 1; i >= 0; i--) {
+    for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
       const name = this.getName(text.substring(item.start + 1, item.end));
-      if(!!name) {
+      if (!!name) {
         const textValue = new TextPreProcessorValue(name, returnDisplayValue === true);
         this.onProcess(textValue);
-        if(!textValue.isExists) {
-          if(textValue.canProcess) {
+        if (!textValue.isExists) {
+          if (textValue.canProcess) {
             this.hasAllValuesOnLastRunValue = false;
           }
         }
-        if(textValue.isExists || replaceUndefinedValues) {
-          if(Helpers.isValueEmpty(textValue.value)) {
+        if (textValue.isExists || replaceUndefinedValues) {
+          if (Helpers.isValueEmpty(textValue.value)) {
             this.hasAllValuesOnLastRunValue = false;
           }
           var replacedValue = !Helpers.isValueEmpty(textValue.value)
             ? textValue.value
             : "";
-          if(doEncoding) {
+          if (doEncoding) {
             replacedValue = encodeURIComponent(replacedValue);
           }
           text = text.substring(0, item.start) + replacedValue + text.substring(item.end + 1);
@@ -63,7 +63,7 @@ export class TextPreProcessor {
   }
   public processValue(name: string, returnDisplayValue: boolean): TextPreProcessorValue {
     var textValue = new TextPreProcessorValue(name, returnDisplayValue);
-    if(!!this.onProcess) {
+    if (!!this.onProcess) {
       this.onProcess(textValue);
     }
     return textValue;
@@ -83,15 +83,15 @@ export class TextPreProcessor {
     var length = text.length;
     var start = -1;
     var ch = "";
-    for(var i = 0; i < length; i++) {
+    for (var i = 0; i < length; i++) {
       ch = text[i];
-      if(ch == "{") start = i;
-      if(ch == "}") {
-        if(start > -1) {
+      if (ch == "{") start = i;
+      if (ch == "}") {
+        if (start > -1) {
           var item = new TextPreProcessorItem();
           item.start = start;
           item.end = i;
-          if(this.isValidItemName(text.substring(start + 1, i - 1))) {
+          if (this.isValidItemName(text.substring(start + 1, i - 1))) {
             items.push(item);
           }
         }
@@ -104,7 +104,7 @@ export class TextPreProcessor {
     return !!name && name.indexOf(":") < 0;
   }
   private getName(name: string): string {
-    if(!name) return;
+    if (!name) return;
     return name.trim();
   }
 }
@@ -146,24 +146,24 @@ export class QuestionTextProcessor implements ITextProcessor {
   }
   //ITextProcessor
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
-    if(!textValue) return;
-    if(this.onCustomProcessText(textValue)) return;
+    if (!textValue) return;
+    if (this.onCustomProcessText(textValue)) return;
     var firstName = new ProcessValue().getFirstName(textValue.name);
     textValue.isExists = firstName == this.variableName;
     textValue.canProcess = textValue.isExists;
-    if(!textValue.canProcess) return;
+    if (!textValue.canProcess) return;
     //name should start with the variable name
     textValue.name = textValue.name.replace(this.variableName + ".", "");
     var firstName = new ProcessValue().getFirstName(textValue.name);
     var question = this.getQuestionByName(firstName);
     var values = {};
-    if(question) {
+    if (question) {
       (<any>values)[firstName] = textValue.returnDisplayValue
         ? this.getQuestionDisplayText(question)
         : question.value;
     } else {
       var allValues = !!this.panel ? this.getValues() : null;
-      if(allValues) {
+      if (allValues) {
         (<any>values)[firstName] = allValues[firstName];
       }
     }
@@ -175,12 +175,12 @@ export class QuestionTextProcessor implements ITextProcessor {
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     const res: ITextProcessorResult = { hasAllValuesOnLastRun: true, text: params.text };
-    if(!params.runAtDesign && this.survey?.isDesignMode) return res;
+    if (!params.runAtDesign && this.survey?.isDesignMode) return res;
     const processors = new Array<ITextProcessor>();
     this.addTextPreProcessor(processors, this.textPreProcessor);
     this.addTextPreProcessor(processors, this.getParentTextProcessor());
     this.addTextPreProcessor(processors, this.survey);
-    for(let i = 0; i < processors.length; i++) {
+    for (let i = 0; i < processors.length; i++) {
       const processor = processors[i];
       params.text = res.text;
       const processorRes = processor.processTextEx(params);
@@ -190,7 +190,7 @@ export class QuestionTextProcessor implements ITextProcessor {
     return res;
   }
   private addTextPreProcessor(list: Array<ITextProcessor>, textProcessor: ITextProcessor): void {
-    if(!textProcessor || list.indexOf(textProcessor) > -1) return;
+    if (!textProcessor || list.indexOf(textProcessor) > -1) return;
     list.push(textProcessor);
   }
 }

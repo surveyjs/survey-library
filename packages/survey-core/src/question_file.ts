@@ -45,16 +45,16 @@ export class QuestionFileModelBase extends Question {
     QuestionFileModelBase
   >();
   protected stateChanged(state: string) {
-    if(this.currentState == state) {
+    if (this.currentState == state) {
       return;
     }
-    if(state === "loading") {
+    if (state === "loading") {
       this.isUploading = true;
     }
-    if(state === "loaded") {
+    if (state === "loaded") {
       this.isUploading = false;
     }
-    if(state === "error") {
+    if (state === "error") {
       this.isUploading = false;
     }
     this.currentState = state;
@@ -92,12 +92,12 @@ export class QuestionFileModelBase extends Question {
     super.clearValue(keepComment);
   }
   public clearOnDeletingContainer() {
-    if(!this.survey) return;
+    if (!this.survey) return;
     this.survey.clearFiles(this, this.name, this.value, null, () => { });
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if(this.isUploading && this.waitForUpload) {
+    if (this.isUploading && this.waitForUpload) {
       errors.push(
         new UploadingFileError(
           this.getLocalizationString("uploadingFile"),
@@ -107,24 +107,24 @@ export class QuestionFileModelBase extends Question {
     }
   }
   protected uploadFiles(files: File[]) {
-    if(this.survey) {
+    if (this.survey) {
       this.stateChanged("loading");
       this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
-        if(Array.isArray(arg1)) {
+        if (Array.isArray(arg1)) {
           this.setValueFromResult(arg1);
-          if(Array.isArray(arg2)) {
+          if (Array.isArray(arg2)) {
             arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
             this.stateChanged("error");
           }
         }
-        if(arg1 === "success" && Array.isArray(arg2)) {
+        if (arg1 === "success" && Array.isArray(arg2)) {
           this.setValueFromResult(arg2);
         }
-        if(arg1 === "error") {
-          if(typeof (arg2) === "string") {
+        if (arg1 === "error") {
+          if (typeof (arg2) === "string") {
             this.errors.push(new UploadingFileError(arg2, this));
           }
-          if(Array.isArray(arg2) && arg2.length > 0) {
+          if (Array.isArray(arg2) && arg2.length > 0) {
             arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
           }
           this.stateChanged("error");
@@ -201,7 +201,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    */
   @property({
     onSet: (val: string, obj: QuestionFileModel) => {
-      if(!obj.isLoadingFromJson) {
+      if (!obj.isLoadingFromJson) {
         obj.updateCurrentMode();
       }
     }
@@ -345,7 +345,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public get hasFileUI(): boolean { return this.currentMode !== "camera"; }
   private videoStream: MediaStream;
   public startVideo(): void {
-    if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    if (this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
     this.setIsPlayingVideo(true);
     setTimeout(() => {
       this.startVideoInCamera();
@@ -357,7 +357,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private startVideoInCamera(): void {
     this.camera.startVideo(this.videoHtmlElement, (stream: MediaStream) => {
       this.videoStream = stream;
-      if(!stream) {
+      if (!stream) {
         this.stopVideo();
       }
     }, getRenderedSize(this.imageWidth), getRenderedSize(this.imageHeight));
@@ -367,9 +367,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.closeVideoStream();
   }
   public snapPicture(): void {
-    if(!this.isPlayingVideo) return;
+    if (!this.isPlayingVideo) return;
     const blobCallback = (blob: Blob | null): void => {
-      if(blob) {
+      if (blob) {
         const file = new File([blob], "snap_picture.png", { type: "image/png" });
         this.loadFiles([file]);
       }
@@ -379,7 +379,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   @property() private canFlipCameraValue: boolean = undefined;
   public canFlipCamera(): boolean {
-    if(this.canFlipCameraValue === undefined) {
+    if (this.canFlipCameraValue === undefined) {
       this.canFlipCameraValue = this.camera.canFlip((res: boolean) => {
         this.canFlipCameraValue = res;
       });
@@ -387,13 +387,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.canFlipCameraValue;
   }
   public flipCamera(): void {
-    if(!this.canFlipCamera()) return;
+    if (!this.canFlipCamera()) return;
     this.closeVideoStream();
     this.camera.flip();
     this.startVideoInCamera();
   }
   private closeVideoStream(): void {
-    if(!!this.videoStream) {
+    if (!!this.videoStream) {
       this.videoStream.getTracks().forEach(track => {
         track.stop();
       });
@@ -420,7 +420,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.fileIndexAction.title = this.getFileIndexCaption();
   }
   private updateRenderedPages() {
-    if(this.pages && this.pages[this.indexToShow]) {
+    if (this.pages && this.pages[this.indexToShow]) {
       this.renderedPages = [this.pages[this.indexToShow]];
     }
   }
@@ -430,7 +430,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.pages = [];
     this.renderedPages = [];
     this.previewValue.forEach((val, index) => {
-      if(index % this.pageSize == 0) {
+      if (index % this.pageSize == 0) {
         currentPage = new QuestionFilePage(this, this.pages.length);
         this.pages.push(currentPage);
       }
@@ -442,10 +442,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private prevPreviewLength = 0;
   private previewValueChanged() {
     this.navigationDirection = undefined;
-    if(this.previewValue.length !== this.prevPreviewLength) {
-      if(this.previewValue.length > 0) {
-        if(this.prevPreviewLength > this.previewValue.length) {
-          if(this.indexToShow >= this.pagesCount && this.indexToShow > 0) {
+    if (this.previewValue.length !== this.prevPreviewLength) {
+      if (this.previewValue.length > 0) {
+        if (this.prevPreviewLength > this.previewValue.length) {
+          if (this.indexToShow >= this.pagesCount && this.indexToShow > 0) {
             this.indexToShow = this.pagesCount - 1;
             this.navigationDirection = "left-delete";
           }
@@ -459,7 +459,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.updatePages();
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
-    if(this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
+    if (this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
       setTimeout(() => {
         this.processResponsiveness(0, this._width);
       }, 1);
@@ -473,7 +473,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.loadPreview(newValue);
     }
   }
@@ -549,15 +549,15 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("maxSize", val);
   }
   public chooseFile(event: MouseEvent): void {
-    if(!this.rootElement) return;
+    if (!this.rootElement) return;
 
     const inputElement = this.rootElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
-    if(!inputElement) return;
+    if (!inputElement) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
-    if(inputElement) {
-      if(this.survey) {
+    if (inputElement) {
+      if (this.survey) {
         this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, elementType: this.getType(), propertyName: this.name });
       } else {
         inputElement.click();
@@ -621,17 +621,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   @property() locRenderedPlaceholderValue: LocalizableString;
   public get locRenderedPlaceholder(): LocalizableString {
-    if(this.locRenderedPlaceholderValue === undefined) {
+    if (this.locRenderedPlaceholderValue === undefined) {
       this.locRenderedPlaceholderValue = <LocalizableString><unknown>(new ComputedUpdater<LocalizableString>(() => {
         const isReadOnly = this.isReadOnly;
         const hasFileUI = (!this.isDesignMode && this.hasFileUI) || (this.isDesignMode && this.sourceType != "camera");
         const hasVideoUI = (!this.isDesignMode && this.hasVideoUI) || (this.isDesignMode && this.sourceType != "file");
         let renderedPlaceholder: LocalizableString;
-        if(isReadOnly) {
+        if (isReadOnly) {
           renderedPlaceholder = this.locNoFileChosenCaption;
-        } else if(hasFileUI && hasVideoUI) {
+        } else if (hasFileUI && hasVideoUI) {
           renderedPlaceholder = this.locFileOrPhotoPlaceholder;
-        } else if(hasFileUI) {
+        } else if (hasFileUI) {
           renderedPlaceholder = this.locFilePlaceholder;
         } else {
           renderedPlaceholder = this.locPhotoPlaceholder;
@@ -651,8 +651,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("isPlayingVideo", show);
   }
   private updateCurrentMode(): void {
-    if(!this.isDesignMode && this.survey) {
-      if(this.sourceType !== "file") {
+    if (!this.isDesignMode && this.survey) {
+      if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
         });
@@ -668,8 +668,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.cleanAction.visible = !!this.isAnswered;
   }
   get inputTitle(): string {
-    if(this.isUploading) return this.loadingFileTitle;
-    if(this.isEmpty()) return this.chooseFileTitle;
+    if (this.isUploading) return this.loadingFileTitle;
+    if (this.isEmpty()) return this.chooseFileTitle;
     return " ";
   }
 
@@ -678,7 +678,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
 
   public clear(doneCallback?: () => void) {
-    if(!this.survey) return;
+    if (!this.survey) return;
     this.containsMultiplyFiles = false;
     this.survey.clearFiles(
       this,
@@ -686,7 +686,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this.value,
       null,
       (status, data) => {
-        if(status === "success") {
+        if (status === "success") {
           this.value = undefined;
           this.errors = [];
           !!doneCallback && doneCallback();
@@ -747,16 +747,16 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.removeFileByContent(this.value.filter((f: any) => f.name === name)[0]);
   }
   protected removeFileByContent(content: any) {
-    if(!this.survey) return;
+    if (!this.survey) return;
     this.survey.clearFiles(
       this,
       this.name,
       this.value,
       content.name,
       (status, data) => {
-        if(status === "success") {
+        if (status === "success") {
           var oldValue = this.value;
-          if(Array.isArray(oldValue)) {
+          if (Array.isArray(oldValue)) {
             this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
           } else {
             this.value = undefined;
@@ -782,25 +782,25 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * @param files An array of [File](https://developer.mozilla.org/en-US/docs/Web/API/File) objects.
    */
   public loadFiles(files: File[]) {
-    if(!this.survey) {
+    if (!this.survey) {
       return;
     }
     this.errors = [];
-    if(!this.allFilesOk(files)) {
+    if (!this.allFilesOk(files)) {
       return;
     }
 
     var loadFilesProc = () => {
       this.stateChanged("loading");
       var content = <Array<any>>[];
-      if(this.storeDataAsText) {
+      if (this.storeDataAsText) {
         files.forEach((file) => {
           let fileReader = new FileReader();
           fileReader.onload = (e) => {
             content = content.concat([
               { name: file.name, type: file.type, content: fileReader.result },
             ]);
-            if(content.length === files.length) {
+            if (content.length === files.length) {
               this.value = (this.value || []).concat(content);
             }
           };
@@ -810,7 +810,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.uploadFiles(files);
       }
     };
-    if(this.allowMultiple) {
+    if (this.allowMultiple) {
       loadFilesProc();
     } else {
       this.clear(loadFilesProc);
@@ -819,7 +819,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private cameraValue: Camera;
 
   protected get camera(): Camera {
-    if(!this.cameraValue) {
+    if (!this.cameraValue) {
       this.cameraValue = new Camera();
     }
     return this.cameraValue;
@@ -829,9 +829,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private prevLoadedPreviewValue: any;
   protected loadPreview(newValue: any): void {
-    if(this.showPreview && this.prevLoadedPreviewValue === newValue) return;
+    if (this.showPreview && this.prevLoadedPreviewValue === newValue) return;
     this.previewValue.splice(0, this.previewValue.length);
-    if(!this.showPreview || !newValue) return;
+    if (!this.showPreview || !newValue) return;
     this.prevLoadedPreviewValue = newValue;
     var newValues = Array.isArray(newValue)
       ? newValue
@@ -839,7 +839,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         ? [newValue]
         : [];
 
-    if(this.storeDataAsText) {
+    if (this.storeDataAsText) {
       newValues.forEach((value) => {
         var content = value.content || value;
         this.previewValue.push(
@@ -852,12 +852,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
       });
       this.previewValueChanged();
     } else {
-      if(!!this._previewLoader) {
+      if (!!this._previewLoader) {
         this._previewLoader.dispose();
       }
       this.isFileLoading = true;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
-        if(status !== "error") {
+        if (status !== "error") {
           loaded.forEach((val) => {
             this.previewValue.push(val);
           });
@@ -873,7 +873,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
     (files || []).forEach((file) => {
-      if(this.maxSize > 0 && file.size > this.maxSize) {
+      if (this.maxSize > 0 && file.size > this.maxSize) {
         this.errors.push(new ExceedSizeError(this.maxSize, this));
       }
     });
@@ -884,7 +884,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     name?: string,
     type?: string,
   }): boolean {
-    if(!file || !file.content || !file.content.substring) return false;
+    if (!file || !file.content || !file.content.substring) return false;
     const imagePrefix = "data:image";
     var subStr = file.content && file.content.substring(0, imagePrefix.length);
     subStr = subStr && subStr.toLowerCase();
@@ -899,7 +899,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
-    if(!!questionPlainData && !this.isEmpty()) {
+    if (!!questionPlainData && !this.isEmpty()) {
       questionPlainData.isNode = false;
       var values = Array.isArray(this.value) ? this.value : [this.value];
       questionPlainData.data = values.map((dataValue, index) => {
@@ -970,11 +970,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
 
   private onChange(src: any) {
-    if(!DomWindowHelper.isFileReaderAvailable()) return;
-    if(!src || !src.files || src.files.length < 1) return;
+    if (!DomWindowHelper.isFileReaderAvailable()) return;
+    if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     let allowCount = this.allowMultiple ? src.files.length : 1;
-    for(let i = 0; i < allowCount; i++) {
+    for (let i = 0; i < allowCount; i++) {
       files.push(src.files[i]);
     }
     src.value = "";
@@ -1052,14 +1052,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   private calcAvailableItemsCount = (availableWidth: number, itemWidth: number, gap: number): number => {
     let itemsCount = Math.floor(availableWidth / (itemWidth + gap));
-    if((itemsCount + 1) * (itemWidth + gap) - gap <= availableWidth) itemsCount++;
+    if ((itemsCount + 1) * (itemWidth + gap) - gap <= availableWidth) itemsCount++;
     return itemsCount;
   };
   private calculatedGapBetweenItems: number;
   private calculatedItemWidth: number;
   private _width: number;
   public triggerResponsiveness(hard?: boolean): void {
-    if(hard) {
+    if (hard) {
       this.calculatedGapBetweenItems = undefined;
       this.calculatedItemWidth = undefined;
     }
@@ -1067,23 +1067,23 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth;
-    if(this.rootElement) {
-      if((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
+    if (this.rootElement) {
+      if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
-        if(fileListElement) {
+        if (fileListElement) {
           const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
-          if(visiblePage) {
+          if (visiblePage) {
             const firstVisibleItem = visiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
             this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage).gap));
-            if(firstVisibleItem) {
+            if (firstVisibleItem) {
               this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
             }
           }
         }
       }
     }
-    if(this.calculatedGapBetweenItems && this.calculatedItemWidth) {
+    if (this.calculatedGapBetweenItems && this.calculatedItemWidth) {
       this.pageSize = this.calcAvailableItemsCount(availableWidth, this.calculatedItemWidth, this.calculatedGapBetweenItems);
       return true;
     }
@@ -1102,14 +1102,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private dragCounter: number = 0;
   onDragEnter = (event: any) => {
-    if(this.canDragDrop()) {
+    if (this.canDragDrop()) {
       event.preventDefault();
       this.isDragging = true;
       this.dragCounter++;
     }
   };
   onDragOver = (event: any) => {
-    if(!this.canDragDrop()) {
+    if (!this.canDragDrop()) {
       event.returnValue = false;
       return false;
     }
@@ -1117,7 +1117,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     event.preventDefault();
   };
   onDrop = (event: any) => {
-    if(this.canDragDrop()) {
+    if (this.canDragDrop()) {
       this.isDragging = false;
       this.dragCounter = 0;
       event.preventDefault();
@@ -1126,9 +1126,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   };
   onDragLeave = (event: any) => {
-    if(this.canDragDrop()) {
+    if (this.canDragDrop()) {
       this.dragCounter--;
-      if(this.dragCounter === 0) {
+      if (this.dragCounter === 0) {
         this.isDragging = false;
       }
     }
@@ -1138,7 +1138,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.onChange(src);
   };
   doClean = () => {
-    if(this.needConfirmRemoveFile) {
+    if (this.needConfirmRemoveFile) {
       confirmActionAsync({
         message: this.confirmRemoveAllMessage,
         funcOnYes: () => { this.clearFilesCore(); },
@@ -1151,9 +1151,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.clearFilesCore();
   };
   private clearFilesCore(): void {
-    if(this.rootElement) {
+    if (this.rootElement) {
       const input = this.rootElement.querySelectorAll("input")[0];
-      if(input) {
+      if (input) {
         input.value = "";
       }
     }
@@ -1161,7 +1161,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doRemoveFile(data: any, event: any) {
     event.stopPropagation();
-    if(this.needConfirmRemoveFile) {
+    if (this.needConfirmRemoveFile) {
       confirmActionAsync({
         message: this.getConfirmRemoveMessage(data.name),
         funcOnYes: () => { this.removeFileCore(data); },
@@ -1180,14 +1180,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   doDownloadFileFromContainer = (event: MouseEvent) => {
     event.stopPropagation();
     const currentTarget = event.currentTarget as HTMLElement;
-    if(currentTarget && currentTarget.getElementsByTagName) {
+    if (currentTarget && currentTarget.getElementsByTagName) {
       const link = currentTarget.getElementsByTagName("a")[0];
       link?.click();
     }
   };
   doDownloadFile = (event: any, data: any) => {
     event.stopPropagation();
-    if(detectIEOrEdge()) {
+    if (detectIEOrEdge()) {
       event.preventDefault();
       loadFileFromBase64(data.content, data.name);
     }
@@ -1246,19 +1246,19 @@ export class FileLoader {
     let downloadedCount = 0;
     this.loaded = new Array(files.length);
     files.forEach((value, index) => {
-      if(this.fileQuestion.survey) {
+      if (this.fileQuestion.survey) {
         this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
-          if(!this.fileQuestion || !this.callback) {
+          if (!this.fileQuestion || !this.callback) {
             return;
           }
-          if(status !== "error") {
+          if (status !== "error") {
             this.loaded[index] = {
               content: data,
               name: value.name,
               type: value.type,
             };
             downloadedCount++;
-            if(downloadedCount === files.length) {
+            if (downloadedCount === files.length) {
               this.callback(status, this.loaded);
             }
           } else {

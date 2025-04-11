@@ -66,7 +66,7 @@ export class MultipleTextItemModel extends Base
       return "";
     };
     this.editor.titleLocation = "left";
-    if(title) {
+    if (title) {
       this.title = title;
     }
     this.editor.onPropertyChanged.add((sender, options) => {
@@ -117,7 +117,7 @@ export class MultipleTextItemModel extends Base
   }
   setData(data: IMultipleTextData) {
     this.data = data;
-    if(!!data) {
+    if (!!data) {
       this.editor.defaultValue = data.getItemDefaultValue(this.name);
       this.editor.setSurveyImpl(this);
       this.editor.parent = data;
@@ -313,7 +313,7 @@ export class MultipleTextItemModel extends Base
   }
   public set maskSettings(val: InputMaskBase) {
     this.setPropertyValue("maskSettings", val);
-    if(this.editor.maskSettings !== val) {
+    if (this.editor.maskSettings !== val) {
       this.editor.maskSettings = val;
     }
   }
@@ -339,7 +339,7 @@ export class MultipleTextItemModel extends Base
     return this.data ? this.data.getMultipleTextValue(this.name) : null;
   }
   public set value(value: any) {
-    if(this.data != null) {
+    if (this.data != null) {
       this.data.setMultipleTextValue(this.name, value);
     }
   }
@@ -347,7 +347,7 @@ export class MultipleTextItemModel extends Base
     return this.editor.isEmpty();
   }
   public onValueChanged(newValue: any) {
-    if(this.valueChangedCallback)this.valueChangedCallback(newValue);
+    if (this.valueChangedCallback)this.valueChangedCallback(newValue);
   }
   //ISurveyImpl
   getSurveyData(): ISurveyData {
@@ -361,11 +361,11 @@ export class MultipleTextItemModel extends Base
   }
   //ISurveyData
   getValue(name: string): any {
-    if(!this.data) return null;
+    if (!this.data) return null;
     return this.data.getMultipleTextValue(name);
   }
   setValue(name: string, value: any) {
-    if(this.data) {
+    if (this.data) {
       this.data.setMultipleTextValue(name, value);
     }
   }
@@ -378,7 +378,7 @@ export class MultipleTextItemModel extends Base
   }
   setComment(name: string, newValue: string) { }
   getAllValues(): any {
-    if(this.data) return this.data.getAllValues();
+    if (this.data) return this.data.getAllValues();
     return this.value;
   }
   getFilteredValues(): any {
@@ -419,14 +419,14 @@ export class QuestionMultipleTextModel extends Question
   implements IMultipleTextData, IPanel {
   public static addDefaultItems(question: QuestionMultipleTextModel) {
     var names = QuestionFactory.DefaultMutlipleTextItems;
-    for(var i = 0; i < names.length; i++) question.addItem(names[i]);
+    for (var i = 0; i < names.length; i++) question.addItem(names[i]);
   }
 
   constructor(name: string) {
     super(name);
     this.createNewArray("items", (item: any) => {
       item.setData(this);
-      if(this.survey) {
+      if (this.survey) {
         this.survey.multipleTextItemAdded(this, item);
       }
     });
@@ -440,7 +440,7 @@ export class QuestionMultipleTextModel extends Question
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       this.items[i].setData(this);
     }
   }
@@ -459,7 +459,7 @@ export class QuestionMultipleTextModel extends Question
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();
-    if(!Helpers.isValueEmpty(this.rows)) {
+    if (!Helpers.isValueEmpty(this.rows)) {
       this.calcVisibleRows();
     }
   }
@@ -487,9 +487,9 @@ export class QuestionMultipleTextModel extends Question
     });
   }
   private performForEveryEditor(func: (item: MultipleTextItemModel) => void) {
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
-      if(item.editor) {
+      if (item.editor) {
         func(item);
       }
     }
@@ -528,8 +528,8 @@ export class QuestionMultipleTextModel extends Question
     return item;
   }
   public getItemByName(name: string): MultipleTextItemModel {
-    for(var i = 0; i < this.items.length; i++) {
-      if(this.items[i].name == name) return this.items[i];
+    for (var i = 0; i < this.items.length; i++) {
+      if (this.items[i].name == name) return this.items[i];
     }
     return null;
   }
@@ -539,7 +539,7 @@ export class QuestionMultipleTextModel extends Question
     return elements.concat(this.items as any);
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       objects.push({
         name: this.getValueName() + "." + item.name,
@@ -552,22 +552,22 @@ export class QuestionMultipleTextModel extends Question
     this.items.forEach(item => item.editor.collectNestedQuestions(questions, visibleOnly));
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    if(!path) return super.getConditionJson(operator);
+    if (!path) return super.getConditionJson(operator);
     var item = this.getItemByName(path);
-    if(!item) return null;
+    if (!item) return null;
     var json = new JsonObject().toJsonObject(item);
     json["type"] = "text";
     return json;
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       this.items[i].locStrsChanged();
     }
   }
   public localeChanged(): void {
     super.localeChanged();
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       this.items[i].localeChanged();
     }
   }
@@ -587,7 +587,7 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("itemErrorLocation", val);
   }
   public getQuestionErrorLocation(): string {
-    if(this.itemErrorLocation !== "default") return this.itemErrorLocation;
+    if (this.itemErrorLocation !== "default") return this.itemErrorLocation;
     return this.getErrorLocation();
   }
   public get showItemErrorOnTop(): boolean {
@@ -603,8 +603,8 @@ export class QuestionMultipleTextModel extends Question
     return Helpers.isValueObject(val, true);
   }
   supportAutoAdvance(): boolean {
-    for(var i = 0; i < this.items.length; i++) {
-      if(this.items[i].isEmpty()) return false;
+    for (var i = 0; i < this.items.length; i++) {
+      if (this.items[i].isEmpty()) return false;
     }
     return true;
   }
@@ -617,7 +617,7 @@ export class QuestionMultipleTextModel extends Question
     return this.getPropertyValue("colCount");
   }
   public set colCount(val: number) {
-    if(val < 1 || val > 5) return;
+    if (val < 1 || val > 5) return;
     this.setPropertyValue("colCount", val);
   }
   /**
@@ -659,11 +659,11 @@ export class QuestionMultipleTextModel extends Question
     let row: MutlipleTextRow;
     let errorRow: MutlipleTextErrorRow;
     let rows: Array<MutlipleTextRow> = [];
-    for(var i = 0; i < items.length; i++) {
-      if(index == 0) {
+    for (var i = 0; i < items.length; i++) {
+      if (index == 0) {
         row = this.onRowCreated(new MutlipleTextRow());
         errorRow = <MutlipleTextErrorRow>this.onRowCreated(new MutlipleTextErrorRow());
-        if(this.showItemErrorOnTop) {
+        if (this.showItemErrorOnTop) {
           rows.push(errorRow);
           rows.push(row);
         } else {
@@ -674,7 +674,7 @@ export class QuestionMultipleTextModel extends Question
       row.cells.push(new MultipleTextCell(items[i], this));
       errorRow.cells.push(new MultipleTextErrorCell(items[i], this));
       index++;
-      if(index >= colCount || i == items.length - 1) {
+      if (index >= colCount || i == items.length - 1) {
         index = 0;
         errorRow.onAfterCreated();
       }
@@ -683,7 +683,7 @@ export class QuestionMultipleTextModel extends Question
   }
 
   public getRows(): Array<any> {
-    if(Helpers.isValueEmpty(this.rows)) {
+    if (Helpers.isValueEmpty(this.rows)) {
       this.calcVisibleRows();
     }
     return this.rows;
@@ -697,10 +697,10 @@ export class QuestionMultipleTextModel extends Question
     return new MultipleTextItemModel(name, title);
   }
   protected onItemValueChanged(): void {
-    if(this.isMultipleItemValueChanging) return;
-    for(var i = 0; i < this.items.length; i++) {
+    if (this.isMultipleItemValueChanging) return;
+    for (var i = 0; i < this.items.length; i++) {
       var itemValue = null;
-      if(this.value && this.items[i].name in this.value) {
+      if (this.value && this.items[i].name in this.value) {
         itemValue = this.value[this.items[i].name];
       }
       this.items[i].onValueChanged(itemValue);
@@ -711,21 +711,21 @@ export class QuestionMultipleTextModel extends Question
     this.items.forEach(item => item.editor.runCondition(values, properties));
   }
   protected getIsRunningValidators(): boolean {
-    if(super.getIsRunningValidators()) return true;
-    for(var i = 0; i < this.items.length; i++) {
-      if(this.items[i].editor.isRunningValidators) return true;
+    if (super.getIsRunningValidators()) return true;
+    for (var i = 0; i < this.items.length; i++) {
+      if (this.items[i].editor.isRunningValidators) return true;
     }
     return false;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     var res = false;
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.onCompletedAsyncValidators = (
         hasErrors: boolean
       ) => {
         this.raiseOnCompletedAsyncValidators();
       };
-      if(
+      if (
         !!rec &&
         rec.isOnValueChanged === true &&
         this.items[i].editor.isEmpty()
@@ -737,9 +737,9 @@ export class QuestionMultipleTextModel extends Question
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       var errors = this.items[i].editor.getAllErrors();
-      if(errors && errors.length > 0) {
+      if (errors && errors.length > 0) {
         result = result.concat(errors);
       }
     }
@@ -747,43 +747,43 @@ export class QuestionMultipleTextModel extends Question
   }
   public clearErrors() {
     super.clearErrors();
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.clearErrors();
     }
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
-    if(res) return res;
+    if (res) return res;
     var items = this.items;
-    for(var i = 0; i < items.length; i++) {
-      if(items[i].editor.containsErrors) return true;
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].editor.containsErrors) return true;
     }
     return false;
   }
   protected getIsAnswered(): boolean {
-    if(!super.getIsAnswered()) return false;
-    for(var i = 0; i < this.items.length; i++) {
+    if (!super.getIsAnswered()) return false;
+    for (var i = 0; i < this.items.length; i++) {
       var editor = this.items[i].editor;
-      if(editor.isVisible && !editor.isAnswered) return false;
+      if (editor.isVisible && !editor.isAnswered) return false;
     }
     return true;
   }
   public getProgressInfo(): IProgressInfo {
     var elements = [];
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       elements.push(this.items[i].editor);
     }
     return SurveyElement.getProgressInfoByElements(elements, this.isRequired);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if(!value) return value;
+    if (!value) return value;
     var res = {};
-    for(var i = 0; i < this.items.length; i++) {
+    for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       var val = value[item.name];
-      if(Helpers.isValueEmpty(val)) continue;
+      if (Helpers.isValueEmpty(val)) continue;
       var itemName = item.name;
-      if(keysAsText && !!item.title) {
+      if (keysAsText && !!item.title) {
         itemName = item.title;
       }
       (<any>res)[itemName] = item.editor.getDisplayValue(keysAsText, val);
@@ -795,16 +795,16 @@ export class QuestionMultipleTextModel extends Question
   }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
-    if(!this.value) return null;
+    if (!this.value) return null;
     return this.value[name];
   }
   setMultipleTextValue(name: string, value: any) {
     this.isMultipleItemValueChanging = true;
-    if(this.isValueEmpty(value)) {
+    if (this.isValueEmpty(value)) {
       value = undefined;
     }
     var newValue = this.value;
-    if(!newValue) {
+    if (!newValue) {
       newValue = {};
     }
     newValue[name] = value;
@@ -887,7 +887,7 @@ export class MutlipleTextErrorRow extends MutlipleTextRow {
       this.isVisible = this.cells.some((cell) => cell.item?.editor && cell.item?.editor.hasVisibleErrors);
     };
     this.cells.forEach((cell) => {
-      if(cell.item?.editor) {
+      if (cell.item?.editor) {
         cell.item?.editor.registerFunctionOnPropertyValueChanged("hasVisibleErrors", callback);
       }
     });

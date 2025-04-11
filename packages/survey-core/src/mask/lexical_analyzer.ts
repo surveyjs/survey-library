@@ -18,14 +18,14 @@ export class LexicalAnalyzer {
     let bracketCounter = 0;
     let subString = "";
 
-    for(let index = 0; index < str.length; index++) {
+    for (let index = 0; index < str.length; index++) {
       const currentChar = str[index];
       currentTocken = null;
 
-      if(bracketCounter !== 0) {
-        if(currentChar === ")") {
+      if (bracketCounter !== 0) {
+        if (currentChar === ")") {
           bracketCounter--;
-          if(bracketCounter === 0) {
+          if (bracketCounter === 0) {
             currentTocken = <ILexemToken>{ data: subString, type: "expression" };
             subString = "";
           } else {
@@ -35,7 +35,7 @@ export class LexicalAnalyzer {
           subString += currentChar;
         }
       } else {
-        if(prevChartIsEscaped) {
+        if (prevChartIsEscaped) {
           prevChartIsEscaped = false;
           currentTocken = <ILexemToken>{ data: currentChar, isConst: true };
         } else {
@@ -61,7 +61,7 @@ export class LexicalAnalyzer {
         }
       }
 
-      if(!!currentTocken) {
+      if (!!currentTocken) {
         result.push(currentTocken);
       }
       prevTocken = currentTocken;

@@ -25,18 +25,18 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
   protected override onModelChanged() {
     super.onModelChanged();
     this.previousModel?.resetResponsivityManager();
-    if(!!this.model.hasActions && !!this.container && !!this.container.nativeElement) {
+    if (!!this.model.hasActions && !!this.container && !!this.container.nativeElement) {
       this.model.initResponsivityManager(this.container.nativeElement);
     }
   }
 
   onClick(event: Event): void {
-    if(this.allowOnClick) {
+    if (this.allowOnClick) {
       event.stopPropagation();
     }
   }
   ngAfterViewInit() {
-    if(!!this.model.hasActions) {
+    if (!!this.model.hasActions) {
       this.model.initResponsivityManager(this.container.nativeElement);
     }
   }

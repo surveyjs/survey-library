@@ -20,11 +20,11 @@ const displayNameMap = {
 const themeNames = Object.keys(displayNameMap).map(oldThemeName => displayNameMap[oldThemeName]);
 
 function getDisplayName(themeName) {
-  if(themeName.indexOf("pseudo-3d") !== -1) {
+  if (themeName.indexOf("pseudo-3d") !== -1) {
     themeName = themeName.replace("pseudo-3d", "pseudo3d");
   }
   const baseThemeName = themeName.split("-")[0];
-  if(!displayNameMap[baseThemeName]) return themeName;
+  if (!displayNameMap[baseThemeName]) return themeName;
 
   return themeName.replace(baseThemeName, displayNameMap[baseThemeName].toLowerCase());
 }
@@ -40,7 +40,7 @@ function getShadowSettings(shadowGroup, isReset = false) {
     Object.keys(settings)
       .filter(shadowPropery => { return (shadowPropery !== "category" && shadowPropery !== "exportKey"); })
       .forEach(shadowPropery => {
-        if(shadowPropery === "offset") {
+        if (shadowPropery === "offset") {
           _result["x"] = settings[shadowPropery]["x"]["value"];
           _result["y"] = settings[shadowPropery]["y"]["value"];
         } else {
@@ -49,14 +49,14 @@ function getShadowSettings(shadowGroup, isReset = false) {
       });
     return _result;
   });
-  if(!!shadowGroup["0"]) {
+  if (!!shadowGroup["0"]) {
     result = Object.keys(shadowGroup)
       .filter(shadowPropery => { return (shadowPropery !== "category" && shadowPropery !== "exportKey"); })
       .map(key => shadowGroup[key]).map(item => parseShadowSettings(item));
   } else {
     result = [parseShadowSettings(shadowGroup)];
   }
-  if(isReset) {
+  if (isReset) {
     result = createBoxShadowReset(result);
   }
   return createBoxShadow(result);
@@ -73,14 +73,14 @@ function createBoxShadowReset(result) {
   return result;
 }
 
-if(!!MikeThemes["article"] && Object.keys(MikeThemes["article"]).length > 0) {
+if (!!MikeThemes["article"] && Object.keys(MikeThemes["article"]).length > 0) {
   const allowedSettings = ["textDecoration", "fontWeight", "fontStyle", "fontStretch", "letterSpacing", "lineHeight", "paragraphIndent", "textCase"];
   Object.keys(MikeThemes["article"]).forEach(fontSettingsName => {
     const fontSettings = MikeThemes["article"][fontSettingsName];
-    if(!!fontSettings && Object.keys(fontSettings).length > 0) {
+    if (!!fontSettings && Object.keys(fontSettings).length > 0) {
       Object.keys(fontSettings).filter(key => allowedSettings.indexOf(key) !== -1).forEach(key => {
         let value = fontSettings[key]["value"];
-        if(value !== undefined) {
+        if (value !== undefined) {
           value = value + ((fontSettings[key]["type"] === "number" && fontSettings[key]["unit"] === "pixel") ? "px" : "");
         }
         articleFontSettings["--sjs-article-font-" + fontSettingsName + "-" + key] = value;
@@ -103,7 +103,7 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
   const displayThemeName = getDisplayName(themeName);
   themes[displayThemeName] = {};
 
-  if(!!generalGroup) {
+  if (!!generalGroup) {
     themes[displayThemeName] = {
       "--sjs-general-backcolor": generalGroup["backcolor"] ? generalGroup["backcolor"]["value"] : undefined,
       "--sjs-general-backcolor-dark": generalGroup["backcolor-dark"] ? generalGroup["backcolor-dark"]["value"] : undefined,
@@ -116,7 +116,7 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
       "--sjs-general-dim-forecolor-light": generalGroup["dim-forecolor-light"] ? generalGroup["dim-forecolor-light"]["value"] : undefined,
     };
   }
-  if(!!primaryGroup) {
+  if (!!primaryGroup) {
     themes[displayThemeName]["--sjs-primary-backcolor"] = primaryGroup["backcolor"] ? primaryGroup["backcolor"]["value"] : undefined;
     themes[displayThemeName]["--sjs-primary-backcolor-light"] = primaryGroup["backcolor-light"] ? primaryGroup["backcolor-light"]["value"] : undefined;
     themes[displayThemeName]["--sjs-primary-backcolor-dark"] = primaryGroup["backcolor-dark"] ? primaryGroup["backcolor-dark"]["value"] : undefined;
@@ -125,14 +125,14 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
     themes[displayThemeName]["--sjs-base-unit"] = "8px";
     themes[displayThemeName]["--sjs-corner-radius"] = "4px";
   }
-  if(!!secondaryGroup) {
+  if (!!secondaryGroup) {
     themes[displayThemeName]["--sjs-secondary-backcolor"] = secondaryGroup["backcolor"] ? secondaryGroup["backcolor"]["value"] : undefined;
     themes[displayThemeName]["--sjs-secondary-backcolor-light"] = secondaryGroup["backcolor-light"] ? secondaryGroup["backcolor-light"]["value"] : undefined;
     themes[displayThemeName]["--sjs-secondary-backcolor-semi-light"] = secondaryGroup["backcolor-semi-light"] ? secondaryGroup["backcolor-semi-light"]["value"] : undefined;
     themes[displayThemeName]["--sjs-secondary-forecolor"] = secondaryGroup["forecolor"] ? secondaryGroup["forecolor"]["value"] : undefined;
     themes[displayThemeName]["--sjs-secondary-forecolor-light"] = secondaryGroup["forecolor-light"] ? secondaryGroup["forecolor-light"]["value"] : undefined;
   }
-  if(!!shadowGroup) {
+  if (!!shadowGroup) {
     themes[displayThemeName]["--sjs-shadow-small"] = shadowGroup["small"] ? getShadowSettings(shadowGroup["small"]) : undefined;
     themes[displayThemeName]["--sjs-shadow-small-reset"] = shadowGroup["small"] ? getShadowSettings(shadowGroup["small"], true) : undefined;
     themes[displayThemeName]["--sjs-shadow-medium"] = shadowGroup["medium"] ? getShadowSettings(shadowGroup["medium"]) : undefined;
@@ -140,12 +140,12 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
     themes[displayThemeName]["--sjs-shadow-inner"] = shadowGroup["inner"] ? getShadowSettings(shadowGroup["inner"]) : undefined;
     themes[displayThemeName]["--sjs-shadow-inner-reset"] = shadowGroup["inner"] ? getShadowSettings(shadowGroup["inner"], true) : undefined;
   }
-  if(!!bordersGroup) {
+  if (!!bordersGroup) {
     themes[displayThemeName]["--sjs-border-light"] = bordersGroup["light-border"] ? bordersGroup["light-border"]["value"] : undefined;
     themes[displayThemeName]["--sjs-border-default"] = bordersGroup["default-border"] ? bordersGroup["default-border"]["value"] : undefined;
     themes[displayThemeName]["--sjs-border-inside"] = bordersGroup["inside-border"] ? bordersGroup["inside-border"]["value"] : undefined;
   }
-  if(!!specialGroup) {
+  if (!!specialGroup) {
     themes[displayThemeName]["--sjs-special-red"] = specialGroup["red"] ? specialGroup["red"]["value"] : undefined;
     themes[displayThemeName]["--sjs-special-red-light"] = specialGroup["red-light"] ? specialGroup["red-light"]["value"] : undefined;
     themes[displayThemeName]["--sjs-special-red-forecolor"] = specialGroup["red-forecolor"] ? specialGroup["red-forecolor"]["value"] : undefined;
@@ -176,7 +176,7 @@ function getThemeObject(themeName, isPanelless, isDarkMode) {
 
   var newTheme = {};
   Object.assign(newTheme, predefinedThemes[getFullThemeName("default", isDarkMode)], predefinedThemes[getFullThemeName(themeName, isDarkMode)]);
-  if(isPanelless) {
+  if (isPanelless) {
     Object.assign(newTheme, predefinedThemes[getFullThemeName(themeName, isDarkMode) + "-lw"]);
   }
   return { themeName, colorPalette: isDarkMode ? "dark" : "light", isPanelless, cssVariables: newTheme };

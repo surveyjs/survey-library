@@ -31,7 +31,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, { "onTextMarkdown": (sender, options) => {
-        if(options.text.indexOf("|") > -1) {
+        if (options.text.indexOf("|") > -1) {
           options.html = "<span class='markdownclass'>" + options.text.replace("|", "*").replace("|", "*") + "</span>";
         }
       } });

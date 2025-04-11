@@ -27,14 +27,14 @@ export class CustomWidgetComponent implements AfterViewInit, OnDestroy, OnChange
     return AngularComponentFactory.Instance.isComponentRegistered(this.model.customWidget.name);
   }
   get componentName(): string {
-    if(this.hasAngularComponent) return this.model.customWidget.name;
+    if (this.hasAngularComponent) return this.model.customWidget.name;
     return this.model.getTemplate() + "-question";
   }
   ngAfterViewInit(): void {
     this.model.customWidget.afterRender(this.model, this.container.nativeElement);
   }
   ngOnChanges(simpleChanges: SimpleChanges) {
-    if(simpleChanges["model"].previousValue !== undefined && simpleChanges["model"].currentValue !== undefined) {
+    if (simpleChanges["model"].previousValue !== undefined && simpleChanges["model"].currentValue !== undefined) {
       this.model.customWidget.afterRender(this.model, this.container.nativeElement);
     }
   }

@@ -66,7 +66,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
   }
 
   protected renderReadOnlyElement(): React.JSX.Element | null {
-    if(this.question.locReadOnlyText) {
+    if (this.question.locReadOnlyText) {
       return this.renderLocString(this.question.locReadOnlyText);
     } else {
       return null;

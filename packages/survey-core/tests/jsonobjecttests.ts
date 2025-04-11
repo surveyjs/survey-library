@@ -108,24 +108,24 @@ class CarOwner extends Base {
     return this.carValue.getType();
   }
   public set carType(val: string) {
-    if(val == this.carType) return;
+    if (val == this.carType) return;
     var newCar = <Car>Serializer.createClass(val);
-    if(!newCar) return;
+    if (!newCar) return;
     this.removeProperties();
     this.carValue = newCar;
     this.addProperties();
   }
   private removeProperties() {
     var props = Serializer.getDynamicPropertiesByObj(this, this.carType);
-    for(var i = 0; i < props.length; i++) {
+    for (var i = 0; i < props.length; i++) {
       delete this[props[i].name];
     }
   }
   private addProperties() {
     var props = Serializer.getDynamicPropertiesByObj(this);
-    for(var i = 0; i < props.length; i++) {
+    for (var i = 0; i < props.length; i++) {
       var propName = props[i].name;
-      if(!!this[propName]) continue;
+      if (!!this[propName]) continue;
       this.defineNewProperty(propName);
     }
   }
@@ -1549,8 +1549,8 @@ QUnit.test("Override type property in a successor class", function (assert) {
   function findProperty() {
     property = null;
     var properties = Serializer.getProperties("fast");
-    for(var i = 0; i < properties.length; i++) {
-      if(properties[i].name == "name") {
+    for (var i = 0; i < properties.length; i++) {
+      if (properties[i].name == "name") {
         property = properties[i];
         break;
       }
@@ -2924,16 +2924,16 @@ QUnit.test("Custom survey serialization, onSerializingProperty", function (asser
   Serializer.onSerializingProperty = (obj: Base, prop: JsonObjectProperty, value: any, json: any): boolean => {
     let typesList = new Array<string>();
     typesList.push(obj.getType());
-    if(obj.isDescendantOf("question")) {
+    if (obj.isDescendantOf("question")) {
       typesList.push("question");
     }
     typesList.push("base");
 
-    for(var i = 0; i < typesList.length; i++) {
+    for (var i = 0; i < typesList.length; i++) {
       let mapObj = <any>getMappedObj(typesList[i], prop.name);
-      if(!mapObj) continue;
+      if (!mapObj) continue;
       const name = typeof mapObj === "string" ? mapObj : mapObj.name;
-      if(typeof mapObj !== "string" && mapObj.converter) {
+      if (typeof mapObj !== "string" && mapObj.converter) {
         value = mapObj.converter(obj, value);
       }
       json[name] = value;
@@ -3074,12 +3074,12 @@ QUnit.test("Check that .toJSON returns clean structure for all question types", 
   const etalon = { name };
   const classes = Serializer["classes"];
 
-  for(const prop in classes) {
+  for (const prop in classes) {
     const cls = classes[prop];
     const qModel: any = Serializer.createClass(cls.name);
-    if(!!qModel) {
+    if (!!qModel) {
       qModel.name = name;
-      if(qModel.isQuestion && qModel.getType() === cls.name) {
+      if (qModel.isQuestion && qModel.getType() === cls.name) {
         assert.deepEqual(qModel.toJSON(), etalon, `JSON for ${cls.name} is clean`);
       }
     }

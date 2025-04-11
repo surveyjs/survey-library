@@ -72,7 +72,7 @@ export class CoverCell {
     return this.cover.renderedTextAreaWidth;
   }
   get width(): number {
-    if(this.cover.width) {
+    if (this.cover.width) {
       return Math.ceil(this.cover.width / 3);
     }
     return undefined;
@@ -86,10 +86,10 @@ export class Cover extends Base {
   private _survey: SurveyModel;
 
   private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile"): string {
-    if(backgroundImageFit === "fill") {
+    if (backgroundImageFit === "fill") {
       return "100% 100%";
     }
-    if(backgroundImageFit === "tile") {
+    if (backgroundImageFit === "tile") {
       return "auto";
     }
     return backgroundImageFit;
@@ -111,7 +111,7 @@ export class Cover extends Base {
   private updateContentClasses(): void {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
     this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.width;
-    if(!!this.maxWidth) {
+    if (!!this.maxWidth) {
       this.maxWidth = parseFloat(this.maxWidth.toString().replace("px", "")) + "px";
     }
     this.contentClasses = new CssClassBuilder()
@@ -129,7 +129,7 @@ export class Cover extends Base {
   }
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header || {});
-    if(!!theme.cssVariables) {
+    if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
       this.titleColor = theme.cssVariables["--sjs-font-headertitle-color"];
       this.descriptionColor = theme.cssVariables["--sjs-font-headerdescription-color"];
@@ -189,10 +189,10 @@ export class Cover extends Base {
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
-    if(this.survey && !this.survey.isMobile || !this.survey) {
+    if (this.survey && !this.survey.isMobile || !this.survey) {
       return this.height ? this.height + "px" : undefined;
     }
-    if(this.survey && this.survey.isMobile) {
+    if (this.survey && this.survey.isMobile) {
       return this.mobileHeight ? this.mobileHeight + "px" : undefined;
     }
     return undefined;
@@ -207,13 +207,13 @@ export class Cover extends Base {
     return this._survey;
   }
   public set survey(newValue: SurveyModel) {
-    if(this._survey === newValue) return;
+    if (this._survey === newValue) return;
 
     this._survey = newValue;
-    if(!!newValue) {
+    if (!!newValue) {
       this.updateContentClasses();
       this._survey.onPropertyChanged.add((sender: any, options: any) => {
-        if(options.name == "widthMode" || options.name == "width") {
+        if (options.name == "widthMode" || options.name == "width") {
           this.updateContentClasses();
         }
       });
@@ -221,7 +221,7 @@ export class Cover extends Base {
   }
 
   public get backgroundImageStyle() {
-    if(!this.backgroundImage) return null;
+    if (!this.backgroundImage) return null;
     return {
       opacity: this.backgroundImageOpacity,
       backgroundImage: this.renderBackgroundImage,
@@ -230,13 +230,13 @@ export class Cover extends Base {
   }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue);
-    if(name === "height" || name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
+    if (name === "height" || name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
       this.updateHeaderClasses();
     }
-    if(name === "inheritWidthFrom") {
+    if (name === "inheritWidthFrom") {
       this.updateContentClasses();
     }
-    if(name === "backgroundImageFit") {
+    if (name === "backgroundImageFit") {
       this.updateBackgroundImageClasses();
     }
   }
@@ -262,31 +262,31 @@ export class Cover extends Base {
   // }
 
   public getContentMaxWidth(cell: CoverCell): string {
-    if(cell.isEmpty || cell.showLogo) {
+    if (cell.isEmpty || cell.showLogo) {
       return undefined;
     }
     const cellIndex = this.cells.indexOf(cell);
     const rowIndex = Math.floor(cellIndex / 3);
     const colIndex = cellIndex % 3;
-    if(colIndex == 1) {
-      if(!this.cells[rowIndex * 3].isEmpty || !this.cells[rowIndex * 3 + 2].isEmpty) {
+    if (colIndex == 1) {
+      if (!this.cells[rowIndex * 3].isEmpty || !this.cells[rowIndex * 3 + 2].isEmpty) {
         return "100%";
       }
-    } else if(colIndex == 0) {
+    } else if (colIndex == 0) {
       let rightFreeCells = 0;
       let index = colIndex + 1;
       while(index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
-        if(this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
           rightFreeCells++;
         }
         index++;
       }
       return (100 * (rightFreeCells + 1)) + "%";
-    } else if(colIndex == 2) {
+    } else if (colIndex == 2) {
       let leftFreeCells = 0;
       let index = colIndex - 1;
       while(index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
-        if(this.cells[rowIndex * 3 + index].isEmpty) {
+        if (this.cells[rowIndex * 3 + index].isEmpty) {
           leftFreeCells++;
         }
         index--;
@@ -297,10 +297,10 @@ export class Cover extends Base {
   }
 
   public processResponsiveness(): void {
-    if(this.survey && this.survey.rootElement) {
-      if(!this.survey.isMobile) {
+    if (this.survey && this.survey.rootElement) {
+      if (!this.survey.isMobile) {
         const headerEl = this.survey.rootElement.querySelectorAll(".sv-header__content")[0];
-        if(!headerEl) return;
+        if (!headerEl) return;
 
         let elWidth = headerEl.getBoundingClientRect().width;
         const headerComputedStyle = DomDocumentHelper.getComputedStyle(headerEl);

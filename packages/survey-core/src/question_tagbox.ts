@@ -44,7 +44,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return "";
   }
   public get dropdownListModel(): DropdownMultiSelectListModel {
-    if(!this.dropdownListModelValue) {
+    if (!this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
     }
     return this.dropdownListModelValue;
@@ -72,7 +72,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setAllowCustomChoices(newValue);
       }
     }
@@ -87,7 +87,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setSearchEnabled(newValue);
       }
     }
@@ -98,7 +98,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setHideSelectedItems(newValue);
       }
     }
@@ -111,7 +111,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
-      if(!!target.dropdownListModelValue) {
+      if (!!target.dropdownListModelValue) {
         target.dropdownListModel.setChoicesLazyLoadEnabled(newValue);
       }
     }
@@ -189,7 +189,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if(this.dropdownListModelValue) {
+    if (this.dropdownListModelValue) {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
@@ -201,23 +201,23 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   protected hasUnknownValue(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
-    if(this.choicesLazyLoadEnabled) return false;
+    if (this.choicesLazyLoadEnabled) return false;
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     const val = this.otherValue?.trim();
-    if(!val) return false;
+    if (!val) return false;
     return super.hasUnknownValue(val, true, false);
   }
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModel.updateItems();
     }
   }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
-    if(this.choicesLazyLoadEnabled) {
+    if (this.choicesLazyLoadEnabled) {
       return this.createItemValue(value, text);
     } else {
       return super.getItemIfChoicesNotContainThisValue(value, text);
@@ -226,10 +226,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
     this.updateItemDisplayNameMap();
     const val = this.renderedValue as Array<any>;
-    if(!!itemValues.length && itemValues.length === val.length) return itemValues;
+    if (!!itemValues.length && itemValues.length === val.length) return itemValues;
 
     const selectedItemValues = this.selectedItemValues;
-    if(!itemValues.length && !!selectedItemValues && !!selectedItemValues.length) {
+    if (!itemValues.length && !!selectedItemValues && !!selectedItemValues.length) {
       this.defaultSelectedItemValues = [].concat(selectedItemValues);
       return selectedItemValues;
     }
@@ -237,7 +237,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     const itemValueValues = itemValues.map(iV => iV.value);
     val.filter(item => { return itemValueValues.indexOf(item) === -1; }).forEach(item => {
       const newItem = this.getItemIfChoicesNotContainThisValue(item, this.itemDisplayNameMap[item]);
-      if(newItem) {
+      if (newItem) {
         itemValues.push(newItem);
       }
     });
@@ -281,7 +281,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
       this.dropdownListModelValue = undefined;
     }

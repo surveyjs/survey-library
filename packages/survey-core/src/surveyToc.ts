@@ -9,20 +9,20 @@ import { Question } from "./question";
 import { SurveyModel } from "./survey";
 
 export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolean {
-  if(survey.isDesignMode) return true;
+  if (survey.isDesignMode) return true;
   panel.focusFirstQuestion();
   return true;
 }
 
 function getPage(question: Question): PageModel {
-  if(!!question.parentQuestion) {
+  if (!!question.parentQuestion) {
     return getPage(question.parentQuestion);
   }
   let parent = question.parent;
   while(parent && parent.getType() !== "page" && parent.parent) {
     parent = parent.parent;
   }
-  if(parent && parent.getType() === "page") {
+  if (parent && parent.getType() === "page") {
     return <PageModel>(<any>parent);
   }
   return null;
@@ -64,9 +64,9 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
       action: () => {
         DomDocumentHelper.activeElementBlur();
         !!onAction && onAction();
-        if(page.isPage) {
+        if (page.isPage) {
           return survey.tryNavigateToPage(page as PageModel);
-        } else if(page.isPanel) {
+        } else if (page.isPanel) {
           return tryFocusPage(survey, page as PanelModelBase);
         }
       },
@@ -80,11 +80,11 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
 
 export function getTocRootCss(survey: SurveyModel, isMobile = false): string {
   let rootCss = TOCModel.RootStyle;
-  if(isMobile) {
+  if (isMobile) {
     return rootCss + " " + TOCModel.RootStyle + "--mobile";
   }
   rootCss += (" " + TOCModel.RootStyle + "--" + (survey.tocLocation || "").toLowerCase());
-  if(TOCModel.StickyPosition) {
+  if (TOCModel.StickyPosition) {
     rootCss += " " + TOCModel.RootStyle + "--sticky";
   }
   return rootCss;
@@ -98,14 +98,14 @@ export class TOCModel {
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
     this.popupModel.overlayDisplayMode = "tablet-dropdown-overlay";
     this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
-    if(TOCModel.StickyPosition) {
+    if (TOCModel.StickyPosition) {
       survey.onAfterRenderSurvey.add((s, o) => this.initStickyTOCSubscriptions(o.htmlElement));
       this.initStickyTOCSubscriptions(survey.rootElement);
     }
   }
 
   private initStickyTOCSubscriptions(rootElement: HTMLElement) {
-    if(TOCModel.StickyPosition && !!rootElement) {
+    if (TOCModel.StickyPosition && !!rootElement) {
       rootElement.addEventListener("scroll", (event) => {
         this.updateStickyTOCSize(rootElement);
       });
@@ -114,13 +114,13 @@ export class TOCModel {
   }
 
   public updateStickyTOCSize(rootElement: HTMLElement): void {
-    if(!rootElement) {
+    if (!rootElement) {
       return;
     }
     const tocRootElement = rootElement.querySelector("." + TOCModel.RootStyle) as HTMLDivElement;
-    if(!!tocRootElement) {
+    if (!!tocRootElement) {
       tocRootElement.style.height = "";
-      if(!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
+      if (!this.isMobile && TOCModel.StickyPosition && !!rootElement) {
         const rootHeight = rootElement.getBoundingClientRect().height;
         const headerLayoutElement = this.survey.findLayoutElement("advanced-header");
         const advHeader = headerLayoutElement && headerLayoutElement.data;

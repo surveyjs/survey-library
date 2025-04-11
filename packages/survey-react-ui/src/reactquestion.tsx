@@ -29,7 +29,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   ): React.JSX.Element | any {
     // if (!question.isVisible) return null;
     var customWidget = question.customWidget;
-    if(!customWidget) {
+    if (!customWidget) {
       return creator.createQuestionElement(question);
     }
     return <SurveyCustomWidget creator={creator} question={question} />;
@@ -50,18 +50,18 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   }
   componentDidMount() {
     super.componentDidMount();
-    if(!!this.question) {
+    if (!!this.question) {
       this.question["react"] = this;
     }
     this.doAfterRender();
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if(!!this.question) {
+    if (!!this.question) {
       this.question["react"] = null;
     }
     const el = this.rootRef.current;
-    if(!!el) {
+    if (!!el) {
       el.removeAttribute("data-rendered");
     }
   }
@@ -70,17 +70,17 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     this.doAfterRender();
   }
   private doAfterRender() {
-    if(this.isNeedFocus) {
-      if(!this.question.isCollapsed) {
+    if (this.isNeedFocus) {
+      if (!this.question.isCollapsed) {
         this.question.clickTitleFunction();
       }
       this.isNeedFocus = false;
     }
-    if(this.question) {
+    if (this.question) {
       var el = this.rootRef.current;
-      if(el && el.getAttribute("data-rendered") !== "r") {
+      if (el && el.getAttribute("data-rendered") !== "r") {
         el.setAttribute("data-rendered", "r");
-        if(this.question.afterRender) {
+        if (this.question.afterRender) {
           this.question.afterRender(el);
         }
       }
@@ -172,7 +172,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: React.JSX.Element | null = null;
-    if(survey) {
+    if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapElement(survey, element, this.question);
     }
     return wrapper ?? element;
@@ -180,7 +180,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected wrapQuestionContent(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: React.JSX.Element | null = null;
-    if(survey) {
+    if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapQuestionContent(survey, element, this.question);
     }
     return wrapper ?? element;
@@ -254,7 +254,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   protected renderElement(): React.JSX.Element {
     const errors: Array<React.JSX.Element> = [];
-    for(let i = 0; i < this.element.errors.length; i++) {
+    for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(
         this.creator.renderError(key, this.element.errors[i], this.cssClasses, this.element)
@@ -332,9 +332,9 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   componentWillUnmount() {
     super.componentWillUnmount();
-    if(this.question) {
+    if (this.question) {
       var el = this.cellRef.current;
-      if(!!el) {
+      if (!!el) {
         el.removeAttribute("data-rendered");
       }
     }
@@ -373,12 +373,12 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
     cell: QuestionMatrixDropdownRenderedCell,
     element: React.JSX.Element
   ): React.JSX.Element {
-    if(!cell) {
+    if (!cell) {
       return element;
     }
     const survey: SurveyModel = this.question.survey as SurveyModel;
     let wrapper: React.JSX.Element | null = null;
-    if(survey) {
+    if (survey) {
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, this.props.reason);
     }
     return wrapper ?? element;
@@ -391,7 +391,7 @@ export class SurveyQuestionErrorCell extends React.Component<any, any> {
     this.state = {
       changed: 0
     };
-    if(this.question) {
+    if (this.question) {
       this.registerCallback(this.question);
     }
   }
@@ -413,15 +413,15 @@ export class SurveyQuestionErrorCell extends React.Component<any, any> {
     question.unRegisterFunctionOnPropertiesValueChanged(this.getQuestionPropertiesToTrack(), "__reactSubscription");
   }
   componentDidUpdate(prevProps: Readonly<any>): void {
-    if(prevProps.question && prevProps.question !== this.question) {
+    if (prevProps.question && prevProps.question !== this.question) {
       this.unRegisterCallback(prevProps.cell);
     }
-    if(this.question) {
+    if (this.question) {
       this.registerCallback(this.question);
     }
   }
   componentWillUnmount(): void {
-    if(this.question) {
+    if (this.question) {
       this.unRegisterCallback(this.question);
     }
   }

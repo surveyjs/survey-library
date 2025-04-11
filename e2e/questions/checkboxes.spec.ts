@@ -148,11 +148,11 @@ frameworks.forEach((framework) => {
       expect(second.trim()).toEqual("Vauxhall");
 
       // rnd
-      if(choicesCount === 1) {
+      if (choicesCount === 1) {
         throw new Error("need to more than one choices");
       }
 
-      for(let i = 0; i < 15; i++) {
+      for (let i = 0; i < 15; i++) {
         await page.evaluate(() => {
           window["survey"].getAllQuestions()[0].choicesOrder = "asc";
         });
@@ -161,13 +161,13 @@ frameworks.forEach((framework) => {
         });
         first_2 = await getFirst();
 
-        if(first.trim() !== first_2.trim()) {
+        if (first.trim() !== first_2.trim()) {
           rnd_count++;
         }
 
         first = first_2;
 
-        if(rnd_count >= 4) {
+        if (rnd_count >= 4) {
           break;
         }
       }
@@ -203,8 +203,8 @@ frameworks.forEach((framework) => {
             "Other (describe)",
           ];
           var result;
-          for(var i = 0; i < choices.length; i++) {
-            if(document.documentElement.innerHTML.indexOf(choices[i]) === -1)
+          for (var i = 0; i < choices.length; i++) {
+            if (document.documentElement.innerHTML.indexOf(choices[i]) === -1)
               return false;
           }
           return true;

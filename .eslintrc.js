@@ -42,9 +42,7 @@ module.exports = {
     "keyword-spacing": ["error", {
       "overrides": {
         "this": { "after": false, "before": false },
-        "function": { "after": false, "before": false },
-        "if": { "after": false },
-        "for": { "after": false },
+        // "function": { "after": false, "before": false },
         "while": { "after": false },
         "switch": { "after": false },
         "new": { "before": false },

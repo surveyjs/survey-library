@@ -32,18 +32,18 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
         model.data
       );
     };
-    if(!!props) {
-      for(var key in props) {
+    if (!!props) {
+      for (var key in props) {
         model[key] = props[key];
       }
     }
     model.onComplete.add(surveyComplete);
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
-    if(framework === "survey-js-ui") {
+    if (framework === "survey-js-ui") {
       surveyElement.innerHTML = "";
       self.SurveyUI.renderSurvey(model, surveyElement);
-    } else if(framework === "react") {
-      if(!!self.root) {
+    } else if (framework === "react") {
+      if (!!self.root) {
         self.root.unmount();
       }
       const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
@@ -51,7 +51,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       root.render(
         self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
       );
-    } else if(framework === "angular" || framework == "vue3") {
+    } else if (framework === "angular" || framework == "vue3") {
       self.window.setSurvey(model);
     }
     window["survey"] = model;

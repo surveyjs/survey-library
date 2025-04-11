@@ -12,7 +12,7 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart, clean
   element.innerHTML = text;
   const selection = document.getSelection();
   let range = document.createRange();
-  if(selectionNodeIndex >= 0) {
+  if (selectionNodeIndex >= 0) {
     range.setStart(element.childNodes[selectionNodeIndex], selectionStart);
   }
   range.collapse(true);
@@ -20,7 +20,7 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart, clean
   selection.addRange(range);
   sanitizeEditableContent(element, cleanLineBreaks);
   range = document.getSelection().getRangeAt(0);
-  if(element.childNodes.length > 0) range.setStart(element.childNodes[0], 0);
+  if (element.childNodes.length > 0) range.setStart(element.childNodes[0], 0);
   return {
     text: element.innerHTML,
     plainText: element.innerText,
@@ -116,7 +116,7 @@ QUnit.test(
 
 export function createIActionArray(count: number): Array<IAction> {
   let result: Array<IAction> = [];
-  for(let index = 0; index < count; ++index) {
+  for (let index = 0; index < count; ++index) {
     result.push(<IAction>{ id: "test" + index, title: "test" + index });
   }
   return result;
@@ -205,7 +205,7 @@ QUnit.test(
     mouseInfo.hasMouse = false;
     const hasTouchEvent = mouseInfo.hasTouchEvent;
     assert.equal(mouseInfo.isTouch, hasTouchEvent, "isTouch, #2. hasTouch in window: " + hasTouchEvent);
-    if(!hasTouchEvent) {
+    if (!hasTouchEvent) {
       window["ontouchstart"] = () => { };
     }
     mouseInfo.hasMouse = true;
@@ -213,7 +213,7 @@ QUnit.test(
     mouseInfo.hasMouse = false;
     assert.equal(mouseInfo.isTouch, true, "isTouch, #4");
     mouseInfo.hasMouse = true;
-    if(!hasTouchEvent) {
+    if (!hasTouchEvent) {
       window["ontouchstart"] = undefined;
     }
   }
@@ -233,15 +233,15 @@ QUnit.test(
     assert.equal(result, false, "matchMedia might return null at some environments");
 
     matchMediaFunction = (query:string) => {
-      if(query === "(pointer:fine)") return { matches: true };
+      if (query === "(pointer:fine)") return { matches: true };
       return { matches: false };
     };
     result = detectMouseSupport(matchMediaFunction);
     assert.equal(result, true, "matchMedia pointer:fine");
 
     matchMediaFunction = (query:string) => {
-      if(query === "(pointer:fine)") return { matches: false };
-      if(query === "(any-hover:hover)") return { matches: true };
+      if (query === "(pointer:fine)") return { matches: false };
+      if (query === "(any-hover:hover)") return { matches: true };
       return { matches: false };
     };
     result = detectMouseSupport(matchMediaFunction);

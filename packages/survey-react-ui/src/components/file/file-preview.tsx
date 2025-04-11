@@ -12,7 +12,7 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
   }
 
   protected renderFileSign(className: string, val: any): React.JSX.Element | null {
-    if(!className || !val.name) return null;
+    if (!className || !val.name) return null;
     return (
       <div className={className}>
         <a

@@ -10,7 +10,7 @@ export class SvgBundleComponent extends React.Component {
     this.containerRef = React.createRef();
   }
   private onIconsChanged = () => {
-    if(!!this.containerRef.current) {
+    if (!!this.containerRef.current) {
       this.containerRef.current.innerHTML = SvgRegistry.iconsRenderedHtml();
     }
   };

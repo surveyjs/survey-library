@@ -44,12 +44,12 @@ export class InputMaskCurrency extends InputMaskNumeric {
     const prefixValue = this.prefix || "";
     const suffixValue = this.suffix || "";
     let result = str;
-    if(!result) return result;
+    if (!result) return result;
 
-    if(result.indexOf(prefixValue) === -1) {
+    if (result.indexOf(prefixValue) === -1) {
       result = prefixValue + result;
     }
-    if(result.indexOf(suffixValue) === -1) {
+    if (result.indexOf(suffixValue) === -1) {
       result += suffixValue;
     }
     return result;
@@ -57,16 +57,16 @@ export class InputMaskCurrency extends InputMaskNumeric {
 
   public unwrapInputArgs(args: ITextInputParams): void {
     let result = args.prevValue;
-    if(!result) return;
+    if (!result) return;
 
-    if(this.prefix && result.indexOf(this.prefix) !== -1) {
+    if (this.prefix && result.indexOf(this.prefix) !== -1) {
       result = result.slice(result.indexOf(this.prefix) + this.prefix.length);
       const preffixPadding = (this.prefix || "").length;
 
       args.selectionStart = Math.max((args.selectionStart - preffixPadding), 0);
       args.selectionEnd -= preffixPadding;
     }
-    if(this.suffix && result.indexOf(this.suffix) !== -1) {
+    if (this.suffix && result.indexOf(this.suffix) !== -1) {
       result = result.slice(0, result.indexOf(this.suffix));
     }
     args.prevValue = result;
@@ -75,7 +75,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
     this.unwrapInputArgs(args);
     const result = super.processInput(args);
     const preffixPadding = (this.prefix || "").length;
-    if(!!result.value) {
+    if (!!result.value) {
       result.caretPosition += preffixPadding;
     }
     result.value = this.wrapText(result.value);

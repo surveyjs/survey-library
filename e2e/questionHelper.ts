@@ -10,21 +10,21 @@ export class Question {
   }
   public get question(): Locator { return this.questionValue; }
   public async scrollIntoViewIfNeeded(): Promise<void> {
-    if(!this.isCell) {
+    if (!this.isCell) {
       await this.question.scrollIntoViewIfNeeded();
     }
   }
   public async focus(): Promise<void> {
     await this.page.evaluate(questionName => {
       const q = window["survey"].getQuestionByName(questionName);
-      if(q.inputId) {
+      if (q.inputId) {
         document.getElementById(q.inputId)?.focus();
       }
       return q.value;
     }, this.name);
   }
   public async hover(locator: string | Locator): Promise<void> {
-    if(typeof locator === "string") {
+    if (typeof locator === "string") {
       locator = this.question.locator(locator).first();
     }
     await locator.hover();
@@ -57,7 +57,7 @@ export class Question {
   }
   public async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
     const reg = new RegExp(className);
-    if(isChecked) {
+    if (isChecked) {
       await expect(loc).toHaveClass(reg);
     } else {
       await expect(loc).not.toHaveClass(reg);
@@ -65,7 +65,7 @@ export class Question {
   }
   public screenShortOptions: any;
   public async toHaveScreenshot(name: string, locator?: Locator): Promise<void> {
-    if(!locator) {
+    if (!locator) {
       locator = this.question;
     }
     await expect(locator).toHaveScreenshot(name, this.screenShortOptions);
@@ -115,12 +115,12 @@ export class QuestionRadiogroup extends QuestionSelect {
 }
 export class QuestionCheckbox extends QuestionSelect {
   public async clickByTexts(val: Array<string>): Promise<void> {
-    for(let i = 0; i < val.length; i ++) {
+    for (let i = 0; i < val.length; i ++) {
       await this.clickByText(val[i]);
     }
   }
   public async clickByValues(val: Array<string>): Promise<void> {
-    for(let i = 0; i < val.length; i ++) {
+    for (let i = 0; i < val.length; i ++) {
       await this.clickByValue(val[i]);
     }
   }

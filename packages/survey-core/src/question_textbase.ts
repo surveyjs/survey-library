@@ -76,7 +76,7 @@ export class QuestionTextBase extends Question {
     this.setPropertyValue("textUpdateMode", val);
   }
   protected getIsInputTextUpdate(): boolean {
-    if(this.textUpdateMode == "default") return super.getIsInputTextUpdate();
+    if (this.textUpdateMode == "default") return super.getIsInputTextUpdate();
     return this.textUpdateMode == "onTyping";
   }
   public get renderedPlaceholder(): string {
@@ -109,7 +109,7 @@ export class QuestionTextBase extends Question {
     this.updateRemainingCharacterCounter(newValue);
   }
   protected convertToCorrectValue(val: any): any {
-    if(Array.isArray(val)) return val.join(this.getValueSeparator());
+    if (Array.isArray(val)) return val.join(this.getValueSeparator());
     return val;
   }
   protected getValueSeparator(): string { return ", "; }

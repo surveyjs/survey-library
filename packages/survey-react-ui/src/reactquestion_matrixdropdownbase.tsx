@@ -41,17 +41,17 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
   }
   renderHeader(): React.JSX.Element | null {
     const table = this.question.renderedTable;
-    if(!table.showHeader) return null;
+    if (!table.showHeader) return null;
     const headers: any[] = [];
     const cells = table.headerRow.cells;
-    for(var i = 0; i < cells.length; i++) {
+    for (var i = 0; i < cells.length; i++) {
       const cell = cells[i];
       const key = "column" + i;
       const columnStyle: any = {};
-      if(!!cell.width) {
+      if (!!cell.width) {
         columnStyle.width = cell.width;
       }
-      if(!!cell.minWidth) {
+      if (!!cell.minWidth) {
         columnStyle.minWidth = cell.minWidth;
       }
       const cellContent = this.renderCellContent(cell, "column-header", {});
@@ -68,7 +68,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
   }
   renderFooter(): React.JSX.Element | null {
     const table = this.question.renderedTable;
-    if(!table.showFooter) return null;
+    if (!table.showFooter) return null;
     const row = this.renderRow(
       "footer",
       table.footerRow,
@@ -81,7 +81,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     const cssClasses = this.question.cssClasses;
     const rows: Array<React.JSX.Element> = [];
     const renderedRows = this.question.renderedTable.renderedRows;
-    for(var i = 0; i < renderedRows.length; i++) {
+    for (var i = 0; i < renderedRows.length; i++) {
       rows.push(
         this.renderRow(renderedRows[i].id, renderedRows[i], cssClasses)
       );
@@ -97,7 +97,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
     const matrixrow: Array<React.JSX.Element> = [];
     const cells = row.cells;
 
-    for(var i = 0; i < cells.length; i++) {
+    for (var i = 0; i < cells.length; i++) {
       matrixrow.push(this.renderCell(cells[i], cssClasses, reason));
     }
     const key = "row" + keyValue;
@@ -111,7 +111,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
 
   renderCell(cell: QuestionMatrixDropdownRenderedCell, cssClasses: any, reason?: string): React.JSX.Element {
     const key = "cell" + cell.id;
-    if(cell.hasQuestion) {
+    if (cell.hasQuestion) {
       return (
         <SurveyQuestionMatrixDropdownCell
           key={key}
@@ -122,8 +122,8 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
         />
       );
     }
-    if(cell.isErrorsCell) {
-      if(cell.isErrorsCell) {
+    if (cell.isErrorsCell) {
+      if (cell.isErrorsCell) {
         return (
           <SurveyQuestionMatrixDropdownErrorsCell
             cell={cell}
@@ -137,15 +137,15 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
       }
     }
     let calcReason = reason;
-    if(!calcReason) {
+    if (!calcReason) {
       calcReason = cell.hasTitle ? "row-header" : "";
     }
     const cellContent = this.renderCellContent(cell, calcReason, cssClasses);
     let cellStyle: any = null;
-    if(!!cell.width || !!cell.minWidth) {
+    if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
-      if(!!cell.width) cellStyle.width = cell.width;
-      if(!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
+      if (!!cell.width) cellStyle.width = cell.width;
+      if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
     return (
       <td
@@ -166,30 +166,30 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
   ): React.JSX.Element | null {
     let cellContent: React.JSX.Element | null = null;
     let cellStyle: any = null;
-    if(!!cell.width || !!cell.minWidth) {
+    if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};
-      if(!!cell.width) cellStyle.width = cell.width;
-      if(!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
+      if (!!cell.width) cellStyle.width = cell.width;
+      if (!!cell.minWidth) cellStyle.minWidth = cell.minWidth;
     }
-    if(cell.hasTitle) {
+    if (cell.hasTitle) {
       reason = "row-header";
       const str = this.renderLocString(cell.locTitle);
       const require = !!cell.column ? <SurveyQuestionMatrixHeaderRequired column={cell.column} question={this.question} /> : null;
       cellContent = (<>{str}{require}</>);
     }
-    if(cell.isDragHandlerCell) {
+    if (cell.isDragHandlerCell) {
       cellContent = (<>
         <SurveyQuestionMatrixDynamicDragDropIcon item={{ data: { row: cell.row, question: this.question } }} />
       </>);
     }
-    if(cell.isActionsCell) {
+    if (cell.isActionsCell) {
       cellContent = (
         ReactElementFactory.Instance.createElement("sv-matrixdynamic-actions-cell", {
           question: this.question, cssClasses, cell, model: cell.item.getData()
         })
       );
     }
-    if(cell.hasPanel) {
+    if (cell.hasPanel) {
       cellContent = (
         <SurveyPanel
           key={cell.panel.id}
@@ -201,7 +201,7 @@ class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMa
         />
       );
     }
-    if(!cellContent) return null;
+    if (!cellContent) return null;
 
     const readyCell = (
       <>
@@ -238,7 +238,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     return { rowCounter: !prevState ? 0 : prevState.rowCounter + 1 };
   }
   private updateStateOnCallback() {
-    if(this.isRendering) return;
+    if (this.isRendering) return;
     this.setState(this.getState(this.state));
   }
   componentDidMount(): void {
@@ -291,7 +291,7 @@ class SurveyQuestionMatrixDropdownErrorsCell extends SurveyQuestionErrorCell {
     return this.props.cell;
   }
   public render(): React.JSX.Element | null {
-    if(!this.cell.isVisible) return null;
+    if (!this.cell.isVisible) return null;
     return <td
       className={this.cell.className}
       key={this.key}
@@ -326,7 +326,7 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
     return this.column;
   }
   protected renderElement(): React.JSX.Element | null {
-    if(!this.column.isRenderedRequired) return null;
+    if (!this.column.isRenderedRequired) return null;
     return (
       <>
         <span>&nbsp;</span>
@@ -348,12 +348,12 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
   protected getQuestion(): Question | any {
     var q = super.getQuestion();
-    if(!!q) return q;
+    if (!!q) return q;
     return !!this.cell ? this.cell.question : null;
   }
   protected doAfterRender(): void {
     var el = this.cellRef.current;
-    if(
+    if (
       el &&
       this.cell &&
       this.question &&
@@ -380,10 +380,10 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   }
   protected getCellStyle(): any {
     var res: any = super.getCellStyle();
-    if(!!this.cell.width || !!this.cell.minWidth) {
-      if(!res) res = {};
-      if(!!this.cell.width) res.width = this.cell.width;
-      if(!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
+    if (!!this.cell.width || !!this.cell.minWidth) {
+      if (!res) res = {};
+      if (!!this.cell.width) res.width = this.cell.width;
+      if (!!this.cell.minWidth) res.minWidth = this.cell.minWidth;
     }
 
     return res;
@@ -393,7 +393,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     return this.cell.headers;
   }
   protected renderElement(): React.JSX.Element | null {
-    if(!this.cell.isVisible) {
+    if (!this.cell.isVisible) {
       return null;
     }
     return super.renderElement();
@@ -407,11 +407,11 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     </>;
   }
   protected renderQuestion(): React.JSX.Element {
-    if(!this.question.isVisible) return <></>;
-    if(!this.cell.isChoice)
+    if (!this.question.isVisible) return <></>;
+    if (!this.cell.isChoice)
       return SurveyQuestion.renderQuestionBody(this.creator, this.question);
-    if(this.cell.isOtherChoice) return this.renderOtherComment();
-    if(this.cell.isCheckbox) return this.renderCellCheckboxButton();
+    if (this.cell.isOtherChoice) return this.renderOtherComment();
+    if (this.cell.isCheckbox) return this.renderCellCheckboxButton();
     return this.renderCellRadiogroupButton();
   }
   private renderOtherComment(): React.JSX.Element {

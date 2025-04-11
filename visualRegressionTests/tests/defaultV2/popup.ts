@@ -23,7 +23,7 @@ const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible()
 function addDropdownActions(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
     const list: Array<any> = [];
-    for(let index = startIndex; index < count; index++) {
+    for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
     return list;
@@ -43,7 +43,7 @@ function addDropdownActions(_, opt) {
 function addDropdownActionsWithSeparators(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
     const list: Array<any> = [];
-    for(let index = startIndex; index < count; index++) {
+    for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
     }
     return list;
@@ -81,7 +81,7 @@ function addDropdownActionsWithIcons(_, opt) {
 function addActionsWithModalPopupLongList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
     const list: Array<any> = [];
-    for(let index = startIndex; index < count; index++) {
+    for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
     return list;
@@ -103,7 +103,7 @@ function addActionsWithModalPopupLongList(_, opt) {
 function addActionsWithModalPopupWideList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
     const list: Array<any> = [];
-    for(let index = startIndex; index < count; index++) {
+    for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
     return list;
@@ -127,7 +127,7 @@ function addActionsWithModalPopupWideList(_, opt) {
 function addActionsWithModalPopupShortList(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
     const list: Array<any> = [];
-    for(let index = startIndex; index < count; index++) {
+    for (let index = startIndex; index < count; index++) {
       list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
     }
     return list;
@@ -148,12 +148,12 @@ function addActionsWithModalPopupShortList(_, opt) {
 
 function addDropdownActionWithSubItems(_, opt) {
   let subitems: Array<any> = [];
-  for(let index = 0; index < 7; index++) {
+  for (let index = 0; index < 7; index++) {
     subitems[index] = { id: index, title: "inner item" + index };
   }
 
   let items: Array<any> = [];
-  for(let index = 0; index < 10; index++) {
+  for (let index = 0; index < 10; index++) {
     items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
   }
   items[5].setSubItems({ items: [...subitems] });
@@ -178,12 +178,12 @@ function addDropdownActionWithSubItems(_, opt) {
 
 function addDropdownActionWithSubItemsAndSelectedItems(_, opt) {
   let subitems: Array<any> = [];
-  for(let index = 0; index < 7; index++) {
+  for (let index = 0; index < 7; index++) {
     subitems[index] = { id: index, title: "inner item" + index };
   }
 
   let items: Array<any> = [];
-  for(let index = 0; index < 10; index++) {
+  for (let index = 0; index < 10; index++) {
     items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
   }
   items[5].setSubItems({ items: [...subitems], selectedItem: subitems[3] });
@@ -258,7 +258,7 @@ frameworks.forEach(framework => {
         onGetQuestionTitleActions: (_, opt) => {
           const getItems = (count: number, startIndex = 0) => {
             const list: Array<any> = [];
-            for(let index = startIndex; index < count; index++) {
+            for (let index = startIndex; index < count; index++) {
               list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
             }
             return list;

@@ -1748,9 +1748,9 @@ QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(as
 });
 
 function updateObjsQuestions(objs: Array<any>): void {
-  for(var i = 0; i < objs.length; i++) {
+  for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
-    if(!!objs[i].context) {
+    if (!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
   }
@@ -2267,17 +2267,17 @@ QUnit.test(
     question.addItem("item2");
     page.addElement(panel);
     survey.onValidateQuestion.add(function(survey, options) {
-      if(options.name != "q1") return;
+      if (options.name != "q1") return;
       var v1 = !!options.value ? options.value["item1"] : null;
       var v2 = !!options.value ? options.value["item2"] : null;
-      if(!v1 || !v2) {
+      if (!v1 || !v2) {
         options.error = "all items should be set";
         return;
       }
-      if(v1 < 5) {
+      if (v1 < 5) {
         options.error = "item1 should be more than 4";
       }
-      if(v2 < 10) {
+      if (v2 < 10) {
         options.error = "item2 should be more than 9";
       }
     });
@@ -3278,7 +3278,7 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var changedValue = null;
     survey.onDynamicPanelItemValueChanged.add(function(sender, options) {
-      if(options.name != "q1") return;
+      if (options.name != "q1") return;
       var q2 = options.panel.getQuestionByName("q2");
       q2.value = [1, 2, 3];
       changedValue = q2.value;
@@ -4449,10 +4449,10 @@ QUnit.test("Avoid stack-overflow", function(assert) {
     ],
   });
   survey.onDynamicPanelItemValueChanged.add((sender, options) => {
-    if(options.name == "q1") {
+    if (options.name == "q1") {
       options.panel.getQuestionByName("q2").value = "2";
     }
-    if(options.name == "q2") {
+    if (options.name == "q2") {
       options.panel.getQuestionByName("q1").value = "1";
     }
   });
@@ -4728,7 +4728,7 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
     ],
   });
   survey.onValueChanged.add((sender, options) => {
-    if(options.name == "question2") {
+    if (options.name == "question2") {
       sender.getQuestionByName("question1").value = [
         { sameVariable: options.value },
       ];
@@ -5303,7 +5303,7 @@ QUnit.test("paneldynamic add new button is not visible for progress render mode,
   const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
   assert.equal(addBtn.isVisible, true, "It is visible by default");
   panel.addPanel();
-  for(var i = 0; i < 4; i ++) {
+  for (var i = 0; i < 4; i ++) {
     panel.addPanel();
     assert.equal(addBtn.isVisible, true, "It is visible by default");
   }
@@ -5464,7 +5464,7 @@ QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (asse
   assert.equal(panel.isReady, false, "panel is not ready");
   assert.equal(log, "->file1.png->file2.png");
   assert.equal(callbacks.length, 2, "Two callbacks");
-  for(let i = 0; i < callbacks.length; i ++) {
+  for (let i = 0; i < callbacks.length; i ++) {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(panel.isReady, true, "panel is ready");
@@ -6290,7 +6290,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle"
       }],
   });
   survey.onGetDynamicPanelTabTitle.add((sender, options) => {
-    if(options.visiblePanelIndex === 0) {
+    if (options.visiblePanelIndex === 0) {
       const val = options.panel.getQuestionByName("q1").value;
       options.title = "First tab" + (!!val ? " " + val.toString() : "");
     }
@@ -6757,9 +6757,9 @@ QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOn
 });
 QUnit.test("panel property in custom function", function (assert) {
   const panelCustomFunc = function (params: any) {
-    if(!this.panel) return "";
+    if (!this.panel) return "";
     const q = this.panel.getQuestionByName(params[0]);
-    if(q && !q.isEmpty()) return q.value + q.value;
+    if (q && !q.isEmpty()) return q.value + q.value;
     return "";
   };
   FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);

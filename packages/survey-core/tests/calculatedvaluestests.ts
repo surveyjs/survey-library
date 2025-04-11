@@ -337,7 +337,7 @@ QUnit.test(
       sender: any,
       arrayChanges: any
     ) => {
-      if(name != "name" && name != "expression") return;
+      if (name != "name" && name != "expression") return;
       counter++;
       propName = name;
       testOldValue = oldValue;

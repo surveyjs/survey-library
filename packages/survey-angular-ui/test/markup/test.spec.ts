@@ -51,7 +51,7 @@ describe("etalon tests", () => {
     };
   });
   markupTests.forEach(markupTest => {
-    if(!blackList.some(item => markupTest.snapshot?.search(item) > -1)) {
+    if (!blackList.some(item => markupTest.snapshot?.search(item) > -1)) {
       it(markupTest.name, (done: any) => {
         testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
       });

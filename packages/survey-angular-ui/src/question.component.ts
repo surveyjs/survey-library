@@ -15,12 +15,12 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
     return this.model;
   }
   ngAfterViewInit(): void {
-    if(!!this.rootEl?.nativeElement) {
+    if (!!this.rootEl?.nativeElement) {
       this.model.afterRender(this.rootEl?.nativeElement);
     }
   }
   ngOnDestroy() {
-    if(!!this.model) {
+    if (!!this.model) {
       this.model.destroyResizeObserver();
     }
   }

@@ -72,8 +72,8 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     super();
     this.contentComponentName = contentComponentName;
     this.contentComponentData = contentComponentData;
-    if(!!options) {
-      for(var key in options) {
+    if (!!options) {
+      for (var key in options) {
         (<any>this)[key] = (<any>options)[key];
       }
     }
@@ -82,7 +82,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     return this.getPropertyValue("isVisible", false);
   }
   public set isVisible(value: boolean) {
-    if(this.isVisible === value) {
+    if (this.isVisible === value) {
       return;
     }
     this.setPropertyValue("isVisible", value);
@@ -92,11 +92,11 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     this.isVisible = !this.isVisible;
   }
   public show(): void {
-    if(!this.isVisible)
+    if (!this.isVisible)
       this.isVisible = true;
   }
   public hide(): void {
-    if(this.isVisible)
+    if (this.isVisible)
       this.isVisible = false;
   }
   public recalculatePosition(isResetHeight: boolean): void {
@@ -109,10 +109,10 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   }
 
   public getDisplayMode(): DisplayPopupMode {
-    if(this.isModal) {
+    if (this.isModal) {
       return this.displayMode === "popup" ? "modal-popup" : "modal-overlay";
     } else {
-      if(this.displayMode === "popup") {
+      if (this.displayMode === "popup") {
         return "menu-popup";
       } else {
         let result: DisplayPopupMode;
@@ -130,7 +130,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
             break;
           }
           case "auto": {
-            if(!IsTouch) {
+            if (!IsTouch) {
               result = "menu-popup"; // desktop
             } else {
               result = "menu-popup-overlay"; //tablet
@@ -144,7 +144,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   }
 
   public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
-    if(this.displayMode !== menuType) {
+    if (this.displayMode !== menuType) {
       const isDropdown = menuType === "dropdown";
       this.setWidthByTarget = isDropdown;
       this.isFocusedContent = !isDropdown;

@@ -134,7 +134,7 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   public set contentMode(val: string) {
     this.setPropertyValue("contentMode", val);
-    if(val === "video") {
+    if (val === "video") {
       this.showLabel = true;
     }
   }
@@ -168,12 +168,12 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setPropertyValue("renderedMode", val);
   }
   protected calculateRenderedMode() {
-    if(this.contentMode !== "auto") {
+    if (this.contentMode !== "auto") {
       this.setRenderedMode(this.contentMode);
     } else {
-      if(this.isYoutubeVideo()) {
+      if (this.isYoutubeVideo()) {
         this.setRenderedMode("youtube");
-      } else if(this.isVideo()) {
+      } else if (this.isVideo()) {
         this.setRenderedMode("video");
       } else {
         this.setRenderedMode("image");
@@ -185,22 +185,22 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   private isVideo(): boolean {
     let link = this.imageLink;
-    if(!link) return false;
+    if (!link) return false;
     link = link.toLowerCase();
-    for(let i = 0; i < videoSuffics.length; i++) {
-      if(link.endsWith(videoSuffics[i])) return true;
+    for (let i = 0; i < videoSuffics.length; i++) {
+      if (link.endsWith(videoSuffics[i])) return true;
     }
     return false;
   }
 }
 
 function getCorrectImageLink(val: string, isYouTube: boolean): string {
-  if(!val || !Helpers.isUrlYoutubeVideo(val)) return isYouTube ? "" : val;
+  if (!val || !Helpers.isUrlYoutubeVideo(val)) return isYouTube ? "" : val;
   let res = val.toLocaleLowerCase();
-  if(res.indexOf(youtubeEmbed) > -1) return val;
+  if (res.indexOf(youtubeEmbed) > -1) return val;
   let id = "";
-  for(var i = val.length - 1; i >= 0; i --) {
-    if(val[i] === "=" || val[i] === "/") break;
+  for (var i = val.length - 1; i >= 0; i --) {
+    if (val[i] === "=" || val[i] === "/") break;
     id = val[i] + id;
   }
   return youtubeUrl + youtubeEmbed + "/" + id;

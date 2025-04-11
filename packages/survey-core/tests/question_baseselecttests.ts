@@ -390,7 +390,7 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
   assert.equal(question.visibleChoices[3].value, "other");
 
   survey.onShowingChoiceItem.add((sender, options) => {
-    if(options.question.name !== "q1") return;
+    if (options.question.name !== "q1") return;
     options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
   });
 
@@ -422,7 +422,7 @@ QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem"
   assert.equal(question.visibleChoices[5].value, "other");
 
   survey.onShowingChoiceItem.add((sender, options) => {
-    if(options.question.name !== "q1") return;
+    if (options.question.name !== "q1") return;
     options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
   });
 
@@ -1409,7 +1409,7 @@ QUnit.test("Check isUsingCarryForward on changing question name", function (asse
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, target: any, arrayChanges: any) => {
-    if(target === q1 && name === "name") {
+    if (target === q1 && name === "name") {
       q2.choicesFromQuestion = newValue;
     }
   };
@@ -1754,7 +1754,7 @@ QUnit.test("Change carryForwardQuestionType to let question banner in creator th
   let counterOn = 0;
   let counterOff = 0;
   q3.registerFunctionOnPropertyValueChanged("carryForwardQuestionType", () => {
-    if(q3.isUsingCarryForward) {
+    if (q3.isUsingCarryForward) {
       counterOn++;
     } else {
       counterOff ++;

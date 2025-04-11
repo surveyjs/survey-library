@@ -12,14 +12,14 @@ export class ReactQuestionFactory {
   }
   public getAllTypes(): Array<string> {
     var result = new Array<string>();
-    for(var key in this.creatorHash) {
+    for (var key in this.creatorHash) {
       result.push(key);
     }
     return result.sort();
   }
   public createQuestion(questionType: string, params: any): React.JSX.Element | null {
     var creator = this.creatorHash[questionType];
-    if(creator == null) return null;
+    if (creator == null) return null;
     return creator(params);
   }
 }

@@ -13,14 +13,14 @@ const json = {
 };
 
 const disposeSurvey = ClientFunction(framework => {
-  if(framework === "vue") {
+  if (framework === "vue") {
     window["vueApp"].$destroy();
     window["vueApp"].$el.parentNode.removeChild(window["vueApp"].$el);
   }
-  if(framework === "react") {
+  if (framework === "react") {
     window["root"].unmount();
   }
-  if(framework === "angular" || framework === "vue3") {
+  if (framework === "angular" || framework === "vue3") {
     window["setSurvey"](undefined);
   }
   window["survey"].dispose();
@@ -74,12 +74,12 @@ function addDropdownTitleAction(_, opt) {
 
 function addDropdownActionWithSubItems(_, opt) {
   let subitems: Array<any> = [];
-  for(let index = 0; index < 7; index++) {
+  for (let index = 0; index < 7; index++) {
     subitems[index] = { id: index, title: "inner item" + index };
   }
 
   let items: Array<any> = [];
-  for(let index = 0; index < 40; index++) {
+  for (let index = 0; index < 40; index++) {
     items[index] = new window["Survey"].Action({ id: index, title: "item" + index });
   }
   items[5].setSubItems({ items: [...subitems] });
@@ -263,7 +263,7 @@ frameworks.forEach(async framework => {
 
   test("hide popup after scroll", async t => {
     let choices: Array<string> = [];
-    for(let index = 0; index < 50; index++) {
+    for (let index = 0; index < 50; index++) {
       choices[index] = "item" + index;
     }
 
@@ -282,7 +282,7 @@ frameworks.forEach(async framework => {
 
   test("not hide modal popup after scroll", async t => {
     let choices: Array<string> = [];
-    for(let index = 0; index < 50; index++) {
+    for (let index = 0; index < 50; index++) {
       choices[index] = "item" + index;
     }
 
@@ -302,7 +302,7 @@ frameworks.forEach(async framework => {
   test("navigate between list items", async t => {
     const currentAddDropdownTitleAction = (_, opt) => {
       let items: Array<any> = [];
-      for(let index = 0; index < 10; index++) {
+      for (let index = 0; index < 10; index++) {
         items[index] = new window["Survey"].Action({ title: "item" + index });
       }
       const item = window["Survey"].createDropdownActionModel(
@@ -338,7 +338,7 @@ frameworks.forEach(async framework => {
   test("check popup on the same click", async t => {
     const currentAddDropdownTitleAction = (_, opt) => {
       let items: Array<any> = [];
-      for(let index = 0; index < 20; index++) {
+      for (let index = 0; index < 20; index++) {
         items[index] = new window["Survey"].Action({ title: "item" + index });
       }
       const item = window["Survey"].createDropdownActionModel(
@@ -369,10 +369,10 @@ frameworks.forEach(async framework => {
   test("check popup with filter", async t => {
     await t.resizeWindow(800, 800);
     const currentAddDropdownTitleAction = (_, opt) => {
-      if(opt.question.name !== "actions_question") return;
+      if (opt.question.name !== "actions_question") return;
 
       let items: Array<any> = [];
-      for(let index = 0; index < 20; index++) {
+      for (let index = 0; index < 20; index++) {
         items[index] = new window["Survey"].Action({ title: "item" + index });
       }
       const item = window["Survey"].createDropdownActionModel(
@@ -426,7 +426,7 @@ frameworks.forEach(async framework => {
       onGetQuestionTitleActions: (_, opt) => {
         const getItems = (count, startIndex = 0) => {
           const list: Array<any> = [];
-          for(let index = startIndex; index < count; index++) {
+          for (let index = startIndex; index < count; index++) {
             list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
           }
           return list;

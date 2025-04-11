@@ -22,10 +22,10 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
   }
 
   public onItemClick = (item: T) => {
-    if(this.isItemDisabled(item)) return;
+    if (this.isItemDisabled(item)) return;
 
     this.isExpanded = false;
-    if(this.isItemSelected(item)) {
+    if (this.isItemSelected(item)) {
       this.selectedItems.splice(this.selectedItems.indexOf(item), 1)[0];
       !!this.onSelectionChanged && (this.onSelectionChanged(<T>item, "removed"));
     } else {
@@ -53,7 +53,7 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
 
   public selectFocusedItem(): void {
     super.selectFocusedItem();
-    if(this.hideSelectedItems) {
+    if (this.hideSelectedItems) {
       this.focusNextVisibleItem();
     }
   }

@@ -20,14 +20,14 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
 
   get applyButtonText(): string | null {
     const popupModalModel = this.model as any as PopupModalViewModel;
-    if(!popupModalModel) return null;
+    if (!popupModalModel) return null;
 
     return popupModalModel.applyButtonText;
   }
 
   apply(): void {
     const popupModalModel = this.model as any as PopupModalViewModel;
-    if(!popupModalModel) return;
+    if (!popupModalModel) return;
 
     popupModalModel.apply();
   }
@@ -46,8 +46,8 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
 
   protected override afterUpdate(isSync: boolean = false): void {
     super.afterUpdate(isSync);
-    if(!isSync) {
-      if(!this.model.isPositionSet && this.model.isVisible) {
+    if (!isSync) {
+      if (!this.model.isPositionSet && this.model.isVisible) {
         this.model.updateOnShowing();
       }
     }

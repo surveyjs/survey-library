@@ -46,20 +46,20 @@ export class PopupUtils {
     let currentLeft = targetRect.left;
     let currentTop = targetRect.top;
 
-    if(positionMode === "flex") {
-      if(horizontalPosition == "center")
+    if (positionMode === "flex") {
+      if (horizontalPosition == "center")
         currentLeft = (targetRect.left + targetRect.right - width) / 2;
-      else if(horizontalPosition == "left") currentLeft = targetRect.left - width;
+      else if (horizontalPosition == "left") currentLeft = targetRect.left - width;
       else currentLeft = targetRect.right;
     }
 
-    if(verticalPosition == "middle")
+    if (verticalPosition == "middle")
       currentTop = (targetRect.top + targetRect.bottom - height) / 2;
-    else if(verticalPosition == "top") currentTop = targetRect.top - height;
+    else if (verticalPosition == "top") currentTop = targetRect.top - height;
     else currentTop = targetRect.bottom;
 
-    if(horizontalPosition != "center" && verticalPosition != "middle") {
-      if(verticalPosition == "top") {
+    if (horizontalPosition != "center" && verticalPosition != "middle") {
+      if (verticalPosition == "top") {
         currentTop = currentTop + targetRect.height;
       } else {
         currentTop = currentTop - targetRect.height;
@@ -79,16 +79,16 @@ export class PopupUtils {
   ) {
     let result;
     const maxHeight = windowHeight - PopupUtils.bottomIndent;
-    if(verticalPosition === "top") {
+    if (verticalPosition === "top") {
       result = { height: height, top: top };
     }
-    if(top < -margins.top) {
+    if (top < -margins.top) {
       result = { height: canShrink ? height + top : height, top: -margins.top };
-    } else if(height + top > windowHeight) {
+    } else if (height + top > windowHeight) {
       let newHeight = Math.min(height, maxHeight - top);
       result = { height: canShrink ? newHeight : height, top: canShrink ? top : top - (height - newHeight) };
     }
-    if(result) {
+    if (result) {
       result.height = Math.min(result.height, maxHeight);
       result.top = Math.max(result.top, -margins.top);
     }
@@ -106,17 +106,17 @@ export class PopupUtils {
     width += (margins.left + margins.right);
     let newWidth = undefined, newLeft = left;
 
-    if(horizontalPosition === "center") {
-      if(positionMode === "fixed") {
-        if(left + width > windowWidth) {
+    if (horizontalPosition === "center") {
+      if (positionMode === "fixed") {
+        if (left + width > windowWidth) {
           newWidth = windowWidth - left;
         }
         newLeft -= margins.left;
       } else {
-        if(left < 0) {
+        if (left < 0) {
           newLeft = margins.left;
           newWidth = Math.min(width, windowWidth);
-        } else if(width + left > windowWidth) {
+        } else if (width + left > windowWidth) {
           newLeft = windowWidth - width;
           newLeft = Math.max(newLeft, margins.left);
           newWidth = Math.min(width, windowWidth);
@@ -124,14 +124,14 @@ export class PopupUtils {
       }
     }
 
-    if(horizontalPosition === "left") {
-      if(left < 0) {
+    if (horizontalPosition === "left") {
+      if (left < 0) {
         newLeft = margins.left;
         newWidth = Math.min(width, windowWidth);
       }
     }
-    if(horizontalPosition === "right") {
-      if(width + left > windowWidth) {
+    if (horizontalPosition === "right") {
+      if (width + left > windowWidth) {
         newWidth = windowWidth - left;
       }
     }
@@ -146,15 +146,15 @@ export class PopupUtils {
     verticalPosition: VerticalPosition,
     windowHeight: number
   ): VerticalPosition {
-    if(verticalPosition === "middle") return verticalPosition;
+    if (verticalPosition === "middle") return verticalPosition;
 
     let deltaTop = height - (targetRect.top + (horizontalPosition !== "center" ? targetRect.height : 0));
     let deltaBottom = height + targetRect.bottom - (horizontalPosition !== "center" ? targetRect.height : 0) - windowHeight;
-    if(deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
+    if (deltaTop > 0 && deltaBottom <= 0 && verticalPosition == "top") {
       verticalPosition = "bottom";
-    } else if(deltaBottom > 0 && deltaTop <= 0 && verticalPosition == "bottom") {
+    } else if (deltaBottom > 0 && deltaTop <= 0 && verticalPosition == "bottom") {
       verticalPosition = "top";
-    } else if(deltaBottom > 0 && deltaTop > 0) {
+    } else if (deltaBottom > 0 && deltaTop > 0) {
       verticalPosition = deltaTop < deltaBottom ? "top" : "bottom";
     }
     return verticalPosition;
@@ -166,15 +166,15 @@ export class PopupUtils {
     horizontalPosition: HorizontalPosition,
     windowWidth: number
   ): HorizontalPosition {
-    if(horizontalPosition === "center") return horizontalPosition;
+    if (horizontalPosition === "center") return horizontalPosition;
 
     let deltaLeft = width - targetRect.left;
     let deltaRight = width + targetRect.right - windowWidth;
-    if(deltaLeft > 0 && deltaRight <= 0 && horizontalPosition == "left") {
+    if (deltaLeft > 0 && deltaRight <= 0 && horizontalPosition == "left") {
       horizontalPosition = "right";
-    } else if(deltaRight > 0 && deltaLeft <= 0 && horizontalPosition == "right") {
+    } else if (deltaRight > 0 && deltaLeft <= 0 && horizontalPosition == "right") {
       horizontalPosition = "left";
-    } else if(deltaRight > 0 && deltaLeft > 0) {
+    } else if (deltaRight > 0 && deltaLeft > 0) {
       horizontalPosition = deltaLeft < deltaRight ? "left" : "right";
     }
     return horizontalPosition;
@@ -185,9 +185,9 @@ export class PopupUtils {
     horizontalPosition: HorizontalPosition
   ) {
     var popupDirection: string;
-    if(horizontalPosition == "center" && verticalPosition != "middle") {
+    if (horizontalPosition == "center" && verticalPosition != "middle") {
       popupDirection = verticalPosition;
-    } else if(horizontalPosition != "center") {
+    } else if (horizontalPosition != "center") {
       popupDirection = horizontalPosition;
     }
     return popupDirection;
@@ -204,19 +204,19 @@ export class PopupUtils {
     marginRight: number = 0
   ) {
     var targetPos: INumberPosition = {};
-    if(horizontalPosition != "center") {
+    if (horizontalPosition != "center") {
       targetPos.top = targetRect.top + targetRect.height / 2;
       targetPos.left = targetRect[horizontalPosition];
-    } else if(verticalPosition != "middle") {
+    } else if (verticalPosition != "middle") {
       targetPos.top = targetRect[verticalPosition];
       targetPos.left = targetRect.left + targetRect.width / 2;
     }
     targetPos.left = Math.round(targetPos.left - left);
     targetPos.top = Math.round(targetPos.top - top);
-    if(horizontalPosition == "left") {
+    if (horizontalPosition == "left") {
       targetPos.left -= marginLeft + marginRight;
     }
-    if(horizontalPosition === "center") {
+    if (horizontalPosition === "center") {
       targetPos.left -= marginLeft;
     }
     return targetPos;

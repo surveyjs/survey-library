@@ -12,13 +12,13 @@ interface INumericalComposition {
 export function splitString(str: string, reverse = true, n = 3): Array<string> {
   let arr = [];
 
-  if(reverse) {
-    for(let i = str.length - n; i > -n; i -= n) {
+  if (reverse) {
+    for (let i = str.length - n; i > -n; i -= n) {
       arr.push(str.substring(i, i + n));
     }
     arr = arr.reverse();
   } else {
-    for(let i = 0; i < str.length; i += n) {
+    for (let i = 0; i < str.length; i += n) {
       arr.push(str.substring(i, i + n));
     }
   }
@@ -99,13 +99,13 @@ export class InputMaskNumeric extends InputMaskBase {
     // let result = 0;
     const isDeleteKeyOperation = !args.insertedChars && args.inputDirection === "forward";
 
-    for(let index = 0; index < maskedValue.length; index++) {
+    for (let index = 0; index < maskedValue.length; index++) {
       const currentChar = maskedValue[index];
-      if(currentChar !== this.thousandsSeparator) {
+      if (currentChar !== this.thousandsSeparator) {
         validCharIndex++;
       }
-      if(validCharIndex === (leftPartMaskedLength + (isDeleteKeyOperation ? 1 : 0))) {
-        if(isDeleteKeyOperation) {
+      if (validCharIndex === (leftPartMaskedLength + (isDeleteKeyOperation ? 1 : 0))) {
+        if (isDeleteKeyOperation) {
           result = index;
         } else {
           result = index + 1;
@@ -126,13 +126,13 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     let displayIntegralPart = parsedNumber.integralPart;
-    if(insertThousandsSeparator && !!displayIntegralPart) {
+    if (insertThousandsSeparator && !!displayIntegralPart) {
       displayIntegralPart = splitString(displayIntegralPart).join(this.thousandsSeparator);
     }
     let displayFractionalPart = parsedNumber.fractionalPart;
     const minusSign = parsedNumber.isNegative ? "-" : "";
-    if(displayFractionalPart === "") {
-      if(matchWholeMask) {
+    if (displayFractionalPart === "") {
+      if (matchWholeMask) {
         return (!displayIntegralPart || displayIntegralPart === "0") ? displayIntegralPart : minusSign + displayIntegralPart;
       } else {
         const displayDecimalSeparator = parsedNumber.hasDecimalSeparator && !matchWholeMask ? this.decimalSeparator : "";
@@ -149,7 +149,7 @@ export class InputMaskNumeric extends InputMaskBase {
   public convertNumber(parsedNumber: INumericalComposition): number {
     let value;
     const minusSign = parsedNumber.isNegative ? "-" : "";
-    if(!!parsedNumber.fractionalPart) {
+    if (!!parsedNumber.fractionalPart) {
       value = parseFloat(minusSign + (parsedNumber.integralPart || "0") + "." + parsedNumber.fractionalPart.substring(0, this.precision));
     } else {
       value = parseInt(minusSign + parsedNumber.integralPart || "0");
@@ -161,41 +161,41 @@ export class InputMaskNumeric extends InputMaskBase {
     const min = this.min || Number.MIN_SAFE_INTEGER;
     const max = this.max || Number.MAX_SAFE_INTEGER;
 
-    if(this.numericalCompositionIsEmpty(number)) return true;
+    if (this.numericalCompositionIsEmpty(number)) return true;
 
-    if(this.min !== undefined || this.max !== undefined) {
+    if (this.min !== undefined || this.max !== undefined) {
       let value = this.convertNumber(number);
-      if(Number.isNaN(value)) {
+      if (Number.isNaN(value)) {
         return true;
       }
-      if(value >= min && value <= max) return true;
-      if(!matchWholeMask) {
-        if(!number.hasDecimalSeparator && value != 0) {
+      if (value >= min && value <= max) return true;
+      if (!matchWholeMask) {
+        if (!number.hasDecimalSeparator && value != 0) {
           let test_high = value;
           let test_low = value;
-          if(value > 0) {
-            if(value + 1 > min && value <= max) return true;
+          if (value > 0) {
+            if (value + 1 > min && value <= max) return true;
             while(true) {
               test_high = test_high * 10 + 9;
               test_low = test_low * 10;
-              if(test_low > max) {
+              if (test_low > max) {
                 break;
               }
-              if(test_high > min) {
+              if (test_high > min) {
                 return true;
               }
             }
             return false;
           }
-          if(value < 0) {
-            if(value >= min && value - 1 < max) return true;
+          if (value < 0) {
+            if (value >= min && value - 1 < max) return true;
             while(true) {
               test_high = test_high * 10;
               test_low = test_low * 10 - 9;
-              if(test_high < min) {
+              if (test_high < min) {
                 break;
               }
-              if(test_low < max) {
+              if (test_low < max) {
                 return true;
               }
             }
@@ -203,8 +203,8 @@ export class InputMaskNumeric extends InputMaskBase {
           }
         } else {
           const delta = 0.1 ** (number.fractionalPart || "").length;
-          if(value >= 0) return value + delta > min && value <= max;
-          if(value < 0) return value >= min && value - delta < max;
+          if (value >= 0) return value + delta > min && value <= max;
+          if (value < 0) return value >= min && value - delta < max;
         }
         return value >= 0 && value <= max || value < 0 && value >= min;
       }
@@ -218,17 +218,17 @@ export class InputMaskNumeric extends InputMaskBase {
     const input = (src === undefined || src === null) ? "" : src.toString();
     let minusCharCount = 0;
 
-    for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
+    for (let inputIndex = 0; inputIndex < input.length; inputIndex++) {
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
-          if(this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
+          if (this.allowNegativeValues && (this.min === undefined || this.min < 0)) {
             minusCharCount++;
           }
           break;
         }
         case this.decimalSeparator: {
-          if(this.precision > 0) {
+          if (this.precision > 0) {
             result.hasDecimalSeparator = true;
           }
           break;
@@ -237,8 +237,8 @@ export class InputMaskNumeric extends InputMaskBase {
           break;
         }
         default: {
-          if(currentChar.match(numberDefinition)) {
-            if(result.hasDecimalSeparator) {
+          if (currentChar.match(numberDefinition)) {
+            if (result.hasDecimalSeparator) {
               result.fractionalPart += currentChar;
             } else {
               result.integralPart += currentChar;
@@ -250,7 +250,7 @@ export class InputMaskNumeric extends InputMaskBase {
 
     result.isNegative = minusCharCount % 2 !== 0;
 
-    if(result.integralPart.length > 1 && result.integralPart[0] === "0") {
+    if (result.integralPart.length > 1 && result.integralPart[0] === "0") {
       result.integralPart = result.integralPart.slice(1);
     }
 
@@ -259,7 +259,7 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public getNumberMaskedValue(src: string, matchWholeMask: boolean = false): string {
     const parsedNumber = this.parseNumber(src);
-    if(!this.validateNumber(parsedNumber, matchWholeMask)) {
+    if (!this.validateNumber(parsedNumber, matchWholeMask)) {
       return null;
     }
     const displayText = this.displayNumber(parsedNumber, true, matchWholeMask);
@@ -268,7 +268,7 @@ export class InputMaskNumeric extends InputMaskBase {
 
   private getNumberUnmaskedValue(str: string): number | undefined {
     const parsedNumber = this.parseNumber(str);
-    if(this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
+    if (this.numericalCompositionIsEmpty(parsedNumber)) return undefined;
     return this.convertNumber(parsedNumber);
   }
 
@@ -290,7 +290,7 @@ export class InputMaskNumeric extends InputMaskBase {
     const src = leftPart + rightPart;
     const parsedNumber = this.parseNumber(src);
 
-    if(!this.validateNumber(parsedNumber, false)) {
+    if (!this.validateNumber(parsedNumber, false)) {
       return result;
     }
 

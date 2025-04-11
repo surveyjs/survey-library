@@ -41,7 +41,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
 
   protected getItems(cssClasses: any): Array<any> {
     var items: Array<React.JSX.Element> = [];
-    for(var i = 0; i < this.question.visibleChoices.length; i++) {
+    for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
       var key = "item" + i;
       items.push(this.renderItem(key, item as ImageItemValue, cssClasses));
@@ -59,7 +59,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     const renderedItem = <SurveyQuestionImagePickerItem key={key} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
     const survey = this.question.survey as SurveyModel;
     let wrappedItem: React.JSX.Element | null = null;
-    if(!!survey) {
+    if (!!survey) {
       wrappedItem = ReactSurveyElementsWrapper.wrapItemValue(survey, renderedItem, this.question, item);
     }
     return wrappedItem ?? renderedItem;
@@ -103,9 +103,9 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
   }
 
   handleOnChange(event: any) {
-    if(this.question.isReadOnlyAttr) return;
-    if(this.question.multiSelect) {
-      if(event.target.checked) {
+    if (this.question.isReadOnlyAttr) return;
+    if (this.question.multiSelect) {
+      if (event.target.checked) {
         this.question.value = this.question.value.concat(event.target.value);
       } else {
         var currValue = this.question.value;
@@ -125,7 +125,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     var isChecked = question.isItemSelected(item);
     var itemClass = question.getItemClass(item);
     var text: React.JSX.Element | null = null;
-    if(question.showLabel) {
+    if (question.showLabel) {
       text = (
         <span
           className={question.cssClasses.itemText}
@@ -138,7 +138,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
     var style: any = { objectFit: this.question.imageFit };
 
     var control: React.JSX.Element | null = null;
-    if(item.locImageLink.renderedHtml && this.question.contentMode === "image") {
+    if (item.locImageLink.renderedHtml && this.question.contentMode === "image") {
       control = (
         <img
           className={cssClasses.image}
@@ -152,7 +152,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         />
       );
     }
-    if(item.locImageLink.renderedHtml && this.question.contentMode === "video") {
+    if (item.locImageLink.renderedHtml && this.question.contentMode === "video") {
       control = (
         <video controls
           className={cssClasses.image}
@@ -165,7 +165,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
         ></video>
       );
     }
-    if(!item.locImageLink.renderedHtml || item.contentNotLoaded) {
+    if (!item.locImageLink.renderedHtml || item.contentNotLoaded) {
       let style: any = {
         width: this.question.renderedImageWidth,
         height: this.question.renderedImageHeight,

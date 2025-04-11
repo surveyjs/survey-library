@@ -118,7 +118,7 @@ export class QuestionRatingModel extends Question {
     if (this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
       this.updateRateMin();
     }
-    if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
+    if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined)this.autoGenerate = !this.jsonObj.rateValues.length;
     this.updateRateCount();
     this.setIconsToRateValues();
   }
@@ -146,15 +146,14 @@ export class QuestionRatingModel extends Question {
     let newCount = 0;
     if (this.useRateValues()) {
       newCount = this.rateValues.length;
-    }
-    else {
+    } else {
       newCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
     }
     if (newCount > 10 && this.rateDisplayMode == "smileys") {
       newCount = 10;
     }
     this.rateCount = newCount;
-    if (this.rateValues.length > newCount) this.rateValues.splice(newCount, this.rateValues.length - newCount);
+    if (this.rateValues.length > newCount)this.rateValues.splice(newCount, this.rateValues.length - newCount);
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],
@@ -332,7 +331,7 @@ export class QuestionRatingModel extends Question {
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    if(!this.useRateValues) return super.getDisplayValueCore(keysAsText, value);
+    if (!this.useRateValues) return super.getDisplayValueCore(keysAsText, value);
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
   }
@@ -341,7 +340,7 @@ export class QuestionRatingModel extends Question {
   }
   protected supportEmptyValidation(): boolean { return this.renderAs === "dropdown"; }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
-    if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
+    if (!this.useRateValues() && newValue !== undefined)this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
@@ -349,9 +348,9 @@ export class QuestionRatingModel extends Question {
     this.runRateItesmCondition(values, properties);
   }
   protected runRateItesmCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    if(!this.useRateValues()) return;
+    if (!this.useRateValues()) return;
     let isChanged = false;
-    if(this.survey?.areInvisibleElementsShowing) {
+    if (this.survey?.areInvisibleElementsShowing) {
       this.rateValues.forEach(item => {
         isChanged = isChanged || !item.isVisible;
         item.setIsVisible(item, true);
@@ -359,21 +358,21 @@ export class QuestionRatingModel extends Question {
     } else {
       isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, values, properties, true);
     }
-    if(isChanged) {
+    if (isChanged) {
       this.resetRenderedItems();
-      if(!this.isEmpty() && !this.isReadOnly) {
+      if (!this.isEmpty() && !this.isReadOnly) {
         const item = ItemValue.getItemByValue(this.rateValues, this.value);
-        if(item && !item.isVisible) {
+        if (item && !item.isVisible) {
           this.clearValue();
         }
       }
     }
   }
   private getRateValuesCore(): Array<ItemValue> {
-    if(!this.useRateValues()) return this.createRateValues();
+    if (!this.useRateValues()) return this.createRateValues();
     const items = new Array<ItemValue>();
     this.rateValues.forEach(item => {
-      if(item.isVisible) {
+      if (item.isVisible) {
         items.push(item);
       }
     });
@@ -406,10 +405,10 @@ export class QuestionRatingModel extends Question {
       const rateValues = this.getRateValuesCore();
       this.rateMax = rateValues[rateValues.length - 1].value;
     }
-    if(Array.isArray(this.getPropertyValueWithoutDefault("renderedRateItems"))) {
+    if (Array.isArray(this.getPropertyValueWithoutDefault("renderedRateItems"))) {
       this.setArrayPropertyDirectly("renderedRateItems", this.calculateRenderedRateItems());
     }
-    if(Array.isArray(this.getPropertyValueWithoutDefault("visibleChoices"))) {
+    if (Array.isArray(this.getPropertyValueWithoutDefault("visibleChoices"))) {
       this.setArrayPropertyDirectly("visibleChoices", this.calculateVisibleChoices);
     }
   }
@@ -424,7 +423,7 @@ export class QuestionRatingModel extends Question {
     var res = [];
     var value = this.rateMin;
     var step = this.rateStep;
-    while (value <= this.rateMax &&
+    while(value <= this.rateMax &&
       res.length < settings.ratingMaximumRateValueCount) {
 
       let item = new ItemValue(value);
@@ -455,7 +454,7 @@ export class QuestionRatingModel extends Question {
     if (!value) return value;
     if (Math.round(value) == value) return value;
     var fr = 0;
-    while (Math.round(step) != step) {
+    while(Math.round(step) != step) {
       step *= 10;
       fr++;
     }
@@ -481,7 +480,7 @@ export class QuestionRatingModel extends Question {
   }
   protected getPlainDataCalculatedValue(propName: string): any {
     const res = super.getPlainDataCalculatedValue(propName);
-    if(res !== undefined || !this.useRateValues || this.isEmpty()) return res;
+    if (res !== undefined || !this.useRateValues || this.isEmpty()) return res;
     const item = <any>ItemValue.getItemByValue(this.visibleRateValues, this.value);
     return item ? item[propName] : undefined;
   }
@@ -559,19 +558,19 @@ export class QuestionRatingModel extends Question {
   */
   @property() displayMode: "dropdown" | "buttons" | "auto";
   private updateRenderAsBasedOnDisplayMode(isOnChange?: boolean): void {
-    if(this.isDesignMode) {
-      if(isOnChange || this.renderAs === "dropdown") {
+    if (this.isDesignMode) {
+      if (isOnChange || this.renderAs === "dropdown") {
         this.renderAs = "default";
       }
     } else {
-      if(isOnChange || this.displayMode !== "auto") {
-        this.renderAs = this.displayMode === "dropdown" ? "dropdown": "default";
+      if (isOnChange || this.displayMode !== "auto") {
+        this.renderAs = this.displayMode === "dropdown" ? "dropdown" : "default";
       }
     }
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    if(this.renderAs === "dropdown" && this.displayMode === "auto") {
+    if (this.renderAs === "dropdown" && this.displayMode === "auto") {
       this.displayMode = this.renderAs;
     } else {
       this.updateRenderAsBasedOnDisplayMode();
@@ -938,7 +937,7 @@ export class QuestionRatingModel extends Question {
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    if(this.dropdownListModelValue) {
+    if (this.dropdownListModelValue) {
       this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
@@ -955,7 +954,7 @@ export class QuestionRatingModel extends Question {
   }
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
       this.dropdownListModelValue = undefined;
     }
@@ -1090,8 +1089,8 @@ Serializer.addClass(
     },
     { name: "itemComponent", visible: false,
       defaultFunc: (obj: any): any => {
-        if(!obj) return "sv-rating-item";
-        if(!!obj.getOriginalObj) obj = obj.getOriginalObj();
+        if (!obj) return "sv-rating-item";
+        if (!!obj.getOriginalObj) obj = obj.getOriginalObj();
         return obj.getDefaultItemComponent();
       } }
   ],

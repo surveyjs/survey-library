@@ -14,7 +14,7 @@ export class ListComponent extends BaseAngular implements AfterViewInit {
 
   trackItemBy = (_: any, item: Action) => {
     return item.id;
-  }
+  };
   getModel() {
     return this.model;
   }

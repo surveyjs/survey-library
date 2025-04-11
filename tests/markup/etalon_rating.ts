@@ -1,4 +1,4 @@
-import { DropdownListModel, settings } from "survey-core";
+import { DropdownListModel } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(

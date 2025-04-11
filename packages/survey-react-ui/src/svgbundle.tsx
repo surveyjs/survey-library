@@ -13,7 +13,7 @@ export class SvgBundleComponent extends React.Component {
     if (!!this.containerRef.current) {
       this.containerRef.current.innerHTML = SvgRegistry.iconsRenderedHtml();
     }
-  }
+  };
   componentDidMount(): void {
     this.onIconsChanged();
     SvgRegistry.onIconsChanged.add(this.onIconsChanged);

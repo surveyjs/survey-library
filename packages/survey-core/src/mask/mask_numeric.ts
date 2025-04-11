@@ -12,7 +12,7 @@ interface INumericalComposition {
 export function splitString(str: string, reverse = true, n = 3): Array<string> {
   let arr = [];
 
-  if(reverse) {
+  if (reverse) {
     for (let i = str.length - n; i > -n; i -= n) {
       arr.push(str.substring(i, i + n));
     }
@@ -105,7 +105,7 @@ export class InputMaskNumeric extends InputMaskBase {
         validCharIndex++;
       }
       if (validCharIndex === (leftPartMaskedLength + (isDeleteKeyOperation ? 1 : 0))) {
-        if(isDeleteKeyOperation) {
+        if (isDeleteKeyOperation) {
           result = index;
         } else {
           result = index + 1;
@@ -126,13 +126,13 @@ export class InputMaskNumeric extends InputMaskBase {
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     let displayIntegralPart = parsedNumber.integralPart;
-    if(insertThousandsSeparator && !!displayIntegralPart) {
+    if (insertThousandsSeparator && !!displayIntegralPart) {
       displayIntegralPart = splitString(displayIntegralPart).join(this.thousandsSeparator);
     }
     let displayFractionalPart = parsedNumber.fractionalPart;
     const minusSign = parsedNumber.isNegative ? "-" : "";
-    if(displayFractionalPart === "") {
-      if(matchWholeMask) {
+    if (displayFractionalPart === "") {
+      if (matchWholeMask) {
         return (!displayIntegralPart || displayIntegralPart === "0") ? displayIntegralPart : minusSign + displayIntegralPart;
       } else {
         const displayDecimalSeparator = parsedNumber.hasDecimalSeparator && !matchWholeMask ? this.decimalSeparator : "";
@@ -149,7 +149,7 @@ export class InputMaskNumeric extends InputMaskBase {
   public convertNumber(parsedNumber: INumericalComposition): number {
     let value;
     const minusSign = parsedNumber.isNegative ? "-" : "";
-    if(!!parsedNumber.fractionalPart) {
+    if (!!parsedNumber.fractionalPart) {
       value = parseFloat(minusSign + (parsedNumber.integralPart || "0") + "." + parsedNumber.fractionalPart.substring(0, this.precision));
     } else {
       value = parseInt(minusSign + parsedNumber.integralPart || "0");
@@ -165,7 +165,7 @@ export class InputMaskNumeric extends InputMaskBase {
 
     if (this.min !== undefined || this.max !== undefined) {
       let value = this.convertNumber(number);
-      if(Number.isNaN(value)) {
+      if (Number.isNaN(value)) {
         return true;
       }
       if (value >= min && value <= max) return true;
@@ -175,7 +175,7 @@ export class InputMaskNumeric extends InputMaskBase {
           let test_low = value;
           if (value > 0) {
             if (value + 1 > min && value <= max) return true;
-            while (true) {
+            while(true) {
               test_high = test_high * 10 + 9;
               test_low = test_low * 10;
               if (test_low > max) {
@@ -189,7 +189,7 @@ export class InputMaskNumeric extends InputMaskBase {
           }
           if (value < 0) {
             if (value >= min && value - 1 < max) return true;
-            while (true) {
+            while(true) {
               test_high = test_high * 10;
               test_low = test_low * 10 - 9;
               if (test_high < min) {
@@ -218,7 +218,7 @@ export class InputMaskNumeric extends InputMaskBase {
     const input = (src === undefined || src === null) ? "" : src.toString();
     let minusCharCount = 0;
 
-    for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
+    for (let inputIndex = 0; inputIndex < input.length; inputIndex++) {
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
@@ -228,7 +228,7 @@ export class InputMaskNumeric extends InputMaskBase {
           break;
         }
         case this.decimalSeparator: {
-          if(this.precision > 0) {
+          if (this.precision > 0) {
             result.hasDecimalSeparator = true;
           }
           break;
@@ -237,8 +237,8 @@ export class InputMaskNumeric extends InputMaskBase {
           break;
         }
         default: {
-          if(currentChar.match(numberDefinition)) {
-            if(result.hasDecimalSeparator) {
+          if (currentChar.match(numberDefinition)) {
+            if (result.hasDecimalSeparator) {
               result.fractionalPart += currentChar;
             } else {
               result.integralPart += currentChar;
@@ -250,7 +250,7 @@ export class InputMaskNumeric extends InputMaskBase {
 
     result.isNegative = minusCharCount % 2 !== 0;
 
-    if(result.integralPart.length > 1 && result.integralPart[0] === "0") {
+    if (result.integralPart.length > 1 && result.integralPart[0] === "0") {
       result.integralPart = result.integralPart.slice(1);
     }
 

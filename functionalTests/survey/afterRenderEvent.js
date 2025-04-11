@@ -85,8 +85,7 @@ frameworks.forEach((framework) => {
         const App = () => {
           let [survey, setSurvey] = window["React"].useState(undefined);
           window.setSurvey = setSurvey;
-          if(!!survey) {
-            // eslint-disable-next-line react/react-in-jsx-scope, no-undef, react/jsx-no-undef
+          if (!!survey) {
             return <SurveyReact.Survey model={survey}></SurveyReact.Survey>;
           } else {
             return null;
@@ -94,7 +93,6 @@ frameworks.forEach((framework) => {
         };
 
         window["ReactDOMClient"].createRoot(document.getElementById("surveyElement")).render(
-          // eslint-disable-next-line react/react-in-jsx-scope
           <App></App>
         );
       }

@@ -103,7 +103,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       }
     }
   })
-  hideSelectedItems: boolean;
+    hideSelectedItems: boolean;
   /**
    * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
    * @see choicesLazyLoadPageSize
@@ -201,12 +201,12 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   protected hasUnknownValue(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
-    if(this.choicesLazyLoadEnabled) return false;
+    if (this.choicesLazyLoadEnabled) return false;
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     const val = this.otherValue?.trim();
-    if(!val) return false;
+    if (!val) return false;
     return super.hasUnknownValue(val, true, false);
   }
   protected onVisibleChoicesChanged(): void {
@@ -226,10 +226,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
     this.updateItemDisplayNameMap();
     const val = this.renderedValue as Array<any>;
-    if(!!itemValues.length && itemValues.length === val.length) return itemValues;
+    if (!!itemValues.length && itemValues.length === val.length) return itemValues;
 
     const selectedItemValues = this.selectedItemValues;
-    if(!itemValues.length && !!selectedItemValues && !!selectedItemValues.length) {
+    if (!itemValues.length && !!selectedItemValues && !!selectedItemValues.length) {
       this.defaultSelectedItemValues = [].concat(selectedItemValues);
       return selectedItemValues;
     }
@@ -237,7 +237,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     const itemValueValues = itemValues.map(iV => iV.value);
     val.filter(item => { return itemValueValues.indexOf(item) === -1; }).forEach(item => {
       const newItem = this.getItemIfChoicesNotContainThisValue(item, this.itemDisplayNameMap[item]);
-      if(newItem) {
+      if (newItem) {
         itemValues.push(newItem);
       }
     });
@@ -255,7 +255,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return this.allowCustomChoices;
   }
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled || this.allowCustomChoices? "_0" : "");
+    return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");
   }
   public getInputId(): string {
     return this.inputId + "_0";
@@ -281,7 +281,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
       this.dropdownListModelValue = undefined;
     }

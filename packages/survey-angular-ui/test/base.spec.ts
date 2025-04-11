@@ -7,7 +7,7 @@ import { Base, QuestionTextModel } from "survey-core";
 @Component({
   selector: "sv-ng-test-base",
   template: ""
-  })
+})
 class TestBase extends BaseAngular<QuestionTextModel> {
   @Input() model!: QuestionTextModel;
   public shouldReattachChangeDetector: boolean = true;
@@ -70,21 +70,21 @@ it("check model is subsribed to next component after destroy current component",
   const fixture4 = TestBed.createComponent(TestBase);
   const q = new QuestionTextModel("q1");
   fixture1.componentInstance.model = q;
-  fixture1.detectChanges(); 
+  fixture1.detectChanges();
   fixture2.componentInstance.model = q;
   fixture2.detectChanges();
   fixture3.componentInstance.model = q;
   fixture3.detectChanges();
   fixture4.componentInstance.model = q;
   fixture4.detectChanges();
-  
+
   expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(3);
-  
+
   fixture1.destroy();
   expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
@@ -92,7 +92,7 @@ it("check model is subsribed to next component after destroy current component",
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(2);
-  
+
   fixture2.destroy();
   expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
@@ -116,7 +116,7 @@ it("check model is subsribed to next component after destroy current component",
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(0);
-})
+});
 // it("Check shouldReattachChangeDetector flag", (done: any) => {
 //   const fixture = TestBed.createComponent(TestBase);
 //   const component = fixture.componentInstance;
@@ -157,7 +157,7 @@ class RecurciveModel extends Base {
 @Component({
   selector: "sv-ng-test-base",
   template: "<span>{{model.recursiveProperty}}</span>"
-  })
+})
 class TestWithRecursiveProperty extends BaseAngular<RecurciveModel> {
   @Input() model!: RecurciveModel;
   public log: string = "";

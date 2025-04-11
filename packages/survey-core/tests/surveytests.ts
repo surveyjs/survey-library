@@ -3617,7 +3617,7 @@ QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();
   survey.showPageNumbers = true;
   survey.onGetPageNumber.add((sender, options) => {
-    if(options.page.isStartPage) {
+    if (options.page.isStartPage) {
       options.number = "";
     } else {
       options.number = (survey.pages.indexOf(options.page) + 1) + "-";
@@ -3860,7 +3860,7 @@ QUnit.test("merge values", function (assert) {
   survey.doMergeValues({ val: 1 }, a);
   assert.equal(a, "test", "Do nothing if dest is string");
 });
-function percentageToNum(width: string): Number {
+function percentageToNum(width: string): number {
   width = width.replace("%", "");
   return parseFloat(width);
 }
@@ -18028,8 +18028,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     assert.deepEqual(getContainerContent("left"), [], "default left");
     assert.deepEqual(getContainerContent("right"), [], "default right");
 
-  }
-  finally {
+  } finally {
     settings.legacyProgressBarView = false;
   }
 });
@@ -20172,8 +20171,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
     assert.deepEqual(getContainerContent("left"), [], "progress top left");
     assert.deepEqual(getContainerContent("right"), [], "progress top right");
-  }
-  finally {
+  } finally {
     settings.legacyProgressBarView = false;
   }
 });

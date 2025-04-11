@@ -490,7 +490,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  if(framework == "vue") return;
+  if (framework == "vue") return;
   fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Focus remove or add button removing", async (t) => {

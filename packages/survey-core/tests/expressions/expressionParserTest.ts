@@ -1719,8 +1719,8 @@ QUnit.test("ExpressionRunner: substring", function(assert) {
 });
 QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
   const newParseNumber = (stringValue: any, numericValue: number): number => {
-    if(typeof stringValue !== "string" || !stringValue) return numericValue;
-    if(stringValue.indexOf(",") < 0) return numericValue;
+    if (typeof stringValue !== "string" || !stringValue) return numericValue;
+    if (stringValue.indexOf(",") < 0) return numericValue;
     while(stringValue.indexOf(",") > -1) {
       stringValue = stringValue.replace(",", "");
     }

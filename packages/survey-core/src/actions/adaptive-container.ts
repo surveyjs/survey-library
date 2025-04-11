@@ -95,7 +95,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     let { availableSpace, gap } = options;
     availableSpace -= this.dotsItem.minDimension + gap;
     let currentItemsSize = 0;
-    if(this.visibleActions[0].disableHide) {
+    if (this.visibleActions[0].disableHide) {
       availableSpace += gap;
     } else {
       currentItemsSize -= gap;
@@ -159,7 +159,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public setActionsMode(mode: actionModeType): void {
     this.actions.forEach((action) => {
-      if(mode == "small" && action.disableShrink) {
+      if (mode == "small" && action.disableShrink) {
         action.mode = "large";
       } else {
         action.mode = mode;

@@ -18,7 +18,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     super(name);
   }
   public get textAreaModel(): TextAreaModel {
-    if(!this.textAreaModelValue) {
+    if (!this.textAreaModelValue) {
       this.textAreaModelValue = new TextAreaModel(this.getTextAreaOptions());
     }
     return this.textAreaModelValue;

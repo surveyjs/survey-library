@@ -275,7 +275,7 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   assert.equal(secondRow.isReadOnly, true, "Second visible row test isReadOnly, #2");
   assert.equal(secondRow.rowClasses.indexOf("disable_val") === -1, false, "Second row css #2");
 
-  if(prevCssValue) {
+  if (prevCssValue) {
     survey.css.matrix.rowReadOnly = prevCssValue;
   }
 });
@@ -637,7 +637,7 @@ QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function
   const cellLocStr = matrix.cells.getCellDisplayLocText(0, 0);
   assert.equal(cellLocStr.textOrHtml, "text!!");
   survey.onTextMarkdown.add((sender, options) => {
-    if(options.text === "text!!") {
+    if (options.text === "text!!") {
       options.html = "!!text";
     }
   });

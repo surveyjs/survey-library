@@ -424,7 +424,8 @@ registerMarkupTests(
         ]
       },
       before: () => {
-        Question["questionCounter"] = 100; },
+        Question["questionCounter"] = 100;
+      },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;

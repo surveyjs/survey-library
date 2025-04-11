@@ -109,7 +109,7 @@ export class QuestionTextBase extends Question {
     this.updateRemainingCharacterCounter(newValue);
   }
   protected convertToCorrectValue(val: any): any {
-    if(Array.isArray(val)) return val.join(this.getValueSeparator());
+    if (Array.isArray(val)) return val.join(this.getValueSeparator());
     return val;
   }
   protected getValueSeparator(): string { return ", "; }

@@ -17,19 +17,19 @@ export class ButtonGroupItemValue extends ItemValue {
     Item icon property
   */
   @property()
-  iconName: string;
+    iconName: string;
   /*
     By default icon size is 24.
     Use this property to change item icon size.
   */
   @property()
-  iconSize: number;
+    iconSize: number;
   /**
    * By default item caption is visible.
    * Set it 'false' to hide item caption.
    */
   @property()
-  showCaption: boolean;
+    showCaption: boolean;
   public getType(): string {
     return !!this.typeName ? this.typeName : "buttongroupitemvalue";
   }

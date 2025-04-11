@@ -42,7 +42,7 @@ export class TextAreaModel {
       this.element.value = this.getTextValue();
       this.updateElement();
     }
-  }
+  };
 
   constructor(private options: ITextArea) {
     this.question.registerFunctionOnPropertiesValueChanged(this.options.propertyNames, this.onPropertyChangedCallback, "__textarea");

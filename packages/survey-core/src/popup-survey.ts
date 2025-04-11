@@ -30,7 +30,7 @@ export class PopupSurveyModel extends Base {
       this.onSurveyComplete();
     });
     this.registerPropertyChangedHandlers(["isShowing"], () => {
-      if (!!this.showingChangedCallback) this.showingChangedCallback();
+      if (!!this.showingChangedCallback)this.showingChangedCallback();
     });
     this.registerPropertyChangedHandlers(["isExpanded"], () => {
       this.onExpandedChanged();

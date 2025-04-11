@@ -2,7 +2,7 @@ import { PageModel } from "../src/page";
 
 export default QUnit.module("ElementsLayout");
 
-function percentageToNum(width: string): Number {
+function percentageToNum(width: string): number {
   width = width.replace("%", "");
   return parseFloat(width);
 }

@@ -1,0 +1,6 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "sibiraj-s.vscode-scss-formatter",
+  ]
+}

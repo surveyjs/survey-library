@@ -6,7 +6,7 @@ import { Base, Notifier } from "survey-core";
   selector: "sv-notifier",
   templateUrl: "./notifier.component.html",
   styles: [":host { display: none; }"]
-  })
+})
 export class NotifierComponent extends BaseAngular<Notifier> {
   @Input() notifier!: Notifier;
   protected getStateElement(): Base {

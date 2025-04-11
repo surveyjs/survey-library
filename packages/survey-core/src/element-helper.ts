@@ -11,7 +11,7 @@ export class ElementHelper {
   }
   static getNextElementPreorder(element: Element): Element {
     const result = !!element.nextElementSibling ? element.nextElementSibling : element.parentElement.firstElementChild;
-    if(this.visibility(result)) {
+    if (this.visibility(result)) {
       return result;
     } else {
       return this.getNextElementPreorder(result);
@@ -19,7 +19,7 @@ export class ElementHelper {
   }
   static getNextElementPostorder(element: Element): Element {
     const result = !!element.previousElementSibling ? element.previousElementSibling : element.parentElement.lastElementChild;
-    if(this.visibility(result)) {
+    if (this.visibility(result)) {
       return result;
     } else {
       return this.getNextElementPostorder(result);

@@ -75,7 +75,7 @@ function loadFileFromBase64(b64Data: string, fileName: string): void {
     if (!!navigator && (<any>navigator)["msSaveBlob"]) {
       (<any>navigator)["msSaveOrOpenBlob"](bb, fileName);
     }
-  } catch (err) { }
+  } catch(err) { }
 }
 function isMobile(): boolean {
   return (DomWindowHelper.isAvailable() && DomWindowHelper.hasOwn("orientation"));
@@ -411,8 +411,7 @@ export function getRenderedSize(val: string | number): number {
   if (typeof val == "string") {
     if (!isNaN(Number(val))) {
       return Number(val);
-    }
-    else if (val.includes("px")) {
+    } else if (val.includes("px")) {
       return parseFloat(val);
     }
   }
@@ -564,7 +563,7 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     selection.removeAllRanges();
     selection.addRange(range);
 
-    while (selection.toString().length < innerText.length - tail_len) {
+    while(selection.toString().length < innerText.length - tail_len) {
       const selLen = selection.toString().length;
       (selection as any).modify("extend", "forward", "character");
       if (selection.toString().length == selLen) break;
@@ -613,7 +612,7 @@ export interface IConfirmDialogOptions {
   cssClass?: string;
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions= {}): boolean {
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, options: IConfirmDialogOptions = {}): boolean {
   const locStr = new LocalizableString(undefined, false);
   locStr.defaultValue = message || options.message;
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{

@@ -32,7 +32,7 @@ export class ConditionsParser {
         }
       }
       return result;
-    } catch (e) {
+    } catch(e) {
       if (e instanceof SyntaxError) {
         this.conditionError = new ConditionsParserError(
           e.location.start.offset,

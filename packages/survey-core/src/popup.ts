@@ -116,7 +116,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
         return "menu-popup";
       } else {
         let result: DisplayPopupMode;
-        switch (this.overlayDisplayMode) {
+        switch(this.overlayDisplayMode) {
           case "plain": {
             result = "menu-popup";
             break;
@@ -144,12 +144,12 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   }
 
   public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
-    if(this.displayMode !== menuType) {
+    if (this.displayMode !== menuType) {
       const isDropdown = menuType === "dropdown";
       this.setWidthByTarget = isDropdown;
       this.isFocusedContent = !isDropdown;
     }
-    switch (menuType) {
+    switch(menuType) {
       case "dropdown": {
         this.displayMode = "popup";
         break;

@@ -2,6 +2,6 @@
     "recommendations": [
         "dbaeumer.vscode-eslint",
         "sibiraj-s.vscode-scss-formatter",
-        "wscats.vue"
+        "Vue.volar"
     ]
 }

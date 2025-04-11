@@ -15,6 +15,7 @@ var platformDescriptor = {
   render: (survey, element) => {
     var component = React.createElement(SurveyReact, { model: survey }, null);
     act(() => {
+      // eslint-disable-next-line react/no-deprecated
       ReactDOM.render(
         component,
         element
@@ -25,6 +26,7 @@ var platformDescriptor = {
     return require("../../../tests/markup/snapshots/" + snapshot + ".snap.html");
   },
   finish: (element) => {
+    // eslint-disable-next-line react/no-deprecated
     ReactDOM.unmountComponentAtNode(element);
   }
 };

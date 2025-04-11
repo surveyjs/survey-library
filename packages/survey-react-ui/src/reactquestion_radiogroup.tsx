@@ -84,8 +84,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   protected getBody(cssClasses: any): React.JSX.Element {
     if (this.question.blockedRow) {
       return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
+    } else {
+      return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
     }
-    else return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
   }
 
   protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {

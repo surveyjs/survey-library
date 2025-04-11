@@ -68,7 +68,7 @@ export const initSurvey = ClientFunction(
       document.getElementById("surveyElement").innerHTML = "";
       SurveyUI.renderSurvey(model, document.getElementById("surveyElement"));
     } else if (framework === "react") {
-      if(!!window.root) {
+      if (!!window.root) {
         window.root.unmount();
       }
       const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
@@ -130,7 +130,7 @@ export const initSurveyPopup = ClientFunction(
         allowFullScreen: true
       });
     } else if (framework === "react") {
-      if(!!window.root) {
+      if (!!window.root) {
         window.root.unmount();
       }
       const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
@@ -180,7 +180,6 @@ export const registerCustomToolboxComponent = ClientFunction(
         };
         render() {
           return (
-            // eslint-disable-next-line react/react-in-jsx-scope
             <span className="my-custom-action-class" onClick={this.click}>
               {" "}
               {this.props.item.title}
@@ -205,7 +204,6 @@ export const registerCustomToolboxComponent = ClientFunction(
         };
         render() {
           return (
-            // eslint-disable-next-line react/react-in-jsx-scope
             <span className="my-custom-action-class" onClick={this.click}>
               {" "}
               {this.props.item.title}
@@ -319,8 +317,7 @@ export const registerCustomItemComponent = ClientFunction(
           return preact.createElement(ItemTemplateComponent, props);
         }
       );
-    }
-    else if (framework === "vue") {
+    } else if (framework === "vue") {
       window["Vue"].component("new-item", {
         props: {
           item: {},

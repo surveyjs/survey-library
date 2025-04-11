@@ -359,7 +359,7 @@ frameworks.forEach(framework => {
   test("otherItem type in comment, textUpdateMode=onBlur", async t => {
     const setOnValueChanged = ClientFunction(() => {
       window["survey"].onValueChanged.add((sender, options) => {
-        if(options.name === "q2") return;
+        if (options.name === "q2") return;
         const val = sender.getValue("q2");
         sender.setValue("q2", val + 1);
       });
@@ -393,7 +393,7 @@ frameworks.forEach(framework => {
   test("otherItem type in comment, textUpdateMode=onTyping", async t => {
     const setOnValueChanged = ClientFunction(() => {
       window["survey"].onValueChanged.add((sender, options) => {
-        if(options.name === "q2") return;
+        if (options.name === "q2") return;
         const val = sender.getValue("q2");
         sender.setValue("q2", val + 1);
       });
@@ -428,7 +428,7 @@ frameworks.forEach(framework => {
   test("Type in comment, textUpdateMode=onBlur", async t => {
     const setOnValueChanged = ClientFunction(() => {
       window["survey"].onValueChanged.add((sender, options) => {
-        if(options.name === "q2") return;
+        if (options.name === "q2") return;
         const val = sender.getValue("q2");
         sender.setValue("q2", val + 1);
       });
@@ -461,7 +461,7 @@ frameworks.forEach(framework => {
   test("Type in comment, textUpdateMode=onTyping", async t => {
     const setOnValueChanged = ClientFunction(() => {
       window["survey"].onValueChanged.add((sender, options) => {
-        if(options.name === "q2") return;
+        if (options.name === "q2") return;
         const val = sender.getValue("q2");
         sender.setValue("q2", val + 1);
       });

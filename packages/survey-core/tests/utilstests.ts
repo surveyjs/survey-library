@@ -417,11 +417,11 @@ QUnit.test("Test animation utils: enter animation", (assert) => {
       return {
         onAfterRunAnimation: (element) => {
           assert.equal(element, element);
-          log+= "->afterRunAnimation";
+          log += "->afterRunAnimation";
         },
         onBeforeRunAnimation: (element) => {
           assert.equal(element, element);
-          log+= "->beforeRunAnimation";
+          log += "->beforeRunAnimation";
         },
         cssClass: "enter"
       };
@@ -452,11 +452,11 @@ QUnit.test("Test animation utils: leave animation", (assert) => {
       return {
         onAfterRunAnimation: (element) => {
           assert.equal(element, element);
-          log+= "->afterRunAnimation";
+          log += "->afterRunAnimation";
         },
         onBeforeRunAnimation: (element) => {
           assert.equal(element, element);
-          log+= "->beforeRunAnimation";
+          log += "->beforeRunAnimation";
         },
         cssClass: "leave"
       };
@@ -509,11 +509,11 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
       return {
         onAfterRunAnimation: (element) => {
           assert.equal(element, element);
-          log+= "->afterRunAnimation_" + i;
+          log += "->afterRunAnimation_" + i;
         },
         onBeforeRunAnimation: (element) => {
           assert.equal(element, element);
-          log+= "->beforeRunAnimation_" + i;
+          log += "->beforeRunAnimation_" + i;
         },
         cssClass: "enter_" + i
       };
@@ -569,11 +569,11 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
         return {
           onAfterRunAnimation: (element) => {
             assert.equal(element, element);
-            log+= "->afterRunAnimation_" + i;
+            log += "->afterRunAnimation_" + i;
           },
           onBeforeRunAnimation: (element) => {
             assert.equal(element, element);
-            log+= "->beforeRunAnimation_" + i;
+            log += "->beforeRunAnimation_" + i;
           },
           cssClass: "leave_" + i
         };
@@ -587,7 +587,7 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
     }
   };
   animationUtils.runGroupAnimation(animationOptions, [], [0, 1, 2], [], () => {
-    log+="->updated";
+    log += "->updated";
   });
   setTimeout(() => {
     assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
@@ -815,21 +815,21 @@ QUnit.test("Check onNextRender and cancel", (assert) => {
   let latestCb;
   window.requestAnimationFrame = (cb: any) => {
     let rafId = ++id;
-    latestCb = () => { log+= `->running: ${id}`; cb(); };
-    log+= `->raf: ${rafId}`;
+    latestCb = () => { log += `->running: ${id}`; cb(); };
+    log += `->raf: ${rafId}`;
     return rafId;
   };
-  window.cancelAnimationFrame = (id) => { log+= `->canceled: ${id}`; };
+  window.cancelAnimationFrame = (id) => { log += `->canceled: ${id}`; };
   const animation = new AnimationUtils();
   animation["onNextRender"](() => {
-    log+="->updated";
+    log += "->updated";
   });
   animation.cancel();
   assert.equal(log, "->raf: 1->updated->canceled: 1");
   id = 0;
   log = "";
   animation["onNextRender"](() => {
-    log+="->updated";
+    log += "->updated";
   });
   latestCb();
   animation.cancel();
@@ -837,7 +837,7 @@ QUnit.test("Check onNextRender and cancel", (assert) => {
   id = 0;
   log = "";
   animation["onNextRender"](() => {
-    log+="->updated";
+    log += "->updated";
   });
   latestCb();
   latestCb();
@@ -955,9 +955,9 @@ QUnit.test("test onNextRender function", (assert) => {
 
   let log = "";
   animation["onNextRender"](() => {
-    log+= "->callback";
+    log += "->callback";
   }, () => {
-    log+= "->cancelled";
+    log += "->cancelled";
   });
   assert.equal(log, "");
   rerenderEvent.fire(undefined, {});
@@ -965,11 +965,11 @@ QUnit.test("test onNextRender function", (assert) => {
   assert.ok(rerenderEvent.isEmpty);
   assert.notOk(!!animation["cancelCallback"]);
 
-  log ="";
+  log = "";
   animation["onNextRender"](() => {
-    log+= "->callback";
+    log += "->callback";
   }, () => {
-    log+= "->cancelled";
+    log += "->cancelled";
   });
   assert.equal(log, "");
   animation.cancel();
@@ -985,18 +985,18 @@ QUnit.test("test onNextRender function", (assert) => {
   const oldCancelAnimationFrame = window.cancelAnimationFrame;
   window.requestAnimationFrame = ((cb) => {
     rafId++;
-    latestRafCb = () => { log+= `->running: ${rafId}`; cb(); };
-    log+= `->raf: ${rafId}`;
+    latestRafCb = () => { log += `->running: ${rafId}`; cb(); };
+    log += `->raf: ${rafId}`;
     return rafId;
   }) as any;
   window.cancelAnimationFrame = (() => {
-    log+= `->canceled raf: ${rafId}`;
+    log += `->canceled raf: ${rafId}`;
   }) as any;
 
   animation["onNextRender"](() => {
-    log+= "->callback";
+    log += "->callback";
   }, () => {
-    log+= "->cancelled";
+    log += "->cancelled";
   });
   assert.equal(log, "->raf: 1");
   log = "";
@@ -1004,11 +1004,11 @@ QUnit.test("test onNextRender function", (assert) => {
   assert.equal(log, "->running: 1->callback");
   assert.notOk(!!animation["cancelCallback"]);
 
-  log ="";
+  log = "";
   animation["onNextRender"](() => {
-    log+= "->callback";
+    log += "->callback";
   }, () => {
-    log+= "->cancelled";
+    log += "->cancelled";
   });
   assert.equal(log, "->raf: 2");
   log = "";
@@ -1044,7 +1044,8 @@ QUnit.test("check animation when rerendered event fired with isCanceled option",
     },
   }, (val) => {
     value = val;
-    log += "->updated"; }, () => value);
+    log += "->updated";
+  }, () => value);
 
   assert.equal(rerenderEvent.length, 0);
   assert.equal(log, "");

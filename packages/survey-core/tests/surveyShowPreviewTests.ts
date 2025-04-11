@@ -448,11 +448,11 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions', onCurrentPageCh
   let changedIsAfterPreview = 0;
   survey.onCurrentPageChanging.add((sender, options) => {
     changingCounter ++;
-    if(options.isAfterPreview) changingIsAfterPreview ++;
+    if (options.isAfterPreview) changingIsAfterPreview ++;
   });
   survey.onCurrentPageChanged.add((sender, options) => {
     changedCounter ++;
-    if(options.isAfterPreview) changedIsAfterPreview ++;
+    if (options.isAfterPreview) changedIsAfterPreview ++;
   });
   survey.cancelPreview(survey.pages[1]);
   assert.equal(changingCounter, 1, "onChanging is called one time");

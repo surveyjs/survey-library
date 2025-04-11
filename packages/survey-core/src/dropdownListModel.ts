@@ -48,7 +48,7 @@ export class DropdownListModel extends Base {
         this.processCustomValue();
       }
     }
-  }
+  };
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
@@ -277,7 +277,7 @@ export class DropdownListModel extends Base {
       }
     } else {
       this.question.value = item.id;
-      if (this.searchEnabled) this.applyInputString(item as ItemValue);
+      if (this.searchEnabled)this.applyInputString(item as ItemValue);
     }
   }
 
@@ -339,7 +339,7 @@ export class DropdownListModel extends Base {
     }
     const updateAfterFilterStringChanged = () => {
       this.setFilterStringToListModel(this.filterString);
-      if (this.filterString) this.applyHintString();
+      if (this.filterString)this.applyHintString();
       this.popupRecalculatePosition(true);
     };
 
@@ -427,7 +427,7 @@ export class DropdownListModel extends Base {
 
   protected fixInputCase() {
     const hintStringMiddle = this.hintStringMiddle;
-    if (hintStringMiddle && this.inputString != hintStringMiddle) this.inputString = hintStringMiddle;
+    if (hintStringMiddle && this.inputString != hintStringMiddle)this.inputString = hintStringMiddle;
   }
 
   protected applyHintString() {
@@ -553,7 +553,7 @@ export class DropdownListModel extends Base {
 
   public setAllowCustomChoices(newValue: boolean): void {
     this.allowCustomChoices = newValue;
-    if(newValue) {
+    if (newValue) {
       this.searchEnabled = newValue;
     }
   }
@@ -610,12 +610,10 @@ export class DropdownListModel extends Base {
       if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
         this.listModel.focusedItem = this.question.selectedItem;
       }
-    }
-    else {
+    } else {
       if (reverse) {
         this.listModel.focusPrevVisibleItem();
-      }
-      else {
+      } else {
         this.listModel.focusNextVisibleItem();
       }
     }
@@ -638,8 +636,7 @@ export class DropdownListModel extends Base {
   protected afterScrollToFocusedItem() {
     if (this.question.value && !this.listModel.filterString && this.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
-    }
-    else {
+    } else {
       this.applyHintString();
     }
 
@@ -670,8 +667,7 @@ export class DropdownListModel extends Base {
       if (event.keyCode === 13 && this.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.hide();
         this.onClear(event);
-      }
-      else {
+      } else {
         this.listModel.selectFocusedItem();
         this.onFocus(event);
       }

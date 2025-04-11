@@ -309,14 +309,13 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
 function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<any> = [];
   let index = skip;
-  while ((skip + result.length) < (skip + count)) {
+  while((skip + result.length) < (skip + count)) {
     const displayText = "DisplayText_" + index;
     if (!!filter) {
       if (displayText.toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
         result.push({ value: index, text: displayText });
       }
-    }
-    else {
+    } else {
       result.push({ value: index, text: displayText });
     }
     index++;

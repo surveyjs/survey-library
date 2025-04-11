@@ -65,7 +65,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
-      if (!this.isDesignMode) this.initSignaturePad(el);
+      if (!this.isDesignMode)this.initSignaturePad(el);
       this.element = el;
     }
     super.afterRenderQuestionElement(el);
@@ -243,7 +243,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.readOnlyChangedCallback();
     var propertyChangedHandler = (sender: any, options: any) => {
       if (options.name === "signatureWidth" || options.name === "signatureHeight") {
-        if (!this.valueIsUpdatingInternally) this.updateValueHandler();
+        if (!this.valueIsUpdatingInternally)this.updateValueHandler();
       }
     };
     this.onPropertyChanged.add(propertyChangedHandler);

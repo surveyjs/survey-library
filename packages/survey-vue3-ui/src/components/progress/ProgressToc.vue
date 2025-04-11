@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted } from "vue";
 import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import SvComponent from "@/SvComponent.vue";
 import { type SurveyModel, TOCModel } from "survey-core";
@@ -21,7 +21,6 @@ import { type SurveyModel, TOCModel } from "survey-core";
 const props = defineProps<{ survey: SurveyModel; model: TOCModel }>();
 
 onMounted(() => {
-    props.model.updateStickyTOCSize(props.survey.rootElement);
+  props.model.updateStickyTOCSize(props.survey.rootElement);
 });
-
 </script>

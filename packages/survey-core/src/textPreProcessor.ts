@@ -45,7 +45,7 @@ export class TextPreProcessor {
             this.hasAllValuesOnLastRunValue = false;
           }
         }
-        if(textValue.isExists || replaceUndefinedValues) {
+        if (textValue.isExists || replaceUndefinedValues) {
           if (Helpers.isValueEmpty(textValue.value)) {
             this.hasAllValuesOnLastRunValue = false;
           }
@@ -91,7 +91,7 @@ export class TextPreProcessor {
           var item = new TextPreProcessorItem();
           item.start = start;
           item.end = i;
-          if(this.isValidItemName(text.substring(start + 1, i - 1))) {
+          if (this.isValidItemName(text.substring(start + 1, i - 1))) {
             items.push(item);
           }
         }
@@ -175,7 +175,7 @@ export class QuestionTextProcessor implements ITextProcessor {
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     const res: ITextProcessorResult = { hasAllValuesOnLastRun: true, text: params.text };
-    if(!params.runAtDesign && this.survey?.isDesignMode) return res;
+    if (!params.runAtDesign && this.survey?.isDesignMode) return res;
     const processors = new Array<ITextProcessor>();
     this.addTextPreProcessor(processors, this.textPreProcessor);
     this.addTextPreProcessor(processors, this.getParentTextProcessor());
@@ -190,7 +190,7 @@ export class QuestionTextProcessor implements ITextProcessor {
     return res;
   }
   private addTextPreProcessor(list: Array<ITextProcessor>, textProcessor: ITextProcessor): void {
-    if(!textProcessor || list.indexOf(textProcessor) > -1) return;
+    if (!textProcessor || list.indexOf(textProcessor) > -1) return;
     list.push(textProcessor);
   }
 }

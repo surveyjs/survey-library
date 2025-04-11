@@ -54,7 +54,7 @@ export function _setIsTablet(val: boolean | undefined): void {
 }
 
 export function calculateIsTablet(windowWidth?: number, windowHeight?: number, tabletSizeBreakpoint = 600): boolean {
-  if(_isTablet !== undefined) return _isTablet;
+  if (_isTablet !== undefined) return _isTablet;
 
   const _windowWidth = windowWidth || DomWindowHelper.getInnerWidth();
   const _windowHeight = windowHeight || DomWindowHelper.getInnerHeight();

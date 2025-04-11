@@ -43,7 +43,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       surveyElement.innerHTML = "";
       self.SurveyUI.renderSurvey(model, surveyElement);
     } else if (framework === "react") {
-      if(!!self.root) {
+      if (!!self.root) {
         self.root.unmount();
       }
       const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));

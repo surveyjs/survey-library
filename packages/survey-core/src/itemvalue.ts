@@ -189,7 +189,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
 
   constructor(value: any, text: string = null, protected typeName = "itemvalue") {
     super();
-    if (text) this.locText.text = text;
+    if (text)this.locText.text = text;
     if (!!value && typeof value === "object") {
       this.setData(value, true);
     } else {
@@ -215,7 +215,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return !!this.locOwner && this.locOwner.getLocale ? this.locOwner.getLocale() : "";
   }
   public getLocalizableString(name: string): LocalizableString {
-    if(name === "text") return this.locText;
+    if (name === "text") return this.locText;
     return super.getLocalizableString(name);
   }
   public isGhost: boolean;
@@ -237,7 +237,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return !Helpers.isValueEmpty(val) ? val.toString() : null;
   }
   public get locText(): LocalizableString {
-    if(!this.locTextValue) {
+    if (!this.locTextValue) {
       this.locTextValue = this.createLocText();
     }
     return this.locTextValue;
@@ -270,10 +270,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
         text = str.slice(index + 1);
       }
     }
-    if(newItem) {
+    if (newItem) {
       this.setPropertyValueDirectly("value", newValue);
-    }
-    else {
+    } else {
       this.setPropertyValue("value", newValue);
     }
     if (!!text) {
@@ -297,11 +296,11 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.locText.text = newText;
   }
   public get textOrHtml(): string {
-    if(this.locTextValue) return this.locText.textOrHtml;
+    if (this.locTextValue) return this.locText.textOrHtml;
     return this.getValueText();
   }
   public get calculatedText(): string {
-    if(this.locTextValue) return this.locText.calculatedText;
+    if (this.locTextValue) return this.locText.calculatedText;
     return this.getValueText();
   }
   public get shortcutText(): string {
@@ -309,7 +308,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   private canSerializeValue(): boolean {
     const val = this.value;
-    if(val === undefined || val === null) return false;
+    if (val === undefined || val === null) return false;
     return !Array.isArray(val) && typeof val !== "object";
   }
   public getData(): any {
@@ -344,7 +343,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public setData(value: any, isNewItem?: boolean): void {
     if (Helpers.isValueEmpty(value)) return;
-    if(typeof value.value === "undefined" && typeof value.text !== "undefined" && Object.keys(value).length === 1) {
+    if (typeof value.value === "undefined" && typeof value.text !== "undefined" && Object.keys(value).length === 1) {
       value.value = value.text;
     }
     if (typeof value.value !== "undefined") {
@@ -358,7 +357,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     } else {
       this.setValue(value, isNewItem);
     }
-    if(!isNewItem) {
+    if (!isNewItem) {
       this.locTextValue?.strChanged();
     }
   }
@@ -389,7 +388,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.setPropertyValue("isEnabled", val);
   }
   public addUsedLocales(locales: Array<string>): void {
-    if(this.locTextValue) {
+    if (this.locTextValue) {
       this.AddLocStringToUsedLocales(this.locTextValue, locales);
     }
   }
@@ -429,14 +428,14 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   @property() selectedValue: boolean;
   public get selected(): boolean {
     const locOwner = this._locOwner;
-    if(locOwner instanceof Question && locOwner.isItemSelected && this.selectedValue === undefined) {
+    if (locOwner instanceof Question && locOwner.isItemSelected && this.selectedValue === undefined) {
       this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => locOwner.isItemSelected(this)));
     }
     return this.selectedValue;
   }
   private componentValue: string;
   public getComponent(): string {
-    if(this._locOwner instanceof Question) {
+    if (this._locOwner instanceof Question) {
       return this.componentValue || this._locOwner.itemComponent;
     }
     return this.componentValue;
@@ -464,7 +463,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return isVisible && visible;
   }
   protected setVisible(val: boolean): void {
-    if(this.visible !== val) {
+    if (this.visible !== val) {
       this._visible = val;
     }
   }

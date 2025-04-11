@@ -8,9 +8,9 @@ export class QuestionCustomWidget {
     this.htmlTemplate = widgetJson.htmlTemplate ? widgetJson.htmlTemplate : "";
   }
   public afterRender(question: IQuestion, el: any) {
-    if(!this.widgetJson.afterRender) return;
+    if (!this.widgetJson.afterRender) return;
     (<any>question).localeChangedCallback = () => {
-      if(this.widgetJson.willUnmount) {
+      if (this.widgetJson.willUnmount) {
         this.widgetJson.willUnmount(question, el);
       }
       this.widgetJson.afterRender(question, el);
@@ -18,7 +18,7 @@ export class QuestionCustomWidget {
     this.widgetJson.afterRender(question, el);
   }
   public willUnmount(question: IQuestion, el: any) {
-    if (this.widgetJson.willUnmount) this.widgetJson.willUnmount(question, el);
+    if (this.widgetJson.willUnmount)this.widgetJson.willUnmount(question, el);
   }
   public getDisplayValue(question: IQuestion, value: any = undefined): string {
     if (this.widgetJson.getDisplayValue)

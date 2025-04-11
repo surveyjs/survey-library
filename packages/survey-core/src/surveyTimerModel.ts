@@ -62,7 +62,7 @@ export class SurveyTimerModel extends Base {
     var page = <PageModel>(<ISurvey><any>this.survey).currentPage;
     if (page) {
       const pageMaxTime = page.getMaxTimeToFinish();
-      if(pageMaxTime > 0 && pageMaxTime < page.timeSpent + seconds) {
+      if (pageMaxTime > 0 && pageMaxTime < page.timeSpent + seconds) {
         seconds = pageMaxTime - page.timeSpent;
       }
       page.timeSpent = page.timeSpent + seconds;
@@ -83,8 +83,7 @@ export class SurveyTimerModel extends Base {
         setTimeout(() => {
           this.progress = Math.floor((spent + 1) / limit * 100) / 100;
         }, 0);
-      }
-      else if (spent <= limit) {
+      } else if (spent <= limit) {
         this.progress = Math.floor((spent + 1) / limit * 100) / 100;
       }
       if (this.progress > 1) {

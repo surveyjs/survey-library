@@ -41,7 +41,7 @@ function _slk(k: any, lh: any, rd: any) {
     for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
     for (x = 0; x < L; x++) {
       let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
-      while (l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
+      while(l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
     }
     return r;
   };

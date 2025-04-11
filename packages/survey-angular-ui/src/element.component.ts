@@ -14,24 +14,24 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
     return this.model;
   }
   protected get elementComponentName(): string {
-    return this.model.isPanel ? "panel": "question";
+    return this.model.isPanel ? "panel" : "question";
   }
 
   protected override onModelChanged(): void {
     super.onModelChanged();
-    if(this.previousModel) {
-      this.previousModel.setWrapperElement(undefined)
+    if (this.previousModel) {
+      this.previousModel.setWrapperElement(undefined);
     }
-    if(this.model && this.container?.nativeElement) {
+    if (this.model && this.container?.nativeElement) {
       this.model.setWrapperElement(this.container.nativeElement);
     }
   }
 
   public get componentName(): string {
     const survey = this.surveyModel as SurveyModel;
-    if(!!survey) {
+    if (!!survey) {
       const name = survey.getElementWrapperComponentName(this.model);
-      if(!!name) {
+      if (!!name) {
         return name;
       }
     }
@@ -39,7 +39,7 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
   }
   public get rootStyle() {
     //use this if to check if cssClassses are calculated and allowRootStyle flag was set
-    if(!!this.model.cssClasses) {
+    if (!!this.model.cssClasses) {
       return this.model.rootStyle;
     } else {
       return {};
@@ -48,7 +48,7 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
   public get componentData(): any {
     const survey = this.surveyModel as SurveyModel;
     let data: any;
-    if(!!survey) {
+    if (!!survey) {
       data = survey.getElementWrapperComponentData(this.model);
     }
     return {
@@ -60,8 +60,8 @@ export class ElementComponent extends BaseAngular<PanelModel | Question> impleme
     };
   }
   public ngAfterViewInit(): void {
-    if(this.model && this.container?.nativeElement) {
-      this.model.setWrapperElement(this.container.nativeElement)
+    if (this.model && this.container?.nativeElement) {
+      this.model.setWrapperElement(this.container.nativeElement);
     }
   }
   public override ngOnDestroy(): void {

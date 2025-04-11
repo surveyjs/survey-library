@@ -383,7 +383,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
     }
     this._width && this.processResponsiveness(0, this._width);
-  }
+  };
 
   @property({}) private responsiveColCount: number;
 
@@ -395,10 +395,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   @property() gridColCount: number = undefined;
   getContainerStyle() {
-    if(!this.isResponsive) return {};
+    if (!this.isResponsive) return {};
     return {
       gridAutoFlow: !this.gridColCount ? "column" : null,
-      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)`: null
+      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)` : null
     };
   }
 

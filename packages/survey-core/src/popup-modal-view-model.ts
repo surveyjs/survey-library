@@ -61,7 +61,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     return;
   }
   public onKeyDown(event: any): void {
-    if(event.key === "Escape" || event.keyCode === 27) {
+    if (event.key === "Escape" || event.keyCode === 27) {
       this.model.onCancel();
     }
     super.onKeyDown(event);
@@ -69,16 +69,16 @@ export class PopupModalViewModel extends PopupBaseViewModel {
 
   private onScrollOutsideCallback = (event: WheelEvent) => {
     this.preventScrollOuside(event, event.deltaY);
-  }
+  };
 
   public updateOnShowing(): void {
-    if(this.container) {
+    if (this.container) {
       this.container.addEventListener("wheel", this.onScrollOutsideCallback, { passive: false });
     }
     super.updateOnShowing();
   }
   public updateOnHiding(): void {
-    if(this.container) {
+    if (this.container) {
       this.container.removeEventListener("wheel", this.onScrollOutsideCallback);
     }
     super.updateOnHiding();

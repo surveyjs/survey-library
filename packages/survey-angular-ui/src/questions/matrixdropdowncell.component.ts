@@ -20,10 +20,10 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
 
   @ViewChild("cellContainer") cellContainer!: ElementRef<HTMLElement>;
   getModel() {
-    if(this.cell.hasQuestion) {
+    if (this.cell.hasQuestion) {
       return this.cell.question;
     }
-    if(!!this.cell.column) {
+    if (!!this.cell.column) {
       return this.cell.column;
     }
     return null as any;
@@ -33,18 +33,18 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
   public override ngDoCheck(): void {
     super.ngDoCheck();
-    if(this.cell.isErrorsCell && this.cell?.question) {
+    if (this.cell.isErrorsCell && this.cell?.question) {
       this.cell.question.registerFunctionOnPropertiesValueChanged(["errors", "visible"], () => {
         this.update();
-      }, "__ngSubscription")
+      }, "__ngSubscription");
     }
   }
   public get panelComponentName(): string {
     const panel = this.cell.panel;
     const survey = <SurveyModel>panel.survey;
-    if(!!survey) {
+    if (!!survey) {
       const name = survey.getElementWrapperComponentName(panel);
-      if(!!name) {
+      if (!!name) {
         return name;
       }
     }
@@ -54,7 +54,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
     const panel = this.cell.panel;
     const survey = <SurveyModel>panel.survey;
     let data: any;
-    if(!!survey) {
+    if (!!survey) {
       data = survey.getElementWrapperComponentData(panel);
     }
     return {
@@ -78,7 +78,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   ngAfterViewInit() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     const el = this.cellContainer?.nativeElement;
-    if(el) {
+    if (el) {
       const cellQ = this.cell.question;
       var options = {
         cell: this.cell.cell,
@@ -93,8 +93,8 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription")    
+    if (this.cell.isErrorsCell && this.cell?.question) {
+      this.cell.question.unRegisterFunctionOnPropertiesValueChanged(["errors", "visible"], "__ngSubscription");
     }
   }
   public get canRender() {

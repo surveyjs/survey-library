@@ -40,14 +40,13 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     this.model.onHiding();
   }
   private visibilityAnimation: AnimationBoolean = new AnimationBoolean(this, (val) => {
-    if(this._isVisible !== val) {
-      if(!val) {
+    if (this._isVisible !== val) {
+      if (!val) {
         this.updateOnHiding();
         this.updateIsVisible(val);
         this.updateAfterHiding();
         this._isPositionSetValue = false;
-      }
-      else {
+      } else {
         this.updateBeforeShowing();
         this.updateIsVisible(val);
       }
@@ -130,7 +129,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
 
   private onModelIsVisibleChangedCallback = () => {
     this.isVisible = this.model.isVisible;
-  }
+  };
 
   private setupModel(model: PopupModel) {
     if (!!this.model) {
@@ -304,7 +303,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;
-    while (currentElement !== this.container) {
+    while(currentElement !== this.container) {
       if (DomDocumentHelper.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
         const { scrollHeight, scrollTop, clientHeight } = currentElement;
         if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {

@@ -61,7 +61,7 @@ class ChoicesRestfulTester extends ChoicesRestful {
     if (this.blockSendingRequest === true) return;
     this.sentRequestCounter++;
     this.lastProcesedUrl = this.processedUrl;
-    if (this.processedUrl.indexOf("empty") > -1) this.onLoad([]);
+    if (this.processedUrl.indexOf("empty") > -1)this.onLoad([]);
     if (this.processedUrl.indexOf("countries") > -1) {
       this.onLoad(getCountries());
     }
@@ -72,8 +72,8 @@ class ChoicesRestfulTester extends ChoicesRestful {
       this.onLoad(this.items);
       return;
     }
-    if (this.processedUrl.indexOf("ca_cities") > -1) this.onLoad(getCACities());
-    if (this.processedUrl.indexOf("tx_cities") > -1) this.onLoad(getTXCities());
+    if (this.processedUrl.indexOf("ca_cities") > -1)this.onLoad(getCACities());
+    if (this.processedUrl.indexOf("tx_cities") > -1)this.onLoad(getTXCities());
     if (this.processedUrl.indexOf("xml") > -1)
       this.onLoad(this.parseResponse(getXmlResponse()));
     if (this.processedUrl.indexOf("text") > -1)
@@ -150,7 +150,7 @@ class QuestionDropdownModelTester extends QuestionDropdownModel {
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if (!this.processor) this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -192,7 +192,7 @@ class QuestionCheckboxModelTester extends QuestionCheckboxModel {
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if (!this.processor) this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -227,7 +227,7 @@ class QuestionMatrixDynamicModelTester extends QuestionMatrixDynamicModel {
 
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if (!this.processor) this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -246,7 +246,7 @@ class QuestionDropdownImageTester extends QuestionDropdownModel {
   }
   processor: ITextProcessor;
   protected get textProcessor(): ITextProcessor {
-    if (!this.processor) this.processor = new TextProcessorTester();
+    if (!this.processor)this.processor = new TextProcessorTester();
     return this.processor;
   }
 }
@@ -1054,12 +1054,12 @@ QUnit.test(
     var onStrChangedCounter = 0;
     var onPageStrChangedCounter = 0;
     titleQuestion.locTitle.onChanged = () => {
-      if(titleQuestion.locTitle.renderedHtml == "test:AAA") {
+      if (titleQuestion.locTitle.renderedHtml == "test:AAA") {
         onStrChangedCounter ++;
       }
     };
     page.locTitle.onChanged = () => {
-      if(page.locTitle.renderedHtml == "pagetest:AAA") {
+      if (page.locTitle.renderedHtml == "pagetest:AAA") {
         onPageStrChangedCounter ++;
       }
     };

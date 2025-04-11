@@ -78,7 +78,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];
-    if(this.isDefaultV2Theme && !this.isDesignMode) {
+    if (this.isDefaultV2Theme && !this.isDesignMode) {
       const clearAction = new Action(
         {
           locTitleName: "clearCaption",

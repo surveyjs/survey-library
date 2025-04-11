@@ -1,5 +1,9 @@
 <template>
-  <div class="sv-skeleton-element" :id="element.id" :style="{ height: element.skeletonHeight }"></div>
+  <div
+    class="sv-skeleton-element"
+    :id="element.id"
+    :style="{ height: element.skeletonHeight }"
+  ></div>
 </template>
 
 <script lang="ts" setup>

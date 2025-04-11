@@ -46,7 +46,7 @@ export class PopupUtils {
     let currentLeft = targetRect.left;
     let currentTop = targetRect.top;
 
-    if(positionMode === "flex") {
+    if (positionMode === "flex") {
       if (horizontalPosition == "center")
         currentLeft = (targetRect.left + targetRect.right - width) / 2;
       else if (horizontalPosition == "left") currentLeft = targetRect.left - width;
@@ -79,7 +79,7 @@ export class PopupUtils {
   ) {
     let result;
     const maxHeight = windowHeight - PopupUtils.bottomIndent;
-    if(verticalPosition === "top") {
+    if (verticalPosition === "top") {
       result = { height: height, top: top };
     }
     if (top < -margins.top) {

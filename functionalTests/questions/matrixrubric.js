@@ -212,7 +212,7 @@ frameworks.forEach((framework) => {
 
     questionValue = await getQuestionValue();
     await t.expect(questionValue).eql(undefined);
-    json =JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     await t.expect(json.cells["easy to use"][5]).eql(newTitle);
   });
 });

@@ -8,7 +8,7 @@ import { BaseAngular } from "../../base-angular";
   selector: "sv-ng-character-counter",
   templateUrl: "./character-counter.component.html",
   styles: [":host { display: none; }"],
-  })
+})
 export class CharacterCounterComponent extends BaseAngular {
   @Input() counter!: CharacterCounter;
   @Input() remainingCharacterCounter!: string;

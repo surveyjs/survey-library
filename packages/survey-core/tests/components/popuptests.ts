@@ -336,7 +336,7 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };
@@ -384,7 +384,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };
@@ -430,7 +430,7 @@ QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   assert.equal(viewModel.popupDirection, "left");
   assert.deepEqual(viewModel.pointerTarget, { left: "0px", top: "0px" });
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };
@@ -505,7 +505,7 @@ QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
 
   assert.equal(viewModel.isVisible, false);
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };
@@ -536,7 +536,7 @@ QUnit.test("PopupModel cancel", (assert) => {
 
   assert.equal(viewModel.isVisible, false);
 
-  let trace: String = "";
+  let trace: string = "";
   model.onCancel = () => {
     trace += "->onCancel";
   };
@@ -581,7 +581,7 @@ QUnit.test("PopupModel apply", (assert) => {
 
   assert.equal(viewModel.isVisible, false);
 
-  let trace: String = "";
+  let trace: string = "";
   model.onApply = () => {
     trace += "->onApply";
     return true;
@@ -660,7 +660,7 @@ QUnit.test("PopupViewModel dispose", (assert) => {
 
   viewModel.dispose();
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };
@@ -1496,7 +1496,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   assert.equal(viewModel.height, "auto");
   assert.equal(viewModel.width, "auto");
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };
@@ -1558,7 +1558,7 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   assert.equal(viewModel.height, "auto");
   assert.equal(viewModel.width, "auto");
 
-  let trace: String = "";
+  let trace: string = "";
   model.onHide = () => {
     trace += "->onHide";
   };

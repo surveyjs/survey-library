@@ -54,7 +54,7 @@ export class FlowPanelModel extends PanelModel {
       html = this.produceHtml();
     }
     this.html = html;
-    if (!!this.contentChangedCallback) this.contentChangedCallback();
+    if (!!this.contentChangedCallback)this.contentChangedCallback();
   }
   public produceHtml(): string {
     var html = [];
@@ -63,7 +63,7 @@ export class FlowPanelModel extends PanelModel {
     var str = this.content;
     var startIndex = 0;
     var res = null;
-    while ((res = regEx.exec(str)) !== null) {
+    while((res = regEx.exec(str)) !== null) {
       if (res.index > startIndex) {
         html.push(str.substring(startIndex, res.index));
         startIndex = res.index;

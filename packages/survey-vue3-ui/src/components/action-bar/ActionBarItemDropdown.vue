@@ -30,10 +30,7 @@
       item.title
     }}</span>
   </button>
-  <SvComponent
-    :is="'sv-popup'"
-    :model="item.popupModel"
-  ></SvComponent>
+  <SvComponent :is="'sv-popup'" :model="item.popupModel"></SvComponent>
 </template>
 <script lang="ts">
 export default {
@@ -44,11 +41,7 @@ export default {
 import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
-import {
-  type Action,
-  ActionDropdownViewModel,
-  getActionDropdownButtonTarget,
-} from "survey-core";
+import { type Action, ActionDropdownViewModel } from "survey-core";
 const props = defineProps<{ item: Action }>();
 let viewModel = undefined as any as ActionDropdownViewModel;
 

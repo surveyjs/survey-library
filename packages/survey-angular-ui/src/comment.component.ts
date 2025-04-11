@@ -10,7 +10,7 @@ export class SurveyCommentComponent {
   constructor() {
   }
   public get comment(): string {
-    if(!this.question.comment) return "";
+    if (!this.question.comment) return "";
     return this.question.comment;
   }
 }

@@ -57,13 +57,13 @@ export class PopupModal extends SurveyElementBase<{}, any> {
       };
       this.isInitialized = true;
     }
-  }
+  };
   clean: () => void = () => {
     if (this.isInitialized) {
       settings.showDialog = undefined as any;
       this.isInitialized = false;
     }
-  }
+  };
   componentDidMount(): void {
     PopupModal.addModalDescriptor(this.descriptor);
   }

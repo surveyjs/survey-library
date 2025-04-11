@@ -13,7 +13,7 @@ export class DropdownSelectComponent {
     return this.model.renderedValue || "";
   }
   set editableValue(newValue: any) {
-    if(newValue === "") {
+    if (newValue === "") {
       this.model.renderedValue = undefined;
     } else {
       this.model.renderedValue = newValue;

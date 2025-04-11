@@ -17,7 +17,7 @@
       <input
         type="text"
         autocomplete="off"
-        v-model="model.inputStringRendered"
+        v-model="renderedValue"
         :class="question.cssClasses.filterStringInput"
         :placeholder="model.filterStringPlaceholder"
         :disabled="question.isDisabledAttr"
@@ -47,6 +47,7 @@ import type {
   DropdownMultiSelectListModel,
   QuestionTagboxModel,
 } from "survey-core";
+import { computed } from "vue";
 
 const props = defineProps<{
   question: QuestionTagboxModel;
@@ -65,6 +66,15 @@ const blur = (event: any) => {
 const focus = (event: any) => {
   props.question.onFocus(event);
 };
+const renderedValue = computed({
+  get() {
+    return props.model.inputStringRendered ?? "";
+  },
+  set(val) {
+    const model = props.model;
+    model.inputStringRendered = val;
+  },
+});
 
 useBase(() => props.model);
 </script>

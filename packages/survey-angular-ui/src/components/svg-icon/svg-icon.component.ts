@@ -16,7 +16,7 @@ export class SvgIconComponent implements OnChanges {
   constructor(private viewContaierRef: ViewContainerRef) {
   }
   private createSvg() {
-    if(!!this.iconName) {
+    if (!!this.iconName) {
       (Survey as any).createSvg(
         this.size,
         this.width,
@@ -29,9 +29,9 @@ export class SvgIconComponent implements OnChanges {
   }
   @HostBinding("class") get rootClass(): string {
     let className = "sv-svg-icon";
-    if(!this.css && !!this.partCss) {
+    if (!this.css && !!this.partCss) {
       className += " " + this.partCss;
-    } else if(!!this.css) {
+    } else if (!!this.css) {
       className = this.css;
     }
     return className;

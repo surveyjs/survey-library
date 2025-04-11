@@ -15,9 +15,9 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
   getModel(): ActionContainer {
     return this.model;
   }
-  trackActionBy(_: number, action: Action)  {
+  trackActionBy(_: number, action: Action) {
     return action.renderedId;
-  }  
+  }
   get allowOnClick(): boolean {
     return this.handleClick !== undefined ? this.handleClick : true;
   }

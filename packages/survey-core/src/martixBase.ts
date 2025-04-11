@@ -65,7 +65,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public get visibleColumns(): Array<any> {
     const res: Array<any> = [];
-    this.columns.forEach(col => { if(this.isColumnVisible(col)) { res.push(col); } });
+    this.columns.forEach(col => { if (this.isColumnVisible(col)) { res.push(col); } });
     return res;
   }
   protected isColumnVisible(column: any): boolean {
@@ -114,7 +114,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set rowsVisibleIf(val: string) {
     this.setPropertyValue("rowsVisibleIf", val);
-    if(!this.isLoadingFromJsonValue) {
+    if (!this.isLoadingFromJsonValue) {
       this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
@@ -133,7 +133,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set columnsVisibleIf(val: string) {
     this.setPropertyValue("columnsVisibleIf", val);
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
@@ -153,7 +153,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected isVisibleCore(): boolean {
     const res = super.isVisibleCore();
-    if(!res || !(<any>this).hideIfRowsEmpty) return res;
+    if (!res || !(<any>this).hideIfRowsEmpty) return res;
     return this.visibleRows?.length > 0;
   }
   protected shouldRunColumnExpression(): boolean {
@@ -279,7 +279,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   // EO a11y
   protected getIsMobile(): boolean {
-    if(this.displayMode == "auto") return super.getIsMobile();
+    if (this.displayMode == "auto") return super.getIsMobile();
     return this.displayMode === "list";
   }
 }

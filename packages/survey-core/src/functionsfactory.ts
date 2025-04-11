@@ -14,7 +14,7 @@ export class FunctionFactory {
     isAsync: boolean = false
   ): void {
     this.functionHash[name] = func;
-    if (isAsync) this.isAsyncHash[name] = true;
+    if (isAsync)this.isAsyncHash[name] = true;
   }
   public unregister(name: string): void {
     delete this.functionHash[name];
@@ -141,9 +141,9 @@ function getInArrayParams(params: any[], originalParams: any[]): any {
   if (typeof expression !== "string" && !(expression instanceof String)) {
     expression = undefined;
   }
-  if(!expression) {
+  if (!expression) {
     const operand = Array.isArray(originalParams) && originalParams.length > 2 ? originalParams[2] : undefined;
-    if(operand && !!operand.toString()) {
+    if (operand && !!operand.toString()) {
       expression = operand.toString();
     }
   }
@@ -151,13 +151,13 @@ function getInArrayParams(params: any[], originalParams: any[]): any {
 }
 
 function convertToNumber(val: any): number {
-  if(typeof val === "string") return Helpers.isNumber(val) ? Helpers.getNumber(val) : undefined;
+  if (typeof val === "string") return Helpers.isNumber(val) ? Helpers.getNumber(val) : undefined;
   return val;
 }
 function processItemInArray(item: any, name: string, res: number,
   func: (res: number, val: number) => number, needToConvert: boolean, condition: ConditionRunner): number {
-  if(!item || Helpers.isValueEmpty(item[name])) return res;
-  if(condition && !condition.run(item)) return res;
+  if (!item || Helpers.isValueEmpty(item[name])) return res;
+  if (condition && !condition.run(item)) return res;
   const val = needToConvert ? convertToNumber(item[name]) : 1;
   return func(res, val);
 }
@@ -168,7 +168,7 @@ function calcInArray(
   var v = getInArrayParams(params, originalParams);
   if (!v) return undefined;
   let condition = !!v.expression ? new ConditionRunner(v.expression) : undefined;
-  if(condition && condition.isAsync) {
+  if (condition && condition.isAsync) {
     condition = undefined;
   }
   var res = undefined;
@@ -187,7 +187,7 @@ function calcInArray(
 function sumInArray(params: any[], originalParams: any[]): any {
   var res = calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) res = 0;
-    if(val == undefined || val == null) return res;
+    if (val == undefined || val == null) return res;
     return Helpers.correctAfterPlusMinis(res, val, res + val);
   });
   return res !== undefined ? res : 0;
@@ -197,7 +197,7 @@ FunctionFactory.Instance.register("sumInArray", sumInArray);
 function minInArray(params: any[], originalParams: any[]): any {
   return calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) return val;
-    if(val == undefined || val == null) return res;
+    if (val == undefined || val == null) return res;
     return res < val ? res : val;
   });
 }
@@ -206,7 +206,7 @@ FunctionFactory.Instance.register("minInArray", minInArray);
 function maxInArray(params: any[], originalParams: any[]): any {
   return calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) return val;
-    if(val == undefined || val == null) return res;
+    if (val == undefined || val == null) return res;
     return res > val ? res : val;
   });
 }
@@ -215,7 +215,7 @@ FunctionFactory.Instance.register("maxInArray", maxInArray);
 function countInArray(params: any[], originalParams: any[]): any {
   var res = calcInArray(params, originalParams, function(res: number, val: number): number {
     if (res == undefined) res = 0;
-    if(val == undefined || val == null) return res;
+    if (val == undefined || val == null) return res;
     return res + 1;
   }, false);
   return res !== undefined ? res : 0;
@@ -243,7 +243,7 @@ function getDate(params: any[]): any {
 FunctionFactory.Instance.register("getDate", getDate);
 
 function dateDiffMonths(date1Param: any, date2Param: any, type: string): number {
-  if(type === "days") return diffDays([date1Param, date2Param]);
+  if (type === "days") return diffDays([date1Param, date2Param]);
   const date1 = createDate("function-dateDiffMonths", date1Param);
   const date2 = createDate("function-dateDiffMonths", date2Param);
   const age = date2.getFullYear() - date1.getFullYear();
@@ -255,26 +255,26 @@ function dateDiffMonths(date1Param: any, date2Param: any, type: string): number 
   return type === "months" ? ageInMonths : ~~(ageInMonths / 12);
 }
 function age(params: any[]): number {
-  if(!Array.isArray(params) || params.length < 1 || !params[0]) return null;
+  if (!Array.isArray(params) || params.length < 1 || !params[0]) return null;
   return dateDiffMonths(params[0], undefined, (params.length > 1 ? params[1] : "") || "years");
 }
 FunctionFactory.Instance.register("age", age);
 
 function dateDiff(params: any[]): any {
-  if(!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
+  if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
   const isHours = type === "hours" || type === "minutes";
   const dType = isHours ? "days" : type;
   let days = dateDiffMonths(params[0], params[1], dType);
-  if(isHours) {
+  if (isHours) {
     const date1 = createDate("function-dateDiffMonths", params[0]);
     const date2 = createDate("function-dateDiffMonths", params[1]);
-    if(date2.getHours() > date1.getHours()) {
+    if (date2.getHours() > date1.getHours()) {
       days -= 1;
     }
     let hours = days * 24 + date2.getHours() - date1.getHours();
-    if(type === "hours") return hours;
-    if(date2.getMinutes() < date1.getMinutes()) {
+    if (type === "hours") return hours;
+    if (date2.getMinutes() < date1.getMinutes()) {
       hours -= 1;
     }
     return hours * 60 + date2.getMinutes() - date1.getMinutes();
@@ -284,7 +284,7 @@ function dateDiff(params: any[]): any {
 FunctionFactory.Instance.register("dateDiff", dateDiff);
 
 function dateAdd(params: any[]): any {
-  if(!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
+  if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const date = createDate("function-dateAdd", params[0]);
   const valToAdd = params[1];
   const interval = params[2] || "days";
@@ -316,16 +316,16 @@ function isContainerReady(params: any[]): any {
   const name = params[0];
   let container = this.survey.getPageByName(name);
   if (!container) container = this.survey.getPanelByName(name);
-  if(!container) {
+  if (!container) {
     const question = this.survey.getQuestionByName(name);
-    if(!question || !Array.isArray(question.panels)) return false;
-    if(params.length > 1) {
-      if(params[1] < question.panels.length) {
+    if (!question || !Array.isArray(question.panels)) return false;
+    if (params.length > 1) {
+      if (params[1] < question.panels.length) {
         container = question.panels[params[1]];
       }
     } else {
-      for(let i = 0; i < question.panels.length; i ++) {
-        if(!isContainerReadyCore(question.panels[i])) return false;
+      for (let i = 0; i < question.panels.length; i ++) {
+        if (!isContainerReadyCore(question.panels[i])) return false;
       }
       return true;
     }
@@ -346,7 +346,7 @@ FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
   var res = createDate("function-today");
-  if(settings.localization.useLocalTimeZone) {
+  if (settings.localization.useLocalTimeZone) {
     res.setHours(0, 0, 0, 0);
   } else {
     res.setUTCHours(0, 0, 0, 0);
@@ -359,7 +359,7 @@ function today(params: any[]) {
 FunctionFactory.Instance.register("today", today);
 
 function getYear(params: any[]) {
-  if(params.length !== 1 || !params[0]) return undefined;
+  if (params.length !== 1 || !params[0]) return undefined;
   return createDate("function-getYear", params[0]).getFullYear();
 }
 FunctionFactory.Instance.register("getYear", getYear);
@@ -412,35 +412,35 @@ function weekday(params: any[]): any {
 FunctionFactory.Instance.register("weekday", weekday);
 
 function getQuestionValueByContext(context: any, name: string): any {
-  if(!context || !name) return undefined;
+  if (!context || !name) return undefined;
   let q = context.question;
   while(q && q.parent) {
     const res = q.parent.getQuestionByName(name);
-    if(!!res) return res;
+    if (!!res) return res;
     q = q.parentQuestion;
   }
   const keys = ["row", "panel", "survey"];
-  for(let i = 0; i < keys.length; i ++) {
+  for (let i = 0; i < keys.length; i ++) {
     const ctx = context[keys[i]];
-    if(ctx && ctx.getQuestionByName) {
+    if (ctx && ctx.getQuestionByName) {
       const res = ctx.getQuestionByName(name);
-      if(res) return res;
+      if (res) return res;
     }
   }
   return null;
 }
 function getDisplayValueReturnResult(q: any, params: any[]): string {
-  if(params.length > 1 && !Helpers.isValueEmpty(params[1])) return q.getDisplayValue(true, params[1]);
+  if (params.length > 1 && !Helpers.isValueEmpty(params[1])) return q.getDisplayValue(true, params[1]);
   return q.displayValue;
 }
 function displayValue(params: any[]): any {
   const q = getQuestionValueByContext(this, params[0]);
-  if(!q) return "";
-  if(q.isReady) {
+  if (!q) return "";
+  if (q.isReady) {
     this.returnResult(getDisplayValueReturnResult(q, params));
   } else {
     const displayValueOnReadyChanged = (sender: any, options: any) => {
-      if(sender.isReady) {
+      if (sender.isReady) {
         sender.onReadyChanged.remove(displayValueOnReadyChanged);
         this.returnResult(getDisplayValueReturnResult(sender, params));
       }
@@ -452,19 +452,19 @@ function displayValue(params: any[]): any {
 FunctionFactory.Instance.register("displayValue", displayValue, true);
 
 function propertyValue(params: any[]): any {
-  if(params.length !== 2 || !params[0] || !params[1]) return undefined;
+  if (params.length !== 2 || !params[0] || !params[1]) return undefined;
   const q = getQuestionValueByContext(this, params[0]);
   return q ? q[params[1]] : undefined;
 }
 FunctionFactory.Instance.register("propertyValue", propertyValue);
 function substring_(params: any[]): any {
-  if(params.length < 2) return "";
+  if (params.length < 2) return "";
   const s = params[0];
-  if(!s || typeof s !== "string") return "";
+  if (!s || typeof s !== "string") return "";
   const start = params[1];
-  if(!Helpers.isNumber(start)) return "";
+  if (!Helpers.isNumber(start)) return "";
   const end = params.length > 2 ? params[2] : undefined;
-  if(!Helpers.isNumber(end)) return s.substring(start);
+  if (!Helpers.isNumber(end)) return s.substring(start);
   return s.substring(start, end);
 }
 FunctionFactory.Instance.register("substring", substring_);

@@ -11,7 +11,7 @@ export class SvgBundleComponent implements OnInit, OnDestroy {
     if (!!this.svgContainer?.nativeElement) {
       this.svgContainer.nativeElement.innerHTML = SvgRegistry.iconsRenderedHtml();
     }
-  }
+  };
   ngOnInit(): void {
     this.onIconsChanged();
     SvgRegistry.onIconsChanged.add(this.onIconsChanged);

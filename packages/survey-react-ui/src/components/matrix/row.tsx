@@ -24,7 +24,7 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
   }
   protected onPointerDownHandler = (event: any) => {
     this.parentMatrix.onPointerDown(event.nativeEvent, this.model.row);
-  }
+  };
 
   componentDidMount(): void {
     super.componentDidMount();

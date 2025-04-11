@@ -264,7 +264,7 @@ export class TextValidator extends SurveyValidator {
     return null;
   }
   protected getDefaultErrorText(name: string): string {
-    if(name === "textNoDigitsAllow") return this.getLocalizationString(name);
+    if (name === "textNoDigitsAllow") return this.getLocalizationString(name);
     if (this.minLength > 0 && this.maxLength > 0)
       return this.getLocalizationFormatString("textMinMaxLength", this.minLength, this.maxLength);
     if (this.minLength > 0)
@@ -493,7 +493,7 @@ export class ExpressionValidator extends SurveyValidator {
   }
   public validate(value: any, name: string = null, values: any = null, properties: any = null): ValidatorResult {
     if (!this.expression) return null;
-    if(!!this.conditionRunner) {
+    if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
     this.ensureConditionRunner(true);
@@ -520,7 +520,7 @@ export class ExpressionValidator extends SurveyValidator {
   }
   private ensureConditionRunner(reNew: boolean): boolean {
     if (!this.expression) return false;
-    if(reNew || !this.conditionRunner) {
+    if (reNew || !this.conditionRunner) {
       this.conditionRunner = new ConditionRunner(this.expression);
     } else {
       this.conditionRunner.expression = this.expression;

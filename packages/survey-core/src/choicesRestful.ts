@@ -144,7 +144,7 @@ export class ChoicesRestful extends Base {
   constructor() {
     super();
     this.registerPropertyChangedHandlers(["url"], () => {
-      if(this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
+      if (this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
     });
   }
   public getSurvey(live: boolean = false): ISurvey {
@@ -227,7 +227,7 @@ export class ChoicesRestful extends Base {
     } else {
       try {
         parsedResponse = JSON.parse(response);
-      } catch {
+      } catch{
         parsedResponse = (response || "")
           .split("\n")
           .map((s: any) => s.trim(" "))
@@ -296,7 +296,7 @@ export class ChoicesRestful extends Base {
     return res;
   }
   public setData(json: any): void {
-    if(!json) json = {};
+    if (!json) json = {};
     this.getAllPropertiesNames().forEach(name => {
       (<any>this)[name] = json[name];
     });
@@ -306,7 +306,7 @@ export class ChoicesRestful extends Base {
     let hasValue = false;
     this.getAllPropertiesNames().forEach(name => {
       const val = (<any>this)[name];
-      if(!this.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
+      if (!this.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
         res[name] = val;
         hasValue = true;
       }

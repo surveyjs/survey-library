@@ -256,7 +256,7 @@ frameworks.forEach(async framework => {
       window["survey"].onFocusInQuestion.add(function (sender, options) {
         const q = options.question;
         let name = q.name;
-        if(q.parentQuestion) {
+        if (q.parentQuestion) {
           name = q.parentQuestion.name + "." + name;
         }
         window["survey_focusedName"] = name;

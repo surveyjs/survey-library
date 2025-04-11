@@ -9,7 +9,7 @@ const platformDescriptor = {
   name: "Angular",
   survey: null,
   surveyFactory: (json: any) => new SurveyModel(json),
-  getStrFromHtml: (snapshot: string) => (<any>window).__html__["./snapshots/"+snapshot+".snap.html"],
+  getStrFromHtml: (snapshot: string) => (<any>window).__html__["./snapshots/" + snapshot + ".snap.html"],
   render: (survey: SurveyModel, element: HTMLElement) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
@@ -51,7 +51,7 @@ describe("etalon tests", () => {
     };
   });
   markupTests.forEach(markupTest => {
-    if(!blackList.some(item => markupTest.snapshot?.search(item) > -1)) {
+    if (!blackList.some(item => markupTest.snapshot?.search(item) > -1)) {
       it(markupTest.name, (done: any) => {
         testQuestionMarkup(new ExpectAssertAdapter(expect, done), markupTest, platformDescriptor);
       });

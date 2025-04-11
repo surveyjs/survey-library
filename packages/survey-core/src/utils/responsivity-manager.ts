@@ -15,10 +15,10 @@ export class ResponsivityManager {
 
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
     return DomDocumentHelper.getComputedStyle(elt);
-  }
+  };
   private debouncedProcess = debounce(() => {
     this.process();
-  })
+  });
   constructor(
     public container: HTMLDivElement, private model: AdaptiveActionContainer) {
     this.model.updateCallback =
@@ -31,13 +31,13 @@ export class ResponsivityManager {
     if (typeof ResizeObserver !== "undefined") {
       let skipCallbackInResizeObserver = true;
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        if(skipCallbackInResizeObserver) { skipCallbackInResizeObserver = false; return; }
+        if (skipCallbackInResizeObserver) { skipCallbackInResizeObserver = false; return; }
         DomWindowHelper.requestAnimationFrame((): void | undefined => {
           this.process();
         });
       });
       this.resizeObserver.observe(this.container.parentElement);
-      if(this.shouldProcessResponsiveness()) {
+      if (this.shouldProcessResponsiveness()) {
         this.process();
       } else {
         skipCallbackInResizeObserver = false;
@@ -62,7 +62,7 @@ export class ResponsivityManager {
   }
   protected getGap(): number {
     const computedStyle = this.getComputedStyle(this.container);
-    if(computedStyle.display == "flex") {
+    if (computedStyle.display == "flex") {
       const gap = parseFloat(computedStyle.rowGap);
       return !isNaN(gap) ? gap : 0;
     }
@@ -79,11 +79,11 @@ export class ResponsivityManager {
       ? this.model.renderedActions.filter(action => action.needUpdateMaxDimension || action.needUpdateMinDimension)
       : this.model.renderedActions;
     let actionsCounter = actionsToUpdateDimension.length;
-    if(actionsCounter == 0) {
+    if (actionsCounter == 0) {
       callback();
     }
     const onItemDimensionsUpdated = () => {
-      if(--actionsCounter<= 0) {
+      if (--actionsCounter <= 0) {
         callback();
       }
     };
@@ -107,7 +107,7 @@ export class ResponsivityManager {
   private process(): void {
     if (this.shouldProcessResponsiveness()) {
       this.updateItemsDimensions(() => {
-        if(this.shouldProcessResponsiveness()) {
+        if (this.shouldProcessResponsiveness()) {
           this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
         }
         this.isInitialized = true;

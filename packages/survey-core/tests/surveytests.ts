@@ -3860,7 +3860,7 @@ QUnit.test("merge values", function (assert) {
   survey.doMergeValues({ val: 1 }, a);
   assert.equal(a, "test", "Do nothing if dest is string");
 });
-function percentageToNum(width: string): Number {
+function percentageToNum(width: string): number {
   width = width.replace("%", "");
   return parseFloat(width);
 }

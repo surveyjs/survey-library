@@ -3,7 +3,7 @@ import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElem
 
 const title = "Question Screenshot";
 
-fixture`${title}`.page`${url}`.beforeEach(async (t) => {
+fixture`${title}`.page`${url}`.beforeEach(async () => {
 
 });
 

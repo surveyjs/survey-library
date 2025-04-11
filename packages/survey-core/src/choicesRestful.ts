@@ -3,7 +3,7 @@ import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
-import { settings } from "./settings";
+import { IBeforeRequestChoicesOptions, settings } from "./settings";
 import { SurveyError } from "./survey-error";
 
 class XmlParser {
@@ -105,12 +105,12 @@ export class ChoicesRestful extends Base {
   }
   public static get onBeforeSendRequest(): (
     sender: ChoicesRestful,
-    options: { request: XMLHttpRequest }
+    options: IBeforeRequestChoicesOptions
   ) => void {
     return settings.web.onBeforeRequestChoices;
   }
   public static set onBeforeSendRequest(
-    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+    val: (sender: ChoicesRestful, options: IBeforeRequestChoicesOptions) => void
   ) {
     settings.web.onBeforeRequestChoices = val;
   }
@@ -236,26 +236,62 @@ export class ChoicesRestful extends Base {
     }
     return parsedResponse;
   }
+  // protected sendRequest() {
+  //   var xhr = new XMLHttpRequest();
+  //   xhr.open("GET", this.processedUrl);
+  //   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  //   var self = this;
+  //   var loadingObjHash = this.objHash;
+  //   xhr.onload = function () {
+  //     self.beforeLoadRequest();
+  //     if (xhr.status === 200) {
+  //       self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
+  //     } else {
+  //       self.onError(xhr.statusText, xhr.responseText);
+  //     }
+  //   };
+  //   var options = { request: xhr };
+  //   if (!!settings.web.onBeforeRequestChoices) {
+  //     settings.web.onBeforeRequestChoices(this, options);
+  //   }
+  //   this.beforeSendRequest();
+  //   options.request.send();
+  // }
   protected sendRequest() {
-    var xhr = new XMLHttpRequest();
-    xhr.open("GET", this.processedUrl);
-    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    var self = this;
-    var loadingObjHash = this.objHash;
-    xhr.onload = function () {
-      self.beforeLoadRequest();
-      if (xhr.status === 200) {
-        self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
-      } else {
-        self.onError(xhr.statusText, xhr.responseText);
-      }
+    const self = this;
+    const loadingObjHash = this.objHash;
+
+    let url = this.processedUrl;
+    const fetchOptions: RequestInit = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     };
-    var options = { request: xhr };
-    if (!!settings.web.onBeforeRequestChoices) {
+    const options = { url, fetchOptions };
+
+    if (settings.web.onBeforeRequestChoices) {
       settings.web.onBeforeRequestChoices(this, options);
     }
+
     this.beforeSendRequest();
-    options.request.send();
+    fetch(options.url, options.fetchOptions)
+      .then(response => {
+        self.beforeLoadRequest();
+
+        if (response.status === 200) {
+          return response.text().then(text => {
+            self.onLoad(self.parseResponse(text), loadingObjHash);
+          });
+        } else {
+          return response.text().then(errorText => {
+            self.onError(response.statusText, errorText);
+          });
+        }
+      })
+      .catch(error => {
+        self.onError(error.message, "");
+      });
   }
   public getType(): string {
     return "choicesByUrl";
@@ -600,12 +636,12 @@ export class ChoicesRestfull extends ChoicesRestful {
   }
   public static get onBeforeSendRequest(): (
     sender: ChoicesRestful,
-    options: { request: XMLHttpRequest }
+    options: IBeforeRequestChoicesOptions
   ) => void {
     return settings.web.onBeforeRequestChoices;
   }
   public static set onBeforeSendRequest(
-    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+    val: (sender: ChoicesRestful, options: IBeforeRequestChoicesOptions) => void
   ) {
     settings.web.onBeforeRequestChoices = val;
   }

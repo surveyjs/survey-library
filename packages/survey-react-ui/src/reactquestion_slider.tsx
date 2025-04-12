@@ -213,7 +213,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
         input.step = step;
       }
-
     }
     this.question.value = renderedValue;
     this.refreshInputRange();
@@ -227,7 +226,13 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private oldInputValue: number | null = null;
 
   private handleRangePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    const { dragOrClickHelper, allowDragRange } = this.question;
+    const { dragOrClickHelper, allowDragRange, step } = this.question;
+
+    if (step) {
+      const input = this.rangeInputRef.current as HTMLInputElement; //TODO
+      input.step = "0.1";
+    }
+
     if (allowDragRange) {
       event.persist();
       dragOrClickHelper.dragHandler = this.prepareInputRangeForMoving.bind(this);
@@ -252,9 +257,20 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private handleRangePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const step = this.question.step;
     if (this.isRangeMoving) {
       this.refreshInputRange();
       this.isRangeMoving = false;
+      if (step) {
+        const input = this.rangeInputRef.current as HTMLInputElement; //TODO
+        input.step = ""+step;
+
+        const renderedValue:number[] = this.getRenderedValue();
+        for (let i = 0; i < renderedValue.length; i++) {
+          renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+        }
+        this.question.value = renderedValue;
+      }
       return;
     }
 
@@ -314,7 +330,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (!this.isRangeMoving) return;
     const { step, max, min } = this.question;
-    const diff = +event.target.value > this.oldInputValue ? -step : step;
+    //const diff = +event.target.value > this.oldInputValue ? -step : step;
+    const diff = this.oldInputValue - +event.target.value;
     this.oldInputValue = +event.target.value;
 
     const renderedValue = this.getRenderedValue();

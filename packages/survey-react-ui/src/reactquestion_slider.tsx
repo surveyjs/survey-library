@@ -97,7 +97,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
       // TODO all keys should be generated ids
       const thumb = <React.Fragment key={"thumb-"+i}>
-        <span className={`${cssClasses.thumb} ${i === focusedThumb ? cssClasses.thumbFocusedMode : ""}`} style={{ left: percent }}></span>
+        <div className={`${cssClasses.thumb} ${i === focusedThumb ? cssClasses.thumbFocusedMode : ""}`} style={{ left: percent }}>
+          <div className={cssClasses.thumbDot}></div>
+        </div>
         {tooltip}
       </React.Fragment>;
       thumbs.push(thumb);

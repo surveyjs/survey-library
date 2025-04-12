@@ -1,11 +1,14 @@
 @use "../variables.scss" as *;
 
-$range-slider-height: 5px;
-$range-slider-thumb-size: 20px;
+$slider-path-height: var(--lbr-slider-path-height, calcSize(0.5));
+$slider-thumb-width: var(--lbr-slider-thumb-width, calcSize(4));
+$slider-thumb-height: var(--lbr-slider-thumb-height, calcSize(4));
+$slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 
 @mixin thumbFocusMixin {
-  outline: 2px solid $primary;
-  outline-offset: 2px;
+  // outline: 2px solid $primary;
+  // outline-offset: 2px;
+  border-color: var(--lbr-slider-thumb-border-color-focused, $primary);
 }
 
 .sd-slider {
@@ -26,13 +29,13 @@ $range-slider-thumb-size: 20px;
   position: absolute;
   left: 0;
   right: 0;
-  height: $range-slider-height;
+  height: $slider-path-height;
   cursor: pointer;
 }
 
 .sd-slider__inverse-track {
   position: absolute;
-  height: $range-slider-height;
+  height: $slider-path-height;
   background-color: $foreground-light;
 }
 
@@ -51,23 +54,32 @@ $range-slider-thumb-size: 20px;
 .sd-slider__range-track {
   position: absolute;
   left: 0;
-  height: $range-slider-height;
+  height: $slider-path-height;
   background-color: $primary;
 }
 
 .sd-slider__thumb {
   position: absolute;
-  top: -7px;
+  top: calc($slider-thumb-height / -2 + $slider-path-height / 2);
   z-index: 2;
-  height: $range-slider-thumb-size;
-  width: $range-slider-thumb-size;
-  text-align: left;
+  border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
+  width: $slider-thumb-width;
+  height: $slider-thumb-height;
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-  background-color: $background;
-  border-radius: 50%;
-  outline: none;
-  margin-left: calc($range-slider-thumb-size / -2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: $slider-thumb-color;
+  box-shadow: var(--lbr-slider-thumb-shadow-offset-x, 0px) var(--lbr-slider-thumb-shadow-offset-y, 1px) var(--lbr-slider-thumb-shadow-blur, 2px) var(--lbr-slider-thumb-shadow-spread, 0px) var(--lbr-slider-thumb-shadow-color, rgba(0, 0, 0, 0.25));
+  box-sizing: border-box;
+  border: var(--lbr-slider-thumb-border-width-focused, 2px) solid $slider-thumb-color;
+
+  // text-align: left;
+  // box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+  // background-color: $background;
+  
+ // outline: none;
+//  margin-left: calc($slider-thumb-width / -2);
 
   &:hover {
     @include thumbFocusMixin;
@@ -76,13 +88,21 @@ $range-slider-thumb-size: 20px;
 
 .sd-slider__thumb--focused {
   @include thumbFocusMixin;
-
 }
+
+.sd-slider__thumb-dot {
+  border-radius: var(--lbr-slider-thumb-dot-corner-radius, 1024px);
+  background: var(--lbr-slider-thumb-dot-color, $primary);
+  width: var(--lbr-slider-thumb-dot-width-hovering, 16px);
+  height: var(--lbr-slider-thumb-dot-height-hovering, 16px);
+}
+
+
 
 .sd-slider__tooltip {
   opacity: 1;
   position: absolute;
-  margin-left: -15px;
+  //margin-left: -15px;
   top: -45px;
   z-index: 3;
   background-color: $primary;
@@ -127,6 +147,8 @@ $range-slider-thumb-size: 20px;
   top: 100px;
   right: 0;
   left: 0;
+  user-select: none;
+  pointer-events: none;
 
   >div {
     position: relative;
@@ -137,7 +159,7 @@ $range-slider-thumb-size: 20px;
 .sd-slider__label {
   color: $foreground;
   position: absolute;
-  margin-left: calc($range-slider-thumb-size / -2);
+ // margin-left: calc($slider-thumb-width / -2);
 
   &:first-child {
     margin-left: 0;
@@ -173,11 +195,11 @@ input[type=range].sd-slider__input:focus::-webkit-slider-runnable-track {
 }
 
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
-  margin: 0 calc($range-slider-thumb-size / -2);
+  margin: 0 calc($slider-thumb-width / -2);
 }
 
 input[type="range"].sd-slider__input::-moz-range-track {
-  margin: 0 calc($range-slider-thumb-size / -2);
+  margin: 0 calc($slider-thumb-width / -2);
 }
 
 input[type=range].sd-slider__input:focus {
@@ -187,7 +209,7 @@ input[type=range].sd-slider__input:focus {
 input[type=range].sd-slider__input::-webkit-slider-thumb {
   pointer-events: all;
   height: 70px;
-  width: $range-slider-thumb-size;
+  width: $slider-thumb-width;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
@@ -198,14 +220,14 @@ input[type=range].sd-slider__input::-webkit-slider-thumb {
 }
 
 input[type=range][name="range-input"].sd-slider__input::-webkit-slider-thumb {
-  height: $range-slider-thumb-size;
+  height: $slider-thumb-height;
   top: -2px;
 }
 
 input[type=range].sd-slider__input::-moz-range-thumb {
   pointer-events: all;
   height: 70px;
-  width: $range-slider-thumb-size;
+  width: $slider-thumb-width;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
@@ -216,7 +238,7 @@ input[type=range].sd-slider__input::-moz-range-thumb {
 }
 
 input[type=range][name="range-input"].sd-slider__input::-moz-range-thumb {
-  height: $range-slider-thumb-size;
+  height: $slider-thumb-height;
   top: -2px;
 }
 

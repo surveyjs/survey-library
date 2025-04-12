@@ -679,6 +679,7 @@ export var defaultCss = {
     inverseTrackLeft: "sd-slider__inverse-track sd-slider__inverse-track--left",
     inverseTrackRight: "sd-slider__inverse-track sd-slider__inverse-track--right",
     thumb: "sd-slider__thumb",
+    thumbDot: "sd-slider__thumb-dot",
     thumbFocusedMode: "sd-slider__thumb--focused",
     tooltip: "sd-slider__tooltip",
     tooltipOnHoverMode: "sd-slider__tooltip--on-hover",

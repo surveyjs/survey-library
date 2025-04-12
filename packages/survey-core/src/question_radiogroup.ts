@@ -68,9 +68,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     super.setNewComment(newValue);
     this.isMouseDown = false;
   }
-  public get showClearButtonInContent(): boolean {
-    return !this.isDefaultV2Theme && this.canShowClearButton;
-  }
   public clickItemHandler(item: ItemValue): void {
     if (this.isReadOnlyAttr) return;
     this.renderedValue = item.value;
@@ -78,7 +75,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
 
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];
-    if(this.isDefaultV2Theme && !this.isDesignMode) {
+    if(!this.isDesignMode) {
       const clearAction = new Action(
         {
           locTitleName: "clearCaption",

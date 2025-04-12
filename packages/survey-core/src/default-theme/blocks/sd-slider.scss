@@ -79,7 +79,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   // background-color: $background;
   
  // outline: none;
-//  margin-left: calc($slider-thumb-width / -2);
+  margin-left: calc($slider-thumb-width / -2);
 
   &:hover {
     @include thumbFocusMixin;
@@ -102,7 +102,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider__tooltip {
   opacity: 1;
   position: absolute;
-  //margin-left: -15px;
+  margin-left: calc($slider-thumb-width / -2);
   top: -45px;
   z-index: 3;
   background-color: $primary;
@@ -159,7 +159,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider__label {
   color: $foreground;
   position: absolute;
- // margin-left: calc($slider-thumb-width / -2);
+  margin-left: calc($slider-thumb-width / -2);
 
   &:first-child {
     margin-left: 0;

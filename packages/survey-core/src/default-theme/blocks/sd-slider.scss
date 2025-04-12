@@ -36,7 +36,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider__inverse-track {
   position: absolute;
   height: $slider-path-height;
-  background-color: $foreground-light;
+  background: var(--lbr-slider-path-color, #DCDCDC);
 }
 
 .sd-slider__inverse-track--left {
@@ -55,7 +55,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   position: absolute;
   left: 0;
   height: $slider-path-height;
-  background-color: $primary;
+  background: var(--lbr-slider-path-color-filled, $primary);
 }
 
 .sd-slider__thumb {
@@ -73,12 +73,6 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   box-shadow: var(--lbr-slider-thumb-shadow-offset-x, 0px) var(--lbr-slider-thumb-shadow-offset-y, 1px) var(--lbr-slider-thumb-shadow-blur, 2px) var(--lbr-slider-thumb-shadow-spread, 0px) var(--lbr-slider-thumb-shadow-color, rgba(0, 0, 0, 0.25));
   box-sizing: border-box;
   border: var(--lbr-slider-thumb-border-width-focused, 2px) solid $slider-thumb-color;
-
-  // text-align: left;
-  // box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
-  // background-color: $background;
-  
- // outline: none;
   margin-left: calc($slider-thumb-width / -2);
 
   &:hover {
@@ -97,48 +91,46 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   height: var(--lbr-slider-thumb-dot-height-hovering, 16px);
 }
 
-
-
 .sd-slider__tooltip {
   opacity: 1;
   position: absolute;
   margin-left: calc($slider-thumb-width / -2);
-  top: -45px;
+  left: -7px;
+  top: -62px;
+  margin-left: -25px;
   z-index: 3;
-  background-color: $primary;
-  color: $background;
-  width: 28px;
-  height: 28px;
-  border-radius: 28px;
-  -webkit-border-radius: 28px;
-  align-items: center;
-  -webkit-justify-content: center;
+  border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
+  background: var(--lbr-tooltip-background-color, $background);
+  box-shadow: var(--lbr-tooltip-shadow-2-offset-x, 0px) var(--lbr-tooltip-shadow-2-offset-y, 1px) var(--lbr-tooltip-shadow-2-blur, 2px) var(--lbr-tooltip-shadow-2-spread, 0px) var(--lbr-tooltip-shadow-2-color, rgba(0, 0, 0, 0.25)), var(--lbr-tooltip-shadow-1-offset-x, 0px) var(--lbr-tooltip-shadow-1-offset-y, 2px) var(--lbr-tooltip-shadow-1-blur, 8px) var(--lbr-tooltip-shadow-1-spread, 0px) var(--lbr-tooltip-shadow-1-color, rgba(0, 76, 68, 0.10));
+  display: flex;
+  padding: var(--lbr-tooltip-padding-top, calcSize(1)) var(--lbr-tooltip-padding-right, calcSize(2)) var(--lbr-tooltip-padding-bottom, calcSize(1)) var(--lbr-tooltip-padding-left, calcSize(2));
   justify-content: center;
-  text-align: center;
+  align-items: center;
   user-select: none;
+  font-family: $font-family;
+  font-size: var(--lbr-font-small-size, calSize(1.5));
+  font-weight: 600;
+  line-height: var(--lbr-font-small-line-height, size(2));
+  color: var(--lbr-tooltip-text-color, $primary);
 
   &::after {
+    //width: var(--lbr-tooltip-pointer-width, 12px);
+    //height: var(--lbr-tooltip-pointer-height, 6px);
     position: absolute;
     content: '';
-    left: 0;
+    left: 22%;
+    bottom: calc(var(--lbr-tooltip-pointer-height, calcSize(0.75)) * -1);
     border-radius: 16px;
-    top: 19px;
     border-left: 14px solid transparent;
     border-right: 14px solid transparent;
     border-top-width: 16px;
     border-top-style: solid;
-    border-top-color: $primary;
+    border-top-color: var(--lbr-tooltip-background-color, $background);
   }
 }
 
 .sd-slider__tooltip--on-hover {
   opacity: 0;
-}
-
-.sd-slider__tooltip-value {
-  font-size: 12px;
-  font-weight: 700;
-  line-height: 28px;
 }
 
 .sd-slider__labels-container {

@@ -213,7 +213,7 @@ input[type=range].sd-slider__input::-webkit-slider-thumb {
 
 input[type=range][name="range-input"].sd-slider__input::-webkit-slider-thumb {
   height: $slider-thumb-height;
-  top: -2px;
+  top: calc($slider-thumb-height / -2 + $slider-path-height);
 }
 
 input[type=range].sd-slider__input::-moz-range-thumb {
@@ -231,7 +231,7 @@ input[type=range].sd-slider__input::-moz-range-thumb {
 
 input[type=range][name="range-input"].sd-slider__input::-moz-range-thumb {
   height: $slider-thumb-height;
-  top: -2px;
+  top: calc($slider-thumb-height / -2 + $slider-path-height);
 }
 
 input[type=range].sd-slider__input::-ms-fill-lower {

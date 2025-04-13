@@ -732,7 +732,7 @@ export class SurveyModel extends SurveyElementCore
   public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
   /**
-   * An event that is raised for every matrix cell after it is rendered to the DOM.
+   * An event that is raised after a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is rendered to the DOM.
    * @see onMatrixCellCreated
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
@@ -1491,7 +1491,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("partialSendEnabled", val);
   }
   /**
-   * @deprecated Use the [`partialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSend) property instead.
+   * @deprecated Use the [`partialSendEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSendEnabled) property instead.
    */
   public get sendResultOnPageNext(): boolean {
     return this.partialSendEnabled;
@@ -4126,6 +4126,7 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if(this.validationEnabled && !q.validate(true)) return false;
+    this.sendPartialResult();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
     if(index < 0 || index === questions.length - 1) return false;
@@ -5176,10 +5177,8 @@ export class SurveyModel extends SurveyElementCore
   protected doNextPage() {
     var curPage = this.currentPage;
     this.checkOnPageTriggers(false);
+    this.sendPartialResult();
     if (!this.isCompleted) {
-      if (this.partialSendEnabled) {
-        this.sendResult(this.surveyPostId, this.clientId, true);
-      }
       if (curPage === this.currentPage) {
         var vPages = this.visiblePages;
         var index = vPages.indexOf(this.currentPage);
@@ -5191,6 +5190,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public setCompleted(trigger: Trigger): void {
     this.doComplete(true, trigger);
+  }
+  private sendPartialResult(): void {
+    if (this.partialSendEnabled &&!this.isCompleted) {
+      this.sendResult(this.surveyPostId, this.clientId, true);
+    }
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;
@@ -5572,9 +5576,12 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
-  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any): void {
-    options.question = question;
-    this.onAfterRenderMatrixCell.fire(this, options);
+  matrixAfterCellRender(options: any): void {
+    const evt = this.onAfterRenderMatrixCell;
+    if (!evt.isEmpty) {
+      options.question = options.cellQuestion?.parentQuestion;
+      evt.fire(this, options);
+    }
   }
   matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;

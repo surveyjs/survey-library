@@ -1,5 +1,4 @@
-<div [style]="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' }" #contentElement
-  [class]="question.cssClasses.tableWrapper">
+<div #contentElement [class]="question.cssClasses.tableWrapper">
   <table [class]="question.getTableCss()">
     <thead *ngIf="table.showHeader">
       <tr>

@@ -1904,3 +1904,25 @@ QUnit.test("scroll on error", function (assert) {
   assert.equal(survey.tryComplete(), false, "can't complete");
   assert.equal(errorName, "q1", "focus on question");
 });
+QUnit.test("survey.onAfterRenderMatrixCell event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        cellType: "text",
+        type: "matrixdropdown",
+        name: "q1",
+        "columns": [{ name: "col1" }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  let questionName: string = "";
+  survey.onAfterRenderMatrixCell.add((survey: SurveyModel, options: any) => {
+    questionName = options.question.name;
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  const qCell1 = rows[0].cells[0].question;
+  survey.matrixAfterCellRender({ cellQuestion: qCell1 });
+  assert.equal(questionName, "q1", "question name is correct");
+});

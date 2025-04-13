@@ -13,7 +13,7 @@ trigger:
       - v*.*.*
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: "Ubuntu-22.04"
 
 jobs:
   - job: Core

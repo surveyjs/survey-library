@@ -4,9 +4,6 @@ import { SurveyModel, Question, QuestionPanelDynamicModel } from "survey-core";
 import { SurveyPanel } from "./panel";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
-import { SurveyQuestionPanelDynamicNextButton } from "./components/paneldynamic-actions/paneldynamic-next-btn";
-import { SurveyQuestionPanelDynamicPrevButton } from "./components/paneldynamic-actions/paneldynamic-prev-btn";
-import { SurveyQuestionPanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 
@@ -56,75 +53,21 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         creator={this.creator}
       />);
     });
-    const btnAdd: React.JSX.Element | null = this.question.isRenderModeList && this.question["showLegacyNavigation"]
-      ? this.renderAddRowButton()
+    const rangeTop: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressTopShowing
+      ? this.renderRange()
       : null;
-    const navTop: React.JSX.Element | null = this.question.isProgressTopShowing
-      ? this.renderNavigator()
-      : null;
-    const navBottom: React.JSX.Element | null = this.question.isProgressBottomShowing
-      ? this.renderNavigator()
-      : null;
-
     const navV2 = this.renderNavigatorV2();
     const noEntriesPlaceholder = this.renderPlaceholder(cssClasses);
     return (
       <div className={cssClasses.root}>
         {this.question.hasTabbedMenu ? <div className={this.question.getTabsContainerCss()}><SurveyActionBar model={this.question.tabbedMenu}></SurveyActionBar></div> : null }
         {noEntriesPlaceholder}
-        {navTop}
-        <div className={cssClasses.panelsContainer}>
+        {rangeTop}
+        <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
-        {navBottom}
-        {btnAdd}
         {navV2}
       </div>
-    );
-  }
-  protected renderNavigator(): React.JSX.Element | null {
-    if (!this.question["showLegacyNavigation"]) {
-      if (this.question.isRangeShowing && this.question.isProgressTopShowing) {
-        return this.renderRange();
-      } else {
-        return null;
-      }
-    }
-    const range: React.JSX.Element | null = this.question.isRangeShowing ? this.renderRange() : null;
-    const btnPrev: React.JSX.Element = this.rendrerPrevButton();
-    const btnNext: React.JSX.Element = this.rendrerNextButton();
-    const btnAdd: React.JSX.Element | null = this.renderAddRowButton();
-    const progressClass: string = this.question.isProgressTopShowing
-      ? this.question.cssClasses.progressTop
-      : this.question.cssClasses.progressBottom;
-    return (
-      <div className={progressClass}>
-        <div style={{ clear: "both" }}>
-          <div className={this.question.cssClasses.progressContainer}>
-            {btnPrev}
-            {range}
-            {btnNext}
-          </div>
-          {btnAdd}
-          {this.renderProgressText()}
-        </div>
-      </div>
-    );
-  }
-  private renderProgressText(): React.JSX.Element {
-    return (
-      <SurveyQuestionPanelDynamicProgressText data={{ question: this.question }}></SurveyQuestionPanelDynamicProgressText>
-    );
-  }
-
-  protected rendrerPrevButton() {
-    return (
-      <SurveyQuestionPanelDynamicPrevButton data={{ question: this.question }}></SurveyQuestionPanelDynamicPrevButton>
-    );
-  }
-  protected rendrerNextButton() {
-    return (
-      <SurveyQuestionPanelDynamicNextButton data={{ question: this.question }}></SurveyQuestionPanelDynamicNextButton>
     );
   }
 

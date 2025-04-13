@@ -913,18 +913,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     keys.push("title");
     keys.push("description");
   }
-
-  public get isDefaultV2Theme() {
-    return this.survey && this.survey.getCss().root.indexOf("sd-root-modern") !== -1;
-  }
-
   public get hasParent() {
     return (this.parent && !this.parent.isPage) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
 
   private shouldAddRunnerStyles(): boolean {
-    return !this.isDesignMode && this.isDefaultV2Theme;
+    return !this.isDesignMode;
   }
 
   protected get isCompact(): boolean {
@@ -1172,8 +1167,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const isPreview = this.isPreviewStyle;
     const isReadOnly = itemReadOnly || this.isReadOnly;
     const isReadOnlyStyle = isReadOnly && !isPreview;
-    const isDisableStyle = !this.isDefaultV2Theme && (isReadOnly || isPreview);
-    return [isReadOnlyStyle, isDisableStyle];
+    // const isDisableStyle = this.isDefaultV2Theme && (isReadOnly || isPreview); this was useful for the old theme
+    return [isReadOnlyStyle, false];
   }
   public get isPreviewStyle(): boolean {
     return !!this.survey && this.survey.state === "preview";

@@ -104,12 +104,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
-    var errorsTop = this.question.showErrorOnTop
-      ? this.renderErrors(cssClasses, "top")
-      : null;
-    var errorsBottom = this.question.showErrorOnBottom
-      ? this.renderErrors(cssClasses, "bottom")
-      : null;
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
     var descriptionUnderInput = question.hasDescriptionUnderInput
@@ -121,10 +115,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         style={contentStyle}
         role="presentation"
       >
-        {errorsTop}
         {questionRender}
         {comment}
-        {errorsBottom}
         {descriptionUnderInput}
       </div>
     );
@@ -260,9 +252,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   private get creator(): ISurveyCreator {
     return this.props.creator;
-  }
-  protected get location(): string {
-    return this.props.location;
   }
   private getState(prevState: any = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };

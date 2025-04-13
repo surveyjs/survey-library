@@ -21951,3 +21951,45 @@ QUnit.test("Update hasTitle on load from JSON", function (assert) {
   });
   assert.equal(survey.hasTitle, true, "title presents");
 });
+QUnit.test("survey.onPartialSend for regular survey, Bug#9737", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] }
+    ]
+  });
+  survey.partialSendEnabled = true;
+  let counter = 0;
+  survey.onPartialSend.add((sender, options) => {
+    counter++;
+  });
+  survey.setValue("q1", "val1");
+  survey.nextPage();
+  assert.equal(counter, 1, "onPartialSend is raised");
+  survey.setValue("q3", "val3");
+  survey.tryComplete();
+  assert.equal(counter, 1, "onPartialSend is not raised");
+});
+QUnit.test("survey.onPartialSend for regular survey, Bug#9737", function (assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] }
+    ]
+  });
+  survey.partialSendEnabled = true;
+  let counter = 0;
+  survey.onPartialSend.add((sender, options) => {
+    counter++;
+  });
+  survey.setValue("q1", "val1");
+  survey.performNext();
+  assert.equal(counter, 1, "onPartialSend is raised");
+  survey.setValue("q2", "val2");
+  survey.performNext();
+  assert.equal(counter, 2, "onPartialSend is raised");
+  survey.setValue("q3", "val3");
+  survey.performNext();
+  assert.equal(counter, 3, "onPartialSend is raised");
+});

@@ -365,7 +365,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         row: this.cell.row,
         column: this.cell.cell.column,
       };
-      this.question.survey.matrixAfterCellRender(this.question, options);
+      this.question.survey.matrixAfterCellRender(options);
       this.question.afterRenderCore(el);
     }
   }

@@ -5508,9 +5508,12 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
-  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any): void {
-    options.question = question;
-    this.onAfterRenderMatrixCell.fire(this, options);
+  matrixAfterCellRender(options: any): void {
+    const evt = this.onAfterRenderMatrixCell;
+    if (!evt.isEmpty) {
+      options.question = options.cellQuestion?.parentQuestion;
+      evt.fire(this, options);
+    }
   }
   matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;

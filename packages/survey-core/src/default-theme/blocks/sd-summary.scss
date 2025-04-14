@@ -99,6 +99,11 @@
     opacity: 0.25;
     cursor: default;
   }
+
+  .sv-svg-icon {
+    width: calcSize(2);
+    height: calcSize(2);
+  }
 }
 
 .sd-summary-row-action--edit {

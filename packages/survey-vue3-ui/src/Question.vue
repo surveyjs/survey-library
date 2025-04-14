@@ -15,6 +15,12 @@
     :data-name="element.name"
   >
     <SvComponent
+      :is="'sv-breadcrumbs'"
+      v-if="element.singleInputHasActions"
+      :items="element.singleInputActions"
+      :css="element.cssClasses"
+    />
+    <SvComponent
       :is="'survey-errors'"
       v-if="element.showErrorsAboveQuestion"
       :element="element"
@@ -22,11 +28,29 @@
     />
     <SvComponent
       :is="'survey-element-header'"
-      v-if="element.hasTitleOnLeftTop"
+      v-if="!element.singleInputHideHeader && element.hasTitleOnLeftTop"
       :element="element"
-      :css="css"
+      :css="element.cssClasses"
     />
-    <SvComponent :is="contentComponentName" v-bind="contentComponentData">
+    <SvComponent
+      :is="'sv-single-input-summary'"
+      v-if="element.singleInputSummary"
+      :css="element.cssClasses"
+      :summary="element.singleInputSummary"
+    ></SvComponent>
+    <SvComponent
+      :is="'survey-question'"
+      v-else-if="singleQuestion"
+      :css="css"
+      :element="singleQuestion"
+      :survey="survey"
+      :key="(singleQuestion as any).id"
+    ></SvComponent>
+    <SvComponent
+      v-else
+      :is="contentComponentName"
+      v-bind="contentComponentData"
+    >
       <div
         :class="getContentClass(element) || undefined"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
@@ -93,7 +117,9 @@ const hasErrorsOnTop = computed(() => {
 const hasErrorsOnBottom = computed(() => {
   return props.element.showErrorOnBottom;
 });
-
+const singleQuestion = computed(() => {
+  return props.element.singleInputQuestion;
+})
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };

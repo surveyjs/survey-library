@@ -62,7 +62,7 @@ export class QuestionFileModelBase extends Question {
     this.onUploadStateChanged.fire(this, { state: state });
   }
   public get showLoadingIndicator(): boolean {
-    return this.isUploading && this.isDefaultV2Theme;
+    return this.isUploading;
   }
   /**
    * Specifies whether to store file or signature content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
@@ -219,16 +219,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public cleanAction: Action;
   public actionsContainer: ActionContainer;
 
-  get supportFileNavigator(): boolean {
-    return this.isDefaultV2Theme;
-  }
-
   get fileNavigatorVisible(): boolean {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;
     const containsMultipleFiles = this.containsMultiplyFiles;
     const needToShowFileNavigator = this.pageSize < this.previewValue.length;
-    return !isUploading && !isPlayingVideo && containsMultipleFiles && needToShowFileNavigator && this.isDefaultV2Theme;
+    return !isUploading && !isPlayingVideo && containsMultipleFiles && needToShowFileNavigator;
   }
   private get pagesCount() {
     return Math.ceil(this.previewValue.length / this.pageSize);
@@ -237,8 +233,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   get actionsContainerVisible(): boolean {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;
-    const isDefaultV2Theme = this.isDefaultV2Theme;
-    return !isUploading && !isPlayingVideo && isDefaultV2Theme;
+    return !isUploading && !isPlayingVideo;
   }
 
   constructor(name: string) {
@@ -654,7 +649,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (!this.isDesignMode && this.survey) {
       if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
-          this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
+          this.setPropertyValue("currentMode", res ? this.sourceType : "file");
         });
       } else {
         this.setPropertyValue("currentMode", this.sourceType);
@@ -703,11 +698,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   get multipleRendered() {
     return this.allowMultiple ? "multiple" : undefined;
   }
-  //todo: remove it in V2
-  public get showChooseButton(): boolean {
-    return !this.isReadOnly && !this.isDefaultV2Theme;
-  }
-  //
   public get showFileDecorator(): boolean {
     const isPlayingVideo = this.isPlayingVideo;
     const showLoadingIndicator = this.showLoadingIndicator;
@@ -721,21 +711,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public get showPreviewContainer(): boolean {
     return this.previewValue && this.previewValue.length > 0;
   }
-  //todo: remove in V2
-  get showRemoveButtonCore(): boolean {
-    const showLoadingIndicator = this.showLoadingIndicator;
-    const isReadOnly = this.isReadOnly;
-    const isEmpty = this.isEmpty();
-    return !isReadOnly && !isEmpty && !showLoadingIndicator && !this.isDefaultV2Theme;
-  }
-  get showRemoveButton(): boolean {
-    return this.showRemoveButtonCore && this.cssClasses.removeButton;
-  }
-  get showRemoveButtonBottom(): boolean {
-    const cssClasses = new CssClassBuilder().append(this.cssClasses.removeButtonBottom).append(this.cssClasses.contextButton).toString();
-    return this.showRemoveButtonCore && cssClasses as any;
-  }
-  //
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;
   }
@@ -997,7 +972,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.loadPreview(this.value);
   }
   protected needResponsiveness(): boolean {
-    return this.supportResponsiveness() && this.isDefaultV2Theme;
+    return this.supportResponsiveness();
   }
   protected supportResponsiveness(): boolean {
     return true;

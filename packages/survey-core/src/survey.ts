@@ -1491,7 +1491,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("partialSendEnabled", val);
   }
   /**
-   * @deprecated Use the [`partialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSend) property instead.
+   * @deprecated Use the [`partialSendEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#partialSendEnabled) property instead.
    */
   public get sendResultOnPageNext(): boolean {
     return this.partialSendEnabled;
@@ -4110,6 +4110,7 @@ export class SurveyModel extends SurveyElementCore
     const q: any = this.currentSingleElement;
     if (!q) return this.nextPage();
     if (this.validationEnabled && !q.validate(true)) return false;
+    this.sendPartialResult();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
     if (index < 0 || index === questions.length - 1) return false;
@@ -5110,10 +5111,8 @@ export class SurveyModel extends SurveyElementCore
   protected doNextPage() {
     var curPage = this.currentPage;
     this.checkOnPageTriggers(false);
+    this.sendPartialResult();
     if (!this.isCompleted) {
-      if (this.partialSendEnabled) {
-        this.sendResult(this.surveyPostId, this.clientId, true);
-      }
       if (curPage === this.currentPage) {
         var vPages = this.visiblePages;
         var index = vPages.indexOf(this.currentPage);
@@ -5125,6 +5124,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public setCompleted(trigger: Trigger): void {
     this.doComplete(true, trigger);
+  }
+  private sendPartialResult(): void {
+    if (this.partialSendEnabled && !this.isCompleted) {
+      this.sendResult(this.surveyPostId, this.clientId, true);
+    }
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;
@@ -5506,9 +5510,12 @@ export class SurveyModel extends SurveyElementCore
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
-  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any): void {
-    options.question = question;
-    this.onAfterRenderMatrixCell.fire(this, options);
+  matrixAfterCellRender(options: any): void {
+    const evt = this.onAfterRenderMatrixCell;
+    if (!evt.isEmpty) {
+      options.question = options.cellQuestion?.parentQuestion;
+      evt.fire(this, options);
+    }
   }
   matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;

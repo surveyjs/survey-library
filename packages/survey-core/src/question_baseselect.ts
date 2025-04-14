@@ -1304,7 +1304,9 @@ export class QuestionSelectBase extends Question {
   }
   private carryForwardQuestion: Question;
   private findCarryForwardQuestion(data?: ISurveyData): Question {
-    if (!data) data = this.data;
+    if (!data) {
+      data = this.data || this.parentQuestion?.data;
+    }
     this.carryForwardQuestion = null;
     if (this.choicesFromQuestion && data) {
       this.carryForwardQuestion = <Question>data.findQuestionByName(this.choicesFromQuestion);

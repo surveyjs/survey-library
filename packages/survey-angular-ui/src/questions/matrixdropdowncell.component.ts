@@ -87,7 +87,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
         row: this.cell.row,
         column: this.cell.cell.column,
       };
-      this.question.survey.matrixAfterCellRender(this.question, options);
+      this.question.survey.matrixAfterCellRender(options);
       cellQ.afterRenderCore(el);
     }
   }

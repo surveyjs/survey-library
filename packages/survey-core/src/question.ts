@@ -1186,24 +1186,11 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.descriptionUnderInput, this.getDescriptionLocation() == "underInput")
       .toString();
   }
-  public showErrorOnCore(location: string): boolean {
-    return !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
-  }
-
-  public get showErrorOnTop(): boolean {
-    return this.showErrorOnCore("top");
-  }
-  public get showErrorOnBottom(): boolean {
-    return this.showErrorOnCore("bottom");
-  }
-  private get showErrorsOutsideQuestion(): boolean {
-    return this.isDefaultV2Theme;
-  }
   public get showErrorsAboveQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
+    return this.getErrorLocation() === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "bottom";
+    return this.getErrorLocation() === "bottom";
   }
 
   public get cssError(): string {
@@ -1216,11 +1203,9 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.errorsContainer, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainer)
       .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
       .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)
-      .append(cssClasses.error.locationTop, this.showErrorOnTop)
-      .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
   }
   protected hasCssError(): boolean {
@@ -2662,7 +2647,7 @@ export class Question extends SurveyElement<Question>
   }
 
   protected needResponsiveness(): boolean {
-    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+    return this.supportResponsiveness() && !this.isDesignMode;
   }
 
   protected checkForResponsiveness(el: HTMLElement): void {

@@ -32,13 +32,6 @@
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >
-        <SvComponent
-          :is="'survey-errors'"
-          v-if="hasErrorsOnTop"
-          :element="element"
-          :location="'top'"
-        />
-
         <SvComponent :is="componentName" :question="element" />
         <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
           <div>
@@ -49,12 +42,6 @@
           </div>
           <SvComponent :is="'survey-question-comment'" :question="element" />
         </div>
-        <SvComponent
-          :is="'survey-errors'"
-          v-if="hasErrorsOnBottom"
-          :element="element"
-          :location="'bottom'"
-        />
         <div
           v-if="element.hasDescriptionUnderInput"
           :class="element.cssDescription"
@@ -100,13 +87,6 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
-const hasErrorsOnTop = computed(() => {
-  return props.element.showErrorOnTop;
-});
-const hasErrorsOnBottom = computed(() => {
-  return props.element.showErrorOnBottom;
-});
-
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };

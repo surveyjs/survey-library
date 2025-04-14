@@ -350,7 +350,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) public minImageHeight: number;
 
   private get isResponsive() {
-    return this.isResponsiveValue && this.isDefaultV2Theme;
+    return this.isResponsiveValue;
   }
   private get exactSizesAreEmpty(): boolean {
     return !(["imageHeight", "imageWidth"].some(propName => this[propName] !== undefined && this[propName] !== null));
@@ -366,7 +366,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return true;
   }
   protected needResponsiveness() {
-    return this.supportResponsiveness() && this.isDefaultV2Theme;
+    return this.supportResponsiveness();
   }
   public needResponsiveWidth() {
     return this.colCount > 2;

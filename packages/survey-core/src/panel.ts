@@ -222,11 +222,7 @@ export class QuestionRowModel extends Base {
           el.renderWidth = this.getRenderedWidthFromWidth(width);
           preSetWidthElements.push(el);
         }
-        if (counter < visCount - 1 && !(this.panel.isDefaultV2Theme || this.panel.parentQuestion?.isDefaultV2Theme)) {
-          el.rightIndent = 1;
-        } else {
-          el.rightIndent = 0;
-        }
+        el.rightIndent = 0;
         counter++;
       } else {
         el.renderWidth = "";
@@ -2406,7 +2402,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return this.cssClasses.panel.titleExpandableSvg;
   }
   public get showErrorsAbovePanel(): boolean {
-    return this.isDefaultV2Theme && !this.showPanelAsPage;
+    return !this.showPanelAsPage;
   }
   protected getCssError(cssClasses: any): string {
     if (this.isPage) return super.getCssError(cssClasses);

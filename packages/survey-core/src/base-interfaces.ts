@@ -226,7 +226,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
-  matrixAfterCellRender(question: IQuestion, options: any): any;
+  matrixAfterCellRender(options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;
   matrixCellValueChanging(question: IQuestion, options: any): any;
   isValidateOnValueChanging: boolean;

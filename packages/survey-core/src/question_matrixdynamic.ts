@@ -755,8 +755,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const res = new QuestionSingleInputSummary(this, this.locNoRowsText);
     const items = new Array<QuestionSingleInputSummaryItem>();
     this.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(this, true, undefined, this.getSingleInputRowLocalizationTitle());
-      locText.setJson(this.locSingleInputRowTitle.getJson());
+      const locText = new LocalizableString(this, true, undefined, this.getSingleInputTitleTemplate());
+      locText.setJson(this.locSingleInputTitleTemplate.getJson());
       locText.onGetTextCallback = (text: string): string => {
         return row.getTextProcessor().processText(text, true);
       };
@@ -798,7 +798,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
     );
   }
-  protected getSingleInputRowLocalizationTitle(): string { return "rowIndexTemplateTitle"; }
+  protected getSingleInputTitleTemplate(): string { return "rowIndexTemplateTitle"; }
   /**
    * Specifies the location of the Add Row button.
    *

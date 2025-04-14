@@ -985,7 +985,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.createItemValues("choices");
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("keyDuplicationError", this, false, true);
-    this.createLocalizableString("singleInputRowTitle", this, true, this.getSingleInputRowLocalizationTitle()).onGetTextCallback = (text: string) => {
+    this.createLocalizableString("singleInputTitleTemplate", this, true, this.getSingleInputTitleTemplate()).onGetTextCallback = (text: string) => {
       return this.processSingleInputTitle(text);
     };
     this.detailPanelValue = this.createNewDetailPanel();
@@ -1761,19 +1761,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   get locKeyDuplicationError(): LocalizableString {
     return this.getLocalizableString("keyDuplicationError");
   }
-  public get singleInputRowTitle(): string {
-    return this.getLocalizableStringText("singleInputRowTitle");
+  public get singleInputTitleTemplate(): string {
+    return this.getLocalizableStringText("singleInputTitleTemplate");
   }
-  public set singleInputRowTitle(val: string) {
-    this.setLocalizableStringText("singleInputRowTitle", val);
+  public set singleInputTitleTemplate(val: string) {
+    this.setLocalizableStringText("singleInputTitleTemplate", val);
   }
-  get locSingleInputRowTitle(): LocalizableString {
-    return this.getLocalizableString("singleInputRowTitle");
+  get locSingleInputTitleTemplate(): LocalizableString {
+    return this.getLocalizableString("singleInputTitleTemplate");
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
-    return this.locSingleInputRowTitle;
+    return this.locSingleInputTitleTemplate;
   }
-  protected getSingleInputRowLocalizationTitle(): string { return ""; }
+  protected getSingleInputTitleTemplate(): string { return ""; }
   protected processSingleInputTitle(text: string): string {
     const row = this.getRowByQuestion(this.singleInputQuestion);
     if(row) {
@@ -2818,7 +2818,7 @@ Serializer.addClass(
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
     { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError", },
     {
-      name: "singleInputRowTitle", serializationProperty: "locSingleInputRowTitle",
+      name: "singleInputTitleTemplate", serializationProperty: "locSingleInputTitleTemplate",
       visibleIf(obj) { return obj.survey?.isSingleVisibleInput; }
     },
     {

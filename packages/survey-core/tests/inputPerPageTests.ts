@@ -1119,7 +1119,7 @@ const nestedJSON = {
             { type: "text", name: "storeName", title: "Store Name", isRequired: true },
             { type: "matrixdynamic", name: "products", cellType: "text", rowCount: 0,
               title: "Products", description: "Add all products you want to deliver to {panel.storeName}",
-              singleInputRowTitle: "{row.productName}",
+              singleInputTitleTemplate: "{row.productName}",
               columns: [{ name: "productName", title: "Product Name", isRequired: true, defaultDisplayValue: "New Product" }, { name: "productCount", title: "Count", isRequired: true }]
             },
             { type: "text", name: "address", title: "Place Address" }
@@ -1295,7 +1295,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
             "type": "matrixdynamic",
             "name": "employerNames",
             "title": "Please add your previous and current employers",
-            "singleInputRowTitle": "Employee name: {row.employee-name}",
+            "singleInputTitleTemplate": "Employee name: {row.employee-name}",
             "valueName": "employers",
             "isRequired": true,
             "showHeader": false,

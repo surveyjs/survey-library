@@ -97,7 +97,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
-  protected getSingleInputRowLocalizationTitle(): string { return "rowNameTemplateTitle"; }
+  protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
     var rows = this.visibleRows;

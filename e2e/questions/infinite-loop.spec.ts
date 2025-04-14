@@ -277,7 +277,7 @@ frameworks.forEach((framework) => {
                     "defaultDisplayValue": "[not set]"
                   }
                 ],
-                "singleInputRowTitle": "Employee name: {row.employee-name}",
+                "singleInputTitleTemplate": "Employee name: {row.employee-name}",
                 "rowCount": 1,
                 "minRowCount": 1,
                 "addRowText": "Add Employer"
@@ -412,7 +412,7 @@ frameworks.forEach((framework) => {
                         "inputType": "date"
                       }
                     ],
-                    "singleInputRowTitle": "Employee name: {row.name}",
+                    "singleInputTitleTemplate": "Employee name: {row.name}",
                     "rowCount": 0,
                     "addRowText": "Add Employee",
                     "removeRowText": "Remove Employee"

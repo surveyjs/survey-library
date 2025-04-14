@@ -6,8 +6,8 @@ import {
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { SurveyBreadcrumbsItem } from "./breadcrumbs-item";
 import { SvgIcon } from "../svg-icon/svg-icon";
+import { SurveyAction } from "../action-bar/action-bar-item";
 
 interface IBreadcrumbsProps {
   items: Action[];
@@ -48,7 +48,7 @@ export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any>
             size={"auto"}
           ></SvgIcon >);
         }
-        result.push(<SurveyBreadcrumbsItem key={item.renderedId} item={item}></SurveyBreadcrumbsItem>);
+        result.push(<SurveyAction key={item.renderedId} item={item}></SurveyAction>);
       }
     );
     return result;

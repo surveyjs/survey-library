@@ -98,7 +98,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   position: absolute;
   margin-left: calc($slider-thumb-width / -2);
   left: -7px;
-  top: -62px;
+  top: -48px;
   margin-left: -25px;
   z-index: 3;
   border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
@@ -138,11 +138,10 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider__labels-container {
   user-select: none;
   pointer-events: none;
-
-  >div {
-    position: relative;
-    display: flex;
-  }
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: $slider-thumb-height;
 }
 
 .sd-slider__label {
@@ -197,7 +196,7 @@ input[type=range].sd-slider__input:focus {
 
 input[type=range].sd-slider__input::-webkit-slider-thumb {
   pointer-events: all;
-  height: 70px;
+  height: 100px;
   width: $slider-thumb-width;
   border-radius: 0px;
   border: 0 none;
@@ -215,7 +214,7 @@ input[type=range][name="range-input"].sd-slider__input::-webkit-slider-thumb {
 
 input[type=range].sd-slider__input::-moz-range-thumb {
   pointer-events: all;
-  height: 70px;
+  height: 100px;
   width: $slider-thumb-width;
   border-radius: 0px;
   border: 0 none;

@@ -46,9 +46,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
           {thumbs}
         </div>
         <div className={cssClasses.labelsContainer}>
-          <div>
-            {labels}
-          </div>
+          {labels}
         </div>
         {inputs}
         {rangeInput}

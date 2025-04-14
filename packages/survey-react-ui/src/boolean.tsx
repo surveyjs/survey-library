@@ -58,7 +58,7 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
     const itemClass: string = this.question.getItemCss();
     return (
       <div className={cssClasses.root} onKeyDown={this.handleOnKeyDown}>
-        <label className={itemClass} onClick={this.handleOnClick}>
+        <label className={itemClass}>
           <input
             ref={this.checkRef}
             type="checkbox"

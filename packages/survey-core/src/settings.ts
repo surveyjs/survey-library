@@ -121,14 +121,19 @@ export var settings = {
    * - `surveyServiceUrl`: `string`\
    * Obsolete. Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    *
-   * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { request: XMLHttpRequest })`\
-   * An event that is raised before a request for choices is send. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options.request` parameter to access and modify the `XMLHttpRequest` object. For instance, you can add authentication headers to it:
+   * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { url: string, request?: XMLHttpRequest, fetchOptions?: RequestInit })`\
+   * An event that is raised before a request for choices is sent. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options` parameter to access and modify the request to be sent. The `options.fetchOptions` object is defined only when the Form Library is run on a Node.js server; `options.request` is defined in the rest of cases. The following example shows how you can add authentication headers to a request for choices:
    *
    *     ```js
    *     import { settings } from "survey-core";
    *
-   *     settings.web.onBeforeRequestChoices = (sender, options) => {
-   *       options.request.setRequestHeader('RequestVerificationToken', requestVerificationToken);
+   *     settings.web.onBeforeRequestChoices = (_, options) => {
+   *       if (options.request) {
+   *         options.request.setRequestHeader("RequestVerificationToken", requestVerificationToken);
+   *       }
+   *       if (options.fetchOptions) {
+   *         options.fetchOptions.headers.append("RequestVerificationToken", requestVerificationToken);
+   *       }
    *     };
    *     ```
    */

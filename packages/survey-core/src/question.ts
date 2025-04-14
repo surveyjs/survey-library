@@ -750,6 +750,7 @@ export class Question extends SurveyElement<Question>
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
+      if(!this.supportNestedSingleInput()) return undefined;
       const q = this.singleInputQuestion;
       if(!q || q !== this) return undefined;
       const res = this.createSingleInputSummary();
@@ -964,7 +965,11 @@ export class Question extends SurveyElement<Question>
   protected getSingleQuestionLocTitleCore(): LocalizableString {
     return undefined;
   }
+  private supportNestedSingleInput(): boolean {
+    return this.survey?.supportsNestedSingleInput(this);
+  }
   private getSingleInputQuestions(): Array<Question> {
+    if(!this.supportNestedSingleInput()) return [];
     const res = this.getSingleInputQuestionsCore(this.getPropertyValue("singleInputQuestion"));
     res.forEach(q => { if(q !== this) this.onSingleInputQuestionAdded(q); });
     return res;

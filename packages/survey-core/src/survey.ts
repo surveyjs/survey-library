@@ -66,7 +66,7 @@ import {
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent,
   DynamicPanelItemValueChangedEvent, DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
-  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
@@ -897,6 +897,8 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
+
+  public onCheckSingleInputPerPageMode: EventBase<SurveyModel, CheckSingleInputPerPageModeEvent> = this.addEvent<SurveyModel, CheckSingleInputPerPageModeEvent>();
 
   /**
    * An event that is raised after the visibility of a popup is changed.
@@ -4800,6 +4802,11 @@ export class SurveyModel extends SurveyElementCore
   }
   public set currentSingleQuestion(val: Question) {
     this.currentSingleElement = val;
+  }
+  public supportsNestedSingleInput(question: IQuestion): boolean {
+    const options = { question: <Question>question, enabled: true };
+    this.onCheckSingleInputPerPageMode.fire(this, options);
+    return options.enabled;
   }
   private changeCurrentSingleElementOnVisibilityChanged(): void {
     const el = this.currentSingleElement;

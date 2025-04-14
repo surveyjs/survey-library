@@ -1435,3 +1435,49 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
       "endDate": "2024-03-01"
     }] }, "check survey.data");
 });
+QUnit.only("singleInput and survey.onCheckSingleInputPerPageMode event", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext", name: "mt1",
+        items: [{ name: "item1" }, { name: "item2" }],
+      },
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      },
+      {
+        type: "paneldynamic", name: "panel2",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  survey.onCheckSingleInputPerPageMode.add((survey: SurveyModel, options: any) => {
+    options.enabled = options.question.name !== "panel1";
+  });
+  const getSingleInputName = (): string => {
+    return survey.currentSingleQuestion.singleInputQuestion?.name || "";
+  };
+  assert.equal(survey.currentSingleQuestion.name, "mt1", "currentSingleQuestion, #1");
+  let mt1 = survey.getQuestionByName("mt1");
+  assert.equal(getSingleInputName(), "item1", "singleInputQuestion.name, #1");
+  survey.performNext();
+  assert.equal(getSingleInputName(), "item2", "singleInputQuestion.name, #2");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #2");
+  assert.equal(getSingleInputName(), "", "singleInputQuestion.name, #3");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel2", "currentSingleQuestion, #3");
+  assert.equal(getSingleInputName(), "q1", "currentSingleQuestion, #3");
+  survey.performNext();
+  assert.equal(getSingleInputName(), "q2", "currentSingleQuestion, #4");
+});

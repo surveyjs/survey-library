@@ -114,6 +114,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isSingleVisibleInput: boolean;
   updateNavigationElements(): void;
   currentSingleElement: IElement;
+  supportsNestedSingleInput(question: IQuestion): boolean;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;

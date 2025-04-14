@@ -60,7 +60,7 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get id(): string {
     let id = this.question ? this.question.id : this.idValue.toString();
-    if(this.isChoice) {
+    if (this.isChoice) {
       id += "-" + (Number.isInteger(this.choiceIndex) ? "index" + this.choiceIndex.toString() : this.item.id);
     }
     return getId(id, this.isErrorsCell, this.isDetailRowCell);
@@ -298,7 +298,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private renderedRowsAnimation = new AnimationGroup(this.getRenderedRowsAnimationOptions(), (val) => {
     this._renderedRows = val;
-  }, () => this._renderedRows)
+  }, () => this._renderedRows);
 
   public get renderedRows(): Array<QuestionMatrixDropdownRenderedRow> {
     return this._renderedRows;
@@ -409,7 +409,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if (dataRowIndex === index) {
         if (this.rows[i].isErrorsRow || this.rows[i].isDetailRow) {
           res++;
-          if(i + 1 < this.rows.length && this.rows[i + 1].isDetailRow) {
+          if (i + 1 < this.rows.length && this.rows[i + 1].isDetailRow) {
             res ++;
           }
         }
@@ -793,15 +793,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       const cell = row.cells[i];
       if (!cell.hasQuestion) {
         res.cells.push(this.createEmptyCell(true));
-      }
-      else if (this.matrix.IsMultiplyColumn(cell.cell.column)) {
+      } else if (this.matrix.IsMultiplyColumn(cell.cell.column)) {
         if (cell.isFirstChoice) {
           res.cells.push(this.createErrorCell(cell.cell));
         } else {
           res.cells.push(this.createEmptyCell(true));
         }
-      }
-      else {
+      } else {
         res.cells.push(this.createErrorCell(cell.cell));
       }
     }

@@ -118,13 +118,13 @@ export class Trigger extends Base {
     keys: any, values: HashTable<any>, properties?: HashTable<any>, }): void {
     this.isExecutingOnNextPage = options.isOnNextPage;
     this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
-    if(!this.canBeExecuted(options.isOnNextPage)) return;
-    if(options.isOnComplete && !this.canBeExecutedOnComplete()) return;
+    if (!this.canBeExecuted(options.isOnNextPage)) return;
+    if (options.isOnComplete && !this.canBeExecutedOnComplete()) return;
     if (!this.isCheckRequired(options.keys)) return;
     if (!!this.conditionRunner) {
       this.perform(options.values, options.properties || null);
     } else {
-      if(this.canSuccessOnEmptyExpression()) {
+      if (this.canSuccessOnEmptyExpression()) {
         this.triggerResult(true, options.values, options.properties || null);
       }
     }
@@ -189,13 +189,13 @@ export class Trigger extends Base {
     return new ProcessValue().isAnyKeyChanged(keys, this.getUsedVariables());
   }
   protected getUsedVariables(): string[] {
-    if(!this.conditionRunner) return [];
+    if (!this.conditionRunner) return [];
     const res = this.conditionRunner.getVariables();
-    if(Array.isArray(res)) {
+    if (Array.isArray(res)) {
       const unw = "-unwrapped";
-      for(let i = res.length -1; i >= 0; i--) {
+      for (let i = res.length - 1; i >= 0; i--) {
         const s = res[i];
-        if(s.endsWith(unw)) {
+        if (s.endsWith(unw)) {
           res.push(s.substring(0, s.length - unw.length));
         }
       }
@@ -249,7 +249,7 @@ export class SurveyTrigger extends Trigger {
     return true;
   }
   protected onSuccessExecuted(): void {
-    if(!!this.owner && this.isRealExecution()) {
+    if (!!this.owner && this.isRealExecution()) {
       this.owner.triggerExecuted(this);
     }
   }
@@ -303,7 +303,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.owner) return;
-    if(this.isRealExecution()) {
+    if (this.isRealExecution()) {
       this.owner.setCompleted(this);
     } else {
       this.owner.canBeCompleted(this, true);
@@ -463,7 +463,7 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   protected canSuccessOnEmptyExpression(): boolean { return true; }
   protected getUsedVariables(): string[] {
     const res = super.getUsedVariables();
-    if(res.length === 0 && !!this.fromName) {
+    if (res.length === 0 && !!this.fromName) {
       res.push(this.fromName);
     }
     return res;

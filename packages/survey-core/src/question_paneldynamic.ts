@@ -173,10 +173,10 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
         q.checkBindings(name, newValue);
       }
       const suffix = settings.commentSuffix;
-      if(name.endsWith(suffix)) {
+      if (name.endsWith(suffix)) {
         name = name.substring(0, name.length - suffix.length);
         const cQ = this.panel.getQuestionByName(name);
-        if(!!cQ) {
+        if (!!cQ) {
           newValue = cQ.value;
         }
       }
@@ -316,7 +316,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
     this.registerPropertyChangedHandlers(["templateQuestionTitleLocation", "templateQuestionTitleWidth"], () => {
       const panels = this.visiblePanelsCore;
-      if(panels) panels.forEach((panel) => { panel.updateElementCss(true); });
+      if (panels) panels.forEach((panel) => { panel.updateElementCss(true); });
     });
   }
   public get isCompositeQuestion(): boolean { return true; }
@@ -327,11 +327,11 @@ export class QuestionPanelDynamicModel extends Question
       const res = this.visiblePanelsCore[i].getFirstQuestionToFocus(withError);
       if (!!res) return res;
     }
-    if(this.showAddPanelButton && (!withError || this.currentErrorCount > 0)) return this;
+    if (this.showAddPanelButton && (!withError || this.currentErrorCount > 0)) return this;
     return null;
   }
   protected getFirstInputElementId(): string {
-    if(this.showAddPanelButton) return this.addButtonId;
+    if (this.showAddPanelButton) return this.addButtonId;
     return super.getFirstInputElementId();
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
@@ -693,7 +693,7 @@ export class QuestionPanelDynamicModel extends Question
               const scolledElement = this.isRenderModeList ? el : el.parentElement;
               SurveyElement.ScrollElementToViewCore(scolledElement, false, false, { behavior: "smooth" });
             }
-            if(!this.isRenderModeList && el.parentElement) {
+            if (!this.isRenderModeList && el.parentElement) {
               setPropertiesOnElementForAnimation(el.parentElement, { heightTo: el.offsetHeight + "px" });
             } else {
               prepareElementForVerticalAnimation(el);
@@ -701,7 +701,7 @@ export class QuestionPanelDynamicModel extends Question
           },
           onAfterRunAnimation: (el) => {
             cleanHtmlElementAfterAnimation(el);
-            if(el.parentElement) {
+            if (el.parentElement) {
               cleanHtmlElementAfterAnimation(el.parentElement);
             }
           },
@@ -712,7 +712,7 @@ export class QuestionPanelDynamicModel extends Question
         const cssClass = new CssClassBuilder().append(this.cssClasses.panelWrapperLeave).append(getDirectionCssClass()).toString();
         return {
           onBeforeRunAnimation: (el) => {
-            if(!this.isRenderModeList && el.parentElement) {
+            if (!this.isRenderModeList && el.parentElement) {
               setPropertiesOnElementForAnimation(el.parentElement, { heightFrom: el.offsetHeight + "px" });
             } else {
               prepareElementForVerticalAnimation(el);
@@ -720,7 +720,7 @@ export class QuestionPanelDynamicModel extends Question
           },
           onAfterRunAnimation: (el) => {
             cleanHtmlElementAfterAnimation(el);
-            if(el.parentElement) {
+            if (el.parentElement) {
               cleanHtmlElementAfterAnimation(el.parentElement);
             }
           },
@@ -765,8 +765,7 @@ export class QuestionPanelDynamicModel extends Question
     super.onHidingContent();
     if (this.currentPanel) {
       this.currentPanel.onHidingContent();
-    }
-    else {
+    } else {
       this.visiblePanelsCore.forEach(panel => panel.onHidingContent());
     }
   }
@@ -1072,8 +1071,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   private onMinPanelCountChanged(): void {
     const val = this.minPanelCount;
-    if (val > this.maxPanelCount) this.maxPanelCount = val;
-    if (this.panelCount < val) this.panelCount = val;
+    if (val > this.maxPanelCount)this.maxPanelCount = val;
+    if (this.panelCount < val)this.panelCount = val;
   }
   /**
    * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
@@ -1095,8 +1094,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   private onMaxPanelCountChanged(): void {
     const val = this.maxPanelCount;
-    if (val < this.minPanelCount) this.minPanelCount = val;
-    if (this.panelCount > val) this.panelCount = val;
+    if (val < this.minPanelCount)this.minPanelCount = val;
+    if (this.panelCount > val)this.panelCount = val;
     this.updateFooterActions();
   }
   /**
@@ -1527,12 +1526,12 @@ export class QuestionPanelDynamicModel extends Question
    */
   public addPanel(index?: number, runAdditionalActions?: boolean): PanelModel {
     const isUI = runAdditionalActions === true;
-    if(isUI) {
+    if (isUI) {
       if (!this.canAddPanel) return null;
       if (!this.canLeaveCurrentPanel()) return null;
     }
     const newPanel = this.addPanelCore(index);
-    if(isUI) {
+    if (isUI) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
         newPanel.expand();
       }
@@ -1644,14 +1643,14 @@ export class QuestionPanelDynamicModel extends Question
     const visIndex = this.getVisualPanelIndex(value);
     if (visIndex < 0 || visIndex >= this.visiblePanelCount) return;
     const isUI = confirmDelete !== undefined;
-    if(isUI) {
-      if(!this.canRemovePanel) return;
+    if (isUI) {
+      if (!this.canRemovePanel) return;
       const removePanel = () => {
         this.removePanelCore(visIndex);
         const pnlCount = this.visiblePanelCount;
         const nextIndex = visIndex >= pnlCount ? pnlCount - 1 : visIndex;
         let id = pnlCount === 0 ? this.addButtonId : (nextIndex > -1 ? this.getPanelRemoveButtonId(this.visiblePanels[nextIndex]) : "");
-        if(!!id) {
+        if (!!id) {
           SurveyElement.FocusElement(id, true, this.survey?.rootElement);
         }
       };
@@ -1693,18 +1692,18 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private notifyOnPanelAddedRemoved(isAdded: boolean, index: number, panel?: PanelModel): void {
-    if(!panel) {
+    if (!panel) {
       panel = this.panelsCore[index];
     }
-    if(this.survey) {
+    if (this.survey) {
       const updateIndeces = this.showQuestionNumbers === "onSurvey";
-      if(isAdded) {
+      if (isAdded) {
         this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
       } else {
         this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
       }
     }
-    if(isAdded && !!panel && this.showQuestionNumbers === "onPanel") {
+    if (isAdded && !!panel && this.showQuestionNumbers === "onPanel") {
       panel.setVisibleIndex(0);
     }
   }
@@ -1875,10 +1874,10 @@ export class QuestionPanelDynamicModel extends Question
   public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
-    if(this.panelCount < this.minPanelCount) {
+    if (this.panelCount < this.minPanelCount) {
       this.panelCount = this.minPanelCount;
     }
-    if(this.panelCount > this.maxPanelCount) {
+    if (this.panelCount > this.maxPanelCount) {
       this.panelCount = this.maxPanelCount;
     }
     this.buildPanelsFirstTime();
@@ -1995,7 +1994,7 @@ export class QuestionPanelDynamicModel extends Question
   private updatePanelsContainsErrors() {
     var question = this.changingValueQuestion;
     var parent = <PanelModel>question.parent;
-    while (!!parent) {
+    while(!!parent) {
       parent.updateContainsErrors();
       parent = <PanelModel>parent.parent;
     }
@@ -2215,7 +2214,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       questions[i].setParentQuestion(this);
     }
-    if(this.wasRendered) {
+    if (this.wasRendered) {
       panel.onFirstRendering();
       panel.locStrsChanged();
     }
@@ -2224,7 +2223,7 @@ export class QuestionPanelDynamicModel extends Question
     };
     panel.onGetFooterToolbarCssCallback = () => { return this.cssClasses.panelFooter; };
     panel.registerPropertyChangedHandlers(["visible"], () => {
-      if (panel.visible) this.onPanelAdded(panel);
+      if (panel.visible)this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);
       this.updateFooterActions();
     });
@@ -2311,7 +2310,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected onSetData(): void {
     super.onSetData();
-    if(!this.isLoadingFromJson && this.useTemplatePanel) {
+    if (!this.isLoadingFromJson && this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();
       this.rebuildPanels();
     }
@@ -2534,7 +2533,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.footerToolbarValue;
   }
   @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
-  legacyNavigation: boolean
+    legacyNavigation: boolean;
   private updateFooterActionsCallback: any;
   private updateFooterActions() {
     if (!!this.updateFooterActionsCallback) {

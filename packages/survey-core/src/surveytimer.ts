@@ -58,21 +58,21 @@ export class SurveyTimer {
     }
   }
   public doTimer(): void {
-    if(this.onTimerTick.isEmpty || this.listenerCounter == 0) {
+    if (this.onTimerTick.isEmpty || this.listenerCounter == 0) {
       this.timerId = -1;
     }
     if (this.timerId < 0) return;
     const newTimer = surveyTimerFunctions.now();
     let seconds = Math.floor((newTimer - this.prevTimeInMs) / 1000);
     this.prevTimeInMs = newTimer;
-    if(seconds < 0) {
+    if (seconds < 0) {
       seconds = 1;
     }
     const prevItem = this.timerId;
     this.onTimerTick.fire(this, { seconds: seconds });
     //We have to check that we have the same timerId
     //It could be changed during events execution and it will lead to double timer events
-    if(prevItem !== this.timerId) return;
+    if (prevItem !== this.timerId) return;
     this.timerId = surveyTimerFunctions.setTimeout(() => {
       this.doTimer();
     });

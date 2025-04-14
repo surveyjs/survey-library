@@ -1,0 +1,5 @@
+.vscode/
+build/
+example/
+node_modules/
+.gitignore

@@ -17,7 +17,7 @@ export class DynamicComponentDirective implements OnChanges {
   private componentInstance: any;
   ngOnChanges(changes: SimpleChanges): void {
     const componentChanges = changes["component"];
-    if(componentChanges.currentValue.name !== componentChanges.previousValue?.name ||
+    if (componentChanges.currentValue.name !== componentChanges.previousValue?.name ||
       (componentChanges.currentValue.name === undefined && componentChanges.previousValue === undefined && !this.componentInstance)) {
       this.createComponent();
     } else {
@@ -26,12 +26,12 @@ export class DynamicComponentDirective implements OnChanges {
   }
   createComponent(): void {
     this.containerRef.clear();
-    if(AngularComponentFactory.Instance.isComponentRegistered(this.component.name)) {
+    if (AngularComponentFactory.Instance.isComponentRegistered(this.component.name)) {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.name, this.resolver).instance;
     } else if (this.component.default) {
       this.componentInstance = AngularComponentFactory.Instance.create(this.containerRef, this.component.default, this.resolver).instance;
     }
-    if(!this.componentInstance) {
+    if (!this.componentInstance) {
       throw new Error(`Can't create component with name: ${this.component.name} and default: ${this.component.default}`);
     } else {
       this.componentInstance.contentTempl = this.templateRef;

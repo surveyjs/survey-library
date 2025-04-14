@@ -952,13 +952,13 @@ export class SurveyModel extends SurveyElementCore
     this.createNewArray(
       "pages",
       (value: PageModel) => {
-        if(value.isReadyForCleanChangedCallback) {
+        if (value.isReadyForCleanChangedCallback) {
           value.isReadyForCleanChangedCallback();
         }
         this.doOnPageAdded(value);
       },
       (value: PageModel) => {
-        if(!value.isReadyForClean) {
+        if (!value.isReadyForClean) {
           value.isReadyForCleanChangedCallback = () => {
             this.doOnPageRemoved(value);
             value.isReadyForCleanChangedCallback = undefined;
@@ -2154,7 +2154,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isStartPageActive) {
       this.updateProgressText();
     }
-    if(!!this.navigationBarValue) {
+    if (!!this.navigationBarValue) {
       this.navigationBar.locStrsChanged();
     }
   }
@@ -2589,7 +2589,7 @@ export class SurveyModel extends SurveyElementCore
     return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
   public get navigationBar(): ActionContainer {
-    if(!this.navigationBarValue) {
+    if (!this.navigationBarValue) {
       this.navigationBarValue = this.createNavigationBar();
       this.updateNavigationCss();
     }
@@ -2761,7 +2761,7 @@ export class SurveyModel extends SurveyElementCore
   private getNewTitlePattern(template: string): string {
     if (!!template) {
       var strs = [];
-      while (template.indexOf("{") > -1) {
+      while(template.indexOf("{") > -1) {
         template = template.substring(template.indexOf("{") + 1);
         var ind = template.indexOf("}");
         if (ind < 0) break;
@@ -2806,10 +2806,10 @@ export class SurveyModel extends SurveyElementCore
       postfix = template.substring(ind, i);
     }
     i = 0;
-    while (i < prefix.length && prefix.charCodeAt(i) < 33) i++;
+    while(i < prefix.length && prefix.charCodeAt(i) < 33) i++;
     prefix = prefix.substring(i);
     i = postfix.length - 1;
-    while (i >= 0 && postfix.charCodeAt(i) < 33) i--;
+    while(i >= 0 && postfix.charCodeAt(i) < 33) i--;
     postfix = postfix.substring(0, i + 1);
     if (!prefix && !postfix) return currentValue;
     var value = !!currentValue ? currentValue : defaultValue;
@@ -2889,7 +2889,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private progressBarValue: any;
   public get progressBar(): any {
-    if(!this.progressBarValue) {
+    if (!this.progressBarValue) {
       this.progressBarValue = new ProgressButtons(this);
     }
     return this.progressBarValue;
@@ -3215,7 +3215,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public getData(options?: { includePages?: boolean, includePanels?: boolean }): any {
     const opt = options || { includePages: false, includePanels: false };
-    if(!opt.includePages && !opt.includePanels) return this.data;
+    if (!opt.includePages && !opt.includePanels) return this.data;
     return this.getStructuredData(!!opt.includePages, !opt.includePanels ? (opt.includePages ? 1 : 0) : -1);
   }
   public getStructuredData(includePages: boolean = true, level: number = -1): any {
@@ -3240,8 +3240,7 @@ export class SurveyModel extends SurveyElementCore
       const q = this.getQuestionByValueName(key);
       if (q) {
         res[key] = data[key];
-      }
-      else {
+      } else {
         let panel: PanelModelBase = this.getPageByName(key);
         if (!panel) {
           panel = this.getPanelByName(key);
@@ -3297,7 +3296,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private unConnectEditingObj(): void {
-    if(!!this.editingObj && !this.editingObj.isDisposed) {
+    if (!!this.editingObj && !this.editingObj.isDisposed) {
       this.editingObj.onPropertyChanged.remove(
         this.onEditingObjPropertyChanged
       );
@@ -3367,7 +3366,7 @@ export class SurveyModel extends SurveyElementCore
     const values: { [index: string]: any } = {};
     for (var key in this.variablesHash) values[key] = this.variablesHash[key];
     this.addCalculatedValuesIntoFilteredValues(values);
-    if(!this.isDesignMode) {
+    if (!this.isDesignMode) {
       const keys = this.getValuesKeys();
       for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
@@ -3464,7 +3463,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get visiblePages(): Array<PageModel> {
     if (this.isDesignMode) return this.pages;
-    if(!!this.pageContainerValue && (this.isShowingPreview || this.isSinglePage)) return [this.pageContainerValue];
+    if (!!this.pageContainerValue && (this.isShowingPreview || this.isSinglePage)) return [this.pageContainerValue];
     var result = new Array<PageModel>();
     for (var i = 0; i < this.pages.length; i++) {
       if (this.isPageInVisibleList(this.pages[i])) {
@@ -3563,23 +3562,23 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public tryNavigateToPage(page: PageModel/*, serverValidationRes?: (res: boolean)=> void*/): boolean {
-    if(!this.performValidationOnPageChanging(page)) return false;
+    if (!this.performValidationOnPageChanging(page)) return false;
     const index = this.visiblePages.indexOf(page);
     const res = index < this.currentPageNo || !this.doServerValidation(false, false, page);
-    if(res) {
+    if (res) {
       this.currentPage = page;
     }
     return res;
   }
   private performValidationOnPageChanging(page: PageModel): boolean {
     if (this.isDesignMode) return false;
-    if(this.canGoTroughValidation()) return true;
+    if (this.canGoTroughValidation()) return true;
     const index = this.visiblePages.indexOf(page);
     if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
     if (index < this.currentPageNo || this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages)
       return true;
-    if(!this.validateCurrentPage()) return false;
+    if (!this.validateCurrentPage()) return false;
     for (let i = this.currentPageNo + 1; i < index; i++) {
       const page = this.visiblePages[i];
       if (!page.validate(true, true)) return false;
@@ -3854,7 +3853,7 @@ export class SurveyModel extends SurveyElementCore
     this.onFirstPageIsStartedChanged();
     if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
-      if(this.currentSingleElement) {
+      if (this.currentSingleElement) {
         const questions = this.getSingleElements();
         this.currentSingleElement = questions.length > 0 ? questions[0] : undefined;
       }
@@ -3903,7 +3902,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isCurrentPageRendered === true) {
       this.isCurrentPageRendered = false;
     }
-    if(!this.currentSingleElement) {
+    if (!this.currentSingleElement) {
       const options = this.createPageChangeEventOptions(newValue, oldValue);
       this.onCurrentPageChanged.fire(this, options);
     }
@@ -4103,23 +4102,23 @@ export class SurveyModel extends SurveyElementCore
    * @see completeLastPage
    */
   public nextPage(): boolean {
-    if(this.currentSingleElement) return this.performNext();
+    if (this.currentSingleElement) return this.performNext();
     if (this.isLastPage) return false;
     return this.doCurrentPageComplete(false);
   }
   public performNext(): boolean {
     const q: any = this.currentSingleElement;
-    if(!q) return this.nextPage();
-    if(this.validationEnabled && !q.validate(true)) return false;
+    if (!q) return this.nextPage();
+    if (this.validationEnabled && !q.validate(true)) return false;
     this.sendPartialResult();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
-    if(index < 0 || index === questions.length - 1) return false;
+    if (index < 0 || index === questions.length - 1) return false;
     let keys: any = {};
-    if(q.isQuestion) {
+    if (q.isQuestion) {
       keys[q.name] = q.value;
     } else {
-      if(q.isPanel) {
+      if (q.isPanel) {
         keys = q.getValue();
       }
     }
@@ -4129,10 +4128,10 @@ export class SurveyModel extends SurveyElementCore
   }
   public performPrevious(): boolean {
     const q = this.currentSingleElement;
-    if(!q) return this.prevPage();
+    if (!q) return this.prevPage();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
-    if(index === 0) return false;
+    if (index === 0) return false;
     this.currentSingleElement = questions[index - 1];
     return true;
   }
@@ -4370,14 +4369,14 @@ export class SurveyModel extends SurveyElementCore
     var existingElement = getElementByName(element.name);
     if (!existingElement || existingElement == element) return;
     var newName = this.getNewName(element.name);
-    while (!!getElementByName(newName)) {
+    while(!!getElementByName(newName)) {
       var newName = this.getNewName(element.name);
     }
     element.name = newName;
   }
   private getNewName(name: string): string {
     var pos = name.length;
-    while (pos > 0 && name[pos - 1] >= "0" && name[pos - 1] <= "9") {
+    while(pos > 0 && name[pos - 1] >= "0" && name[pos - 1] <= "9") {
       pos--;
     }
     var base = name.substring(0, pos);
@@ -4402,7 +4401,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (!page) return true;
     let res: boolean = false;
-    if(this.currentSingleElement) {
+    if (this.currentSingleElement) {
       res = !(<any>this.currentSingleElement).validate(true);
     } else {
       res = !page.validate(true, isFocuseOnFirstError);
@@ -4439,7 +4438,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public prevPage(): boolean {
-    if(this.currentSingleElement) return this.performPrevious();
+    if (this.currentSingleElement) return this.performPrevious();
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
 
@@ -4447,8 +4446,7 @@ export class SurveyModel extends SurveyElementCore
     if (skipped) {
       this.currentPage = skipped.from;
       this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
-    }
-    else {
+    } else {
       const vPages = this.visiblePages;
       const index = vPages.indexOf(this.currentPage);
       this.currentPage = vPages[index - 1];
@@ -4529,7 +4527,7 @@ export class SurveyModel extends SurveyElementCore
     this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;
     const page = <PageModel>(<any>this.currentSingleElement)?.page;
-    if(!!page) {
+    if (!!page) {
       page.updateRows();
       this.currentPage = page;
     }
@@ -4628,8 +4626,8 @@ export class SurveyModel extends SurveyElementCore
       this.setPropertyValue("showPreviewBeforeComplete", false);
     } else {
       this.setPropertyValue("showPreviewBeforeComplete", true);
-      if (val === "showAllQuestions") this.previewMode = "allQuestions";
-      if (val === "showAnsweredQuestions") this.previewMode = "answeredQuestions";
+      if (val === "showAllQuestions")this.previewMode = "allQuestions";
+      if (val === "showAnsweredQuestions")this.previewMode = "answeredQuestions";
     }
   }
   /**
@@ -4662,7 +4660,7 @@ export class SurveyModel extends SurveyElementCore
     container.name = name;
     container.isPageContainer = true;
     pages.forEach(page => {
-      if(!page.isStartPage) {
+      if (!page.isStartPage) {
         container.addElement(page);
       }
     });
@@ -4682,27 +4680,27 @@ export class SurveyModel extends SurveyElementCore
     const singleName = "single-page";
     const previewName = "preview-page";
     let rootPage: PageModel = undefined;
-    if(this.isSinglePage) {
+    if (this.isSinglePage) {
       const cPage = this.pageContainerValue;
-      if(cPage && cPage.name === previewName) {
+      if (cPage && cPage.name === previewName) {
         rootPage = <PageModel>cPage.elements[0];
         this.disposeContainerPage();
       } else {
         rootPage = this.createRootPage(singleName, this.pages);
       }
     }
-    if(this.isShowingPreview) {
+    if (this.isShowingPreview) {
       rootPage = this.createRootPage(previewName, rootPage ? [rootPage] : this.pages);
     }
-    if(rootPage) {
+    if (rootPage) {
       rootPage.setSurveyImpl(this);
       this.pageContainerValue = rootPage;
       this.currentPage = rootPage;
-      if(!!this.currentSingleElementValue) {
+      if (!!this.currentSingleElementValue) {
         this.visiblePages.forEach(page => page.updateRows());
       }
     }
-    if(!this.isSinglePage && !this.isShowingPreview) {
+    if (!this.isSinglePage && !this.isShowingPreview) {
       this.disposeContainerPage();
       let curPage = this.gotoPageFromPreview;
       this.gotoPageFromPreview = null;
@@ -4715,11 +4713,11 @@ export class SurveyModel extends SurveyElementCore
         this.changeCurrentPageFromPreview = false;
       }
     }
-    if(!this.currentPage && this.visiblePageCount > 0) {
+    if (!this.currentPage && this.visiblePageCount > 0) {
       this.currentPage = this.visiblePages[0];
     }
     this.pages.forEach(page => {
-      if(page.hasShown) {
+      if (page.hasShown) {
         page.updateElementCss(true);
       }
     });
@@ -4731,10 +4729,10 @@ export class SurveyModel extends SurveyElementCore
     const pages = this.pages;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
-      if(!p.isStartPage && p.isVisible) {
+      if (!p.isStartPage && p.isVisible) {
         const els: Array<any> = [];
         p.elements.forEach(el => els.push(el));
-        els.forEach(el => { if(el === includeEl || el.isVisible) res.push(el); });
+        els.forEach(el => { if (el === includeEl || el.isVisible) res.push(el); });
       }
     }
     return res;
@@ -4744,24 +4742,24 @@ export class SurveyModel extends SurveyElementCore
   }
   public set currentSingleElement(val: IElement) {
     const oldVal = this.currentSingleElement;
-    if(val !== oldVal && !this.isCompleted) {
+    if (val !== oldVal && !this.isCompleted) {
       const valQuestion = val?.isQuestion ? <Question>val : undefined;
       const oldValQuestion = oldVal?.isQuestion ? <Question>oldVal : undefined;
       const page = <PageModel>(<any>val)?.page;
       const options: any = !!page && !!oldVal ? this.createPageChangeEventOptions(page, <PageModel>(<any>oldVal).page, valQuestion, oldValQuestion) : undefined;
-      if(!!options && !this.currentPageChangingFromOptions(options)) return;
+      if (!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleElementValue = val;
-      if(!!val) {
+      if (!!val) {
         page.updateRows();
-        if(page !== this.currentPage) {
+        if (page !== this.currentPage) {
           this.currentPage = page;
         } else {
-          if(!!valQuestion && this.autoFocusFirstQuestion) {
+          if (!!valQuestion && this.autoFocusFirstQuestion) {
             valQuestion.focus();
           }
         }
         this.updateButtonsVisibility();
-        if(!!options) {
+        if (!!options) {
           this.onCurrentPageChanged.fire(this, options);
         }
       } else {
@@ -4778,7 +4776,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private changeCurrentSingleElementOnVisibilityChanged(): void {
     const el = this.currentSingleElement;
-    if(!el || el.isVisible) return;
+    if (!el || el.isVisible) return;
     const els = this.getSingleElements(el);
     const index = els.indexOf(el);
     const newEl = (index > 0) ? els[index - 1] : (index < els.length - 1 ? els[index + 1] : undefined);
@@ -4788,15 +4786,15 @@ export class SurveyModel extends SurveyElementCore
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
     this.currentSingleElement = undefined;
-    if(oldValue === "singlePage") {
+    if (oldValue === "singlePage") {
       this.updatePagesContainer();
     }
-    if(this.isSinglePage) {
+    if (this.isSinglePage) {
       this.updatePagesContainer();
     }
-    if(this.isSingleVisibleQuestion) {
+    if (this.isSingleVisibleQuestion) {
       const els = this.getSingleElements();
-      if(els.length > 0) {
+      if (els.length > 0) {
         this.currentSingleElement = els[0];
       }
     }
@@ -4852,10 +4850,10 @@ export class SurveyModel extends SurveyElementCore
     let fVal: boolean | undefined = undefined;
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleElement;
-    if(!!q) {
+    if (!!q) {
       const questions = this.getSingleElements();
       const index = questions.indexOf(q);
-      if(index >= 0) {
+      if (index >= 0) {
         fVal = index === 0;
         lVal = index === questions.length - 1;
       }
@@ -4873,7 +4871,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private calcIsShowPrevButton(): boolean {
     if (this.isFirstPageOrElement || !this.showPrevButton || this.state !== "running") return false;
-    if(this.isFirstElement !== undefined) return true;
+    if (this.isFirstElement !== undefined) return true;
     const page = this.visiblePages[this.currentPageNo - 1];
     return page && page.getMaxTimeToFinish() <= 0;
   }
@@ -4901,7 +4899,7 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   private get firstVisiblePage(): PageModel {
-    if(this.visiblePageCount === 1) return this.visiblePages[0];
+    if (this.visiblePageCount === 1) return this.visiblePages[0];
     const pages = this.pages;
     for (let i = 0; i < pages.length; i++) {
       if (this.isPageInVisibleList(pages[i])) return pages[i];
@@ -4909,7 +4907,7 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   private get lastVisiblePage(): PageModel {
-    if(this.visiblePageCount === 1) return this.visiblePages[0];
+    if (this.visiblePageCount === 1) return this.visiblePages[0];
     const pages = this.pages;
     for (let i = pages.length - 1; i >= 0; i--) {
       if (this.isPageInVisibleList(pages[i])) return pages[i];
@@ -5101,7 +5099,7 @@ export class SurveyModel extends SurveyElementCore
       if (isPreview) {
         this.showPreviewCore();
       } else {
-        if(page) {
+        if (page) {
           this.currentPage = page;
         } else {
           if (self.isLastPage) self.doComplete();
@@ -5128,14 +5126,14 @@ export class SurveyModel extends SurveyElementCore
     this.doComplete(true, trigger);
   }
   private sendPartialResult(): void {
-    if (this.partialSendEnabled &&!this.isCompleted) {
+    if (this.partialSendEnabled && !this.isCompleted) {
       this.sendResult(this.surveyPostId, this.clientId, true);
     }
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
-    if (!this.completedByTriggers) this.completedByTriggers = {};
+    if (!this.completedByTriggers)this.completedByTriggers = {};
     if (isCompleted) {
       this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
     } else {
@@ -5212,7 +5210,7 @@ export class SurveyModel extends SurveyElementCore
   public updateProgressText(onValueChanged: boolean = false): void {
     if (this.isShowingPreview) return;
     if (onValueChanged && this.progressBarType == "pages" && this.onGetProgressText.isEmpty) return;
-    if(this.progressBarValue) {
+    if (this.progressBarValue) {
       this.progressBarValue.resetProgressText();
     }
     this.resetPropertyValue("progressValue");
@@ -5555,7 +5553,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearOnDeletingContainer();
     }
-    if(updateIndexes) {
+    if (updateIndexes) {
       this.updateVisibleIndexes(question.page);
     }
     this.onDynamicPanelRemoved.fire(this, {
@@ -6130,7 +6128,7 @@ export class SurveyModel extends SurveyElementCore
     return page;
   }
   private getValueChangeReason(): "trigger" | "expression" | undefined {
-    if(this.isSettingValueOnExpression) return "expression";
+    if (this.isSettingValueOnExpression) return "expression";
     return this.isSettingValueFromTrigger ? "trigger" : undefined;
   }
   protected questionOnValueChanging(valueName: string, newValue: any, questionValueName?: string): any {
@@ -6400,7 +6398,7 @@ export class SurveyModel extends SurveyElementCore
   private runConditionOnValueChanged(name: string, value: any) {
     if (this.isRunningConditions) {
       this.conditionValues[name] = value;
-      if(this.questionTriggersKeys) {
+      if (this.questionTriggersKeys) {
         this.questionTriggersKeys[name] = value;
       }
       this.isValueChangedOnRunningCondition = true;
@@ -6564,8 +6562,8 @@ export class SurveyModel extends SurveyElementCore
     this.onStateAndCurrentPageChanged();
     this.endLoading();
     this.updateState();
-    if(!!this.sjsVersion && !!settings.version) {
-      if(Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
+    if (!!this.sjsVersion && !!settings.version) {
+      if (Helpers.compareVerions(this.sjsVersion, settings.version) > 0) {
         ConsoleWarnings.warn("The version of the survey JSON schema (v"
           + this.sjsVersion + ") is newer than your current Form Library version ("
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
@@ -6778,7 +6776,7 @@ export class SurveyModel extends SurveyElementCore
     do {
       question = this.getQuestionByValueName(name, true);
       name = this.reduceFirstName(name);
-    } while (!question && !!name);
+    } while(!question && !!name);
     return question;
   }
   private reduceFirstName(name: string): string {
@@ -7005,22 +7003,22 @@ export class SurveyModel extends SurveyElementCore
     var keys: { [index: string]: any } = {};
     for (var i = 0; i < elements.length; i++) keys[elements[i]["name"]] = true;
     var index = 1;
-    while (keys[baseName + index]) index++;
+    while(keys[baseName + index]) index++;
     return baseName + index;
   }
   protected tryGoNextPageAutomatic(name: string): void {
     if (!!this.isEndLoadingFromJson || !this.autoAdvanceEnabled || !this.currentPage) return;
     const question = <Question>this.getQuestionByValueName(name);
-    if (!question || (!!question &&(!question.visible || !question.supportAutoAdvance()))) return;
+    if (!question || (!!question && (!question.visible || !question.supportAutoAdvance()))) return;
     if (!question.validate(false) && !question.supportGoNextPageError()) return;
-    if(!!this.currentSingleElement) {
+    if (!!this.currentSingleElement) {
       const curQuestion = this.currentSingleElement;
       const goNextQuestion = () => {
         if (curQuestion !== this.currentSingleElement) return;
-        if(!this.isLastElement) {
+        if (!this.isLastElement) {
           this.performNext();
         } else {
-          if(this.autoAdvanceAllowComplete) {
+          if (this.autoAdvanceAllowComplete) {
             this.tryCompleteOrShowPreview();
           }
         }
@@ -7140,7 +7138,7 @@ export class SurveyModel extends SurveyElementCore
     if (resetIndexes) {
       this.updateVisibleIndexes(question.page);
     }
-    if(!newValue) {
+    if (!newValue) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
     this.onQuestionVisibleChanged.fire(this, {
@@ -7155,7 +7153,7 @@ export class SurveyModel extends SurveyElementCore
       this.updateCurrentPage();
     }
     this.updateVisibleIndexes();
-    if(!newValue) {
+    if (!newValue) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
     this.onPageVisibleChanged.fire(this, {
@@ -7164,9 +7162,9 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   panelVisibilityChanged(panel: PanelModel, newValue: boolean) {
-    if(!!panel.page) {
+    if (!!panel.page) {
       this.updateVisibleIndexes(panel.page);
-      if(!newValue) {
+      if (!newValue) {
         this.changeCurrentSingleElementOnVisibilityChanged();
       }
     }
@@ -7182,7 +7180,7 @@ export class SurveyModel extends SurveyElementCore
     if (!!(<Question>question).page) {
       this.questionHashesAdded(<Question>question);
     }
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       if (!this.currentPage) {
         this.updateCurrentPage();
       }
@@ -7350,11 +7348,11 @@ export class SurveyModel extends SurveyElementCore
         error: <any>null,
       };
       this.onValidateQuestion.fire(this, options);
-      if(options.error) {
+      if (options.error) {
         errors.push(new CustomError(options.error, this));
       }
     }
-    if(fireCallback) {
+    if (fireCallback) {
       this.beforeSettingQuestionErrors(question, errors);
     }
   }
@@ -7367,11 +7365,11 @@ export class SurveyModel extends SurveyElementCore
         errors: errors
       };
       this.onValidatePanel.fire(this, options);
-      if(options.error) {
+      if (options.error) {
         errors.push(new CustomError(options.error, this));
       }
     }
-    if(fireCallback) {
+    if (fireCallback) {
       this.makeRequiredErrorsInvisible(errors);
     }
   }
@@ -7387,7 +7385,7 @@ export class SurveyModel extends SurveyElementCore
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     const doEncoding = params.doEncoding === undefined ? settings.web.encodeUrlParams : params.doEncoding;
     let text = params.text;
-    if(params.runAtDesign || !this.isDesignMode) {
+    if (params.runAtDesign || !this.isDesignMode) {
       text = this.textPreProcessor.process(text, params.returnDisplayValue === true, doEncoding, params.replaceUndefinedValues);
     }
     const res = { text: text, hasAllValuesOnLastRun: true };
@@ -7491,12 +7489,12 @@ export class SurveyModel extends SurveyElementCore
    * @deprecated Use the [`showTimer`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimer) and [`timerLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerLocation) properties instead.
    */
   public get showTimerPanel(): string {
-    if(!this.showTimer) return "none";
+    if (!this.showTimer) return "none";
     return this.timerLocation;
   }
   public set showTimerPanel(val: string) {
     this.showTimer = val !== "none";
-    if(this.showTimer) {
+    if (this.showTimer) {
       this.timerLocation = val;
     }
   }
@@ -7606,8 +7604,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private calculatedWidthModeUpdater: ComputedUpdater;
   public setCalculatedWidthModeUpdater(): void {
-    if(this.isLoadingFromJson) return;
-    if (this.calculatedWidthModeUpdater) this.calculatedWidthModeUpdater.dispose();
+    if (this.isLoadingFromJson) return;
+    if (this.calculatedWidthModeUpdater)this.calculatedWidthModeUpdater.dispose();
     this.calculatedWidthModeUpdater = new ComputedUpdater(() => this.calculateWidthMode());
     this.calculatedWidthMode = <any>this.calculatedWidthModeUpdater;
   }
@@ -7643,7 +7641,7 @@ export class SurveyModel extends SurveyElementCore
       try {
         width = width || this.staticStartWidth;
         initialWidth = !isNaN(width) ? width : parseFloat(width.toString().replace("px", ""));
-      } catch (e) { }
+      } catch(e) { }
       return (isStaticWidth ? initialWidth : this.responsiveStartWidth) * this.widthScale / 100 + "px";
     }
     if (width && !isNaN(width)) width = width + "px";
@@ -7704,17 +7702,14 @@ export class SurveyModel extends SurveyElementCore
     }
     if (this.timerInfoMode == "survey") {
       return { spent: surveySpent, limit: surveyLimit };
-    }
-    else {
+    } else {
       if (pageLimitSec > 0 && surveyLimit > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent, minorLimit: surveyLimit };
       } else if (pageLimitSec > 0) {
         return { spent: pageSpent, limit: pageLimitSec, minorSpent: surveySpent };
-      }
-      else if (surveyLimit > 0) {
+      } else if (surveyLimit > 0) {
         return { spent: surveySpent, limit: surveyLimit, minorSpent: pageSpent };
-      }
-      else {
+      } else {
         return { spent: pageSpent, minorSpent: surveySpent };
       }
     }
@@ -8009,7 +8004,7 @@ export class SurveyModel extends SurveyElementCore
     const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
-      if(this.isSingleVisibleQuestion && !this.isDesignMode) {
+      if (this.isSingleVisibleQuestion && !this.isDesignMode) {
         this.currentSingleElement = question;
       }
     }
@@ -8034,8 +8029,7 @@ export class SurveyModel extends SurveyElementCore
       const questionIndex = allQuestions.indexOf(question);
       if (questionIndex > -1 && questionIndex < allQuestions.length - 1) {
         allQuestions[questionIndex + 1].focus();
-      }
-      else {
+      } else {
         event.target.blur();
       }
     }
@@ -8221,7 +8215,7 @@ export class SurveyModel extends SurveyElementCore
     }
     containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));
     containerLayoutElements.forEach(el => {
-      if(!!el.getData) {
+      if (!!el.getData) {
         el.data = el.getData();
       }
     });
@@ -8558,7 +8552,7 @@ Serializer.addClass("survey", [
       if (value !== "autogonext") {
         value = Helpers.isTwoValueEquals(value, true);
       }
-      if(value === "autogonext") {
+      if (value === "autogonext") {
         value = true;
       }
       obj.setPropertyValue("autoAdvanceEnabled", value);

@@ -28,7 +28,7 @@ export class DragOrClickHelper {
 
   private onPointerUp = (pointerUpEvent: any) => {
     this.clearListeners();
-  }
+  };
 
   private tryToStartDrag = (pointerMoveEvent: any) => {
     this.currentX = pointerMoveEvent.pageX;

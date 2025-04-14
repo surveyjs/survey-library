@@ -23,7 +23,7 @@ QUnit.test("Serialize two pages", function (assert) {
   var jsObj = new JsonObject().toJsonObject(survey);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"pages":[{"name":"Page 1"},{"name":"Page 2"}]}',
+    "{\"pages\":[{\"name\":\"Page 1\"},{\"name\":\"Page 2\"}]}",
     "serialize two pages"
   );
 });
@@ -51,7 +51,7 @@ QUnit.test("Serialize two questions", function (assert) {
   var jsObj = new JsonObject().toJsonObject(page);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"Page1","elements":[{"type":"text","name":"textQuestion","isRequired":true},{"type":"checkbox","name":"checkboxQuestion","isRequired":true,"showCommentArea":true,"choices":["red","white"]}]}',
+    "{\"name\":\"Page1\",\"elements\":[{\"type\":\"text\",\"name\":\"textQuestion\",\"isRequired\":true},{\"type\":\"checkbox\",\"name\":\"checkboxQuestion\",\"isRequired\":true,\"showCommentArea\":true,\"choices\":[\"red\",\"white\"]}]}",
     "serialize two questions"
   );
 });
@@ -233,7 +233,7 @@ QUnit.test("Serialize mutltiple text question", function (assert) {
   var jsObj = new JsonObject().toJsonObject(mtQuestion);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"q1","items":[{"name":"item1"},{"name":"item2","title":"text2"}]}',
+    "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}",
     "serialize multiple text question"
   );
 });
@@ -268,7 +268,7 @@ QUnit.test("Serialize restful choices", function (assert) {
   var jsObj = new JsonObject().toJsonObject(question);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"q1","choicesByUrl":{"path":"name"}}',
+    "{\"name\":\"q1\",\"choicesByUrl\":{\"path\":\"name\"}}",
     "serialize choicesByUrl"
   );
 });

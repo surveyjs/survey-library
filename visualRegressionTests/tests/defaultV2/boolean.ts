@@ -4,7 +4,7 @@ import { url, frameworks, initSurvey, setOptions, takeElementScreenshot, wrapVis
 
 const title = "Boolean Screenshot";
 
-fixture`${title}`.page`${url}`.beforeEach(async (t) => {
+fixture`${title}`.page`${url}`.beforeEach(async () => {
 
 });
 

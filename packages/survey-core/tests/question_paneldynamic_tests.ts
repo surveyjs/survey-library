@@ -1750,7 +1750,7 @@ QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(as
 function updateObjsQuestions(objs: Array<any>): void {
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
-    if(!!objs[i].context) {
+    if (!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
   }
@@ -4296,7 +4296,7 @@ QUnit.test(
     var testFunc = function(params: Array<any>) {
       parentQuestions = [];
       var q = this.question;
-      while (!!q) {
+      while(!!q) {
         parentQuestions.push(q.name);
         q = q.parentQuestion;
       }
@@ -5239,7 +5239,7 @@ QUnit.test("paneldynamic add new button is not visible for progress render mode,
   const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
   assert.equal(addBtn.isVisible, true, "It is visible by default");
   panel.addPanel();
-  for(var i = 0; i < 4; i ++) {
+  for (var i = 0; i < 4; i ++) {
     panel.addPanel();
     assert.equal(addBtn.isVisible, true, "It is visible by default");
   }
@@ -5400,7 +5400,7 @@ QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (asse
   assert.equal(panel.isReady, false, "panel is not ready");
   assert.equal(log, "->file1.png->file2.png");
   assert.equal(callbacks.length, 2, "Two callbacks");
-  for(let i = 0; i < callbacks.length; i ++) {
+  for (let i = 0; i < callbacks.length; i ++) {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(panel.isReady, true, "panel is ready");
@@ -6226,7 +6226,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle"
       }],
   });
   survey.onGetDynamicPanelTabTitle.add((sender, options) => {
-    if(options.visiblePanelIndex === 0) {
+    if (options.visiblePanelIndex === 0) {
       const val = options.panel.getQuestionByName("q1").value;
       options.title = "First tab" + (!!val ? " " + val.toString() : "");
     }
@@ -6693,9 +6693,9 @@ QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOn
 });
 QUnit.test("panel property in custom function", function (assert) {
   const panelCustomFunc = function (params: any) {
-    if(!this.panel) return "";
+    if (!this.panel) return "";
     const q = this.panel.getQuestionByName(params[0]);
-    if(q && !q.isEmpty()) return q.value + q.value;
+    if (q && !q.isEmpty()) return q.value + q.value;
     return "";
   };
   FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);

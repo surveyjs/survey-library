@@ -1,0 +1,22 @@
+{
+    "search.exclude": {
+        "build": true,
+        "node_modules": true
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "editor.formatOnSave": true,
+    "eslint.format.enable": true,
+    "endOfLine": "crlf",
+    "testing.automaticallyOpenTestResults": "neverOpen",
+}

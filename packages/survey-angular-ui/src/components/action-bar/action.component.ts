@@ -15,7 +15,7 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
     return this.model;
   }
   public get id() {
-    return this.model.id || '';
+    return this.model.id || "";
   }
   public override ngOnDestroy(): void {
     super.ngOnDestroy();
@@ -25,9 +25,9 @@ export class ActionComponent extends BaseAngular implements AfterViewInit {
     this.model.updateModeCallback = (mode, callback) => {
       this.model.mode = mode;
       queueMicrotask(() => {
-        callback(mode, this.containerRef?.nativeElement)
+        callback(mode, this.containerRef?.nativeElement);
       });
-    }
+    };
     this.model.afterRender();
   }
 }

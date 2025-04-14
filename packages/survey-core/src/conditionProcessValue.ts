@@ -65,10 +65,10 @@ export class ProcessValue {
   public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
     for (var i = 0; i < usedNames.length; i++) {
       const name = usedNames[i];
-      if(!name) continue;
+      if (!name) continue;
       const lowerName = name.toLowerCase();
       if (keys.hasOwnProperty(name)) return true;
-      if(name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
+      if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
       var firstName = this.getFirstName(name);
       if (!keys.hasOwnProperty(firstName)) continue;
       if (name === firstName) return true;
@@ -84,17 +84,17 @@ export class ProcessValue {
       var oldValue = this.getValue(name, v);
       v[firstName] = keyValue["newValue"];
       var newValue = this.getValue(name, v);
-      if(!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
+      if (!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
     }
     return false;
 
   }
   private getValueFromPath(path: Array<string | number>, values: any): any {
-    if(path.length === 2 && path[0] === surveyBuiltInVarible) {
+    if (path.length === 2 && path[0] === surveyBuiltInVarible) {
       return this.getValueFromSurvey(<string>path[1]);
     }
     var index = 0;
-    while (!!values && index < path.length) {
+    while(!!values && index < path.length) {
       var ind_name = path[index];
       if (
         Helpers.isNumber(ind_name) &&
@@ -109,13 +109,13 @@ export class ProcessValue {
   }
   private getValueCore(text: string, values: any): any {
     const question = this.getQuestionDirectly(text);
-    if(question) {
+    if (question) {
       return { hasValue: true, value: question.value, path: [text], sctrictCompare: question.requireStrictCompare };
     }
     const res = this.getValueFromValues(text, values);
-    if(!!text && !res.hasValue) {
+    if (!!text && !res.hasValue) {
       const val = this.getValueFromSurvey(text);
-      if(val !== undefined) {
+      if (val !== undefined) {
         res.hasValue = true;
         res.value = val;
         res.path = [surveyBuiltInVarible, text];
@@ -124,12 +124,12 @@ export class ProcessValue {
     return res;
   }
   private getQuestionDirectly(name: string): any {
-    if(!!this.properties && !!this.properties.survey)
+    if (!!this.properties && !!this.properties.survey)
       return this.properties.survey.getQuestionByValueName(name);
     return undefined;
   }
   private getValueFromSurvey(name: string): any {
-    if(!!this.properties && !!this.properties.survey)
+    if (!!this.properties && !!this.properties.survey)
       return this.properties.survey.getBuiltInVariableValue(name.toLocaleLowerCase());
     return undefined;
   }
@@ -166,11 +166,11 @@ export class ProcessValue {
   }
   private getNonNestedObjectCore(obj: any, text: string, createPath: boolean, checkedKeys: Array<string>): any {
     var curName = this.getFirstPropertyName(text, obj, createPath, checkedKeys);
-    if(!!curName) {
+    if (!!curName) {
       checkedKeys.push(curName);
     }
     var path = !!curName ? [curName] : null;
-    while (text != curName && !!obj) {
+    while(text != curName && !!obj) {
       var isArray = text[0] == "[";
       if (!isArray) {
         if (!curName && text == this.getFirstName(text))
@@ -199,7 +199,7 @@ export class ProcessValue {
     if (!Array.isArray(curValue)) return null;
     var index = 1;
     var str = "";
-    while (index < text.length && text[index] != "]") {
+    while(index < text.length && text[index] != "]") {
       str += text[index];
       index++;
     }
@@ -216,7 +216,7 @@ export class ProcessValue {
     var A = nameInLow[0];
     var a = A.toUpperCase();
     for (var key in obj) {
-      if(Array.isArray(checkedKeys) && checkedKeys.indexOf(key) > -1) continue;
+      if (Array.isArray(checkedKeys) && checkedKeys.indexOf(key) > -1) continue;
       var first = key[0];
       if (first === a || first === A) {
         var keyName = key.toLowerCase();

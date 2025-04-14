@@ -19,8 +19,11 @@
           :style="vueSurvey.backgroundImageStyle"
         ></div>
         <form onsubmit="return false;">
-          <SvComponent :is="'sv-scroll'" :disabled="vueSurvey.formScrollDisabled">
-          <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
+          <SvComponent
+            :is="'sv-scroll'"
+            :disabled="vueSurvey.formScrollDisabled"
+          >
+            <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
             <div :class="css.container">
               <SvComponent
                 :is="'survey-header'"
@@ -142,7 +145,7 @@ SvgRegistry.registerIcons(iconsV2);
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { settings, type SurveyModel } from "survey-core";
+import { type SurveyModel } from "survey-core";
 import {
   toRaw,
   ref,

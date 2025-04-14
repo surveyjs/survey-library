@@ -126,7 +126,7 @@ export class MultipleTextItemModel extends Base
   }
   public focusIn = (): void => {
     this.editor.focusIn();
-  }
+  };
   /**
    * Marks the item as required. If a respondent leaves this item empty, the question displays a [validation error](#requiredErrorText).
    */
@@ -313,7 +313,7 @@ export class MultipleTextItemModel extends Base
   }
   public set maskSettings(val: InputMaskBase) {
     this.setPropertyValue("maskSettings", val);
-    if(this.editor.maskSettings !== val) {
+    if (this.editor.maskSettings !== val) {
       this.editor.maskSettings = val;
     }
   }
@@ -347,7 +347,7 @@ export class MultipleTextItemModel extends Base
     return this.editor.isEmpty();
   }
   public onValueChanged(newValue: any) {
-    if (this.valueChangedCallback) this.valueChangedCallback(newValue);
+    if (this.valueChangedCallback)this.valueChangedCallback(newValue);
   }
   //ISurveyImpl
   getSurveyData(): ISurveyData {
@@ -459,7 +459,7 @@ export class QuestionMultipleTextModel extends Question
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();
-    if(!Helpers.isValueEmpty(this.rows)) {
+    if (!Helpers.isValueEmpty(this.rows)) {
       this.calcVisibleRows();
     }
   }
@@ -587,7 +587,7 @@ export class QuestionMultipleTextModel extends Question
     this.setPropertyValue("itemErrorLocation", val);
   }
   public getQuestionErrorLocation(): string {
-    if(this.itemErrorLocation !== "default") return this.itemErrorLocation;
+    if (this.itemErrorLocation !== "default") return this.itemErrorLocation;
     return this.getErrorLocation();
   }
   public get showItemErrorOnTop(): boolean {
@@ -660,14 +660,13 @@ export class QuestionMultipleTextModel extends Question
     let errorRow: MutlipleTextErrorRow;
     let rows: Array<MutlipleTextRow> = [];
     for (var i = 0; i < items.length; i++) {
-      if(index == 0) {
+      if (index == 0) {
         row = this.onRowCreated(new MutlipleTextRow());
         errorRow = <MutlipleTextErrorRow>this.onRowCreated(new MutlipleTextErrorRow());
-        if(this.showItemErrorOnTop) {
+        if (this.showItemErrorOnTop) {
           rows.push(errorRow);
           rows.push(row);
-        }
-        else {
+        } else {
           rows.push(row);
           rows.push(errorRow);
         }
@@ -684,7 +683,7 @@ export class QuestionMultipleTextModel extends Question
   }
 
   public getRows(): Array<any> {
-    if(Helpers.isValueEmpty(this.rows)) {
+    if (Helpers.isValueEmpty(this.rows)) {
       this.calcVisibleRows();
     }
     return this.rows;
@@ -880,7 +879,7 @@ export class QuestionMultipleTextModel extends Question
 
 export class MutlipleTextRow extends Base {
   @property() public isVisible: boolean = true;
-  @propertyArray() public cells: Array<MultipleTextCell> = []
+  @propertyArray() public cells: Array<MultipleTextCell> = [];
 }
 export class MutlipleTextErrorRow extends MutlipleTextRow {
   public onAfterCreated(): void {
@@ -888,7 +887,7 @@ export class MutlipleTextErrorRow extends MutlipleTextRow {
       this.isVisible = this.cells.some((cell) => cell.item?.editor && cell.item?.editor.hasVisibleErrors);
     };
     this.cells.forEach((cell) => {
-      if(cell.item?.editor) {
+      if (cell.item?.editor) {
         cell.item?.editor.registerFunctionOnPropertyValueChanged("hasVisibleErrors", callback);
       }
     });

@@ -111,7 +111,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   public get otherTextAreaModel(): TextAreaModel {
-    if(!this.otherTextAreaModelValue) {
+    if (!this.otherTextAreaModelValue) {
       this.otherTextAreaModelValue = new TextAreaModel(this.getOtherTextAreaOptions());
     }
     return this.otherTextAreaModelValue;
@@ -154,7 +154,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    if(!rec || rec.isOnValueChanged !== true) {
+    if (!rec || rec.isOnValueChanged !== true) {
       this.clearIncorrectValues();
     }
     return super.hasErrors(fireCallback, rec);
@@ -595,7 +595,7 @@ export class QuestionSelectBase extends Question {
     return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
-    if(val) {
+    if (val) {
       this.prevIsOtherSelected = true;
     }
     this.value = val ? this.otherItem.value : undefined;
@@ -635,16 +635,16 @@ export class QuestionSelectBase extends Question {
   }
   private getValueOnSettingOther(otherValue: string): any {
     const val = this.rendredValueToData(this.renderedValue);
-    if(this.showCommentArea || this.getStoreOthersAsComment()) return val;
+    if (this.showCommentArea || this.getStoreOthersAsComment()) return val;
     const item = ItemValue.getItemByValue(this.visibleChoices, otherValue);
-    if(!item || item === this.otherItem) return val;
+    if (!item || item === this.otherItem) return val;
     this.otherValueCore = "";
-    if(!Array.isArray(val)) return otherValue;
+    if (!Array.isArray(val)) return otherValue;
     const index = val.indexOf(this.otherItem.value);
-    if(index > -1) {
+    if (index > -1) {
       val.splice(index, 1);
     }
-    if(val.indexOf(otherValue) < 0) {
+    if (val.indexOf(otherValue) < 0) {
       val.push(otherValue);
     }
     return val;
@@ -770,8 +770,7 @@ export class QuestionSelectBase extends Question {
           this.setCustomValuesIntoItems(items, customValues);
           if (Array.isArray(value)) {
             this.selectedItemValues = items;
-          }
-          else {
+          } else {
             this.selectedItemValues = items[0];
           }
           this.updateIsReady();
@@ -1111,8 +1110,7 @@ export class QuestionSelectBase extends Question {
       if (rec.index < 0) {
         items.splice(i, 0, rec.item);
         this.headItemsCount++;
-      }
-      else {
+      } else {
         items.push(rec.item);
         this.footItemsCount++;
       }
@@ -1528,8 +1526,7 @@ export class QuestionSelectBase extends Question {
       if (event.target) {
         this.otherValue = event.target.value;
       }
-    }
-    else {
+    } else {
       this.updateCommentElements();
     }
   }
@@ -1935,7 +1932,7 @@ export class QuestionSelectBase extends Question {
       this.renderedChoicesChangedCallback && this.renderedChoicesChangedCallback();
     },
     () => this._renderedChoices
-  )
+  );
 
   public get renderedChoices(): Array<ItemValue> {
     return this._renderedChoices;
@@ -1996,7 +1993,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   private getColumnsWithColumnItemFlow(choices, colCount) {
-    const columns =[];
+    const columns = [];
     let maxColumnHeight = Math.floor(choices.length / colCount);
 
     if (choices.length % colCount) {

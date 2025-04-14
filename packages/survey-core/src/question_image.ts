@@ -197,10 +197,10 @@ export class QuestionImageModel extends QuestionNonValue {
 function getCorrectImageLink(val: string, isYouTube: boolean): string {
   if (!val || !Helpers.isUrlYoutubeVideo(val)) return isYouTube ? "" : val;
   let res = val.toLocaleLowerCase();
-  if(res.indexOf(youtubeEmbed) > -1) return val;
+  if (res.indexOf(youtubeEmbed) > -1) return val;
   let id = "";
-  for(var i = val.length - 1; i >= 0; i --) {
-    if(val[i] === "=" || val[i] === "/") break;
+  for (var i = val.length - 1; i >= 0; i --) {
+    if (val[i] === "=" || val[i] === "/") break;
     id = val[i] + id;
   }
   return youtubeUrl + youtubeEmbed + "/" + id;

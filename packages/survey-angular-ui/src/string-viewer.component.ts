@@ -13,12 +13,12 @@ export class StringViewerComponent implements DoCheck {
   private previousModel: LocalizableString | undefined;
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
   ngDoCheck(): void {
-    if(this.model !== this.previousModel) {
+    if (this.model !== this.previousModel) {
       this.className = this.model.allowLineBreaks ? "sv-string-viewer sv-string-viewer--multiline" : "sv-string-viewer";
-      if(!!this.previousModel) {
+      if (!!this.previousModel) {
         this.clearOnChanged(this.previousModel);
       }
-      if(!!this.model) {
+      if (!!this.model) {
         this.model.onChanged = () => { this.changeDetectorRef.detectChanges(); };
       }
       this.previousModel = this.model;

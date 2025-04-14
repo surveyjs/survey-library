@@ -275,7 +275,7 @@ export class Cover extends Base {
     } else if (colIndex == 0) {
       let rightFreeCells = 0;
       let index = colIndex + 1;
-      while (index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
+      while(index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
         if (this.cells[rowIndex * 3 + index].isEmpty) {
           rightFreeCells++;
         }
@@ -285,7 +285,7 @@ export class Cover extends Base {
     } else if (colIndex == 2) {
       let leftFreeCells = 0;
       let index = colIndex - 1;
-      while (index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
+      while(index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
         if (this.cells[rowIndex * 3 + index].isEmpty) {
           leftFreeCells++;
         }

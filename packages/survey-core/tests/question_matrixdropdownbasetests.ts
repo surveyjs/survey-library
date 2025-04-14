@@ -1728,7 +1728,7 @@ QUnit.test("The Undo operation doesn't work for matrix dropdown column 'choices'
     sender: any,
     arrayChanges: any
   ) => {
-    if(name === "choices") {
+    if (name === "choices") {
       counter ++;
       propName = name;
       senderName = sender.name;

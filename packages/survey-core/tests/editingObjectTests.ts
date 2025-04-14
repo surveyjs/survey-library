@@ -1359,7 +1359,7 @@ QUnit.test("Call onMatrixCellCreated correctly, Bug#8873", function (assert) {
   let cellCreatedCounter: number = 0;
   survey.onMatrixCellCreated.add((sender, options) => {
     cellCreatedCounter ++;
-    if(options.columnName === "text") {
+    if (options.columnName === "text") {
       options.cellQuestion.placeholder = options.row.getQuestionByName("value").value;
     }
   });
@@ -1671,7 +1671,7 @@ QUnit.test("Edit triggers array", function (assert) {
   });
   editSurvey.onMatrixCellCreated.add((sender, options) => {
     const obj = options.row.editingObj;
-    if(obj) {
+    if (obj) {
       options.cell.value = obj.getType();
     }
   });

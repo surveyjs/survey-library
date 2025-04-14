@@ -10,7 +10,7 @@ import { AngularComponentFactory } from "../component-factory";
 export class MultipleTextComponent extends QuestionAngular<QuestionMultipleTextModel> {
   trackRowBy = (index: number): string => {
     return this.model.inputId + "rowkey" + index;
-  }
+  };
 }
 
 AngularComponentFactory.Instance.registerComponent("multipletext-question", MultipleTextComponent);

@@ -236,28 +236,42 @@ export class ChoicesRestful extends Base {
     }
     return parsedResponse;
   }
-  // protected sendRequest() {
-  //   var xhr = new XMLHttpRequest();
-  //   xhr.open("GET", this.processedUrl);
-  //   xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-  //   var self = this;
-  //   var loadingObjHash = this.objHash;
-  //   xhr.onload = function () {
-  //     self.beforeLoadRequest();
-  //     if (xhr.status === 200) {
-  //       self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
-  //     } else {
-  //       self.onError(xhr.statusText, xhr.responseText);
-  //     }
-  //   };
-  //   var options = { request: xhr };
-  //   if (!!settings.web.onBeforeRequestChoices) {
-  //     settings.web.onBeforeRequestChoices(this, options);
-  //   }
-  //   this.beforeSendRequest();
-  //   options.request.send();
-  // }
   protected sendRequest() {
+    if (typeof XMLHttpRequest !== "undefined") {
+      this.sendXmlHttpRequest();
+    } else if (typeof fetch !== "undefined") {
+      this.sendFetchRequest();
+    } else {
+      this.error = new WebRequestError(
+        "The browser does not support XMLHttpRequest or fetch API",
+        "",
+        this.owner
+      );
+      this.doEmptyResultCallback("");
+    }
+  }
+  protected sendXmlHttpRequest() {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", this.processedUrl);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    var self = this;
+    var loadingObjHash = this.objHash;
+    xhr.onload = function () {
+      self.beforeLoadRequest();
+      if (xhr.status === 200) {
+        self.onLoad(self.parseResponse(xhr.response), loadingObjHash);
+      } else {
+        self.onError(xhr.statusText, xhr.responseText);
+      }
+    };
+    var options = { url: this.processedUrl, request: xhr };
+    if (!!settings.web.onBeforeRequestChoices) {
+      settings.web.onBeforeRequestChoices(this, options);
+    }
+    this.beforeSendRequest();
+    options.request.send();
+  }
+  protected sendFetchRequest() {
     const self = this;
     const loadingObjHash = this.objHash;
 

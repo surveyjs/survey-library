@@ -13,8 +13,11 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 
 .sd-slider {
   position: relative;
-  height: 50px;
-  margin-top: 45px;
+  display: flex;
+  width: 100%;
+  margin-top: var(--lbr-slider-margin-top, calcSize(1));
+  flex-direction: column;
+  gap: var(--lbr-slider-gap, calcSize(1));
 
   &:hover {
     .sd-slider__tooltip--on-hover {
@@ -26,10 +29,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider--single {}
 
 .sd-slider__visual-slider-container {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: $slider-path-height;
+  min-height: $slider-thumb-height;
   cursor: pointer;
 }
 
@@ -37,6 +37,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   position: absolute;
   height: $slider-path-height;
   background: var(--lbr-slider-path-color, #DCDCDC);
+  top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
 }
 
 .sd-slider__inverse-track--left {
@@ -56,11 +57,12 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   left: 0;
   height: $slider-path-height;
   background: var(--lbr-slider-path-color-filled, $primary);
+  top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
 }
 
 .sd-slider__thumb {
   position: absolute;
-  top: calc($slider-thumb-height / -2 + $slider-path-height / 2);
+  top: calc($slider-path-height / -2);
   z-index: 2;
   border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
   width: $slider-thumb-width;
@@ -134,11 +136,6 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 }
 
 .sd-slider__labels-container {
-  position: absolute;
-  //padding-top: 30px;
-  top: 100px;
-  right: 0;
-  left: 0;
   user-select: none;
   pointer-events: none;
 
@@ -170,8 +167,8 @@ input[type=range].sd-slider__input {
   pointer-events: none;
   -webkit-appearance: none;
   z-index: 4;
-  height: 14px;
-  top: -2px;
+  height: $slider-thumb-height;
+  top: 0;
   width: 100%;
   opacity: 0;
   margin: 0;
@@ -213,7 +210,7 @@ input[type=range].sd-slider__input::-webkit-slider-thumb {
 
 input[type=range][name="range-input"].sd-slider__input::-webkit-slider-thumb {
   height: $slider-thumb-height;
-  top: calc($slider-thumb-height / -2 + $slider-path-height);
+  top: 0;
 }
 
 input[type=range].sd-slider__input::-moz-range-thumb {
@@ -231,7 +228,7 @@ input[type=range].sd-slider__input::-moz-range-thumb {
 
 input[type=range][name="range-input"].sd-slider__input::-moz-range-thumb {
   height: $slider-thumb-height;
-  top: calc($slider-thumb-height / -2 + $slider-path-height);
+  top: 0;
 }
 
 input[type=range].sd-slider__input::-ms-fill-lower {

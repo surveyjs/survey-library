@@ -1201,23 +1201,24 @@ QUnit.test("singleInput & two nested elements", assert => {
   assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #13");
 });
 QUnit.test("singleInput & two nested elements & actions", assert => {
+  debugger;
   const survey = new SurveyModel(nestedJSON);
   const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
   const panel = survey.getQuestionByName("order");
   const check4OneActions = (num: number, isSummary: boolean = true) => {
     const postFix = ", #" + num.toString();
     assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
-    assert.equal(panel.singleInputActions.length, 1, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions.actions.length, 1, "singleInputActions.length" + postFix);
     const orderTitle = isSummary ? "Order" : "Order #1";
-    assert.equal(panel.singleInputActions[0].title, orderTitle, "singleInputActions[0].title" + postFix);
+    assert.equal(panel.singleInputActions.actions[0].title, orderTitle, "singleInputActions[0].title" + postFix);
   };
   const check4TwoActions = (num: number, isSummary: boolean) => {
     const postFix = ", #" + num.toString();
     assert.equal(panel.singleInputHasActions, true, "singleInputHasActions" + postFix);
-    assert.equal(panel.singleInputActions.length, 2, "singleInputActions.length" + postFix);
-    assert.equal(panel.singleInputActions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
+    assert.equal(panel.singleInputActions.actions.length, 2, "singleInputActions.length" + postFix);
+    assert.equal(panel.singleInputActions.actions[0].title, "Order #1", "singleInputActions[0].title" + postFix);
     const storeTitle = isSummary ? "Place to Deliver" : "Delivery #1";
-    assert.equal(panel.singleInputActions[1].title, storeTitle, "singleInputActions[1].title" + postFix);
+    assert.equal(panel.singleInputActions.actions[1].title, storeTitle, "singleInputActions[1].title" + postFix);
   };
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
   assert.equal(panel.singleInputHideHeader, false, "root.singleInputHideHeader, #1");
@@ -1259,7 +1260,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
 
   survey.performNext();
   assert.equal(panel.singleInputQuestion.name, "order", "root.singleInputQuestion.name, #9");
-  assert.equal(panel.singleInputActions.length, 0, "singleInputActions.length, #9");
+  assert.equal(panel.singleInputActions.actions.length, 0, "singleInputActions.length, #9");
   panel.singleInputSummary.items[0].btnEdit.action();
   survey.performNext();
   storesPanel.singleInputSummary.items[0].btnEdit.action();
@@ -1267,7 +1268,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
   productsMatrix.singleInputSummary.items[0].btnEdit.action();
   check4TwoActions(10, false);
 
-  panel.singleInputActions[1].action();
+  panel.singleInputActions.actions[1].action();
   assert.equal(panel.singleInputQuestion.name, "stores", "root.singleInputQuestion.name, #11");
   assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #11");
   check4OneActions(11, false);
@@ -1275,7 +1276,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
   survey.performNext();
   assert.equal(storesPanel.singleInputQuestion.name, "products", "storesPanel.singleInputQuestion.name, #12");
 
-  panel.singleInputActions[0].action();
+  panel.singleInputActions.actions[0].action();
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #13");
 
   survey.performNext();
@@ -1283,7 +1284,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
   assert.equal(storesPanel.singleInputQuestion.name, "storeName", "storesPanel.singleInputQuestion.name, #14");
   check4OneActions(14, false);
 });
-QUnit.test("singleInput & two nested elements & actions", assert => {
+QUnit.test("singleInput & two nested elements & actions 2", assert => {
   const survey = new SurveyModel({
     "questionsOnPageMode": "inputPerPage",
     "title": "Employment History (merging answers from several previous questions)",

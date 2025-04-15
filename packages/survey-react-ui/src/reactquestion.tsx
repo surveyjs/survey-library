@@ -175,7 +175,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
   }
   protected renderSingleInputBreadcrumbs(question: Question, cssClasses: any): React.JSX.Element {
-    return <SurveyBreadcrumbs items={question.singleInputActions} css={cssClasses} />;
+    return <SurveyBreadcrumbs model={question.singleInputActions} css={cssClasses} />;
   }
   protected renderSingleInputSummary(question: Question, cssClasses: any): React.JSX.Element {
     return <SurveyQuestionSigleInputSummary summary={question.singleInputSummary} creator={this.creator} css={cssClasses} />;

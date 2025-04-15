@@ -1,6 +1,6 @@
 <template>
-  <div v-if="items && items.length" :class="css.breadcrumbsRoot">
-    <template v-for="(item, itemIndex) in items" :key="item.renderedId">
+  <div v-if="model.actions && model.actions.length" :class="css.breadcrumbsRoot">
+    <template v-for="(item, itemIndex) in model.actions" :key="item.renderedId">
       <SvComponent
         v-if="itemIndex"
         :is="'sv-svg-icon'"
@@ -15,10 +15,12 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import type { Action } from "survey-core";
+import type { ActionList } from "survey-core";
+import { useBase } from "./../../base";
 defineOptions({ inheritAttrs: false });
-defineProps<{
-  items: Action[];
+const props = defineProps<{
+  model: ActionList;
   css: any;
 }>();
+useBase(() => props.model);
 </script>

@@ -17,7 +17,7 @@
     <SvComponent
       :is="'sv-breadcrumbs'"
       v-if="element.singleInputHasActions"
-      :items="element.singleInputActions"
+      :model="element.singleInputActions"
       :css="element.cssClasses"
     />
     <SvComponent

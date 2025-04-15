@@ -2,7 +2,8 @@ import * as React from "react";
 import {
   Base,
   Action,
-  ActionContainer
+  ActionContainer,
+  ActionList
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -10,7 +11,7 @@ import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyAction } from "../action-bar/action-bar-item";
 
 interface IBreadcrumbsProps {
-  items: Action[];
+  model: ActionList;
   css: any;
 }
 
@@ -18,9 +19,11 @@ export class SurveyBreadcrumbs extends SurveyElementBase<IBreadcrumbsProps, any>
   constructor(props: IBreadcrumbsProps) {
     super(props);
   }
-
+  protected getStateElement() {
+    return this.props.model;
+  }
   get items() {
-    return this.props.items;
+    return this.props.model.actions;
   }
 
   get css() {

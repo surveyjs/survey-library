@@ -25,6 +25,7 @@ import { DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Action } from "./actions/action";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
+import { ActionList } from "./actions/action-list";
 
 export interface IConditionObject {
   name: string;
@@ -879,14 +880,13 @@ export class Question extends SurveyElement<Question>
       return this.getSingleQuestionLocTitle();
     });
   }
-  public get singleInputActions(): Array<Action> {
-    return this.getPropertyValue("singleInputActions", undefined, () => this.createSingleInputActions());
-  }
-  private set singleInputActions(val: Array<Action>) {
-    this.setPropertyValue("singleInputActions", val);
-  }
+
+  public singleInputActions: ActionList;
+
   public get singleInputHasActions(): boolean {
-    return this.getPropertyValue("singleInputHasActions");
+    return this.getPropertyValue("singleInputHasActions", undefined, () => {
+      return this.createSingleInputActions();
+    });
   }
   public get singleInputHideHeader(): boolean {
     const childQ = this.singleInputQuestion?.singleInputQuestion;
@@ -898,20 +898,19 @@ export class Question extends SurveyElement<Question>
   private get singleInputParentQuestion(): Question {
     return this.singleInputQuestion?.parentQuestion || this;
   }
-  private createSingleInputActions(): Array<Action> {
+  private createSingleInputActions() {
     if(this.survey?.currentSingleQuestion !== this) return undefined;
-    const res = this.createNewArray("singleInputActions");
-    const actions = this.getSingleQuestionActions();
-    res.splice(0, 0, ...actions);
-    this.sinleInputHasActions = actions.length > 0 ? true : undefined;
-    return res;
+    this.singleInputActions = new ActionList();
+    this.singleInputActions.actions = this.getSingleQuestionActions();
+    return this.singleInputActions.actions.length > 0 ? true : undefined;
   }
   private calcSingleInputActions(): void {
     if(!!this.parentQuestion) {
       this.parentQuestion.calcSingleInputActions();
     } else {
       const actions = this.getSingleQuestionActions();
-      this.singleInputActions = actions;
+      if (!this.singleInputActions) this.createSingleInputActions();
+      this.singleInputActions.actions = actions;
       this.sinleInputHasActions = actions.length > 0 ? true : undefined;
     }
   }

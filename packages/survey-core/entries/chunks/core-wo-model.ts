@@ -11,5 +11,6 @@ export * from "../../src/actions/action";
 export * from "../../src/utils/animation";
 export * from "../../src/actions/adaptive-container";
 export * from "../../src/actions/container";
+export * from "../../src/actions/action-list";
 export * from "../../src/utils/dragOrClickHelper";
 

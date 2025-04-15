@@ -1435,7 +1435,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
       "endDate": "2024-03-01"
     }] }, "check survey.data");
 });
-QUnit.only("singleInput and survey.onCheckSingleInputPerPageMode event", assert => {
+QUnit.test("singleInput and survey.onCheckSingleInputPerPageMode event", assert => {
   const survey = new SurveyModel({
     elements: [
       {

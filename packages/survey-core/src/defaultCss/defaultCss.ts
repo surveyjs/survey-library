@@ -674,7 +674,8 @@ export var defaultCss = {
   slider: {
     root: "sd-slider",
     rootSingleMode: "sd-slider--single",
-    visualSliderContainer: "sd-slider__visual-slider-container",
+    visualContainer: "sd-slider-visual-container",
+    visualContainerSlider: "sd-slider-visual-container__slider",
     rangeTrack: "sd-slider__range-track",
     inverseTrackLeft: "sd-slider__inverse-track sd-slider__inverse-track--left",
     inverseTrackRight: "sd-slider__inverse-track sd-slider__inverse-track--right",
@@ -685,7 +686,7 @@ export var defaultCss = {
     tooltipOnHoverMode: "sd-slider__tooltip--on-hover",
     tooltipValue: "sd-slider__tooltip-value",
     input: "sd-slider__input",
-    labelsContainer: "sd-slider__labels-container",
+    labelsContainer: "sd-slider-labels-container",
     label: "sd-slider__label",
     labelLong: "sd-slider__label--long",
   },

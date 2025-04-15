@@ -1,5 +1,9 @@
 @use "../variables.scss" as *;
 
+.sd-question__content {
+  outline: 1px solid black !important;
+}
+
 $slider-path-height: var(--lbr-slider-path-height, calcSize(0.5));
 $slider-thumb-width: var(--lbr-slider-thumb-width, calcSize(4));
 $slider-thumb-height: var(--lbr-slider-thumb-height, calcSize(4));
@@ -29,9 +33,15 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider--single {
 }
 
-.sd-slider__visual-slider-container {
+.sd-slider-visual-container {
   min-height: $slider-thumb-height;
   cursor: pointer;
+  margin-left: calcSize(0.5 + 1);
+  margin-right: calcSize(0.5 + 1);
+}
+
+.sd-slider-visual-container__slider {
+  position: relative;
 }
 
 .sd-slider__inverse-track {
@@ -145,23 +155,39 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   opacity: 0;
 }
 
-.sd-slider__labels-container {
+.sd-slider-labels-container {
   user-select: none;
   pointer-events: none;
-  position: relative;
-  display: flex;
-  align-items: center;
+  margin-left: calcSize(0.5 + 1);
+  margin-right: calcSize(0.5 + 1);
   min-height: $slider-thumb-height;
+
+  > div {
+    user-select: none;
+    pointer-events: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
 }
 
 .sd-slider__label {
+  user-select: none;
+  pointer-events: none;
   color: $foreground;
   position: absolute;
+  width: $slider-thumb-width;
+  display: flex;
+  justify-content: center;
   margin-left: calc($slider-thumb-width / -2);
 
-  &:first-child {
-    margin-left: 0;
-  }
+  // &:first-child {
+  //   margin-left: -4px;
+  // }
+
+  // &:last-child {
+  //   margin-right: -4px;
+  // }
 }
 
 .sd-slider__label--long {

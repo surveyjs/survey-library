@@ -39,14 +39,18 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
-        <div className={cssClasses.visualSliderContainer} onPointerUp={ (e)=>{ this.setValueByClick(e); }}>
-          <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
-          <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
-          <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
-          {thumbs}
+        <div className={cssClasses.visualContainer} onPointerUp={ (e)=>{ this.setValueByClick(e); }}>
+          <div className={cssClasses.visualContainerSlider}>
+            <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
+            <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
+            <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
+            {thumbs}
+          </div>
         </div>
         <div className={cssClasses.labelsContainer}>
-          {labels}
+          <div>
+            {labels}
+          </div>
         </div>
         {inputs}
         {rangeInput}
@@ -120,7 +124,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
 
       const label = <React.Fragment key={"label-" + i}>
-        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLong : ""}`} style={{ left: position + "%" }}>{labelFormat.replace("{0}", "" + labelText)}</div>
+        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLong : ""}`} style={{ left: position + "%" }}>
+          <div>
+            {labelFormat.replace("{0}", "" + labelText)}
+          </div>
+        </div>
       </React.Fragment>;
 
       labels.push(label);

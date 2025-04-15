@@ -236,7 +236,7 @@ export class QuestionBooleanModel extends Question {
       .toString();
   }
 
-  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+  updateValueFromSurvey(newValue: any, clearData = false): void {
     super.updateValueFromSurvey(newValue, clearData);
   }
 
@@ -269,7 +269,7 @@ export class QuestionBooleanModel extends Question {
       return this.locLabelFalse;
     }
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+  protected setQuestionValue(newValue: any, updateIsAnswered = true): void {
     if (newValue === "true" && this.valueTrue !== "true") newValue = true;
     if (newValue === "false" && this.valueFalse !== "false") newValue = false;
     if (newValue === "indeterminate" || newValue === null) newValue = undefined;

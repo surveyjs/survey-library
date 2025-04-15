@@ -112,7 +112,10 @@ export class Cover extends Base {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
     this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.width;
     if (!!this.maxWidth) {
-      this.maxWidth = parseFloat(this.maxWidth.toString().replace("px", "")) + "px";
+      const maxWidthString = this.maxWidth.toString();
+      if (maxWidthString.indexOf("px") === -1 && maxWidthString.indexOf("%") === -1) {
+        this.maxWidth = parseFloat(maxWidthString) + "px";
+      }
     }
     this.contentClasses = new CssClassBuilder()
       .append("sv-header__content")

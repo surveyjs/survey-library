@@ -202,9 +202,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   };
 
   private handlePointerUp = (e) => {
-    const { step } = this.question;
+    const { step, focusedThumb } = this.question;
     const renderedValue:number[] = this.getRenderedValue();
+    const focusedThumbValue = renderedValue[focusedThumb];
     renderedValue.sort((a, b)=>a - b);
+    this.question.focusedThumb = renderedValue.indexOf(focusedThumbValue);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);

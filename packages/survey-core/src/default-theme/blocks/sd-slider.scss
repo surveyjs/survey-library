@@ -26,8 +26,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   }
 }
 
-.sd-slider--single {
-}
+.sd-slider--single {}
 
 .sd-slider__visual-slider-container {
   min-height: $slider-thumb-height;
@@ -37,7 +36,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider__inverse-track {
   position: absolute;
   height: $slider-path-height;
-  background: var(--lbr-slider-path-color, #dcdcdc);
+  background: var(--lbr-slider-path-color, #DCDCDC);
   top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
 }
 
@@ -73,9 +72,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   justify-content: center;
   align-items: center;
   background: $slider-thumb-color;
-  box-shadow: var(--lbr-slider-thumb-shadow-offset-x, 0px) var(--lbr-slider-thumb-shadow-offset-y, 1px)
-    var(--lbr-slider-thumb-shadow-blur, 2px) var(--lbr-slider-thumb-shadow-spread, 0px)
-    var(--lbr-slider-thumb-shadow-color, rgba(0, 0, 0, 0.25));
+  box-shadow: var(--lbr-slider-thumb-shadow-offset-x, 0px) var(--lbr-slider-thumb-shadow-offset-y, 1px) var(--lbr-slider-thumb-shadow-blur, 2px) var(--lbr-slider-thumb-shadow-spread, 0px) var(--lbr-slider-thumb-shadow-color, rgba(0, 0, 0, 0.25));
   box-sizing: border-box;
   border: var(--lbr-slider-thumb-border-width-focused, 2px) solid $slider-thumb-color;
   margin-left: calc($slider-thumb-width / -2);
@@ -106,16 +103,9 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   z-index: 3;
   border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
   background: var(--lbr-tooltip-background-color, $background);
-  box-shadow:
-    var(--lbr-tooltip-shadow-2-offset-x, 0px) var(--lbr-tooltip-shadow-2-offset-y, 1px)
-      var(--lbr-tooltip-shadow-2-blur, 2px) var(--lbr-tooltip-shadow-2-spread, 0px)
-      var(--lbr-tooltip-shadow-2-color, rgba(0, 0, 0, 0.25)),
-    var(--lbr-tooltip-shadow-1-offset-x, 0px) var(--lbr-tooltip-shadow-1-offset-y, 2px)
-      var(--lbr-tooltip-shadow-1-blur, 8px) var(--lbr-tooltip-shadow-1-spread, 0px)
-      var(--lbr-tooltip-shadow-1-color, rgba(0, 76, 68, 0.1));
+  box-shadow: var(--lbr-tooltip-shadow-2-offset-x, 0px) var(--lbr-tooltip-shadow-2-offset-y, 1px) var(--lbr-tooltip-shadow-2-blur, 2px) var(--lbr-tooltip-shadow-2-spread, 0px) var(--lbr-tooltip-shadow-2-color, rgba(0, 0, 0, 0.25)), var(--lbr-tooltip-shadow-1-offset-x, 0px) var(--lbr-tooltip-shadow-1-offset-y, 2px) var(--lbr-tooltip-shadow-1-blur, 8px) var(--lbr-tooltip-shadow-1-spread, 0px) var(--lbr-tooltip-shadow-1-color, rgba(0, 76, 68, 0.10));
   display: flex;
-  padding: var(--lbr-tooltip-padding-top, calcSize(1)) var(--lbr-tooltip-padding-right, calcSize(2))
-    var(--lbr-tooltip-padding-bottom, calcSize(1)) var(--lbr-tooltip-padding-left, calcSize(2));
+  padding: var(--lbr-tooltip-padding-top, calcSize(1)) var(--lbr-tooltip-padding-right, calcSize(2)) var(--lbr-tooltip-padding-bottom, calcSize(1)) var(--lbr-tooltip-padding-left, calcSize(2));
   justify-content: center;
   align-items: center;
   user-select: none;
@@ -129,7 +119,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
     //width: var(--lbr-tooltip-pointer-width, 12px);
     //height: var(--lbr-tooltip-pointer-height, 6px);
     position: absolute;
-    content: "";
+    content: '';
     left: 22%;
     bottom: calc(var(--lbr-tooltip-pointer-height, calcSize(0.75)) * -1);
     border-radius: 16px;
@@ -171,7 +161,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   max-width: 80px;
 }
 
-input[type="range"].sd-slider__input {
+input[type=range].sd-slider__input {
   position: absolute;
   pointer-events: none;
   -webkit-appearance: none;
@@ -183,11 +173,11 @@ input[type="range"].sd-slider__input {
   margin: 0;
 }
 
-input[type="range"][name="range-input"].sd-slider__input {
+input[type=range][name="range-input"].sd-slider__input {
   z-index: 3;
 }
 
-input[type="range"].sd-slider__input:focus::-webkit-slider-runnable-track {
+input[type=range].sd-slider__input:focus::-webkit-slider-runnable-track {
   background: transparent;
   border: transparent;
 }
@@ -200,11 +190,11 @@ input[type="range"].sd-slider__input::-moz-range-track {
   margin: 0 calc($slider-thumb-width / -2);
 }
 
-input[type="range"].sd-slider__input:focus {
+input[type=range].sd-slider__input:focus {
   outline: none;
 }
 
-input[type="range"].sd-slider__input::-webkit-slider-thumb {
+input[type=range].sd-slider__input::-webkit-slider-thumb {
   pointer-events: all;
   height: 100px;
   width: $slider-thumb-width;
@@ -217,12 +207,12 @@ input[type="range"].sd-slider__input::-webkit-slider-thumb {
   position: relative;
 }
 
-input[type="range"][name="range-input"].sd-slider__input::-webkit-slider-thumb {
+input[type=range][name="range-input"].sd-slider__input::-webkit-slider-thumb {
   height: $slider-thumb-height;
   top: 0;
 }
 
-input[type="range"].sd-slider__input::-moz-range-thumb {
+input[type=range].sd-slider__input::-moz-range-thumb {
   pointer-events: all;
   height: 100px;
   width: $slider-thumb-width;
@@ -235,22 +225,22 @@ input[type="range"].sd-slider__input::-moz-range-thumb {
   position: relative;
 }
 
-input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
+input[type=range][name="range-input"].sd-slider__input::-moz-range-thumb {
   height: $slider-thumb-height;
   top: 0;
 }
 
-input[type="range"].sd-slider__input::-ms-fill-lower {
+input[type=range].sd-slider__input::-ms-fill-lower {
   background: transparent;
   border: 0 none;
 }
 
-input[type="range"].sd-slider__input::-ms-fill-upper {
+input[type=range].sd-slider__input::-ms-fill-upper {
   background: transparent;
   border: 0 none;
 }
 
-input[type="range"].sd-slider__input::-ms-tooltip {
+input[type=range].sd-slider__input::-ms-tooltip {
   display: none;
 }
 
@@ -260,13 +250,13 @@ input[type="range"].sd-slider__input::-ms-tooltip {
   --sjs-range-slider-range-input-thumb-position: absolute;
 }
 
-input[type="range"][name="range-input"].sd-slider__input::-webkit-slider-thumb {
+input[type=range][name=range-input].sd-slider__input::-webkit-slider-thumb {
   width: var(--sjs-range-slider-range-input-thumb-width, 0px);
   left: var(--sjs-range-slider-range-input-thumb-left, 0);
   position: var(--sjs-range-slider-range-input-thumb-position, relative);
 }
 
-input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
+input[type=range][name=range-input].sd-slider__input::-moz-range-thumb {
   width: var(--sjs-range-slider-range-input-thumb-width, 0px);
   left: var(--sjs-range-slider-range-input-thumb-left, 0);
   position: var(--sjs-range-slider-range-input-thumb-position, relative);

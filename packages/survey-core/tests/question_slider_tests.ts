@@ -141,7 +141,7 @@ QUnit.test("labelCount", (assert) => {
   };
   survey = new SurveyModel(json);
   q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.labelCount, 4 + 2);
+  assert.deepEqual(q1.labelCount, 4+2);
 });
 
 QUnit.test("labels (custom)", (assert) => {

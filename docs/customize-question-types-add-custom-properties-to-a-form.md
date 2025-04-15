@@ -540,6 +540,7 @@ The following table describes predefined categories:
 | `"layout"`           | Layout                     | Question                                              | 100             |
 | `"layout"`           | Panel Layout               | Panel                                                 | 150             |
 | `"numbering"`        | Numbering                  | Panel                                                 | 350             |
+| `"mask"`             | Input Mask Settings        | Single-Line Input, individual items in Multiple Textboxes | 250         |
 | `"columns"`          | Columns                    | Matrices                                              | 10              |
 | `"rows"`             | Rows                       | Matrices                                              | 11              |
 | `"choices"`          | Choice Options             | Multi-Select Matrix, Dynamic Matrix                   | 12              |

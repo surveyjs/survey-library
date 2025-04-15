@@ -7156,6 +7156,11 @@ export class SurveyModel extends SurveyElementCore
     if (!newValue) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
+    const el: any = this.currentSingleElement;
+    const curPage = this.currentPage;
+    if (!!el && !!curPage && el.page !== curPage) {
+      this.currentSingleElement = curPage.getFirstVisibleElement();
+    }
     this.onPageVisibleChanged.fire(this, {
       page: page,
       visible: newValue,

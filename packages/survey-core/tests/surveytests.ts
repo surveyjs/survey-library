@@ -21378,6 +21378,19 @@ QUnit.test("questionsOnPageMode & visibility panels, Bug#9641", function (assert
   survey.getQuestionByName("q3").visible = false;
   assert.equal(survey.currentSingleElement.name, "q4", "the third panel is invisible");
 });
+QUnit.test("questionsOnPageMode & visibility pages, Bug#9641", function (assert) {
+  const json = {
+    pages: [
+      { name: "page1", visibleIf: "false", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      { name: "page3", elements: [{ type: "text", name: "q3" }] }
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.currentSingleElement.name, "q2", "the second question is viaible");
+  assert.equal(survey.currentPage.name, "page2", "the second page is visible");
+});
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {
     "pages": [{

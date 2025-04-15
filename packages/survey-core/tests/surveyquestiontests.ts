@@ -100,23 +100,23 @@ QUnit.test("Only some questions support comment", function (assert) {
   );
 });
 QUnit.test("Only some questions support other", function (assert) {
-  var questionText = <Question>(
-    QuestionFactory.Instance.createQuestion("text", "textQuestion")
+  var questionImagePicker = <Question>(
+    QuestionFactory.Instance.createQuestion("imagepicker", "imagePickerQuestion")
   );
 
   assert.equal(
-    questionText.supportOther(),
+    questionImagePicker.supportOther(),
     false,
     "Text question doesn't support other."
   );
   assert.equal(
-    questionText.hasOther,
+    questionImagePicker.hasOther,
     false,
     "Text question doesn't support other."
   );
-  questionText.hasOther = true;
+  questionImagePicker.hasOther = true;
   assert.equal(
-    questionText.hasOther,
+    questionImagePicker.hasOther,
     false,
     "You can't set has other to the text question."
   );
@@ -2670,7 +2670,7 @@ QUnit.test("matrixdropdown.columnsVisibleIf", function (assert) {
   qBestCar.columnsVisibleIf = "{cars} contains {item}";
   const visColCount = (): number => {
     let res = 0;
-    qBestCar.columns.forEach(col => { if(col.isColumnVisible) res ++; });
+    qBestCar.columns.forEach(col => { if (col.isColumnVisible) res ++; });
     return res;
   };
   page.addElement(qBestCar);
@@ -6611,7 +6611,7 @@ QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (asser
       { type: "text", name: "q6", clearIfInvisible: "onHiddenContainer" },
     ]
   });
-  for(let i = 1; i < 7; i ++) {
+  for (let i = 1; i < 7; i ++) {
     survey.setValue("q" + i, i);
   }
   assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 6 }, "initial");
@@ -8166,7 +8166,7 @@ QUnit.test("question.validateValueCallback", function (assert) {
   let counter = 0;
   q1.validateValueCallback = (): SurveyError => {
     counter ++;
-    if(q1.value === "a") return new SurveyError("Error");
+    if (q1.value === "a") return new SurveyError("Error");
     return null;
   };
   q1.validate(true);

@@ -42,7 +42,7 @@ export class Survey extends SurveyElementBase<any, any>
   private onSurveyUpdated() {
     if (!!this.survey) {
       const el = this.rootRef.current;
-      if (!!el) this.survey.afterRenderSurvey(el);
+      if (!!el)this.survey.afterRenderSurvey(el);
       this.survey.startTimerFromUI();
       this.setSurveyEvents();
     }

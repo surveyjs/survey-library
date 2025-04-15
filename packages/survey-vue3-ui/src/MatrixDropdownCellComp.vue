@@ -151,7 +151,7 @@ onMounted(() => {
     row: props.cell.row,
     column: props.cell.cell.column,
   };
-  props.question.survey.matrixAfterCellRender(props.question, options);
+  props.question.survey.matrixAfterCellRender(options);
   if (cQ) {
     cQ.afterRenderCore(el);
   }

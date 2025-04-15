@@ -10,7 +10,7 @@ export class RendererFactory {
 
   public unregisterRenderer(questionType: string, rendererAs: string): void {
     delete this.renderersHash[questionType][rendererAs];
-    if(this.defaultHash[questionType] === rendererAs) {
+    if (this.defaultHash[questionType] === rendererAs) {
       delete this.defaultHash[questionType];
     }
   }
@@ -20,17 +20,17 @@ export class RendererFactory {
       this.renderersHash[questionType] = {};
     }
     this.renderersHash[questionType][renderAs] = renderer;
-    if(useAsDefault) {
+    if (useAsDefault) {
       this.defaultHash[questionType] = renderAs;
     }
   }
 
   public getRenderer(questionType: string, renderAs: string): string {
     const qHash = this.renderersHash[questionType];
-    if(!!qHash) {
-      if(!!renderAs && qHash[renderAs]) return qHash[renderAs];
+    if (!!qHash) {
+      if (!!renderAs && qHash[renderAs]) return qHash[renderAs];
       const dVal = this.defaultHash[questionType];
-      if(!!dVal && qHash[dVal]) return qHash[dVal];
+      if (!!dVal && qHash[dVal]) return qHash[dVal];
     }
     return "default";
   }

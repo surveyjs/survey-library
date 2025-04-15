@@ -88,20 +88,31 @@ QUnit.test("contentClasses",
     cover.survey = new SurveyModel();
 
     assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
+    assert.equal(cover.maxWidth, undefined, "default maxWidth");
 
     cover.inheritWidthFrom = "container";
     assert.equal(cover.inheritWidthFrom, "container", "inheritWidthFrom");
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
+    assert.equal(cover.maxWidth, "", "default maxWidth container");
 
     cover.inheritWidthFrom = "survey";
     assert.equal(cover.survey.widthMode, "auto", "default widthMode");
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "default contentClasses");
+    assert.equal(cover.maxWidth, undefined, "default maxWidth survey");
 
     cover.survey.widthMode = "responsive";
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "survey.widthMode is responsive");
+    assert.equal(cover.maxWidth, "", "default maxWidth survey responsible");
 
     cover.survey.widthMode = "static";
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "survey.widthMode is static");
+    assert.equal(cover.maxWidth, undefined, "default maxWidth survey static");
+
+    cover.survey.width = "1200";
+    assert.equal(cover.maxWidth, "1200px", "default maxWidth survey static number");
+
+    cover.survey.width = "1200px";
+    assert.equal(cover.maxWidth, "1200px", "default maxWidth survey static px");
   }
 );
 

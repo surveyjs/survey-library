@@ -377,7 +377,7 @@ QUnit.test("survey.onTextMarkdown, options.item #9601", assert => {
   const survey = new SurveyModel(json);
   const itemsValues = new Array<string>();
   survey.onTextMarkdown.add((sender, options) => {
-    if(options.item) {
+    if (options.item) {
       itemsValues.push(options.item.value);
     }
     options.html = options.text + "_" + options.text;
@@ -691,13 +691,12 @@ QUnit.test("Dropdown displays a value if list of choices is empty", (assert) => 
 function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<number> = [];
   let index = skip;
-  while ((skip + result.length) < (skip + count)) {
+  while((skip + result.length) < (skip + count)) {
     if (!!filter) {
       if (index.toString().toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
         result.push(index);
       }
-    }
-    else {
+    } else {
       result.push(index);
     }
     index++;
@@ -711,7 +710,7 @@ const callbackTimeOutDelta = 1;
 const callback = (_, opt) => {
   const total = 55;
   setTimeout(() => {
-    if(opt.skip + opt.take < total) {
+    if (opt.skip + opt.take < total) {
       opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
     } else {
       opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
@@ -892,7 +891,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     requestCount++;
     setTimeout(() => {
-      if(options.question.name == "q1") {
+      if (options.question.name == "q1") {
         options.setItems(options.values.map(item => ("DisplayText_" + item)));
         responseCount++;
       }
@@ -1182,7 +1181,7 @@ QUnit.test("selectedItem until all data is loaded", assert => {
 });
 function getObjectArray(skip = 1, count = 25): Array<{value: number, text: string}> {
   const result:Array<{value: number, text: string}> = [];
-  for(let index = skip; index < (skip + count); index++) {
+  for (let index = skip; index < (skip + count); index++) {
     result.push({ value: index, text: "DisplayText_" + index });
   }
   return result;
@@ -1208,7 +1207,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -1216,7 +1215,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
+    if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1258,7 +1257,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue & custom proper
     ]
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
+    if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)),
         { propertyName: "customProp", values: options.values.map(item => ("customProp_" + item)) });
     }
@@ -1324,7 +1323,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -1332,7 +1331,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
+    if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item.id)));
     }
   });
@@ -1373,7 +1372,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -1381,7 +1380,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
+    if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1420,7 +1419,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -1428,7 +1427,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
+    if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1467,7 +1466,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
     setTimeout(() => {
-      if(options.skip + options.take < total) {
+      if (options.skip + options.take < total) {
         options.setItems(getObjectArray(options.skip + 1, options.take), total);
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
@@ -1475,7 +1474,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
-    if(options.question.name == "q1") {
+    if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
     }
   });
@@ -1739,7 +1738,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
   });
   question.onReadyChanged.add((_, opt) => {
     log += `->onReadyChanged: ${opt.isReady}`;
-    if(opt.isReady) {
+    if (opt.isReady) {
       assert.ok(question.isReady);
       assert.ok(question.isReady);
       assert.notOk(question["waitingChoicesByURL"]);
@@ -1794,7 +1793,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
   });
   question.onReadyChanged.add((_, opt) => {
     log += `->onReadyChanged: ${opt.isReady}`;
-    if(opt.isReady) {
+    if (opt.isReady) {
       assert.ok(question.isReady);
       assert.notOk(question["waitingChoicesByURL"]);
       assert.notOk(question["waitingGetChoiceDisplayValueResponse"]);
@@ -1828,7 +1827,7 @@ QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
     for (let index = 0; index < total; index++) {
       result.push({ value: "item" + index, text: "item" + filter + index });
     }
-    if(opt.filter === "des") {
+    if (opt.filter === "des") {
       opt.setItems(result.slice(10, 15), total);
     } else {
       opt.setItems(result.slice(0, 15), total);
@@ -1942,7 +1941,7 @@ QUnit.test("lazy loading: check onChoicesLazyLoad callback count", assert => {
     const total = 55;
     setTimeout(() => {
       callbackCount++;
-      if(opt.skip + opt.take < total) {
+      if (opt.skip + opt.take < total) {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);

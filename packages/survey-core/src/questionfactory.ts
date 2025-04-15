@@ -53,11 +53,11 @@ export class ElementFactory {
   public registerCustomQuestion = (questionType: string, showInToolbox: boolean = true) : void => {
     const creator = (name: string): Question => {
       const el = Serializer.createClass(questionType);
-      if(!!el) el.name = name;
+      if (!!el) el.name = name;
       return el;
     };
     this.registerElement(questionType, creator, showInToolbox);
-  }
+  };
   public clear(): void {
     this.creatorHash = {};
   }
@@ -77,13 +77,13 @@ export class ElementFactory {
     var item = this.creatorHash[elementType];
     if (!!item && !!item.creator) return item.creator(name);
     const compJSON = ComponentCollection.Instance.getCustomQuestionByName(elementType);
-    if(!!compJSON) return ComponentCollection.Instance.createQuestion(name, compJSON);
+    if (!!compJSON) return ComponentCollection.Instance.createQuestion(name, compJSON);
     return null;
   }
   private getAllTypesCore(showInToolboxOnly: boolean): Array<string> {
     var result = new Array<string>();
     for (var key in this.creatorHash) {
-      if(!showInToolboxOnly || this.creatorHash[key].showInToolbox) {
+      if (!showInToolboxOnly || this.creatorHash[key].showInToolbox) {
         result.push(key);
       }
     }

@@ -213,7 +213,7 @@ export class Question extends SurveyElement<Question>
     return locTitleValue;
   }
   public get commentTextAreaModel(): TextAreaModel {
-    if(!this.commentTextAreaModelValue) {
+    if (!this.commentTextAreaModelValue) {
       this.commentTextAreaModelValue = new TextAreaModel(this.getCommentTextAreaOptions());
     }
     return this.commentTextAreaModelValue;
@@ -451,7 +451,7 @@ export class Question extends SurveyElement<Question>
         this.onHidingContent();
       }
     }
-    if(val !== this.visible && this.areInvisibleElementsShowing) {
+    if (val !== this.visible && this.areInvisibleElementsShowing) {
       this.updateQuestionCss(true);
     }
   }
@@ -642,7 +642,7 @@ export class Question extends SurveyElement<Question>
     }
     if (!this.canExecuteTriggerByKeys(keys, info.runner, info.getSecondRunner())) return;
     info.isRunning = true;
-    if(!expression && info.getSecondRunner()) {
+    if (!expression && info.getSecondRunner()) {
       info.doComplete();
       info.isRunning = false;
     } else {
@@ -650,24 +650,24 @@ export class Question extends SurveyElement<Question>
     }
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
-    if(!runner && !!secondRunner) {
+    if (!runner && !!secondRunner) {
       runner = secondRunner;
       secondRunner = undefined;
     }
     const run1 = this.canExecuteTriggerByKeysCore(keys, runner);
-    if(run1 === "var") return true;
-    if(!secondRunner) return run1 === "func";
+    if (run1 === "var") return true;
+    if (!secondRunner) return run1 === "func";
     const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
     return run2 !== "";
   }
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     const vars = runner.getVariables();
-    if((!vars || vars.length === 0) && runner.hasFunction()) return "func";
+    if ((!vars || vars.length === 0) && runner.hasFunction()) return "func";
     return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
-    if(!keys) {
+    if (!keys) {
       keys = {};
       keys[name] = value;
     }
@@ -708,7 +708,7 @@ export class Question extends SurveyElement<Question>
     if (this.parent === val) return;
     this.removeFromParent();
     this.setPropertyValue("parent", val);
-    if(!!val) {
+    if (!!val) {
       this.updateQuestionCss();
     }
     this.onParentChanged();
@@ -789,9 +789,9 @@ export class Question extends SurveyElement<Question>
     return undefined;
   }
   private getQuestionParentTitleWidth(): any {
-    if(!this.parent) return undefined;
+    if (!this.parent) return undefined;
     const res = this.parent.getQuestionTitleWidth();
-    if(!res && !!this.parentQuestion) return this.parentQuestion.getQuestionParentTitleWidth();
+    if (!res && !!this.parentQuestion) return this.parentQuestion.getQuestionParentTitleWidth();
     return res;
   }
   private getPercentQuestionTitleWidth(width: any): number {
@@ -1014,8 +1014,7 @@ export class Question extends SurveyElement<Question>
       if (event.target) {
         this.comment = event.target.value;
       }
-    }
-    else {
+    } else {
       this.updateCommentElements();
     }
   }
@@ -1042,7 +1041,7 @@ export class Question extends SurveyElement<Question>
       this.getCommentElementsId().forEach(id => {
         const { root } = settings.environment;
         let el = root.getElementById(id);
-        if (el) this.commentElements.push(el);
+        if (el)this.commentElements.push(el);
       });
       this.updateCommentElements();
     }
@@ -1187,24 +1186,11 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.descriptionUnderInput, this.getDescriptionLocation() == "underInput")
       .toString();
   }
-  public showErrorOnCore(location: string): boolean {
-    return !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
-  }
-
-  public get showErrorOnTop(): boolean {
-    return this.showErrorOnCore("top");
-  }
-  public get showErrorOnBottom(): boolean {
-    return this.showErrorOnCore("bottom");
-  }
-  private get showErrorsOutsideQuestion(): boolean {
-    return this.isDefaultV2Theme;
-  }
   public get showErrorsAboveQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
+    return this.getErrorLocation() === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "bottom";
+    return this.getErrorLocation() === "bottom";
   }
 
   public get cssError(): string {
@@ -1217,11 +1203,9 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.errorsContainer, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainer)
       .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
       .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)
-      .append(cssClasses.error.locationTop, this.showErrorOnTop)
-      .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
   }
   protected hasCssError(): boolean {
@@ -1245,7 +1229,7 @@ export class Question extends SurveyElement<Question>
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
-    if(this.wasRendered) {
+    if (this.wasRendered) {
       super.updateElementCss(reNew);
       if (reNew) {
         this.updateQuestionCss(true);
@@ -1257,7 +1241,7 @@ export class Question extends SurveyElement<Question>
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (this.isLoadingFromJson || !this.survey) return;
-    if(this.wasRendered) {
+    if (this.wasRendered) {
       this.updateElementCssCore(this.cssClasses);
     } else {
       this.isRequireUpdateElements = true;
@@ -1287,8 +1271,7 @@ export class Question extends SurveyElement<Question>
       .append(objCss, this.isRequired && !!css.question.required);
     if (objCss === undefined || objCss === null) {
       res.root = rootBuilder.toString();
-    }
-    else if (typeof objCss === "string" || objCss instanceof String) {
+    } else if (typeof objCss === "string" || objCss instanceof String) {
       res.root = rootBuilder.append(objCss.toString()).toString();
     } else {
       res.root = rootBuilder.toString();
@@ -1355,7 +1338,7 @@ export class Question extends SurveyElement<Question>
     this.onFocusCore(event);
   }
   protected onBlurCore(event: any): void {
-    if(this.isFocusEmpty && this.isEmpty()) {
+    if (this.isFocusEmpty && this.isEmpty()) {
       this.validate(true);
     }
   }
@@ -1474,35 +1457,7 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
-  /**
-   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
-   *
-   * @see otherText
-   * @see otherItem
-   * @see otherErrorText
-   * @see showCommentArea
-   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
-   */
-  public get showOtherItem(): boolean {
-    return this.getPropertyValue("showOtherItem", false);
-  }
-  public set showOtherItem(val: boolean) {
-    if (!this.supportOther() || this.showOtherItem == val) return;
-    this.setPropertyValue("showOtherItem", val);
-    this.hasOtherChanged();
-  }
-
-  public get hasOther(): boolean {
-    return this.showOtherItem;
-  }
-  public set hasOther(val: boolean) {
-    this.showOtherItem = val;
-  }
-
-  protected hasOtherChanged(): void { }
-  public get requireUpdateCommentValue(): boolean {
-    return this.hasComment || this.hasOther;
-  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
@@ -1584,11 +1539,11 @@ export class Question extends SurveyElement<Question>
   private calcNo(): string {
     if (!this.hasTitle || !this.showNumber) return "";
     let parentIndex: number | undefined;
-    if(!!this.parent) {
+    if (!!this.parent) {
       parentIndex = (<any>this.parent).visibleIndex;
     }
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
-    if(!!this.parent) {
+    if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);
     }
     if (!!this.survey) {
@@ -1611,7 +1566,7 @@ export class Question extends SurveyElement<Question>
   }
   protected onSetData(): void {
     super.onSetData();
-    if(!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
+    if (!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
       this.updateValueWithDefaults();
@@ -1761,7 +1716,7 @@ export class Question extends SurveyElement<Question>
   public get isParentVisible(): boolean {
     if (this.parentQuestion && !this.parentQuestion.isVisible) return false;
     var parent = this.parent;
-    while (parent) {
+    while(parent) {
       if (!parent.isVisible) return false;
       parent = parent.parent;
     }
@@ -1826,7 +1781,7 @@ export class Question extends SurveyElement<Question>
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if(this.isValueEmpty(value) && !this.locDefaultDisplayValue.isEmpty) {
+    if (this.isValueEmpty(value) && !this.locDefaultDisplayValue.isEmpty) {
       value = this.defaultDisplayValue;
     }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
@@ -2233,7 +2188,7 @@ export class Question extends SurveyElement<Question>
   public getSupportedValidators(): Array<string> {
     var res: Array<string> = [];
     var className = this.getType();
-    while (!!className) {
+    while(!!className) {
       var classValidators = (<any>settings.supportedValidators)[className];
       if (!!classValidators) {
         for (var i = classValidators.length - 1; i >= 0; i--) {
@@ -2347,7 +2302,7 @@ export class Question extends SurveyElement<Question>
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
     if (!!this.survey) {
-      if(this.validateValueCallback && qErrors.length === 0) {
+      if (this.validateValueCallback && qErrors.length === 0) {
         const error = this.validateValueCallback();
         if (error) {
           qErrors.push(error);
@@ -2571,7 +2526,7 @@ export class Question extends SurveyElement<Question>
     }
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
-    if (updateIsAnswered) this.updateIsAnswered();
+    if (updateIsAnswered)this.updateIsAnswered();
   }
   private get isParentChangingViaDefaultValue(): boolean {
     return (<any>this.data)?.isChangingViaDefaultValue === true;
@@ -2692,7 +2647,7 @@ export class Question extends SurveyElement<Question>
   }
 
   protected needResponsiveness(): boolean {
-    return this.supportResponsiveness() && this.isDefaultV2Theme && !this.isDesignMode;
+    return this.supportResponsiveness() && !this.isDesignMode;
   }
 
   protected checkForResponsiveness(el: HTMLElement): void {
@@ -2902,7 +2857,7 @@ export class Question extends SurveyElement<Question>
 function makeNameValid(str: string): string {
   if (!str) return str;
   str = str.trim().replace(/[\{\}]+/g, "");
-  while (!!str && str[0] === settings.expressionDisableConversionChar) {
+  while(!!str && str[0] === settings.expressionDisableConversionChar) {
     str = str.substring(1);
   }
   return str;

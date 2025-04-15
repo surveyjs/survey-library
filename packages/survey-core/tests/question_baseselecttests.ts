@@ -13,6 +13,7 @@ import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
 import { ItemValue } from "../src/itemvalue";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("baseselect");
 
@@ -456,6 +457,45 @@ QUnit.test("check focus comment of other select", (assert) => {
   q.value = ["item1", "other"];
   assert.equal(counter, 2);
 });
+QUnit.test("Do not focus element on setting defaultValue & on setting value to survey.data, Bug#9700", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+
+  let survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": ["Item 2", "Some other value"],
+        "choices": ["Item 1", "Item 2", "Item 3"],
+        "showOtherItem": true
+      }
+    ]
+  });
+  assert.equal(counter, 0, "Do not focus element on setting defaultValue");
+  survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["Item 1", "Item 2", "Item 3"],
+        "showOtherItem": true
+      }
+    ]
+  });
+  survey.data = { q1: ["Item 1", "other"] };
+  assert.equal(counter, 0, "Do not focus element on setting survey.data");
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.value = ["Item 1"];
+  question.value = ["Item 1", "other"];
+  assert.equal(counter, 1, "Focus on setting the question value");
+  SurveyElement.FocusElement = oldFunc;
+});
+
 QUnit.test("check separateSpecialChoices property visibility", (assert) => {
   assert.notOk(Serializer.findProperty("selectbase", "separateSpecialChoices").visible);
   assert.ok(Serializer.findProperty("checkbox", "separateSpecialChoices").visible);
@@ -861,20 +901,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
         allowClear: true
       }]
   });
-  setOldTheme(survey);
   let question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
-  assert.deepEqual(question.getTitleActions(), []);
-  assert.ok(question.showClearButtonInContent);
-
-  survey = new SurveyModel({
-    questions: [
-      {
-        type: "radiogroup",
-        name: "q1",
-        choices: ["Item 1"],
-        showClearButton: true
-      }]
-  });
   survey.css = defaultCss;
   question = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
   const action = <IAction>question.getTitleActions()[0];
@@ -1369,7 +1396,7 @@ QUnit.test("Check isUsingCarryForward on changing question name", function (asse
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, target: any, arrayChanges: any) => {
-    if(target === q1 && name === "name") {
+    if (target === q1 && name === "name") {
       q2.choicesFromQuestion = newValue;
     }
   };
@@ -1714,7 +1741,7 @@ QUnit.test("Change carryForwardQuestionType to let question banner in creator th
   let counterOn = 0;
   let counterOff = 0;
   q3.registerFunctionOnPropertyValueChanged("carryForwardQuestionType", () => {
-    if(q3.isUsingCarryForward) {
+    if (q3.isUsingCarryForward) {
       counterOn++;
     } else {
       counterOff ++;
@@ -2445,12 +2472,11 @@ QUnit.test("question checkbox add a custom property into choicesByUrl, Bug#8783"
 });
 QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) => {
   const survey = new SurveyModel();
-  survey.css =survey.css = { root: "sd-root-modern" };
+  survey.css = survey.css = { root: "sd-root-modern" };
   survey.fromJSON({
     elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
   });
   const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
-  assert.equal(q1.isDefaultV2Theme, true, "V2 theme");
   assert.ok(q1.getTitleToolbar());
   assert.equal(q1.titleActions.length, 1, "one action");
   const item = q1.titleActions[0];

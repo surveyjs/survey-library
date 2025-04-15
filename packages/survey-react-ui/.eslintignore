@@ -1,0 +1,6 @@
+.vscode
+build/
+examples_test/
+node_modules/
+index.js
+webpack.config.js

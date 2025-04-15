@@ -3617,7 +3617,7 @@ QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();
   survey.showPageNumbers = true;
   survey.onGetPageNumber.add((sender, options) => {
-    if(options.page.isStartPage) {
+    if (options.page.isStartPage) {
       options.number = "";
     } else {
       options.number = (survey.pages.indexOf(options.page) + 1) + "-";
@@ -3860,55 +3860,10 @@ QUnit.test("merge values", function (assert) {
   survey.doMergeValues({ val: 1 }, a);
   assert.equal(a, "test", "Do nothing if dest is string");
 });
-function percentageToNum(width: string): Number {
+function percentageToNum(width: string): number {
   width = width.replace("%", "");
   return parseFloat(width);
 }
-QUnit.test("Several questions in one row", function (assert) {
-  var page = new PageModel();
-  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  assert.equal(page.rows.length, 10, "10 rows for each question");
-
-  page = new PageModel();
-  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  page.questions[0].startWithNewLine = false;
-  assert.equal(page.rows.length, 10, "still 10 rows for each question");
-  assert.equal(
-    percentageToNum(page.rows[0].elements[0].renderWidth),
-    100,
-    "the render width is 100%"
-  );
-
-  page = new PageModel();
-  for (var i = 0; i < 10; i++) page.addNewQuestion("text", "q" + (i + 1));
-  for (var i = 0; i < 10; i++) {
-    page.questions[i].startWithNewLine = i % 2 == 0;
-  }
-  assert.equal(
-    page.rows.length,
-    5,
-    "every second has startWithNewLine equals false, there 5 rows now"
-  );
-  for (var i = 0; i < 5; i++) {
-    assert.equal(
-      page.rows[i].elements.length,
-      2,
-      "two questions for every row"
-    );
-    assert.equal(
-      percentageToNum(page.rows[i].elements[0].renderWidth),
-      50,
-      "the render width is 50%"
-    );
-    assert.equal(page.rows[i].elements[0].rightIndent, 1, "the indent is 1");
-    assert.equal(
-      percentageToNum(page.rows[i].elements[1].renderWidth),
-      50,
-      "the render width is 50%"
-    );
-    assert.equal(page.rows[i].elements[1].rightIndent, 0, "the indent is 0");
-  }
-});
 
 QUnit.test("Several questions in one row - defaultV2", function (assert) {
   let survey = new SurveyModel({});
@@ -18028,8 +17983,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     assert.deepEqual(getContainerContent("left"), [], "default left");
     assert.deepEqual(getContainerContent("right"), [], "default right");
 
-  }
-  finally {
+  } finally {
     settings.legacyProgressBarView = false;
   }
 });
@@ -20172,8 +20126,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
     assert.deepEqual(getContainerContent("left"), [], "progress top left");
     assert.deepEqual(getContainerContent("right"), [], "progress top right");
-  }
-  finally {
+  } finally {
     settings.legacyProgressBarView = false;
   }
 });
@@ -21995,4 +21948,46 @@ QUnit.test("Update hasTitle on load from JSON", function (assert) {
     elements: [{ name: "q1", type: "text" }]
   });
   assert.equal(survey.hasTitle, true, "title presents");
+});
+QUnit.test("survey.onPartialSend for regular survey, Bug#9737", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] }
+    ]
+  });
+  survey.partialSendEnabled = true;
+  let counter = 0;
+  survey.onPartialSend.add((sender, options) => {
+    counter++;
+  });
+  survey.setValue("q1", "val1");
+  survey.nextPage();
+  assert.equal(counter, 1, "onPartialSend is raised");
+  survey.setValue("q3", "val3");
+  survey.tryComplete();
+  assert.equal(counter, 1, "onPartialSend is not raised");
+});
+QUnit.test("survey.onPartialSend for regular survey, Bug#9737", function (assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
+      { name: "page2", elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }] }
+    ]
+  });
+  survey.partialSendEnabled = true;
+  let counter = 0;
+  survey.onPartialSend.add((sender, options) => {
+    counter++;
+  });
+  survey.setValue("q1", "val1");
+  survey.performNext();
+  assert.equal(counter, 1, "onPartialSend is raised");
+  survey.setValue("q2", "val2");
+  survey.performNext();
+  assert.equal(counter, 2, "onPartialSend is raised");
+  survey.setValue("q3", "val3");
+  survey.performNext();
+  assert.equal(counter, 3, "onPartialSend is raised");
 });

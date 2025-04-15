@@ -13,10 +13,10 @@ const banner = [
 const input = { "survey-react-ui": path.resolve(__dirname, "./entries/index.ts") };
 module.exports = (options) => {
   options = options ?? {};
-  if(!options.tsconfig) {
+  if (!options.tsconfig) {
     options.tsconfig = path.resolve(__dirname, "./tsconfig.fesm.json");
   }
-  if(!options.dir) {
+  if (!options.dir) {
     options.dir = path.resolve(__dirname, "./build/fesm");
   }
   return {

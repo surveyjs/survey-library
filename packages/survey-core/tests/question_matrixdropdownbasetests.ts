@@ -1728,7 +1728,7 @@ QUnit.test("The Undo operation doesn't work for matrix dropdown column 'choices'
     sender: any,
     arrayChanges: any
   ) => {
-    if(name === "choices") {
+    if (name === "choices") {
       counter ++;
       propName = name;
       senderName = sender.name;
@@ -1883,4 +1883,26 @@ QUnit.test("column.defaultDisplayValue", function (assert) {
   survey.locale = "de";
   assert.equal(qCell1.displayValue, "col1-value", "displayValue, #3");
   assert.equal(qCell2.displayValue, "col1-de", "displayValue, #4");
+});
+QUnit.test("survey.onAfterRenderMatrixCell event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        cellType: "text",
+        type: "matrixdropdown",
+        name: "q1",
+        "columns": [{ name: "col1" }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  let questionName: string = "";
+  survey.onAfterRenderMatrixCell.add((survey: SurveyModel, options: any) => {
+    questionName = options.question.name;
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  const qCell1 = rows[0].cells[0].question;
+  survey.matrixAfterCellRender({ cellQuestion: qCell1 });
+  assert.equal(questionName, "q1", "question name is correct");
 });

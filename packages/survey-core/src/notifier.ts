@@ -59,11 +59,11 @@ export class Notifier extends Base {
       this.active = true;
       this.css = this.getCssClass(type);
 
-      if(!!this.timer) {
+      if (!!this.timer) {
         clearTimeout(this.timer);
         this.timer = undefined;
       }
-      if(!waitUserAction) {
+      if (!waitUserAction) {
         this.timer = setTimeout(() => {
           this.timer = undefined;
           this.active = false;

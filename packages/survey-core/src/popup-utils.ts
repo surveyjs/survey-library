@@ -14,17 +14,17 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
   const popupModel = new PopupModel(options.componentName, options.data, popupOptions);
   popupModel.isFocusedContent = options.isFocusedContent ?? true;
   const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
-  if(!!rootElement && !!rootElement.appendChild) {
+  if (!!rootElement && !!rootElement.appendChild) {
     var container: HTMLElement = DomDocumentHelper.createElement("div");
     rootElement.appendChild(container);
     popupViewModel.setComponentElement(container);
   }
-  if(!popupViewModel.container) {
+  if (!popupViewModel.container) {
     popupViewModel.initializePopupContainer();
   }
   const onVisibilityChangedCallback = (sender: PopupBaseViewModel, options: { isVisible: boolean }) => {
-    if(!options.isVisible) {
-      if(!!container) {
+    if (!options.isVisible) {
+      if (!!container) {
         popupViewModel.resetComponentElement();
       }
     }
@@ -35,7 +35,7 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
 }
 
 export function createPopupViewModel(model: PopupModel): PopupBaseViewModel {
-  if(model.isModal) {
+  if (model.isModal) {
     return new PopupModalViewModel(model);
   } else {
     return new PopupDropdownViewModel(model);

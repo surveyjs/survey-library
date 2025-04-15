@@ -86,3 +86,42 @@ export async function checkSurveyData(page: Page, json: any): Promise<void> {
   const data = await page.evaluate(() => { return window["survey"].data; });
   await expect(data).toStrictEqual(json);
 }
+
+export async function getSurveyResult(page) {
+  return await page.evaluate(() => {
+    return window["SurveyResult"];
+  });
+}
+
+export async function getQuestionValue(page) {
+  return await page.evaluate(() => {
+    return window["survey"].getAllQuestions()[0].value;
+  });
+}
+
+export async function getQuestionJson(page) {
+  return await page.evaluate(() => {
+    return JSON.stringify(window["survey"].getAllQuestions()[0].toJSON());
+  });
+}
+
+export async function checkSurveyWithEmptyQuestion(page) {
+  const requiredMessage = page.locator(".sv-string-viewer").getByText("Response required.");
+  await expect(requiredMessage).toHaveCount(0);
+  await page.locator("input[value=Complete]").click();
+  await expect(requiredMessage).toHaveCount(1);
+  const surveyResult = await getSurveyResult(page);
+  expect(surveyResult).toEqual(undefined);
+}
+
+export async function getData(page) {
+  return await page.evaluate(() => {
+    return window["survey"].data;
+  });
+}
+
+export async function setRowItemFlowDirection(page) {
+  await page.evaluate(() => {
+    window["Survey"].settings.itemFlowDirection = "row";
+  });
+}

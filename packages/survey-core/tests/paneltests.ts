@@ -1636,8 +1636,7 @@ QUnit.test(
       page1.addNewQuestion("text", "qN2");
       assert.equal(page1.rows.length, 23, "There are 23 rows");
       assert.equal(page1.rows[22].isNeedRender, true, "isNeedRender rows[22] for creator v2");
-    }
-    finally {
+    } finally {
       settings.lazyRowsRendering = prevLazyRowsRendering;
       settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
     }

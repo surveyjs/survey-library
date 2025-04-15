@@ -62,7 +62,7 @@ export class QuestionFileModelBase extends Question {
     this.onUploadStateChanged.fire(this, { state: state });
   }
   public get showLoadingIndicator(): boolean {
-    return this.isUploading && this.isDefaultV2Theme;
+    return this.isUploading;
   }
   /**
    * Specifies whether to store file or signature content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
@@ -155,7 +155,7 @@ export class QuestionFilePage extends Base {
   private static getId() {
     return "sv_sfp_" + QuestionFilePage.pageCounter++;
   }
-  @propertyArray({}) public items: Array<any>
+  @propertyArray({}) public items: Array<any>;
   public id: string;
   constructor(private question: QuestionFileModel, private index: number) {
     super();
@@ -219,16 +219,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public cleanAction: Action;
   public actionsContainer: ActionContainer;
 
-  get supportFileNavigator(): boolean {
-    return this.isDefaultV2Theme;
-  }
-
   get fileNavigatorVisible(): boolean {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;
     const containsMultipleFiles = this.containsMultiplyFiles;
     const needToShowFileNavigator = this.pageSize < this.previewValue.length;
-    return !isUploading && !isPlayingVideo && containsMultipleFiles && needToShowFileNavigator && this.isDefaultV2Theme;
+    return !isUploading && !isPlayingVideo && containsMultipleFiles && needToShowFileNavigator;
   }
   private get pagesCount() {
     return Math.ceil(this.previewValue.length / this.pageSize);
@@ -237,8 +233,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   get actionsContainerVisible(): boolean {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;
-    const isDefaultV2Theme = this.isDefaultV2Theme;
-    return !isUploading && !isPlayingVideo && isDefaultV2Theme;
+    return !isUploading && !isPlayingVideo;
   }
 
   constructor(name: string) {
@@ -420,7 +415,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.fileIndexAction.title = this.getFileIndexCaption();
   }
   private updateRenderedPages() {
-    if(this.pages && this.pages[this.indexToShow]) {
+    if (this.pages && this.pages[this.indexToShow]) {
       this.renderedPages = [this.pages[this.indexToShow]];
     }
   }
@@ -430,7 +425,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.pages = [];
     this.renderedPages = [];
     this.previewValue.forEach((val, index) => {
-      if(index % this.pageSize == 0) {
+      if (index % this.pageSize == 0) {
         currentPage = new QuestionFilePage(this, this.pages.length);
         this.pages.push(currentPage);
       }
@@ -442,10 +437,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private prevPreviewLength = 0;
   private previewValueChanged() {
     this.navigationDirection = undefined;
-    if(this.previewValue.length !== this.prevPreviewLength) {
-      if(this.previewValue.length > 0) {
-        if(this.prevPreviewLength > this.previewValue.length) {
-          if(this.indexToShow >= this.pagesCount && this.indexToShow > 0) {
+    if (this.previewValue.length !== this.prevPreviewLength) {
+      if (this.previewValue.length > 0) {
+        if (this.prevPreviewLength > this.previewValue.length) {
+          if (this.indexToShow >= this.pagesCount && this.indexToShow > 0) {
             this.indexToShow = this.pagesCount - 1;
             this.navigationDirection = "left-delete";
           }
@@ -552,7 +547,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (!this.rootElement) return;
 
     const inputElement = this.rootElement.querySelector(`#${this.inputId}`) as HTMLInputElement;
-    if(!inputElement) return;
+    if (!inputElement) return;
 
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -629,14 +624,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
         let renderedPlaceholder: LocalizableString;
         if (isReadOnly) {
           renderedPlaceholder = this.locNoFileChosenCaption;
-        }
-        else if (hasFileUI && hasVideoUI) {
+        } else if (hasFileUI && hasVideoUI) {
           renderedPlaceholder = this.locFileOrPhotoPlaceholder;
-        }
-        else if (hasFileUI) {
+        } else if (hasFileUI) {
           renderedPlaceholder = this.locFilePlaceholder;
-        }
-        else {
+        } else {
           renderedPlaceholder = this.locPhotoPlaceholder;
         }
         return renderedPlaceholder;
@@ -657,7 +649,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (!this.isDesignMode && this.survey) {
       if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
-          this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
+          this.setPropertyValue("currentMode", res ? this.sourceType : "file");
         });
       } else {
         this.setPropertyValue("currentMode", this.sourceType);
@@ -706,11 +698,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   get multipleRendered() {
     return this.allowMultiple ? "multiple" : undefined;
   }
-  //todo: remove it in V2
-  public get showChooseButton(): boolean {
-    return !this.isReadOnly && !this.isDefaultV2Theme;
-  }
-  //
   public get showFileDecorator(): boolean {
     const isPlayingVideo = this.isPlayingVideo;
     const showLoadingIndicator = this.showLoadingIndicator;
@@ -724,21 +711,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public get showPreviewContainer(): boolean {
     return this.previewValue && this.previewValue.length > 0;
   }
-  //todo: remove in V2
-  get showRemoveButtonCore(): boolean {
-    const showLoadingIndicator = this.showLoadingIndicator;
-    const isReadOnly = this.isReadOnly;
-    const isEmpty = this.isEmpty();
-    return !isReadOnly && !isEmpty && !showLoadingIndicator && !this.isDefaultV2Theme;
-  }
-  get showRemoveButton(): boolean {
-    return this.showRemoveButtonCore && this.cssClasses.removeButton;
-  }
-  get showRemoveButtonBottom(): boolean {
-    const cssClasses = new CssClassBuilder().append(this.cssClasses.removeButtonBottom).append(this.cssClasses.contextButton).toString();
-    return this.showRemoveButtonCore && cssClasses as any;
-  }
-  //
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;
   }
@@ -1000,7 +972,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.loadPreview(this.value);
   }
   protected needResponsiveness(): boolean {
-    return this.supportResponsiveness() && this.isDefaultV2Theme;
+    return this.supportResponsiveness();
   }
   protected supportResponsiveness(): boolean {
     return true;
@@ -1027,7 +999,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         const pageClass = this.cssClasses.page;
         return { cssClass: pageClass ? new CssClassBuilder()
           .append(`${pageClass}--enter-from-left`, this.navigationDirection == "left" || this.navigationDirection == "left-delete")
-          .append(`${pageClass}--enter-from-right`, this.navigationDirection == "right").toString(): ""
+          .append(`${pageClass}--enter-from-right`, this.navigationDirection == "right").toString() : ""
         };
       },
       getLeaveOptions: (page: QuestionFilePage) => {
@@ -1074,12 +1046,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
       if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
-        if(fileListElement) {
+        if (fileListElement) {
           const visiblePage = fileListElement.querySelector(classesToSelector(this.cssClasses.page));
-          if(visiblePage) {
+          if (visiblePage) {
             const firstVisibleItem = visiblePage.querySelector(classesToSelector(this.cssClasses.previewItem));
             this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(visiblePage).gap));
-            if(firstVisibleItem) {
+            if (firstVisibleItem) {
               this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
             }
           }
@@ -1110,7 +1082,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       this.isDragging = true;
       this.dragCounter++;
     }
-  }
+  };
   onDragOver = (event: any) => {
     if (!this.canDragDrop()) {
       event.returnValue = false;
@@ -1118,7 +1090,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     event.dataTransfer.dropEffect = "copy";
     event.preventDefault();
-  }
+  };
   onDrop = (event: any) => {
     if (this.canDragDrop()) {
       this.isDragging = false;
@@ -1127,7 +1099,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       let src = event.dataTransfer;
       this.onChange(src);
     }
-  }
+  };
   onDragLeave = (event: any) => {
     if (this.canDragDrop()) {
       this.dragCounter--;
@@ -1135,11 +1107,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.isDragging = false;
       }
     }
-  }
+  };
   doChange = (event: any) => {
     var src = event.target || event.srcElement;
     this.onChange(src);
-  }
+  };
   doClean = () => {
     if (this.needConfirmRemoveFile) {
       confirmActionAsync({
@@ -1152,7 +1124,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       return;
     }
     this.clearFilesCore();
-  }
+  };
   private clearFilesCore(): void {
     if (this.rootElement) {
       const input = this.rootElement.querySelectorAll("input")[0];
@@ -1183,18 +1155,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
   doDownloadFileFromContainer = (event: MouseEvent) => {
     event.stopPropagation();
     const currentTarget = event.currentTarget as HTMLElement;
-    if(currentTarget && currentTarget.getElementsByTagName) {
+    if (currentTarget && currentTarget.getElementsByTagName) {
       const link = currentTarget.getElementsByTagName("a")[0];
       link?.click();
     }
-  }
+  };
   doDownloadFile = (event: any, data: any) => {
     event.stopPropagation();
     if (detectIEOrEdge()) {
       event.preventDefault();
       loadFileFromBase64(data.content, data.name);
     }
-  }
+  };
   //#endregion
   public dispose(): void {
     this.cameraValue = undefined;

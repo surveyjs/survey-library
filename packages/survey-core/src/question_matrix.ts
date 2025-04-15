@@ -44,7 +44,7 @@ export class MatrixRowModel extends Base {
       this.value = column.value;
     };
     this.registerPropertyChangedHandlers(["value"], () => {
-      if (this.data) this.data.onMatrixRowChanged(this);
+      if (this.data)this.data.onMatrixRowChanged(this);
     });
     if (this.data && this.data.hasErrorInRow(this)) {
       this.hasError = true;
@@ -170,7 +170,7 @@ export class MatrixCells extends Base {
   }
   private updateValues(row: any, column: any, val: any): void {
     if (val) {
-      if (!this.values[row]) this.values[row] = {};
+      if (!this.values[row])this.values[row] = {};
       this.values[row][column] = val;
       this.valuesChanged();
     } else {
@@ -578,7 +578,7 @@ export class QuestionMatrixModel
     }
   }
   private addErrorIntoRow(row: MatrixRowModel): void {
-    if (!this.errorsInRow) this.errorsInRow = {};
+    if (!this.errorsInRow)this.errorsInRow = {};
     this.errorsInRow[row.name] = true;
     row.hasError = true;
   }

@@ -108,11 +108,11 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const item = unRankingChoices[fromIndex];
     rankingChoices.splice(toIndex, 0, item);
     this.updateChoices(questionModel, rankingChoices);
-  }
+  };
 
   public unselectFromRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void => {
     const rankingChoices = [].concat(questionModel.rankingChoices);
     rankingChoices.splice(fromIndex, 1);
     this.updateChoices(questionModel, rankingChoices);
-  }
+  };
 }

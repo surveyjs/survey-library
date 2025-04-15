@@ -23,7 +23,7 @@ QUnit.test("Serialize two pages", function (assert) {
   var jsObj = new JsonObject().toJsonObject(survey);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"pages":[{"name":"Page 1"},{"name":"Page 2"}]}',
+    "{\"pages\":[{\"name\":\"Page 1\"},{\"name\":\"Page 2\"}]}",
     "serialize two pages"
   );
 });
@@ -51,7 +51,7 @@ QUnit.test("Serialize two questions", function (assert) {
   var jsObj = new JsonObject().toJsonObject(page);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"Page1","elements":[{"type":"text","name":"textQuestion","isRequired":true},{"type":"checkbox","name":"checkboxQuestion","isRequired":true,"showCommentArea":true,"choices":["red","white"]}]}',
+    "{\"name\":\"Page1\",\"elements\":[{\"type\":\"text\",\"name\":\"textQuestion\",\"isRequired\":true},{\"type\":\"checkbox\",\"name\":\"checkboxQuestion\",\"isRequired\":true,\"showCommentArea\":true,\"choices\":[\"red\",\"white\"]}]}",
     "serialize two questions"
   );
 });
@@ -233,7 +233,7 @@ QUnit.test("Serialize mutltiple text question", function (assert) {
   var jsObj = new JsonObject().toJsonObject(mtQuestion);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"q1","items":[{"name":"item1"},{"name":"item2","title":"text2"}]}',
+    "{\"name\":\"q1\",\"items\":[{\"name\":\"item1\"},{\"name\":\"item2\",\"title\":\"text2\"}]}",
     "serialize multiple text question"
   );
 });
@@ -268,7 +268,7 @@ QUnit.test("Serialize restful choices", function (assert) {
   var jsObj = new JsonObject().toJsonObject(question);
   assert.equal(
     JSON.stringify(jsObj),
-    '{"name":"q1","choicesByUrl":{"path":"name"}}',
+    "{\"name\":\"q1\",\"choicesByUrl\":{\"path\":\"name\"}}",
     "serialize choicesByUrl"
   );
 });
@@ -670,7 +670,6 @@ QUnit.test(
     );
   }
 );
-
 QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {
   const survey = new SurveyModel({
     questions: [
@@ -712,9 +711,61 @@ QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {
   assert.equal(propValues.visibleIf(col1), false, "col1.choiceValuesFromQuestion");
   assert.equal(propTexts.visibleIf(col1), false, "col1.choiceTextsFromQuestion");
 
+  assert.equal(propMode.isVisible("", col1), true, "col1.choicesFromQuestionMode, isVisible");
+  assert.equal(propValues.isVisible("", col1), false, "col1.choiceValuesFromQuestion, isVisible");
+  assert.equal(propTexts.isVisible("", col1), false, "col1.choiceTextsFromQuestion, isVisible");
+
   assert.equal(propMode.visibleIf(col2), false, "col2.choicesFromQuestionMode");
   assert.equal(propValues.visibleIf(col2), true, "col2.choiceValuesFromQuestion");
   assert.equal(propTexts.visibleIf(col2), true, "col2.choiceTextsFromQuestion");
+
+  assert.equal(propMode.isVisible("", col2), false, "col2.choicesFromQuestionMode, isVisible");
+  assert.equal(propValues.isVisible("", col2), true, "col2.choiceValuesFromQuestion, isVisible");
+  assert.equal(propTexts.isVisible("", col2), true, "col2.choiceTextsFromQuestion, isVisible");
+});
+QUnit.test("choiceValuesFromQuestion properties visibility for column in design time, bug#9741", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    questions: [
+      { name: "q1", type: "dropdown", choices: [1, 2, 3] },
+      { name: "q2", type: "matrixdynamic" },
+      { name: "q3", type: "matrixdropdown",
+        columns: [
+          { name: "col1", cellType: "dropdown", choicesFromQuestion: "q1" },
+          { name: "col2", cellType: "dropdown", choicesFromQuestion: "q2" },
+          { name: "col3", cellType: "dropdown" },
+          { name: "col4", cellType: "dropdown" }
+        ]
+      }
+    ],
+  });
+  const q3 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q3");
+  const col1 = q3.columns[0];
+  const col2 = q3.columns[1];
+  const col3 = q3.columns[2];
+  const col4 = q3.columns[3];
+  col3.choicesFromQuestion = "q1";
+  col4.choicesFromQuestion = "q2";
+  const propMode = Serializer.findProperty("dropdown", "choicesFromQuestionMode");
+  const propValues = Serializer.findProperty("dropdown", "choiceValuesFromQuestion");
+  const propTexts = Serializer.findProperty("dropdown", "choiceTextsFromQuestion");
+
+  assert.equal(propMode.isVisible("", col1), true, "col1.choicesFromQuestionMode, isVisible");
+  assert.equal(propValues.isVisible("", col1), false, "col1.choiceValuesFromQuestion, isVisible");
+  assert.equal(propTexts.isVisible("", col1), false, "col1.choiceTextsFromQuestion, isVisible");
+
+  assert.equal(propMode.isVisible("", col2), false, "col2.choicesFromQuestionMode, isVisible");
+  assert.equal(propValues.isVisible("", col2), true, "col2.choiceValuesFromQuestion, isVisible");
+  assert.equal(propTexts.isVisible("", col2), true, "col2.choiceTextsFromQuestion, isVisible");
+
+  assert.equal(propMode.isVisible("", col3), true, "col3.choicesFromQuestionMode, isVisible");
+  assert.equal(propValues.isVisible("", col3), false, "col3.choiceValuesFromQuestion, isVisible");
+  assert.equal(propTexts.isVisible("", col3), false, "col3.choiceTextsFromQuestion, isVisible");
+
+  assert.equal(propMode.isVisible("", col4), false, "col4.choicesFromQuestionMode, isVisible");
+  assert.equal(propValues.isVisible("", col4), true, "col4.choiceValuesFromQuestion, isVisible");
+  assert.equal(propTexts.isVisible("", col4), true, "col4.choiceTextsFromQuestion, isVisible");
 });
 QUnit.test("Allow to save empty string for localization strings", function (assert) {
   const survey = new SurveyModel({

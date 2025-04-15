@@ -1,7 +1,8 @@
 {
   "scripts": {
-    "lint": "eslint ./functionalTests --quiet && eslint ./tests --quiet && eslint ./visualRegressionTests --quiet && eslint ./accessibilityTests --quiet",
-    "pre-push-check": "npm run lint && npm run test --prefix packages/survey-core",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --max-warnings=0",
+    "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --max-warnings=0 --fix",
+    "pre-push-check": "npm run test --prefix packages/survey-core",
     "prepare": "husky install",
     "postinstall": "playwright install chromium"
   },
@@ -9,22 +10,27 @@
   "name": "survey-library",
   "private": true,
   "devDependencies": {
+    "@rushstack/eslint-patch": "^1.1.4",
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "@babel/plugin-transform-runtime": "7.23.3",
     "@playwright/test": "^1.51.1",
     "@types/lodash": "4.14.186",
-    "@typescript-eslint/eslint-plugin": "^5.41.0",
-    "@typescript-eslint/parser": "^5.41.0",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vue/eslint-config-typescript": "^11.0.0",
     "axe-core": "^4.8.2",
     "axe-playwright": "^2.1.0",
     "axe-testcafe": "^3.0.0",
     "concurrently": "^7",
     "devextreme-screenshot-comparer": "^2.0.11",
-    "eslint": "^7.32.0",
-    "eslint-cli": "^1.1.1",
-    "eslint-plugin-react": "^7.25.1",
+    "lint-staged": "^15.4.3",
+    "eslint": "^8.57.0",
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
+    "eslint-plugin-react": "^7.33.0",
+    "eslint-plugin-vue": "^9.3.0",
     "get-func-name": "2.0.0",
-    "husky": "^7.0.4",
+    "husky": "^9.1.7",
     "node-uuid": "1.4.7",
     "playwright": "^1.51.1",
     "puppeteer": "22.13.1",
@@ -39,5 +45,10 @@
     "hooks": {
       "pre-push": "npm run pre-push-check"
     }
+  },
+  "lint-staged": {
+    "**/*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
+      "eslint --fix"
+    ]
   }
 }

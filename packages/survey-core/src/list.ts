@@ -88,7 +88,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
   public isItemVisible(item: T): boolean {
-    if(item.id === this.loadingIndicator.id) return item.visible;
+    if (item.id === this.loadingIndicator.id) return item.visible;
     return item.visible && this.hasText(item, this.filterString);
   }
 
@@ -148,7 +148,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (Object.keys(items).indexOf("items") !== -1) {
       const options = (items as any) as IListModel;
       Object.keys(options).forEach((key: keyof IListModel) => {
-        switch (key) {
+        switch(key) {
           case "items":
             this.setItems(options.items);
             break;
@@ -223,7 +223,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public onItemHover = (itemValue: T): void => {
     this.mouseOverHandler(itemValue);
-  }
+  };
   public onItemLeave(itemValue: T) {
     itemValue.hidePopupDelayed(this.subItemsHideDelay);
   }
@@ -249,7 +249,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .append(this.cssClasses.itemsContainer)
       .append(this.cssClasses.itemsContainerFiltering, !!this.filterString && this.visibleActions.length !== this.visibleItems.length)
       .toString();
-  }
+  };
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     const isSelected = this.isItemSelected(itemValue);
     return new CssClassBuilder()
@@ -326,7 +326,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public onPointerDown(event: PointerEvent, item: any) { }
   public refresh(): void { // used in popup
-    if(this.filterString !== "") {
+    if (this.filterString !== "") {
       this.filterString = "";
     } else {
       this.updateIsEmpty();

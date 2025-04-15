@@ -350,7 +350,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) public minImageHeight: number;
 
   private get isResponsive() {
-    return this.isResponsiveValue && this.isDefaultV2Theme;
+    return this.isResponsiveValue;
   }
   private get exactSizesAreEmpty(): boolean {
     return !(["imageHeight", "imageWidth"].some(propName => this[propName] !== undefined && this[propName] !== null));
@@ -366,7 +366,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return true;
   }
   protected needResponsiveness() {
-    return this.supportResponsiveness() && this.isDefaultV2Theme;
+    return this.supportResponsiveness();
   }
   public needResponsiveWidth() {
     return this.colCount > 2;
@@ -383,7 +383,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       item["aspectRatio"] = content.naturalWidth / content.naturalHeight;
     }
     this._width && this.processResponsiveness(0, this._width);
-  }
+  };
 
   @property({}) private responsiveColCount: number;
 
@@ -395,10 +395,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
   @property() gridColCount: number = undefined;
   getContainerStyle() {
-    if(!this.isResponsive) return {};
+    if (!this.isResponsive) return {};
     return {
       gridAutoFlow: !this.gridColCount ? "column" : null,
-      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)`: null
+      gridTemplateColumns: this.gridColCount ? `repeat(${this.gridColCount}, 1fr)` : null
     };
   }
 

@@ -9,7 +9,7 @@ import { AngularComponentFactory } from "../../component-factory";
   styleUrls: ["../../hide-host.scss"]
 })
 export class ActionBarItemDropdownComponent extends BaseAngular {
-  @Input() model: any
+  @Input() model: any;
   protected viewModel!: ActionDropdownViewModel;
 
   protected getModel() {

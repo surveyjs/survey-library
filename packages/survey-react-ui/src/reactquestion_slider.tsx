@@ -63,7 +63,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let value:number[] = this.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} id={"sjs-slider-input-"+i} key={"input-"+i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
+      const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
       inputs.push(input);
     }
     return inputs;
@@ -89,12 +89,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
       if (tooltipVisibility !== "never") {
         tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`} style={{ left: percent }}>
-          <span className={cssClasses.tooltipValue} id={"sjs-slider-sign-value-"+i}>{isIndeterminate? "—" : tooltipFormat.replace("{0}", ""+toolTipValue)}</span>
+          <span className={cssClasses.tooltipValue} id={"sjs-slider-sign-value-" + i}>{isIndeterminate ? "—" : tooltipFormat.replace("{0}", "" + toolTipValue)}</span>
         </div>;
       }
 
       // TODO all keys should be generated ids
-      const thumb = <React.Fragment key={"thumb-"+i}>
+      const thumb = <React.Fragment key={"thumb-" + i}>
         <div className={`${cssClasses.thumb} ${i === focusedThumb ? cssClasses.thumbFocusedMode : ""}`} style={{ left: percent }}>
           <div className={cssClasses.thumbDot}></div>
         </div>
@@ -117,10 +117,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       if (!showEdgeLabels && (i === 0 || i === labelCount - 1)) continue;
 
       const isDecimal = step % 1 != 0;
-      const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? ""+(labelStep + min) : ""+Math.round(labelStep + min);
+      const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
 
-      const label = <React.Fragment key={"label-"+i}>
-        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLong : ""}`} style={{ left: position + "%" }}>{labelFormat.replace("{0}", ""+labelText)}</div>
+      const label = <React.Fragment key={"label-" + i}>
+        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLong : ""}`} style={{ left: position + "%" }}>{labelFormat.replace("{0}", "" + labelText)}</div>
       </React.Fragment>;
 
       labels.push(label);
@@ -132,7 +132,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getPercent(value:number):number {
     const { max, min } = this.question;
     const fullRange = max - min;
-    return (Math.abs(value - min)/fullRange)*100;
+    return (Math.abs(value - min) / fullRange) * 100;
   }
 
   private getRenderedValue() {
@@ -188,7 +188,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     renderedValue.splice(inputNumber, 1, newValue);
     // renderedValue.sort((a, b)=>a-b);
     this.question.value = renderedValue;
-  }
+  };
 
   private handlePointerDown = (e)=> {
     const { step } = this.question;
@@ -199,12 +199,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         input.step = 0.1;
       }
     }
-  }
+  };
 
   private handlePointerUp = (e) => {
     const { step } = this.question;
     const renderedValue:number[] = this.getRenderedValue();
-    renderedValue.sort((a, b)=>a-b);
+    renderedValue.sort((a, b)=>a - b);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
@@ -214,11 +214,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     }
     this.question.value = renderedValue;
     this.refreshInputRange();
-  }
+  };
 
   private getClosestToStepValue(value: number): number {
     const { step } = this.question;
-    return Math.round(value/step)*step;
+    return Math.round(value / step) * step;
   }
 
   private oldInputValue: number | null = null;
@@ -249,8 +249,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
 
     const leftPercent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
-    const newInputValue = leftPercent/100*(max-min) + min;
-    inputNode.value = ""+newInputValue;
+    const newInputValue = leftPercent / 100 * (max - min) + min;
+    inputNode.value = "" + newInputValue;
     this.oldInputValue = newInputValue;
   }
 
@@ -261,7 +261,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       this.isRangeMoving = false;
       if (step) {
         const input = this.rangeInputRef.current as HTMLInputElement; //TODO
-        input.step = ""+step;
+        input.step = "" + step;
 
         const renderedValue:number[] = this.getRenderedValue();
         for (let i = 0; i < renderedValue.length; i++) {
@@ -283,7 +283,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const { max, min, step } = this.question;
 
     const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
-    let newValue = Math.round(percent/100*(max-min) + min);
+    let newValue = Math.round(percent / 100 * (max - min) + min);
 
     const renderedValue = this.getRenderedValue();
     let thumbIndex = 0;
@@ -323,7 +323,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     this.question.value = renderedValue;
     this.refreshInputRange();
-  }
+  };
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (!this.isRangeMoving) return;
@@ -345,15 +345,15 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     if (borderArrived) { borderArrived = false; return; }
     this.question.value = renderedValue;
-  }
+  };
 
   private handleOnFocus = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
     this.question.focusedThumb = inputNumber;
-  }
+  };
 
   private handleOnBlur = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
     this.question.focusedThumb = null;
-  }
+  };
 
   private ensureLeftBorder(newValue:number, inputNumber):number {
     const { renderedminRangeLength: minRangeLength, renderedmaxRangeLength: maxRangeLength, allowSwap } = this.question;
@@ -380,7 +380,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const prevValueBorder = value[inputNumber - 1];
 
     if (newValue - prevValueBorder > maxRangeLength) return value[inputNumber];
-    if (inputNumber === value.length-1) return newValue;
+    if (inputNumber === value.length - 1) return newValue;
 
     return Math.min(newValue, nextValueBorder - minRangeLength);
   }

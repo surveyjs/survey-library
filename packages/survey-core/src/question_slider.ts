@@ -84,7 +84,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   public handlePointerDown = (event: PointerEvent): void => {
     const choice = ItemValue.getItemByValue(this.visibleChoices, this.draggedChoiceValue);
     this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
-  }
+  };
 
   protected setNewValue(newValue: any) {
     super.setNewValue(newValue);

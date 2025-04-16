@@ -3556,3 +3556,39 @@ QUnit.test("Composite: survey.onPanelVisibleChanged, Bug#9698", function (assert
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: survey set data & set comment, Bug#9747", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "dropdown",
+        name: "item2",
+        choices: [1, 2],
+        showOtherItem: true
+      },
+      {
+        type: "text",
+        name: "item3"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  survey.data = {
+    "q1": {
+      "item1": "val1",
+      "item2": "other",
+      "item2-Comment": "comment",
+      "item3": "val3"
+    }
+  };
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  assert.equal(q1.contentPanel.getQuestionByName("item3").value, "val3", "item3 value");
+
+  ComponentCollection.Instance.clear();
+});

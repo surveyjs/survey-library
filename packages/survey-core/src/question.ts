@@ -25,7 +25,7 @@ import { DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Action } from "./actions/action";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
-import { ActionList } from "./actions/action-list";
+import { ActionContainer } from "./actions/container";
 
 export interface IConditionObject {
   name: string;
@@ -882,7 +882,7 @@ export class Question extends SurveyElement<Question>
   }
 
 
-  public get singleInputActions(): ActionList {
+  public get singleInputActions(): ActionContainer {
     return this.getPropertyValue("singleInputActions", undefined, () => {
       return this.createSingleInputActions();
     });
@@ -905,7 +905,7 @@ export class Question extends SurveyElement<Question>
   }
   private createSingleInputActions() {
     if(this.survey?.currentSingleQuestion !== this) return undefined;
-    const singleInputActions = new ActionList();
+    const singleInputActions = new ActionContainer();
     singleInputActions.actions = this.getSingleQuestionActions();
     return singleInputActions;
   }

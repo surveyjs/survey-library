@@ -245,7 +245,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
-  @property() css?: string
+  @property() css?: string;
   minDimension: number;
   maxDimension: number;
 
@@ -547,7 +547,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleChanged = () => {
     const val = this.locTitle.renderedHtml;
     this.setPropertyValue("_title", !!val ? val : undefined);
-  }
+  };
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
     this.tooltip = getLocaleString(this.locTooltipName, this.locTitle.locale);
@@ -600,9 +600,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {
     const property = mode == "small" ? "minDimension" : "maxDimension";
-    if(htmlElement) {
+    if (htmlElement) {
       const actionContainer = htmlElement;
-      if(actionContainer.classList.contains("sv-action--hidden")) {
+      if (actionContainer.classList.contains("sv-action--hidden")) {
         actionContainer.classList.remove("sv-action--hidden");
         this[property] = calcDimension(htmlElement);
         actionContainer.classList.add("sv-action--hidden");
@@ -620,7 +620,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.afterRenderCallback && this.afterRenderCallback();
   }
   public updateMode(mode: actionModeType, callback: (mode: actionModeType, el: HTMLElement) => void): void {
-    if(this.updateModeCallback) {
+    if (this.updateModeCallback) {
       this.updateModeCallback(mode, callback);
     } else {
       this.afterRenderCallback = () => {
@@ -633,7 +633,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const mode = !modeToCalculate || (modeToCalculate == "large" && this.mode !== "small") ? this.mode : modeToCalculate;
     this.updateMode(mode, (mode, htmlElement) => {
       this.updateDimension(mode, htmlElement, calcDimension);
-      if(!modeToCalculate) {
+      if (!modeToCalculate) {
         this.updateMode(mode !== "small" ? "small" : "large", (mode, htmlElement) => {
           this.updateDimension(mode, htmlElement, calcDimension);
           callback();

@@ -3,7 +3,7 @@ import { url, frameworks, initSurvey, resetFocusToBody, wrapVisualTest, takeElem
 
 const title = "Question Screenshot";
 
-fixture`${title}`.page`${url}`.beforeEach(async (t) => {
+fixture`${title}`.page`${url}`.beforeEach(async () => {
 
 });
 
@@ -364,7 +364,7 @@ frameworks.forEach(framework => {
         ]
       }, {
         onValidateQuestion: (s, options) => {
-          if(options.errors.length === 0) {
+          if (options.errors.length === 0) {
             options.error = "Very very very very very very very very very very very very very very very Very very very very very very very very very very very very very very very long error";
           }
         }

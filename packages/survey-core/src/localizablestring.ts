@@ -89,7 +89,7 @@ export class LocalizableString implements ILocalizableString {
     return !loc || loc === settings.defaultLocaleName;
   }
   public strChanged(): void {
-    if(!this.isTextRequested) return;
+    if (!this.isTextRequested) return;
     this.searchableText = undefined;
     if (this.renderedText === undefined && this.isEmpty && !this.onGetTextCallback && !this.localizationName) return;
     this.calculatedTextValue = this.calcText();
@@ -117,11 +117,11 @@ export class LocalizableString implements ILocalizableString {
   }
   public getPlaceholder(): string {
     let res = "";
-    if(!this.isDefautlLocale) {
+    if (!this.isDefautlLocale) {
       const dialectLocale = this.getRootDialect(this.locale);
       res = this.getLocaleText(dialectLocale || settings.defaultLocaleName);
     }
-    if(!res && this.onGetTextCallback) {
+    if (!res && this.onGetTextCallback) {
       res = this.onGetTextCallback("", "");
     }
     return res;
@@ -298,9 +298,9 @@ export class LocalizableString implements ILocalizableString {
     if (!!this.sharedData) return this.sharedData.getJson();
     const keys = this.getValuesKeys();
     if (keys.length == 0) {
-      if(this.serializeCallBackText) {
+      if (this.serializeCallBackText) {
         const text = this.calcText();
-        if(!!text) return text;
+        if (!!text) return text;
       }
       return null;
     }
@@ -423,11 +423,11 @@ export class LocalizableString implements ILocalizableString {
     return (<any>this).values[this.getValueLoc(loc)];
   }
   private setValue(loc: string, value: string) {
-    if (!!this.sharedData) this.sharedData.setValue(loc, value);
+    if (!!this.sharedData)this.sharedData.setValue(loc, value);
     else (<any>this).values[this.getValueLoc(loc)] = value;
   }
   private deleteValue(loc: string) {
-    if (!!this.sharedData) this.sharedData.deleteValue(loc);
+    if (!!this.sharedData)this.sharedData.deleteValue(loc);
     else delete (<any>this).values[this.getValueLoc(loc)];
   }
   private getValueLoc(loc: string): string {

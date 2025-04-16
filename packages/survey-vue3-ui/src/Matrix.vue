@@ -1,9 +1,9 @@
 <template>
   <div :class="question.cssClasses.tableWrapper" ref="root">
-    <fieldset>
-      <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
-      <table :class="question.getTableCss()">
-        <thead v-if="question.showHeader">
+    <fieldset role="radiogroup">
+      <legend class="sv-visuallyhidden">{{ question.locTitle.renderedHtml }}</legend>
+      <table :class="question.getTableCss()" role="presentation">
+        <thead v-if="question.showHeader" role="presentation">
           <tr>
             <td v-if="question.hasRows"></td>
             <th

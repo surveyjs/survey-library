@@ -1396,7 +1396,7 @@ QUnit.test("Check isUsingCarryForward on changing question name", function (asse
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, target: any, arrayChanges: any) => {
-    if(target === q1 && name === "name") {
+    if (target === q1 && name === "name") {
       q2.choicesFromQuestion = newValue;
     }
   };
@@ -1741,7 +1741,7 @@ QUnit.test("Change carryForwardQuestionType to let question banner in creator th
   let counterOn = 0;
   let counterOff = 0;
   q3.registerFunctionOnPropertyValueChanged("carryForwardQuestionType", () => {
-    if(q3.isUsingCarryForward) {
+    if (q3.isUsingCarryForward) {
       counterOn++;
     } else {
       counterOff ++;
@@ -2472,7 +2472,7 @@ QUnit.test("question checkbox add a custom property into choicesByUrl, Bug#8783"
 });
 QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) => {
   const survey = new SurveyModel();
-  survey.css =survey.css = { root: "sd-root-modern" };
+  survey.css = survey.css = { root: "sd-root-modern" };
   survey.fromJSON({
     elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
   });

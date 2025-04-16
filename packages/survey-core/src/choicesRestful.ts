@@ -3,7 +3,7 @@ import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
-import { settings } from "./settings";
+import { IBeforeRequestChoicesOptions, settings } from "./settings";
 import { SurveyError } from "./survey-error";
 
 class XmlParser {
@@ -105,12 +105,12 @@ export class ChoicesRestful extends Base {
   }
   public static get onBeforeSendRequest(): (
     sender: ChoicesRestful,
-    options: { request: XMLHttpRequest }
+    options: IBeforeRequestChoicesOptions
   ) => void {
     return settings.web.onBeforeRequestChoices;
   }
   public static set onBeforeSendRequest(
-    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+    val: (sender: ChoicesRestful, options: IBeforeRequestChoicesOptions) => void
   ) {
     settings.web.onBeforeRequestChoices = val;
   }
@@ -144,7 +144,7 @@ export class ChoicesRestful extends Base {
   constructor() {
     super();
     this.registerPropertyChangedHandlers(["url"], () => {
-      if(this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
+      if (this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
     });
   }
   public getSurvey(live: boolean = false): ISurvey {
@@ -227,7 +227,7 @@ export class ChoicesRestful extends Base {
     } else {
       try {
         parsedResponse = JSON.parse(response);
-      } catch {
+      } catch{
         parsedResponse = (response || "")
           .split("\n")
           .map((s: any) => s.trim(" "))
@@ -237,6 +237,20 @@ export class ChoicesRestful extends Base {
     return parsedResponse;
   }
   protected sendRequest() {
+    if (typeof XMLHttpRequest !== "undefined") {
+      this.sendXmlHttpRequest();
+    } else if (typeof fetch !== "undefined") {
+      this.sendFetchRequest();
+    } else {
+      this.error = new WebRequestError(
+        "The browser does not support XMLHttpRequest or fetch API",
+        "",
+        this.owner
+      );
+      this.doEmptyResultCallback("");
+    }
+  }
+  protected sendXmlHttpRequest() {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", this.processedUrl);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -250,12 +264,48 @@ export class ChoicesRestful extends Base {
         self.onError(xhr.statusText, xhr.responseText);
       }
     };
-    var options = { request: xhr };
+    var options = { url: this.processedUrl, request: xhr };
     if (!!settings.web.onBeforeRequestChoices) {
       settings.web.onBeforeRequestChoices(this, options);
     }
     this.beforeSendRequest();
     options.request.send();
+  }
+  protected sendFetchRequest() {
+    const self = this;
+    const loadingObjHash = this.objHash;
+
+    let url = this.processedUrl;
+    const fetchOptions: RequestInit = {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    };
+    const options = { url, fetchOptions };
+
+    if (settings.web.onBeforeRequestChoices) {
+      settings.web.onBeforeRequestChoices(this, options);
+    }
+
+    this.beforeSendRequest();
+    fetch(options.url, options.fetchOptions)
+      .then(response => {
+        self.beforeLoadRequest();
+
+        if (response.status === 200) {
+          return response.text().then(text => {
+            self.onLoad(self.parseResponse(text), loadingObjHash);
+          });
+        } else {
+          return response.text().then(errorText => {
+            self.onError(response.statusText, errorText);
+          });
+        }
+      })
+      .catch(error => {
+        self.onError(error.message, "");
+      });
   }
   public getType(): string {
     return "choicesByUrl";
@@ -296,7 +346,7 @@ export class ChoicesRestful extends Base {
     return res;
   }
   public setData(json: any): void {
-    if(!json) json = {};
+    if (!json) json = {};
     this.getAllPropertiesNames().forEach(name => {
       (<any>this)[name] = json[name];
     });
@@ -306,7 +356,7 @@ export class ChoicesRestful extends Base {
     let hasValue = false;
     this.getAllPropertiesNames().forEach(name => {
       const val = (<any>this)[name];
-      if(!this.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
+      if (!this.isValueEmpty(val) && val !== this.getDefaultPropertyValue(name)) {
         res[name] = val;
         hasValue = true;
       }
@@ -600,12 +650,12 @@ export class ChoicesRestfull extends ChoicesRestful {
   }
   public static get onBeforeSendRequest(): (
     sender: ChoicesRestful,
-    options: { request: XMLHttpRequest }
+    options: IBeforeRequestChoicesOptions
   ) => void {
     return settings.web.onBeforeRequestChoices;
   }
   public static set onBeforeSendRequest(
-    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+    val: (sender: ChoicesRestful, options: IBeforeRequestChoicesOptions) => void
   ) {
     settings.web.onBeforeRequestChoices = val;
   }

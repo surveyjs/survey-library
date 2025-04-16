@@ -36,7 +36,7 @@ export class Survey {
     const classExists = await this.page.evaluate(className => {
       return !!document.querySelector(`.${className}`);
     }, className);
-    if(shouldExists) {
+    if (shouldExists) {
       expect(classExists).toBeTruthy();
     } else {
       expect(classExists).toBeFalsy();
@@ -52,7 +52,7 @@ export class Survey {
   }
   private async checkButtonVisibility(btnValue: string, isVisible: boolean): Promise<void> {
     const l = this.getNavigatorButton(btnValue);
-    if(isVisible) {
+    if (isVisible) {
       expect(l.isVisible).toBeTruthy();
     } else {
       expect(l.isHidden).toBeTruthy();

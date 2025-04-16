@@ -90,7 +90,7 @@ frameworks.forEach((framework) => {
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    json =JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 
@@ -108,7 +108,7 @@ frameworks.forEach((framework) => {
 
     questionValue = await getQuestionValue();
     assert.equal(questionValue, undefined);
-    json =JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.items[0].title, newTitle);
   });
   test("Check item reactiveness, for example required title", async (t) => {

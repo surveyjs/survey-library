@@ -5,6 +5,7 @@
     :class="question.getItemClass(item.itemValue)"
     @mouseover="(e) => question.onItemMouseIn(item)"
     @mouseleave="(e) => question.onItemMouseOut(item)"
+    :title="item.text"
   >
     <input
       type="radio"
@@ -25,13 +26,11 @@
       :class="'sv-star'"
       :iconName="question.itemStarIcon"
       :size="'auto'"
-      :title="item.text"
     /><SvComponent
       :is="'sv-svg-icon'"
       :class="'sv-star-2'"
       :iconName="question.itemStarIconAlt"
       :size="'auto'"
-      :title="item.text"
     ></SvComponent>
   </label>
 </template>

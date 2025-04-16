@@ -6,7 +6,7 @@ import { IDragDropEngine } from "./engine";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
-if(typeof window !== "undefined") {
+if (typeof window !== "undefined") {
   window.addEventListener(
     "touchmove",
     (event) => {
@@ -49,7 +49,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     return settings.environment.root;
   }
   public get rootElement():any {
-    if(isShadowDOM(settings.environment.root)) {
+    if (isShadowDOM(settings.environment.root)) {
       return this.rootContainer || settings.environment.root.host;
     } else {
       return this.rootContainer || settings.environment.root.documentElement || document.body;
@@ -112,7 +112,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       }
 
       this.stopLongTap();
-    }, this.longTap ? 500: 0);
+    }, this.longTap ? 500 : 0);
 
     document.addEventListener("pointerup", this.stopLongTap);
     document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
@@ -128,7 +128,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private onContextMenu = (event:any) => {
     event.preventDefault();
     event.stopPropagation();
-  }
+  };
   private moveShortcutElement(event: PointerEvent) {
     let rootElementX = this.rootElement.getBoundingClientRect().x;
     let rootElementY = this.rootElement.getBoundingClientRect().y;

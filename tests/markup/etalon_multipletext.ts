@@ -1,5 +1,4 @@
 import { registerMarkupTests } from "./helper";
-import { settings } from "survey-core";
 
 registerMarkupTests(
   [

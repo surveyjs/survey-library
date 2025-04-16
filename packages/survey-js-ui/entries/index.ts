@@ -75,7 +75,7 @@ if (typeof jQueryInst !== "undefined") {
   try {
     jQueryInst = require("jquery");
     initJquery(jQueryInst);
-  } catch (ex) {
+  } catch(ex) {
   }
 }
 

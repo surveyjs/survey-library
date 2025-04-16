@@ -18,18 +18,18 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       return;
     }
     this.hidePopup();
-  }
+  };
   private resizeEventCallback = () => {
-    if(!DomWindowHelper.isAvailable()) return;
+    if (!DomWindowHelper.isAvailable()) return;
 
     const visualViewport = DomWindowHelper.getVisualViewport();
     const documentElement = DomDocumentHelper.getDocumentElement();
-    if(!!documentElement && !!visualViewport) {
+    if (!!documentElement && !!visualViewport) {
       documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
     }
-  }
+  };
   private resizeWindowCallback = () => {
-    if(!this.isOverlay) {
+    if (!this.isOverlay) {
       this.updatePosition(true, SurveyModel.platform === "vue" || SurveyModel.platform === "vue3" || SurveyModel.platform == "react" || SurveyModel.platform == "js-ui");
     }
   };
@@ -37,10 +37,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   private touchStartEventCallback = (event: any) => {
     this.clientY = event.touches[0].clientY;
-  }
+  };
   private touchMoveEventCallback = (event: any) => {
     this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
-  }
+  };
 
   protected createFooterActionBar(): void {
     super.createFooterActionBar();

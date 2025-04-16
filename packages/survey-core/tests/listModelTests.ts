@@ -80,7 +80,7 @@ class MyObject {
 class MyObject2 {
   myOnFilter(text: string) {
     this.myItems.forEach((item: IAction) => {
-      if(!!text && !!item) {
+      if (!!text && !!item) {
         item.visible = item.title?.indexOf(text) !== -1;
       } else {
         item.visible = true;

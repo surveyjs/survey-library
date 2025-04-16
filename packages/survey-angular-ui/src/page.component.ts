@@ -5,7 +5,7 @@ import { BaseAngular } from "./base-angular";
   selector: "page, sv-ng-page",
   templateUrl: "./page.component.html",
   styleUrls: ["./hide-host.scss"]
-  })
+})
 export class PageComponent extends BaseAngular<PageModel> {
   @Input() model!: PageModel;
   @Input() survey?: SurveyModel;
@@ -14,7 +14,7 @@ export class PageComponent extends BaseAngular<PageModel> {
     return this.model;
   }
   protected override onModelChanged(): void {
-    if(!!this.pageContainerRef && this.pageContainerRef.nativeElement) {
+    if (!!this.pageContainerRef && this.pageContainerRef.nativeElement) {
       this.model.survey.afterRenderPage(this.pageContainerRef.nativeElement);
     }
   }

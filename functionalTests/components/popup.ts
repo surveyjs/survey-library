@@ -204,7 +204,7 @@ frameworks.forEach(async framework => {
       .wait(500);
     const popupClientRect = await getElementClientRect(".sv-popup--modal-popup .sv-popup__container");
     const paddingDiff = 32; //padding top and bottom diff of sv-popup container
-    const calcTop = Math.round((600/ 2 - paddingDiff / 2 - popupClientRect.height / 2) * 10) / 10;
+    const calcTop = Math.round((600 / 2 - paddingDiff / 2 - popupClientRect.height / 2) * 10) / 10;
     const calcLeft = Math.round((800 / 2 - popupClientRect.width / 2) * 10) / 10;
     await t
       .expect(Math.abs(popupClientRect.left - calcLeft)).lte(0.1)

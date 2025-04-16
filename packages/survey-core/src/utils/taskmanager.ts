@@ -65,10 +65,10 @@ export function debounce<T extends (...args: any) => void>(func: T): { run: T, c
   return { run: ((...args: any) => {
     isCanceled = false;
     funcArgs = args;
-    if(!isSheduled) {
+    if (!isSheduled) {
       isSheduled = true;
       queueMicrotask(() => {
-        if(!isCanceled) {
+        if (!isCanceled) {
           func.apply(this, funcArgs);
         }
         isCanceled = false;

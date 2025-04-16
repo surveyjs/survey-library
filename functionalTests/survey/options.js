@@ -215,7 +215,7 @@ frameworks.forEach(framework => {
     await t
       .expect(progressbar.visible).ok()
       .expect(progressbar.textContent).contains("Page 1 of 3");
-    if(framework === "vue") {
+    if (framework === "vue") {
       await t.expect(progressRootElement.find(".sd-progress").visible).ok();
     } else {
       await t.expect(progressRootElement.classNames).contains("sd-progress");

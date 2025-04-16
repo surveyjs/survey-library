@@ -78,7 +78,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       stateElement.enableOnElementRerenderedEvent();
     };
     if (!!stateElement) {
-      if(!(<any>stateElement).__ngImplemented) {
+      if (!(<any>stateElement).__ngImplemented) {
         this.makeBaseElementAngularCallback();
       } else {
         this.getBaseElementCallbacks(stateElement).push(this.makeBaseElementAngularCallback);
@@ -87,7 +87,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
     if (!!stateElement) {
-      if(this.isModelSubsribed) {
+      if (this.isModelSubsribed) {
         this.isModelSubsribed = false;
         (<any>stateElement).__ngImplemented = false;
         stateElement.setPropertyValueCoreHandler = <any>undefined;
@@ -102,11 +102,10 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         const callbacks = this.getBaseElementCallbacks(stateElement);
         const callback = callbacks.shift();
         callback && callback();
-      }
-      else if(this.makeBaseElementAngularCallback) {
+      } else if (this.makeBaseElementAngularCallback) {
         const callbacks = this.getBaseElementCallbacks(stateElement);
         const index = callbacks.indexOf(this.makeBaseElementAngularCallback);
-        if(index > -1) {
+        if (index > -1) {
           callbacks.splice(index, 1);
         }
       }
@@ -149,7 +148,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   protected afterUpdate(isSync: boolean = false): void {
     this.setIsRendering(false);
     const model = this.getModel();
-    if(model && !this.isDestroyed) {
+    if (model && !this.isDestroyed) {
       model.afterRerender();
     }
   }

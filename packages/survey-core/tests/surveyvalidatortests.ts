@@ -563,7 +563,7 @@ QUnit.test("Async expression validators creates several errors", function(assert
   function callAsyncList(): void {
     while(asynList.length > 0) {
       let i = asynList.length % 2;
-      if(i >= asynList.length) i = 0;
+      if (i >= asynList.length) i = 0;
       asynList[i](false);
       asynList.splice(i, 1);
     }

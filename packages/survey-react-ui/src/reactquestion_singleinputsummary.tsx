@@ -38,7 +38,7 @@ export class SurveyQuestionSigleInputSummary extends ReactSurveyElement {
     const btnDelete = item.showRemove && item.btnRemove ?
       <button className={this.css.summaryRowActionDelete} onClick={() => item.btnRemove.action()} title={item.btnRemove.title}>
         <SvgIcon iconName="icon-delete-16x16" iconSize="auto" />
-      </button>: null;
+      </button> : null;
     return <div className={this.css.summaryRow} key={index}>
       <div className={this.css.summaryRowContent}>{this.renderLocString(item.locText)}</div>
       <div className={this.css.summaryRowActions}>

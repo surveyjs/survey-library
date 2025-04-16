@@ -216,11 +216,11 @@ export class Question extends SurveyElement<Question>
     return locTitleValue;
   }
   get locRenderedTitle(): LocalizableString {
-    if(this.isSingleInputActive && !!this.singleInputLocTitle) return this.singleInputLocTitle;
+    if (this.isSingleInputActive && !!this.singleInputLocTitle) return this.singleInputLocTitle;
     return this.locTitle;
   }
   public get commentTextAreaModel(): TextAreaModel {
-    if(!this.commentTextAreaModelValue) {
+    if (!this.commentTextAreaModelValue) {
       this.commentTextAreaModelValue = new TextAreaModel(this.getCommentTextAreaOptions());
     }
     return this.commentTextAreaModelValue;
@@ -458,7 +458,7 @@ export class Question extends SurveyElement<Question>
         this.onHidingContent();
       }
     }
-    if(val !== this.visible && this.areInvisibleElementsShowing) {
+    if (val !== this.visible && this.areInvisibleElementsShowing) {
       this.updateQuestionCss(true);
     }
   }
@@ -649,7 +649,7 @@ export class Question extends SurveyElement<Question>
     }
     if (!this.canExecuteTriggerByKeys(keys, info.runner, info.getSecondRunner())) return;
     info.isRunning = true;
-    if(!expression && info.getSecondRunner()) {
+    if (!expression && info.getSecondRunner()) {
       info.doComplete();
       info.isRunning = false;
     } else {
@@ -657,24 +657,24 @@ export class Question extends SurveyElement<Question>
     }
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
-    if(!runner && !!secondRunner) {
+    if (!runner && !!secondRunner) {
       runner = secondRunner;
       secondRunner = undefined;
     }
     const run1 = this.canExecuteTriggerByKeysCore(keys, runner);
-    if(run1 === "var") return true;
-    if(!secondRunner) return run1 === "func";
+    if (run1 === "var") return true;
+    if (!secondRunner) return run1 === "func";
     const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
     return run2 !== "";
   }
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
     const vars = runner.getVariables();
-    if((!vars || vars.length === 0) && runner.hasFunction()) return "func";
+    if ((!vars || vars.length === 0) && runner.hasFunction()) return "func";
     return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
-    if(!keys) {
+    if (!keys) {
       keys = {};
       keys[name] = value;
     }
@@ -715,25 +715,25 @@ export class Question extends SurveyElement<Question>
     if (this.parent === val) return;
     this.removeFromParent();
     this.setPropertyValue("parent", val);
-    if(!!val) {
+    if (!!val) {
       this.updateQuestionCss();
     }
     this.onParentChanged();
   }
   protected onParentChanged(): void { }
   private calculateSingleInputQuestion(): Question {
-    if(!this.isSingleInputActive) {
+    if (!this.isSingleInputActive) {
       return undefined;
     }
     const questions = this.getSingleInputQuestions();
-    if(Array.isArray(questions) && questions.length > 0) {
+    if (Array.isArray(questions) && questions.length > 0) {
       return questions[0];
     }
     return undefined;
   }
   public get singleInputQuestion(): Question {
     const survey = this.survey;
-    if(!survey || !survey.isSingleVisibleInput) return undefined;
+    if (!survey || !survey.isSingleVisibleInput) return undefined;
     return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
   private get currentSingleInputQuestion(): Question {
@@ -745,17 +745,17 @@ export class Question extends SurveyElement<Question>
   }
   private get currentSingleInputParentQuestion(): Question {
     const q = this.currentSingleInputQuestion;
-    if(!q) return this;
-    if(q.singleInputQuestion === q) return q;
+    if (!q) return this;
+    if (q.singleInputQuestion === q) return q;
     return q.parentQuestion || this;
   }
   public get singleInputSummary(): QuestionSingleInputSummary {
     return this.getPropertyValue("singleInputSummary", undefined, () => {
-      if(!this.supportNestedSingleInput()) return undefined;
+      if (!this.supportNestedSingleInput()) return undefined;
       const q = this.singleInputQuestion;
-      if(!q || q !== this) return undefined;
+      if (!q || q !== this) return undefined;
       const res = this.createSingleInputSummary();
-      if(!!res) {
+      if (!!res) {
         this.calcSingleInputActions();
         this.resetPropertyValue("singleInputLocTitle");
       }
@@ -787,7 +787,7 @@ export class Question extends SurveyElement<Question>
   private resetSingleInputCore(): void {
     const prev = this.singleInputQuestion;
     this.resetPropertyValue("singleInputQuestion");
-    if(!!prev) {
+    if (!!prev) {
       this.onSingleInputChanged();
     }
   }
@@ -803,18 +803,18 @@ export class Question extends SurveyElement<Question>
   }
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
     const q = this.currentSingleInputQuestion;
-    if(!q) return true;
+    if (!q) return true;
     return q.validate(fireCallback, rec);
   }
   public getSingleInputElementPos(): number {
     const pQ = this.currentSingleInputParentQuestion;
-    if(pQ !== this) {
+    if (pQ !== this) {
       let res = pQ.getSingleInputElementPos();
-      if(res === 2) return 2;
+      if (res === 2) return 2;
     }
     const q = this.singleInputQuestion;
     const questions = this.getSingleInputQuestions();
-    if(questions.length < 2) return 0;
+    if (questions.length < 2) return 0;
     let index = questions.indexOf(q);
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
@@ -823,8 +823,8 @@ export class Question extends SurveyElement<Question>
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
   protected singleInputOnAddItem(isOnDataChanging: boolean): void {
-    if(this.isSingleInputActive) {
-      if(isOnDataChanging && this.singleInputSummary) {
+    if (this.isSingleInputActive) {
+      if (isOnDataChanging && this.singleInputSummary) {
         this.resetSingleInputSummary();
       } else {
         this.setSingleQuestionOnChange(Number.MAX_VALUE);
@@ -832,8 +832,8 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected singleInputOnRemoveItem(index: number): void {
-    if(this.isSingleInputActive) {
-      if(!this.singleInputSummary) {
+    if (this.isSingleInputActive) {
+      if (!this.singleInputSummary) {
         this.setSingleQuestionOnChange(index);
       } else {
         this.onSingleInputChanged();
@@ -843,7 +843,7 @@ export class Question extends SurveyElement<Question>
   protected getSingleQuestionOnChange(index: number): Question { return null; }
   private setSingleQuestionOnChange(index: number): void {
     const q = this.getSingleQuestionOnChange(index);
-    if(!!q) {
+    if (!!q) {
       this.setSingleInputQuestion(q);
     } else {
       this.resetSingleInput();
@@ -861,8 +861,8 @@ export class Question extends SurveyElement<Question>
   }
   public singleInputAddItem(checkErrors?: boolean): void {
     const rec: any = { fireCallback: true, focusOnFirstError: true };
-    if(checkErrors && !this.validateSingleInput(true, rec)) {
-      if(rec.firstErrorQuestion) {
+    if (checkErrors && !this.validateSingleInput(true, rec)) {
+      if (rec.firstErrorQuestion) {
         rec.firstErrorQuestion.focus(true);
       }
     } else {
@@ -871,7 +871,7 @@ export class Question extends SurveyElement<Question>
   }
   public singleInputRemoveItem(): void {
     const q = this.singleInputQuestion;
-    if(q && q !== this.singleInputParentQuestion) {
+    if (q && q !== this.singleInputParentQuestion) {
       this.singleInputRemoveItemCore(q);
     }
   }
@@ -880,7 +880,6 @@ export class Question extends SurveyElement<Question>
       return this.getSingleQuestionLocTitle();
     });
   }
-
 
   public get singleInputActions(): ActionContainer {
     return this.getPropertyValue("singleInputActions", undefined, () => {
@@ -904,13 +903,13 @@ export class Question extends SurveyElement<Question>
     return this.singleInputQuestion?.parentQuestion || this;
   }
   private createSingleInputActions() {
-    if(this.survey?.currentSingleQuestion !== this) return undefined;
+    if (this.survey?.currentSingleQuestion !== this) return undefined;
     const singleInputActions = new ActionContainer();
     singleInputActions.actions = this.getSingleQuestionActions();
     return singleInputActions;
   }
   private calcSingleInputActions(): void {
-    if(!!this.parentQuestion) {
+    if (!!this.parentQuestion) {
       this.parentQuestion.calcSingleInputActions();
     } else {
       const actions = this.getSingleQuestionActions();
@@ -923,11 +922,11 @@ export class Question extends SurveyElement<Question>
   private getSingleQuestionActions(): Array<Action> {
     const res = new Array<Action>();
     const p = this.currentSingleInputParentQuestion;
-    if(!p) return res;
+    if (!p) return res;
     const pSQs = p.getSingleInputQuestions();
     const qs = new Array<Question>();
     let summaryQ = undefined;
-    if(pSQs.length > 1 && pSQs[0] === p) {
+    if (pSQs.length > 1 && pSQs[0] === p) {
       summaryQ = p;
       qs.push(p);
     }
@@ -936,14 +935,14 @@ export class Question extends SurveyElement<Question>
       qs.push(pQ);
       pQ = pQ.parentQuestion;
     }
-    for(let i = qs.length - 1; i >= 0; i--) {
+    for (let i = qs.length - 1; i >= 0; i--) {
       const q = qs[i];
       const title = q == summaryQ ? q.locTitle : q.singleInputLocTitle;
       const action = new Action({ id: "single-action" + q.id, locTitle: title,
         css: this.cssClasses.breadcrumbsItem,
         innerCss: this.cssClasses.breadcrumbsItemButton,
         action: () => {
-          if(q == summaryQ) {
+          if (q == summaryQ) {
             q.setSingleInputQuestion(q);
           } else {
             q.singleInputMoveToFirst();
@@ -958,7 +957,7 @@ export class Question extends SurveyElement<Question>
   }
   protected singleInputMoveToFirst(): void {
     const q = this.singleInputQuestion;
-    if(!!q && q !== this) {
+    if (!!q && q !== this) {
       q.singleInputMoveToFirst();
     }
     this.singleInputMoveToFirstCore();
@@ -974,9 +973,9 @@ export class Question extends SurveyElement<Question>
     return this.survey?.supportsNestedSingleInput(this);
   }
   private getSingleInputQuestions(): Array<Question> {
-    if(!this.supportNestedSingleInput()) return [];
+    if (!this.supportNestedSingleInput()) return [];
     const res = this.getSingleInputQuestionsCore(this.getPropertyValue("singleInputQuestion"));
-    res.forEach(q => { if(q !== this) this.onSingleInputQuestionAdded(q); });
+    res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
     return res;
   }
   protected getSingleInputQuestionsCore(question: Question): Array<Question> {
@@ -986,11 +985,11 @@ export class Question extends SurveyElement<Question>
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
   protected getSingleInputQuestionsForDynamic(question?: Question): Array<Question> {
     const res = new Array<Question>();
-    if(question) {
+    if (question) {
       this.setPropertyValue("singleInputQuestion", question);
     }
     const q = this.getPropertyValue("singleInputQuestion");
-    if(!!q && q !== this) {
+    if (!!q && q !== this) {
       this.fillSingleInputQuestionsInContainer(res, q);
     }
     res.push(this);
@@ -1000,7 +999,7 @@ export class Question extends SurveyElement<Question>
   protected singleInputAddItemCore(): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   protected setSingleInputQuestion(question: Question): void {
-    if(this.singleInputQuestion !== question) {
+    if (this.singleInputQuestion !== question) {
       this.setPropertyValue("singleInputQuestion", question);
       this.onSingleInputChanged();
     }
@@ -1009,20 +1008,20 @@ export class Question extends SurveyElement<Question>
     let pQ = this.currentSingleInputParentQuestion;
     while(!!pQ && pQ !== this) {
       const res = pQ.nextPrevSingleInput(skip);
-      if(res) return true;
+      if (res) return true;
       pQ = pQ.parentQuestion;
     }
     const q = this.singleInputQuestion;
-    if(!q) return false;
+    if (!q) return false;
     const questions = this.getSingleInputQuestions();
     let index = questions.indexOf(q);
-    if(index < 0) {
-      if(questions.length === 0) return false;
+    if (index < 0) {
+      if (questions.length === 0) return false;
       index = 0;
       skip = 0;
     }
     index += skip;
-    if(index < 0 || index >= questions.length) return false;
+    if (index < 0 || index >= questions.length) return false;
     this.setSingleInputQuestion(questions[index]);
     return true;
   }
@@ -1101,9 +1100,9 @@ export class Question extends SurveyElement<Question>
     return undefined;
   }
   private getQuestionParentTitleWidth(): any {
-    if(!this.parent) return undefined;
+    if (!this.parent) return undefined;
     const res = this.parent.getQuestionTitleWidth();
-    if(!res && !!this.parentQuestion) return this.parentQuestion.getQuestionParentTitleWidth();
+    if (!res && !!this.parentQuestion) return this.parentQuestion.getQuestionParentTitleWidth();
     return res;
   }
   private getPercentQuestionTitleWidth(width: any): number {
@@ -1326,8 +1325,7 @@ export class Question extends SurveyElement<Question>
       if (event.target) {
         this.comment = event.target.value;
       }
-    }
-    else {
+    } else {
       this.updateCommentElements();
     }
   }
@@ -1354,7 +1352,7 @@ export class Question extends SurveyElement<Question>
       this.getCommentElementsId().forEach(id => {
         const { root } = settings.environment;
         let el = root.getElementById(id);
-        if (el) this.commentElements.push(el);
+        if (el)this.commentElements.push(el);
       });
       this.updateCommentElements();
     }
@@ -1529,11 +1527,11 @@ export class Question extends SurveyElement<Question>
     return !!this.parentQuestion && this.survey?.isSingleVisibleInput;
   }
   protected getIsNested(): boolean {
-    if(!!this.isSingleInputQuestionMode) return false;
+    if (!!this.isSingleInputQuestionMode) return false;
     return super.getIsNested();
   }
   protected getHasFrameV2(): boolean {
-    if(this.isSingleInputQuestionMode) return true;
+    if (this.isSingleInputQuestionMode) return true;
     return super.getHasFrameV2();
   }
   public getRootCss(): string {
@@ -1554,7 +1552,7 @@ export class Question extends SurveyElement<Question>
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {
-    if(this.wasRendered) {
+    if (this.wasRendered) {
       super.updateElementCss(reNew);
       if (reNew) {
         this.updateQuestionCss(true);
@@ -1566,7 +1564,7 @@ export class Question extends SurveyElement<Question>
   }
   protected updateQuestionCss(reNew?: boolean): void {
     if (this.isLoadingFromJson || !this.survey) return;
-    if(this.wasRendered) {
+    if (this.wasRendered) {
       this.updateElementCssCore(this.cssClasses);
     } else {
       this.isRequireUpdateElements = true;
@@ -1596,8 +1594,7 @@ export class Question extends SurveyElement<Question>
       .append(objCss, this.isRequired && !!css.question.required);
     if (objCss === undefined || objCss === null) {
       res.root = rootBuilder.toString();
-    }
-    else if (typeof objCss === "string" || objCss instanceof String) {
+    } else if (typeof objCss === "string" || objCss instanceof String) {
       res.root = rootBuilder.append(objCss.toString()).toString();
     } else {
       res.root = rootBuilder.toString();
@@ -1635,15 +1632,15 @@ export class Question extends SurveyElement<Question>
     if (shouldChangePage && !isSingleInput) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      if(isSingleInput) {
+      if (isSingleInput) {
         this.survey.currentSingleQuestion = this.rootParentQuestion;
         const parents = this.getParentQuestions();
-        for(let i = parents.length - 1; i >= 1; i--) {
-          if(i === parents.length - 1) {
+        for (let i = parents.length - 1; i >= 1; i--) {
+          if (i === parents.length - 1) {
             parents[i].setSingleInputQuestion(parents[i - 1]);
           }
         }
-        if(parents.length > 0) {
+        if (parents.length > 0) {
           parents[0].setSingleInputQuestion(this);
         }
         this.focusInputElement(onError);
@@ -1675,7 +1672,7 @@ export class Question extends SurveyElement<Question>
     this.onFocusCore(event);
   }
   protected onBlurCore(event: any): void {
-    if(this.isFocusEmpty && this.isEmpty()) {
+    if (this.isFocusEmpty && this.isEmpty()) {
       this.validate(true);
     }
   }
@@ -1876,11 +1873,11 @@ export class Question extends SurveyElement<Question>
   private calcNo(): string {
     if (!this.hasTitle || !this.showNumber) return "";
     let parentIndex: number | undefined;
-    if(!!this.parent) {
+    if (!!this.parent) {
       parentIndex = (<any>this.parent).visibleIndex;
     }
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
-    if(!!this.parent) {
+    if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);
     }
     if (!!this.survey) {
@@ -1903,7 +1900,7 @@ export class Question extends SurveyElement<Question>
   }
   protected onSetData(): void {
     super.onSetData();
-    if(!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
+    if (!this.isDesignMode && !!this.survey && !this.isLoadingFromJson) {
       this.initDataFromSurvey();
       this.onSurveyValueChanged(this.value);
       this.updateValueWithDefaults();
@@ -2053,7 +2050,7 @@ export class Question extends SurveyElement<Question>
   public get isParentVisible(): boolean {
     if (this.parentQuestion && !this.parentQuestion.isVisible) return false;
     var parent = this.parent;
-    while (parent) {
+    while(parent) {
       if (!parent.isVisible) return false;
       parent = parent.parent;
     }
@@ -2118,7 +2115,7 @@ export class Question extends SurveyElement<Question>
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if(this.isValueEmpty(value) && !this.locDefaultDisplayValue.isEmpty) {
+    if (this.isValueEmpty(value) && !this.locDefaultDisplayValue.isEmpty) {
       value = this.defaultDisplayValue;
     }
     if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
@@ -2525,7 +2522,7 @@ export class Question extends SurveyElement<Question>
   public getSupportedValidators(): Array<string> {
     var res: Array<string> = [];
     var className = this.getType();
-    while (!!className) {
+    while(!!className) {
       var classValidators = (<any>settings.supportedValidators)[className];
       if (!!classValidators) {
         for (var i = classValidators.length - 1; i >= 0; i--) {
@@ -2563,10 +2560,10 @@ export class Question extends SurveyElement<Question>
     questions.push(this);
   }
   addNestedQuestion(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean): void {
-    if(includeNested) {
+    if (includeNested) {
       this.collectNestedQuestions(questions, visibleOnly);
     } else {
-      if(!visibleOnly || this.isVisible) {
+      if (!visibleOnly || this.isVisible) {
         questions.push(this);
       }
     }
@@ -2648,7 +2645,7 @@ export class Question extends SurveyElement<Question>
       this.collectErrors(qErrors, isOnValueChanged, fireCallback);
     }
     if (!!this.survey) {
-      if(this.validateValueCallback && qErrors.length === 0) {
+      if (this.validateValueCallback && qErrors.length === 0) {
         const error = this.validateValueCallback();
         if (error) {
           qErrors.push(error);
@@ -2872,7 +2869,7 @@ export class Question extends SurveyElement<Question>
     }
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
-    if (updateIsAnswered) this.updateIsAnswered();
+    if (updateIsAnswered)this.updateIsAnswered();
   }
   private get isParentChangingViaDefaultValue(): boolean {
     return (<any>this.data)?.isChangingViaDefaultValue === true;
@@ -3203,7 +3200,7 @@ export class Question extends SurveyElement<Question>
 function makeNameValid(str: string): string {
   if (!str) return str;
   str = str.trim().replace(/[\{\}]+/g, "");
-  while (!!str && str[0] === settings.expressionDisableConversionChar) {
+  while(!!str && str[0] === settings.expressionDisableConversionChar) {
     str = str.substring(1);
   }
   return str;

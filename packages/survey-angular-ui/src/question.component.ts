@@ -29,7 +29,7 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
   }
 
   ngOnDestroy() {
-    if(!!this.model) {
+    if (!!this.model) {
       this.model.destroyResizeObserver();
     }
   }

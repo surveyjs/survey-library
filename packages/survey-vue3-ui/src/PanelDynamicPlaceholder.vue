@@ -11,9 +11,6 @@
     </span>
     <SvComponent :is="'sv-paneldynamic-add-btn'" :data="{ question }" />
   </div>
-  <div v-else>
-    aaaa
-  </div>
 </template>
 
 <script lang="ts" setup>

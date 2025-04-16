@@ -4,6 +4,7 @@ import { IAction, Action, BaseAction } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
+import { ActionList } from "./action-list";
 
 export type ActionBarCssClasses = { [index: string]: string };
 
@@ -21,7 +22,7 @@ export let defaultActionBarCss: ActionBarCssClasses = {
   itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
 };
 
-export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
+export class ActionContainer<T extends BaseAction = Action> extends ActionList<T> implements ILocalizableOwner {
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }

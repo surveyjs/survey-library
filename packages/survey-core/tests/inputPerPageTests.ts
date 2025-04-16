@@ -10,7 +10,7 @@ import { add } from "lodash";
 export default QUnit.module("Input Per Page Tests");
 
 function getSingleQuestion(page: PageModel): Question {
-  if(page.visibleRows.length === 0) return <any>undefined;
+  if (page.visibleRows.length === 0) return <any>undefined;
   const q = <Question>page.visibleRows[0].elements[0];
   return q.singleInputQuestion || q;
 }
@@ -1201,7 +1201,6 @@ QUnit.test("singleInput & two nested elements", assert => {
   assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #13");
 });
 QUnit.test("singleInput & two nested elements & actions", assert => {
-  debugger;
   const survey = new SurveyModel(nestedJSON);
   const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
   const panel = survey.getQuestionByName("order");

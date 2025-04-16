@@ -219,7 +219,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     );
   }
   protected renderHeader(question: Question): React.JSX.Element {
-    if(question.singleInputHideHeader) return null;
+    if (question.singleInputHideHeader) return null;
     return <SurveyElementHeader element={question}></SurveyElementHeader>;
   }
   protected renderErrors(cssClasses: any, location: string): React.JSX.Element {

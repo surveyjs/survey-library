@@ -20,7 +20,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionPanelDynamicModel } from "survey-core";
 
-const props = defineProps<{
+defineProps<{
   question: QuestionPanelDynamicModel;
 }>();
 </script> 

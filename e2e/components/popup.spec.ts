@@ -382,10 +382,12 @@ frameworks.forEach((framework) => {
 
       const listItems = page.locator(".sv-list__item").filter({ visible: true });
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
+      const clickButton = page.locator(".sd-action").first();
 
-      await page.keyboard.press("Shift+Tab");
-      await page.keyboard.press("Enter");
       await page.waitForTimeout(500);
+      await page.keyboard.press("Shift+Tab");
+      await expect(clickButton).toBeFocused();
+      await page.keyboard.press("Enter");
       await expect(popupSelector).toBeVisible();
 
       await expect(listItems).toHaveCount(10);
@@ -497,7 +499,6 @@ frameworks.forEach((framework) => {
       expect(Math.abs(actualPopupHeight - popupHeight)).toBeLessThanOrEqual(1.0);
       // Close popup
       await page.locator(".sv-popup").first().click({ position: { x: 100, y: 100 } });
-      //   await page.waitForTimeout(500);
       await expect(popupSelector).not.toBeVisible();
       await clickButton.click();
       await expect(popupSelector).toBeVisible();

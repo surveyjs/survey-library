@@ -1481,7 +1481,7 @@ QUnit.test("singleInput and survey.onCheckSingleInputPerPageMode event", assert 
   survey.performNext();
   assert.equal(getSingleInputName(), "q2", "currentSingleQuestion, #4");
 });
-QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete for matrix dynamic", assert => {
+QUnit.test("check singleInputLocTitle reactivity", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1506,7 +1506,11 @@ QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete 
   locStr.onStringChanged.add((sender, options) => {
     counter1 ++;
   });
+  assert.equal(counter1, 0, "onStringChanged, #0");
+  assert.equal(counter2, 0, "onChanged, #0");
   assert.equal(locStr.textOrHtml, "value: [not set]", "singleInputLocTitle, #1");
+  assert.equal(counter1, 0, "onStringChanged, #0.2");
+  assert.equal(counter2, 0, "onChanged, #0.2");
   matrix.singleInputQuestion.value = "a";
   assert.equal(counter1, 1, "onStringChanged, #1");
   assert.equal(counter2, 1, "onChanged, #1");

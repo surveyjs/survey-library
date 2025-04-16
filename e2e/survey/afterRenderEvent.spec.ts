@@ -51,7 +51,7 @@ frameworks.forEach((framework) => {
     });
 
     test("afterRenderQuestion fires for initially hidden questions", async ({ page }) => {
-      const yesSelector = page.locator("label").filter({ hasText: "Yes" }).locator("span").first();
+      const yesChoiceSelector = page.locator("label").filter({ hasText: "Yes" }).locator("span").first();
 
       const json = {
         pages: [
@@ -98,7 +98,7 @@ frameworks.forEach((framework) => {
       const questionSelector = page.locator(".sd-question");
 
       await expect(questionSelector).toHaveCount(1);
-      await yesSelector.click();
+      await yesChoiceSelector.click();
 
       await expect(questionSelector).toHaveCount(2);
       await expect(page.locator("input[value='valueYes']")).toHaveCSS("color", "rgb(255, 99, 71)");

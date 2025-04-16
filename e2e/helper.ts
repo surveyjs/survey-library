@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 const environment = process.env.env;
@@ -124,4 +124,25 @@ export async function setRowItemFlowDirection(page) {
   await page.evaluate(() => {
     window["Survey"].settings.itemFlowDirection = "row";
   });
+}
+
+export async function visibleInViewport (page, locator: Locator) {
+  const rect = await locator.boundingBox();
+  return await page.evaluate((rect) => {
+    return (
+      rect?.y >= 0 &&
+      rect?.x >= 0 &&
+      rect?.y + rect?.height <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }, rect);
+}
+export async function expectHaveClasses(locator: Locator, className: string) {
+  // get current classes of element
+  const attrClass = await locator.getAttribute("class");
+  const elementClasses: string[] = attrClass ? attrClass.split(" ") : [];
+  const targetClasses: string[] = className.split(" ");
+  // Every class should be present in the current class list
+  const isValid = targetClasses.every(classItem => elementClasses.indexOf(classItem) > -1);
+  return isValid;
 }

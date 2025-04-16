@@ -69,7 +69,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   }
 
   public get renderedmaxRangeLength(): number {
-    return this.maxRangeLength ?? this.max;
+    return this.maxRangeLength ?? this.max - this.min;
   }
 
   public get renderedminRangeLength(): number {
@@ -78,8 +78,63 @@ export class QuestionSliderModel extends QuestionRatingModel {
 
   public isIndeterminate: boolean = false;
   @property({ defaultValue: null }) focusedThumb: number | null; // TODO probably need to be just internal not property
-
   public dragOrClickHelper: DragOrClickHelper;
+
+  public getRenderedValue = () => {
+    const { max, min, renderedmaxRangeLength: maxRangeLength, sliderType } = this;
+    let result;
+
+    if (sliderType === "single") {
+      result = this.value;
+      if (typeof result === "undefined" || result.length === 0) {
+        this.isIndeterminate = true;
+        return min >= 0 ? [min] : [0];
+      } else {
+        return [result];
+      }
+    }
+
+    result = this.value.slice();
+
+    if (result.length === 0) {
+      const fullRange = max - min;
+      this.isIndeterminate = true;
+      if (fullRange > maxRangeLength) return [(fullRange - maxRangeLength) / 2, (fullRange + maxRangeLength) / 2];
+      return [min, max]; // TODO support several values 3 and more
+    }
+
+    return result;
+  };
+
+  public ensureLeftBorder = (newValue:number, inputNumber):number => {
+    const { renderedminRangeLength, renderedmaxRangeLength, allowSwap, getRenderedValue, min, max } = this;
+
+    if (allowSwap) return newValue;
+
+    const value:number[] = getRenderedValue();
+    const prevValueBorder = allowSwap ? min : value[inputNumber - 1];
+    const nextValueBorder = allowSwap ? max : value[inputNumber + 1];
+
+    if (nextValueBorder - newValue > renderedmaxRangeLength) return value[inputNumber];
+    if (inputNumber <= 0) return newValue;
+
+    return Math.max(newValue, prevValueBorder + renderedminRangeLength);
+  };
+
+  public ensureRightBorder = (newValue, inputNumber):number => {
+    const { renderedminRangeLength, renderedmaxRangeLength, allowSwap, getRenderedValue } = this;
+
+    if (allowSwap) return newValue;
+
+    const value:number[] = getRenderedValue();
+    const nextValueBorder = value[inputNumber + 1];
+    const prevValueBorder = value[inputNumber - 1];
+
+    if (newValue - prevValueBorder > renderedmaxRangeLength) return value[inputNumber];
+    if (inputNumber === value.length - 1) return newValue;
+
+    return Math.min(newValue, nextValueBorder - renderedminRangeLength);
+  };
 
   public handlePointerDown = (event: PointerEvent): void => {
     const choice = ItemValue.getItemByValue(this.visibleChoices, this.draggedChoiceValue);

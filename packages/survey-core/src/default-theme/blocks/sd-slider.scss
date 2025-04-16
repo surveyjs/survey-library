@@ -1,18 +1,29 @@
 @use "../variables.scss" as *;
 
-.sd-question__content {
-  outline: 1px solid black !important;
-}
-
 $slider-path-height: var(--lbr-slider-path-height, calcSize(0.5));
 $slider-thumb-width: var(--lbr-slider-thumb-width, calcSize(4));
 $slider-thumb-height: var(--lbr-slider-thumb-height, calcSize(4));
 $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 
-@mixin thumbFocusMixin {
-  // outline: 2px solid $primary;
-  // outline-offset: 2px;
-  border-color: var(--lbr-slider-thumb-border-color-focused, $primary);
+@mixin outrangePath {
+  position: absolute;
+  content: "";
+  height: $slider-path-height;
+  width: calcSize(1);
+}
+
+@mixin leftOutrangePath {
+  @include outrangePath;
+  left: calcSize(-1);
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+@mixin rightOutrangePath {
+  @include outrangePath;
+  right: calcSize(-1);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 
 .sd-slider {
@@ -39,28 +50,6 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   cursor: pointer;
   margin-left: calcSize(0.5 + 1);
   margin-right: calcSize(0.5 + 1);
-
-  &::before,
-  &::after {
-    position: absolute;
-    content: "";
-    height: $slider-path-height;
-    width: calcSize(1);
-    background: var(--lbr-slider-path-color, #dcdcdc);
-    top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
-  }
-
-  &::before {
-    left: calcSize(-1);
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-  }
-
-  &::after {
-    right: calcSize(-1);
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-  }
 }
 
 .sd-slider-visual-container__slider {
@@ -72,14 +61,27 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   height: $slider-path-height;
   background: var(--lbr-slider-path-color, #dcdcdc);
   top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
+
+  &::after,
+  &::before {
+    background: var(--lbr-slider-path-color, #dcdcdc);
+  }
 }
 
 .sd-slider__inverse-track--left {
   left: 0;
+
+  &::before {
+    @include leftOutrangePath;
+  }
 }
 
 .sd-slider__inverse-track--right {
   right: 0;
+
+  &::after {
+    @include rightOutrangePath;
+  }
 }
 
 .sd-slider__range-track {
@@ -88,6 +90,16 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   height: $slider-path-height;
   background: var(--lbr-slider-path-color-filled, $primary);
   top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
+
+  &::before {
+    @include leftOutrangePath;
+    background: var(--lbr-slider-path-color-filled, $primary);
+  }
+
+  &::after {
+    @include rightOutrangePath;
+    background: var(--lbr-slider-path-color-filled, $primary);
+  }
 }
 
 .sd-slider__thumb {
@@ -110,12 +122,12 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   margin-left: calc($slider-thumb-width / -2);
 
   &:hover {
-    @include thumbFocusMixin;
+    border-color: var(--lbr-slider-thumb-border-color-focused, $primary);
   }
 }
 
 .sd-slider__thumb--focused {
-  @include thumbFocusMixin;
+  border-color: var(--lbr-slider-thumb-border-color-focused, $primary);
 }
 
 .sd-slider__thumb-dot {
@@ -179,7 +191,6 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   pointer-events: none;
   margin-left: calcSize(0.5 + 1);
   margin-right: calcSize(0.5 + 1);
-  min-height: $slider-thumb-height;
 
   > div {
     user-select: none;
@@ -187,6 +198,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
     position: relative;
     display: flex;
     align-items: center;
+    min-height: $slider-thumb-height;
   }
 }
 

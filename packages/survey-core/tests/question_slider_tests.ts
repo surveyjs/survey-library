@@ -204,3 +204,89 @@ QUnit.test("showLabels", (assert) => {
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
   assert.deepEqual(q1.showLabels, true);
 });
+
+QUnit.test("renderedmaxRangeLength", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        min: -50,
+        max: 50
+      }
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.renderedmaxRangeLength, 100);
+
+  q1.maxRangeLength = 50;
+  assert.deepEqual(q1.renderedmaxRangeLength, 50);
+});
+
+QUnit.test("renderedminRangeLength", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        step: 10
+      }
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.renderedminRangeLength, 10);
+
+  q1.minRangeLength = 20;
+  assert.deepEqual(q1.renderedminRangeLength, 20);
+});
+
+QUnit.test("ensureLeftBorder, ensureRightBorder", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        minRangeLength: 20,
+        maxRangeLength: 50,
+        defaultValue: [25, 75]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+  let newValueLeft = 26;
+  newValueLeft = q1.ensureLeftBorder(newValueLeft, 0);
+  assert.deepEqual(newValueLeft, 26);
+  newValueLeft = 24;
+  newValueLeft = q1.ensureLeftBorder(newValueLeft, 0);
+  assert.deepEqual(newValueLeft, 25);
+
+  let newValueRight = 74;
+  newValueRight = q1.ensureLeftBorder(newValueRight, 0);
+  assert.deepEqual(newValueRight, 74);
+  newValueRight = 76;
+  newValueRight = q1.ensureLeftBorder(newValueRight, 0);
+  assert.deepEqual(newValueRight, 75);
+});
+
+//TODO
+QUnit.test("getRenderedValue", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        minRangeLength: 20,
+        maxRangeLength: 50,
+        defaultValue: [25, 75]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(true, false);
+});

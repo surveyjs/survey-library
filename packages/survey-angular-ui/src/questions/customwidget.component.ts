@@ -34,7 +34,7 @@ export class CustomWidgetComponent implements AfterViewInit, OnDestroy, OnChange
     this.model.customWidget.afterRender(this.model, this.container.nativeElement);
   }
   ngOnChanges(simpleChanges: SimpleChanges) {
-    if(simpleChanges["model"].previousValue !== undefined && simpleChanges["model"].currentValue !== undefined) {
+    if (simpleChanges["model"].previousValue !== undefined && simpleChanges["model"].currentValue !== undefined) {
       this.model.customWidget.afterRender(this.model, this.container.nativeElement);
     }
   }

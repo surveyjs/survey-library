@@ -3617,7 +3617,7 @@ QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();
   survey.showPageNumbers = true;
   survey.onGetPageNumber.add((sender, options) => {
-    if(options.page.isStartPage) {
+    if (options.page.isStartPage) {
       options.number = "";
     } else {
       options.number = (survey.pages.indexOf(options.page) + 1) + "-";
@@ -3860,7 +3860,7 @@ QUnit.test("merge values", function (assert) {
   survey.doMergeValues({ val: 1 }, a);
   assert.equal(a, "test", "Do nothing if dest is string");
 });
-function percentageToNum(width: string): Number {
+function percentageToNum(width: string): number {
   width = width.replace("%", "");
   return parseFloat(width);
 }
@@ -17983,8 +17983,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     assert.deepEqual(getContainerContent("left"), [], "default left");
     assert.deepEqual(getContainerContent("right"), [], "default right");
 
-  }
-  finally {
+  } finally {
     settings.legacyProgressBarView = false;
   }
 });
@@ -20127,8 +20126,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
     assert.deepEqual(getContainerContent("left"), [], "progress top left");
     assert.deepEqual(getContainerContent("right"), [], "progress top right");
-  }
-  finally {
+  } finally {
     settings.legacyProgressBarView = false;
   }
 });
@@ -21379,6 +21377,19 @@ QUnit.test("questionsOnPageMode & visibility panels, Bug#9641", function (assert
   assert.equal(survey.currentSingleElement.name, "p3", "the second panel is invisible");
   survey.getQuestionByName("q3").visible = false;
   assert.equal(survey.currentSingleElement.name, "q4", "the third panel is invisible");
+});
+QUnit.test("questionsOnPageMode & visibility pages, Bug#9641", function (assert) {
+  const json = {
+    pages: [
+      { name: "page1", visibleIf: "false", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      { name: "page3", elements: [{ type: "text", name: "q3" }] }
+    ],
+    questionsOnPageMode: "questionPerPage"
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.currentSingleElement.name, "q2", "the second question is viaible");
+  assert.equal(survey.currentPage.name, "page2", "the second page is visible");
 });
 QUnit.test("survey.currentSingleQuestion & Page events, Bug#9381", function (assert) {
   const json = {

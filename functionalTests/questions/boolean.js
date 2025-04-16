@@ -222,7 +222,7 @@ frameworks.forEach((framework) => {
           title: "Click me",
           action: () => {
             const q = options.question;
-            if(!q.description) {
+            if (!q.description) {
               q.description = "Description!";
             } else {
               q.descriptionLocation = q.descriptionLocation === "hidden" ? "default" : "hidden";

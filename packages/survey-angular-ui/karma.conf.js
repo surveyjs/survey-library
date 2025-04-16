@@ -17,7 +17,7 @@ module.exports = function (config) {
       require("karma-coverage"),
       require("karma-webpack"),
       require("@angular-devkit/build-angular/plugins/karma"),
-      require('karma-html2js-preprocessor')
+      require("karma-html2js-preprocessor")
     ],
     html2JsPreprocessor: {
       processPath: function(filePath) {

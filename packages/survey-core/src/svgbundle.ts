@@ -50,8 +50,7 @@ export class SvgIconRegistry {
         iconSvg.substring(startStr.length, str.length - endStr.length) +
         "</symbol>");
       return true;
-    }
-    else {
+    } else {
       return false;
     }
 
@@ -78,14 +77,14 @@ export class SvgIconRegistry {
   public updateMarkup(): void {
     this.onIconsChanged.fire(this, {});
   }
-  public onIconsChanged = new EventBase<SvgIconRegistry, {}>()
+  public onIconsChanged = new EventBase<SvgIconRegistry, {}>();
 }
 
 export const SvgRegistry: SvgIconRegistry = new SvgIconRegistry();
 export const SvgThemeSets: { [index: string]: SvgIconData } = {};
 
 export function addIconsToThemeSet(name: string, iconsData: SvgIconData): void {
-  if(!SvgThemeSets[name]) {
+  if (!SvgThemeSets[name]) {
     SvgThemeSets[name] = {};
   }
   const set = SvgThemeSets[name];

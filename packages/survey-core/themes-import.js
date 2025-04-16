@@ -90,6 +90,7 @@ if (!!MikeThemes["article"] && Object.keys(MikeThemes["article"]).length > 0) {
 }
 
 Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf(key) === -1).forEach(function (themeName) {
+  // eslint-disable-next-line no-console
   console.log(themeName);
 
   const generalGroup = MikeThemes[themeName]["general"];
@@ -195,6 +196,7 @@ function writeTheme(themeName, isPanelless, isDarkMode) {
 
 let indexFileContent = "";
 themeNames.forEach(themeName => {
+  // eslint-disable-next-line no-console
   console.log(themeName);
   indexFileContent += writeTheme(themeName, false, false);
   indexFileContent += writeTheme(themeName, false, true);

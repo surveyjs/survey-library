@@ -112,7 +112,10 @@ export class Cover extends Base {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
     this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.width;
     if (!!this.maxWidth) {
-      this.maxWidth = parseFloat(this.maxWidth.toString().replace("px", "")) + "px";
+      const maxWidthString = this.maxWidth.toString();
+      if (maxWidthString.indexOf("px") === -1 && maxWidthString.indexOf("%") === -1) {
+        this.maxWidth = parseFloat(maxWidthString) + "px";
+      }
     }
     this.contentClasses = new CssClassBuilder()
       .append("sv-header__content")
@@ -275,7 +278,7 @@ export class Cover extends Base {
     } else if (colIndex == 0) {
       let rightFreeCells = 0;
       let index = colIndex + 1;
-      while (index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
+      while(index < 3 && this.cells[rowIndex * 3 + index].isEmpty) {
         if (this.cells[rowIndex * 3 + index].isEmpty) {
           rightFreeCells++;
         }
@@ -285,7 +288,7 @@ export class Cover extends Base {
     } else if (colIndex == 2) {
       let leftFreeCells = 0;
       let index = colIndex - 1;
-      while (index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
+      while(index > 0 && this.cells[rowIndex * 3 + index].isEmpty) {
         if (this.cells[rowIndex * 3 + index].isEmpty) {
           leftFreeCells++;
         }

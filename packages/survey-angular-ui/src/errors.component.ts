@@ -7,7 +7,7 @@ import { SurveyElement } from "survey-core";
 })
 export class ErrorsComponent {
   @Input() element!: SurveyElement | any;
-  @Input() location?: String;
+  @Input() location?: string;
   constructor() {}
   @HostBinding("attr.role") get role (): string {
     return "alert";

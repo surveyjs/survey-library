@@ -298,7 +298,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     SurveyElement.CreateDisabledDesignElements;
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
-    if(res !== undefined) return res;
+    if (res !== undefined) return res;
     this.setRootStyle();
     return this.getPropertyValue("effectiveColSpan");
   }
@@ -330,7 +330,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (name === "state") {
       this.updateElementCss(false);
       this.notifyStateChanged(oldValue);
-      if (this.stateChangedCallback) this.stateChangedCallback();
+      if (this.stateChangedCallback)this.stateChangedCallback();
     }
   }
   protected getSkeletonComponentNameCore(): string {
@@ -507,7 +507,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    if(!!this.titleToolbarValue) {
+    if (!!this.titleToolbarValue) {
       this.titleToolbarValue.locStrsChanged();
     }
   }
@@ -648,7 +648,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private isCssValueCalculating: boolean;
   public get cssClassesValue(): any {
     let res = this.getPropertyValueWithoutDefault("cssClassesValue");
-    if(!res && !this.isCssValueCalculating) {
+    if (!res && !this.isCssValueCalculating) {
       this.isCssValueCalculating = true;
       res = this.createCssClassesValue();
       this.isCssValueCalculating = false;
@@ -779,7 +779,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
   public onFirstRendering(): void {
-    if(!this.wasRendered) {
+    if (!this.wasRendered) {
       this.wasRenderedValue = true;
       this.onFirstRenderingCore();
     }
@@ -868,7 +868,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   protected getPage(parent: IPanel): IPage {
-    while (parent && parent.parent) parent = parent.parent;
+    while(parent && parent.parent) parent = parent.parent;
     if (parent && parent.isPage) return <IPage>(<any>parent);
     return null;
   }
@@ -927,7 +927,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   private canHaveFrameStyles() {
-    if(<any>this.survey?.currentSingleElement === this) return true;
+    if (<any>this.survey?.currentSingleElement === this) return true;
     return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }
 
@@ -1052,7 +1052,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set rootStyle(val: any) { this.setPropertyValue("rootStyle", val); }
   public updateRootStyle(): void {
-    if(!this.getPropertyValueWithoutDefault("rootStyle")) {
+    if (!this.getPropertyValueWithoutDefault("rootStyle")) {
       this.resetPropertyValue("effectiveColSpan");
     } else {
       this.setRootStyle();
@@ -1103,8 +1103,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const _document = DomDocumentHelper.getDocument();
     if (DomDocumentHelper.isAvailable() && !!_document && (_document as any)["selection"]) {
       elementWithSelection = (_document as any)["selection"].createRange().parentElement();
-    }
-    else {
+    } else {
       var selection = DomWindowHelper.getSelection();
       if (!!selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
@@ -1144,7 +1143,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return null;
   }
   protected getCssTitle(cssClasses: any): string {
-    if(!cssClasses) return "";
+    if (!cssClasses) return "";
     const isExpandable = this.state !== "default";
     const numInlineLimit = 4;
     return new CssClassBuilder()
@@ -1316,7 +1315,7 @@ export class RenderingCompletedAwaiter {
     if (this._elementsToRenderCount <= 0) {
       this.visibleElementsRendered();
     }
-  }
+  };
   private stopWaitingForElementsRendering() {
     if (this._elementsToRenderTimer) {
       clearTimeout(this._elementsToRenderTimer);

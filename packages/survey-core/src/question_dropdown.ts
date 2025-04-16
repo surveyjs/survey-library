@@ -82,7 +82,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
-    if(!!selectedItemByValue) {
+    if (!!selectedItemByValue) {
       this.lastSelectedItemValue = selectedItemByValue;
     }
   }
@@ -234,7 +234,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.getPropertyValue("readOnlyText", undefined, () => this.calculateReadOnlyText());
   }
   protected calculateReadOnlyText(): string {
-    if(this.renderAs == "select") {
+    if (this.renderAs == "select") {
       if (this.isOtherSelected) return this.otherText;
       if (this.isNoneSelected) return this.noneText;
       if (!!this.selectedItem) return this.selectedItemText;
@@ -333,12 +333,12 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     isFilteredChoices: boolean,
     checkEmptyValue: boolean
   ): boolean {
-    if(this.choicesLazyLoadEnabled) { return false; }
+    if (this.choicesLazyLoadEnabled) { return false; }
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected needConvertRenderedOtherToDataValue(): boolean {
     const val = this.otherValue?.trim();
-    if(!val) return false;
+    if (!val) return false;
     return super.hasUnknownValue(val, true, false);
   }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
@@ -402,7 +402,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
       this.dropdownListModelValue = undefined;
     }

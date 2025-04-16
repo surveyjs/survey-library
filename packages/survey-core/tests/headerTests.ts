@@ -79,6 +79,9 @@ QUnit.test("cover maxWidth",
 
     cover.survey = new SurveyModel({ widthMode: "static", width: "500" });
     assert.equal(cover.maxWidth, "500px", "survey.maxWidth is static");
+
+    cover.survey = new SurveyModel({ widthMode: "static", width: "55%" });
+    assert.equal(cover.maxWidth, "55%", "survey.maxWidth is static");
   }
 );
 

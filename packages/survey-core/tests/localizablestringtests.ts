@@ -925,7 +925,7 @@ QUnit.test("locString placeholder", function (assert) {
   assert.equal(locStr.getPlaceholder(), "str-pt", "pt-BR placeholder");
   owner.locale = "";
   locStr.onGetTextCallback = (text: string) => {
-    if(!text) return "empty";
+    if (!text) return "empty";
     return text;
   };
   assert.equal(locStr.getPlaceholder(), "empty", "default placeholder, onGetTextCallback");

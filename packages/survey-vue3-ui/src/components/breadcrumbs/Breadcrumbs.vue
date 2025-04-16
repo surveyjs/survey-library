@@ -15,11 +15,11 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import type { ActionList } from "survey-core";
+import type { ActionContainer } from "survey-core";
 import { useBase } from "./../../base";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{
-  model: ActionList;
+  model: ActionContainer;
   css: any;
 }>();
 useBase(() => props.model);

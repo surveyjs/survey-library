@@ -2,8 +2,7 @@ import * as React from "react";
 import {
   Base,
   Action,
-  ActionContainer,
-  ActionList
+  ActionContainer
 } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
@@ -11,7 +10,7 @@ import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyAction } from "../action-bar/action-bar-item";
 
 interface IBreadcrumbsProps {
-  model: ActionList;
+  model: ActionContainer;
   css: any;
 }
 

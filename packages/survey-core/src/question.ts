@@ -881,7 +881,12 @@ export class Question extends SurveyElement<Question>
     });
   }
 
-  public singleInputActions: ActionList;
+
+  public get singleInputActions(): ActionList {
+    return this.getPropertyValue("singleInputActions", undefined, () => {
+      return this.createSingleInputActions();
+    });
+  }
 
   public get singleInputHasActions(): boolean {
     return this.getPropertyValue("singleInputHasActions", undefined, () => {
@@ -900,17 +905,18 @@ export class Question extends SurveyElement<Question>
   }
   private createSingleInputActions() {
     if(this.survey?.currentSingleQuestion !== this) return undefined;
-    this.singleInputActions = new ActionList();
-    this.singleInputActions.actions = this.getSingleQuestionActions();
-    return this.singleInputActions.actions.length > 0 ? true : undefined;
+    const singleInputActions = new ActionList();
+    singleInputActions.actions = this.getSingleQuestionActions();
+    return singleInputActions;
   }
   private calcSingleInputActions(): void {
     if(!!this.parentQuestion) {
       this.parentQuestion.calcSingleInputActions();
     } else {
       const actions = this.getSingleQuestionActions();
-      if (!this.singleInputActions) this.createSingleInputActions();
-      this.singleInputActions.actions = actions;
+      if (this.singleInputActions) {
+        this.singleInputActions.actions = actions;
+      }
       this.sinleInputHasActions = actions.length > 0 ? true : undefined;
     }
   }

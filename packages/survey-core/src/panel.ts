@@ -1051,6 +1051,13 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
+  getFirstVisibleElement(): IElement {
+    const els = this.elements;
+    for (let i = 0; i < els.length; i++) {
+      if (els[i].isVisible) return els[i];
+    }
+    return null;
+  }
   /**
    * Focuses the first question in this panel/page.
    * @see focusFirstErrorQuestion

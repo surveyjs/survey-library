@@ -130,6 +130,8 @@ import { FilePageComponent } from "./components/file/file-page.component";
 import { SvgBundleComponent } from "./svgbundle.component";
 import { BreadcrumbsComponent } from "./components/breadcrumbs/breadcrumbs.component";
 import { SingleInputSummaryComponent } from "./components/single-input-summary/single-input-summary.component";
+import { MatrixDynamicPlaceholderComponent } from "./components/matrixdynamicplaceholder/matrixdynamicplaceholder.component";
+import { PanelDynamicPlaceholderComponent } from "./components/paneldynamicplaceholder/paneldynamicplaceholder.component";
 
 @NgModule({
   declarations: [
@@ -150,7 +152,7 @@ import { SingleInputSummaryComponent } from "./components/single-input-summary/s
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
     NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
-    BreadcrumbsComponent, SingleInputSummaryComponent
+    BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent
   ],
   imports: [
     CommonModule, FormsModule
@@ -174,7 +176,7 @@ import { SingleInputSummaryComponent } from "./components/single-input-summary/s
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
     NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
-    BreadcrumbsComponent, SingleInputSummaryComponent
+    BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent
   ],
   providers: [PopupService],
 })

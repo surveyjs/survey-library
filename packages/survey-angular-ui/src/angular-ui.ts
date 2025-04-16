@@ -127,3 +127,5 @@ export * from "./component-factory";
 export * from "./angular-ui.module";
 export * from "./components/breadcrumbs/breadcrumbs.component";
 export * from "./components/single-input-summary/single-input-summary.component";
+export * from "./components/matrixdynamicplaceholder/matrixdynamicplaceholder.component";
+export * from "./components/paneldynamicplaceholder/paneldynamicplaceholder.component";

@@ -15,7 +15,7 @@ export class SingleInputSummaryComponent extends BaseAngular<any> {
     return this.summary;
   }
 
-  get placeholderComponent() { return "survey-placeholder-" + this.summary.question.getTemplate(); }
+  get placeholderComponent() { return "sv-ng-placeholder-" + this.summary.question.getTemplate(); }
   get componentRegistered () { return AngularComponentFactory.Instance.isComponentRegistered(this.placeholderComponent); }
 
 }

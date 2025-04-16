@@ -111,20 +111,13 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
-const hasErrorsOnTop = computed(() => {
-  return props.element.showErrorOnTop;
-});
-const hasErrorsOnBottom = computed(() => {
-  return props.element.showErrorOnBottom;
-});
-const singleQuestion = computed(() => {
-  return props.element.singleInputQuestion;
-})
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };
 const getRootStyle: () => any = () => props.element.getRootStyle();
-
+const singleQuestion = computed(() => {
+  return props.element.singleInputQuestion;
+});
 useBase(() => props.element);
 
 const afterRender = () => {

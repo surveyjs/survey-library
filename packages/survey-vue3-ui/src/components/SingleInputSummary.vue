@@ -26,7 +26,7 @@
     </div>
     <div v-else>
       <SvComponent
-        v-if="true"
+        v-if="componentRegistered"
         :is="'survey-placeholder-' + summary.question.getTemplate()"
         :cssClasses="css"
         :question="summary.question"
@@ -40,9 +40,15 @@
 <script lang="ts" setup>
 import { QuestionSingleInputSummary } from "survey-core";
 import SvComponent from "@/SvComponent.vue";
+import { computed } from "vue";
+import { ComponentFactory } from "@/component-factory";
 
-defineProps<{
+const props = defineProps<{
   summary: QuestionSingleInputSummary;
   css: any;
 }>();
+
+const placeholderComponent = computed(()=>"survey-placeholder-" + props.summary.question.getTemplate())
+const componentRegistered = computed(()=> ComponentFactory.Instance.isComponentRegistered(placeholderComponent.value))
+
 </script>

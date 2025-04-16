@@ -14,6 +14,7 @@ export class RatingItemSmiley extends RatingItemBase {
         className={this.question.getItemClass(this.item.itemValue)}
         onMouseOver={e => this.question.onItemMouseIn(this.item)}
         onMouseOut={e => this.question.onItemMouseOut(this.item)}
+        title={this.item.text}
       >
         <input
           type="radio"
@@ -34,7 +35,6 @@ export class RatingItemSmiley extends RatingItemBase {
         <SvgIcon
           size={"auto"}
           iconName={this.question.getItemSmileyIconName(this.item.itemValue)}
-          title={this.item.text}
         ></SvgIcon>
       </label>
     );

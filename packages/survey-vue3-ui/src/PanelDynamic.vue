@@ -7,6 +7,8 @@
       ></SvComponent>
     </div>
     <SvComponent
+      v-if="question.getShowNoEntriesPlaceholder()"
+      
       :is="'survey-paneldynamic-placeholder'"
       :question="question"
     />

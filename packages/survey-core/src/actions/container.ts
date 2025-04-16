@@ -23,33 +23,6 @@ export let defaultActionBarCss: ActionBarCssClasses = {
 };
 
 export class ActionContainer<T extends BaseAction = Action> extends ActionList<T> implements ILocalizableOwner {
-  public getMarkdownHtml(text: string, name: string, item?: any): string {
-    return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
-  }
-  public getRenderer(name: string): string {
-    return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
-  }
-  public getRendererContext(locStr: LocalizableString): any {
-    return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
-  }
-  public getProcessedText(text: string): string {
-    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
-  }
-  public getLocale(): string {
-    return !!this.locOwner ? this.locOwner.getLocale() : "";
-  }
-  @propertyArray({
-    onSet: (_: any, target: ActionContainer<Action>) => {
-      target.onSet();
-    },
-    onPush: (item: any, i: number, target: ActionContainer<Action>) => {
-      target.onPush(item);
-    },
-    onRemove: (item: any, i: number, target: ActionContainer<Action>) => {
-      target.onRemove(item);
-    }
-  })
-  actions: Array<T>;
   private cssClassesValue: any;
 
   protected getRenderedActions(): Array<T> {

@@ -4425,12 +4425,7 @@ export class SurveyModel extends SurveyElementCore
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    let res: boolean = false;
-    if (this.currentSingleElement) {
-      res = !(<any>this.currentSingleElement).validate(true);
-    } else {
-      res = !page.validate(true, isFocuseOnFirstError);
-    }
+    const res = !page.validate(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }

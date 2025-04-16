@@ -10,20 +10,30 @@ import { getComponentName } from "./question";
 })
 export class QuestionComponent extends EmbeddedViewContentComponent {
   @Input() model!: Question;
+  @Input() css: any;
+  @Input() survey: any;
   @ViewChild("elementContainer") rootEl?: ElementRef<HTMLDivElement>;
+
   protected getModel(): Question {
     return this.model;
   }
+
+  get singleQuestion(): Question {
+    return this.model.singleInputQuestion;
+  }
+
   ngAfterViewInit(): void {
     if (!!this.rootEl?.nativeElement) {
       this.model.afterRender(this.rootEl?.nativeElement);
     }
   }
+
   ngOnDestroy() {
     if(!!this.model) {
       this.model.destroyResizeObserver();
     }
   }
+
   public getComponentName(): string { return getComponentName(this.model); }
   public getQuestionContentWrapperComponentName(): string {
     return (<any>this.model.survey).getQuestionContentWrapperComponentName(this.model);

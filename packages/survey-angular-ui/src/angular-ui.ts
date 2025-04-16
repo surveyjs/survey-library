@@ -123,6 +123,7 @@ export * from "./components/header/header.component";
 export * from "./components/header/header-cell.component";
 export * from "./components/header/header-mobile.component";
 export * from "./svgbundle.component";
-
 export * from "./component-factory";
 export * from "./angular-ui.module";
+export * from "./components/breadcrumbs/breadcrumbs.component";
+export * from "./components/single-input-summary/single-input-summary.component";

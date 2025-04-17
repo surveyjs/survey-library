@@ -1,6 +1,5 @@
 <template>
   <div
-    v-if="question.getShowNoEntriesPlaceholder()"
     :class="question.cssClasses.noEntriesPlaceholder"
   >
     <span>

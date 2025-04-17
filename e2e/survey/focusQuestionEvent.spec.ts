@@ -74,7 +74,6 @@ frameworks.forEach((framework) => {
       const q1Input = page.locator("div[data-name=question1] input");
       const q2Input = page.locator("div[data-name=question2] input");
       const q3Input = page.locator("div[data-name=question3] input");
-      const q4Input = page.locator("div[data-name=question4] input");
 
       await q1Input.fill("abc");
       await expect(q1Input).toBeFocused();
@@ -83,6 +82,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(q1Input).not.toBeFocused();
 
+      await q2Input.focus();
       await q2Input.fill("it");
       await expect(q2Input).toBeFocused();
       await page.keyboard.press("Enter");
@@ -98,6 +98,7 @@ frameworks.forEach((framework) => {
       await expect(q1Input).toBeFocused();
       await page.keyboard.press("Escape");
       await page.keyboard.press("Enter");
+      await q2Input.focus();
       await q2Input.fill("it");
       await expect(q2Input).toBeFocused();
       await page.keyboard.press("Enter");
@@ -154,7 +155,6 @@ frameworks.forEach((framework) => {
       const q1Input = page.locator("div[data-name=question1] input");
       const q2Input = page.locator("div[data-name=question2] input");
       const q3Input = page.locator("div[data-name=question3] input");
-      const q4Input = page.locator("div[data-name=question4] input");
 
       await q1Input.fill("abc");
       await expect(q1Input).toBeFocused();
@@ -162,6 +162,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Enter");
       await expect(q1Input).not.toBeFocused();
 
+      await q2Input.focus();
       await q2Input.fill("it");
       await expect(q2Input).toBeFocused();
       await page.keyboard.press("Enter");
@@ -177,6 +178,7 @@ frameworks.forEach((framework) => {
       await expect(q1Input).toBeFocused();
       await page.keyboard.press("Enter");
       await page.keyboard.press("Enter");
+      await q2Input.focus();
       await q2Input.fill("it");
       await expect(q2Input).toBeFocused();
       await page.keyboard.press("Enter");

@@ -26,7 +26,6 @@ frameworks.forEach((framework) => {
           choices: ["item1", "item2", "item3"],
         });
       }
-
       await initSurvey(page, framework, json);
 
       // Set question IDs and render
@@ -38,8 +37,8 @@ frameworks.forEach((framework) => {
       });
 
       // Check skeleton elements
-      await expect(page.locator(".sv-skeleton-element")).toHaveCount(0);
-      await expect(page.locator(".sv-skeleton-element")).toHaveAttribute("id", "my_id_50");
+      await expect(page.locator(".sv-skeleton-element")).toHaveCount(47);
+      await expect(page.locator(".sv-skeleton-element").nth(46)).toHaveAttribute("id", "my_id_50");
 
       // Disable lazy rendering
       await page.evaluate(() => {

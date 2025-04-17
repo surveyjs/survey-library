@@ -379,7 +379,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.isCreatingDetailPanel = true;
     this.detailPanelValue = this.data.createRowDetailPanel(this);
     var questions = this.detailPanelValue.questions;
-    var value = this.data.getRowValue(this.data.getRowIndex(this));
+    var value = this.getDataRowValue();
     if (!Helpers.isValueEmpty(value)) {
       for (var i = 0; i < questions.length; i++) {
         const key = questions[i].getValueName();
@@ -404,11 +404,25 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       }
     }
     res.row = this.getAllValues();
+    if (this.data) {
+      const rowVal = this.getDataRowValue();
+      if (rowVal) {
+        for (var key in rowVal) {
+          if (res.row[key] === undefined) {
+            res.row[key] = rowVal[key];
+          }
+        }
+      }
+    }
     this.applyRowVariablesToValues(res, this.rowIndex);
     return res;
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey(), row: this };
+  }
+  private getDataRowValue(): any {
+    if (!this.data) return null;
+    return this.data.getRowValue(this.data.getRowIndex(this));
   }
   private applyRowVariablesToValues(res: any, rowIndex: number): void {
     res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
@@ -422,8 +436,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.applyRowVariablesToValues(values, rowIndex);
     const newProps = Helpers.createCopy(properties);
     newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
-    const rowValues = rowIndex > 0 ? this.data.getRowValue(this.rowIndex - 1) : this.value;
-    if(!!rowsVisibleIf) {
+    const rowValues = rowIndex > 0 ? this.getDataRowValue() : this.value;
+    if (!!rowsVisibleIf) {
       values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
       this.setRowsVisibleIfValues(values);
       this.visible = new ConditionRunner(rowsVisibleIf).run(values, properties);

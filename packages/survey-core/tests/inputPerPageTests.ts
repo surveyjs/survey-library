@@ -1481,7 +1481,7 @@ QUnit.test("singleInput and survey.onCheckSingleInputPerPageMode event", assert 
   survey.performNext();
   assert.equal(getSingleInputName(), "q2", "currentSingleQuestion, #4");
 });
-QUnit.test("check singleInputLocTitle reactivity", assert => {
+QUnit.test("check singleInputLocTitle reactivity, matrix", assert => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1515,4 +1515,45 @@ QUnit.test("check singleInputLocTitle reactivity", assert => {
   assert.equal(counter1, 1, "onStringChanged, #1");
   assert.equal(counter2, 1, "onChanged, #1");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "value: a", "singleInputLocTitle, #2");
+});
+QUnit.test("check singleInputLocTitle reactivity, panel dynamic", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "p",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "test",
+            defaultDisplayValue: "[not set]"
+          }
+        ],
+        templateTitle: "value: {panel.test}"
+      }
+    ],
+    "questionsOnPageMode": "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("p");
+  const locStr = panel.singleInputLocTitle;
+  let counter1 = 0;
+  let counter2 = 0;
+  locStr.onChanged = () => {
+    counter2 ++;
+  };
+  locStr.onStringChanged.add((sender, options) => {
+    counter1 ++;
+  });
+  assert.equal(counter1, 0, "onStringChanged, #0");
+  assert.equal(counter2, 0, "onChanged, #0");
+  assert.equal(locStr.textOrHtml, "value: [not set]", "singleInputLocTitle, #1");
+  assert.equal(counter1, 0, "onStringChanged, #0.2");
+  assert.equal(counter2, 0, "onChanged, #0.2");
+  panel.singleInputQuestion.value = "a";
+  assert.equal(counter1, 1, "onStringChanged, #1");
+  assert.equal(counter2, 1, "onChanged, #1");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "value: a", "singleInputLocTitle, #2");
+  assert.equal(counter1, 1, "onStringChanged, #2");
+  assert.equal(counter2, 1, "onChanged, #2");
 });

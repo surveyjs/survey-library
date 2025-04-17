@@ -1836,6 +1836,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public locStrsChanged() {
     super.locStrsChanged();
+    this.locTemplateTitle.strChanged();
     var panels = this.panelsCore;
     for (var i = 0; i < panels.length; i++) {
       panels[i].locStrsChanged();

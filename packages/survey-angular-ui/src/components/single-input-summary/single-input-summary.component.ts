@@ -7,15 +7,12 @@ import { AngularComponentFactory } from "./../../component-factory";
   selector: "sv-single-input-summary",
   templateUrl: "./single-input-summary.component.html"
 })
-export class SingleInputSummaryComponent extends BaseAngular<any> {
-  @Input() summary!: QuestionSingleInputSummary;
+export class SingleInputSummaryComponent {
+  @Input() model!: QuestionSingleInputSummary;
   @Input() css!: any;
 
-  protected getModel(): any {
-    return this.summary;
-  }
-
-  get placeholderComponent() { return "sv-ng-placeholder-" + this.summary.question.getTemplate(); }
+  get placeholderComponent() { return "sv-ng-placeholder-" + this.model.question.getTemplate(); }
   get componentRegistered () { return AngularComponentFactory.Instance.isComponentRegistered(this.placeholderComponent); }
-
 }
+
+AngularComponentFactory.Instance.registerComponent("sv-single-input-summary", SingleInputSummaryComponent);

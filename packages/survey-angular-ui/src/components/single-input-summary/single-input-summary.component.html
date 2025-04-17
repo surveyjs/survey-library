@@ -1,5 +1,5 @@
-<div *ngIf="!summary.isEmpty()" [class]="css.summary">
-  <div *ngFor="let item of summary.items; let index = index" [class]="css.summaryRow">
+<div *ngIf="!model.isEmpty()" [class]="css.summary">
+  <div *ngFor="let item of model.items; index as index" [class]="css.summaryRow">
     <div [class]="css.summaryRowContent">
       <sv-ng-string [model]="item.locText"></sv-ng-string>
     </div>
@@ -23,18 +23,18 @@
     </div>
   </div>
 </div>
-<div *ngIf="summary.isEmpty()">
+<div *ngIf="model.isEmpty()">
   <ng-template
     [component]="{ 
       name: placeholderComponent,
       data: {
-        question: summary.question,
+        question: model.question,
         cssClasses: css 
       }
     }"
     *ngIf="componentRegistered"
   ></ng-template>
   <div *ngIf="!componentRegistered">
-    <sv-ng-string [model]="summary.noEntry"></sv-ng-string>
+    <sv-ng-string [model]="model.noEntry"></sv-ng-string>
   </div>
-</div> 
+</div>

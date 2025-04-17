@@ -5,6 +5,7 @@ const title = "preprocessTitlesAndHtml";
 
 const json = {
   questionTitleTemplate: "{no}) {title} {require}:",
+  showQuestionNumbers: "on",
   questionStartIndex: "A",
   requiredText: "(*)",
   pages: [
@@ -48,14 +49,14 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       // Check first title
-      let text = "A) Please type your name (*)";
-      const firstTitle = page.locator("h5").filter({ hasText: "Please type your name (*)" });
-      await expect(firstTitle).toBeVisible();
+      let text = "A. Please type your name (*)";
+      await expect(page.locator("h5").first()).toBeVisible();
+      await expect(await page.locator("h5").first().textContent()).toBe(text);
 
       // Check second title
-      text = "B) Please type your e-mail (*)";
-      const secondTitle = page.locator("h5").filter({ hasText: "Please type your e-mail (*)" });
-      await expect(secondTitle).toBeVisible();
+      text = "B. Please type your e-mail (*)";
+      await expect(page.locator("h5").nth(1)).toBeVisible();
+      await expect(await page.locator("h5").nth(1).textContent()).toBe(text);
 
       // Fill first page
       await page.locator(".sd-text").nth(0).fill("wombat");
@@ -63,9 +64,9 @@ frameworks.forEach((framework) => {
       await page.locator("input[value='Next']").click();
 
       // Check third title
-      text = "C) wombat, please tell us what is on your mind";
-      const thirdTitle = page.locator("h5").filter({ hasText: "wombat, please tell us what is on your mind" });
-      await expect(thirdTitle).toBeVisible();
+      text = "C. wombat, please tell us what is on your mind";
+      await expect(page.locator("h5").first()).toBeVisible();
+      await expect(await page.locator("h5").first().textContent()).toBe(text);
 
       // Fill second page
       await page.locator("textarea").fill("fresh grasses");

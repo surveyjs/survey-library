@@ -7,7 +7,7 @@ const title = "RequiredIf property";
 const themeName = "default";
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       const json = {
         elements: [

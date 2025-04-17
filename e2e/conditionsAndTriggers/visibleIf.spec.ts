@@ -7,7 +7,7 @@ const themeName = "default";
 const title = "visibleIf";
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       var json = {
         showQuestionNumbers: "off",

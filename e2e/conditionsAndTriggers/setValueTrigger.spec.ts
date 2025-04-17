@@ -7,7 +7,7 @@ const themeName = "default";
 const title = "setValueTrigger";
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       const json = {
         triggers: [

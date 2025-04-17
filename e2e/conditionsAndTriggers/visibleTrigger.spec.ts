@@ -6,7 +6,7 @@ import { Survey } from "../surveyHelper";
 const themeName = "default";
 const title = "visibleTrigger";
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       const json = {
         triggers: [

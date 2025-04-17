@@ -106,34 +106,52 @@ export class QuestionSliderModel extends QuestionRatingModel {
     return result;
   };
 
-  public ensureLeftBorder = (newValue:number, inputNumber):number => {
-    const { renderedminRangeLength, renderedmaxRangeLength, allowSwap, getRenderedValue, min, max } = this;
-
-    if (allowSwap) return newValue;
-
+  public ensureMaxRangeBorders = (newValue:number, inputNumber):number => {
+    const { renderedmaxRangeLength, getRenderedValue } = this;
     const value:number[] = getRenderedValue();
-    const prevValueBorder = allowSwap ? min : value[inputNumber - 1];
-    const nextValueBorder = allowSwap ? max : value[inputNumber + 1];
+    const oldValue = value[inputNumber];
 
-    if (nextValueBorder - newValue > renderedmaxRangeLength) return value[inputNumber];
-    if (inputNumber <= 0) return newValue;
+    let isOutOfRange = false;
 
-    return Math.max(newValue, prevValueBorder + renderedminRangeLength);
+    value[inputNumber] = newValue;
+
+    for (let i = 0; i < value.length - 1; i++) {
+      if (Math.abs(value[i] - value[i + 1]) > renderedmaxRangeLength) {
+        isOutOfRange = true;
+        break;
+      }
+    }
+
+    // const prevValueBorder = value[inputNumber - 1];
+    // const nextValueBorder = value[inputNumber + 1];
+
+    // if (typeof prevValueBorder !== "undefined") {
+    //   if (newValue - prevValueBorder > renderedmaxRangeLength) return value[inputNumber];
+    // }
+
+    // if (typeof nextValueBorder !== "undefined") {
+    //   if (nextValueBorder - newValue > renderedmaxRangeLength) return value[inputNumber];
+    // }
+
+    return isOutOfRange ? oldValue : newValue;
   };
 
-  public ensureRightBorder = (newValue, inputNumber):number => {
-    const { renderedminRangeLength, renderedmaxRangeLength, allowSwap, getRenderedValue } = this;
-
-    if (allowSwap) return newValue;
-
+  public ensureMinRangeBorders = (newValue:number, inputNumber):number => {
+    const { renderedminRangeLength, getRenderedValue } = this;
     const value:number[] = getRenderedValue();
-    const nextValueBorder = value[inputNumber + 1];
-    const prevValueBorder = value[inputNumber - 1];
 
-    if (newValue - prevValueBorder > renderedmaxRangeLength) return value[inputNumber];
-    if (inputNumber === value.length - 1) return newValue;
+    if (inputNumber > 0) {
+      const prevValueBorder = value[inputNumber - 1];
+    }
 
-    return Math.min(newValue, nextValueBorder - renderedminRangeLength);
+    if (inputNumber < value.length - 1) {
+      const nextValueBorder = value[inputNumber + 1];
+    }
+
+    // newValue = Math.max(newValue, prevValueBorder + renderedminRangeLength);
+    // newValue = Math.min(newValue, nextValueBorder - renderedminRangeLength);
+
+    return newValue;
   };
 
   public handlePointerDown = (event: PointerEvent): void => {

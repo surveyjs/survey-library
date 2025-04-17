@@ -242,37 +242,106 @@ QUnit.test("renderedminRangeLength", (assert) => {
   assert.deepEqual(q1.renderedminRangeLength, 20);
 });
 
-QUnit.test("ensureLeftBorder, ensureRightBorder", (assert) => {
+QUnit.test("ensureMaxRangeBorders", (assert) => {
   let json:any = {
     elements: [
       {
         type: "slider",
         name: "q1",
-        minRangeLength: 20,
         maxRangeLength: 50,
-        defaultValue: [25, 75]
+        defaultValue: [10, 60, 110],
+        min: 0,
+        max: 120
       }
     ]
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
 
-  let newValueLeft = 26;
-  newValueLeft = q1.ensureLeftBorder(newValueLeft, 0);
-  assert.deepEqual(newValueLeft, 26);
-  newValueLeft = 24;
-  newValueLeft = q1.ensureLeftBorder(newValueLeft, 0);
-  assert.deepEqual(newValueLeft, 25);
+  let newValue = 11;
+  let inputNumber = 0;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 11);
+  newValue = 9;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 10);
 
-  let newValueRight = 74;
-  newValueRight = q1.ensureLeftBorder(newValueRight, 0);
-  assert.deepEqual(newValueRight, 74);
-  newValueRight = 76;
-  newValueRight = q1.ensureLeftBorder(newValueRight, 0);
-  assert.deepEqual(newValueRight, 75);
+  newValue = 59;
+  inputNumber = 1;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 60);
+  newValue = 61;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 60);
+
+  newValue = 109;
+  inputNumber = 2;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 109);
+  newValue = 111;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 110);
 });
 
-//TODO
+QUnit.test("ensureMaxRangeBorders - allowSwap", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        maxRangeLength: 10,
+        defaultValue: [10, 20]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+  let newValue = 31;
+  let inputNumber = 0;
+  newValue = q1.ensureMaxRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 30);
+});
+
+// QUnit.test("ensureMinRangeBorders", (assert) => {
+//   let json:any = {
+//     elements: [
+//       {
+//         type: "slider",
+//         name: "q1",
+//         minRangeLength: 10,
+//         defaultValue: [30, 40, 50]
+//       }
+//     ]
+//   };
+//   let survey = new SurveyModel(json);
+//   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+//   let newValue = 29;
+//   let inputNumber = 0;
+//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+//   assert.deepEqual(newValue, 29);
+//   newValue = 31;
+//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+//   assert.deepEqual(newValue, 30);
+
+//   newValue = 39;
+//   inputNumber = 1;
+//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+//   assert.deepEqual(newValue, 40);
+//   newValue = 41;
+//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+//   assert.deepEqual(newValue, 40);
+
+//   newValue = 49;
+//   inputNumber = 2;
+//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+//   assert.deepEqual(newValue, 50);
+//   newValue = 51;
+//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+//   assert.deepEqual(newValue, 51);
+// });
+
 QUnit.test("getRenderedValue", (assert) => {
   let json:any = {
     elements: [
@@ -287,6 +356,10 @@ QUnit.test("getRenderedValue", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  const renderedValue = q1.getRenderedValue();
+  renderedValue[0] = 125;
 
-  assert.deepEqual(true, false);
+  assert.deepEqual(q1.value[0], 25);
+  assert.deepEqual(q1.getRenderedValue()[0], 25);
+  assert.deepEqual(renderedValue[0], 125);
 });

@@ -159,18 +159,19 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private handleOnChange = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
-    const { ensureRightBorder, ensureLeftBorder, getRenderedValue } = this.question;
+    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
     const renderedValue:number[] = getRenderedValue();
 
     let newValue: number = +event.target.value;
 
     if (renderedValue.length > 1) {
-      newValue = ensureRightBorder(newValue, inputNumber);
-      newValue = ensureLeftBorder(newValue, inputNumber);
+      newValue = ensureMaxRangeBorders(newValue, inputNumber);
+      if (!allowSwap) {
+        newValue = ensureMinRangeBorders(newValue, inputNumber);
+      }
     }
 
     renderedValue.splice(inputNumber, 1, newValue);
-    // renderedValue.sort((a, b)=>a-b);
     this.question.value = renderedValue;
   };
 
@@ -186,18 +187,68 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   };
 
   private handlePointerUp = (e) => {
-    const { step, focusedThumb, getRenderedValue } = this.question;
+    const { step, focusedThumb, getRenderedValue, allowSwap, ensureMinRangeBorders } = this.question;
     const renderedValue:number[] = getRenderedValue();
     const focusedThumbValue = renderedValue[focusedThumb];
     renderedValue.sort((a, b)=>a - b);
+
     this.question.focusedThumb = renderedValue.indexOf(focusedThumbValue);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+        if (allowSwap) {
+          renderedValue[i] = ensureMinRangeBorders(renderedValue[i], i);
+        }
         const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
         input.step = step;
       }
     }
+    this.question.value = renderedValue;
+    this.refreshInputRange();
+  };
+
+  private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {
+    const { max, min, step, allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
+
+    const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
+    let newValue = Math.round(percent / 100 * (max - min) + min);
+
+    const renderedValue = getRenderedValue();
+    let thumbIndex = 0;
+
+    for (let i = 0; i < renderedValue.length; i++) {
+      const currentMinValueDiff = Math.abs(renderedValue[thumbIndex] - newValue);
+      const newMinValueDiff = Math.abs(renderedValue[i] - newValue);
+      if (newMinValueDiff < currentMinValueDiff) {
+        thumbIndex = i;
+      }
+    }
+
+    if (renderedValue.length > 1) {
+      newValue = ensureMaxRangeBorders(newValue, thumbIndex);
+      newValue = ensureMinRangeBorders(newValue, thumbIndex);
+    }
+    renderedValue[thumbIndex] = newValue;
+
+    if (step) {
+      const currentValue = getRenderedValue();
+      for (let i = 0; i < renderedValue.length; i++) {
+        const currentValueStep = currentValue[i] / step;
+        const newValueStep = renderedValue[i] / step;
+        const newValueRound = Math.round(newValueStep);
+
+        if (newValueRound === currentValueStep) {
+          if (newValueStep > currentValueStep) {
+            renderedValue[i] = renderedValue[i] + step;
+          } else if (newValueStep < currentValueStep) {
+            renderedValue[i] = renderedValue[i] - step;
+          }
+        }
+
+        renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+      }
+    }
+
     this.question.value = renderedValue;
     this.refreshInputRange();
   };
@@ -264,52 +315,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
     this.setValueByClick(event);
   }
-
-  private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {
-    const { max, min, step, ensureRightBorder, ensureLeftBorder, getRenderedValue } = this.question;
-
-    const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
-    let newValue = Math.round(percent / 100 * (max - min) + min);
-
-    const renderedValue = getRenderedValue();
-    let thumbIndex = 0;
-
-    for (let i = 0; i < renderedValue.length; i++) {
-      const currentMinValueDiff = Math.abs(renderedValue[thumbIndex] - newValue);
-      const newMinValueDiff = Math.abs(renderedValue[i] - newValue);
-      if (newMinValueDiff < currentMinValueDiff) {
-        thumbIndex = i;
-      }
-    }
-
-    if (renderedValue.length > 1) {
-      newValue = ensureRightBorder(newValue, thumbIndex);
-      newValue = ensureLeftBorder(newValue, thumbIndex);
-    }
-    renderedValue[thumbIndex] = newValue;
-
-    if (step) {
-      const currentValue = getRenderedValue();
-      for (let i = 0; i < renderedValue.length; i++) {
-        const currentValueStep = currentValue[i] / step;
-        const newValueStep = renderedValue[i] / step;
-        const newValueRound = Math.round(newValueStep);
-
-        if (newValueRound === currentValueStep) {
-          if (newValueStep > currentValueStep) {
-            renderedValue[i] = renderedValue[i] + step;
-          } else if (newValueStep < currentValueStep) {
-            renderedValue[i] = renderedValue[i] - step;
-          }
-        }
-
-        renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
-      }
-    }
-
-    this.question.value = renderedValue;
-    this.refreshInputRange();
-  };
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (!this.isRangeMoving) return;

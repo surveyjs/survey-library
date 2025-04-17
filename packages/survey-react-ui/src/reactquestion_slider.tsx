@@ -67,7 +67,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let value:number[] = getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e); } }/>;
+      const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }/>;
       inputs.push(input);
     }
     return inputs;
@@ -175,6 +175,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     this.question.value = renderedValue;
   };
 
+  private oldValue;
   private handlePointerDown = (e)=> {
     const { step, getRenderedValue } = this.question;
     const renderedValue = getRenderedValue();
@@ -184,27 +185,36 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         input.step = 0.1;
       }
     }
+    this.oldValue = this.question.value.slice();
   };
 
-  private handlePointerUp = (e) => {
-    const { step, focusedThumb, getRenderedValue, allowSwap, ensureMinRangeBorders } = this.question;
-    const renderedValue:number[] = getRenderedValue();
+  private handlePointerUp = (e, inputNumber:number) => {
+    const { step, focusedThumb, getRenderedValue, allowSwap, renderedminRangeLength, value } = this.question;
+    let renderedValue:number[] = getRenderedValue();
     const focusedThumbValue = renderedValue[focusedThumb];
+
     renderedValue.sort((a, b)=>a - b);
+
+    if (allowSwap) {
+      for (let i = 0; i < value.length - 1; i++) {
+        if (Math.abs(value[i] - value[i + 1]) < renderedminRangeLength) {
+          renderedValue = this.oldValue;
+          break;
+        }
+      }
+    }
 
     this.question.focusedThumb = renderedValue.indexOf(focusedThumbValue);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
-        if (allowSwap) {
-          renderedValue[i] = ensureMinRangeBorders(renderedValue[i], i);
-        }
         const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
         input.step = step;
       }
     }
     this.question.value = renderedValue;
     this.refreshInputRange();
+    this.oldValue = null;
   };
 
   private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {

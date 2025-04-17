@@ -303,44 +303,44 @@ QUnit.test("ensureMaxRangeBorders - allowSwap", (assert) => {
   assert.deepEqual(newValue, 30);
 });
 
-// QUnit.test("ensureMinRangeBorders", (assert) => {
-//   let json:any = {
-//     elements: [
-//       {
-//         type: "slider",
-//         name: "q1",
-//         minRangeLength: 10,
-//         defaultValue: [30, 40, 50]
-//       }
-//     ]
-//   };
-//   let survey = new SurveyModel(json);
-//   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+QUnit.test("ensureMinRangeBorders", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        minRangeLength: 10,
+        defaultValue: [30, 40, 50]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
 
-//   let newValue = 29;
-//   let inputNumber = 0;
-//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
-//   assert.deepEqual(newValue, 29);
-//   newValue = 31;
-//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
-//   assert.deepEqual(newValue, 30);
+  let newValue = 29;
+  let inputNumber = 0;
+  newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 29);
+  newValue = 31;
+  newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 30);
 
-//   newValue = 39;
-//   inputNumber = 1;
-//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
-//   assert.deepEqual(newValue, 40);
-//   newValue = 41;
-//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
-//   assert.deepEqual(newValue, 40);
+  newValue = 39;
+  inputNumber = 1;
+  newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 40);
+  newValue = 41;
+  newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 40);
 
-//   newValue = 49;
-//   inputNumber = 2;
-//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
-//   assert.deepEqual(newValue, 50);
-//   newValue = 51;
-//   newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
-//   assert.deepEqual(newValue, 51);
-// });
+  newValue = 49;
+  inputNumber = 2;
+  newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 50);
+  newValue = 51;
+  newValue = q1.ensureMinRangeBorders(newValue, inputNumber);
+  assert.deepEqual(newValue, 51);
+});
 
 QUnit.test("getRenderedValue", (assert) => {
   let json:any = {

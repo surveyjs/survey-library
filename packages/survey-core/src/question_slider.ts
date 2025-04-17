@@ -122,36 +122,26 @@ export class QuestionSliderModel extends QuestionRatingModel {
       }
     }
 
-    // const prevValueBorder = value[inputNumber - 1];
-    // const nextValueBorder = value[inputNumber + 1];
-
-    // if (typeof prevValueBorder !== "undefined") {
-    //   if (newValue - prevValueBorder > renderedmaxRangeLength) return value[inputNumber];
-    // }
-
-    // if (typeof nextValueBorder !== "undefined") {
-    //   if (nextValueBorder - newValue > renderedmaxRangeLength) return value[inputNumber];
-    // }
-
     return isOutOfRange ? oldValue : newValue;
   };
 
   public ensureMinRangeBorders = (newValue:number, inputNumber):number => {
     const { renderedminRangeLength, getRenderedValue } = this;
     const value:number[] = getRenderedValue();
+    const oldValue = value[inputNumber];
 
-    if (inputNumber > 0) {
-      const prevValueBorder = value[inputNumber - 1];
+    let isOutOfRange = false;
+
+    value[inputNumber] = newValue;
+
+    for (let i = 0; i < value.length - 1; i++) {
+      if (Math.abs(value[i] - value[i + 1]) < renderedminRangeLength) {
+        isOutOfRange = true;
+        break;
+      }
     }
 
-    if (inputNumber < value.length - 1) {
-      const nextValueBorder = value[inputNumber + 1];
-    }
-
-    // newValue = Math.max(newValue, prevValueBorder + renderedminRangeLength);
-    // newValue = Math.min(newValue, nextValueBorder - renderedminRangeLength);
-
-    return newValue;
+    return isOutOfRange ? oldValue : newValue;
   };
 
   public handlePointerDown = (event: PointerEvent): void => {

@@ -12,16 +12,14 @@
     <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div [element]="model" *ngIf="!model.singleInputHideHeader && model.hasTitleOnLeftTop" sv-ng-element-header></div>
     <sv-single-input-summary
-      *ngIf="model.singleInputSummary"
-      [summary]="model.singleInputSummary"
+      *ngIf="!!model.singleInputSummary"
+      [model]="model.singleInputSummary"
       [css]="model.cssClasses"
     ></sv-single-input-summary>
-    <sv-ng-question
-      *ngIf="!model.singleInputSummary && singleQuestion"
-      [css]="css"
+    <sv-ng-element
+      *ngIf="!model.singleInputSummary && !!singleQuestion"
       [model]="singleQuestion"
-      [survey]="survey"
-    ></sv-ng-question>
+    ></sv-ng-element>
     <ng-template
       *ngIf="!model.singleInputSummary && !singleQuestion"
       [component]="{ name: getQuestionContentWrapperComponentName(), data: getQuestionContentWrapperComponentData() }">

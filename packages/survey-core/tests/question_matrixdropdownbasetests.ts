@@ -1906,3 +1906,23 @@ QUnit.test("survey.onAfterRenderMatrixCell event", function (assert) {
   survey.matrixAfterCellRender({ cellQuestion: qCell1 });
   assert.equal(questionName, "q1", "question name is correct");
 });
+QUnit.test("update cells questions patterns, Bug#9767", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  const col1 = matrix.columns[0];
+  const rows = matrix.visibleRows;
+  const qCell1 = rows[0].cells[0].question;
+  col1.maskType = "pattern";
+  col1.maskSettings.pattern = "99999";
+  assert.equal(qCell1.maskType, "pattern", "cell Question maskType is pattern");
+  assert.equal(qCell1.maskSettings.pattern, "99999", "cell Question maskSettings.pattern is 99999");
+});

@@ -1407,6 +1407,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.resetRenderedTable();
     }
   }
+  onColumnNestedPropertyChanged(column: MatrixDropdownColumn, name: string, nestedName: string, newValue: any): void {
+    if (!this.generatedVisibleRows) return;
+    for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+      const row = this.generatedVisibleRows[i];
+      const q = row.getQuestionByColumn(column);
+      if (!!q && !!q[name]) {
+        q[name][nestedName] = newValue;
+      }
+    }
+  }
   onColumnItemValuePropertyChanged(column: MatrixDropdownColumn, propertyName: string,
     obj: ItemValue, name: string, newValue: any, oldValue: any): void {
     if (!this.generatedVisibleRows) return;

@@ -2,6 +2,7 @@
     "recommendations": [
         "dbaeumer.vscode-eslint",
         "sibiraj-s.vscode-scss-formatter",
-        "Vue.volar"
+        "Vue.volar",
+        "ms-playwright.playwright"
     ]
 }

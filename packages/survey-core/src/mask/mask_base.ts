@@ -1,5 +1,5 @@
 import { Base } from "../base";
-import { ISurvey } from "../base-interfaces";
+import { ISurvey, ISurveyImpl } from "../base-interfaces";
 import { JsonObject, Serializer, property } from "../jsonobject";
 import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
@@ -19,10 +19,10 @@ export class InputMaskBase extends Base implements IInputMask {
    */
   @property() saveMaskedValue: boolean;
 
-  public owner: ISurvey;
+  public owner: ISurveyImpl;
 
   public getSurvey(live: boolean = false): ISurvey {
-    return this.owner as any;
+    return this.owner?.getSurvey();
   }
 
   public getType(): string {

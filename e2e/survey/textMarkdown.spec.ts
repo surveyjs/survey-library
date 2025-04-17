@@ -37,7 +37,7 @@ frameworks.forEach((framework) => {
       await page.evaluate((json) => {
         window["survey"].onTextMarkdown.add((_, options) => {
           if (options.text.indexOf("|") > -1) {
-            options.html = "<span class='markdownclass'>" + options.text.replace("|", "*").replace("|", "*") + "</span>";
+            options.html = "<span class='markdownclass'>" + options.text.replace(/\|/g, "*") + "</span>";
           }
         });
         window["survey"].fromJSON(json);
@@ -56,7 +56,7 @@ frameworks.forEach((framework) => {
       await page.evaluate((json) => {
         window["survey"].onTextMarkdown.add((_, options) => {
           if (options.text.indexOf("|") > -1) {
-            options.html = "<span class='markdownclass'>" + options.text.replace("|", "*").replace("|", "*") + "</span>";
+            options.html = "<span class='markdownclass'>" + options.text.replace(/\|/g, "*") + "</span>";
           }
         });
         window["survey"].fromJSON(json);

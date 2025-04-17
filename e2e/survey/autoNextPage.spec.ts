@@ -100,19 +100,21 @@ frameworks.forEach((framework) => {
 
     test("check auto next page", async ({ page }) => {
       await initSurvey(page, framework, json);
-      const getProgressTextPosition = async (index: number) => {
-        const content = await page.content();
-        return content.indexOf(`Page ${index} of 3`);
-      };
       const firstRadioElement = page.locator(".sd-radio__decorator").first();
+      const progressText = page.locator(".sd-progress-buttons__page-title");
 
-      expect(await getProgressTextPosition(1)).not.toBe(-1);
+      let text = "Page 1 of 3";
+      expect(await progressText.textContent()).toBe(text);
       await firstRadioElement.click();
       await page.waitForTimeout(500);
-      expect(await getProgressTextPosition(2)).not.toBe(-1);
+      text = "Page 2 of 3";
+      expect(await progressText.textContent()).toBe(text);
+
       await firstRadioElement.click();
       await page.waitForTimeout(500);
-      expect(await getProgressTextPosition(3)).not.toBe(-1);
+      text = "Page 3 of 3";
+      expect(await progressText.textContent()).toBe(text);
+
       await firstRadioElement.click();
       await page.waitForTimeout(500);
 
@@ -126,21 +128,27 @@ frameworks.forEach((framework) => {
 
     test("check auto next page with keyboard", async ({ page }) => {
       await initSurvey(page, framework, json);
-      const getProgressTextPosition = async (index: number) => {
-        const content = await page.content();
-        return content.indexOf(`Page ${index} of 3`);
-      };
+      await page.waitForTimeout(500);
 
-      expect(await getProgressTextPosition(1)).not.toBe(-1);
+      const progressText = page.locator(".sd-progress-buttons__page-title");
+      let text = "Page 1 of 3";
+      expect(await progressText.textContent()).toBe(text);
+
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
-      expect(await getProgressTextPosition(2)).not.toBe(-1);
+
+      await page.waitForTimeout(500);
+      text = "Page 2 of 3";
+      expect(await progressText.textContent()).toBe(text);
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
-      expect(await getProgressTextPosition(3)).not.toBe(-1);
+
+      await page.waitForTimeout(500);
+      text = "Page 3 of 3";
+      expect(await progressText.textContent()).toBe(text);
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
@@ -169,6 +177,7 @@ frameworks.forEach((framework) => {
 
     test("check auto next page with matrix + keyboard", async ({ page }) => {
       await initSurvey(page, framework, json2);
+      await page.waitForTimeout(500);
       await page.keyboard.press("Space");
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowRight");
@@ -194,6 +203,7 @@ frameworks.forEach((framework) => {
 
     test("check auto next page with rating + keyboard", async ({ page }) => {
       await initSurvey(page, framework, json3);
+      await page.waitForTimeout(500);
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("ArrowRight");
       await page.keyboard.press("Tab");

@@ -66,6 +66,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
+      await page.waitForTimeout(500);
 
       await page.evaluate(() => {
         window["Survey"].settings.enterKeyAction = "loseFocus";
@@ -98,7 +99,6 @@ frameworks.forEach((framework) => {
       await expect(q1Input).toBeFocused();
       await page.keyboard.press("Escape");
       await page.keyboard.press("Enter");
-      await q2Input.focus();
       await q2Input.fill("it");
       await expect(q2Input).toBeFocused();
       await page.keyboard.press("Enter");
@@ -147,6 +147,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
+      await page.waitForTimeout(500);
 
       await page.evaluate(() => {
         window["survey"].enterKeyAction = "loseFocus";
@@ -298,6 +299,7 @@ frameworks.forEach((framework) => {
           { name: "q5", type: "text" }
         ]
       });
+      await page.waitForTimeout(500);
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

@@ -4,7 +4,7 @@ import { frameworks, url } from "../helper";
 const title = "popupSurvey";
 
 const initPopupSurvey = async (page, framework, json) => {
-  await page.evaluate((framework, json) => {
+  await page.evaluate(([framework, json]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -140,17 +140,17 @@ frameworks.forEach((framework) => {
           },
           {
             type: "dropdown",
-            name: "q1",
+            name: "q2",
             choices: ["Item1", "Item2"]
           },
           {
             type: "dropdown",
-            name: "q1",
+            name: "q3",
             choices: ["Item1", "Item2"]
           },
           {
             type: "dropdown",
-            name: "q1",
+            name: "q4",
             choices: ["Item1", "Item2"]
           }
         ]
@@ -158,11 +158,15 @@ frameworks.forEach((framework) => {
 
       const expandCollapseButton = page.locator(".sv_window_button_collapse");
       await expandCollapseButton.click();
-      await page.locator(".sd-dropdown__filter-string-input").first().click();
-      await expect(page.locator(".sv-popup__container").filter({ hasText: "Item1" })).toHaveCount(1);
+      await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(0);
 
-      await page.locator(".sv_window").filter({ hasText: "Survey title" }).scrollIntoViewIfNeeded();
-      await expect(page.locator(".sv-popup__container").filter({ hasText: "Item1" })).toHaveCount(0);
+      await page.locator(".sd-dropdown__value").first().click();
+      await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(1);
+
+      await page.evaluate(() => {
+        document.querySelector(".sv_window")?.scroll({ top: 100 });
+      });
+      await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(0);
     });
   });
 });

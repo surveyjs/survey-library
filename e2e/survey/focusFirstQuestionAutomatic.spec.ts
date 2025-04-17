@@ -25,6 +25,7 @@ frameworks.forEach((framework) => {
 
     test("Check first focused question, focus question", async ({ page }) => {
       await initSurvey(page, framework, json);
+      await page.waitForTimeout(500);
       await page.keyboard.type("val1");
       await page.click("input[value=Next]");
       await page.keyboard.type("val2");

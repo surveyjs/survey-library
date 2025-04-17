@@ -1557,3 +1557,50 @@ QUnit.test("check singleInputLocTitle reactivity, panel dynamic", assert => {
   assert.equal(counter1, 1, "onStringChanged, #2");
   assert.equal(counter2, 1, "onChanged, #2");
 });
+QUnit.test("check singleInputLocTitle reactivity on peformNext(), panel dynamic", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "p1",
+        panelCount: 2,
+        valueName: "sharedData",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      },
+      {
+        type: "paneldynamic",
+        name: "p2",
+        valueName: "sharedData",
+        templateElements: [
+          { type: "text", name: "q2", isRequired: true }
+        ],
+        templateTitle: "value: {panel.q1}"
+      }
+    ],
+    "questionsOnPageMode": "inputPerPage"
+  });
+  survey.currentSingleQuestion.singleInputQuestion.value = "a";
+  survey.performNext();
+  survey.currentSingleQuestion.singleInputQuestion.value = "b";
+  survey.performNext();
+  survey.performNext();
+
+  assert.equal(survey.currentSingleQuestion.name, "p2", "currentSingleQuestion is p2, #1");
+  const locStr = survey.currentSingleQuestion.singleInputLocTitle;
+  assert.equal(locStr.textOrHtml, "value: a", "singleInputLocTitle, #1");
+  survey.currentSingleQuestion.singleInputQuestion.value = "c";
+  let counter1 = 0;
+  let counter2 = 0;
+  locStr.onChanged = () => {
+    counter2 ++;
+  };
+  locStr.onStringChanged.add((sender, options) => {
+    counter1 ++;
+  });
+  survey.performNext();
+  assert.equal(counter1, 1, "onStringChanged, #1");
+  assert.equal(counter2, 1, "onChanged, #1");
+  assert.equal(locStr.textOrHtml, "value: b", "singleInputLocTitle, #1");
+});

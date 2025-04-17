@@ -793,6 +793,7 @@ export class Question extends SurveyElement<Question>
   }
   private onSingleInputChanged(): void {
     this.resetSingleInputSummary();
+    this.singleInputLocTitle?.strChanged();
     this.resetPropertyValue("singleInputLocTitle");
     this.calcSingleInputActions();
     this.survey?.updateNavigationElements();

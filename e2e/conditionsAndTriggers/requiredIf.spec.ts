@@ -1,76 +1,53 @@
-import { frameworks, url_test, initSurvey, applyTheme } from "../helper";
-import { QuestionRadiogroup } from "../questionHelper";
 import { test, expect } from "@playwright/test";
+import { frameworks, url, initSurvey } from "../helper";
 
 const title = "RequiredIf property";
 
-const themeName = "default";
+const json = {
+  elements: [
+    { type: "radiogroup", name: "a", choices: ["item1", "item2", "item3"] },
+    { type: "text", name: "b", requiredIf: "{a} = 'item1'" },
+    {
+      type: "matrixdynamic", name: "c", rowCount: 2,
+      columns: [
+        { cellType: "text", name: "col1", requiredIf: "{a} = 'item2'" }
+      ]
+    },
+  ]
+};
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
-      const json = {
-        elements: [
-          { type: "radiogroup", name: "a", choices: ["item1", "item2", "item3"] },
-          { type: "text", name: "b", requiredIf: "{a} = 'item1'" },
-          {
-            type: "matrixdynamic", name: "c", rowCount: 2,
-            columns: [
-              { cellType: "text", name: "col1", requiredIf: "{a} = 'item2'" }
-            ]
-          },
-        ]
-      };
-      await page.goto(`${url_test}${themeName}/${framework}`);
-      await applyTheme(page, themeName);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
       await page.setViewportSize({ width: 1000, height: 1000 });
     });
-    test("check requriedIf for standard question", async ({ page }) => {
-      const requiredText = page.locator('span:has-text("*")');
-      const a = new QuestionRadiogroup(page, "a");
-      await expect(requiredText).not.toBeVisible();
-      await a.clickByValue("item1");
-      await expect(requiredText.isVisible).toBeTruthy();
-      await a.clickByValue("item3");
-      await expect(requiredText).not.toBeVisible();
-    });
-    test("check requriedIf for matrix column", async ({ page }) => {
-      const requiredText = page.locator('span:has-text("*")');
-      const a = new QuestionRadiogroup(page, "a");
-      await expect(requiredText).not.toBeVisible();
-      await a.clickByValue("item2");
-      await expect(requiredText.isVisible).toBeTruthy();
-      await a.clickByValue("item3");
-      await expect(requiredText).not.toBeVisible();
-    });
-  });
-  /*
-  Test functions
-  test.describe(title + "2 - " + framework, () => {
-    test.beforeEach(async ({ page }) => {
-      const json = {
-        elements: [
-          { type: "radiogroup", name: "a", choices: ["item1", "item2", "item3"] },
-          { type: "radiogroup", name: "b", choices: ["item1", "item2", "item3"] },
-          { type: "checkbox", name: "c", choices: ["item1", "item2", "item3"] }
-        ]
-      };
-      await page.goto(`${url_test}${themeName}/${framework}`);
-      await applyTheme(page, themeName);
-      await initSurvey(page, framework, json);
-      await page.setViewportSize({ width: 1000, height: 1000 });
-    });
-    test("Two radiogroups & checkbox", async ({ page }) => {
-      const a = new QuestionSingleSelect(page, "a");
-      const b = new QuestionSingleSelect(page, "b");
-      const c = new QuestionMultipleSelect(page, "c");
-      await a.clickByValue("item1");
-      await b.clickByValue("item2");
-      await c.clicksByValue(["item1", "item3"]);
 
-      await checkSurveyData(page, { a: "item1", b: "item2", c: ["item1", "item3"] });
+    test("check requiredIf for standard question", async ({ page }) => {
+      const requiredText = page.locator("span").filter({ hasText: "*" });
+      const item1 = page.locator("label").filter({ hasText: "item1" }).locator("span").first();
+      const item3 = page.locator("label").filter({ hasText: "item3" }).locator("span").first();
+      await expect(requiredText).not.toBeVisible();
+
+      await item1.click();
+      await expect(requiredText).toBeVisible();
+
+      await item3.click();
+      await expect(requiredText).not.toBeVisible();
+    });
+
+    test("check requiredIf for matrix column", async ({ page }) => {
+      const requiredText = page.locator("span").filter({ hasText: "*" });
+      const item2 = page.locator("label").filter({ hasText: "item2" }).locator("span").first();
+      const item3 = page.locator("label").filter({ hasText: "item3" }).locator("span").first();
+      await expect(requiredText).not.toBeVisible();
+
+      await item2.click();
+      await expect(requiredText).toBeVisible();
+
+      await item3.click();
+      await expect(requiredText).not.toBeVisible();
     });
   });
-*/
 });

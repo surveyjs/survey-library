@@ -289,13 +289,13 @@ QUnit.test("ensureMaxRangeBorders - allowSwap", (assert) => {
       {
         type: "slider",
         name: "q1",
-        maxRangeLength: 10,
-        defaultValue: [10, 20]
+        maxRangeLength: 10
       }
     ]
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  q1.value = [30, 20];
 
   let newValue = 31;
   let inputNumber = 0;

@@ -278,6 +278,7 @@ export class Base {
    * If you need to add and remove property change event handlers dynamically, use the [`registerPropertyChangedHandlers`](#registerPropertyChangedHandlers) and [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers) methods instead.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
+  public onNestedPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
    * An event that is raised when an [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
    *

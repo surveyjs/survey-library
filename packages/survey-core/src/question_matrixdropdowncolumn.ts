@@ -12,11 +12,8 @@ import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./q
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
-  onColumnPropertyChanged(
-    column: MatrixDropdownColumn,
-    name: string,
-    newValue: any
-  ): void;
+  onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void;
+  onColumnNestedPropertyChanged(column: MatrixDropdownColumn, name: string, nestedName: string, newValue: any): void;
   onColumnItemValuePropertyChanged(
     column: MatrixDropdownColumn,
     propertyName: string,
@@ -754,6 +751,11 @@ export class MatrixDropdownColumn extends Base
         options.arrayChanges,
         options.target
       );
+    });
+    this.templateQuestion.onNestedPropertyChanged.add((sender, options) => {
+      if (this.colOwner && !this.isLoadingFromJson) {
+        this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
+      }
     });
     this.templateQuestion.onItemValuePropertyChanged.add((sender, options) => {
       this.doItemValuePropertyChanged(

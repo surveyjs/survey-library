@@ -224,9 +224,9 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
       textValue.value = this.row.rowName;
       return true;
     }
-    if (textValue.name == MatrixDropdownRowModelBase.RowTextVariableName) {
+    if (textValue.name == MatrixDropdownRowModelBase.RowTitleVariableName) {
       textValue.isExists = true;
-      textValue.value = this.row.rowText;
+      textValue.value = this.row.rowTitle;
       return true;
     }
     return false;
@@ -239,7 +239,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public static IndexVariableName = "rowIndex";
   public static RowValueVariableName = "rowValue";
   public static RowNameVariableName = "rowName";
-  public static RowTextVariableName = "rowText";
+  public static RowTitleVariableName = "rowTitle";
 
   private static idCounter: number = 1;
   private static getId(): string {
@@ -276,7 +276,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public get rowName(): any {
     return null;
   }
-  public get rowText(): any {
+  public get rowTitle(): any {
     return this.rowName;
   }
   public get dataName(): string {
@@ -425,7 +425,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
     res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
     res[MatrixDropdownRowModelBase.RowNameVariableName] = this.rowName;
-    res[MatrixDropdownRowModelBase.RowTextVariableName] = this.rowText;
+    res[MatrixDropdownRowModelBase.RowTitleVariableName] = this.rowTitle;
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
     if (!this.data) return;
@@ -2030,11 +2030,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       const index = rowsIndeces[i];
       const rowName = index > -1 ? this.getConditionObjectRowName(index) : "row";
       if (!rowName) continue;
-      const rowText = index > -1 ? this.getConditionObjectRowText(index) : "row";
+      const rowTitle = index > -1 ? this.getConditionObjectRowText(index) : "row";
       const hasQuestionPrefix = index > -1 || context === true;
       const dot = hasQuestionPrefix && index === -1 ? "." : "";
       const prefixName = (hasQuestionPrefix ? this.getValueName() : "") + dot + rowName + ".";
-      const prefixTitle = (hasQuestionPrefix ? this.processedTitle : "") + dot + rowText + ".";
+      const prefixTitle = (hasQuestionPrefix ? this.processedTitle : "") + dot + rowTitle + ".";
       for (var j = 0; j < rowElements.length; j++) {
         const rowElement = rowElements[j];
         if (index === -1 && context === rowElement) continue;

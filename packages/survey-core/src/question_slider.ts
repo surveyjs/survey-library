@@ -68,6 +68,13 @@ export class QuestionSliderModel extends QuestionRatingModel {
       .toString();
   }
 
+  public get thumbContainerCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.thumbContainer)
+      .append(this.cssClasses.thumbContainerIndeterminateMode, this.isIndeterminate)
+      .toString();
+  }
+
   public get renderedmaxRangeLength(): number {
     return this.maxRangeLength ?? this.max - this.min;
   }

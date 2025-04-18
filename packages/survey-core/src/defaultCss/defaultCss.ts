@@ -680,6 +680,7 @@ export var defaultCss = {
     inverseTrackLeft: "sd-slider__inverse-track sd-slider__inverse-track--left",
     inverseTrackRight: "sd-slider__inverse-track sd-slider__inverse-track--right",
     thumbContainer: "sd-slider__thumb-container",
+    thumbContainerIndeterminateMode: "sd-slider__thumb-container--indeterminate",
     thumbContainerFocusedMode: "sd-slider__thumb-container--focused",
     thumb: "sd-slider__thumb",
     thumbDot: "sd-slider__thumb-dot",

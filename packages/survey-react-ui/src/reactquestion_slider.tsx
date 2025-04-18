@@ -81,7 +81,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getThumbs() {
     const thumbs = [];
-    const { isIndeterminate, cssClasses, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
+    const { isIndeterminate, cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
 
     let value:number[] = getRenderedValue();
 
@@ -99,7 +99,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
       // TODO all keys should be generated ids
       const thumb = <React.Fragment key={"thumb-" + i}>
-        <div className={`${cssClasses.thumbContainer} ${i === focusedThumb ? cssClasses.thumbContainerFocusedMode : ""}`} style={{ left: percent }}>
+        <div className={`${thumbContainerCss} ${i === focusedThumb ? cssClasses.thumbContainerFocusedMode : ""}`} style={{ left: percent }}>
           <div className={cssClasses.thumb}>
             <div className={cssClasses.thumbDot}></div>
           </div>

@@ -1771,6 +1771,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   get locKeyDuplicationError(): LocalizableString {
     return this.getLocalizableString("keyDuplicationError");
   }
+  /**
+   * A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
+   *
+   * Default value: `"Row {rowIndex}"` for Dynamic Matrix | `"{rowTitle}"` for Multi-Select Matrix
+   *
+   * The template can contain the following placeholders:
+   *
+   * - `{rowIndex}` - A row index within the collection of all rows. Starts with 1.
+   * - `{rowName}` - A row name (the `value` property within objects in the [`rows`](#rows) array). Use this placeholder if you need to distinguish between matrix rows.
+   * - `{rowTitle}` - A row title (the `text` property within objects in the `rows` array).
+   * - `{row.columnname}` - The value of a cell in the same row.
+   */
   public get singleInputTitleTemplate(): string {
     return this.getLocalizableStringText("singleInputTitleTemplate");
   }

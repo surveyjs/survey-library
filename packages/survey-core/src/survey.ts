@@ -2257,7 +2257,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get renderedHasDescription(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("description");
-    return !!this.hasDescription;
+    return !!this.hasDescription && this.showTitle;
   }
   public get hasTitle(): boolean {
     return this.renderedHasTitle;

@@ -106,7 +106,6 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 
 .sd-slider__thumb-container {
   position: absolute;
-  top: calc($slider-path-height / -2);
   margin-left: calc($slider-thumb-width / -2);
   z-index: 2;
   cursor: pointer;
@@ -510,6 +509,29 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 }
 
 .sd-question--error {
+  .sd-slider__inverse-track {
+    background: var(--lbr-slider-path-color-error, $red-light);
+    &::after,
+    &::before {
+      background: var(--lbr-slider-path-color-error, $red-light);
+    }
+  }
+
+  .sd-slider__range-track {
+    background: var(--lbr-slider-path-color-filled-error, $red);
+    //background: var(--lbr-slider-path-color-error, $red-light);
+
+    &::before {
+      background: var(--lbr-slider-path-color-filled-error, $red);
+      //background: var(--lbr-slider-path-color-error, $red-light);
+    }
+
+    &::after {
+      background: var(--lbr-slider-path-color-filled-error, $red);
+      //background: var(--lbr-slider-path-color-error, $red-light);
+    }
+  }
+
   .sd-slider__thumb-dot {
     background: var(--lbr-slider-thumb-dot-color-error, $red);
   }

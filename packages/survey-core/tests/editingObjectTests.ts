@@ -1796,4 +1796,7 @@ QUnit.test("Multiple text item, onPropertyValueChanged", function (assert) {
   item.title = "Item 2";
   item.validators.push(new ExpressionValidator("{q1}=1"));
   assert.deepEqual(logs, ["name", "title", "validators"], "#1");
+
+  item.maskType = "pattern";
+  assert.deepEqual(logs, ["name", "title", "validators", "maskType", "maskSettings"], "#2");
 });

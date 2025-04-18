@@ -62,12 +62,16 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getInputs() {
     const inputs = [];
-    const { max, min, step, cssClasses, getRenderedValue } = this.question;
+    const { max, min, step, cssClasses, getRenderedValue, isDisabledAttr, isReadOnlyAttr } = this.question;
 
     let value:number[] = getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step} onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } } onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }/>;
+      const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step}
+        onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }
+        onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }
+        disabled={isDisabledAttr}
+      />;
       inputs.push(input);
     }
     return inputs;
@@ -175,7 +179,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     }
 
     renderedValue.splice(inputNumber, 1, newValue);
-    this.question.value = renderedValue;
+
+    this.setSliderValue(renderedValue);
   };
 
   private oldValue;
@@ -216,7 +221,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         input.step = step;
       }
     }
-    this.question.value = renderedValue;
+    this.setSliderValue(renderedValue);
     this.refreshInputRange();
     this.oldValue = null;
   };
@@ -263,7 +268,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       }
     }
 
-    this.question.value = renderedValue;
+    this.setSliderValue(renderedValue);
     this.refreshInputRange();
   };
 
@@ -318,7 +323,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         for (let i = 0; i < renderedValue.length; i++) {
           renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
         }
-        this.question.value = renderedValue;
+        this.setSliderValue(renderedValue);
       }
       return;
     }
@@ -349,7 +354,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     }
 
     if (borderArrived) { borderArrived = false; return; }
-    this.question.value = renderedValue;
+    this.setSliderValue(renderedValue);
   };
 
   private handleOnFocus = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
@@ -359,6 +364,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private handleOnBlur = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
     this.question.focusedThumb = null;
   };
+
+  private setSliderValue(newValue) {
+    if (!this.question.isReadOnly && !this.question.isDisabledAttr && !this.question.isPreviewStyle && !this.question.isDisabledStyle) {
+      this.question.value = newValue;
+    }
+  }
 }
 ReactQuestionFactory.Instance.registerQuestion("slider", (props) => {
   return React.createElement(SurveyQuestionSlider, props);

@@ -70,7 +70,9 @@ export class MultipleTextItemModel extends Base
       this.title = title;
     }
     this.editor.onPropertyChanged.add((sender, options) => {
-      this.onPropertyChanged.fire(this, options);
+      if (options.name !== "maskSettings") {
+        this.onPropertyChanged.fire(this, options);
+      }
     });
   }
   public getType(): string {

@@ -2,6 +2,7 @@ import { InputElementAdapter } from "../../src/mask/input_element_adapter";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
+import { InputMaskDateTime } from "../../src/mask/mask_datetime";
 
 export default QUnit.module("Input mask");
 
@@ -161,6 +162,21 @@ QUnit.test("Input mask + autocomplete", function (assert) {
   testInput.value = "+123456789";
   testInput.dispatchEvent(new Event("change"));
   assert.equal(testInput.value, "123-45-67");
+
+  testInput.remove();
+});
+QUnit.test("InputElementAdapter saveMaskedValue constructor", function (assert) {
+  const testInput = document.createElement("input");
+  const inputMask = new InputMaskDateTime();
+  inputMask.fromJSON({
+    "pattern": "mm-dd-yyyy",
+  });
+  let adapter = new InputElementAdapter(inputMask, testInput, "1999-01-19");
+  assert.equal(testInput.value, "01-19-1999");
+
+  inputMask.saveMaskedValue = true;
+  adapter = new InputElementAdapter(inputMask, testInput, "01-19-1999");
+  assert.equal(testInput.value, "01-19-1999");
 
   testInput.remove();
 });

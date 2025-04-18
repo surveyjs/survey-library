@@ -162,6 +162,7 @@ export class InputMaskPattern extends InputMaskBase {
     this.literals = getLiterals(this.pattern || "");
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "pattern") {
       this.updateLiterals();
     }

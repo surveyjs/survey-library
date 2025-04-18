@@ -4593,6 +4593,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
    * - `"questionPerPage"` - Displays each question on a separate page.
+   * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page.
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {

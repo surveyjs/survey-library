@@ -20,6 +20,13 @@ export const applyTheme = async (page: Page, theme: string) => {
   }, theme);
 };
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
+  if (!!props) {
+    Object.keys(props).forEach(name => {
+      if (typeof props[name] == "function") {
+        throw new Error(`Function '${name}' is passed over serialization boundary.`);
+      }
+    });
+  }
   await page.evaluate(([framework, json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {

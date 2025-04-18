@@ -1,6 +1,8 @@
 @use "../variables.scss" as *;
 
 $slider-path-height: var(--lbr-slider-path-height, calcSize(0.5));
+$slider-path-color: var(--lbr-slider-path-color, $border-light);
+$slider-path-color-filled: var(--lbr-slider-path-color-filled, $primary);
 $slider-thumb-width: var(--lbr-slider-thumb-width, calcSize(4));
 $slider-thumb-height: var(--lbr-slider-thumb-height, calcSize(4));
 $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
@@ -59,12 +61,12 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
 .sd-slider__inverse-track {
   position: absolute;
   height: $slider-path-height;
-  background: var(--lbr-slider-path-color, #dcdcdc);
+  background: $slider-path-color;
   top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
 
   &::after,
   &::before {
-    background: var(--lbr-slider-path-color, #dcdcdc);
+    background: $slider-path-color;
   }
 }
 
@@ -88,17 +90,17 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   position: absolute;
   left: 0;
   height: $slider-path-height;
-  background: var(--lbr-slider-path-color-filled, $primary);
+  background: $slider-path-color-filled;
   top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
 
   &::before {
     @include leftOutrangePath;
-    background: var(--lbr-slider-path-color-filled, $primary);
+    background: $slider-path-color-filled;
   }
 
   &::after {
     @include rightOutrangePath;
-    background: var(--lbr-slider-path-color-filled, $primary);
+    background: $slider-path-color-filled;
   }
 }
 
@@ -254,7 +256,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   height: var(--lbr-slider-label-tick-height, calcSize(0.5));
   flex-direction: column;
   align-items: flex-start;
-  background: var(--lbr-slider-label-tick-color, #d4d4d4);
+  background: var(--lbr-slider-label-tick-color, $border);
 }
 
 .sd-slider__label-text {
@@ -370,6 +372,26 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 
 .sd-question--readonly,
 .sd-question--preview {
+  .sd-slider__tooltip {
+    display: none;
+  }
+
+  .sd-slider__thumb-container--focused {
+    .sd-slider__thumb {
+      box-shadow: none;
+      border: none;
+    }
+  }
+}
+
+// .sd-question--disabled {
+//   .sd-slider__thumb-dot {
+//     opacity: var(--lbr-slider-thumb-dot-opacity-disabled, 1);
+//     background: var(--lbr-slider-thumb-dot-color-disabled, $background-dark);
+//   }
+// }
+
+.sd-question--readonly {
   .sd-slider__thumb-container {
     &:hover {
       .sd-slider__thumb-dot {
@@ -378,25 +400,104 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
       }
     }
   }
-}
 
-.sd-question--readonly {
-  .sd-slider__thumb-dot {
-    opacity: var(--lbr-slider-thumb-dot-opacity-disabled, 1);
-    background: var(--lbr-slider-thumb-dot-color-disabled, $background-dark);
+  .sd-slider__thumb {
+    box-shadow: none;
+    border: var(--lbr-slider-thumb-border-width-read-only, 2px) solid
+      var(--lbr-slider-thumb-border-color-read-only, rgba(0, 0, 0, 0.9));
+
+    .sd-slider__thumb-dot {
+      background: transparent;
+    }
+  }
+
+  .sd-slider__inverse-track {
+    background: var(--lbr-slider-path-color-read-only, $background-dark);
+    &::after,
+    &::before {
+      background: var(--lbr-slider-path-color-read-only, $background-dark);
+    }
+  }
+
+  .sd-slider__range-track {
+    background: var(--lbr-slider-path-color-filled-read-only, $foreground);
+
+    &::before {
+      background: var(--lbr-slider-path-color-filled-read-only, $foreground);
+    }
+
+    &::after {
+      background: var(--lbr-slider-path-color-filled-read-only, $foreground);
+    }
+  }
+
+  .sd-slider__label-tick {
+    background: var(--lbr-slider-label-tick-color, $border-light);
   }
 }
 
 .sd-question--preview {
+  .sd-slider__thumb-container {
+    &:hover {
+      .sd-slider__thumb-dot {
+        width: var(--lbr-slider-thumb-dot-width-preivew, calcSize(0.125));
+        height: var(--lbr-slider-thumb-dot-height-preview, calcSize(2));
+      }
+    }
+  }
+
   .sd-slider__thumb {
     box-shadow: none;
     padding: 0;
 
     .sd-slider__thumb-dot {
-      width: var(--lbr-slider-thumb-dot-width-preivew, calcSize(0.124));
+      width: var(--lbr-slider-thumb-dot-width-preivew, calcSize(0.125));
       height: var(--lbr-slider-thumb-dot-height-preview, calcSize(2));
       background: var(--lbr-slider-thumb-dot-color-preview, $foreground-dim);
     }
+  }
+
+  .sd-slider__inverse-track {
+    height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+    background: var(--lbr-slider-path-color-preview, $border-light);
+    &::after,
+    &::before {
+      height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+      background: var(--lbr-slider-path-color-preview, $border-light);
+    }
+  }
+
+  .sd-slider__inverse-track--left {
+    &::before {
+      background: var(--lbr-slider-path-color-filled-preview, $foreground);
+    }
+  }
+
+  .sd-slider__range-track {
+    height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+    background: var(--lbr-slider-path-color-filled-preview, $foreground);
+
+    &::before {
+      height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+      display: none;
+    }
+
+    &::after {
+      height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+      display: none;
+    }
+  }
+
+  .sd-slider--negative-scale {
+    .sd-slider__inverse-track--left {
+      &::before {
+        background: var(--lbr-slider-path-color-preview, $border-light);
+      }
+    }
+  }
+
+  .sd-slider__label-tick {
+    background: var(--lbr-slider-label-tick-color-preview, $foreground);
   }
 }
 

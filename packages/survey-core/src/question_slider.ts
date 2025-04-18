@@ -64,7 +64,8 @@ export class QuestionSliderModel extends QuestionRatingModel {
   public get rootCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
-      .append(this.cssClasses.rootSingleMode, !Array.isArray(this.value))
+      .append(this.cssClasses.rootSingleMode, this.sliderType === "single")
+      .append(this.cssClasses.rootNegativeScaleMode, this.isNegativeScale)
       .toString();
   }
 
@@ -84,6 +85,9 @@ export class QuestionSliderModel extends QuestionRatingModel {
   }
 
   public isIndeterminate: boolean = false;
+  public get isNegativeScale():boolean {
+    return this.min < 0;
+  }
   @property({ defaultValue: null }) focusedThumb: number | null; // TODO probably need to be just internal not property
   public dragOrClickHelper: DragOrClickHelper;
 

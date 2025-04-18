@@ -688,7 +688,9 @@ export var defaultCss = {
     input: "sd-slider__input",
     labelsContainer: "sd-slider-labels-container",
     label: "sd-slider__label",
-    labelLong: "sd-slider__label--long",
+    labelLongMod: "sd-slider__label--long",
+    labelTick: "sd-slider__label-tick",
+    labelText: "sd-slider__label-text",
   },
   comment: {
     root: "sd-input sd-comment",

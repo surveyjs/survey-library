@@ -124,8 +124,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
 
       const label = <React.Fragment key={"label-" + i}>
-        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLong : ""}`} style={{ left: position + "%" }}>
-          <div>
+        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLongMod : ""}`} style={{ left: position + "%" }}>
+          <div className={cssClasses.labelTick}></div>
+          <div className={cssClasses.labelText}>
             {labelFormat.replace("{0}", "" + labelText)}
           </div>
         </div>
@@ -185,7 +186,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         input.step = 0.1;
       }
     }
-    this.oldValue = this.question.value.slice();
+    const value = this.question.value;
+    this.oldValue = Array.isArray(value) ? value.slice() : value;
   };
 
   private handlePointerUp = (e, inputNumber:number) => {

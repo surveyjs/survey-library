@@ -160,7 +160,7 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   justify-content: center;
   align-items: center;
   user-select: none;
-  font-family: $font-family;
+  font-family: var(--lbr-font-family, $font-family);
   font-size: var(--lbr-font-small-size, calSize(1.5));
   font-weight: 600;
   line-height: var(--lbr-font-small-line-height, size(2));
@@ -209,16 +209,10 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   position: absolute;
   width: $slider-thumb-width;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--lbr-slider-label-gap, calcSize(0.5));
   margin-left: calc($slider-thumb-width / -2);
-
-  // &:first-child {
-  //   margin-left: -4px;
-  // }
-
-  // &:last-child {
-  //   margin-right: -4px;
-  // }
 }
 
 .sd-slider__label--long {
@@ -226,6 +220,25 @@ $slider-thumb-color: var(--lbr-slider-thumb-color, $background);
   white-space: break-spaces;
   top: -30px;
   max-width: 80px;
+}
+
+.sd-slider__label-tick {
+  display: flex;
+  width: var(--lbr-slider-label-tick-width, calcSize(0.125));
+  height: var(--lbr-slider-label-tick-height, calcSize(0.5));
+  flex-direction: column;
+  align-items: flex-start;
+  background: var(--lbr-slider-label-tick-color, #d4d4d4);
+}
+
+.sd-slider__label-text {
+  color: var(--lbr-slider-label-text-color, $foreground-dim);
+  text-align: center;
+  font-family: var(--lbr-font-family, $font-family);
+  font-size: var(--lbr-font-default-size, calcSize(2));
+  font-style: normal;
+  font-weight: 400;
+  line-height: var(--lbr-font-default-line-height, calcSize(3));
 }
 
 input[type="range"].sd-slider__input {

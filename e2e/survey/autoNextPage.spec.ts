@@ -128,7 +128,6 @@ frameworks.forEach((framework) => {
 
     test("check auto next page with keyboard", async ({ page }) => {
       await initSurvey(page, framework, json);
-      await page.waitForTimeout(500);
 
       const progressText = page.locator(".sd-progress-buttons__page-title");
       let text = "Page 1 of 3";
@@ -138,7 +137,6 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      await page.waitForTimeout(500);
       text = "Page 2 of 3";
       expect(await progressText.textContent()).toBe(text);
       await page.keyboard.press("ArrowDown");
@@ -146,7 +144,6 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
 
-      await page.waitForTimeout(500);
       text = "Page 3 of 3";
       expect(await progressText.textContent()).toBe(text);
       await page.keyboard.press("ArrowDown");

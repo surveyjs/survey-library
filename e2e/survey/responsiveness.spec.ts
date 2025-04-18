@@ -84,6 +84,7 @@ frameworks.forEach((framework) => {
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.click(".sd-navigation__next-btn");
 
+      await page.waitForTimeout(500);
       const renderAs = await page.evaluate(() => {
         return window["survey"].getAllQuestions()[1].renderAs;
       });
@@ -92,6 +93,7 @@ frameworks.forEach((framework) => {
       await page.click(".sd-navigation__next-btn");
       await page.click(".sd-navigation__prev-btn");
 
+      await page.waitForTimeout(500);
       const renderAsAfter = await page.evaluate(() => {
         return window["survey"].getAllQuestions()[1].renderAs;
       });

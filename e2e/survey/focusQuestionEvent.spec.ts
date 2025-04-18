@@ -66,7 +66,6 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.waitForTimeout(500);
 
       await page.evaluate(() => {
         window["Survey"].settings.enterKeyAction = "loseFocus";
@@ -147,7 +146,6 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.waitForTimeout(500);
 
       await page.evaluate(() => {
         window["survey"].enterKeyAction = "loseFocus";
@@ -244,6 +242,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
+      await page.waitForTimeout(500);
 
       await page.evaluate(() => {
         window["survey_focusedName"] = undefined;
@@ -299,7 +298,6 @@ frameworks.forEach((framework) => {
           { name: "q5", type: "text" }
         ]
       });
-      await page.waitForTimeout(500);
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

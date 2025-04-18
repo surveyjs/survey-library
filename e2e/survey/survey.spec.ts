@@ -37,7 +37,6 @@ frameworks.forEach((framework) => {
       await page.setViewportSize({ width: 1600, height: 900 });
 
       await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
-      await page.waitForTimeout(500);
 
       await page.evaluate(() => {
         window["survey"].data = { question1: "Item 1" };
@@ -59,7 +58,6 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(newJson);
       });
 
-      await page.waitForTimeout(500);
       await expect(page.locator('.sv-title-actions__title:has-text("question1")')).toBeVisible();
     });
 

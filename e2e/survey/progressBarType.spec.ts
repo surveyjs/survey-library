@@ -102,7 +102,6 @@ frameworks.forEach((framework) => {
 
       await expect(page1).toBeVisible();
       await expect(page2).toBeVisible();
-      await page.waitForTimeout(500);
       await page2.click();
       await expect(page.locator("h5.sd-question__title").filter({ hasText: "q3" })).toBeVisible();
     });

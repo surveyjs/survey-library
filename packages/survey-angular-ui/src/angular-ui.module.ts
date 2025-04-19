@@ -128,6 +128,10 @@ import { FilePreviewComponent } from "./components/file/file-preview.component";
 import { FileItemComponent } from "./components/file/file-item.component";
 import { FilePageComponent } from "./components/file/file-page.component";
 import { SvgBundleComponent } from "./svgbundle.component";
+import { BreadcrumbsComponent } from "./components/breadcrumbs/breadcrumbs.component";
+import { SingleInputSummaryComponent } from "./components/single-input-summary/single-input-summary.component";
+import { MatrixDynamicPlaceholderComponent } from "./components/matrixdynamicplaceholder/matrixdynamicplaceholder.component";
+import { PanelDynamicPlaceholderComponent } from "./components/paneldynamicplaceholder/paneldynamicplaceholder.component";
 
 @NgModule({
   declarations: [
@@ -147,7 +151,8 @@ import { SvgBundleComponent } from "./svgbundle.component";
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
+    BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent
   ],
   imports: [
     CommonModule, FormsModule
@@ -170,7 +175,8 @@ import { SvgBundleComponent } from "./svgbundle.component";
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
+    BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent
   ],
   providers: [PopupService],
 })

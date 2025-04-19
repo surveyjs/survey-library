@@ -4,9 +4,24 @@
     [attr.aria-invalid]="model.ariaInvalid" [attr.aria-label]="model.ariaLabel"
     [attr.aria-labelledby]="model.ariaLabelledBy" [attr.aria-describedby]="model.ariaDescribedBy"
     [attr.aria-expanded]="model.ariaExpanded">
+    <sv-breadcrumbs
+      *ngIf="model.singleInputHasActions"
+      [model]="model.singleInputActions"
+      [css]="model.cssClasses"
+    ></sv-breadcrumbs>
     <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
-    <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
+    <div [element]="model" *ngIf="!model.singleInputHideHeader && model.hasTitleOnLeftTop" sv-ng-element-header></div>
+    <sv-single-input-summary
+      *ngIf="!!model.singleInputSummary"
+      [model]="model.singleInputSummary"
+      [css]="model.cssClasses"
+    ></sv-single-input-summary>
+    <sv-ng-element
+      *ngIf="!model.singleInputSummary && !!singleQuestion"
+      [model]="singleQuestion"
+    ></sv-ng-element>
     <ng-template
+      *ngIf="!model.singleInputSummary && !singleQuestion"
       [component]="{ name: getQuestionContentWrapperComponentName(), data: getQuestionContentWrapperComponentData() }">
       <div [class]="model.cssContent" role="presentation" [visible]="model.renderedIsExpanded">
         <ng-template

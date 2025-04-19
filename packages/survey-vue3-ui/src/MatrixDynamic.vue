@@ -21,29 +21,11 @@
       v-if="question.renderedTable.showTable"
       :question="question"
     />
-    <div
-      v-if="!question.renderedTable.showTable"
-      :class="question.cssClasses.noRowsSection"
-    >
-      <div :class="question.cssClasses.noRowsText">
-        <SvComponent
-          :is="'survey-string'"
-          :locString="question.locNoRowsText"
-        />
-      </div>
-      <button
-        v-if="question.renderedTable.showAddRow"
-        type="button"
-        :class="question.getAddRowButtonCss(true)"
-        @click="addRowClick"
-      >
-        <SvComponent
-          :is="'survey-string'"
-          :locString="question.locAddRowText"
-        />
-        <span :class="question.cssClasses.iconAdd"></span>
-      </button>
-    </div>
+    <SvComponent
+      :is="'survey-placeholder-matrixdynamic'"
+      v-else
+      :question="question"
+    />
     <div
       v-if="question.renderedTable.showAddRowOnBottom"
       :class="question.cssClasses.footer"

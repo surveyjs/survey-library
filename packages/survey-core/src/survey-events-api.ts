@@ -1075,6 +1075,9 @@ export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueE
    */
   value: any;
 }
+export interface CheckSingleInputPerPageModeEvent extends QuestionEventMixin {
+  enabled: boolean;
+}
 
 export interface MultipleTextItemAddedEvent extends QuestionEventMixin {
   /**

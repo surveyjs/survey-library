@@ -2,7 +2,7 @@
   <SvComponent
     :is="'survey-string'"
     v-if="element.isTitleRenderedAsString"
-    :locString="element.locTitle"
+    :locString="element.locRenderedTitle"
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
@@ -31,7 +31,7 @@
   <SvComponent
     :is="'survey-string'"
     v-if="!element.isTitleRenderedAsString"
-    :locString="element.locTitle"
+    :locString="element.locRenderedTitle"
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"

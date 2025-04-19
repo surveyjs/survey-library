@@ -9,7 +9,7 @@ import {
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
-import { IAction } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 import { settings } from "./settings";
 import { confirmActionAsync } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
@@ -18,6 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
+import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -37,10 +38,10 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
     return "row" + (this.index + 1);
   }
   public get text(): any {
-    return "row " + (this.index + 1);
+    return "row " + (this.visibleIndex + 1);
   }
   public getAccessbilityText(): string {
-    return (this.index + 1).toString();
+    return (this.visibleIndex + 1).toString();
   }
   public get shortcutText(): string {
     const matrix = <QuestionMatrixDynamicModel>this.data;
@@ -81,6 +82,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     };
     this.createLocalizableString("removeRowText", this, false, "removeRow");
     this.createLocalizableString("noRowsText", this, false, true);
+    this.createLocalizableString("editRowText", this, false, "editText");
     this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
     this.registerPropertyChangedHandlers(["allowRowReorder", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
@@ -491,6 +493,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
+    this.singleInputOnAddItem(false);
     if (this.detailPanelShowOnAdding && this.visibleRows.length > 0) {
       this.visibleRows[this.visibleRows.length - 1].showDetailPanel();
     }
@@ -669,6 +672,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
+    this.singleInputOnRemoveItem(index);
     this.onEndRowRemoving(row);
   }
   private removeRowCore(index: number) {
@@ -696,6 +700,72 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (this.survey) {
       this.survey.matrixRowRemoved(this, index, row);
     }
+  }
+  protected onSingleInputQuestionAdded(question: Question): void {
+    if (!this.showHeader) {
+      question.titleLocation = "hidden";
+    }
+  }
+  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
+    const res = new Array<Question>();
+    const rows = this.visibleRows;
+    if ((!question || question === this) && rows.length > 0) {
+      for (let i = 0; i < rows.length; i ++) {
+        const row = rows[i];
+        if (row.isEmpty || row.hasErrors(false, {}, () => {})) {
+          this.fillSingleInputQuestionsByRow(res, row);
+        }
+      }
+    }
+    return this.getSingleInputQuestionsForDynamic(res.length > 0 ? res[0] : null);
+  }
+  protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
+    const row = this.getRowByQuestion(innerQuestion);
+    this.fillSingleInputQuestionsByRow(res, row);
+  }
+  private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
+    if (row) {
+      row.questions.forEach(q => q.addNestedQuestion(res, true, false));
+    }
+  }
+
+  protected getSingleInputAddTextCore(): string {
+    if (!this.canAddRow) return undefined;
+    return this.addRowText;
+  }
+  protected singleInputAddItemCore(): void {
+    this.addRowUI();
+  }
+  protected singleInputRemoveItemCore(question: Question): void {
+    this.removeRowUI(this.getRowByQuestion(question));
+  }
+  protected getSingleQuestionOnChange(index: number): Question {
+    const rows = this.visibleRows;
+    if (rows.length > 0) {
+      if (index < 0 || index >= rows.length) index = rows.length - 1;
+      const row = rows[index];
+      const vQs = row.visibleQuestions;
+      if (vQs.length > 0) {
+        return vQs[0];
+      }
+    }
+    return null;
+  }
+  protected createSingleInputSummary(): QuestionSingleInputSummary {
+    const res = new QuestionSingleInputSummary(this, this.locNoRowsText);
+    const items = new Array<QuestionSingleInputSummaryItem>();
+    this.visibleRows.forEach((row) => {
+      const locText = new LocalizableString(this, true, undefined, this.getSingleInputTitleTemplate());
+      locText.setJson(this.locSingleInputTitleTemplate.getJson());
+      locText.onGetTextCallback = (text: string): string => {
+        return row.getTextProcessor().processText(text, true);
+      };
+      const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singleInputEditRow(row); } });
+      const btnRemove = this.canRemoveRow(row) ? new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
+      items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
+    });
+    res.items = items;
+    return res;
   }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
@@ -728,6 +798,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
     );
   }
+  protected getSingleInputTitleTemplate(): string { return "rowIndexTemplateTitle"; }
   /**
    * Specifies the location of the Add Row button.
    *

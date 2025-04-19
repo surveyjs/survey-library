@@ -11,6 +11,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
+import { Question } from "../src/question";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1883,6 +1884,25 @@ QUnit.test("column.defaultDisplayValue", function (assert) {
   survey.locale = "de";
   assert.equal(qCell1.displayValue, "col1-value", "displayValue, #3");
   assert.equal(qCell2.displayValue, "col1-de", "displayValue, #4");
+});
+QUnit.test("scroll on error", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        cellType: "text",
+        type: "matrixdropdown",
+        name: "q1",
+        "columns": [{ name: "col1" }, { name: "col2", isRequired: true }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  let errorName = "";
+  survey.onScrollToTop.add((sender, options) => {
+    errorName = options.element.name;
+  });
+  assert.equal(survey.tryComplete(), false, "can't complete");
+  assert.equal(errorName, "q1", "focus on question");
 });
 QUnit.test("survey.onAfterRenderMatrixCell event", function (assert) {
   const survey = new SurveyModel({

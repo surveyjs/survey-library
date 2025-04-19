@@ -1,0 +1,6 @@
+<div *ngIf="question.getShowNoEntriesPlaceholder()" [class]="question.cssClasses.noEntriesPlaceholder">
+  <span>
+    <sv-ng-string [model]="question.locNoEntriesText"></sv-ng-string>
+  </span>
+  <sv-ng-paneldynamic-add-btn *ngIf="question.canAddPanel" [data]="{ question }"></sv-ng-paneldynamic-add-btn>
+</div> 

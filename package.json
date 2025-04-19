@@ -23,6 +23,7 @@
     "axe-playwright": "^2.1.0",
     "axe-testcafe": "^3.0.0",
     "concurrently": "^7",
+    "cross-env": "^7.0.3",
     "devextreme-screenshot-comparer": "^2.0.11",
     "lint-staged": "^15.4.3",
     "eslint": "^8.57.0",

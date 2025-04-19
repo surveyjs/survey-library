@@ -182,7 +182,6 @@ frameworks.forEach((framework) => {
       await clickButton.click();
       await expect(popupModalSelector).toBeVisible();
       await expect(page.locator(".sv-popup span").getByText("modal_question")).toBeVisible();
-      await page.waitForTimeout(500);
 
       const popupClientRect = await popupModalSelector.locator(".sv-popup__container").boundingBox();
       const paddingDiff = 32;

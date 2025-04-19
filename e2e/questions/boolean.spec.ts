@@ -5,7 +5,7 @@ import { test, expect } from "@playwright/test";
 const themeName = "default";
 const title = "boolean";
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       const json = {
         questions: [

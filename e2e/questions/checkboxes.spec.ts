@@ -36,7 +36,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url_test}${themeName}/${framework}`);
       await initSurvey(page, framework, json);
@@ -487,7 +487,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url_test}${themeName}/${framework}`);
       await initSurvey(page, framework, json);
@@ -518,7 +518,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url_test}${themeName}/${framework}`);
       await page.setViewportSize({ width: 800, height: 600 });

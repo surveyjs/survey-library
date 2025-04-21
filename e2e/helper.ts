@@ -132,3 +132,12 @@ export async function setRowItemFlowDirection(page) {
     window["Survey"].settings.itemFlowDirection = "row";
   });
 }
+
+export async function compareScreenshot(page: Page, element: string, screenshotName: string) {
+  await page.waitForLoadState("networkidle");
+  await page.waitForSelector(element);
+  await expect(page.locator(element)).toBeVisible();
+  await expect(page.locator(element)).toHaveScreenshot(screenshotName, {
+    timeout: 10000
+  });
+}

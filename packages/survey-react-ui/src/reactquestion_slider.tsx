@@ -25,9 +25,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   protected renderElement(): React.JSX.Element {
     const { cssClasses, showLabels, sliderType, getRenderedValue } = this.question;
 
-    const inputs = this.getInputs();
     const rangeInput = sliderType === "single" ? null : this.getRangeInput();
-    const thumbs = this.getThumbs();
+    const thumbsAndInputs = this.getInputsAndThumbs();
     const labels = showLabels ? this.getLabels() : null;
 
     const value = getRenderedValue();
@@ -44,7 +43,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
             <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
             <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
             <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
-            {thumbs}
+            {thumbsAndInputs}
           </div>
         </div>
         <div className={cssClasses.labelsContainer}>
@@ -52,7 +51,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
             {labels}
           </div>
         </div>
-        {inputs}
         {rangeInput}
       </div>
     );
@@ -60,68 +58,72 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private rangeInputRef:React.RefObject<HTMLInputElement>;
 
-  private getInputs() {
-    const inputs = [];
-    const { max, min, step, cssClasses, getRenderedValue, isDisabledAttr, isReadOnlyAttr } = this.question;
+  private getInputsAndThumbs() {
+    const inputsAndThumbs = [];
+    const value:number[] = this.question.getRenderedValue();
+
+    for (let i = 0; i < value.length; i++) {
+      // TODO all keys should be generated ids
+      const thumbAndInput = <React.Fragment key={"thumb-" + i}>
+        {this.getInput(i)}
+        {this.getThumb(i)}
+      </React.Fragment>;
+      inputsAndThumbs.push(thumbAndInput);
+    }
+    return inputsAndThumbs;
+  }
+
+  private getThumb(i: number) {
+    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
 
     let value:number[] = getRenderedValue();
 
-    for (let i = 0; i < value.length; i++) {
-      const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step}
-        onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }
-        onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }
-        disabled={isDisabledAttr}
-      />;
-      inputs.push(input);
+    let percent: string = this.getPercent(value[i]) + "%";
+
+    let tooltip: ReactElement | null = null;
+    let toolTipValue = step ? this.getClosestToStepValue(value[i]) : value[i];
+
+    if (tooltipVisibility !== "never") {
+      tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`}>
+        <div className={cssClasses.tooltipPanel}>
+          <div className={cssClasses.tooltipValue} >{tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
+        </div>
+        <div className={cssClasses.tooltipPointer}>
+          <svg viewBox="0 0 12 6" fill="black" xmlns="http://www.w3.org/2000/svg">
+            <path id="Pointer" d="M6 6L12 0L5.24537e-07 -1.04907e-06L6 6Z" />
+          </svg>
+        </div>
+      </div>;
     }
-    return inputs;
+
+    const thumb =
+      <div className={`${thumbContainerCss} ${i === focusedThumb ? cssClasses.thumbContainerFocusedMode : ""}`} style={{ left: percent }}>
+        {tooltip}
+        <div className={cssClasses.thumb}>
+          <div className={cssClasses.thumbDot}></div>
+        </div>
+      </div>;
+
+    return thumb;
+  }
+
+  private getInput(i:number) {
+    const { max, min, step, cssClasses, getRenderedValue, isDisabledAttr } = this.question;
+
+    let value:number[] = getRenderedValue();
+
+    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step}
+      onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }
+      onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }
+      disabled={isDisabledAttr}
+    />;
+    return input;
   }
 
   private getRangeInput() {
     const { max, min, step, cssClasses, allowDragRange } = this.question;
     if (!allowDragRange) return null;
     return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={ (e)=>{ this.handleRangePointerUp(e); } } />;
-  }
-
-  private getThumbs() {
-    const thumbs = [];
-    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
-
-    let value:number[] = getRenderedValue();
-
-    for (let i = 0; i < value.length; i++) {
-      let percent: string = this.getPercent(value[i]) + "%";
-
-      let tooltip: ReactElement | null = null;
-      let toolTipValue = step ? this.getClosestToStepValue(value[i]) : value[i];
-
-      if (tooltipVisibility !== "never") {
-        tooltip = <React.Fragment>
-          <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`}>
-            <div className={cssClasses.tooltipPanel}>
-              <div className={cssClasses.tooltipValue} >{tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
-            </div>
-            <div className={cssClasses.tooltipPointer}>
-              <svg viewBox="0 0 12 6" fill="black" xmlns="http://www.w3.org/2000/svg">
-                <path id="Pointer" d="M6 6L12 0L5.24537e-07 -1.04907e-06L6 6Z" />
-              </svg>
-            </div>
-          </div>
-        </React.Fragment>;
-      }
-
-      // TODO all keys should be generated ids
-      const thumb = <React.Fragment key={"thumb-" + i}>
-        <div className={`${thumbContainerCss} ${i === focusedThumb ? cssClasses.thumbContainerFocusedMode : ""}`} style={{ left: percent }}>
-          {tooltip}
-          <div className={cssClasses.thumb}>
-            <div className={cssClasses.thumbDot}></div>
-          </div>
-        </div>
-      </React.Fragment>;
-      thumbs.push(thumb);
-    }
-    return thumbs;
   }
 
   private getLabels() {

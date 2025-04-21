@@ -118,11 +118,15 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   width: $slider-thumb-width;
   height: $slider-thumb-height;
   border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
+}
 
+.sd-slider__input {
   &:hover {
-    .sd-slider__thumb-dot {
-      width: var(--lbr-slider-thumb-dot-width-hovering, calcSize(2));
-      height: var(--lbr-slider-thumb-dot-height-hovering, calcSize(2));
+    & + .sd-slider__thumb-container {
+      .sd-slider__thumb-dot {
+        width: var(--lbr-slider-thumb-dot-width-hovering, calcSize(2));
+        height: var(--lbr-slider-thumb-dot-height-hovering, calcSize(2));
+      }
     }
   }
 }
@@ -311,10 +315,12 @@ input[type="range"].sd-slider__input:focus::-webkit-slider-runnable-track {
 
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
   margin: 0 calc($slider-thumb-width / -2);
+  height: $slider-path-height;
 }
 
 input[type="range"].sd-slider__input::-moz-range-track {
   margin: 0 calc($slider-thumb-width / -2);
+  height: $slider-path-height;
 }
 
 input[type="range"].sd-slider__input:focus {

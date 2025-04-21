@@ -50,7 +50,7 @@
         :class="question.getFileDecoratorCss()"
         v-if="question.showFileDecorator"
       >
-        <span :class="question.cssClasses.dragAreaPlaceholder">
+        <span :class="question.cssClasses.dragAreaPlaceholder" v-if="question.showDragAreaPlaceholder">
           <SvComponent
             :is="'survey-string'"
             :locString="question.locRenderedPlaceholder"
@@ -62,11 +62,6 @@
             v-if="question.actionsContainerVisible"
             :model="question.actionsContainer"
           ></SvComponent>
-          <span
-            :class="question.cssClasses.noFileChosen"
-            v-if="question.isEmpty()"
-            >{{ question.noFileChosenCaption }}</span
-          >
         </div>
       </div>
       <div

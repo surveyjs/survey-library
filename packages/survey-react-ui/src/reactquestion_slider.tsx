@@ -85,7 +85,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getThumbs() {
     const thumbs = [];
-    const { isIndeterminate, cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
+    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
 
     let value:number[] = getRenderedValue();
 
@@ -97,9 +97,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
       if (tooltipVisibility !== "never") {
         tooltip = <React.Fragment>
-          <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`} style={{ left: percent }}>
+          <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`}>
             <div className={cssClasses.tooltipPanel}>
-              <div className={cssClasses.tooltipValue} >{isIndeterminate ? "—" : tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
+              <div className={cssClasses.tooltipValue} >{tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
             </div>
             <div className={cssClasses.tooltipPointer}>
               <svg viewBox="0 0 12 6" fill="black" xmlns="http://www.w3.org/2000/svg">
@@ -113,11 +113,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       // TODO all keys should be generated ids
       const thumb = <React.Fragment key={"thumb-" + i}>
         <div className={`${thumbContainerCss} ${i === focusedThumb ? cssClasses.thumbContainerFocusedMode : ""}`} style={{ left: percent }}>
+          {tooltip}
           <div className={cssClasses.thumb}>
             <div className={cssClasses.thumbDot}></div>
           </div>
         </div>
-        {tooltip}
       </React.Fragment>;
       thumbs.push(thumb);
     }

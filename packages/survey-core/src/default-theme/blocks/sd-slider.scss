@@ -169,11 +169,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 .sd-slider__tooltip {
   opacity: 1;
   position: absolute;
-  margin-left: calc($slider-thumb-width / -2);
-  left: -7px;
-  top: -48px;
-  margin-left: -25px;
-  z-index: 3;
+  bottom: calc(100% + $slider-tooltip-pointer-height);
 
   // -webkit-filter: drop-shadow(
   //     var(--lbr-tooltip-shadow-2-offset-x, 0px) var(--lbr-tooltip-shadow-2-offset-y, 1px)

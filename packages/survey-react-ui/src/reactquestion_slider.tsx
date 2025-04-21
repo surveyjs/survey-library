@@ -38,6 +38,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
+        {rangeInput}
         <div className={cssClasses.visualContainer} onPointerUp={ (e)=>{ this.setValueByClick(e); }}>
           <div className={cssClasses.visualContainerSlider}>
             <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
@@ -51,7 +52,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
             {labels}
           </div>
         </div>
-        {rangeInput}
       </div>
     );
   }

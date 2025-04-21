@@ -22,7 +22,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) minRangeLength: number | null;
   @property({ defaultValue: "{0}" }) tooltipFormat: string;
   @property({ defaultValue: "{0}" }) labelFormat: string;
-  @property({ defaultValue: "always" }) tooltipVisibility: "onhover" | "always" | "never";
+  @property({ defaultValue: "onhover" }) tooltipVisibility: "onhover" | "always" | "never";
   public get step(): number {
     if (this.segmentCount) {
       return (this.max - this.min) / this.segmentCount;
@@ -84,7 +84,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
     return this.minRangeLength ?? this.step;
   }
 
-  public isIndeterminate: boolean = false;
+  public isIndeterminate = false;
   public get isNegativeScale():boolean {
     return this.min < 0;
   }
@@ -214,7 +214,7 @@ Serializer.addClass(
     },
     {
       name: "tooltipVisibility:string",
-      default: "always"
+      default: "onhover"
     },
     {
       name: "labelFormat:string",

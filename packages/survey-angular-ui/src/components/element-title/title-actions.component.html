@@ -18,6 +18,7 @@
         [class]="element.cssRequiredMark"
         [attr.aria-hidden]="true"
         >{{ element.requiredMark }}</span>
+      <span *ngIf="element.isRequireTextOnStart">&nbsp;</span>
       <span
         *ngIf="element.no"
         style="position: static"

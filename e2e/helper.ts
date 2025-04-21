@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 const environment = process.env.env;
@@ -39,8 +39,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
-    //!!!TODO!!!
-    //window["Survey"].settings.animationEnabled = false;
+    window["Survey"].settings.animationEnabled = false;
     const self: any = window;
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
@@ -131,4 +130,16 @@ export async function setRowItemFlowDirection(page) {
   await page.evaluate(() => {
     window["Survey"].settings.itemFlowDirection = "row";
   });
+}
+
+export async function visibleInViewport (page, locator: Locator) {
+  const rect = await locator.boundingBox();
+  return await page.evaluate((rect) => {
+    return (
+      rect?.y >= 0 &&
+      rect?.x >= 0 &&
+      rect?.y + rect?.height <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }, rect);
 }

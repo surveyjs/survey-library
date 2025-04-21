@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { expectHaveClasses, frameworks, initSurvey, url } from "../helper";
+import { frameworks, initSurvey, url } from "../helper";
 
 const title = "Survey responsiveness";
 
@@ -21,15 +21,15 @@ frameworks.forEach((framework) => {
       });
 
       const rootSelector = page.locator(".sd-root-modern");
-      const mobileClass = "sd-root-modern--mobile";
+      const mobileClass = /sd-root-modern--mobile/;
 
-      await expect(await expectHaveClasses(rootSelector, mobileClass)).toBeFalsy();
+      await expect(rootSelector).not.toHaveClass(mobileClass);
       await page.setViewportSize({ width: 500, height: 1000 });
       await page.waitForTimeout(500);
-      await expect(await expectHaveClasses(rootSelector, mobileClass)).toBeTruthy();
+      await expect(rootSelector).toHaveClass(mobileClass);
       await page.setViewportSize({ width: 1000, height: 1000 });
       await page.waitForTimeout(500);
-      await expect(await expectHaveClasses(rootSelector, mobileClass)).toBeFalsy();
+      await expect(rootSelector).not.toHaveClass(mobileClass);
     });
 
     test("check rating question in survey with multiple pages on small screen", async ({ page }) => {

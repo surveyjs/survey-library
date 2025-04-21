@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { expectHaveClasses, frameworks, initSurvey, url } from "../helper";
+import { frameworks, initSurvey, url } from "../helper";
 
 const title = "questions isAnswered title style";
 
@@ -20,30 +20,30 @@ frameworks.forEach((framework) => {
       const q2 = page.locator(".sd-question__title").nth(1);
       const q3 = page.locator(".sd-question__title").nth(2);
       const q4 = page.locator(".sd-question__title").nth(3);
-      const cssClass = "sd-question__title--answer";
+      const cssClass = /sd-question__title--answer/;
 
-      await expect(await expectHaveClasses(q1, cssClass)).toBeFalsy();
+      await expect(q1).not.toHaveClass(cssClass);
       await page.getByText("item 1").click();
-      await expect(await expectHaveClasses(q1, cssClass)).toBeTruthy();
+      await expect(q1).toHaveClass(cssClass);
       await page.getByRole("button", { name: "Clear" }).click();
-      await expect(await expectHaveClasses(q1, cssClass)).toBeFalsy();
+      await expect(q1).not.toHaveClass(cssClass);
 
-      await expect(await expectHaveClasses(q2, cssClass)).toBeTruthy();
+      await expect(q2).toHaveClass(cssClass);
       await page.getByText("item 3").click();
-      await expect(await expectHaveClasses(q2, cssClass)).toBeTruthy();
+      await expect(q2).toHaveClass(cssClass);
 
-      await expect(await expectHaveClasses(q3, cssClass)).toBeFalsy();
+      await expect(q3).not.toHaveClass(cssClass);
       await page.getByText("item 5").click();
-      await expect(await expectHaveClasses(q3, cssClass)).toBeTruthy();
+      await expect(q3).toHaveClass(cssClass);
       await page.getByText("item 5").click();
-      await expect(await expectHaveClasses(q3, cssClass)).toBeFalsy();
+      await expect(q3).not.toHaveClass(cssClass);
 
-      await expect(await expectHaveClasses(q4, cssClass)).toBeTruthy();
+      await expect(q4).toHaveClass(cssClass);
       await page.getByText("item 8").click();
-      await expect(await expectHaveClasses(q4, cssClass)).toBeTruthy();
+      await expect(q4).toHaveClass(cssClass);
       await page.getByText("item 7").click();
       await page.getByText("item 8").click();
-      await expect(await expectHaveClasses(q4, cssClass)).toBeFalsy();
+      await expect(q4).not.toHaveClass(cssClass);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, expectHaveClasses } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 
 const title = "titleActions";
 
@@ -40,7 +40,7 @@ frameworks.forEach((framework) => {
       await expect(visibleAction).toBeVisible();
       await expect(visibleAction.locator("button svg use")).toHaveCount(0);
       await expect(visibleAction.locator("div.sv-action-bar-separator")).toHaveCount(0);
-      await expect(await expectHaveClasses(visibleAction.locator("button span"), "sv-action-bar-item__title--with-icon")).toBeFalsy();
+      await expect(visibleAction.locator("button span")).not.toHaveClass(/sv-action-bar-item__title--with-icon/);
 
       await visibleAction.locator("button").click();
 
@@ -91,7 +91,7 @@ frameworks.forEach((framework) => {
       }, json);
 
       await expect(page.locator("h5 use").nth(1)).toHaveAttribute("xlink:href", "#icon-action");
-      await expect(await expectHaveClasses(page.locator("h5 button span.sd-action__title"), "sv-action-bar-item__title--with-icon")).toBeTruthy();
+      await expect(page.locator("h5 button span.sd-action__title")).toHaveClass(/sv-action-bar-item__title--with-icon/);
       await expect(page.locator("h5 button .sd-action__icon")).toHaveCSS("width", "20px");
     });
 
@@ -308,27 +308,27 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       const elementTitle = page.locator(".sd-question__title");
       const elementDescription = page.locator(".sd-question__description");
-      const expandableClass = "sd-element__title--expandable";
-      const expandedClass = "sd-element__title--expanded";
-      const collapsedClass = "sd-element__title--collapsed";
+      const expandableClass = /sd-element__title--expandable/;
+      const expandedClass = /sd-element__title--expanded/;
+      const collapsedClass = /sd-element__title--collapsed/;
 
-      await expect(await expectHaveClasses(elementTitle, expandableClass)).toBeTruthy();
-      await expect(await expectHaveClasses(elementTitle, expandedClass)).toBeFalsy();
-      await expect(await expectHaveClasses(elementTitle, collapsedClass)).toBeTruthy();
+      await expect(elementTitle).toHaveClass(expandableClass);
+      await expect(elementTitle).not.toHaveClass(expandedClass);
+      await expect(elementTitle).toHaveClass(collapsedClass);
       let getQuestionState = await page.evaluate(() => { return window["survey"].getAllQuestions()[0].state; });
       expect(await getQuestionState).toBe("collapsed");
 
       await elementDescription.click();
-      await expect(await expectHaveClasses(elementTitle, expandableClass)).toBeTruthy();
-      await expect(await expectHaveClasses(elementTitle, expandedClass)).toBeTruthy();
-      await expect(await expectHaveClasses(elementTitle, collapsedClass)).toBeFalsy();
+      await expect(elementTitle).toHaveClass(expandableClass);
+      await expect(elementTitle).toHaveClass(expandedClass);
+      await expect(elementTitle).not.toHaveClass(collapsedClass);
       getQuestionState = await page.evaluate(() => { return window["survey"].getAllQuestions()[0].state; });
       expect(await getQuestionState).toBe("expanded");
 
       await elementDescription.click();
-      await expect(await expectHaveClasses(elementTitle, expandableClass)).toBeTruthy();
-      await expect(await expectHaveClasses(elementTitle, collapsedClass)).toBeTruthy();
-      await expect(await expectHaveClasses(elementTitle, expandedClass)).toBeFalsy();
+      await expect(elementTitle).toHaveClass(expandableClass);
+      await expect(elementTitle).not.toHaveClass(expandedClass);
+      await expect(elementTitle).toHaveClass(collapsedClass);
       getQuestionState = await page.evaluate(() => { return window["survey"].getAllQuestions()[0].state; });
       expect(await getQuestionState).toBe("collapsed");
     });

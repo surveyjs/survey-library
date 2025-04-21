@@ -143,12 +143,3 @@ export async function visibleInViewport (page, locator: Locator) {
     );
   }, rect);
 }
-export async function expectHaveClasses(locator: Locator, className: string) {
-  // get current classes of element
-  const attrClass = await locator.getAttribute("class");
-  const elementClasses: string[] = attrClass ? attrClass.split(" ") : [];
-  const targetClasses: string[] = className.split(" ");
-  // Every class should be present in the current class list
-  const isValid = targetClasses.every(classItem => elementClasses.indexOf(classItem) > -1);
-  return isValid;
-}

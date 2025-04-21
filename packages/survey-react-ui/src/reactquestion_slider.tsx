@@ -96,9 +96,18 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       let toolTipValue = step ? this.getClosestToStepValue(value[i]) : value[i];
 
       if (tooltipVisibility !== "never") {
-        tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`} style={{ left: percent }}>
-          <span className={cssClasses.tooltipValue} id={"sjs-slider-sign-value-" + i}>{isIndeterminate ? "—" : tooltipFormat.replace("{0}", "" + toolTipValue)}</span>
-        </div>;
+        tooltip = <React.Fragment>
+          <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`} style={{ left: percent }}>
+            <div className={cssClasses.tooltipPanel}>
+              <div className={cssClasses.tooltipValue} >{isIndeterminate ? "—" : tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
+            </div>
+            <div className={cssClasses.tooltipPointer}>
+              <svg viewBox="0 0 12 6" fill="black" xmlns="http://www.w3.org/2000/svg">
+                <path id="Pointer" d="M6 6L12 0L5.24537e-07 -1.04907e-06L6 6Z" />
+              </svg>
+            </div>
+          </div>
+        </React.Fragment>;
       }
 
       // TODO all keys should be generated ids

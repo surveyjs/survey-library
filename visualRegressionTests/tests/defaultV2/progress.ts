@@ -147,8 +147,11 @@ frameworks.forEach(framework => {
       await t.click(Selector("li").nth(1));
       await takeElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await t.resizeWindow(600, 1000);
+      await t.wait(500);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
@@ -163,8 +166,11 @@ frameworks.forEach(framework => {
       await t.click(Selector("li").nth(1));
       await takeElementScreenshot("survey-progress-bar-top-numbered-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await t.resizeWindow(600, 1000);
+      await t.wait(500);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-numbered-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
@@ -179,8 +185,11 @@ frameworks.forEach(framework => {
       await t.click(Selector("li").nth(1));
       await takeElementScreenshot("survey-progress-bar-top-bottom-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await t.resizeWindow(600, 1000);
+      await t.wait(500);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-bottom-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
@@ -711,8 +720,11 @@ frameworks.forEach(framework => {
       await t.click(Selector("li").nth(1));
       await takeElementScreenshot("survey-progress-bar-top-numbered-buttons-background.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await t.resizeWindow(600, 1000);
+      await t.wait(500);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-numbered-buttons-mobile-background.png", Selector(".sd-container-modern"), t, comparer);
     });
   });

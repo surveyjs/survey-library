@@ -38,7 +38,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   renderBackgroundImage(): React.JSX.Element | null {
     if (!this.question.backgroundImage) return null;
 
-    return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedCanvasWidth }}></img>;
+    return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedCanvasWidth }} role="presentation"></img>;
   }
   protected renderLoadingIndicator(): React.JSX.Element {
     return <div className={this.question.cssClasses.loadingIndicator}><LoadingIndicatorComponent></LoadingIndicatorComponent></div>;

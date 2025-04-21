@@ -87,7 +87,7 @@ https://github.com/surveyjs/survey-library/assets/102306951/844563b2-c7c3-400c-9
 - [Website](https://surveyjs.io/)
 - [Documentation](https://surveyjs.io/form-library/documentation/overview)
 - [Starter Demos](https://surveyjs.io/form-library/examples/overview)
-- [What's New](https://surveyjs.io/stay-updated/major-updates/2023)
+- [What's New](https://surveyjs.io/stay-updated/major-updates/2024)
 
 ## SurveyJS Product Family
 

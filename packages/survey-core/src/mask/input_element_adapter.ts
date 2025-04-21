@@ -15,7 +15,7 @@ export class InputElementAdapter {
     if (_value === null || _value === undefined) {
       _value = "";
     }
-    this.setInputValue(inputMaskInstance.getMaskedValue(_value));
+    this.setInputValue(inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value));
     this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);

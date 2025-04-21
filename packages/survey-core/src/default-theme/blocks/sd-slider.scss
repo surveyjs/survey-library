@@ -576,3 +576,30 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
     background: var(--lbr-slider-thumb-dot-color-error, $red);
   }
 }
+
+.sd-slider--design-mode {
+  .sd-slider__input {
+    &:hover {
+      & + .sd-slider__thumb-container {
+        .sd-slider__tooltip--on-hover {
+            opacity: 0;
+        }
+        .sd-slider__thumb-dot {
+          width: var(--lbr-slider-thumb-dot-width-hovering, calcSize(1.5));
+          height: var(--lbr-slider-thumb-dot-height-hovering, calcSize(1.5));
+        }
+      }
+    }
+  }
+
+  
+  input[type="range"][name="range-input"].sd-slider__input {
+    &:hover {
+      &+.sd-slider-visual-container {
+        .sd-slider__tooltip--on-hover {
+          opacity: 0;
+        }
+      }
+    }
+  }
+}

@@ -688,6 +688,7 @@ export var defaultCss = {
     root: "sd-slider",
     rootSingleMode: "sd-slider--single",
     rootNegativeScaleMode: "sd-slider--negative-scale",
+    rootDesignMode: "sd-slider--design-mode",
     visualContainer: "sd-slider-visual-container",
     visualContainerSlider: "sd-slider-visual-container__slider",
     rangeTrack: "sd-slider__range-track",

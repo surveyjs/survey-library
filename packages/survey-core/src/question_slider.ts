@@ -66,6 +66,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootSingleMode, this.sliderType === "single")
       .append(this.cssClasses.rootNegativeScaleMode, this.isNegativeScale)
+      .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .toString();
   }
 

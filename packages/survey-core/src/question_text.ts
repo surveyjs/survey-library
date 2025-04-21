@@ -99,6 +99,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set maskSettings(val: InputMaskBase) {
     if (!val) return;
+    const oldValue = this.maskSettings;
+    if (oldValue) {
+      oldValue.dispose();
+    }
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
     this.updateMaskAdapter();
@@ -112,7 +116,10 @@ export class QuestionTextModel extends QuestionTextBase {
       maskClassName = "masksettings";
     }
     const inputMask = Serializer.createClass(maskClassName);
-    inputMask.owner = this.survey;
+    inputMask.onPropertyChanged.add((_, options) => {
+      this.onNestedPropertyChanged.fire(this, { name: "maskSettings", newValue: options.newValue, nestedName: options.name });
+    });
+    inputMask.owner = this;
     return inputMask;
   }
 

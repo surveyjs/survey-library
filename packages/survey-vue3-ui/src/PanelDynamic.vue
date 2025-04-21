@@ -6,18 +6,12 @@
         :model="question.tabbedMenu"
       ></SvComponent>
     </div>
-    <div
+    <SvComponent
       v-if="question.getShowNoEntriesPlaceholder()"
-      :class="question.cssClasses.noEntriesPlaceholder"
-    >
-      <span>
-        <SvComponent
-          :is="'survey-string'"
-          :locString="question.locNoEntriesText"
-        ></SvComponent>
-      </span>
-      <SvComponent :is="'sv-paneldynamic-add-btn'" :data="{ question }" />
-    </div>
+      
+      :is="'survey-placeholder-paneldynamic'"
+      :question="question"
+    />
     <div
       :class="question.cssClasses.progress"
       v-if="question.isProgressTopShowing && question.isRangeShowing"

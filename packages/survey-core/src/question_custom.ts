@@ -632,7 +632,7 @@ export abstract class QuestionCustomModelBase extends Question
       this.customQuestion.onUpdateQuestionCssClasses(this, element, css);
     }
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+  protected setQuestionValue(newValue: any, updateIsAnswered = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateElementCss();
     if (!!this.customQuestion) {
@@ -842,7 +842,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
     }
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+  public hasErrors(fireCallback = true, rec: any = null): boolean {
     if (!this.contentQuestion) return false;
     var res = this.contentQuestion.hasErrors(fireCallback, rec);
     this.errors = [];
@@ -855,7 +855,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     this.updateElementCss();
     return res;
   }
-  public focus(onError: boolean = false): void {
+  public focus(onError = false): void {
     if (!!this.contentQuestion) {
       this.contentQuestion.focus(onError);
     } else {
@@ -954,7 +954,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected canSetValueToSurvey(): boolean {
     return false;
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+  protected setQuestionValue(newValue: any, updateIsAnswered = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     if (!this.isLoadingFromJson && !!this.contentQuestion &&
       !this.isTwoValueEquals(this.getContentQuestionValue(), newValue)
@@ -1065,7 +1065,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
+  public hasErrors(fireCallback = true, rec: any = null): boolean {
     var res = super.hasErrors(fireCallback, rec);
     if (!this.contentPanel) return res;
     return this.contentPanel.hasErrors(fireCallback, false, rec) || res;
@@ -1160,7 +1160,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     super.onReadOnlyChanged();
   }
-  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+  updateValueFromSurvey(newValue: any, clearData = false): void {
     this.updateEditingObj();
     super.updateValueFromSurvey(newValue, clearData);
   }
@@ -1228,7 +1228,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   protected getQuestionByName(name: string): IQuestion {
     return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
   }
-  private settingNewValue: boolean = false;
+  private settingNewValue = false;
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (this.settingNewValue) {
       this.setNewValueIntoQuestion(name, newValue);
@@ -1260,7 +1260,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if (!!q && q.comment !== newValue) {
       q.comment = newValue;
     }
-    this.value = val;
+    if (!this.settingNewValue) {
+      this.value = val;
+    }
   }
   getComment(name: string): string {
     const q = <Question>this.getQuestionByName(name);
@@ -1322,9 +1324,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
     if (!this.contentPanel) return;
-    this.contentPanel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?
@@ -1340,7 +1342,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return this.getContentPanelValue(val);
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+  protected setQuestionValue(newValue: any, updateIsAnswered = true): void {
     this.setValuesIntoQuestions(newValue);
     if (!this.isEditingSurveyElement && !!this.contentPanel) {
       newValue = this.getContentPanelValue();

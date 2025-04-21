@@ -2,7 +2,7 @@
   <SvComponent
     :is="'survey-string'"
     v-if="element.isTitleRenderedAsString"
-    :locString="element.locTitle"
+    :locString="element.locRenderedTitle"
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
@@ -10,6 +10,7 @@
     :aria-hidden="true"
     >{{ element.requiredMark }}</span
   >
+  <span v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart">&nbsp;</span>
   <span
     v-if="!element.isTitleRenderedAsString && element.no"
     style="position: static"
@@ -31,7 +32,7 @@
   <SvComponent
     :is="'survey-string'"
     v-if="!element.isTitleRenderedAsString"
-    :locString="element.locTitle"
+    :locString="element.locRenderedTitle"
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"

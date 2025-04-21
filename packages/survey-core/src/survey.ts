@@ -66,7 +66,7 @@ import {
   MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent,
   DynamicPanelItemValueChangedEvent, DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
-  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent,
   OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent,
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
@@ -897,6 +897,8 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
+
+  public onCheckSingleInputPerPageMode: EventBase<SurveyModel, CheckSingleInputPerPageModeEvent> = this.addEvent<SurveyModel, CheckSingleInputPerPageModeEvent>();
 
   /**
    * An event that is raised after the visibility of a popup is changed.
@@ -2351,7 +2353,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public get renderedHasDescription(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("description");
-    return !!this.hasDescription;
+    return !!this.hasDescription && this.showTitle;
   }
   public get hasTitle(): boolean {
     return this.renderedHasTitle;
@@ -2609,6 +2611,13 @@ export class SurveyModel extends SurveyElementCore
       val.innerCss = this.cssSurveyNavigationButton;
     }
     return this.navigationBar.addAction(val);
+  }
+  private removeNavigationItem(id: string): void {
+    const action = this.navigationBar.getActionById(id);
+    if (action) {
+      const actions = this.navigationBar.actions;
+      actions.splice(actions.indexOf(action), 1);
+    }
   }
   /**
    * Gets or sets a caption for the Start button.
@@ -4109,6 +4118,14 @@ export class SurveyModel extends SurveyElementCore
   public performNext(): boolean {
     const q: any = this.currentSingleElement;
     if (!q) return this.nextPage();
+    this.resetNavigationButton();
+    if (this.isSingleVisibleInput) {
+      if (!q.validateSingleInput()) return false;
+      if (q.nextSingleInput()) {
+        this.updateButtonsVisibility();
+        return true;
+      }
+    }
     if (this.validationEnabled && !q.validate(true)) return false;
     this.sendPartialResult();
     const questions = this.getSingleElements();
@@ -4128,6 +4145,14 @@ export class SurveyModel extends SurveyElementCore
   }
   public performPrevious(): boolean {
     const q = this.currentSingleElement;
+    if (!q) return this.prevPage();
+    this.resetNavigationButton();
+    if (this.isSingleVisibleInput) {
+      if ((<Question>q).prevSingleInput()) {
+        this.updateButtonsVisibility();
+        return true;
+      }
+    }
     if (!q) return this.prevPage();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
@@ -4400,12 +4425,7 @@ export class SurveyModel extends SurveyElementCore
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    let res: boolean = false;
-    if (this.currentSingleElement) {
-      res = !(<any>this.currentSingleElement).validate(true);
-    } else {
-      res = !page.validate(true, isFocuseOnFirstError);
-    }
+    const res = !page.validate(true, isFocuseOnFirstError);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }
@@ -4558,7 +4578,10 @@ export class SurveyModel extends SurveyElementCore
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   public get isSingleVisibleQuestion(): boolean {
-    return this.isSingleVisibleQuestionVal(this.questionsOnPageMode);
+    return !this.isDesignMode && (this.isSingleVisibleQuestionVal(this.questionsOnPageMode) || this.isSingleVisibleInput);
+  }
+  public get isSingleVisibleInput(): boolean {
+    return !this.isDesignMode && this.questionsOnPageMode == "inputPerPage";
   }
   private isSingleVisibleQuestionVal(val: string): boolean {
     return val === "questionPerPage" || val === "questionOnPage";
@@ -4570,6 +4593,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
    * - `"questionPerPage"` - Displays each question on a separate page.
+   * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page.
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
@@ -4727,11 +4751,16 @@ export class SurveyModel extends SurveyElementCore
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
+    const isSingleInput = this.isSingleVisibleInput;
     for (var i: number = 0; i < pages.length; i++) {
       const p = pages[i];
       if (!p.isStartPage && p.isVisible) {
         const els: Array<any> = [];
-        p.elements.forEach(el => els.push(el));
+        if (isSingleInput) {
+          p.addQuestionsToList(els, true);
+        } else {
+          p.elements.forEach(el => els.push(el));
+        }
         els.forEach(el => { if (el === includeEl || el.isVisible) res.push(el); });
       }
     }
@@ -4774,6 +4803,11 @@ export class SurveyModel extends SurveyElementCore
   public set currentSingleQuestion(val: Question) {
     this.currentSingleElement = val;
   }
+  public supportsNestedSingleInput(question: IQuestion): boolean {
+    const options = { question: <Question>question, enabled: true };
+    this.onCheckSingleInputPerPageMode.fire(this, options);
+    return options.enabled;
+  }
   private changeCurrentSingleElementOnVisibilityChanged(): void {
     const el = this.currentSingleElement;
     if (!el || el.isVisible) return;
@@ -4789,14 +4823,30 @@ export class SurveyModel extends SurveyElementCore
     if (oldValue === "singlePage") {
       this.updatePagesContainer();
     }
+    if (oldValue === "inputPerPage") {
+      this.getAllQuestions().forEach(q => q.resetSingleInput());
+    }
     if (this.isSinglePage) {
       this.updatePagesContainer();
     }
+    this.setupSingleInputNavigationActions();
     if (this.isSingleVisibleQuestion) {
       const els = this.getSingleElements();
       if (els.length > 0) {
         this.currentSingleElement = els[0];
       }
+    }
+  }
+  private setupSingleInputNavigationActions(): void {
+    const actionAddId = "sv-singleinput-add";
+    if (this.isSingleVisibleInput) {
+      const addItem = (): void => {
+        this.currentSingleQuestion.singleInputAddItem(true);
+        this.resetNavigationButton();
+      };
+      this.addNavigationItem({ id: actionAddId, visible: false, action: (): void => addItem() });
+    } else {
+      this.removeNavigationItem(actionAddId);
     }
   }
   private getPageStartIndex(): number {
@@ -4816,6 +4866,9 @@ export class SurveyModel extends SurveyElementCore
   public get isLastPage(): boolean {
     return this.getPropertyValue("isLastPage");
   }
+  public updateNavigationElements(): void {
+    this.updateButtonsVisibility();
+  }
   private updateButtonsVisibility(): void {
     this.updateIsFirstLastPageState();
     this.setPropertyValue("isShowPrevButton", this.calcIsShowPrevButton());
@@ -4823,6 +4876,17 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("isCompleteButtonVisible", this.calcIsCompleteButtonVisible());
     this.setPropertyValue("isPreviewButtonVisible", this.calcIsPreviewButtonVisible());
     this.setPropertyValue("isCancelPreviewButtonVisible", this.calcIsCancelPreviewButtonVisible());
+    this.updateSingleInputActions();
+  }
+  private updateSingleInputActions() {
+    if (!this.isSingleVisibleInput) return;
+    const q = this.currentSingleQuestion;
+    if (!q) return;
+    const addBtn = this.navigationBar.getActionById("sv-singleinput-add");
+    if (addBtn) {
+      addBtn.title = q.getSingleInputAddText();
+      addBtn.visible = !!addBtn.title;
+    }
   }
   public get isShowPrevButton(): boolean {
     return this.getPropertyValue("isShowPrevButton");
@@ -4851,11 +4915,20 @@ export class SurveyModel extends SurveyElementCore
     let lVal: boolean | undefined = undefined;
     const q = this.currentSingleElement;
     if (!!q) {
+      let isFirstInput = true;
+      let isLastInput = true;
+      if (this.isSingleVisibleInput) {
+        const inputState = (<Question>q).getSingleInputElementPos();
+        if (inputState !== 0) {
+          isFirstInput = inputState === -1;
+          isLastInput = inputState === 1;
+        }
+      }
       const questions = this.getSingleElements();
       const index = questions.indexOf(q);
       if (index >= 0) {
-        fVal = index === 0;
-        lVal = index === questions.length - 1;
+        fVal = isFirstInput && index === 0;
+        lVal = isLastInput && index === questions.length - 1;
       }
     }
     this.setPropertyValue("isFirstPage", !!curPage && curPage === this.firstVisiblePage && (!q || fVal === true));
@@ -7156,6 +7229,11 @@ export class SurveyModel extends SurveyElementCore
     if (!newValue) {
       this.changeCurrentSingleElementOnVisibilityChanged();
     }
+    const el: any = this.currentSingleElement;
+    const curPage = this.currentPage;
+    if (!!el && !!curPage && el.page !== curPage) {
+      this.currentSingleElement = curPage.getFirstVisibleElement();
+    }
     this.onPageVisibleChanged.fire(this, {
       page: page,
       visible: newValue,
@@ -7613,10 +7691,12 @@ export class SurveyModel extends SurveyElementCore
   public calculateWidthMode(): string {
     if (this.widthMode == "auto") {
       let isResponsive = false;
-      this.pages.forEach((page) => {
-        if (page.needResponsiveWidth())
-          isResponsive = true;
-      });
+      if (this.questionsOnPageMode != "inputPerPage") {
+        this.pages.forEach((page) => {
+          if (page.needResponsiveWidth())
+            isResponsive = true;
+        });
+      }
       return isResponsive ? "responsive" : "static";
     }
     return this.widthMode;
@@ -8642,7 +8722,7 @@ Serializer.addClass("survey", [
   {
     name: "questionsOnPageMode",
     default: "standard",
-    choices: ["standard", "singlePage", "questionPerPage"],
+    choices: ["standard", "singlePage", "questionPerPage", "inputPerPage"],
   },
   {
     name: "showPreviewBeforeComplete:boolean",

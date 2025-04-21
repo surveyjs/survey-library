@@ -497,7 +497,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("allowMultiple", val);
   }
   /**
-   * The image height.
+   * The height of the following images:
+   *
+   * - [Images in the preview](#allowImagesPreview)
+   * - [Photos taken using the camera](#sourceType)
+   * - Uploaded images in a [generated PDF form](https://surveyjs.io/pdf-generator/documentation/overview)
+   *
+   * > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in [multiple file upload mode](#allowMultiple).
+   * @see imageWidth
    */
   public get imageHeight(): string {
     return this.getPropertyValue("imageHeight");
@@ -506,7 +513,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("imageHeight", val);
   }
   /**
-   * The image width.
+   * The width of the following images:
+   *
+   * - [Images in the preview](#allowImagesPreview)
+   * - [Photos taken using the camera](#sourceType)
+   * - Uploaded images in a [generated PDF form](https://surveyjs.io/pdf-generator/documentation/overview)
+   *
+   * > The sizes of previewed images are limited by the height and width of the preview area in single file upload mode or that of a thumbnail area in [multiple file upload mode](#allowMultiple).
+   * @see imageHeight
    */
   public get imageWidth(): string {
     return this.getPropertyValue("imageWidth");

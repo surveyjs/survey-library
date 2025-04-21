@@ -79,6 +79,31 @@ QUnit.test("cover maxWidth",
 
     cover.survey = new SurveyModel({ widthMode: "static", width: "500" });
     assert.equal(cover.maxWidth, "500px", "survey.maxWidth is static");
+
+    cover.survey = new SurveyModel({ widthMode: "static", width: "55%" });
+    assert.equal(cover.maxWidth, "55%", "survey.maxWidth is static");
+  }
+);
+
+QUnit.test("cover showTitle",
+  function (assert) {
+    const cover = new Cover();
+    const survey = new SurveyModel({
+      headerView: "advanced",
+      title: "Title",
+      description: "Description"
+    });
+    cover.survey = survey;
+
+    assert.ok(cover.cells[6].showTitle);
+    assert.ok(cover.cells[6].showDescription);
+
+    survey.showTitle = false;
+    cover.cells.forEach((cell, index) => {
+      assert.equal(cell.showLogo, false, index + " showLogo");
+      assert.equal(cell.showTitle, false, index + " showTitle");
+      assert.equal(cell.showDescription, false, index + " showDescription");
+    });
   }
 );
 

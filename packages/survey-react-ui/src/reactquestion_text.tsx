@@ -43,6 +43,8 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           onBlur={(event) => { this.question.onBlur(event); }}
           onFocus={(event) => { this.question.onFocus(event); }}
           onChange={this.question.onChange}
+          onClick={this.question.readOnlyBlocker}
+          onPointerDown={this.question.readOnlyBlocker}
           onKeyUp={this.question.onKeyUp}
           onKeyDown={this.question.onKeyDown}
           onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}

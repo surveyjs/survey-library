@@ -647,7 +647,17 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateDateValidationMessage(event: any): void {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
+  public readOnlyBlocker = (event: any) => {
+    if (this.isReadOnlyAttr) {
+      event.preventDefault();
+      return true;
+    }
+    return false;
+  };
   public onKeyDown = (event: any) => {
+    if (this.readOnlyBlocker(event)) {
+      return;
+    }
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;

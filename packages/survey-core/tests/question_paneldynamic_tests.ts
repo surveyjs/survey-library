@@ -7946,3 +7946,29 @@ QUnit.test("Question title location for dynamic panels - update dynamically #229
   survey.pages[0].questionTitleLocation = "left";
   assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#4");
 });
+QUnit.test("getFirstErrorInputElementId doesn't work correctly for panel dynamic", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q1", isRequired: true }
+        ]
+      }]
+  });
+
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const checkFunc = (): string => {
+    return qPanel["getFirstErrorInputElementId"]();
+  };
+  const panel1 = <PanelModel>qPanel.panels[0];
+  const q1 = panel1.getQuestionByName("q1");
+  const panel2 = <PanelModel>qPanel.panels[1];
+  const q2 = panel2.getQuestionByName("q1");
+  survey.tryComplete();
+  assert.equal(checkFunc(), q1.inputId, "check first panel #1");
+  q1.value = "1";
+  assert.equal(checkFunc(), q2.inputId, "check first panel #2");
+});

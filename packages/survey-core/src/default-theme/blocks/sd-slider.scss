@@ -329,14 +329,14 @@ input[type="range"].sd-slider__input:focus {
 
 input[type="range"].sd-slider__input::-webkit-slider-thumb {
   pointer-events: all;
-  height: 75px;
+  height: 67px;
   width: $slider-thumb-width;
   border-radius: 0px;
   border: 0 none;
   background: $primary;
   -webkit-appearance: none;
   cursor: pointer;
-  top: -20px;
+  top: -50px;
   position: relative;
 }
 

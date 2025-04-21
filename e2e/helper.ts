@@ -14,6 +14,15 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
+export async function compareScreenshot(page: Page, elementSelector: string, screenshotName: string) {
+  await page.waitForLoadState("networkidle");
+  await page.waitForSelector(elementSelector);
+  await expect(page.locator(elementSelector)).toBeVisible();
+  await expect(page.locator(elementSelector)).toHaveScreenshot(screenshotName, {
+    timeout: 10000
+  });
+}
+
 export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
     // window["Survey"].StylesManager.applyTheme(theme);
@@ -130,14 +139,5 @@ export async function getData(page) {
 export async function setRowItemFlowDirection(page) {
   await page.evaluate(() => {
     window["Survey"].settings.itemFlowDirection = "row";
-  });
-}
-
-export async function compareScreenshot(page: Page, element: string, screenshotName: string) {
-  await page.waitForLoadState("networkidle");
-  await page.waitForSelector(element);
-  await expect(page.locator(element)).toBeVisible();
-  await expect(page.locator(element)).toHaveScreenshot(screenshotName, {
-    timeout: 10000
   });
 }

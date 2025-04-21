@@ -115,7 +115,6 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       });
 
-      await page.waitForSelector(".sd-container-modern");
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom.png");
     });
 
@@ -152,9 +151,10 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons.png");
 
-      await page.setViewportSize({ width: 500, height: 1080 });
       await page.setViewportSize({ width: 600, height: 1000 });
+      await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-buttons-mobile.png");
     });
 
@@ -169,9 +169,10 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons.png");
 
-      await page.setViewportSize({ width: 500, height: 1080 });
       await page.setViewportSize({ width: 600, height: 1000 });
+      await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-mobile.png");
     });
 
@@ -186,9 +187,10 @@ frameworks.forEach(framework => {
       await page.click("li:nth-child(2)");
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons.png");
 
-      await page.setViewportSize({ width: 500, height: 1080 });
       await page.setViewportSize({ width: 600, height: 1000 });
+      await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-bottom-buttons-mobile.png");
     });
 
@@ -601,7 +603,7 @@ frameworks.forEach(framework => {
       const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
       await scroller.evaluate((el) => el.scrollTo(0, 300));
 
-      await compareScreenshot(page, "#surveyElement", "survey-progress-bar-top-buttons-sticky-background.png");
+      await compareScreenshot(page, ".sd-progress-buttons", "survey-progress-bar-top-buttons-sticky-background.png");
     });
 
     test("Check survey with progress top buttons with numbers and background", async ({ page }) => {
@@ -720,8 +722,8 @@ frameworks.forEach(framework => {
       // Desktop screenshot
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-top-numbered-buttons-background.png");
 
-      await page.setViewportSize({ width: 500, height: 1080 });
       await page.setViewportSize({ width: 600, height: 1000 });
+      await page.waitForTimeout(500);
       await page.setViewportSize({ width: 500, height: 1080 });
       await page.waitForTimeout(500);
 

@@ -1,5 +1,4 @@
-import { frameworks, url_test, initSurvey } from "../e2e/helper";
-import { QuestionBoolean, QuestionRadiogroup } from "../e2e/questionHelper";
+import { frameworks, url_test, initSurvey, compareScreenshot } from "../e2e/helper";
 import { test, expect } from "@playwright/test";
 
 const themeName = "default";
@@ -103,19 +102,18 @@ frameworks.forEach((framework) => {
         ],
         "questionsOnPageMode": "inputPerPage"
       });
-      const body = page.locator(".sd-body");
-      await expect(body).toHaveScreenshot("inf-loop.png");
-      const summary = page.locator(".sd-summary");
-      await expect(summary).toHaveScreenshot("inf-loop-summary.png");
-      await page.getByText("Panel 2").hover();
-      await expect(summary).toHaveScreenshot("inf-loop-summary-row-hover.png");
-      await page.getByTitle("Edit").last().hover();
-      await expect(summary).toHaveScreenshot("inf-loop-summary-button-hover.png");
 
-      const breadcrumbs = page.locator(".sd-breadcrumbs");
-      await expect(breadcrumbs).toHaveScreenshot("inf-loop-breadcrumbs-one-item.png");
+      await compareScreenshot(page, ".sd-body", "inf-loop.png");
+      await compareScreenshot(page, ".sd-summary", "inf-loop-summary.png");
+      await page.getByText("Panel 2").hover();
+      await compareScreenshot(page, ".sd-summary", "inf-loop-summary-row-hover.png");
+
+      await page.getByTitle("Edit").last().hover();
+      await compareScreenshot(page, ".sd-summary", "inf-loop-summary-button-hover.png");
+
+      await compareScreenshot(page, ".sd-breadcrumbs", "inf-loop-breadcrumbs-one-item.png");
       await page.getByTitle("Edit").last().click();
-      await expect(breadcrumbs).toHaveScreenshot("inf-loop-breadcrumbs-two-items.png");
+      await compareScreenshot(page, ".sd-breadcrumbs", "inf-loop-breadcrumbs-two-items.png");
     });
     test("Check infinite loop - empty dynamic panel", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 800 });
@@ -139,8 +137,7 @@ frameworks.forEach((framework) => {
         ],
         "questionsOnPageMode": "inputPerPage"
       });
-      const row = page.locator(".sd-row");
-      await expect(row).toHaveScreenshot("inf-loop-panel-dyn-empty.png");
+      await compareScreenshot(page, ".sd-row", "inf-loop-panel-dyn-empty.png");
     });
 
     test("Check infinite loop - empty dynamic matrix", async ({ page }) => {
@@ -168,8 +165,7 @@ frameworks.forEach((framework) => {
         ],
         "questionsOnPageMode": "inputPerPage"
       });
-      const row = page.locator(".sd-row");
-      await expect(row).toHaveScreenshot("inf-loop-matrix-dyn-empty.png");
+      await compareScreenshot(page, ".sd-row", "inf-loop-matrix-dyn-empty.png");
     });
   });
 });

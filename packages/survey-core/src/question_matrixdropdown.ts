@@ -9,6 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
+import { Question } from "./question";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -24,6 +25,9 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   }
   public get rowName(): string {
     return this.name;
+  }
+  public get rowTitle(): any {
+    return this.text;
   }
   public get text(): string {
     return this.item.text;
@@ -93,6 +97,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
+  protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
     var rows = this.visibleRows;

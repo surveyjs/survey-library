@@ -110,7 +110,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
+  currentSingleQuestion: IQuestion;
+  isSingleVisibleInput: boolean;
+  updateNavigationElements(): void;
   currentSingleElement: IElement;
+  supportsNestedSingleInput(question: IQuestion): boolean;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
@@ -381,6 +385,7 @@ export interface ITitleOwner {
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;
   locTitle: LocalizableString;
+  locRenderedTitle: LocalizableString;
 }
 export interface IProgressInfo {
   questionCount: number;

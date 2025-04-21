@@ -36,7 +36,7 @@ export class SvgIconComponent implements OnChanges {
     }
     return className;
   }
-  @HostBinding("[attr.role]") get rootRole(): string {
+  @HostBinding("attr.role") get rootRole(): string {
     return "presentation";
   }
   ngOnChanges(): void {

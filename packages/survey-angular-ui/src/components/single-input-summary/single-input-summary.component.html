@@ -1,0 +1,40 @@
+<div *ngIf="!model.isEmpty()" [class]="css.summary">
+  <div *ngFor="let item of model.items; index as index" [class]="css.summaryRow">
+    <div [class]="css.summaryRowContent">
+      <sv-ng-string [model]="item.locText"></sv-ng-string>
+    </div>
+    <div [class]="css.summaryRowActions">
+      <button
+        *ngIf="item.btnEdit"
+        [class]="css.summaryRowActionEdit"
+        (click)="item.btnEdit.action()"
+        [title]="item.btnEdit.title"
+      >
+        <svg [iconName]="'icon-editsmall-16x16'" [size]="'auto'" sv-ng-svg-icon></svg>
+      </button>
+      <button
+        *ngIf="item.showRemove && item.btnRemove"
+        [class]="css.summaryRowActionDelete"
+        (click)="item.btnRemove.action()"
+        [title]="item.btnRemove.title"
+      >
+        <svg [iconName]="'icon-delete-16x16'" [size]="'auto'" sv-ng-svg-icon></svg>
+      </button>
+    </div>
+  </div>
+</div>
+<div *ngIf="model.isEmpty()">
+  <ng-template
+    [component]="{ 
+      name: placeholderComponent,
+      data: {
+        question: model.question,
+        cssClasses: css 
+      }
+    }"
+    *ngIf="componentRegistered"
+  ></ng-template>
+  <div *ngIf="!componentRegistered">
+    <sv-ng-string [model]="model.noEntry"></sv-ng-string>
+  </div>
+</div>

@@ -46,6 +46,8 @@ import BooleanRadioItem from "./BooleanRadioItem.vue";
 import BooleanCheckbox from "./BooleanCheckbox.vue";
 import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
+import Breadcrumbs from "./components/breadcrumbs/Breadcrumbs.vue";
+import SingleInputSummary from "./components/SingleInputSummary.vue";
 
 import Matrix from "./Matrix.vue";
 import MatrixRow from "./MatrixRow.vue";
@@ -55,6 +57,7 @@ import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
 import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
+import MatrixDynamicPlaceholder from "./MatrixDynamicPlaceholder.vue";
 import RemoveButton from "./components/matrix-actions/remove-button/RemoveButton.vue";
 import DragDropIcon from "./components/matrix-actions/drag-drop-icon/DragDropIcon.vue";
 import DetailButton from "./components/matrix-actions/detail-button/DetailButton.vue";
@@ -62,6 +65,7 @@ import DetailButton from "./components/matrix-actions/detail-button/DetailButton
 import PanelDynamic from "./PanelDynamic.vue";
 import PanelDynamicProgress from "./PanelDynamicProgress.vue";
 import PanelDynamicProgressV2 from "./PanelDynamicProgressV2.vue";
+import PanelDynamicPlaceholder from "./PanelDynamicPlaceholder.vue";
 import PaneldynamicAddBtn from "./components/paneldynamic-actions/PaneldynamicAddBtn.vue";
 import PaneldynamicNextBtn from "./components/paneldynamic-actions/PaneldynamicNextBtn.vue";
 import PaneldynamicPrevBtn from "./components/paneldynamic-actions/PaneldynamicPrevBtn.vue";
@@ -215,6 +219,8 @@ function registerComponents(
   registerComponent("sv-boolean-checkbox", BooleanCheckbox);
   registerComponent("survey-multipletext", MultipleText);
   registerComponent("survey-multipletext-item", MultipletextItem);
+  registerComponent("sv-breadcrumbs", Breadcrumbs);
+  registerComponent("sv-single-input-summary", SingleInputSummary);
 
   registerComponent("survey-matrix", Matrix);
   registerComponent("survey-matrix-row", MatrixRow);
@@ -224,6 +230,7 @@ function registerComponents(
   registerComponent("survey-matrixheaderrequired", MatrixHeaderRequired);
   registerComponent("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   registerComponent("survey-matrixdynamic", MatrixDynamic);
+  registerComponent("survey-placeholder-matrixdynamic", MatrixDynamicPlaceholder);
   registerComponent("sv-matrix-remove-button", RemoveButton);
   registerComponent("sv-matrix-drag-drop-icon", DragDropIcon);
   registerComponent("sv-matrix-detail-button", DetailButton);
@@ -231,6 +238,7 @@ function registerComponents(
   registerComponent("survey-paneldynamic", PanelDynamic);
   registerComponent("survey-paneldynamicprogress", PanelDynamicProgress);
   registerComponent("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
+  registerComponent("survey-placeholder-paneldynamic", PanelDynamicPlaceholder);
   registerComponent("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
   registerComponent("sv-paneldynamic-next-btn", PaneldynamicNextBtn);
   registerComponent("sv-paneldynamic-prev-btn", PaneldynamicPrevBtn);

@@ -87,7 +87,8 @@ export class MatrixDropdownCell {
   }
   private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
     this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
-      if (!row || !row.getSurvey()) return this.questionValue.title;
+      const survey = row?.getSurvey();
+      if (!survey || survey.isSingleVisibleInput) return this.questionValue.title;
       const rowTitle = row.getAccessbilityText();
       if (!rowTitle) return this.questionValue.title;
       return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
@@ -223,6 +224,11 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
       textValue.value = this.row.rowName;
       return true;
     }
+    if (textValue.name == MatrixDropdownRowModelBase.RowTitleVariableName) {
+      textValue.isExists = true;
+      textValue.value = this.row.rowTitle;
+      return true;
+    }
     return false;
   }
 }
@@ -233,6 +239,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public static IndexVariableName = "rowIndex";
   public static RowValueVariableName = "rowValue";
   public static RowNameVariableName = "rowName";
+  public static RowTitleVariableName = "rowTitle";
 
   private static idCounter: number = 1;
   private static getId(): string {
@@ -248,6 +255,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
   public onDetailPanelShowingChanged: () => void;
+  public visibleIndex: number = -1;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -267,6 +275,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   public get rowName(): any {
     return null;
+  }
+  public get rowTitle(): any {
+    return this.rowName;
   }
   public get dataName(): string {
     return this.rowName;
@@ -428,6 +439,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
     res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
     res[MatrixDropdownRowModelBase.RowNameVariableName] = this.rowName;
+    res[MatrixDropdownRowModelBase.RowTitleVariableName] = this.rowTitle;
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
     if (!this.data) return;
@@ -646,6 +658,15 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
+  public get visibleQuestions(): Array<Question> {
+    const res: Array<Question> = [];
+    this.questions.forEach(q => {
+      if (q.isVisible) {
+        res.push(q);
+      }
+    });
+    return res;
+  }
   public getQuestionByName(name: string): Question {
     var res = this.getQuestionByColumnName(name);
     if (!!res) return res;
@@ -766,6 +787,8 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     var cells = this.cells;
     if (!cells) return res;
     this.validationValues = rec.validationValues;
+    const focusOnFirstError = rec?.focusOnFirstError;
+    //firstErrorQuestion: <any>null,
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
@@ -776,6 +799,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
         continue;
       res = question.hasErrors(fireCallback, rec) || res;
+      if (res && focusOnFirstError && !rec.firstErrorQuestion) {
+        rec.firstErrorQuestion = question;
+      }
     }
     if (this.hasPanel) {
       this.ensureDetailPanel();
@@ -973,6 +999,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.createItemValues("choices");
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("keyDuplicationError", this, false, true);
+    this.createLocalizableString("singleInputTitleTemplate", this, true, this.getSingleInputTitleTemplate()).onGetTextCallback = (text: string) => {
+      return this.processSingleInputTitle(text);
+    };
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -1204,6 +1233,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.clearVisibleRows();
     this.resetRenderedTable();
     super.onRowsChanged();
+    const rows = this.visibleRows;
+    for (let i = 0; i < rows.length; i ++) {
+      rows[i].visibleIndex = i;
+    }
   }
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
@@ -1270,7 +1303,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
   }
-  protected onMatrixRowCreated(row: MatrixDropdownRowModelBase) {
+  protected getRowByQuestion(question: Question): MatrixDropdownRowModelBase {
+    if (!question) return undefined;
+    return <MatrixDropdownRowModelBase>question.data;
+  }
+  protected onMatrixRowCreated(row: MatrixDropdownRowModelBase): void {
     if (!this.survey) return;
     var options = {
       rowValue: row.value,
@@ -1748,6 +1785,49 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   get locKeyDuplicationError(): LocalizableString {
     return this.getLocalizableString("keyDuplicationError");
   }
+  /**
+   * A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
+   *
+   * Default value: `"Row {rowIndex}"` for Dynamic Matrix | `"{rowTitle}"` for Multi-Select Matrix
+   *
+   * The template can contain the following placeholders:
+   *
+   * - `{rowIndex}` - A row index within the collection of all rows. Starts with 1.
+   * - `{rowName}` - A row name (the `value` property within objects in the [`rows`](#rows) array). Use this placeholder if you need to distinguish between matrix rows.
+   * - `{rowTitle}` - A row title (the `text` property within objects in the `rows` array).
+   * - `{row.columnname}` - The value of a cell in the same row.
+   */
+  public get singleInputTitleTemplate(): string {
+    return this.getLocalizableStringText("singleInputTitleTemplate");
+  }
+  public set singleInputTitleTemplate(val: string) {
+    this.setLocalizableStringText("singleInputTitleTemplate", val);
+  }
+  get locSingleInputTitleTemplate(): LocalizableString {
+    return this.getLocalizableString("singleInputTitleTemplate");
+  }
+  protected getSingleQuestionLocTitleCore(): LocalizableString {
+    return this.locSingleInputTitleTemplate;
+  }
+  protected getSingleInputTitleTemplate(): string { return ""; }
+  protected processSingleInputTitle(text: string): string {
+    const row = this.getRowByQuestion(this.singleInputQuestion);
+    if (row) {
+      return row.getTextProcessor().processText(text, true);
+    }
+    return "";
+  }
+  protected singleInputMoveToFirstCore(): void {
+    const data: any = this.singleInputQuestion?.data;
+    this.singleInputEditRow(data);
+  }
+  protected singleInputEditRow(row: MatrixDropdownRowModelBase): void {
+    if (!row) return;
+    const qs = row.visibleQuestions;
+    if (Array.isArray(qs) && qs.length > 0) {
+      this.setSingleInputQuestion(qs[0]);
+    }
+  }
   public get storeOthersAsComment(): boolean {
     return !!this.survey ? this.survey.storeOthersAsComment : false;
   }
@@ -1773,11 +1853,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.visibleRowsArray;
   }
   private generateVisibleRowsIfNeeded(): void {
-    if (!this.isUpdateLocked && !this.generatedVisibleRows && !this.generatedVisibleRows) {
+    if (!this.isUpdateLocked && !this.generatedVisibleRows) {
       this.isGenereatingRows = true;
       this.generatedVisibleRows = this.generateRows();
       this.isGenereatingRows = false;
-      this.generatedVisibleRows.forEach((row) => this.onMatrixRowCreated(row));
+      for (var i = 0; i < this.generatedVisibleRows.length; i++) {
+        const row = this.generatedVisibleRows[i];
+        row.visibleIndex = i;
+        this.onMatrixRowCreated(row);
+      }
       if (this.data) {
         this.runCellsCondition(
           this.data.getFilteredValues(),
@@ -1982,11 +2066,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       const index = rowsIndeces[i];
       const rowName = index > -1 ? this.getConditionObjectRowName(index) : "row";
       if (!rowName) continue;
-      const rowText = index > -1 ? this.getConditionObjectRowText(index) : "row";
+      const rowTitle = index > -1 ? this.getConditionObjectRowText(index) : "row";
       const hasQuestionPrefix = index > -1 || context === true;
       const dot = hasQuestionPrefix && index === -1 ? "." : "";
       const prefixName = (hasQuestionPrefix ? this.getValueName() : "") + dot + rowName + ".";
-      const prefixTitle = (hasQuestionPrefix ? this.processedTitle : "") + dot + rowText + ".";
+      const prefixTitle = (hasQuestionPrefix ? this.processedTitle : "") + dot + rowTitle + ".";
       for (var j = 0; j < rowElements.length; j++) {
         const rowElement = rowElements[j];
         if (index === -1 && context === rowElement) continue;
@@ -2017,19 +2101,19 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected getIsReadyNestedQuestions(): Array<Question> {
     if (!this.generatedVisibleRows) return [];
     const res = new Array<Question>();
-    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false);
+    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true);
     if (!!this.generatedTotalRow) {
-      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false);
+      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true);
     }
     return res;
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
-    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly);
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
+    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested);
   }
-  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
     if (!Array.isArray(rows)) return;
     rows.forEach(row => {
-      row.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+      row.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
     });
   }
   protected getConditionObjectRowName(index: number): string {
@@ -2767,9 +2851,10 @@ Serializer.addClass(
       name: "choices:itemvalue[]", uniqueProperty: "value", visibleIf: (obj): boolean => obj.isSelectCellType()
     },
     { name: "placeholder", alternativeName: "optionsCaption", serializationProperty: "locPlaceholder" },
+    { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError", },
     {
-      name: "keyDuplicationError",
-      serializationProperty: "locKeyDuplicationError",
+      name: "singleInputTitleTemplate", serializationProperty: "locSingleInputTitleTemplate",
+      visibleIf(obj) { return obj.survey?.isSingleVisibleInput; }
     },
     {
       name: "cellType",

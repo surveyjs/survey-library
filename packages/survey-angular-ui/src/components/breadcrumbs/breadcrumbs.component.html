@@ -1,0 +1,12 @@
+<div *ngIf="model.actions && model.actions.length" [class]="css.breadcrumbsRoot">
+  <ng-container *ngFor="let item of model.actions; let itemIndex = index">
+    <svg
+      *ngIf="itemIndex"
+      [class]="css.breadcrumbsSeparator"
+      [iconName]="'arrowright-16x16'"
+      [size]="'auto'"
+      sv-ng-svg-icon
+    ></svg>
+    <sv-ng-action [model]="item"></sv-ng-action>
+  </ng-container>
+</div> 

@@ -92,7 +92,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   public dragOrClickHelper: DragOrClickHelper;
 
   public getRenderedValue = () => {
-    const { max, min, renderedmaxRangeLength: maxRangeLength, sliderType } = this;
+    const { max, min, renderedmaxRangeLength, sliderType } = this;
     let result;
 
     if (sliderType === "single") {
@@ -110,7 +110,10 @@ export class QuestionSliderModel extends QuestionRatingModel {
     if (result.length === 0) {
       const fullRange = max - min;
       this.isIndeterminate = true;
-      if (fullRange > maxRangeLength) return [(fullRange - maxRangeLength) / 2, (fullRange + maxRangeLength) / 2];
+      if (Math.abs(fullRange) > renderedmaxRangeLength) {
+        const range = (fullRange - renderedmaxRangeLength) / 2;
+        return [(min + range), (max - range)];
+      }
       return [min, max]; // TODO support several values 3 and more
     }
 

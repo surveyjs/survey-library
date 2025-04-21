@@ -363,3 +363,33 @@ QUnit.test("getRenderedValue", (assert) => {
   assert.deepEqual(q1.getRenderedValue()[0], 25);
   assert.deepEqual(renderedValue[0], 125);
 });
+
+QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        maxRangeLength: 100,
+        min: -100,
+        max: 100
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  let renderedValue = q1.getRenderedValue();
+  assert.deepEqual(renderedValue, [-50, 50]);
+
+  q1.min = -100;
+  q1.max = -40;
+  q1.maxRangeLength = 20;
+  renderedValue = q1.getRenderedValue();
+  assert.deepEqual(renderedValue, [-80, -60]);
+
+  q1.min = 0;
+  q1.max = 100;
+  q1.maxRangeLength = 20;
+  renderedValue = q1.getRenderedValue();
+  assert.deepEqual(renderedValue, [40, 60]);
+});

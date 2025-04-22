@@ -15,6 +15,10 @@
         :class="question.cssClasses.requiredMark"
         >{{ item.editor.requiredMark }}</span
       >
+      <span v-if="
+          item.editor.isRequireTextBeforeTitle ||
+          item.editor.isRequireTextOnStart
+        ">&nbsp;</span>
       <SvComponent :is="'survey-string'" :locString="item.locTitle" />
       <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
       <span

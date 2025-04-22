@@ -209,6 +209,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   };
 
   private handlePointerUp = (e, inputNumber:number) => {
+    e.stopPropagation();
     const { step, focusedThumb, getRenderedValue, allowSwap, renderedminRangeLength, value } = this.question;
     let renderedValue:number[] = getRenderedValue();
     const focusedThumbValue = renderedValue[focusedThumb];

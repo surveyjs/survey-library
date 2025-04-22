@@ -24,6 +24,9 @@ export class QuestionSliderModel extends QuestionRatingModel {
   @property({ defaultValue: "{0}" }) labelFormat: string;
   @property({ defaultValue: "onhover" }) tooltipVisibility: "onhover" | "always" | "never";
   public get step(): number {
+    if (this.labels.length > 0) {
+      return (this.max - this.min) / (this.labels.length - 1);
+    }
     if (this.segmentCount) {
       return (this.max - this.min) / this.segmentCount;
     }
@@ -202,8 +205,9 @@ Serializer.addClass(
   "slider",
   [
     {
-      name: "sliderType:string",
+      name: "sliderType",
       default: "range",
+      choices: ["range", "single"],
     },
     {
       name: "showLabels:boolean",
@@ -215,7 +219,8 @@ Serializer.addClass(
     },
     {
       name: "tooltipVisibility:string",
-      default: "onhover"
+      default: "onhover",
+      choices: ["onhover", "never"],
     },
     {
       name: "labelFormat:string",

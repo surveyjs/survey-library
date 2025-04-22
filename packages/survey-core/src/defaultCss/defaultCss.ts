@@ -741,7 +741,6 @@ export var defaultCss = {
     onError: "sd-file__decorator--error",
     fileDecoratorDrag: "sd-file__decorator--drag",
     fileInput: "sd-visuallyhidden",
-    noFileChosen: "sd-description sd-file__no-file-chosen",
     chooseFile: "sd-file__choose-btn",
     chooseFileAsText: "sd-action sd-file__choose-btn--text",
     chooseFileAsTextDisabled: "sd-action--disabled",

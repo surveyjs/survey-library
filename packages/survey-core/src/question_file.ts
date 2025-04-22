@@ -717,6 +717,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     const showLoadingIndicator = this.showLoadingIndicator;
     return !isPlayingVideo && !showLoadingIndicator;
   }
+  public get showDragAreaPlaceholder() {
+    return !this.isAnswered;
+  }
   public get allowShowPreview(): boolean {
     const isShowLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;

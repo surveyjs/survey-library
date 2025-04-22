@@ -1,5 +1,4 @@
-import { frameworks, url_test, initSurvey } from "../e2e/helper";
-import { QuestionBoolean, QuestionRadiogroup } from "../e2e/questionHelper";
+import { frameworks, url_test, initSurvey, compareScreenshot } from "../e2e/helper";
 import { test, expect } from "@playwright/test";
 
 const themeName = "default";
@@ -27,7 +26,7 @@ frameworks.forEach((framework) => {
       const toc = page.locator(".sv_progress-toc");
       const tocBox = await toc.boundingBox();
       await expect(tocBox?.height).toBeGreaterThan(300);
-      await expect(toc).toHaveScreenshot("toc-first-page-after-start.png");
+      await compareScreenshot(page, ".sv_progress-toc", "toc-first-page-after-start.png");
     });
   });
 });

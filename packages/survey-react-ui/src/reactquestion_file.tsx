@@ -88,18 +88,13 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   }
   protected renderFileDecorator(): React.JSX.Element {
     const actionsContainer = this.question.actionsContainerVisible ? <SurveyActionBar model={this.question.actionsContainer}></SurveyActionBar> : null;
-    const noFileChosen = this.question.isEmpty() ? (
-      <span className={this.question.cssClasses.noFileChosen}>
-        {this.question.noFileChosenCaption}
-      </span>) : null;
     return (
       <div
         className={this.question.getFileDecoratorCss()}
       >
-        <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.renderLocString(this.question.locRenderedPlaceholder)}</span>
+        {this.question.showDragAreaPlaceholder ? <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.renderLocString(this.question.locRenderedPlaceholder)}</span> : false }
         <div className={this.question.cssClasses.wrapper}>
           {actionsContainer}
-          {noFileChosen}
         </div>
       </div>
     );

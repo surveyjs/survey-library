@@ -336,6 +336,10 @@ export class QuestionPanelDynamicModel extends Question
     if (this.showAddPanelButton) return this.addButtonId;
     return super.getFirstInputElementId();
   }
+  protected getFirstErrorInputElementId(): string {
+    const question = this.getFirstQuestionToFocus(true);
+    return question ? question.inputId : super.getFirstErrorInputElementId();
+  }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();

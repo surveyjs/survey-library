@@ -14,6 +14,29 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
+export async function compareScreenshot(page: Page, elementSelector: string | undefined, screenshotName: string) {
+  await page.addStyleTag({
+    content: "textarea::-webkit-resizer { visibility: hidden !important; }"
+  });
+
+  if (!!elementSelector) {
+    await page.waitForSelector(elementSelector);
+    const element = page.locator(elementSelector).filter({ visible: true });
+    await expect(element.first()).toBeVisible();
+    await expect(element.first()).toHaveScreenshot(screenshotName, {
+      timeout: 10000
+    });
+  } else {
+    await expect(page).toHaveScreenshot(screenshotName, {
+      timeout: 10000
+    });
+  }
+}
+
+export async function resetFocusToBody(page: Page): Promise<void> {
+  await page.evaluate(() => { document.body.focus(); });
+}
+
 export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
     // window["Survey"].StylesManager.applyTheme(theme);
@@ -27,6 +50,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       }
     });
   }
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.evaluate(([framework, json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
@@ -91,6 +115,10 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 export async function checkSurveyData(page: Page, json: any): Promise<void> {
   const data = await page.evaluate(() => { return window["survey"].data; });
   await expect(data).toStrictEqual(json);
+}
+
+export async function getSurveyData(page) {
+  return await page.evaluate(() => { return window["survey"].data; });
 }
 
 export async function getSurveyResult(page) {

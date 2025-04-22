@@ -401,6 +401,108 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check scrollable error", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "on",
+        questions: [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "isRequired": true,
+            "columns": [
+              {
+                "name": "Column 1"
+              },
+              {
+                "name": "Column 2"
+              },
+              {
+                "name": "Column 3"
+              },
+              {
+                "name": "Column 4"
+              },
+              {
+                "name": "Column 5"
+              },
+              {
+                "name": "Column 6"
+              },
+              {
+                "name": "Column 7"
+              },
+              {
+                "name": "Column 8"
+              },
+              {
+                "name": "Column 9"
+              },
+              {
+                "name": "Column 10"
+              },
+              {
+                "name": "Column 11"
+              },
+              {
+                "name": "Column 12"
+              },
+              {
+                "name": "Column 13"
+              },
+              {
+                "name": "Column 14"
+              },
+              {
+                "name": "Column 15"
+              },
+              {
+                "name": "Column 16"
+              },
+              {
+                "name": "Column 17"
+              },
+              {
+                "name": "Column 18"
+              },
+              {
+                "name": "Column 19"
+              },
+              {
+                "name": "Column 20"
+              },
+              {
+                "name": "Column 21"
+              },
+              {
+                "name": "Column 22"
+              },
+              {
+                "name": "Column 23"
+              },
+              {
+                "name": "Column 24"
+              }
+            ],
+            "cellType": "text",
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      });
+      const qRoot = Selector(".sd-question");
+      await t.hover(".sd-navigation__complete-btn");
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await t.scrollIntoView(Selector(".sd-table__cell").withText("Column 24"));
+      await takeElementScreenshot("question-scrollable-with-error.png", qRoot, t, comparer);
+    });
+  });
+
   test("Check question error with title location left", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 

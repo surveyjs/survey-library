@@ -150,6 +150,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.releaseAnimations();
   }
 
+  protected getFirstInputElementId(): string {
+    return this.id;
+  }
+
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 

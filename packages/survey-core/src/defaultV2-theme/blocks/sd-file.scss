@@ -139,13 +139,6 @@
   width: max-content;
   max-width: 100%;
 }
-
-.sd-question--answered {
-  .sd-file__drag-area-placeholder {
-    display: none;
-  }
-}
-
 .sd-file__actions-container {
   margin-top: calcSize(0.5);
   flex-wrap: wrap;

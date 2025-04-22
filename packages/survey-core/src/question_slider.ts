@@ -2,7 +2,7 @@ import { ExpressionRunner } from "./conditions";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property, propertyArray, Serializer } from "./jsonobject";
-import { QuestionRatingModel } from "./question_rating";
+import { Question } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
@@ -12,7 +12,7 @@ import { DragOrClickHelper } from "./utils/dragOrClickHelper";
  *
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
-export class QuestionSliderModel extends QuestionRatingModel {
+export class QuestionSliderModel extends Question {
   @property({ defaultValue: "range" }) sliderType: "range" | "single";
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
@@ -38,7 +38,7 @@ export class QuestionSliderModel extends QuestionRatingModel {
   @property({ defaultValue: null }) segmentCount: number | null;
   @property({ defaultValue: true }) showLabels: boolean;
   @property({ defaultValue: true }) showEdgeLabels: boolean;
-  public get labelCount(): number { // TODO interval count?
+  public get labelCount(): number {
     if (this.labels.length > 0) return this.labels.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;
@@ -47,6 +47,13 @@ export class QuestionSliderModel extends QuestionRatingModel {
   }
   public set labelCount(val: number) {
     this.setPropertyValue("labelCount", val);
+  }
+  public get autoGenerate(): boolean {
+    if (this.labels.length > 0) return false;
+    return this.getPropertyValue("autoGenerate");
+  }
+  public set autoGenerate(val: boolean) {
+    this.setPropertyValue("autoGenerate", val);
   }
   @propertyArray({ }) labels: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
@@ -232,6 +239,9 @@ Serializer.addClass(
     },
     {
       name: "segmentCount:number",
+      visibleIf: function (obj: any) {
+        return obj.autoGenerate;
+      },
     },
     {
       name: "min:number",
@@ -244,19 +254,28 @@ Serializer.addClass(
     {
       name: "step:number",
       default: 1,
+      visibleIf: function (obj: any) {
+        return obj.autoGenerate;
+      },
     },
     {
       name: "labelCount:number",
-      default: 6
+      default: 6,
+      visibleIf: function (obj: any) {
+        return obj.autoGenerate;
+      },
     },
     {
       name: "maxRangeLength:number",
-      // defaultFunc: (obj: QuestionSliderModel): number => {
-      //   return obj.max;
-      // }
+      visibleIf: function (obj: any) {
+        return obj.sliderType === "range";
+      },
     },
     {
-      name: "minRangeLength:number"
+      name: "minRangeLength:number",
+      visibleIf: function (obj: any) {
+        return obj.sliderType === "range";
+      },
     },
     {
       name: "maxValueExpression",
@@ -267,21 +286,35 @@ Serializer.addClass(
       type: "condition"
     },
     {
+      name: "autoGenerate",
+      default: true,
+      choices: [true, false]
+    },
+    {
       name: "labels:itemvalue[]",
+      visibleIf: function (obj: any) {
+        return !obj.autoGenerate;
+      },
     },
     {
       name: "allowDragRange:boolean",
-      default: true
+      default: true,
+      visibleIf: function (obj: any) {
+        return obj.sliderType === "range";
+      },
     },
     {
       name: "allowSwap:boolean",
-      default: true
+      default: true,
+      visibleIf: function (obj: any) {
+        return obj.sliderType === "range";
+      },
     }
   ],
   function () {
     return new QuestionSliderModel("");
   },
-  "question", // TODO maybe rating ?
+  "question",
 );
 QuestionFactory.Instance.registerQuestion("slider", (name) => {
   return new QuestionSliderModel(name);

@@ -47,11 +47,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
             {thumbsAndInputs}
           </div>
         </div>
-        <div className={cssClasses.labelsContainer}>
-          <div>
-            {labels}
-          </div>
-        </div>
+        {labels}
       </div>
     );
   }
@@ -151,8 +147,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
       labels.push(label);
     }
-
-    return labels;
+    return <div className={cssClasses.labelsContainer}>
+      <div>
+        {labels}
+      </div>
+    </div>;
   }
 
   private getPercent(value:number):number {

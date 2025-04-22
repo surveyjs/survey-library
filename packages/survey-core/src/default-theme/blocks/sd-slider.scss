@@ -5,7 +5,7 @@ $slider-path-color: var(--lbr-slider-path-color, $border-light);
 $slider-path-color-filled: var(--lbr-slider-path-color-filled, $primary);
 $slider-thumb-width: var(--lbr-slider-thumb-width, calcSize(4));
 $slider-thumb-height: var(--lbr-slider-thumb-height, calcSize(4));
-$slider-thumb-color: var(--lbr-slider-thumb-color, $background);
+$slider-thumb-color: var(--lbr-slider-thumb-color, $question-background);
 $slider-tooltip-pointer-width: var(--lbr-tooltip-pointer-width, calcSize(1.5));
 $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75));
 
@@ -213,7 +213,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   padding: var(--lbr-tooltip-padding-top, calcSize(1)) var(--lbr-tooltip-padding-right, calcSize(2))
     var(--lbr-tooltip-padding-bottom, calcSize(1)) var(--lbr-tooltip-padding-left, calcSize(2));
   border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
-  background: var(--lbr-tooltip-background-color, $background);
+  background: var(--lbr-tooltip-background-color, $question-background);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -236,7 +236,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
     position: absolute;
     width: $slider-tooltip-pointer-width;
     height: $slider-tooltip-pointer-height;
-    fill: var(--lbr-tooltip-background-color, $background);
+    fill: var(--lbr-tooltip-background-color, $question-background);
   }
 }
 
@@ -290,7 +290,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 }
 
 .sd-slider__label-text {
-  color: var(--lbr-slider-label-text-color, $foreground-dim);
+  color: var(--lbr-slider-label-text-color, $font-editorfont-color);
   text-align: center;
   font-family: var(--lbr-font-family, $font-family);
   font-size: var(--lbr-font-default-size, calcSize(2));
@@ -424,11 +424,13 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 // }
 
 .sd-question--readonly {
-  .sd-slider__thumb-container {
+  .sd-slider__input {
     &:hover {
-      .sd-slider__thumb-dot {
-        width: var(--lbr-slider-thumb-dot-width, calcSize(1.5));
-        height: var(--lbr-slider-thumb-dot-height, calcSize(1.5));
+      & + .sd-slider__thumb-container {
+        .sd-slider__thumb-dot {
+          width: var(--lbr-slider-thumb-dot-width, calcSize(1.5));
+          height: var(--lbr-slider-thumb-dot-height, calcSize(1.5));
+        }
       }
     }
   }
@@ -477,11 +479,13 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 }
 
 .sd-question--preview {
-  .sd-slider__thumb-container {
+  .sd-slider__input {
     &:hover {
-      .sd-slider__thumb-dot {
-        width: var(--lbr-slider-thumb-dot-width-preivew, calcSize(0.125));
-        height: var(--lbr-slider-thumb-dot-height-preview, calcSize(2));
+      & + .sd-slider__thumb-container {
+        .sd-slider__thumb-dot {
+          width: var(--lbr-slider-thumb-dot-width-preivew, calcSize(0.125));
+          height: var(--lbr-slider-thumb-dot-height-preview, calcSize(2));
+        }
       }
     }
   }

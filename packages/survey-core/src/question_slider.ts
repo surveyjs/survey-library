@@ -65,6 +65,7 @@ export class QuestionSliderModel extends Question {
     this.createNewArray("value");
     this.createItemValues("labels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
+    this.initPropertyDependencies();
   }
 
   public getType(): string {
@@ -205,6 +206,21 @@ export class QuestionSliderModel extends Question {
         minRunner.run(values, properties);
       }
     }
+  }
+
+  protected initPropertyDependencies() {
+    this.registerSychProperties(["segmentCount"],
+      () => {
+        if (this.segmentCount) {
+          this.step = (this.max - this.min) / this.segmentCount;
+        }
+      });
+    this.registerSychProperties(["step"],
+      () => {
+        if (this.step) {
+          this.segmentCount = (this.max - this.min) / this.step;
+        }
+      });
   }
 }
 

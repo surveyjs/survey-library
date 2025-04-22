@@ -122,17 +122,6 @@ export class QuestionRatingModel extends Question {
     this.updateRateCount();
     this.setIconsToRateValues();
   }
-  private _syncPropertiesChanging: boolean = false;
-  private registerSychProperties(names: Array<string>, func: any) {
-    this.registerFunctionOnPropertiesValueChanged(names,
-      () => {
-        if (!this._syncPropertiesChanging) {
-          this._syncPropertiesChanging = true;
-          func();
-          this._syncPropertiesChanging = false;
-        }
-      });
-  }
   private useRateValues() {
     return !!this.rateValues.length && !this.autoGenerate;
   }

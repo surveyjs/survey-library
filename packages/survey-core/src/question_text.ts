@@ -652,7 +652,6 @@ export class QuestionTextModel extends QuestionTextBase {
       event.preventDefault();
       return true;
     }
-    return false;
   };
   public onKeyDown = (event: any) => {
     if (this.readOnlyBlocker(event)) {

@@ -361,6 +361,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (!!this.data) {
       this.data.setIsDetailPanelShowing(this, val);
     }
+    if (val && this.detailPanel) {
+      this.detailPanel.onFirstRendering();
+    }
     if (!!this.onDetailPanelShowingChanged) {
       this.onDetailPanelShowingChanged();
     }

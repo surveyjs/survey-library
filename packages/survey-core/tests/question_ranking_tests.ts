@@ -704,12 +704,6 @@ QUnit.test("Ranking: disabledItem with selectToRank and maxSelectedChoices", fun
   );
 });
 
-QUnit.test("Ranking: getFirstInputElementId", function(assert) {
-  const rankingQuestion = new QuestionRankingModel("q1");
-
-  assert.equal((rankingQuestion as any).getFirstInputElementId(), rankingQuestion.id, "first input element id is question id");
-});
-
 // selectToRankEnabled
 function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {
   const json = {

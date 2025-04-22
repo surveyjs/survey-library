@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 const environment = process.env.env;
@@ -13,6 +13,15 @@ export const url = "http://127.0.0.1:8080/examples_test/default/";
 export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
+
+export async function compareScreenshot(page: Page, elementSelector: string, screenshotName: string) {
+  await page.waitForLoadState("networkidle");
+  await page.waitForSelector(elementSelector);
+  await expect(page.locator(elementSelector)).toBeVisible();
+  await expect(page.locator(elementSelector)).toHaveScreenshot(screenshotName, {
+    timeout: 10000
+  });
+}
 
 export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
@@ -39,8 +48,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
-    //!!!TODO!!!
-    //window["Survey"].settings.animationEnabled = false;
+    window["Survey"].settings.animationEnabled = false;
     const self: any = window;
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
@@ -131,4 +139,16 @@ export async function setRowItemFlowDirection(page) {
   await page.evaluate(() => {
     window["Survey"].settings.itemFlowDirection = "row";
   });
+}
+
+export async function visibleInViewport (page, locator: Locator) {
+  const rect = await locator.boundingBox();
+  return await page.evaluate((rect) => {
+    return (
+      rect?.y >= 0 &&
+      rect?.x >= 0 &&
+      rect?.y + rect?.height <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }, rect);
 }

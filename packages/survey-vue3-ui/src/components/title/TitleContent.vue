@@ -10,6 +10,7 @@
     :aria-hidden="true"
     >{{ element.requiredMark }}</span
   >
+  <span v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart">&nbsp;</span>
   <span
     v-if="!element.isTitleRenderedAsString && element.no"
     style="position: static"

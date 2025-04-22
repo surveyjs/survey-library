@@ -1946,3 +1946,24 @@ QUnit.test("update cells questions patterns, Bug#9767", function (assert) {
   assert.equal(qCell1.maskType, "pattern", "cell Question maskType is pattern");
   assert.equal(qCell1.maskSettings.pattern, "99999", "cell Question maskSettings.pattern is 99999");
 });
+QUnit.test("detail panel & nested question wasRendered", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const question = row.getQuestionByName("q1");
+  assert.equal(row.detailPanel.wasRendered, true, "panel was rendered");
+  assert.equal(question.wasRendered, true, "panel question was rendered");
+});

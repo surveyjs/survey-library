@@ -1,27 +1,12 @@
 import { test, expect, Page } from "@playwright/test";
-import { frameworks, url, initSurvey } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
 import { backgroundImage } from "../visualRegressionTests/constants";
 import { upArrowImageLink } from "../visualRegressionTests/helper";
 
 const title = "Survey Screenshot";
 
-export async function compareScreenshot(page: Page, elementSelector: string, screenshotName: string) {
-  await page.waitForLoadState("networkidle");
-  await page.waitForSelector(elementSelector);
-
-  const element = page.locator(elementSelector).filter({ visible: true });
-  await expect(element.first()).toBeVisible();
-  await expect(element.first()).toHaveScreenshot(screenshotName, {
-    timeout: 10000
-  });
-}
-
 export async function resetHoverToBody(page: Page): Promise<void> {
   await page.hover("body", { position: { x: 0, y: 0 } });
-}
-
-export async function resetFocusToBody(page: Page): Promise<void> {
-  await page.evaluate(() => { document.body.focus(); });
 }
 
 frameworks.forEach(framework => {
@@ -622,9 +607,10 @@ frameworks.forEach(framework => {
         (window as any).Survey.settings.notifications.lifetime = 10000;
       });
       await page.setViewportSize({ width: 1920, height: 900 });
-      await initSurvey(page, framework, notifierJson);
-      await page.evaluate(() => {
-        (window as any).survey.onComplete = (_sender, options) => {
+
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onComplete.add((_, options) => {
           options.isCompleteOnTrigger = false;
           options.showDataSaving();
           let fail = true;
@@ -634,8 +620,10 @@ frameworks.forEach(framework => {
             () => { options.showDataSavingSuccess(); },
             () => { options.showDataSavingError(); }
           );
-        };
-      });
+        });
+        window["survey"].fromJSON(json);
+      }, notifierJson);
+
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
@@ -652,9 +640,9 @@ frameworks.forEach(framework => {
       });
       await page.setViewportSize({ width: 1920, height: 900 });
 
-      await initSurvey(page, framework, notifierJson);
-      await page.evaluate(() => {
-        (window as any).survey.onComplete = (_sender, options) => {
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onComplete.add((_, options) => {
           options.isCompleteOnTrigger = false;
           options.showDataSaving();
           let fail = true;
@@ -664,8 +652,10 @@ frameworks.forEach(framework => {
             () => { options.showDataSavingSuccess(); },
             () => { options.showDataSavingError(); }
           );
-        };
-      });
+        });
+        window["survey"].fromJSON(json);
+      }, notifierJson);
+
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
@@ -686,9 +676,9 @@ frameworks.forEach(framework => {
       });
       await page.setViewportSize({ width: 1920, height: 900 });
 
-      await initSurvey(page, framework, notifierJson);
-      await page.evaluate(() => {
-        (window as any).survey.onComplete = (_sender, options) => {
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onComplete.add((_, options) => {
           options.isCompleteOnTrigger = false;
           options.showDataSaving();
           let fail = false;
@@ -698,8 +688,10 @@ frameworks.forEach(framework => {
             () => { options.showDataSavingSuccess(); },
             () => { options.showDataSavingError(); }
           );
-        };
-      });
+        });
+        window["survey"].fromJSON(json);
+      }, notifierJson);
+
       await page.evaluate(() => {
         (window as any).survey.data = { nps_score: 4 };
       });
@@ -1441,10 +1433,10 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
       await page.waitForTimeout(100);
-      await compareScreenshot(page, "body", "survey-no-scrolling.png");
+      await compareScreenshot(page, undefined, "survey-no-scrolling.png");
       await page.click(".sd-btn.sd-navigation__next-btn");
       await page.waitForTimeout(100);
-      await compareScreenshot(page, "body", "survey-scrolling-second-page.png");
+      await compareScreenshot(page, undefined, "survey-scrolling-second-page.png");
     });
 
     test("Scroll to survey", async ({ page }) => {
@@ -1467,7 +1459,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, json);
       await page.waitForTimeout(100);
-      await compareScreenshot(page, "body", "survey-scrolling.png");
+      await compareScreenshot(page, undefined, "survey-scrolling.png");
     });
   });
 });

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { url, frameworks, initSurvey } from "../visualRegressionTests/helper";
+import { compareScreenshot, frameworks, initSurvey, resetFocusToBody, url } from "../e2e/helper";
 
 const title = "Brand banner Screenshot";
 
@@ -18,12 +18,11 @@ frameworks.forEach(framework => {
           name: "question1",
         }]
       };
-      await initSurvey(framework, json);
-      await page.evaluate(() => {
-        document.body.focus();
-      });
+      await initSurvey(page, framework, json);
+      await page.waitForLoadState("networkidle");
 
-      await expect(page.locator(".sd-body")).toHaveScreenshot("brand-info-image.png");
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-body", "brand-info-image.png");
     });
   });
 });

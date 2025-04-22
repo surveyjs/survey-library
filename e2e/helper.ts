@@ -117,6 +117,10 @@ export async function checkSurveyData(page: Page, json: any): Promise<void> {
   await expect(data).toStrictEqual(json);
 }
 
+export async function getSurveyData(page) {
+  return await page.evaluate(() => { return window["survey"].data; });
+}
+
 export async function getSurveyResult(page) {
   return await page.evaluate(() => {
     return window["SurveyResult"];

@@ -46,7 +46,7 @@
         :class="question.getFileDecoratorCss()"
         v-if="question.showFileDecorator"
       >
-        <span :class="question.cssClasses.dragAreaPlaceholder">
+        <span :class="question.cssClasses.dragAreaPlaceholder" v-if="question.showDragAreaPlaceholder">
           <survey-string :locString="question.locRenderedPlaceholder"></survey-string>
         </span>
         <div :class="question.cssClasses.wrapper">

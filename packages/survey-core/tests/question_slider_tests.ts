@@ -403,7 +403,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
   assert.deepEqual(renderedValue, [40, 60]);
 });
 
-QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
+QUnit.test("autoGenerate", (assert) => {
   let q1 = new QuestionSliderModel("q1");
   assert.deepEqual(q1.autoGenerate, true);
   q1.labels = [{ text: "t", value: "v" }] as any;

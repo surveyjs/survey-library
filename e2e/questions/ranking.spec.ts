@@ -32,7 +32,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.locator("input[value=Next]").click();
       await page.waitForTimeout(500);
-      expect(page.locator(".sv-ranking-item").first()).toBeFocused();
+      await expect(page.locator(".sv-ranking-item").first()).toBeFocused();
     });
   });
 });

@@ -1,5 +1,6 @@
 <template>
   <div
+    :id="question.getItemId(item)"
     :tabindex="question.getItemTabIndex(item)"
     :data-sv-drop-target-ranking-item="index"
     :class="question.getItemClass(item)"

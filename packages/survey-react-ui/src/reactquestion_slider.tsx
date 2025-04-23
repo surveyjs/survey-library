@@ -80,11 +80,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         <div className={cssClasses.tooltipPanel}>
           <div className={cssClasses.tooltipValue} >{tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
         </div>
-        <div className={cssClasses.tooltipPointer}>
-          <svg viewBox="0 0 12 6" fill="black" xmlns="http://www.w3.org/2000/svg">
-            <path id="Pointer" d="M6 6L12 0L5.24537e-07 -1.04907e-06L6 6Z" />
-          </svg>
-        </div>
       </div>;
     }
 

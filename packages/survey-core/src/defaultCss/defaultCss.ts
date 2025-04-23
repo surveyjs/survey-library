@@ -701,7 +701,6 @@ export var defaultCss = {
     thumbDot: "sd-slider__thumb-dot",
     tooltip: "sd-slider__tooltip",
     tooltipPanel: "sd-slider__tooltip-panel",
-    tooltipPointer: "sd-slider__tooltip-pointer",
     tooltipOnHoverMode: "sd-slider__tooltip--on-hover",
     tooltipValue: "sd-slider__tooltip-value",
     input: "sd-slider__input",

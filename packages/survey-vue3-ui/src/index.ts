@@ -131,6 +131,7 @@ import FileChooseButton from "./components/file/FileChooseButton.vue";
 import FilePreview from "./components/file/FilePreview.vue";
 import ButtonGroup from "./buttongroup/ButtonGroup.vue";
 import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
+import ButtonGroupDropdown from "./buttongroup/ButtonGroupDropdown.vue";
 import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
 import { ComponentFactory } from "./component-factory";
@@ -297,6 +298,7 @@ function registerComponents(
 
   registerComponent("survey-buttongroup", ButtonGroup);
   registerComponent("sv-button-group-item", ButtonGroupItem);
+  registerComponent("sv-buttongroup-dropdown", ButtonGroupDropdown);
   registerComponent("survey", SurveyVue);
 }
 

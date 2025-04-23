@@ -847,11 +847,17 @@ export var defaultCss = {
     controlDisabled: "sd-input--disabled",
     controlReadOnly: "sd-input--readonly",
     controlPreview: "sd-input--preview",
+    controlLabel: "sd-item__control-label",
     filterStringInput: "sd-dropdown__filter-string-input",
     chevronButton: "sd-dropdown_chevron-button",
     chevronButtonSvg: "sd-dropdown_chevron-button-svg",
     chevronButtonIconId: "icon-chevron",
     popup: "sv-dropdown-popup",
+    cleanButton: "sd-dropdown_clean-button",
+    cleanButtonSvg: "sd-dropdown_clean-button-svg",
+    cleanButtonIconId: "icon-cancel",
+    hintPrefix: "sd-dropdown__hint-prefix",
+    hintSuffix: "sd-dropdown__hint-suffix"
   },
   list: {
     root: "sv-list__container sd-list",

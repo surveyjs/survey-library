@@ -5,7 +5,7 @@ import { QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
-import { classesToSelector } from "./utils/utils";
+import { classesToSelector, updateListCssValues } from "./utils/utils";
 
 export class ButtonGroupItemValue extends ItemValue {
   constructor(
@@ -73,13 +73,13 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return this.inputId + "_" + index;
   }
   public get placeholder(): string {
-    return this.getLocalizableStringText("ratingOptionsCaption");
+    return this.getLocalizableStringText("buttongroupOptionsCaption");
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("ratingOptionsCaption", val);
+    this.setLocalizableStringText("buttongroupOptionsCaption", val);
   }
   get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("ratingOptionsCaption");
+    return this.getLocalizableString("buttongroupOptionsCaption");
   }
   get allowClear(): boolean {
     return true;
@@ -117,6 +117,22 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
 
+  protected onBlurCore(event: any): void {
+    this.dropdownListModel?.onBlur(event);
+    super.onBlurCore(event);
+  }
+  protected updateCssClasses(res: any, css: any) {
+    super.updateCssClasses(res, css);
+    updateListCssValues(res, css);
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    if (this.dropdownListModelValue) {
+      this.dropdownListModelValue.updateCssClasses(classes.popup, classes.list);
+    }
+    return classes;
+  }
+
   // responsiveness
   public needResponsiveWidth(): boolean {
     return true;
@@ -128,7 +144,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return "dropdown";
   }
   protected getObservedElementSelector(): string {
-    // return classesToSelector(this.cssClasses.root);
     return ".sd-button-group-scrollable-container";
   }
   protected onBeforeSetCompactRenderer(): void {
@@ -139,7 +154,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   }
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
+    if (!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
       this.dropdownListModelValue = undefined;
     }

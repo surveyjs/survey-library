@@ -13,6 +13,9 @@ import { SurveyElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { SurveyQuestionCommentItem } from "./reactquestion_comment";
 import { SurveyCustomWidget } from "./custom-widget";
 import { SurveyElementHeader } from "./element-header";
+import { SurveyQuestionSigleInputSummary } from "./reactquestion_singleinputsummary";
+import { SurveyBreadcrumbs } from "./components/breadcrumbs/breadcrumbs";
+import { SurveyAction } from "./components/action-bar/action-bar-item";
 
 export interface ISurveyCreator {
   createQuestionElement(question: Question): React.JSX.Element | null;
@@ -101,12 +104,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();
-    var errorsTop = this.question.showErrorOnTop
-      ? this.renderErrors(cssClasses, "top")
-      : null;
-    var errorsBottom = this.question.showErrorOnBottom
-      ? this.renderErrors(cssClasses, "bottom")
-      : null;
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
     var descriptionUnderInput = question.hasDescriptionUnderInput
@@ -118,10 +115,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         style={contentStyle}
         role="presentation"
       >
-        {errorsTop}
         {questionRender}
         {comment}
-        {errorsBottom}
         {descriptionUnderInput}
       </div>
     );
@@ -141,8 +136,11 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       ? this.renderErrors(cssClasses, "")
       : null;
 
-    let rootStyle = question.getRootStyle();
-    let questionContent = this.wrapQuestionContent(this.renderQuestionContent());
+    const rootStyle = question.getRootStyle();
+    const singleBreadcrumbs = question.singleInputHasActions ? this.renderSingleInputBreadcrumbs(question, cssClasses) : undefined;
+    const singleSummary = question.singleInputSummary ? this.renderSingleInputSummary(question, cssClasses) : undefined;
+    const singleInput = singleSummary || (question.singleInputQuestion ? this.renderSingleInputQuestion(question, cssClasses) : undefined);
+    const questionContent = singleInput || this.wrapQuestionContent(this.renderQuestionContent());
 
     return (
       <>
@@ -160,6 +158,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-expanded={question.ariaExpanded}
           data-name={question.name}
         >
+          {singleBreadcrumbs}
           {errorsAboveQuestion}
           {headerTop}
           {questionContent}
@@ -168,6 +167,18 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         </div>
       </>
     );
+  }
+  private renderSingleInputQuestion(question: Question, cssClasses: any): React.JSX.Element {
+    const singleQuestion = question.singleInputQuestion;
+    const key = singleQuestion.id;
+    return <SurveyQuestion key={key} element={singleQuestion} creator={this.creator} css={cssClasses} />;
+
+  }
+  protected renderSingleInputBreadcrumbs(question: Question, cssClasses: any): React.JSX.Element {
+    return <SurveyBreadcrumbs model={question.singleInputActions} css={cssClasses} />;
+  }
+  protected renderSingleInputSummary(question: Question, cssClasses: any): React.JSX.Element {
+    return <SurveyQuestionSigleInputSummary summary={question.singleInputSummary} creator={this.creator} css={cssClasses} />;
   }
   protected wrapElement(element: React.JSX.Element): React.JSX.Element {
     const survey: SurveyModel = this.question.survey as SurveyModel;
@@ -208,6 +219,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     );
   }
   protected renderHeader(question: Question): React.JSX.Element {
+    if (question.singleInputHideHeader) return null;
     return <SurveyElementHeader element={question}></SurveyElementHeader>;
   }
   protected renderErrors(cssClasses: any, location: string): React.JSX.Element {
@@ -240,9 +252,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   private get creator(): ISurveyCreator {
     return this.props.creator;
-  }
-  protected get location(): string {
-    return this.props.location;
   }
   private getState(prevState: any = null) {
     return !prevState ? { error: 0 } : { error: prevState.error + 1 };

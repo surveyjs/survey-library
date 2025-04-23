@@ -163,7 +163,7 @@ export class QuestionBooleanModel extends Question {
    * @see labelFalse
    */
   @property()
-  valueTrue: any;
+    valueTrue: any;
   /**
    * A value to save in survey results when respondents give a negative answer.
    *
@@ -172,7 +172,7 @@ export class QuestionBooleanModel extends Question {
    * @see labelFalse
    */
   @property()
-  valueFalse: any;
+    valueFalse: any;
 
   public getValueTrue(): any {
     return this.valueTrue !== undefined ? this.valueTrue : true;
@@ -181,10 +181,10 @@ export class QuestionBooleanModel extends Question {
     return this.valueFalse !== undefined ? this.valueFalse : false;
   }
   protected setDefaultValue(): void {
-    if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);
-    if (this.isDefaultValueSet("false", this.valueFalse)) this.setBooleanValue(false);
+    if (this.isDefaultValueSet("true", this.valueTrue))this.setBooleanValue(true);
+    if (this.isDefaultValueSet("false", this.valueFalse))this.setBooleanValue(false);
     const val = this.defaultValue;
-    if (val === "indeterminate" || val === null || val === undefined) this.setBooleanValue(undefined);
+    if (val === "indeterminate" || val === null || val === undefined)this.setBooleanValue(undefined);
   }
   private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any): boolean {
     return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);

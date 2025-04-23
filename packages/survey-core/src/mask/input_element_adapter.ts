@@ -15,7 +15,7 @@ export class InputElementAdapter {
     if (_value === null || _value === undefined) {
       _value = "";
     }
-    this.setInputValue(inputMaskInstance.getMaskedValue(_value));
+    this.setInputValue(inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value));
     this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);
@@ -27,7 +27,7 @@ export class InputElementAdapter {
       const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
       this.setInputValue(maskedValue);
     }
-  }
+  };
 
   clickHandler = (event: any) => {
     if (this.inputElement.value == this.inputMaskInstance.getMaskedValue("")) {
@@ -48,7 +48,7 @@ export class InputElementAdapter {
   changeHandler = (event: any) => {
     const result = this.inputMaskInstance.processInput({ prevValue: "", insertedChars: event.target.value, selectionStart: 0, selectionEnd: 0 });
     this.setInputValue(result.value);
-  }
+  };
 
   public createArgs(event: any): ITextInputParams {
     const args: ITextInputParams = {

@@ -2,7 +2,7 @@
   <SvComponent
     :is="'survey-string'"
     v-if="element.isTitleRenderedAsString"
-    :locString="element.locTitle"
+    :locString="element.locRenderedTitle"
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
@@ -10,6 +10,7 @@
     :aria-hidden="true"
     >{{ element.requiredMark }}</span
   >
+  <span v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart">&nbsp;</span>
   <span
     v-if="!element.isTitleRenderedAsString && element.no"
     style="position: static"
@@ -31,7 +32,7 @@
   <SvComponent
     :is="'survey-string'"
     v-if="!element.isTitleRenderedAsString"
-    :locString="element.locTitle"
+    :locString="element.locRenderedTitle"
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"
@@ -48,17 +49,10 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { PanelModel, Question } from "survey-core";
-import { computed } from "vue";
+
 defineOptions({ inheritAttrs: false });
-const props = defineProps<{
+defineProps<{
   element: Question | PanelModel;
   css: any;
 }>();
-
-const cssClasses = computed(
-  () =>
-    (props.element.isPanel
-      ? props.element.cssClasses.panel
-      : props.element.cssClasses) || {}
-);
 </script>

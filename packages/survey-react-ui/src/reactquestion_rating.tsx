@@ -19,7 +19,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
 
   protected renderItem(
     item: any,
-    index: Number
+    index: number
   ): React.JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       question: this.question,

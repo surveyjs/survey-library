@@ -46,7 +46,7 @@ export class Bindings {
     return res;
   }
   public setBinding(propertyName: string, valueName: string) {
-    if (!this.values) this.values = {};
+    if (!this.values)this.values = {};
     const oldValue = this.getJson();
     if (oldValue === valueName) return;
     if (!!valueName) {
@@ -85,7 +85,7 @@ export class Bindings {
     if (this.isEmpty()) return undefined;
     const res: any = {};
     this.getNames().forEach(key => {
-      if(this.values[key] !== undefined) {
+      if (this.values[key] !== undefined) {
         res[key] = this.values[key];
       }
     });
@@ -96,8 +96,8 @@ export class Bindings {
     this.values = null;
     if (!!value) {
       this.getNames().forEach(key => {
-        if(value[key] !== undefined) {
-          if(!this.values) this.values = {};
+        if (value[key] !== undefined) {
+          if (!this.values)this.values = {};
           this.values[key] = value[key];
         }
       });
@@ -278,6 +278,7 @@ export class Base {
    * If you need to add and remove property change event handlers dynamically, use the [`registerPropertyChangedHandlers`](#registerPropertyChangedHandlers) and [`unregisterPropertyChangedHandlers`](#unregisterPropertyChangedHandlers) methods instead.
    */
   public onPropertyChanged: EventBase<Base> = this.addEvent<Base>();
+  public onNestedPropertyChanged: EventBase<Base> = this.addEvent<Base>();
   /**
    * An event that is raised when an [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue) property is changed.
    *
@@ -378,7 +379,7 @@ export class Base {
   }
   private bindingsValue: Bindings;
   public get bindings(): Bindings {
-    if(!this.bindingsValue) {
+    if (!this.bindingsValue) {
       this.bindingsValue = new Bindings(this);
     }
     return this.bindingsValue;
@@ -388,7 +389,7 @@ export class Base {
   }
   checkBindings(valueName: string, value: any): void { }
   protected updateBindings(propertyName: string, value: any): void {
-    if(!this.bindingsValue) return;
+    if (!this.bindingsValue) return;
     var valueName = this.bindings.getValueNameByPropertyName(propertyName);
     if (!!valueName) {
       this.updateBindingValue(valueName, value);
@@ -417,18 +418,21 @@ export class Base {
   }
 
   /**
-   * Returns a JSON object that corresponds to the current SurveyJS object.
+   * Returns a JSON schema that corresponds to the current survey element.
+   * @param options An object with configuration options.
+   * @param {boolean} options.storeDefaults Pass `true` the JSON schema should include properties with default values.
+   * @returns A JSON schema of the survey element.
    * @see fromJSON
    */
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
   }
   /**
-   * Assigns a new configuration to the current SurveyJS object. This configuration is taken from a passed JSON object.
+   * Assigns a new JSON schema to the current survey element.
    *
-   * The JSON object should contain only serializable properties of this SurveyJS object. Event handlers and properties that do not belong to the SurveyJS object are ignored.
+   * The JSON schema should contain only serializable properties of this survey element. Event handlers and properties that do not belong to the survey element are ignored.
    *
-   * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
+   * @param json A JSON schema that you want to apply to the current survey element.
    * @param options An object with configuration options.
    * @param {boolean} options.validatePropertyValues Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
    * @see toJSON
@@ -507,10 +511,10 @@ export class Base {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if (locStr) return locStr.text;
       if (!this.isValueUndefined(defaultValue)) return defaultValue;
-      if(!!calcFunc) {
+      if (!!calcFunc) {
         const newVal = calcFunc();
-        if(newVal !== undefined) {
-          if(Array.isArray(newVal)) {
+        if (newVal !== undefined) {
+          if (Array.isArray(newVal)) {
             const array = this.createNewArray(name);
             array.splice(0, 0, ...newVal);
             return array;
@@ -548,8 +552,7 @@ export class Base {
     if (locStr) {
       this.setLocalizableStringText(name, undefined);
       locStr.clear();
-    }
-    else {
+    } else {
       this.setPropertyValue(name, undefined);
     }
   }
@@ -574,8 +577,7 @@ export class Base {
       } else {
         ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
       }
-    }
-    else propertiesHash[name] = val;
+    } else propertiesHash[name] = val;
   }
   public get isEditingSurveyElement(): boolean {
     var survey = this.getSurvey();
@@ -764,7 +766,7 @@ export class Base {
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
-    if (!this.asynExpressionHash) this.asynExpressionHash = {};
+    if (!this.asynExpressionHash)this.asynExpressionHash = {};
     const isChanged = !this.isAsyncExpressionRunning;
     this.asynExpressionHash[id] = true;
     if (isChanged) {
@@ -832,13 +834,12 @@ export class Base {
   public registerFunctionOnPropertiesValueChanged(names: Array<string>, func: any, key: string = null): void {
     this.registerPropertyChangedHandlers(names, func, key);
   }
-  public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): void {
+  public unRegisterFunctionOnPropertyValueChanged(name: string, key: string = null): Array<any> {
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       var item = this.onPropChangeFunctions[i];
       if (item.name == name && item.key == key) {
-        this.onPropChangeFunctions.splice(i, 1);
-        return;
+        return this.onPropChangeFunctions.splice(i, 1);
       }
     }
   }
@@ -885,7 +886,7 @@ export class Base {
     return locStr;
   }
   protected removeLocalizableString(name: string): void {
-    if(this.localizableStrings) {
+    if (this.localizableStrings) {
       delete this.localizableStrings[name];
     }
   }
@@ -915,7 +916,7 @@ export class Base {
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if (item) this.AddLocStringToUsedLocales(item, locales);
+        if (item)this.AddLocStringToUsedLocales(item, locales);
       }
     }
     if (!!this.arraysInfo) {
@@ -1153,7 +1154,7 @@ export class Base {
     caseInSensitive: boolean = false,
     trimString: boolean = false
   ): boolean {
-    return Helpers.isTwoValueEquals(x, y, false, !caseInSensitive, trimString);
+    return Helpers.checkIfValuesEqual(x, y, { ignoreOrder: false, caseSensitive: !caseInSensitive, trimStrings: trimString, doNotConvertNumbers: true });
   }
   private static copyObject(dst: any, src: any) {
     for (var key in src) {

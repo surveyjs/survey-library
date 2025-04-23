@@ -208,7 +208,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   componentWillUnmount(): void {
     super.componentWillUnmount();
-    if (this.question.dropdownListModel) this.question.dropdownListModel.focused = false;
+    if (this.question.dropdownListModel)this.question.dropdownListModel.focused = false;
   }
   updateInputDomElement() {
     if (!!this.inputElement) {

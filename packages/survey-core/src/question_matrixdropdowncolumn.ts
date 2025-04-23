@@ -12,11 +12,8 @@ import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./q
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
-  onColumnPropertyChanged(
-    column: MatrixDropdownColumn,
-    name: string,
-    newValue: any
-  ): void;
+  onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void;
+  onColumnNestedPropertyChanged(column: MatrixDropdownColumn, name: string, nestedName: string, newValue: any): void;
   onColumnItemValuePropertyChanged(
     column: MatrixDropdownColumn,
     propertyName: string,
@@ -735,15 +732,15 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestionValue = this.createNewQuestion(curCellType);
     this.templateQuestion.locOwner = this;
     this.addProperties(curCellType);
-    if(!!name) {
+    if (!!name) {
       this.name = name;
     }
-    if(!!title) {
+    if (!!title) {
       this.title = title;
     } else {
       this.templateQuestion.locTitle.strChanged();
     }
-    if(settings.serialization.matrixDropdownColumnSerializeTitle) {
+    if (settings.serialization.matrixDropdownColumnSerializeTitle) {
       this.templateQuestion.locTitle.serializeCallBackText = true;
     }
     this.templateQuestion.onPropertyChanged.add((sender, options) => {
@@ -754,6 +751,11 @@ export class MatrixDropdownColumn extends Base
         options.arrayChanges,
         options.target
       );
+    });
+    this.templateQuestion.onNestedPropertyChanged.add((sender, options) => {
+      if (this.colOwner && !this.isLoadingFromJson) {
+        this.colOwner.onColumnNestedPropertyChanged(this, options.name, options.nestedName, options.newValue);
+      }
     });
     this.templateQuestion.onItemValuePropertyChanged.add((sender, options) => {
       this.doItemValuePropertyChanged(
@@ -810,10 +812,10 @@ export class MatrixDropdownColumn extends Base
           json[prop] = this.jsonObj[prop];
         });
       }
-      if(json["choicesOrder"] === "random") {
+      if (json["choicesOrder"] === "random") {
         json["choicesOrder"] = "none";
         const visChoices = this.templateQuestion["visibleChoices"];
-        if(Array.isArray(visChoices)) {
+        if (Array.isArray(visChoices)) {
           json["choices"] = visChoices;
         }
       }
@@ -838,8 +840,8 @@ export class MatrixDropdownColumn extends Base
     }
     if (!this.colOwner || this.isLoadingFromJson) return;
     if (this.isShowInMultipleColumns) {
-      if(name === "choicesOrder") return;
-      if(["visibleChoices", "choices"].indexOf(name) > -1) {
+      if (name === "choicesOrder") return;
+      if (["visibleChoices", "choices"].indexOf(name) > -1) {
         this.colOwner.onShowInMultipleColumnsChanged(this);
       }
     }

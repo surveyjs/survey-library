@@ -67,6 +67,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return null;
   }
+  protected getDependedQuestionsByValueName(isDependOn: boolean): Array<IQuestion> {
+    if (isDependOn && !!this.valuePropertyName) return [];
+    return super.getDependedQuestionsByValueName(isDependOn);
+  }
   /**
    * Returns the "Select All" choice item. Use this property to change the item's `value` or `text`.
    * @see showSelectAllItem
@@ -125,20 +129,20 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected allElementsSelected(): boolean {
     const noneItems = this.getNoneItems();
-    for(let i = 0; i < noneItems.length; i ++) {
-      if(this.isItemSelected(noneItems[i])) return false;
+    for (let i = 0; i < noneItems.length; i ++) {
+      if (this.isItemSelected(noneItems[i])) return false;
     }
     const items = this.getVisibleEnableItems();
-    if(items.length === 0) return false;
+    if (items.length === 0) return false;
     const val = this.value;
     if (!val || !Array.isArray(val) || val.length === 0) return false;
-    if(val.length < items.length) return false;
+    if (val.length < items.length) return false;
     const rVal = [];
-    for(let i = 0; i < val.length; i ++) {
+    for (let i = 0; i < val.length; i ++) {
       rVal.push(this.getRealValue(val[i]));
     }
-    for(let i = 0; i < items.length; i ++) {
-      if(rVal.indexOf(items[i].value) < 0) return false;
+    for (let i = 0; i < items.length; i ++) {
+      if (rVal.indexOf(items[i].value) < 0) return false;
     }
     return true;
   }
@@ -158,14 +162,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
     if (this.isReadOnlyAttr) return;
-    if(item === this.selectAllItem) {
-      if(checked === true || checked === false) {
+    if (item === this.selectAllItem) {
+      if (checked === true || checked === false) {
         this.isAllSelected = checked;
       } else {
         this.toggleSelectAll();
       }
     } else {
-      if(this.isNoneItem(item)) {
+      if (this.isNoneItem(item)) {
         this.renderedValue = checked ? [item.value] : [];
       } else {
         const newValue: Array<any> = [].concat(this.renderedValue || []);
@@ -195,18 +199,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected hasUnknownValueItem(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     const propName = this.valuePropertyName;
-    if(!!propName && typeof val === "object" && val[propName] !== undefined) {
+    if (!!propName && typeof val === "object" && val[propName] !== undefined) {
       val = val[propName];
     }
     return super.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
-    if(!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {
+    if (!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {
       const res: Array<any> = [];
       val.forEach(item => {
         const isObj = typeof item === "object";
         let obj: any = isObj ? item : {};
-        if(!isObj) {
+        if (!isObj) {
           obj[this.valuePropertyName] = item;
         }
         res.push(obj);
@@ -266,7 +270,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 
     const allChoices = !!this.defaultSelectedItemValues ? [].concat(this.defaultSelectedItemValues, visChoices) : visChoices;
     const itemValues = val.map((item) => { return ItemValue.getItemByValue(allChoices, item); }).filter(item => !!item);
-    if(!itemValues.length && !selectedItemValues) {
+    if (!itemValues.length && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
 
@@ -277,23 +281,23 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }
   public getFilteredName(): any {
     let res = super.getFilteredName();
-    if(this.hasFilteredValue) {
+    if (this.hasFilteredValue) {
       res += "-unwrapped";
     }
     return res;
   }
   public getFilteredValue(): any {
-    if(this.hasFilteredValue) return this.renderedValue;
+    if (this.hasFilteredValue) return this.renderedValue;
     return super.getFilteredValue();
   }
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return this.selectedChoices;
   }
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
-    if(!!itemValues.length) return itemValues;
+    if (!!itemValues.length) return itemValues;
 
     const selectedItemValues = this.selectedItemValues;
-    if(!!selectedItemValues && !!selectedItemValues.length) {
+    if (!!selectedItemValues && !!selectedItemValues.length) {
       this.defaultSelectedItemValues = [].concat(selectedItemValues);
       return selectedItemValues;
     }
@@ -342,15 +346,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!this.hasSelectAll) return true;
     let visCount = this.getVisibleEnableItems().length;
     const max = this.maxSelectedChoices;
-    if(max > 0 && max < visCount) return false;
+    if (max > 0 && max < visCount) return false;
     return visCount > 0;
   }
   private getVisibleEnableItems(): Array<ItemValue> {
     const res = new Array<ItemValue>();
     const items = this.visibleChoices;
-    for(let i = 0; i < items.length; i ++) {
+    for (let i = 0; i < items.length; i ++) {
       const item = items[i];
-      if(item.isEnabled && !this.isBuiltInChoice(item)) {
+      if (item.isEnabled && !this.isBuiltInChoice(item)) {
         res.push(item);
       }
     }
@@ -421,7 +425,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return newValue[ind];
   }
   public getStoreOthersAsComment(): boolean {
-    if(!!this.valuePropertyName) return false;
+    if (!!this.valuePropertyName) return false;
     return super.getStoreOthersAsComment();
   }
   protected setOtherValueIntoValue(newValue: any): any {
@@ -429,7 +433,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (ind < 0) return newValue;
     let otherVal: any = this.otherItem.value;
     const propName = this.valuePropertyName;
-    if(propName) {
+    if (propName) {
       const obj: any = {};
       obj[propName] = otherVal;
       otherVal = obj;
@@ -446,20 +450,20 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected removeNoneItemsValues(value: Array<any>, newValue: Array<any>): void {
     const noneValues: Array<any> = [];
-    if(this.showNoneItem) noneValues.push(this.noneItem.value);
-    if(this.showRefuseItem) noneValues.push(this.refuseItem.value);
-    if(this.showDontKnowItem) noneValues.push(this.dontKnowItem.value);
+    if (this.showNoneItem) noneValues.push(this.noneItem.value);
+    if (this.showRefuseItem) noneValues.push(this.refuseItem.value);
+    if (this.showDontKnowItem) noneValues.push(this.dontKnowItem.value);
     if (noneValues.length > 0) {
       const prevNone = this.noneIndexInArray(value, noneValues);
       const newNone = this.noneIndexInArray(newValue, noneValues);
-      if(prevNone.index > -1) {
-        if(prevNone.val === newNone.val) {
-          if(newValue.length > 0) {
+      if (prevNone.index > -1) {
+        if (prevNone.val === newNone.val) {
+          if (newValue.length > 0) {
             newValue.splice(newNone.index, 1);
           }
         } else {
           const prevNewNone = this.noneIndexInArray(newValue, [prevNone.val]);
-          if(prevNewNone.index > -1 && prevNewNone.index < newValue.length - 1) {
+          if (prevNewNone.index > -1 && prevNewNone.index < newValue.length - 1) {
             newValue.splice(prevNewNone.index, 1);
           }
         }
@@ -572,7 +576,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var visItems = this.visibleChoices;
     for (var i = 0; i < visItems.length; i++) {
       const item = visItems[i];
-      if(item === this.selectAllItem) continue;
+      if (item === this.selectAllItem) continue;
       var val = visItems[i].value;
       if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
         if (!this.isItemSelected(item)) {
@@ -701,14 +705,14 @@ Serializer.addClass(
     { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0,
       onSettingValue: (obj: any, val: any): any => {
-        if(val <= 0) return 0;
+        if (val <= 0) return 0;
         const min = obj.minSelectedChoices;
         return min > 0 && val < min ? min : val;
       }
     },
     { name: "minSelectedChoices:number", default: 0,
       onSettingValue: (obj: any, val: any): any => {
-        if(val <= 0) return 0;
+        if (val <= 0) return 0;
         const max = obj.maxSelectedChoices;
         return max > 0 && val > max ? max : val;
       }

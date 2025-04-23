@@ -18,6 +18,7 @@
     <div>
       <img
         v-if="question.backgroundImage"
+        role="presentation"
         :class="question.cssClasses.backgroundImage"
         :src="question.backgroundImage"
         v-bind:style="{

@@ -1,0 +1,7 @@
+.vscode
+build/
+examples_test/
+node_modules/
+playwright-report/
+index.js
+webpack.config.js

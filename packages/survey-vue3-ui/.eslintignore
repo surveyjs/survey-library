@@ -1,0 +1,6 @@
+.vscode/
+build/
+example/
+node_modules/
+playwright-report/
+.gitignore

@@ -29,7 +29,7 @@ export class Tree {
   }
 
   findRoots(node: Node, roots: Array<Node>): void {
-    if(!!node.parent) {
+    if (!!node.parent) {
       this.findRoots(node.parent, roots);
     } else {
       roots.push(node);
@@ -53,11 +53,11 @@ export class SyntacticAnalyzer {
 
     let lexems = this.analyzer.getLexems(str);
 
-    for(let index = 0; index < lexems.length; index++) {
+    for (let index = 0; index < lexems.length; index++) {
       const currentLexem = lexems[index];
       currentTocken = null;
 
-      switch (currentLexem.type) {
+      switch(currentLexem.type) {
         case "expression":
           currentTocken = this.syntacticAnalysis(currentLexem.data);
           break;
@@ -71,16 +71,16 @@ export class SyntacticAnalyzer {
         default:
           currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
       }
-      if(!!currentLexem.quantifier) {
+      if (!!currentLexem.quantifier) {
         currentTocken = this.createUnaryTocken(currentLexem.quantifier === "*" ? "repeat" : "plus", currentLexem.data, currentTocken);
       }
 
-      if(!!currentTocken) {
-        if(!!leftTocken && prevLexem.type === "or") {
+      if (!!currentTocken) {
+        if (!!leftTocken && prevLexem.type === "or") {
           currentTocken = this.createBinaryTocken("or", currentLexem.data, leftTocken, currentTocken);
           rootTocken = currentTocken;
           leftTocken = null;
-        } else if(!!prevTocken) {
+        } else if (!!prevTocken) {
           currentTocken = this.createBinaryTocken("concat", ".", prevTocken, currentTocken);
           rootTocken = currentTocken;
         }
@@ -95,7 +95,7 @@ export class SyntacticAnalyzer {
     const prevTockenParent = prevTocken.parent;
     const node = new Node({ type: tokenType, value: char });
     node.addChild(prevTocken);
-    if(!!prevTockenParent) {
+    if (!!prevTockenParent) {
       prevTockenParent.addChild(node);
     }
     return node;

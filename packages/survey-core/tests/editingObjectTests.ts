@@ -1075,7 +1075,7 @@ QUnit.test("Validate in matrix, checkErrorsMode: onValueChanging", function (
   });
   survey.onMatrixCellValidate.add(function (sender, options) {
     if (options.columnName != "name") return;
-    options.error = options.value.length != 4 ? "Error in name" : null;
+    options.error = options.value.length != 4 ? "Error in name" : undefined;
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
   var row = matrix.visibleRows[0];
@@ -1359,7 +1359,7 @@ QUnit.test("Call onMatrixCellCreated correctly, Bug#8873", function (assert) {
   let cellCreatedCounter: number = 0;
   survey.onMatrixCellCreated.add((sender, options) => {
     cellCreatedCounter ++;
-    if(options.columnName === "text") {
+    if (options.columnName === "text") {
       options.cellQuestion.placeholder = options.row.getQuestionByName("value").value;
     }
   });
@@ -1671,7 +1671,7 @@ QUnit.test("Edit triggers array", function (assert) {
   });
   editSurvey.onMatrixCellCreated.add((sender, options) => {
     const obj = options.row.editingObj;
-    if(obj) {
+    if (obj) {
       options.cell.value = obj.getType();
     }
   });
@@ -1848,4 +1848,7 @@ QUnit.test("Multiple text item, onPropertyValueChanged", function (assert) {
   item.title = "Item 2";
   item.validators.push(new ExpressionValidator("{q1}=1"));
   assert.deepEqual(logs, ["name", "title", "validators"], "#1");
+
+  item.maskType = "pattern";
+  assert.deepEqual(logs, ["name", "title", "validators", "maskType", "maskSettings"], "#2");
 });

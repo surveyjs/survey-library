@@ -1750,7 +1750,7 @@ QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(as
 function updateObjsQuestions(objs: Array<any>): void {
   for (var i = 0; i < objs.length; i++) {
     objs[i].question = objs[i].question.name;
-    if(!!objs[i].context) {
+    if (!!objs[i].context) {
       objs[i].context = objs[i].context.name;
     }
   }
@@ -1860,6 +1860,43 @@ QUnit.test("panelDynamic.getNestedQuestions", function(assert) {
   assert.equal(questions[3].name, "q1", "panel[1].q1");
   assert.equal(questions[4].name, "item1", "panel[1].q2.item1");
   assert.equal(questions[5].name, "item2", "panel[1].q2.item2");
+});
+QUnit.test("panelDynamic.getNestedQuestions for created from JSON elements", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 4,
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+
+  const panel = survey.getQuestionByName("panel1");
+  assert.equal(panel.getNestedQuestions(true).length, 4 * 2, "Calculate questions correctly");
+});
+QUnit.test("panelDynamic.getNestedQuestions for created from JSON elements & nested", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 4,
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdropdown", name: "q2", columns: [{ name: "col1" }, { name: "col2" }], rows: ["row1", "row2"] }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+
+  const panel = survey.getQuestionByName("panel1");
+  assert.equal(panel.getNestedQuestions(true).length, 4 * (1 + 4), "Include nested questions");
+  assert.equal(panel.getNestedQuestions(true, false).length, 4 * 2, "exclude nested questions");
 });
 
 QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 0", function(assert) {
@@ -4139,70 +4176,6 @@ QUnit.test("call clearFiles for QuestionFile on clearing panel value, Bug #6336"
   survey.setValue("q1", 1);
   assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #2");
 });
-
-QUnit.test(
-  "Question padding right inside panel - https://github.com/surveyjs/survey-library/issues/1977",
-  function(assert) {
-    var json = {
-      pages: [
-        {
-          name: "Fancy page",
-          elements: [
-            {
-              type: "panel",
-              title: "Large panel",
-              name: "large_panel",
-              state: "expanded",
-              elements: [
-                {
-                  type: "paneldynamic",
-                  title: " ",
-                  name: "dynamic_panel",
-                  templateElements: [
-                    {
-                      type: "text",
-                      name: "field_one",
-                      width: "60%",
-                      startWithNewLine: false,
-                      title: "Field One",
-                    },
-                    {
-                      type: "text",
-                      name: "field_two",
-                      width: "40%",
-                      startWithNewLine: false,
-                      title: "Field Two",
-                    },
-                  ],
-                  templateTitle: "Fancy Title",
-                  panelCount: 2,
-                  minPanelCount: 1,
-                  panelsState: "expanded",
-                  confirmDelete: true,
-                  confirmDeleteText: "Are you sure you want to delete this?",
-                  panelAddText: "  Add panel",
-                  panelRemoveText: "   Delete",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-    var survey = new SurveyModel(json);
-    setOldTheme(survey);
-    var panel = <QuestionPanelDynamicModel>(
-      survey.getQuestionByName("dynamic_panel")
-    );
-    panel.panels[0].rows[0]["setWidth"](panel.panels[0].rows[0].visibleElements);
-    assert.equal((<any>panel.panels[0].elements[0]).paddingRight, "20px");
-    panel.panels[1].rows[0]["setWidth"](panel.panels[0].rows[0].visibleElements);
-    assert.equal((<any>panel.panels[1].elements[0]).paddingRight, "20px");
-    panel.panelCount++;
-    assert.equal((<any>panel.panels[2].elements[0]).paddingRight, "20px");
-  }
-);
-
 QUnit.test(
   "Panel dynamic with matrix dynamic inside, where matrix has defaultValue - Bug #1984, initial T3351(private)",
   function(assert) {
@@ -4360,7 +4333,7 @@ QUnit.test(
     var testFunc = function(params: Array<any>) {
       parentQuestions = [];
       var q = this.question;
-      while (!!q) {
+      while(!!q) {
         parentQuestions.push(q.name);
         q = q.parentQuestion;
       }
@@ -5303,7 +5276,7 @@ QUnit.test("paneldynamic add new button is not visible for progress render mode,
   const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
   assert.equal(addBtn.isVisible, true, "It is visible by default");
   panel.addPanel();
-  for(var i = 0; i < 4; i ++) {
+  for (var i = 0; i < 4; i ++) {
     panel.addPanel();
     assert.equal(addBtn.isVisible, true, "It is visible by default");
   }
@@ -5464,7 +5437,7 @@ QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (asse
   assert.equal(panel.isReady, false, "panel is not ready");
   assert.equal(log, "->file1.png->file2.png");
   assert.equal(callbacks.length, 2, "Two callbacks");
-  for(let i = 0; i < callbacks.length; i ++) {
+  for (let i = 0; i < callbacks.length; i ++) {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(panel.isReady, true, "panel is ready");
@@ -6290,7 +6263,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle"
       }],
   });
   survey.onGetDynamicPanelTabTitle.add((sender, options) => {
-    if(options.visiblePanelIndex === 0) {
+    if (options.visiblePanelIndex === 0) {
       const val = options.panel.getQuestionByName("q1").value;
       options.title = "First tab" + (!!val ? " " + val.toString() : "");
     }
@@ -6757,9 +6730,9 @@ QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOn
 });
 QUnit.test("panel property in custom function", function (assert) {
   const panelCustomFunc = function (params: any) {
-    if(!this.panel) return "";
+    if (!this.panel) return "";
     const q = this.panel.getQuestionByName(params[0]);
-    if(q && !q.isEmpty()) return q.value + q.value;
+    if (q && !q.isEmpty()) return q.value + q.value;
     return "";
   };
   FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);
@@ -7693,6 +7666,66 @@ QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
   panel.maxPanelCount = 2;
   assert.equal(btnAdd.isVisible, true, "#4");
 });
+QUnit.test("maxRowCount & footer buttons in detail matrix panel, Bug#9714", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "paneldynamic",
+            "name": "panel",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ],
+            "maxPanelCount": 2
+          }
+        ],
+        "detailPanelMode": "underRowSingle",
+        "cellType": "text",
+        "rowCount": 2
+      }
+    ]
+  });
+  survey.pages[0].onFirstRendering();
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  let panel = row.getQuestionByName("panel");
+  const getAddBtn = () => {
+    return panel.footerToolbar.getActionById("sv-pd-add-btn");
+  };
+  assert.equal(getAddBtn().isVisible, true, "addBtn #1");
+  panel.value = [{ q1: "abc" }];
+  assert.equal(getAddBtn().isVisible, true, "#addBtn 2");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #2");
+  panel.value = [{ q1: "abc" }, { q1: "def" }];
+  assert.equal(panel.panelCount, 2, "panelCount #3");
+  assert.equal(panel.maxPanelCount, 2, "maxPanelCount #3");
+  assert.equal(panel.canAddPanel, false, "canAddPanel #3");
+  assert.equal(getAddBtn().isVisible, false, "addBtn #3");
+  panel.removePanel(0);
+  assert.equal(getAddBtn().isVisible, true, "addBtn #4");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #4");
+  row = matrix.visibleRows[1];
+  row.showDetailPanel();
+  panel = row.getQuestionByName("panel");
+  panel.addPanel();
+  assert.equal(getAddBtn().isVisible, true, "addBtn #5");
+  panel.addPanel();
+  assert.equal(getAddBtn().isVisible, false, "addBtn #6");
+  panel.removePanel(0);
+  assert.equal(getAddBtn().isVisible, true, "addBtn #7");
+});
 QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic panel, Bug#8892", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -7912,4 +7945,30 @@ QUnit.test("Question title location for dynamic panels - update dynamically #229
   assert.equal(q1.cssRoot.indexOf(leftClass) > -1, false, "#3");
   survey.pages[0].questionTitleLocation = "left";
   assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#4");
+});
+QUnit.test("getFirstErrorInputElementId doesn't work correctly for panel dynamic", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q1", isRequired: true }
+        ]
+      }]
+  });
+
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const checkFunc = (): string => {
+    return qPanel["getFirstErrorInputElementId"]();
+  };
+  const panel1 = <PanelModel>qPanel.panels[0];
+  const q1 = panel1.getQuestionByName("q1");
+  const panel2 = <PanelModel>qPanel.panels[1];
+  const q2 = panel2.getQuestionByName("q1");
+  survey.tryComplete();
+  assert.equal(checkFunc(), q1.inputId, "check first panel #1");
+  q1.value = "1";
+  assert.equal(checkFunc(), q2.inputId, "check first panel #2");
 });

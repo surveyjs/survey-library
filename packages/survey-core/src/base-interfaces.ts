@@ -110,7 +110,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isDisplayMode: boolean;
   isDesignMode: boolean;
   areInvisibleElementsShowing: boolean;
+  currentSingleQuestion: IQuestion;
+  isSingleVisibleInput: boolean;
+  updateNavigationElements(): void;
   currentSingleElement: IElement;
+  supportsNestedSingleInput(question: IQuestion): boolean;
   areEmptyElementsHidden: boolean;
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
@@ -226,7 +230,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, visible: boolean): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
-  matrixAfterCellRender(question: IQuestion, options: any): any;
+  matrixAfterCellRender(options: any): any;
   matrixCellValueChanged(question: IQuestion, options: any): any;
   matrixCellValueChanging(question: IQuestion, options: any): any;
   isValidateOnValueChanging: boolean;
@@ -381,6 +385,7 @@ export interface ITitleOwner {
   isRequireTextBeforeTitle: boolean;
   isRequireTextAfterTitle: boolean;
   locTitle: LocalizableString;
+  locRenderedTitle: LocalizableString;
 }
 export interface IProgressInfo {
   questionCount: number;

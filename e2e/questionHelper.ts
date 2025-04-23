@@ -6,25 +6,25 @@ export class Question {
   protected isCell: boolean;
   constructor(public readonly page: Page, protected name: string, locator?: Locator) {
     this.isCell = !!locator;
-    this.questionValue = !locator ? this.page.locator("[data-name='"+ name + "']").first() : locator;
+    this.questionValue = !locator ? this.page.locator("[data-name='" + name + "']").first() : locator;
   }
   public get question(): Locator { return this.questionValue; }
   public async scrollIntoViewIfNeeded(): Promise<void> {
-    if(!this.isCell) {
+    if (!this.isCell) {
       await this.question.scrollIntoViewIfNeeded();
     }
   }
   public async focus(): Promise<void> {
     await this.page.evaluate(questionName => {
       const q = window["survey"].getQuestionByName(questionName);
-      if(q.inputId) {
+      if (q.inputId) {
         document.getElementById(q.inputId)?.focus();
       }
       return q.value;
     }, this.name);
   }
   public async hover(locator: string | Locator): Promise<void> {
-    if(typeof locator === "string") {
+    if (typeof locator === "string") {
       locator = this.question.locator(locator).first();
     }
     await locator.hover();
@@ -57,7 +57,7 @@ export class Question {
   }
   public async hasClassIncluded(loc: Locator, isChecked: boolean, className: string): Promise<void> {
     const reg = new RegExp(className);
-    if(isChecked) {
+    if (isChecked) {
       await expect(loc).toHaveClass(reg);
     } else {
       await expect(loc).not.toHaveClass(reg);
@@ -65,7 +65,7 @@ export class Question {
   }
   public screenShortOptions: any;
   public async toHaveScreenshot(name: string, locator?: Locator): Promise<void> {
-    if(!locator) {
+    if (!locator) {
       locator = this.question;
     }
     await expect(locator).toHaveScreenshot(name, this.screenShortOptions);
@@ -91,7 +91,7 @@ export class QuestionSelect extends Question {
 export class QuestionText extends Question {
   public async fill(text: string): Promise<void> {
     this.scrollIntoViewIfNeeded();
-    this.question.locator("input").fill(text);
+    await this.question.locator("input").fill(text);
   }
 }
 export class QuestionComment extends Question {
@@ -115,12 +115,12 @@ export class QuestionRadiogroup extends QuestionSelect {
 }
 export class QuestionCheckbox extends QuestionSelect {
   public async clickByTexts(val: Array<string>): Promise<void> {
-    for(let i = 0; i < val.length; i ++) {
+    for (let i = 0; i < val.length; i ++) {
       await this.clickByText(val[i]);
     }
   }
   public async clickByValues(val: Array<string>): Promise<void> {
-    for(let i = 0; i < val.length; i ++) {
+    for (let i = 0; i < val.length; i ++) {
       await this.clickByValue(val[i]);
     }
   }
@@ -145,7 +145,7 @@ export class QuestionBoolean extends Question {
   }
   public async clickThumb(isTrue: boolean): Promise<void> {
     await this.scrollIntoViewIfNeeded();
-    await this.question.locator(".sd-boolean__thumb-ghost").nth(isTrue ? 1: 0).click();
+    await this.question.locator(".sd-boolean__thumb-ghost").nth(isTrue ? 1 : 0).click();
   }
   /*
   public async clickSwitch(offsetX: number): Promise<void> {
@@ -180,8 +180,8 @@ export class QuestionSignaturePad extends QuestionFileCore {}
 export class QuestionMatrix extends Question {
   public async clickCell(rowText: string, colVal: string): Promise<void> {
     await this.scrollIntoViewIfNeeded();
-    const row = this.question.locator("tr:has-text('"+ rowText +"')");
-    await row.locator("td").filter({ has: this.page.locator("[value='"+ colVal + "']") }).first().click();
+    const row = this.question.locator("tr:has-text('" + rowText + "')");
+    await row.locator("td").filter({ has: this.page.locator("[value='" + colVal + "']") }).first().click();
   }
 }
 export class QuestionMatrixDropdownBase extends Question {

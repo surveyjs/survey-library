@@ -19,7 +19,7 @@ function getPage(question: Question): PageModel {
     return getPage(question.parentQuestion);
   }
   let parent = question.parent;
-  while (parent && parent.getType() !== "page" && parent.parent) {
+  while(parent && parent.getType() !== "page" && parent.parent) {
     parent = parent.parent;
   }
   if (parent && parent.getType() === "page") {
@@ -47,9 +47,11 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
   survey.onFocusInQuestion.add((s, o) => {
     updateSelectedItem(getPage(o.question));
   });
-  survey.registerFunctionOnPropertyValueChanged("pages", () => {
+  const updatePagesFunc = () => {
     listModel.setItems(getTOCItems(survey, onAction));
-  }, "toc");
+  };
+  survey.registerFunctionOnPropertyValueChanged("pages", updatePagesFunc, "toc");
+  survey.onEndLoadingFromJson.add(updatePagesFunc);
   return listModel;
 }
 
@@ -64,6 +66,8 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
         !!onAction && onAction();
         if (page.isPage) {
           return survey.tryNavigateToPage(page as PageModel);
+        } else if (page.isPanel) {
+          return tryFocusPage(survey, page as PanelModelBase);
         }
       },
       visible: <any>new ComputedUpdater(() => {
@@ -141,9 +145,11 @@ export class TOCModel {
   icon = "icon-navmenu_24x24";
   togglePopup = (): void => {
     this.popupModel.toggleVisibility();
-  }
+  };
   public dispose(): void {
-    this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    const [handler] = this.survey.unRegisterFunctionOnPropertyValueChanged("pages", "toc");
+    this.survey.onEndLoadingFromJson.remove(handler);
+    this.survey.onPageAdded.remove(handler);
     this.popupModel.dispose();
     this.listModel.dispose();
   }

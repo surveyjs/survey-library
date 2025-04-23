@@ -86,7 +86,7 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         set: function (val: any) {
           const newValue = processComputedUpdater(this, val);
           const prevValue = this.getPropertyValue(key);
-          if(newValue !== prevValue) {
+          if (newValue !== prevValue) {
             this.setPropertyValue(key, newValue);
             if (!!options && options.onSet) {
               options.onSet(newValue, this, prevValue);
@@ -291,7 +291,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
-  private uniquePropertyValue: string
+  private uniquePropertyValue: string;
   private readOnlyValue: boolean | null;
   private visibleValue: boolean | null;
   private isLocalizableValue: boolean | null;
@@ -404,7 +404,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     this.uniquePropertyValue = val;
   }
   public isPropertySerializable(obj: any): boolean {
-    if(this.isSerializableFunc) return this.isSerializableFunc(obj);
+    if (this.isSerializableFunc) return this.isSerializableFunc(obj);
     return this.isSerializable;
   }
   public getDefaultValue(obj: Base): any {
@@ -422,6 +422,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public set defaultValue(newValue: any) {
     this.defaultValueValue = newValue;
+    if (newValue !== undefined) {
+      this.defaultValueFunc = undefined;
+    }
   }
   public isDefaultValue(value: any): boolean {
     return this.isDefaultValueByObj(undefined, value);
@@ -430,7 +433,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     if (this.isLocalizable) return value === null || value === undefined;
     const dValue = this.getDefaultValue(obj);
     if (dValue !== undefined) {
-      if(typeof dValue !== "object") return dValue === value;
+      if (typeof dValue !== "object") return dValue === value;
       return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
     return (
@@ -664,7 +667,7 @@ export class CustomPropertiesCollection {
     className = className.toLowerCase();
     var res = [];
     var props = CustomPropertiesCollection.properties;
-    while (className) {
+    while(className) {
       var properties = props[className];
       if (properties) {
         for (var i = 0; i < properties.length; i++) {
@@ -819,7 +822,7 @@ export class JsonMetadataClass {
     this.requiredProperties = [];
     const props = this.getAllProperties();
     for (let i = 0; i < props.length; i++) {
-      if (props[i].isRequired) this.requiredProperties.push(props[i]);
+      if (props[i].isRequired)this.requiredProperties.push(props[i]);
     }
     return this.requiredProperties;
   }
@@ -1130,8 +1133,8 @@ export class JsonMetadata {
     if (prop.isLocalizable) {
       if (prop.isArray) return obj[prop.name];
       const locStr = obj.getLocalizableString(prop.name);
-      if(!!locStr) {
-        if(locStr.isDefautlLocale) return locStr.text;
+      if (!!locStr) {
+        if (locStr.isDefautlLocale) return locStr.text;
         return locStr.getValue(locStr.locale);
       }
       if (!!prop.serializationProperty)
@@ -1273,7 +1276,7 @@ export class JsonMetadata {
     if (!orgProp) return true;
     if (dProp === orgProp) return false;
     let classInfo = dProp.classInfo;
-    while (classInfo && classInfo.parentName) {
+    while(classInfo && classInfo.parentName) {
       dProp = this.findProperty(classInfo.parentName, dProp.name);
       if (dProp && dProp === orgProp) return true;
       classInfo = !!dProp ? dProp.classInfo : undefined;
@@ -1356,7 +1359,7 @@ export class JsonMetadata {
     if (!metaDataClass) return null;
     if (metaDataClass.creator) return metaDataClass.creator(json);
     var parentName = metaDataClass.parentName;
-    while (parentName) {
+    while(parentName) {
       metaDataClass = this.findClass(parentName);
       if (!metaDataClass) return null;
       parentName = metaDataClass.parentName;
@@ -1490,7 +1493,7 @@ export class JsonMetadata {
         return true;
       }
       parentClass = this.classes[parentClass.parentName];
-    } while (!!parentClass);
+    } while(!!parentClass);
     return false;
   }
   public addAlterNativeClassName(name: string, alternativeName: string) {
@@ -1539,7 +1542,7 @@ export class JsonMetadata {
     }
     for (let i = 0; i < classInfo.properties.length; i++) {
       const prop = classInfo.properties[i];
-      if(prop.isSerializable === false) continue;
+      if (prop.isSerializable === false) continue;
       if (!!classInfo.parentName && !!Serializer.findProperty(classInfo.parentName, prop.name)) continue;
       schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
       if (prop.isRequired) requiredProps.push(prop.name);

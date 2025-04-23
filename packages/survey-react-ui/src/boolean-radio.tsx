@@ -39,7 +39,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   }
   handleOnChange = (event: any) => {
     this.question.booleanValue = event.nativeEvent.target.value == "true";
-  }
+  };
   protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     return (

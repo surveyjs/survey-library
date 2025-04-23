@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 const environment = process.env.env;
@@ -14,12 +14,42 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
+export async function compareScreenshot(page: Page, elementSelector: string | undefined, screenshotName: string) {
+  await page.addStyleTag({
+    content: "textarea::-webkit-resizer { visibility: hidden !important; }"
+  });
+
+  if (!!elementSelector) {
+    const element = page.locator(elementSelector).filter({ visible: true });
+    await expect(element.first()).toBeVisible();
+    await expect(element.first()).toHaveScreenshot(screenshotName, {
+      timeout: 10000
+    });
+  } else {
+    await expect(page).toHaveScreenshot(screenshotName, {
+      timeout: 10000
+    });
+  }
+}
+
+export async function resetFocusToBody(page: Page): Promise<void> {
+  await page.evaluate(() => { document.body.focus(); });
+}
+
 export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
     // window["Survey"].StylesManager.applyTheme(theme);
   }, theme);
 };
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
+  if (!!props) {
+    Object.keys(props).forEach(name => {
+      if (typeof props[name] == "function") {
+        throw new Error(`Function '${name}' is passed over serialization boundary.`);
+      }
+    });
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.evaluate(([framework, json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
@@ -32,8 +62,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
-    //!!!TODO!!!
-    //window["Survey"].settings.animationEnabled = false;
+    window["Survey"].settings.animationEnabled = false;
     const self: any = window;
     const model = new window["Survey"].Model(json);
     model.setDesignMode(isDesignMode);
@@ -85,4 +114,59 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 export async function checkSurveyData(page: Page, json: any): Promise<void> {
   const data = await page.evaluate(() => { return window["survey"].data; });
   await expect(data).toStrictEqual(json);
+}
+
+export async function getSurveyData(page) {
+  return await page.evaluate(() => { return window["survey"].data; });
+}
+
+export async function getSurveyResult(page) {
+  return await page.evaluate(() => {
+    return window["SurveyResult"];
+  });
+}
+
+export async function getQuestionValue(page) {
+  return await page.evaluate(() => {
+    return window["survey"].getAllQuestions()[0].value;
+  });
+}
+
+export async function getQuestionJson(page) {
+  return await page.evaluate(() => {
+    return JSON.stringify(window["survey"].getAllQuestions()[0].toJSON());
+  });
+}
+
+export async function checkSurveyWithEmptyQuestion(page) {
+  const requiredMessage = page.locator(".sv-string-viewer").getByText("Response required.");
+  await expect(requiredMessage).toHaveCount(0);
+  await page.locator("input[value=Complete]").click();
+  await expect(requiredMessage).toHaveCount(1);
+  const surveyResult = await getSurveyResult(page);
+  expect(surveyResult).toEqual(undefined);
+}
+
+export async function getData(page) {
+  return await page.evaluate(() => {
+    return window["survey"].data;
+  });
+}
+
+export async function setRowItemFlowDirection(page) {
+  await page.evaluate(() => {
+    window["Survey"].settings.itemFlowDirection = "row";
+  });
+}
+
+export async function visibleInViewport (page, locator: Locator) {
+  const rect = await locator.boundingBox();
+  return await page.evaluate((rect) => {
+    return (
+      rect?.y >= 0 &&
+      rect?.x >= 0 &&
+      rect?.y + rect?.height <= (window.innerHeight || document.documentElement.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+  }, rect);
 }

@@ -15,6 +15,12 @@
     :data-name="element.name"
   >
     <SvComponent
+      :is="'sv-breadcrumbs'"
+      v-if="element.singleInputHasActions"
+      :model="element.singleInputActions"
+      :css="element.cssClasses"
+    />
+    <SvComponent
       :is="'survey-errors'"
       v-if="element.showErrorsAboveQuestion"
       :element="element"
@@ -22,23 +28,34 @@
     />
     <SvComponent
       :is="'survey-element-header'"
-      v-if="element.hasTitleOnLeftTop"
+      v-if="!element.singleInputHideHeader && element.hasTitleOnLeftTop"
       :element="element"
-      :css="css"
+      :css="element.cssClasses"
     />
-    <SvComponent :is="contentComponentName" v-bind="contentComponentData">
+    <SvComponent
+      :is="'sv-single-input-summary'"
+      v-if="element.singleInputSummary"
+      :css="element.cssClasses"
+      :summary="element.singleInputSummary"
+    ></SvComponent>
+    <SvComponent
+      :is="'survey-question'"
+      v-else-if="singleQuestion"
+      :css="css"
+      :element="singleQuestion"
+      :survey="survey"
+      :key="(singleQuestion as any).id"
+    ></SvComponent>
+    <SvComponent
+      v-else
+      :is="contentComponentName"
+      v-bind="contentComponentData"
+    >
       <div
         :class="getContentClass(element) || undefined"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >
-        <SvComponent
-          :is="'survey-errors'"
-          v-if="hasErrorsOnTop"
-          :element="element"
-          :location="'top'"
-        />
-
         <SvComponent :is="componentName" :question="element" />
         <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
           <div>
@@ -49,12 +66,6 @@
           </div>
           <SvComponent :is="'survey-question-comment'" :question="element" />
         </div>
-        <SvComponent
-          :is="'survey-errors'"
-          v-if="hasErrorsOnBottom"
-          :element="element"
-          :location="'bottom'"
-        />
         <div
           v-if="element.hasDescriptionUnderInput"
           :class="element.cssDescription"
@@ -100,18 +111,13 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
-const hasErrorsOnTop = computed(() => {
-  return props.element.showErrorOnTop;
-});
-const hasErrorsOnBottom = computed(() => {
-  return props.element.showErrorOnBottom;
-});
-
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };
 const getRootStyle: () => any = () => props.element.getRootStyle();
-
+const singleQuestion = computed(() => {
+  return props.element.singleInputQuestion;
+});
 useBase(() => props.element);
 
 const afterRender = () => {

@@ -9,6 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
+import { Question } from "./question";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -24,6 +25,9 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   }
   public get rowName(): string {
     return this.name;
+  }
+  public get rowTitle(): any {
+    return this.text;
   }
   public get text(): string {
     return this.item.text;
@@ -50,7 +54,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     super(name);
     this.createLocalizableString("totalText", this, true);
     this.registerPropertyChangedHandlers(["rows"], () => {
-      if(!this.generatedVisibleRows) return;
+      if (!this.generatedVisibleRows) return;
       this.clearGeneratedRows();
       this.resetRenderedTable();
       this.getVisibleRows();
@@ -93,6 +97,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public set hideIfRowsEmpty(val: boolean) {
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
+  protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
     var rows = this.visibleRows;
@@ -130,13 +135,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return Helpers.isValueObject(val, true);
   }
   public clearIncorrectValues(): void {
-    if(!this.isEmpty()) {
+    if (!this.isEmpty()) {
       this.getVisibleRows();
       const newVal: any = {};
       const val = this.value;
-      for(let key in val) {
+      for (let key in val) {
         const row = this.getRowByKey(key);
-        if(!!row && row.isVisible) {
+        if (!!row && row.isVisible) {
           newVal[key] = val[key];
         }
       }
@@ -146,16 +151,16 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   private getRowByKey(val: any): MatrixDropdownRowModelBase {
     const rows = this.generatedVisibleRows;
-    if(!rows) return null;
-    for(let i = 0; i < rows.length; i ++) {
-      if(rows[i].rowName === val) return rows[i];
+    if (!rows) return null;
+    for (let i = 0; i < rows.length; i ++) {
+      if (rows[i].rowName === val) return rows[i];
     }
     return null;
   }
   private defaultValuesInRows: any = {};
   protected clearGeneratedRows(): void {
     if (!this.generatedVisibleRows) return;
-    if(!this.isDisposed) {
+    if (!this.isDisposed) {
       this.generatedVisibleRows.forEach(row => {
         this.defaultValuesInRows[row.rowName] = row.getNamesWithDefaultValues();
       });
@@ -164,9 +169,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   private getRowValueForCreation(val: any, rowName: any): any {
     const res = val[rowName];
-    if(!res) return res;
+    if (!res) return res;
     const names = this.defaultValuesInRows[rowName];
-    if(!Array.isArray(names) || names.length === 0) return res;
+    if (!Array.isArray(names) || names.length === 0) return res;
     names.forEach(name => {
       delete res[name];
     });
@@ -193,7 +198,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     const val = this.createValueCopy();
     this.generatedVisibleRows.forEach(row => {
       const rowVal = val[row.rowName];
-      if(row.isVisible && !Helpers.isValueEmpty(rowVal)) {
+      if (row.isVisible && !Helpers.isValueEmpty(rowVal)) {
         res[row.rowName] = rowVal;
       }
     });
@@ -203,16 +208,16 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     keys.push("rows");
   }
   protected getIsRequireToGenerateRows(): boolean {
-    if(super.getIsRequireToGenerateRows()) return true;
-    for(let i = 0; i < this.rows.length; i ++) {
-      if(!!this.rows[i].visibleIf) return true;
+    if (super.getIsRequireToGenerateRows()) return true;
+    for (let i = 0; i < this.rows.length; i ++) {
+      if (!!this.rows[i].visibleIf) return true;
     }
     return false;
   }
   protected updateProgressInfoByValues(res: IProgressInfo): void {
     let val = this.value;
-    if(!val) val = {};
-    for(var i = 0; i < this.rows.length; i ++) {
+    if (!val) val = {};
+    for (var i = 0; i < this.rows.length; i ++) {
       const row = this.rows[i];
       const rowName = val[row.value];
       this.updateProgressInfoByRow(res, !!rowName ? rowName : {});

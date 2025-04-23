@@ -120,8 +120,8 @@ export class BinaryOperand extends Operand {
   }
 
   public setVariables(variables: Array<string>) {
-    if (this.left != null) this.left.setVariables(variables);
-    if (this.right != null) this.right.setVariables(variables);
+    if (this.left != null)this.left.setVariables(variables);
+    if (this.right != null)this.right.setVariables(variables);
   }
 
   public hasFunction(): boolean {
@@ -137,8 +137,8 @@ export class BinaryOperand extends Operand {
     );
   }
   public addToAsyncList(list: Array<AsyncFunctionItem>) {
-    if (!!this.left) this.left.addToAsyncList(list);
-    if (!!this.right) this.right.addToAsyncList(list);
+    if (!!this.left)this.left.addToAsyncList(list);
+    if (!!this.right)this.right.addToAsyncList(list);
   }
 }
 
@@ -239,9 +239,9 @@ export class ArrayOperand extends Operand {
   }
   protected isContentEqual(op: Operand): boolean {
     const aOp = <ArrayOperand>op;
-    if(aOp.values.length !== this.values.length) return false;
-    for(var i = 0; i < this.values.length; i ++) {
-      if(!aOp.values[i].isEqual(this.values[i])) return false;
+    if (aOp.values.length !== this.values.length) return false;
+    for (var i = 0; i < this.values.length; i ++) {
+      if (!aOp.values[i].isEqual(this.values[i])) return false;
     }
     return true;
   }
@@ -279,11 +279,11 @@ export class Const extends Operand {
       this.isQuote(value[value.length - 1])
     )
       return value.substring(1, value.length - 1);
-    if(Helpers.isNumber(value)) {
-      if(value[0] === "0" && value.indexOf("0x") != 0) {
+    if (Helpers.isNumber(value)) {
+      if (value[0] === "0" && value.indexOf("0x") != 0) {
         const len = value.length;
         const hasPoint = len > 1 && (value[1] === "." || value[1] === ",");
-        if(!hasPoint && len > 1 || hasPoint && len < 2) return value;
+        if (!hasPoint && len > 1 || hasPoint && len < 2) return value;
       }
       return Helpers.getNumber(value);
     }
@@ -368,14 +368,14 @@ export class FunctionOperand extends Operand {
   }
   private evaluateCore(processValue?: ProcessValue): any {
     let properties = processValue.properties;
-    if(this.isAsyncFunction) {
+    if (this.isAsyncFunction) {
       properties = Helpers.createCopy(processValue.properties);
       const id = this.id;
       const asyncValues = processValue.asyncValues;
       const onComplete = processValue.onCompleteAsyncFunc;
       const item = this;
       properties.returnResult = (result: any) => {
-        asyncValues[id]= { value: result };
+        asyncValues[id] = { value: result };
         onComplete(item);
       };
     }
@@ -414,16 +414,16 @@ export class FunctionOperand extends Operand {
     if (this.isAsyncFunction()) {
       item = { operand: this };
     }
-    if(this.parameters.hasAsyncFunction()) {
+    if (this.parameters.hasAsyncFunction()) {
       const children = new Array<AsyncFunctionItem>();
       this.parameters.addToAsyncList(children);
       children.forEach(child => child.parent = item);
-      if(!item) {
+      if (!item) {
         item = {};
       }
       item.children = children;
     }
-    if(item) {
+    if (item) {
       list.push(item);
     }
   }
@@ -467,33 +467,33 @@ export class OperandMaker {
   static plusMinus(a: number, b: number, res: number): number {
     const digitsA = OperandMaker.countDecimals(a);
     const digitsB = OperandMaker.countDecimals(b);
-    if(digitsA > 0 || digitsB > 0) {
+    if (digitsA > 0 || digitsB > 0) {
       const digits = Math.max(digitsA, digitsB);
       res = parseFloat(res.toFixed(digits));
     }
     return res;
   }
 
-static unaryFunctions: HashTable<Function> = {
-  empty: function(value: any): boolean {
-    return Helpers.isValueEmpty(value);
-  },
-  notempty: function(value: any): boolean {
-    return !OperandMaker.unaryFunctions.empty(value);
-  },
-  negate: function(value: boolean): boolean {
-    return !value;
-  },
-};
+  static unaryFunctions: HashTable<Function> = {
+    empty: function(value: any): boolean {
+      return Helpers.isValueEmpty(value);
+    },
+    notempty: function(value: any): boolean {
+      return !OperandMaker.unaryFunctions.empty(value);
+    },
+    negate: function(value: boolean): boolean {
+      return !value;
+    },
+  };
 
   static binaryFunctions: HashTable<Function> = {
     arithmeticOp(operatorName: string) {
       const convertForArithmeticOp = (val: any, second: any): any => {
         if (!Helpers.isValueEmpty(val)) return val;
-        if(typeof second === "number") return 0;
-        if(typeof val === "string") return val;
-        if(typeof second === "string") return "";
-        if(Array.isArray(second)) return [];
+        if (typeof second === "number") return 0;
+        if (typeof val === "string") return val;
+        if (typeof second === "string") return "";
+        if (Array.isArray(second)) return [];
         return 0;
       };
       return function(a: any, b: any): any {
@@ -630,7 +630,7 @@ static unaryFunctions: HashTable<Function> = {
     return opStr == null ? operatorName : opStr;
   }
   static convertValForDateCompare(val: any, second: any): any {
-    if(second instanceof Date && typeof val === "string") {
+    if (second instanceof Date && typeof val === "string") {
       let res = createDate("expression-operand", val);
       res.setHours(0, 0, 0);
       return res;

@@ -540,6 +540,7 @@ The following table describes predefined categories:
 | `"layout"`           | Layout                     | Question                                              | 100             |
 | `"layout"`           | Panel Layout               | Panel                                                 | 150             |
 | `"numbering"`        | Numbering                  | Panel                                                 | 350             |
+| `"mask"`             | Input Mask Settings        | Single-Line Input, individual items in Multiple Textboxes | 250         |
 | `"columns"`          | Columns                    | Matrices                                              | 10              |
 | `"rows"`             | Rows                       | Matrices                                              | 11              |
 | `"choices"`          | Choice Options             | Multi-Select Matrix, Dynamic Matrix                   | 12              |
@@ -722,21 +723,6 @@ If you specify `overridingProperty`, the Property Grid disables the current prop
 
 <img src="../images/property-grid-overridding-properties.png" alt="Survey Creator - Property Grid with overridden properties" width="281" height="305">
 
-### `onGetValue`
-
-A function that you can use to adjust the property value or exclude it from the survey JSON schema.
-
-```js
-import { Serializer } from "survey-core";
-
-Serializer.addProperty("question", {
-  name: "calculated-property",
-  onGetValue: (surveyElement) => {
-    // Do not serialize the property to JSON
-    return null;
-  }
-});
-```
 ### `onSetValue`
 
 A function that you can use to perform actions when the property value is set (for example, update another property value).
@@ -749,7 +735,7 @@ import { Serializer } from "survey-core";
 Serializer.addProperty("question", {
   name: "myStringProperty",
   onSetValue: (surveyElement, value) => {
-    // You can perform required checks or modify the `value` here
+    // You can perform required checks here
     // ...
     // Set the `value`
     surveyElement.setPropertyValue("myStringProperty", value);

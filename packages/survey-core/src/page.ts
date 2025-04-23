@@ -45,22 +45,22 @@ export class PageModel extends PanelModel implements IPage {
      && !!this.parent && !this.parent.isPanel;
   }
   protected getElementsForRows(): Array<IElement> {
-    if(!this.isStartPage) {
+    if (!this.isStartPage) {
       const q = this.survey?.currentSingleElement;
-      if(!!q) {
-        if((<any>q).page === this) return [q];
+      if (!!q) {
+        if ((<any>q).page === this) return [q];
         return [];
       }
     }
     return super.getElementsForRows();
   }
   protected disposeElements(): void {
-    if(!this.isPageContainer) {
+    if (!this.isPageContainer) {
       super.disposeElements();
     }
   }
   protected onRemoveElement(element: IElement): void {
-    if(this.isPageContainer) {
+    if (this.isPageContainer) {
       element.parent = null;
       this.unregisterElementPropertiesChanged(element);
     } else {
@@ -71,7 +71,7 @@ export class PageModel extends PanelModel implements IPage {
     return this.isPanel ? "panel" : super.getTemplate();
   }
   public get no(): string {
-    if(!this.canShowPageNumber() || !this.survey) return "";
+    if (!this.canShowPageNumber() || !this.survey) return "";
     let no = this.isStartPage ? "" : this.num + ". ";
     return this.survey.getUpdatedPageNo(this, no);
   }
@@ -115,7 +115,7 @@ export class PageModel extends PanelModel implements IPage {
     return this.getLocalizableString("navigationDescription");
   }
   public navigationLocStrChanged(): void {
-    if(this.locNavigationTitle.isEmpty) {
+    if (this.locNavigationTitle.isEmpty) {
       this.locTitle.strChanged();
     }
     this.locNavigationTitle.strChanged();
@@ -163,7 +163,7 @@ export class PageModel extends PanelModel implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
-    if(this.isPanel) return super.calcCssClasses(css);
+    if (this.isPanel) return super.calcCssClasses(css);
     const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "", rowEnter: "", rowLeave: "", rowDelayedEnter: "", rowReplace: "" };
     this.copyCssClasses(classes.page, css.page);
     this.copyCssClasses(classes.error, css.error);
@@ -203,14 +203,14 @@ export class PageModel extends PanelModel implements IPage {
     return classes;
   }
   protected getCssPanelTitle(): string {
-    if(this.isPanel) return super.getCssPanelTitle();
-    if(!this.cssClasses.page) return "";
+    if (this.isPanel) return super.getCssPanelTitle();
+    if (!this.cssClasses.page) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.title)
       .toString();
   }
   public get cssRoot(): string {
-    if(this.isPanel || !this.cssClasses.page || !this.survey) return "";
+    if (this.isPanel || !this.cssClasses.page || !this.survey) return "";
     return new CssClassBuilder()
       .append(this.cssClasses.page.root)
       .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
@@ -218,7 +218,7 @@ export class PageModel extends PanelModel implements IPage {
       .toString();
   }
   protected getCssError(cssClasses: any): string {
-    if(this.isPanel) return super.getCssError(cssClasses);
+    if (this.isPanel) return super.getCssError(cssClasses);
     return new CssClassBuilder()
       .append(super.getCssError(cssClasses))
       .append(cssClasses.page.errorsContainer).toString();
@@ -288,9 +288,9 @@ export class PageModel extends PanelModel implements IPage {
         (<PanelModelBase><any>els[i]).randomizeElements(this.areQuestionsRandomized);
       }
     }
-    if(this.randomizeElements(this.areQuestionsRandomized)) {
+    if (this.randomizeElements(this.areQuestionsRandomized)) {
       const singleQuestion: any = this.survey?.currentSingleElement;
-      if(singleQuestion?.page === this) {
+      if (singleQuestion?.page === this) {
         this.survey.currentSingleElement = this.elements[0];
       }
     }
@@ -300,7 +300,7 @@ export class PageModel extends PanelModel implements IPage {
    */
   public scrollToTop() {
     if (!!this.survey) {
-      this.survey.scrollElementToTop(this, null, this, this.id);
+      this.survey.scrollElementToTop(this, null, this, this.id, true, { block: "start" });
     }
   }
   /**
@@ -348,7 +348,7 @@ export class PageModel extends PanelModel implements IPage {
     this.timeLimit = val;
   }
   public getMaxTimeToFinish(): number {
-    if(this.timeLimit !== 0) return this.timeLimit;
+    if (this.timeLimit !== 0) return this.timeLimit;
     const res = !!this.survey ? this.survey.timeLimitPerPage : 0;
     return res > 0 ? res : 0;
   }
@@ -373,7 +373,7 @@ export class PageModel extends PanelModel implements IPage {
   public set isReadyForClean(val: boolean) {
     const oldValue = this._isReadyForClean;
     this._isReadyForClean = val;
-    if(this._isReadyForClean !== oldValue) {
+    if (this._isReadyForClean !== oldValue) {
       this.isReadyForCleanChangedCallback && this.isReadyForCleanChangedCallback();
     }
   }

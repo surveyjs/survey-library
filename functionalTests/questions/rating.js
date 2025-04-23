@@ -63,7 +63,7 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
-    json =JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.title, newTitle);
   });
 
@@ -82,7 +82,7 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
-    json =JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.minRateDescription, newMinText);
     assert.equal(json.maxRateDescription, maxText);
   });
@@ -102,7 +102,7 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);
-    json =JSON.parse(await getQuestionJson());
+    json = JSON.parse(await getQuestionJson());
     assert.equal(json.minRateDescription, minText);
     assert.equal(json.maxRateDescription, newMaxText);
   });

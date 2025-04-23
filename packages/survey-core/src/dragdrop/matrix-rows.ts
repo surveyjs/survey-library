@@ -12,7 +12,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
   protected onStartDrag(): void {
     const _body = DomDocumentHelper.getBody();
-    if(!!_body) {
+    if (!!_body) {
       this.restoreUserSelectValue = _body.style.userSelect;
       _body.style.userSelect = "none";
     }
@@ -31,13 +31,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     event: PointerEvent
   ): HTMLElement {
     const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
-    if(!draggedElementShortcut) return;
+    if (!draggedElementShortcut) return;
 
     draggedElementShortcut.className = this.shortcutClass;
 
     const isDeepClone = true;
 
-    if(!!draggedElementNode) {
+    if (!!draggedElementNode) {
       const row = <HTMLElement>(draggedElementNode
         .closest("[data-sv-drop-target-matrix-row]"));
       const clone = <HTMLElement>(row.cloneNode(isDeepClone));
@@ -177,7 +177,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     this.fromIndex = null;
     this.toIndex = null;
     const _body = DomDocumentHelper.getBody();
-    if(!!_body) {
+    if (!!_body) {
       _body.style.userSelect = this.restoreUserSelectValue || "initial";
     }
     super.clear();

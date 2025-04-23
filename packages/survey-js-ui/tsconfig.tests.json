@@ -1,6 +1,7 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
         "baseUrl": ".",
         "declaration": false,
         "declarationDir": null,

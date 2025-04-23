@@ -31,7 +31,7 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   private onChangedHandler = (sender: any, options: any) => {
     if (this.isRendering) return;
     this.setState({ changed: !!this.state && this.state.changed ? this.state.changed + 1 : 1 });
-  }
+  };
   private reactOnStrChanged() {
     if (!this.locStr) return;
     this.locStr.onStringChanged.add(this.onChangedHandler);

@@ -185,7 +185,7 @@ export class ProgressButtonsResponsivityManager {
         this.timer = undefined;
       }
     }, 10);
-  }
+  };
   dispose(): void {
     clearTimeout(this.timer);
     this.model.onResize.remove(this.processResponsiveness);

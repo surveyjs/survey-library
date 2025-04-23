@@ -1450,7 +1450,7 @@ frameworks.forEach((framework) => {
   function choicesLazyLoad(_, opt) {
     var getNumberArray = (skip = 1, count = 25) => {
       const result = [];
-      for(let index = skip; index < (skip + count); index++) {
+      for (let index = skip; index < (skip + count); index++) {
         result.push(index);
       }
       return result;
@@ -1458,7 +1458,7 @@ frameworks.forEach((framework) => {
 
     const total = 55;
     setTimeout(() => {
-      if(opt.skip + opt.take < total) {
+      if (opt.skip + opt.take < total) {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
@@ -1761,7 +1761,7 @@ frameworks.forEach((framework) => {
     };
     await initSurvey(framework, jsonWithDropDown);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
-    const input =questionDropdownSelect.find("input").filterVisible();
+    const input = questionDropdownSelect.find("input").filterVisible();
     const str = questionValue.find(".sv-string-viewer");
 
     await t

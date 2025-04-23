@@ -329,9 +329,9 @@ QUnit.test("Ranking: design mode", function (assert) {
   q["focusItem"] = () => {};
   q.dragDropRankingChoices = {
     reorderRankedItem: (question, fromIndex: number, toIndex: number) => {
-      if(fromIndex < toIndex) {
+      if (fromIndex < toIndex) {
         downCalled++;
-      } else if(fromIndex > toIndex) {
+      } else if (fromIndex > toIndex) {
         upCalled++;
       }
     }

@@ -73,7 +73,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() inputTextAlignment: "left" | "right" | "auto";
 
   get maskTypeIsEmpty(): boolean {
-    switch (this.inputType) {
+    switch(this.inputType) {
       case "tel":
       case "text": return this.maskType === "none";
       default: return true;
@@ -99,6 +99,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set maskSettings(val: InputMaskBase) {
     if (!val) return;
+    const oldValue = this.maskSettings;
+    if (oldValue) {
+      oldValue.dispose();
+    }
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
     this.updateMaskAdapter();
@@ -108,11 +112,14 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected createMaskSettings(): InputMaskBase {
     let maskClassName = (!this.maskType || this.maskType === "none") ? "masksettings" : (this.maskType + "mask");
-    if(!Serializer.findClass(maskClassName)) {
+    if (!Serializer.findClass(maskClassName)) {
       maskClassName = "masksettings";
     }
     const inputMask = Serializer.createClass(maskClassName);
-    inputMask.owner = this.survey;
+    inputMask.onPropertyChanged.add((_, options) => {
+      this.onNestedPropertyChanged.fire(this, { name: "maskSettings", newValue: options.newValue, nestedName: options.name });
+    });
+    inputMask.owner = this;
     return inputMask;
   }
 
@@ -166,7 +173,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateMaskAdapter();
   }
   public getMaxLength(): any {
-    if(!this.isTextInput) return null;
+    if (!this.isTextInput) return null;
     return super.getMaxLength();
   }
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
@@ -219,7 +226,7 @@ export class QuestionTextModel extends QuestionTextBase {
     });
   }
   private calInputSize(): number {
-    if(!this.isTextInput) return 0;
+    if (!this.isTextInput) return 0;
     let size = this.inputSize > 0 ? this.inputSize : 0;
     if (size < 1 && this.parent && !!(<any>this.parent)["inputSize"]) {
       size = (<any>this.parent)["inputSize"];
@@ -343,10 +350,10 @@ export class QuestionTextModel extends QuestionTextBase {
   public set inputValue(val: string) {
     let value = val;
     this._inputValue = val;
-    if(!this.maskTypeIsEmpty) {
+    if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
       this._inputValue = this.maskInstance.getMaskedValue(value);
-      if(!!value && this.maskSettings.saveMaskedValue) {
+      if (!!value && this.maskSettings.saveMaskedValue) {
         value = this.maskInstance.getMaskedValue(value);
       }
     }
@@ -374,13 +381,13 @@ export class QuestionTextModel extends QuestionTextBase {
     return createDate("question-text", val);
   }
   protected valueForSurveyCore(val: any): any {
-    if(this.hasToConvertToUTC(val)) {
+    if (this.hasToConvertToUTC(val)) {
       val = this.createDate(val).toISOString();
     }
     return super.valueForSurveyCore(val);
   }
   protected valueFromDataCore(val: any): any {
-    if(this.hasToConvertToUTC(val)) {
+    if (this.hasToConvertToUTC(val)) {
       const d = this.createDate(val);
       const locale_d = this.createDate(d.getTime() - d.getTimezoneOffset() * 60 * 1000);
       let res = locale_d.toISOString();
@@ -400,10 +407,12 @@ export class QuestionTextModel extends QuestionTextBase {
         ),
         this
       );
-      minError.onUpdateErrorTextCallback = err => { err.text = this.getMinMaxErrorText(
-        this.minErrorText,
-        this.getCalculatedMinMax(this.renderedMin)
-      ); };
+      minError.onUpdateErrorTextCallback = err => {
+        err.text = this.getMinMaxErrorText(
+          this.minErrorText,
+          this.getCalculatedMinMax(this.renderedMin)
+        );
+      };
       errors.push(minError);
     }
     if (this.isValueGreaterMax) {
@@ -414,13 +423,15 @@ export class QuestionTextModel extends QuestionTextBase {
         ),
         this
       );
-      maxError.onUpdateErrorTextCallback = err => { err.text = this.getMinMaxErrorText(
-        this.maxErrorText,
-        this.getCalculatedMinMax(this.renderedMax)
-      ); };
+      maxError.onUpdateErrorTextCallback = err => {
+        err.text = this.getMinMaxErrorText(
+          this.maxErrorText,
+          this.getCalculatedMinMax(this.renderedMax)
+        );
+      };
       errors.push(maxError);
     }
-    if(!!this.dateValidationMessage) {
+    if (!!this.dateValidationMessage) {
       errors.push(new CustomError(this.dateValidationMessage, this));
     }
 
@@ -442,7 +453,7 @@ export class QuestionTextModel extends QuestionTextBase {
   protected canSetValueToSurvey(): boolean {
     if (!this.isMinMaxType) return true;
     const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
-    if((!isValid || this.errors.length > 0) && !!this.survey &&
+    if ((!isValid || this.errors.length > 0) && !!this.survey &&
       (this.survey.isValidateOnValueChanging || this.survey.isValidateOnValueChanged)) {
       this.hasErrors();
     }
@@ -455,7 +466,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
     let errorValue = value.toString();
-    if(this.inputType === "date" && !!value.toDateString) {
+    if (this.inputType === "date" && !!value.toDateString) {
       errorValue = value.toDateString();
     }
     return errorText.replace("{0}", errorValue);
@@ -526,7 +537,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("step", val);
   }
   public get renderedStep(): string {
-    if(this.isValueEmpty(this.step)) {
+    if (this.isValueEmpty(this.step)) {
       return this.inputType !== "number" ? undefined : "any";
     }
     return this.step;
@@ -557,7 +568,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected setNewValue(newValue: any): void {
     newValue = this.correctValueType(newValue);
-    if(!!newValue) {
+    if (!!newValue) {
       this.dateValidationMessage = undefined;
     }
     super.setNewValue(newValue);
@@ -567,7 +578,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.inputType === "number" || this.inputType === "range") {
       return Helpers.isNumber(newValue) ? Helpers.getNumber(newValue) : "";
     }
-    if(this.inputType === "month") {
+    if (this.inputType === "month") {
       const d = this.createDate(newValue);
       const isUtc = d.toISOString().indexOf(newValue) == 0 && newValue.indexOf("T") == -1;
       const month = isUtc ? d.getUTCMonth() : d.getMonth();
@@ -612,7 +623,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   onCompositionUpdate = (event: any) => {
-    if(this.isInputTextUpdate) {
+    if (this.isInputTextUpdate) {
       setTimeout(() => {
         this.updateValueOnEvent(event);
       }, 1);
@@ -621,7 +632,7 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onKeyUp = (event: any) => {
     this.updateDateValidationMessage(event);
-    if(this.isInputTextUpdate) {
+    if (this.isInputTextUpdate) {
       if (!this._isWaitingForEnter || event.keyCode === 13) {
         this.updateValueOnEvent(event);
         this._isWaitingForEnter = false;
@@ -636,13 +647,22 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateDateValidationMessage(event: any): void {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
+  public readOnlyBlocker = (event: any) => {
+    if (this.isReadOnlyAttr) {
+      event.preventDefault();
+      return true;
+    }
+  };
   public onKeyDown = (event: any) => {
+    if (this.readOnlyBlocker(event)) {
+      return;
+    }
     this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
     this.onTextKeyDownHandler(event);
-  }
+  };
   public onChange = (event: any): void => {
     this.updateDateValidationMessage(event);
     const elementIsFocused = event.target === settings.environment.root.activeElement;
@@ -690,49 +710,49 @@ const minMaxTypes = [
 
 export function isMinMaxType(obj: any): boolean {
   const t = !!obj ? obj.inputType : "";
-  if(!t) return false;
+  if (!t) return false;
   return minMaxTypes.indexOf(t) > -1;
 }
 function getWeekTimeNumber(str: string, delimiter: string): number {
   const strs = str.split(delimiter);
-  if(strs.length !== 2) return -1;
-  if(!Helpers.isNumber(strs[0]) || !Helpers.isNumber(strs[1])) return -1;
+  if (strs.length !== 2) return -1;
+  if (!Helpers.isNumber(strs[0]) || !Helpers.isNumber(strs[1])) return -1;
   return parseFloat(strs[0]) * 60 + parseFloat(strs[1]);
 }
 function isMinBiggerWeekTime(minStr: string, maxStr: string, delimiter: string): boolean {
   const min = getWeekTimeNumber(minStr, delimiter);
   const max = getWeekTimeNumber(maxStr, delimiter);
-  if(min < 0 || max < 0) return false;
+  if (min < 0 || max < 0) return false;
   return min > max;
 }
 function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: boolean): any {
   let val = isMax ? max : min;
-  if(!isMinMaxType(obj)) return val;
-  if(Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
-  if(obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
+  if (!isMinMaxType(obj)) return val;
+  if (Helpers.isValueEmpty(min) || Helpers.isValueEmpty(max)) return val;
+  if (obj.inputType.indexOf("date") === 0 || obj.inputType === "month") {
     const isMonth = obj.inputType === "month";
     const reason = "question-text-minmax";
     const dMin = createDate(reason, isMonth ? min + "-01" : min);
     const dMax = createDate(reason, isMonth ? max + "-01" : max);
-    if(!dMin || !dMax) return val;
-    if(dMin > dMax) return isMax ? min : max;
+    if (!dMin || !dMax) return val;
+    if (dMin > dMax) return isMax ? min : max;
   }
-  if(obj.inputType === "week" || obj.inputType === "time") {
-    const delimiter = obj.inputType === "week" ? "-W": ":";
-    if(isMinBiggerWeekTime(min, max, delimiter)) return isMax ? min : max;
+  if (obj.inputType === "week" || obj.inputType === "time") {
+    const delimiter = obj.inputType === "week" ? "-W" : ":";
+    if (isMinBiggerWeekTime(min, max, delimiter)) return isMax ? min : max;
     return val;
   }
-  if(obj.inputType === "number") {
-    if(!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
-    if(Helpers.getNumber(min) > Helpers.getNumber(max)) return isMax ? min : max;
+  if (obj.inputType === "number") {
+    if (!Helpers.isNumber(min) || !Helpers.isNumber(max)) return val;
+    if (Helpers.getNumber(min) > Helpers.getNumber(max)) return isMax ? min : max;
   }
-  if(typeof min === "string" || typeof max === "string") return val;
-  if(min > max) return isMax ? min : max;
+  if (typeof min === "string" || typeof max === "string") return val;
+  if (min > max) return isMax ? min : max;
   return val;
 }
 
 function propertyEditorMinMaxUpdate(obj: QuestionTextBase, propertyEditor: any): void {
-  if(!!obj && !!obj.inputType) {
+  if (!!obj && !!obj.inputType) {
     propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
     propertyEditor.textUpdateMode = "onBlur";
   }

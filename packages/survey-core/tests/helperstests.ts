@@ -131,7 +131,7 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
 QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function(assert) {
   assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), false, "#1");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): str;
+    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
   };
   assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
@@ -283,7 +283,11 @@ QUnit.test("isTwoValueEquals, 0 and '0'", function(assert) {
     "undefined and null"
   );
 });
-
+QUnit.test("isTwoValueEquals/checkIfValuesEqual, numbers and string, Bug# 9690", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals(10, "10"), true, "10 equals '10', #1");
+  assert.equal(Helpers.checkIfValuesEqual(10, "10", {}), true, "10 equals '10, #2");
+  assert.equal(Helpers.checkIfValuesEqual(10, "10", { doNotConvertNumbers: true }), false, "10 doesn't equal '10', #3");
+});
 QUnit.test(
   "isTwoValueEquals, numbers and string + string and string, Bug# 2000",
   function(assert) {
@@ -344,8 +348,8 @@ QUnit.test("Helpers.getNumber", function(assert) {
 });
 QUnit.test("Helpers.getNumber & settings.parseNumber, #8634", function(assert) {
   const newParseNumber = (stringValue: any, numericValue: number): number => {
-    if(typeof stringValue !== "string" || !stringValue) return numericValue;
-    if(stringValue.indexOf(",") < 0) return numericValue;
+    if (typeof stringValue !== "string" || !stringValue) return numericValue;
+    if (stringValue.indexOf(",") < 0) return numericValue;
     while(stringValue.indexOf(",") > -1) {
       stringValue = stringValue.replace(",", "");
     }
@@ -508,7 +512,7 @@ QUnit.test("Check compareStrings function", function(assert) {
   assert.equal(Helpers.compareStrings("60", "401"), -1, "#16");
 
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
-    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): str;
+    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
   };
   assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };

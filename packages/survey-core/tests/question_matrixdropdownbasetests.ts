@@ -11,6 +11,7 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
+import { Question } from "../src/question";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1269,7 +1270,7 @@ QUnit.test("defaultValueExpression & regeneration of rows", function (assert) {
   question.value = 15;
   assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "question value #3");
 });
-QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
+QUnit.test("defaultValueExpression & using rowvalue in it, #1", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1302,7 +1303,7 @@ QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
   question.value = 15;
   assert.equal(matrix.visibleRows[0].cells[0].question.value, 15, "question value #3");
 });
-QUnit.test("defaultValueExpression & using rowvalue in it", function (assert) {
+QUnit.test("defaultValueExpression & using rowvalue in it, #2", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1728,7 +1729,7 @@ QUnit.test("The Undo operation doesn't work for matrix dropdown column 'choices'
     sender: any,
     arrayChanges: any
   ) => {
-    if(name === "choices") {
+    if (name === "choices") {
       counter ++;
       propName = name;
       senderName = sender.name;
@@ -1883,4 +1884,86 @@ QUnit.test("column.defaultDisplayValue", function (assert) {
   survey.locale = "de";
   assert.equal(qCell1.displayValue, "col1-value", "displayValue, #3");
   assert.equal(qCell2.displayValue, "col1-de", "displayValue, #4");
+});
+QUnit.test("scroll on error", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        cellType: "text",
+        type: "matrixdropdown",
+        name: "q1",
+        "columns": [{ name: "col1" }, { name: "col2", isRequired: true }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  let errorName = "";
+  survey.onScrollToTop.add((sender, options) => {
+    errorName = options.element.name;
+  });
+  assert.equal(survey.tryComplete(), false, "can't complete");
+  assert.equal(errorName, "q1", "focus on question");
+});
+QUnit.test("survey.onAfterRenderMatrixCell event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        cellType: "text",
+        type: "matrixdropdown",
+        name: "q1",
+        "columns": [{ name: "col1" }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  let questionName: string = "";
+  survey.onAfterRenderMatrixCell.add((survey: SurveyModel, options: any) => {
+    questionName = options.question.name;
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  const rows = matrix.visibleRows;
+  const qCell1 = rows[0].cells[0].question;
+  survey.matrixAfterCellRender({ cellQuestion: qCell1 });
+  assert.equal(questionName, "q1", "question name is correct");
+});
+QUnit.test("update cells questions patterns, Bug#9767", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["Row 1", "Row 2"]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  const col1 = matrix.columns[0];
+  const rows = matrix.visibleRows;
+  const qCell1 = rows[0].cells[0].question;
+  col1.maskType = "pattern";
+  col1.maskSettings.pattern = "99999";
+  assert.equal(qCell1.maskType, "pattern", "cell Question maskType is pattern");
+  assert.equal(qCell1.maskSettings.pattern, "99999", "cell Question maskSettings.pattern is 99999");
+});
+QUnit.test("detail panel & nested question wasRendered", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const question = row.getQuestionByName("q1");
+  assert.equal(row.detailPanel.wasRendered, true, "panel was rendered");
+  assert.equal(question.wasRendered, true, "panel question was rendered");
 });

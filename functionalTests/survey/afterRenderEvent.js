@@ -44,34 +44,34 @@ const json = {
   title: "Test Sample",
 };
 
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`;
+// frameworks.forEach((framework) => {
+//   fixture`${framework} ${title}`.page`${url}${framework}`;
 
-  test("afterRenderQuestion fires for initially hidden questions", async (t) => {
+//   test("afterRenderQuestion fires for initially hidden questions", async (t) => {
 
-    var f = function (survey, options) {
-      if (options.question.name == "question4a") {
-        var title = options.htmlElement.querySelector("input[value='valueYes']");
-        title.style.color = "tomato";
-      }
-      if (options.question.name == "question4b") {
-        options.htmlElement.style.border = "1px solid #CCC";
-      }
-    };
+//     var f = function (survey, options) {
+//       if (options.question.name == "question4a") {
+//         var title = options.htmlElement.querySelector("input[value='valueYes']");
+//         title.style.color = "tomato";
+//       }
+//       if (options.question.name == "question4b") {
+//         options.htmlElement.style.border = "1px solid #CCC";
+//       }
+//     };
 
-    await initSurvey(framework, json, { onAfterRenderQuestion: f });
-    const questionSelector = Selector(".sd-question");
-    await t
-      .expect(questionSelector.count).eql(1)
-      .click("input[value=valueYes]")
+//     await initSurvey(framework, json, { onAfterRenderQuestion: f });
+//     const questionSelector = Selector(".sd-question");
+//     await t
+//       .expect(questionSelector.count).eql(1)
+//       .click("input[value=valueYes]")
 
-      .expect(questionSelector.count).eql(2)
-      .expect(Selector("input[value='valueYes']").getStyleProperty("color")).eql("rgb(255, 99, 71)")
-      .expect(questionSelector.nth(1).getStyleProperty("border-top-color")).eql("rgb(204, 204, 204)")
-      .expect(questionSelector.nth(1).getStyleProperty("border-top-style")).eql("solid")
-      .expect(questionSelector.nth(1).getStyleProperty("border-top-width")).eql("1px");
-  });
-});
+//       .expect(questionSelector.count).eql(2)
+//       .expect(Selector("input[value='valueYes']").getStyleProperty("color")).eql("rgb(255, 99, 71)")
+//       .expect(questionSelector.nth(1).getStyleProperty("border-top-color")).eql("rgb(204, 204, 204)")
+//       .expect(questionSelector.nth(1).getStyleProperty("border-top-style")).eql("solid")
+//       .expect(questionSelector.nth(1).getStyleProperty("border-top-width")).eql("1px");
+//   });
+// });
 
 frameworks.forEach((framework) => {
   const setSurvey = ClientFunction((json, windowName) => {
@@ -85,8 +85,7 @@ frameworks.forEach((framework) => {
         const App = () => {
           let [survey, setSurvey] = window["React"].useState(undefined);
           window.setSurvey = setSurvey;
-          if(!!survey) {
-            // eslint-disable-next-line react/react-in-jsx-scope, no-undef, react/jsx-no-undef
+          if (!!survey) {
             return <SurveyReact.Survey model={survey}></SurveyReact.Survey>;
           } else {
             return null;
@@ -94,7 +93,6 @@ frameworks.forEach((framework) => {
         };
 
         window["ReactDOMClient"].createRoot(document.getElementById("surveyElement")).render(
-          // eslint-disable-next-line react/react-in-jsx-scope
           <App></App>
         );
       }

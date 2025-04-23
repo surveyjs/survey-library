@@ -17,7 +17,7 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
       this.update();
     };
     this.model.currentIndexChangedCallback = () => {
-      this.update()
+      this.update();
     };
     this.model.renderModeChangedCallback = () => {
       this.update();
@@ -36,9 +36,9 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
   }
   public getPanelComponentName(panel: PanelModel): string {
     const survey = this.surveyModel as SurveyModel;
-    if(!!survey) {
+    if (!!survey) {
       const name = survey.getElementWrapperComponentName(panel);
-      if(!!name) {
+      if (!!name) {
         return name;
       }
     }
@@ -47,7 +47,7 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
   public getPanelComponentData(panel: PanelModel): any {
     const survey = this.surveyModel as SurveyModel;
     let data: any;
-    if(!!survey) {
+    if (!!survey) {
       data = survey.getElementWrapperComponentData(panel);
     }
     return {

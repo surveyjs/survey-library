@@ -569,11 +569,11 @@ export interface OpenFileChooserEvent {
    * The type of the element passed as the `options.element` parameter.\
    * Possible values: any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
    */
-  elementType: String;
+  elementType: string;
   /**
    * The name of the survey element property for which files are being selected.
    */
-  propertyName: String;
+  propertyName: string;
   /**
    * A choice item for which the event is raised. This parameter has a value only when the dialog window is opened to select images for an [Image Picker](https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model) question.
    */
@@ -678,7 +678,7 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign loaded items to the question. Item objects should be structured as specified in the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choices) property description. If their structure is different, [map their properties](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map) to bring them to the required structure.
    */
-  setItems: (items: Array<{ "value": any, "text"?: String, "imageLink"?: string, "customProperty"?: any } | string>, totalCount: number) => void;
+  setItems: (items: Array<{ "value": any, "text"?: string, "imageLink"?: string, "customProperty"?: any } | string>, totalCount: number) => void;
   /**
    * A search string used to filter choices.
    */
@@ -1075,6 +1075,9 @@ export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueE
    */
   value: any;
 }
+export interface CheckSingleInputPerPageModeEvent extends QuestionEventMixin {
+  enabled: boolean;
+}
 
 export interface MultipleTextItemAddedEvent extends QuestionEventMixin {
   /**
@@ -1150,7 +1153,16 @@ export interface ResizeEvent {
   height: number;
 }
 export interface CreateCustomChoiceItemEvent {
+  /**
+   * A question for which the event is raised.
+   */
   question: QuestionSelectBase;
+  /**
+   * A custom choice item. To access its value and display text, use the `options.item.value` and `options.item.text` properties.
+   */
   item: ItemValue;
+  /**
+   * A Boolean property that you can set to `false` if you want to prevent the item from being added.
+   */
   allow: boolean;
 }

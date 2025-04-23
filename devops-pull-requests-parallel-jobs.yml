@@ -13,7 +13,7 @@ trigger:
       - v*.*.*
 
 pool:
-  vmImage: "ubuntu-latest"
+  vmImage: "Ubuntu-22.04"
 
 jobs:
   - job: Core
@@ -123,6 +123,10 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
           npx puppeteer browsers install chrome
         displayName: "install chrome"
 
@@ -153,10 +157,50 @@ jobs:
           npm run test
         displayName: "run markup tests"
 
+      - script: |
+          cd packages/survey-react-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
       - bash: |
           cd packages/survey-react-ui
           npm run testcafe:ci
         displayName: "run functional tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React End-To-End Tests"
+        condition: succeededOrFailed()
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.SourcesDirectory)/packages/survey-react-ui/playwright-report"
+          artifact: react-playwright-report
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
 
   - job: Angular
     dependsOn: Core
@@ -191,6 +235,10 @@ jobs:
           command: install
           verbose: false
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
 
       - script: |
           npx puppeteer browsers install chrome
@@ -233,10 +281,50 @@ jobs:
           npm run test
         displayName: "run unit and markup tests"
 
+      - script: |
+          cd packages/survey-angular-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
       - bash: |
           cd packages/survey-angular-ui
           npm run testcafe:ci
         displayName: "run functional tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E/"
+          ArtifactName: "Library_Angular_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Angular End-To-End Tests"
+        condition: succeededOrFailed()
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.SourcesDirectory)/packages/survey-angular-ui/playwright-report"
+          artifact: angular-playwright-report
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
 
   - job: Vue3
     dependsOn: Core
@@ -271,6 +359,10 @@ jobs:
           command: install
           verbose: false
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
 
       - script: |
           npx puppeteer browsers install chrome
@@ -313,10 +405,50 @@ jobs:
           npm run test
         displayName: "run unit and markup tests"
 
+      - script: |
+          cd packages/survey-vue3-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
       - bash: |
           cd packages/survey-vue3-ui
           npm run testcafe:ci
         displayName: "run functional tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
+          ArtifactName: "Library_Vue3_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 End-To-End Tests"
+        condition: succeededOrFailed()
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(Build.SourcesDirectory)/packages/survey-vue3-ui/playwright-report"
+          artifact: vue3-playwright-report
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
 
   - job: SurveyUI_and_CSSFrameworks
     dependsOn: Core

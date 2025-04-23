@@ -111,7 +111,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   public get otherTextAreaModel(): TextAreaModel {
-    if(!this.otherTextAreaModelValue) {
+    if (!this.otherTextAreaModelValue) {
       this.otherTextAreaModelValue = new TextAreaModel(this.getOtherTextAreaOptions());
     }
     return this.otherTextAreaModelValue;
@@ -120,7 +120,7 @@ export class QuestionSelectBase extends Question {
     const options: ITextArea = {
       question: this,
       id: () => this.otherId,
-      propertyName: "otherValue",
+      propertyNames: ["otherValue", "comment"],
       className: () => this.cssClasses.other,
       placeholder: () => this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -154,7 +154,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    if(!rec || rec.isOnValueChanged !== true) {
+    if (!rec || rec.isOnValueChanged !== true) {
       this.clearIncorrectValues();
     }
     return super.hasErrors(fireCallback, rec);
@@ -595,7 +595,7 @@ export class QuestionSelectBase extends Question {
     return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
-    if(val) {
+    if (val) {
       this.prevIsOtherSelected = true;
     }
     this.value = val ? this.otherItem.value : undefined;
@@ -635,16 +635,16 @@ export class QuestionSelectBase extends Question {
   }
   private getValueOnSettingOther(otherValue: string): any {
     const val = this.rendredValueToData(this.renderedValue);
-    if(this.showCommentArea || this.getStoreOthersAsComment()) return val;
+    if (this.showCommentArea || this.getStoreOthersAsComment()) return val;
     const item = ItemValue.getItemByValue(this.visibleChoices, otherValue);
-    if(!item || item === this.otherItem) return val;
+    if (!item || item === this.otherItem) return val;
     this.otherValueCore = "";
-    if(!Array.isArray(val)) return otherValue;
+    if (!Array.isArray(val)) return otherValue;
     const index = val.indexOf(this.otherItem.value);
-    if(index > -1) {
+    if (index > -1) {
       val.splice(index, 1);
     }
-    if(val.indexOf(otherValue) < 0) {
+    if (val.indexOf(otherValue) < 0) {
       val.push(otherValue);
     }
     return val;
@@ -770,8 +770,7 @@ export class QuestionSelectBase extends Question {
           this.setCustomValuesIntoItems(items, customValues);
           if (Array.isArray(value)) {
             this.selectedItemValues = items;
-          }
-          else {
+          } else {
             this.selectedItemValues = items[0];
           }
           this.updateIsReady();
@@ -820,6 +819,12 @@ export class QuestionSelectBase extends Question {
     this.updateVisibleChoices();
   }
   public clearIncorrectValuesCallback: () => void;
+  /**
+   * An array of choice items that were added by a user. Applies only if the [`allowCustomChoices`](#allowCustomChoices) is set to `true` for this question.
+   *
+   * > Custom choices will only be stored temporarily for the duration of the current browser session. If you want to save them in a database or another data storage, handle the [`onCreateCustomChoiceItem`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCreateCustomChoiceItem) event.
+   * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
+   */
   public get customChoices(): Array<any> {
     return this.getPropertyValue("customChoices");
   }
@@ -964,9 +969,6 @@ export class QuestionSelectBase extends Question {
   public set storeOthersAsComment(val: any) {
     this.setPropertyValue("storeOthersAsComment", val);
   }
-  protected hasOtherChanged() {
-    this.onVisibleChoicesChanged();
-  }
   /**
    * Specifies the sort order of choice items.
    *
@@ -1108,8 +1110,7 @@ export class QuestionSelectBase extends Question {
       if (rec.index < 0) {
         items.splice(i, 0, rec.item);
         this.headItemsCount++;
-      }
-      else {
+      } else {
         items.push(rec.item);
         this.footItemsCount++;
       }
@@ -1303,7 +1304,9 @@ export class QuestionSelectBase extends Question {
   }
   private carryForwardQuestion: Question;
   private findCarryForwardQuestion(data?: ISurveyData): Question {
-    if (!data) data = this.data;
+    if (!data) {
+      data = this.data || this.parentQuestion?.data;
+    }
     this.carryForwardQuestion = null;
     if (this.choicesFromQuestion && data) {
       this.carryForwardQuestion = <Question>data.findQuestionByName(this.choicesFromQuestion);
@@ -1395,6 +1398,31 @@ export class QuestionSelectBase extends Question {
   protected getChoices(): Array<ItemValue> {
     return this.choices;
   }
+  /**
+   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
+   *
+   * @see otherText
+   * @see otherItem
+   * @see otherErrorText
+   * @see showCommentArea
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+   */
+  public get showOtherItem(): boolean {
+    return this.getPropertyValue("showOtherItem", false);
+  }
+  public set showOtherItem(val: boolean) {
+    if (!this.supportOther() || this.showOtherItem == val) return;
+    this.setPropertyValue("showOtherItem", val);
+    this.onVisibleChoicesChanged();
+  }
+
+  public get hasOther(): boolean {
+    return this.showOtherItem;
+  }
+  public set hasOther(val: boolean) {
+    this.showOtherItem = val;
+  }
+  public get requireUpdateCommentValue(): boolean { return this.hasComment || this.showOtherItem; }
   public supportOther(): boolean {
     return this.isSupportProperty("showOtherItem");
   }
@@ -1498,8 +1526,7 @@ export class QuestionSelectBase extends Question {
       if (event.target) {
         this.otherValue = event.target.value;
       }
-    }
-    else {
+    } else {
       this.updateCommentElements();
     }
   }
@@ -1905,7 +1932,7 @@ export class QuestionSelectBase extends Question {
       this.renderedChoicesChangedCallback && this.renderedChoicesChangedCallback();
     },
     () => this._renderedChoices
-  )
+  );
 
   public get renderedChoices(): Array<ItemValue> {
     return this._renderedChoices;
@@ -1966,7 +1993,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   private getColumnsWithColumnItemFlow(choices, colCount) {
-    const columns =[];
+    const columns = [];
     let maxColumnHeight = Math.floor(choices.length / colCount);
 
     if (choices.length % colCount) {
@@ -2086,7 +2113,7 @@ export class QuestionSelectBase extends Question {
   private prevIsOtherSelected: boolean = false;
   protected onValueChanged(): void {
     super.onValueChanged();
-    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected && !this.isSettingDefaultValue) {
       this.focusOtherComment();
     }
     this.prevIsOtherSelected = this.isOtherSelected;

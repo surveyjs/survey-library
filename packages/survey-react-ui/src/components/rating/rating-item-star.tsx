@@ -13,6 +13,7 @@ export class RatingItemStar extends RatingItemBase {
         className={this.question.getItemClass(this.item.itemValue)}
         onMouseOver={e => this.question.onItemMouseIn(this.item)}
         onMouseOut={e => this.question.onItemMouseOut(this.item)}
+        title={this.item.text}
       >
         <input
           type="radio"
@@ -34,13 +35,11 @@ export class RatingItemStar extends RatingItemBase {
           className={"sv-star"}
           size={"auto"}
           iconName={this.question.itemStarIcon}
-          title={this.item.text}
         ></SvgIcon>
         <SvgIcon
           className={"sv-star-2"}
           size={"auto"}
           iconName={this.question.itemStarIconAlt}
-          title={this.item.text}
         ></SvgIcon>
       </label>
     );

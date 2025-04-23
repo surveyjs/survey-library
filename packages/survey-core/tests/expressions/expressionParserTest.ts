@@ -1719,8 +1719,8 @@ QUnit.test("ExpressionRunner: substring", function(assert) {
 });
 QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
   const newParseNumber = (stringValue: any, numericValue: number): number => {
-    if(typeof stringValue !== "string" || !stringValue) return numericValue;
-    if(stringValue.indexOf(",") < 0) return numericValue;
+    if (typeof stringValue !== "string" || !stringValue) return numericValue;
+    if (stringValue.indexOf(",") < 0) return numericValue;
     while(stringValue.indexOf(",") > -1) {
       stringValue = stringValue.replace(",", "");
     }
@@ -1741,4 +1741,14 @@ QUnit.test("ExpressionRunner: do not convert to number extreme large strings", f
   assert.strictEqual(runner.run(values), 1000000000000001, "it is a number");
   values.a = "9999999999999999";
   assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
+});
+QUnit.test("No params for iif function, Bug#9674", function(assert) {
+  let runner = new ExpressionRunner("iif()");
+  assert.equal(runner.run(values), null, "Empty paramsters, #1");
+  runner = new ExpressionRunner("iif('')");
+  assert.equal(runner.run(values), null, "Empty paramsters, #2");
+});
+QUnit.test("No params for getDate function, Bug#9674", function(assert) {
+  let runner = new ExpressionRunner("getDate()");
+  assert.equal(runner.run(values), null, "Empty paramsters, #1");
 });

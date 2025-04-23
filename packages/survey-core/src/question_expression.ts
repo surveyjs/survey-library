@@ -4,7 +4,6 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
-import { settings } from "./settings";
 
 /**
  * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
@@ -214,9 +213,9 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("precision", val);
   }
   private roundValue(val: any): any {
-    if(val === Infinity) return undefined;
-    if(this.precision < 0) return val;
-    if(!Helpers.isNumber(val)) return val;
+    if (val === Infinity) return undefined;
+    if (this.precision < 0) return val;
+    if (!Helpers.isNumber(val)) return val;
     return parseFloat(val.toFixed(this.precision));
   }
   protected getValueAsStr(val: any): string {

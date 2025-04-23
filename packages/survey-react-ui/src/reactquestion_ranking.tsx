@@ -182,6 +182,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
     let itemContent = ReactElementFactory.Instance.createElement(this.question.itemComponent, { item: this.item, cssClasses: this.cssClasses });
     return (
       <div
+        id={this.question.getItemId(this.item)}
         tabIndex={this.itemTabIndex}
         className={this.itemClass}
         onKeyDown={this.handleKeydown}

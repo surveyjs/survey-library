@@ -24,6 +24,7 @@ import { QuestionHtmlModel } from "../src/question_html";
 import { ImageItemValue } from "../src/question_imagepicker";
 import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
+import { QuestionCommentModel } from "../src/question_comment";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -3513,4 +3514,17 @@ QUnit.test("property.isSerializabeFunc", function (assert) {
   ser = false;
   assert.deepEqual(q.toJSON(), { name: "q1" }, "#2");
   Serializer.removeProperty("question", "prop1");
+});
+QUnit.test("property.isSerializabeFunc", function (assert) {
+  const prop = Serializer.findProperty("comment", "allowResize");
+  const oldFunc = prop.defaultValueFunc;
+  prop.defaultValue = false;
+  let q = new QuestionCommentModel("q1");
+  assert.strictEqual(q.allowResize, false, "allowResize is false by default");
+  prop.defaultValue = true;
+  q = new QuestionCommentModel("q1");
+  assert.strictEqual(q.allowResize, true, "allowResize is true now");
+  prop.defaultValueFunc = oldFunc;
+  q = new QuestionCommentModel("q1");
+  assert.strictEqual(q.allowResize, undefined, "allowResize is undefined now");
 });

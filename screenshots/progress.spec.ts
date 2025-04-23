@@ -139,6 +139,7 @@ frameworks.forEach(framework => {
         }
         (<any>window).survey.currentPageNo = 1;
       });
+      await page.waitForLoadState("networkidle");
 
       await compareScreenshot(page, "#surveyElement", "survey-progress-bar-bottom-brand.png");
     });
@@ -467,12 +468,11 @@ frameworks.forEach(framework => {
         }
         window["survey"].currentPageNo = 1;
       });
-
+      await page.waitForTimeout(500);
       await page.setViewportSize({ width: 800, height: 600 });
       await page.waitForTimeout(500);
       const scroller = page.locator(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
       await scroller.evaluate((el) => el.scrollTo(0, 500));
-
       await page.waitForTimeout(1000);
       await compareScreenshot(page, "#surveyElement", "survey-progress-bar-top-pages-sticky.png");
     });

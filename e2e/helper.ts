@@ -20,7 +20,6 @@ export async function compareScreenshot(page: Page, elementSelector: string | un
   });
 
   if (!!elementSelector) {
-    await page.waitForSelector(elementSelector);
     const element = page.locator(elementSelector).filter({ visible: true });
     await expect(element.first()).toBeVisible();
     await expect(element.first()).toHaveScreenshot(screenshotName, {

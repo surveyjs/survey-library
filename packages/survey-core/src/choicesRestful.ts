@@ -350,6 +350,9 @@ export class ChoicesRestful extends Base {
     this.getAllPropertiesNames().forEach(name => {
       (<any>this)[name] = json[name];
     });
+    if (json.attachOriginalItems) {
+      this.attachData = json.attachOriginalItems;
+    }
   }
   public getData(): any {
     const res: any = {};
@@ -472,10 +475,16 @@ export class ChoicesRestful extends Base {
     this.setPropertyValue("allowEmptyResponse", val);
   }
   public get attachOriginalItems(): boolean {
-    return this.getPropertyValue("attachOriginalItems");
+    return this.attachData;
   }
   public set attachOriginalItems(val: boolean) {
-    this.setPropertyValue("attachOriginalItems", val);
+    this.attachData = val;
+  }
+  public get attachData(): boolean {
+    return this.getPropertyValue("attachData");
+  }
+  public set attachData(val: boolean) {
+    this.setPropertyValue("attachData", val);
   }
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
@@ -512,8 +521,9 @@ export class ChoicesRestful extends Base {
         var item = this.createItemValue(value);
         this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
-        if (this.attachOriginalItems) {
+        if (this.attachData) {
           item.originalItem = itemValue;
+          item.data = itemValue;
         }
         var imageLink = this.getImageLink(itemValue);
         if (!!imageLink) {
@@ -675,7 +685,7 @@ Serializer.addClass(
       },
     },
     { name: "allowEmptyResponse:boolean" },
-    { name: "attachOriginalItems:boolean", visible: false },
+    { name: "attachData:boolean", alternativeName: "attachOriginalItems", visible: false },
   ],
   function () {
     return new ChoicesRestful();

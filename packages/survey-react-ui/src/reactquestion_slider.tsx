@@ -23,18 +23,14 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
-    const { cssClasses, showLabels, sliderType, getRenderedValue } = this.question;
+    const { cssClasses, showLabels, sliderType, getTrackPercentLeft, getTrackPercentRight } = this.question;
 
     const rangeInput = sliderType === "single" ? null : this.getRangeInput();
     const thumbsAndInputs = this.getInputsAndThumbs();
     const labels = showLabels ? this.getLabels() : null;
 
-    const value = getRenderedValue();
-    const leftPercent = sliderType === "single" ? Math.min(this.getPercent(value), 0) : this.getPercent(Math.min(...value));
-    const rightPercent = sliderType === "single" ? Math.max(this.getPercent(value), 0) : this.getPercent(Math.max(...value));
-
-    const rangeLeftPercent = leftPercent + "%";
-    const rangeRightPercent = (100 - rightPercent) + "%";
+    const rangeLeftPercent = getTrackPercentLeft() + "%";
+    const rangeRightPercent = getTrackPercentRight() + "%";
 
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
@@ -70,11 +66,11 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getThumb(i: number) {
-    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue } = this.question;
+    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue, getPercent } = this.question;
 
     let value:number[] = getRenderedValue();
 
-    let percent: string = this.getPercent(value[i]) + "%";
+    let percent: string = getPercent(value[i]) + "%";
 
     let tooltip: ReactElement | null = null;
     let toolTipValue = step ? this.getClosestToStepValue(value[i]) : value[i];
@@ -154,19 +150,13 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     </div>;
   }
 
-  private getPercent(value:number):number {
-    const { max, min } = this.question;
-    const fullRange = max - min;
-    return (Math.abs(value - min) / fullRange) * 100;
-  }
-
   private refreshInputRange() {
-    const { allowDragRange, getRenderedValue } = this.question;
+    const { allowDragRange, getRenderedValue, getPercent } = this.question;
     if (!allowDragRange) return;
     if (!this.rangeInputRef.current) return;
     const renderedValue = getRenderedValue();
-    const percentLastValue = this.getPercent(renderedValue[renderedValue.length - 1]);
-    const percentFirstValue = this.getPercent(renderedValue[0]);
+    const percentLastValue = getPercent(renderedValue[renderedValue.length - 1]);
+    const percentFirstValue = getPercent(renderedValue[0]);
     let percent: number = percentLastValue - percentFirstValue;
 
     const inputNode = this.rangeInputRef.current;

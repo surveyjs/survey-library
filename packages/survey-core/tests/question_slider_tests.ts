@@ -409,3 +409,39 @@ QUnit.test("autoGenerate", (assert) => {
   q1.labels = [{ text: "t", value: "v" }] as any;
   assert.deepEqual(q1.autoGenerate, false);
 });
+
+QUnit.test("getPercent", (assert) => {
+  const q1 = new QuestionSliderModel("q1");
+  assert.deepEqual(q1.getPercent(50), 50);
+  q1.min = 0;
+  q1.max = 200;
+  assert.deepEqual(q1.getPercent(50), 25);
+
+});
+
+QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.value = 75;
+
+  assert.deepEqual(q1.getTrackPercentLeft(), 0);
+  assert.deepEqual(q1.getTrackPercentRight(), 25);
+
+  q1.min = 50;
+  assert.deepEqual(q1.getTrackPercentLeft(), 0);
+  assert.deepEqual(q1.getTrackPercentRight(), 50);
+
+  q1.value = 50;
+  q1.min = -100;
+  assert.deepEqual(q1.getTrackPercentLeft(), 50);
+  assert.deepEqual(q1.getTrackPercentRight(), 25);
+
+  q1.value = -50;
+  assert.deepEqual(q1.getTrackPercentLeft(), 25);
+  assert.deepEqual(q1.getTrackPercentRight(), 50);
+
+  q1.value = -75;
+  q1.max = -50;
+  assert.deepEqual(q1.getTrackPercentLeft(), 50);
+  assert.deepEqual(q1.getTrackPercentRight(), 0);
+});

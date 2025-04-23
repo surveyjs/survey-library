@@ -48,7 +48,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 .sd-slider--single {
 }
 
-.sd-slider-visual-container {
+.sd-slider-container {
   position: relative;
   min-height: $slider-thumb-height;
   cursor: pointer;
@@ -56,18 +56,18 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   margin-right: calcSize(0.5 + 1);
 }
 
-.sd-slider-visual-container__slider {
+.sd-slider-container__slider {
   position: relative;
 }
 
 .sd-slider__track {
   position: absolute;
   height: $slider-path-height;
-  background: $slider-path-color;
   top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
 }
 
 .sd-slider__inverse-track {
+  background: $slider-path-color;
   &::after,
   &::before {
     background: $slider-path-color;
@@ -92,6 +92,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 
 .sd-slider__range-track {
   left: 0;
+  background: $slider-path-color-filled;
 
   &::before {
     @include leftOutrangePath;
@@ -312,7 +313,7 @@ input[type="range"].sd-slider__input {
 input[type="range"][name="range-input"].sd-slider__input {
   z-index: 3;
   &:hover {
-    & + .sd-slider-visual-container {
+    & + .sd-slider-container {
       .sd-slider__tooltip--on-hover {
         opacity: 1;
       }
@@ -600,7 +601,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 
   input[type="range"][name="range-input"].sd-slider__input {
     &:hover {
-      & + .sd-slider-visual-container {
+      & + .sd-slider-container {
         .sd-slider__tooltip--on-hover {
           opacity: 0;
         }

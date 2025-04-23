@@ -103,7 +103,7 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: null }) focusedThumb: number | null; // TODO probably need to be just internal not property
   public dragOrClickHelper: DragOrClickHelper;
 
-  public getRenderedValue = () => {
+  public getRenderedValue = ():number[] => {
     const { max, min, renderedmaxRangeLength, sliderType } = this;
     let result;
 
@@ -130,6 +130,50 @@ export class QuestionSliderModel extends Question {
     }
 
     return result;
+  };
+
+  public getTrackPercentLeft = ():number => {
+    const { getRenderedValue, sliderType, min } = this;
+    const value = getRenderedValue();
+    let result;
+    if (sliderType === "single") {
+      if (value[0] > 0) {
+        result = this.getPercent(Math.max(0, min));
+      } else {
+        result = this.getPercent(value[0]);
+        // result = this.getPercent(Math.min(value[0], 0));
+        //
+        //result = this.getPercent(Math.max(value[0], 0));
+      }
+    } else {
+      result = this.getPercent(Math.min(...value));
+    }
+
+    return result;
+  };
+
+  public getTrackPercentRight = ():number => {
+    const { getRenderedValue, sliderType, max } = this;
+    const value = getRenderedValue();
+    let result;
+
+    if (sliderType === "single") {
+      if (value[0] > 0) {
+        result = this.getPercent(value[0]);
+      } else {
+        result = this.getPercent(Math.min(0, max));
+      }
+    } else {
+      result = this.getPercent(Math.max(...value));
+    }
+
+    return 100 - result;
+  };
+
+  public getPercent = (value:number):number => {
+    const { max, min } = this;
+    const fullRange = max - min;
+    return (Math.abs(value - min) / fullRange) * 100;
   };
 
   public ensureMaxRangeBorders = (newValue:number, inputNumber):number => {

@@ -416,7 +416,6 @@ QUnit.test("getPercent", (assert) => {
   q1.min = 0;
   q1.max = 200;
   assert.deepEqual(q1.getPercent(50), 25);
-
 });
 
 QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
@@ -487,4 +486,12 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   q1.value = [-80, -20];
   assert.deepEqual(q1.getTrackPercentLeft(), 20);
   assert.deepEqual(q1.getTrackPercentRight(), 20);
+});
+
+QUnit.only("getRenderedValue return correct initial value with negative scale", (assert) => {
+  const q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.min = -100;
+  q1.max = -10;
+  assert.deepEqual(q1.getRenderedValue(), [-10]);
 });

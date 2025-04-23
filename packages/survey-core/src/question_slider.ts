@@ -111,7 +111,7 @@ export class QuestionSliderModel extends Question {
       result = this.value;
       if (typeof result === "undefined" || result.length === 0) {
         this.isIndeterminate = true;
-        return min >= 0 ? [min] : [0];
+        return this.isNegativeScale ? [max] : [min];
       } else {
         return [result];
       }

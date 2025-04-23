@@ -57,23 +57,21 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     for (let i = 0; i < value.length; i++) {
       // TODO all keys should be generated ids
       const thumbAndInput = <React.Fragment key={"thumb-" + i}>
-        {this.getInput(i)}
-        {this.getThumb(i)}
+        {this.getInput(i, value[i])}
+        {this.getThumb(i, value[i])}
       </React.Fragment>;
       inputsAndThumbs.push(thumbAndInput);
     }
     return inputsAndThumbs;
   }
 
-  private getThumb(i: number) {
-    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, tooltipVisibility, step, getRenderedValue, getPercent } = this.question;
+  private getThumb(i: number, value: number) {
+    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, step, tooltipVisibility, getPercent } = this.question;
 
-    let value:number[] = getRenderedValue();
-
-    let percent: string = getPercent(value[i]) + "%";
+    let percent: string = getPercent(value) + "%";
 
     let tooltip: ReactElement | null = null;
-    let toolTipValue = step ? this.getClosestToStepValue(value[i]) : value[i];
+    let toolTipValue = step ? this.getClosestToStepValue(value) : value;
 
     if (tooltipVisibility !== "never") {
       tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`}>
@@ -94,12 +92,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     return thumb;
   }
 
-  private getInput(i:number) {
-    const { max, min, step, cssClasses, getRenderedValue, isDisabledAttr } = this.question;
+  private getInput(i:number, value: number) {
+    const { max, min, step, cssClasses, isDisabledAttr } = this.question;
 
-    let value:number[] = getRenderedValue();
-
-    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value[i]} min={min} max={max} step={step}
+    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value} min={min} max={max} step={step}
       onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }
       onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }
       disabled={isDisabledAttr}

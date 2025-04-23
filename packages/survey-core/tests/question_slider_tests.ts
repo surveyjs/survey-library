@@ -444,4 +444,47 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   q1.max = -50;
   assert.deepEqual(q1.getTrackPercentLeft(), 50);
   assert.deepEqual(q1.getTrackPercentRight(), 0);
+
+  q1.sliderType = "range";
+  q1.min = 0;
+  q1.max = 100;
+  q1.value = [20, 80];
+  assert.deepEqual(q1.getTrackPercentLeft(), 20);
+  assert.deepEqual(q1.getTrackPercentRight(), 20);
+
+  q1.min = 10;
+  q1.max = 110;
+  q1.value = [35, 85];
+  assert.deepEqual(q1.getTrackPercentLeft(), 25);
+  assert.deepEqual(q1.getTrackPercentRight(), 25);
+
+  q1.min = -100;
+  q1.max = 100;
+  q1.value = [0, 50];
+  assert.deepEqual(q1.getTrackPercentLeft(), 50);
+  assert.deepEqual(q1.getTrackPercentRight(), 25);
+
+  q1.min = -100;
+  q1.max = 100;
+  q1.value = [-50, 0];
+  assert.deepEqual(q1.getTrackPercentLeft(), 25);
+  assert.deepEqual(q1.getTrackPercentRight(), 50);
+
+  q1.min = -100;
+  q1.max = 100;
+  q1.value = [-50, 50];
+  assert.deepEqual(q1.getTrackPercentLeft(), 25);
+  assert.deepEqual(q1.getTrackPercentRight(), 25);
+
+  q1.min = -110;
+  q1.max = -10;
+  q1.value = [-85, -35];
+  assert.deepEqual(q1.getTrackPercentLeft(), 25);
+  assert.deepEqual(q1.getTrackPercentRight(), 25);
+
+  q1.min = -100;
+  q1.max = 0;
+  q1.value = [-80, -20];
+  assert.deepEqual(q1.getTrackPercentLeft(), 20);
+  assert.deepEqual(q1.getTrackPercentRight(), 20);
 });

@@ -610,7 +610,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   }
 }
 
-.sd-slider--negative-scale {
+.sd-slider--negative-scale:not(.sd-slider--single) {
   .sd-slider__range-track {
     &::before {
       display: none;

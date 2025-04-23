@@ -177,7 +177,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 }
 
 .sd-slider__tooltip {
-  opacity: 1 !important; // TODO
+  opacity: 1;
   position: absolute;
   bottom: calc(100% + $slider-tooltip-pointer-height);
   box-shadow:
@@ -602,7 +602,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   }
 }
 
-.sd-slider--negative-scale:not(.sd-slider--single) {
+.sd-slider--negative-scale {
   .sd-slider__range-track {
     &::before {
       display: none;

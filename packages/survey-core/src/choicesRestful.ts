@@ -480,6 +480,40 @@ export class ChoicesRestful extends Base {
   public set attachOriginalItems(val: boolean) {
     this.attachData = val;
   }
+  /**
+   * Specifies whether to attach original data objects to choice items.
+   *
+   * Default value: `false`
+   *
+   * If you enable this property, original data objects will be stored in the `data` property of choice items. For instance, the following code shows how to access a data object of a selected choice item in a Dropdown question:
+   *
+   * ```js
+   * import { Model } from "survey-core";
+   *
+   * const surveyJson = {
+   *   "elements": [{
+   *     "type": "dropdown",
+   *     "name": "country",
+   *     "title": "Select a country",
+   *     "choicesByUrl": {
+   *       "url": "https://surveyjs.io/api/CountriesExample",
+   *       "valueName": "name",
+   *       "attachData": true
+   *     }
+   *   }]
+   * }
+   *
+   * const survey = new Model(surveyJson);
+   *
+   * function retrieveItemData(survey, qName) {
+   *   const q = survey.getQuestionByName(qName);
+   *   if (q && q.selectedItem) {
+   *     return q.selectedItem.data;
+   *   }
+   *   return null;
+   * }
+   * ```
+   */
   public get attachData(): boolean {
     return this.getPropertyValue("attachData");
   }

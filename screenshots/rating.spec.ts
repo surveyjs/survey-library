@@ -26,16 +26,13 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating.png");
+      await compareScreenshot(page, ".sd-question", "question-rating.png");
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); });
-      await expect(questionRoot).toHaveScreenshot("question-rating-focus.png");
-      await page.click(".sd-rating__item");
-      await expect(questionRoot).toHaveScreenshot("question-rating-focus-selected.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-focus.png");
+      await page.locator(".sd-rating__item").first().click();
+      await compareScreenshot(page, ".sd-question", "question-rating-focus-selected.png");
       await resetFocusToBody(page);
-      await expect(questionRoot).toHaveScreenshot("question-rating-selected");
+      await compareScreenshot(page, ".sd-question", "question-rating-selected.png");
     });
 
     test.skip("Check rating disabled question", async ({ page }) => {
@@ -59,9 +56,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-selected-disabled.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-selected-disabled.png");
     });
 
     test("Check rating question with many items", async ({ page }) => {
@@ -82,10 +77,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
-      await resetFocusToBody(page);
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-many.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-many.png");
     });
 
     test("Check rating question as dropdown", async ({ page }) => {
@@ -108,16 +100,11 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-dropdown.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-dropdown.png");
 
       const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
-      const popupContainer = page.locator(".sv-popup__container");
       await questionDropdownSelect.click();
-      await expect(popupContainer).toHaveScreenshot("question-rating-dropdown-popup.png", { timeout: 5000 });
+      await compareScreenshot(page, ".sv-popup__container", "question-rating-dropdown-popup.png");
     });
 
     test("Check rating question - long items", async ({ page }) => {
@@ -149,10 +136,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-long-items.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-long-items.png");
     });
 
     test("Check rating question - long items, button mode", async ({ page }) => {
@@ -187,10 +171,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-long-items-buttons.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-long-items-buttons.png");
     });
 
     test("Check big rating in panel", async ({ page }) => {
@@ -211,10 +192,7 @@ frameworks.forEach(framework => {
           },
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-panel");
-      await expect(questionRoot).toHaveScreenshot("long-rating-in-panel.png");
+      await compareScreenshot(page, ".sd-panel", "long-rating-in-panel.png");
     });
 
     test("Check big rating in matrix", async ({ page }) => {
@@ -255,10 +233,7 @@ frameworks.forEach(framework => {
           ]
         }]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-table");
-      await expect(questionRoot).toHaveScreenshot("rating-in-matrix.png");
+      await compareScreenshot(page, ".sd-table", "rating-in-matrix.png");
     });
 
     test("Check rating stars question", async ({ page }) => {
@@ -284,21 +259,19 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
 
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars.png");
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); });
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-focus.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-focus.png");
       await page.hover(".sd-rating__item-star >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-focus-hovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-focus-hovered.png");
       await page.click(".sd-rating__item-star >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-focus-selected.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-focus-selected.png");
       await page.hover(".sd-rating__item-star >> nth=1");
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-unhovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-unhovered.png");
       await resetFocusToBody(page);
       await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-selected");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-selected.png");
     });
 
     test.skip("Check rating stars disabled question", async ({ page }) => {
@@ -323,10 +296,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-selected-disabled.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-selected-disabled.png");
     });
 
     test("Check rating stars question - baseunit", async ({ page }) => {
@@ -353,10 +323,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-stars-baseunit.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-stars-baseunit.png");
     });
 
     test("Check rating smileys question", async ({ page }) => {
@@ -380,21 +347,19 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
 
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys.png");
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-focus.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-focus.png");
       await page.hover(".sd-rating__item-smiley >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-focus-hovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-focus-hovered.png");
       await page.click(".sd-rating__item-smiley >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-focus-selected.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-focus-selected.png");
       await page.hover(".sd-rating__item-smiley >> nth=1");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-unhovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-unhovered.png");
       await resetFocusToBody(page);
-      await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-selected");
+      // await page.hover(".sd-body", { position: { x: 0, y: 0 } });
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-selected.png");
     });
 
     test("Check rating smileys rate colored question", async ({ page }) => {
@@ -417,21 +382,18 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-rate-colored.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored.png");
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-rate-colored-focus.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-focus.png");
       await page.hover(".sd-rating__item-smiley >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-rate-colored-focus-hovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-focus-hovered.png");
       await page.click(".sd-rating__item-smiley >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-rate-colored-focus-selected.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-focus-selected.png");
       await page.hover(".sd-rating__item-smiley >> nth=1");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-rate-colored-unhovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-unhovered.png");
       await resetFocusToBody(page);
-      await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-rate-colored-selected");
+      // await page.hover(".sd-body", { position: { x: 0, y: 0 } });
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-selected.png");
     });
 
     test("Check rating smileys scale colored question", async ({ page }) => {
@@ -455,21 +417,18 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored.png");
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored-focus.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-focus.png");
       await page.hover(".sd-rating__item-smiley >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored-focus-hovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-focus-hovered.png");
       await page.click(".sd-rating__item-smiley >> nth=3");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored-focus-selected.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-focus-selected.png");
       await page.hover(".sd-rating__item-smiley >> nth=1");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored-unhovered.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-unhovered.png");
       await resetFocusToBody(page);
-      await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored-selected");
+      // await page.hover(".sd-body", { position: { x: 0, y: 0 } });
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-selected.png");
     });
 
     test("Check rating smileys scale colored question themes", async ({ page }) => {
@@ -506,10 +465,7 @@ frameworks.forEach(framework => {
         };
         window["survey"].applyTheme(themeJson);
       });
-
-      await resetFocusToBody(page);
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-scale-colored-theme");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-theme.png");
     });
 
     test("Check rating inner shadow", async ({ page }) => {
@@ -530,10 +486,7 @@ frameworks.forEach(framework => {
         };
         window["survey"].applyTheme(themeJson);
       });
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-rating");
-      await expect(questionRoot).toHaveScreenshot("rating-inner-shadow");
+      await compareScreenshot(page, ".sd-rating", "rating-inner-shadow.png");
     });
 
     test.skip("Check rating smileys disabled question", async ({ page }) => {
@@ -558,11 +511,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
-      await resetFocusToBody(page);
-
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-selected-disabled.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-selected-disabled.png");
     });
 
     test("Check rating smileys error question", async ({ page }) => {
@@ -600,16 +549,16 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await resetFocusToBody(page);
 
       const questionRoot = page.locator(".sd-question");
       await page.click("input[value=Complete]");
-      await expect(questionRoot.nth(0)).toHaveScreenshot("question-rating-smileys-required.png");
-      await page.hover(questionRoot.nth(0).locator(".sd-rating__item-smiley").nth(1));
-      await expect(questionRoot.nth(0)).toHaveScreenshot("question-rating-smileys-required-hover.png");
-      await expect(questionRoot.nth(1)).toHaveScreenshot("question-rating-smileys-colored-required.png");
-      await page.hover(questionRoot.nth(1).locator(".sd-rating__item-smiley").nth(1));
-      await expect(questionRoot.nth(1)).toHaveScreenshot("question-rating-smileys-colored-required-hover.png");
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-required.png", 0);
+      await questionRoot.nth(0).locator(".sd-rating__item-smiley").nth(1).hover();
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-required-hover.png", 0);
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-colored-required.png", 1);
+      await questionRoot.nth(1).locator(".sd-rating__item-smiley").nth(1).hover();
+      await compareScreenshot(page, ".sd-question", "question-rating-smileys-colored-required-hover.png", 1);
     });
 
     test("Check rating smileys and stars in matrix", async ({ page }) => {
@@ -639,38 +588,34 @@ frameworks.forEach(framework => {
         ]
       }
       );
-      await resetFocusToBody(page);
 
-      const questionRoot = page.locator(".sd-question--table");
-      await expect(questionRoot).toHaveScreenshot("question-rating-smileys-stars-in-matrix");
+      await compareScreenshot(page, ".sd-question--table", "question-rating-smileys-stars-in-matrix.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small.png", 0);
 
-      const questionStars = page.locator(".sd-rating").nth(0);
-      await expect(questionStars).toHaveScreenshot("question-rating-stars-small.png");
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); });
-      await expect(questionStars).toHaveScreenshot("question-rating-stars-small-focus.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus.png", 0);
       await page.hover(".sd-rating__item-star >> nth=3");
-      await expect(questionStars).toHaveScreenshot("question-rating-stars-small-focus-hovered.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus-hovered.png", 0);
       await page.click(".sd-rating__item-star >> nth=3");
-      await expect(questionStars).toHaveScreenshot("question-rating-stars-small-focus-selected.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus-selected.png", 0);
       await page.hover(".sd-rating__item-star >> nth=1");
-      await expect(questionStars).toHaveScreenshot("question-rating-stars-small-unhovered.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-unhovered.png", 0);
       await resetFocusToBody(page);
       await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await expect(questionStars).toHaveScreenshot("question-rating-stars-small-selected");
+      await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-selected.png", 0);
 
-      const questionSmileys = page.locator(".sd-rating").nth(1);
-      await expect(questionSmileys).toHaveScreenshot("question-rating-smileys-small.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small.png", 1);
       await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
-      await expect(questionSmileys).toHaveScreenshot("question-rating-smileys-small-focus.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-focus.png", 1);
       await page.hover(".sd-rating__item-smiley >> nth=3");
-      await expect(questionSmileys).toHaveScreenshot("question-rating-smileys-small-focus-hovered.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-focus-hovered.png", 1);
       await page.click(".sd-rating__item-smiley >> nth=3");
-      await expect(questionSmileys).toHaveScreenshot("question-rating-smileys-small-focus-selected.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-focus-selected.png", 1);
       await page.hover(".sd-rating__item-smiley >> nth=1");
-      await expect(questionSmileys).toHaveScreenshot("question-rating-smileys-small-unhovered.png");
+      await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-unhovered.png", 1);
       await resetFocusToBody(page);
       await page.hover(".sd-body", { position: { x: 0, y: 0 } });
-      await expect(questionSmileys).toHaveScreenshot("question-rating-smileys-small-selected");
+      await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-selected.png", 1);
     });
 
     test("Check rating rate descriptions position", async ({ page }) => {
@@ -709,10 +654,9 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sd-question");
-      await expect(questionRoot.nth(0)).toHaveScreenshot("question-rating-labels-top.png");
-      await expect(questionRoot.nth(1)).toHaveScreenshot("question-rating-labels-bottom.png");
-      await expect(questionRoot.nth(2)).toHaveScreenshot("question-rating-labels-diagonal.png");
+      await compareScreenshot(page, ".sd-question", "question-rating-labels-top.png", 0);
+      await compareScreenshot(page, ".sd-question", "question-rating-labels-bottom.png", 1);
+      await compareScreenshot(page, ".sd-question", "question-rating-labels-diagonal.png", 2);
     });
 
     test("Check rating selected label width", async ({ page }) => {
@@ -762,9 +706,7 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "500px"
       });
-
-      const questionRoot = page.locator(".sd-panel__content");
-      await expect(questionRoot.nth(0)).toHaveScreenshot("question-rating-selected-label-should-have-the-same-width.png");
+      await compareScreenshot(page, ".sd-panel__content", "question-rating-selected-label-should-have-the-same-width.png");
     });
   });
 });

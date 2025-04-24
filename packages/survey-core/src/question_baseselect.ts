@@ -1463,7 +1463,7 @@ export class QuestionSelectBase extends Question {
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
     if (
-      this.hasOther &&
+      this.hasOther && this.activeChoices.length > 0 &&
       !this.isRunningChoices &&
       !this.choicesByUrl.isRunning &&
       this.getStoreOthersAsComment()

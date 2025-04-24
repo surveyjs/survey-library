@@ -2473,3 +2473,46 @@ QUnit.test("ItemValue tooltip, #9269", (assert) => {
   item.tooltip = "edf";
   assert.equal(item.getTooltip(), "edf", "#3");
 });
+QUnit.test("Dropdown question show selected item incorrectly if choices set after the question value is set, Bug#9791", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "showOtherItem": true,
+      }
+    ]
+  });
+  survey.data = { q1: "val2" };
+  survey.getQuestionByName("q1").choices = [
+    { value: "val1", text: "Item 1" },
+    { value: "val2", text: "Item 2" },
+    { value: "val3", text: "Item 3" },
+  ];
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(q1.value, "val2", "q1.value is correct");
+  assert.equal(q1.isOtherSelected, false, "q1.isOtherSelected is false");
+  assert.equal(q1.selectedItem?.value, "val2", "q1.selectedItem is correct");
+});
+QUnit.test("Checkbox question show selected item incorrectly if choices set after the question value is set, Bug#9791", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "showOtherItem": true,
+      }
+    ]
+  });
+  survey.data = { q1: ["val2", "val4"] };
+  survey.getQuestionByName("q1").choices = [
+    { value: "val1", text: "Item 1" },
+    { value: "val2", text: "Item 2" },
+    { value: "val3", text: "Item 3" },
+    { value: "val4", text: "Item 4" },
+  ];
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.value, ["val2", "val4"], "q1.value is correct");
+  assert.equal(q1.isOtherSelected, false, "q1.isOtherSelected is false");
+  assert.equal(q1.selectedChoices.length, 2, "q1.selectedChoices.length is correct");
+});

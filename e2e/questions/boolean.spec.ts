@@ -1,9 +1,9 @@
-import { frameworks, url_test, initSurvey } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { Question, QuestionBoolean } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 
-const themeName = "default";
 const title = "boolean";
+
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
@@ -17,7 +17,7 @@ frameworks.forEach((framework) => {
           },
         ],
       };
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
     });
     test("checked class", async ({ page }) => {
@@ -82,7 +82,7 @@ frameworks.forEach((framework) => {
           },
         ],
       };
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json, true);
     });
     test("click on question title state editable", async ({ page }) => {
@@ -130,7 +130,7 @@ frameworks.forEach((framework) => {
           },
         ],
       };
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
       const question = new Question(page, "bool");
       await question.checkQuestionValue(undefined);
@@ -151,7 +151,7 @@ frameworks.forEach((framework) => {
           },
         ],
       };
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
       const question = new Question(page, "bool");
       await question.checkQuestionValue(undefined);
@@ -165,7 +165,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   test.describe(title + ": custom - " + framework, () => {
     test("Check actions", async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, {});
       await page.evaluate(() => {
         const survey = window["survey"];
@@ -212,7 +212,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
     });
     test("test radio boolean with values", async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, {
         "elements": [{
           "type": "boolean",

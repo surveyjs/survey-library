@@ -1,8 +1,6 @@
-import { frameworks, url_test, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection } from "../helper";
-import { Question } from "../questionHelper";
+import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection } from "../helper";
 import { test, expect } from "@playwright/test";
 
-const themeName = "default";
 const title = "checkboxes";
 
 const columnClassName = ".sd-selectbase__column";
@@ -38,7 +36,7 @@ const json = {
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
     });
 
@@ -442,7 +440,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   test.describe(title + ": design time - " + framework, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json, true);
     });
 
@@ -489,7 +487,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
     });
 
@@ -520,7 +518,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 800, height: 600 });
     });
 

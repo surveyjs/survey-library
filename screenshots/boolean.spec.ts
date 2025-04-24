@@ -1,14 +1,14 @@
-import { frameworks, url_test, initSurvey } from "../e2e/helper";
+import { frameworks, url, initSurvey } from "../e2e/helper";
 import { QuestionBoolean, QuestionRadiogroup } from "../e2e/questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../e2e/surveyHelper";
 
-const themeName = "default";
 const title = "Boolean Screenshot";
+
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
     });
     test("Check boolean question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });

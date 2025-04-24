@@ -1,10 +1,9 @@
-import { frameworks, url_test, initSurvey } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { QuestionText, QuestionRadiogroup, QuestionCheckbox, QuestionDropdown, QuestionComment, QuestionRating, QuestionImagePicker, QuestionBoolean, QuestionHtml, QuestionExpression, QuestionFile, QuestionSignaturePad, QuestionMatrix, QuestionMatrixDropdown, QuestionMutlipleText, QuestionPanelDynamic } from "../questionHelper";
 import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
 const title = "allTypes";
-const themeName = "default";
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
@@ -154,7 +153,7 @@ frameworks.forEach((framework) => {
           }
         ],
       };
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
     });
     test("check survey will all types", async ({ page }) => {

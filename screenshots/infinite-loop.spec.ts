@@ -1,12 +1,12 @@
-import { frameworks, url_test, initSurvey, compareScreenshot } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot } from "../e2e/helper";
 import { test, expect } from "@playwright/test";
 
-const themeName = "default";
 const title = "Infinite Loop Screenshot";
+
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
     });
     test("Check infinite loop", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 800 });

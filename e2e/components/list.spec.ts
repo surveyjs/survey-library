@@ -1,9 +1,7 @@
 import { test, expect } from "@playwright/test";
-import { url_test } from "../helper";
-import { frameworks, initSurvey } from "../helper";
+import { frameworks, initSurvey, url } from "../helper";
 
 const title = "list";
-const themeName = "default";
 
 async function registerCustomToolboxComponent(framework: string) {
   // Implementation would depend on your specific needs
@@ -13,7 +11,7 @@ async function registerCustomToolboxComponent(framework: string) {
 frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
     test.skip("check custom markup in list behavior", async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       const json = {
         elements: [
           {
@@ -42,7 +40,7 @@ frameworks.forEach(framework => {
     });
 
     test("Dropdown popup styles", async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       const json = {
         elements: [
           {
@@ -94,7 +92,7 @@ frameworks.forEach(framework => {
 
   test.describe(`${framework} ${title}`, () => {
     test("check list filter", async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       const json = {
         questions: [
           {

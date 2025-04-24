@@ -6,9 +6,7 @@ import { AngularComponentFactory } from "../../../component-factory";
   selector: "sv-ng-buttongroup-dropdown-question",
   templateUrl: "./button-group-dropdown.component.html"
 })
-// export class ButtonGroupDropdownComponent extends QuestionDropdownComponent {
-//   @Input() model!: QuestionButtonGroupModel;
-// }
+
 export class ButtonGroupDropdownComponent {
   @Input() model: any;
 }

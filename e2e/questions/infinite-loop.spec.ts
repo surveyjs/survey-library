@@ -1,15 +1,14 @@
-import { frameworks, url_test, initSurvey } from "../helper";
+import { frameworks, url, initSurvey } from "../helper";
 import { QuestionCheckbox, QuestionText, QuestionRating, QuestionDropdown, QuestionComment } from "../questionHelper";
 import { Survey } from "../surveyHelper";
 import { test, expect } from "@playwright/test";
 
-const themeName = "default";
 const title = "infinite-loop";
 
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
     });
     test("Multiple text", async ({ page }) => {
       await initSurvey(page, framework, {

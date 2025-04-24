@@ -1,12 +1,14 @@
-import { frameworks, url_test, initSurvey } from "../helper";
-import { Question, QuestionBoolean } from "../questionHelper";
+import { frameworks, url, initSurvey } from "../helper";
 import { test, expect } from "@playwright/test";
 
-const themeName = "default";
 const title = "ranking";
+
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+    test("is focused after page changed", async ({ page }) => {
       const json = {
         focusFirstQuestionAutomatic: true,
         pages: [
@@ -27,12 +29,10 @@ frameworks.forEach((framework) => {
           }
         ],
       };
-      await page.goto(`${url_test}${themeName}/${framework}`);
       await initSurvey(page, framework, json);
-    });
-    test.skip("is focused after page changed", async ({ page }) => {
       await page.locator("input[value=Next]").click();
-      expect(page.locator(".sv-ranking-item").first()).toBeFocused();
+      await page.waitForTimeout(500);
+      await expect(page.locator(".sv-ranking-item").first()).toBeFocused();
     });
   });
 });

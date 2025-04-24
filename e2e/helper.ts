@@ -14,26 +14,31 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export async function compareScreenshot(page: Page, elementSelector: string | undefined, screenshotName: string) {
+export async function compareScreenshot(page: Page, elementSelector: string | undefined, screenshotName: string, elementIndex = 0) {
   await page.addStyleTag({
     content: "textarea::-webkit-resizer { visibility: hidden !important; }"
   });
 
   if (!!elementSelector) {
     const element = page.locator(elementSelector).filter({ visible: true });
-    await expect(element.first()).toBeVisible();
-    await expect(element.first()).toHaveScreenshot(screenshotName, {
+    await expect.soft(element.nth(elementIndex)).toBeVisible();
+    await expect.soft(element.nth(elementIndex)).toHaveScreenshot(screenshotName, {
       timeout: 10000
     });
   } else {
-    await expect(page).toHaveScreenshot(screenshotName, {
+    await expect.soft(page).toHaveScreenshot(screenshotName, {
       timeout: 10000
     });
   }
 }
 
 export async function resetFocusToBody(page: Page): Promise<void> {
-  await page.evaluate(() => { document.body.focus(); });
+  await page.evaluate(() => {
+    if (!!document.activeElement) {
+      document.activeElement.blur();
+    }
+    document.body.focus();
+  });
 }
 
 export const applyTheme = async (page: Page, theme: string) => {

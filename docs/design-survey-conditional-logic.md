@@ -101,7 +101,7 @@ In question types whose value is an array, you can use zero-based indexes to acc
   </table>
 </div>
 
-You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access a specific question or cell relative to the question you configure: 
+You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite` to access a specific question or cell relative to the question you configure: 
 
 <div class="v2-class---doc-table-container">
   <table class="v2-class---doc-table-container__table">
@@ -114,13 +114,17 @@ You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access 
     </thead>
     <tbody>
       <tr>
-        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
+        <td rowspan="3" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
         <td><code>{row.columnname}</code></td>
         <td>Accesses a cell in the same row.</td>
       </tr>
       <tr>
         <td style="vertical-align:middle"><code>{rowName}</code></td>
         <td>Accesses the row name (the <code>value</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array). Use this placeholder if you need to distinguish between matrix rows.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{rowTitle}</code></td>
+        <td>Accesses the row title (the <code>text</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array).</td>
       </tr>
       <tr>
         <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
@@ -130,6 +134,11 @@ You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access 
       <tr>
         <td style="vertical-align:middle"><code>{parentPanel.questionname}</code></td>
         <td>Accesses a question within a parent Dynamic Panel.<br>Applies when one Dynamic Panel question is nested in another.</td>
+      </tr>
+      <tr>
+        <td><a href="/form-library/documentation/customize-question-types/create-composite-question-types">Composite questions</a></td>
+        <td><code>{composite.questionname}</code></td>
+        <td>Accesses a question within the same composite question.</td>
       </tr>
     </tbody>
   </table>

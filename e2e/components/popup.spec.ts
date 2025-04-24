@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, initSurvey, url_test } from "../helper";
+import { frameworks, initSurvey, url } from "../helper";
 
-const themeName = "default";
 const title = "Popup";
 
 const json = {
@@ -33,7 +32,7 @@ export async function disposeSurvey(page, framework) {
 frameworks.forEach((framework) => {
   test.describe(title + " - " + framework, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
+      await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 800, height: 600 });
     });
 

@@ -372,16 +372,14 @@ QUnit.test("attachOriginalItems", function(assert) {
     "Afghanistan",
     "the first country is Afghanistan"
   );
-  assert.deepEqual(
-    items[0].originalItem,
-    {
-      name: "Afghanistan",
-      locName: { en: "Afghanistan" },
-      alpha2_code: "AF",
-      alpha3_code: "AFG",
-    },
-    "keeps the original item"
-  );
+  const originalItem = {
+    name: "Afghanistan",
+    locName: { en: "Afghanistan" },
+    alpha2_code: "AF",
+    alpha3_code: "AFG",
+  };
+  assert.deepEqual(items[0].originalItem, originalItem, "keeps the original item");
+  assert.deepEqual(items[0].data, originalItem, "keeps the original item");
 });
 
 QUnit.test("attachOriginalItems in question", function(assert) {
@@ -395,16 +393,35 @@ QUnit.test("attachOriginalItems in question", function(assert) {
   });
   question.onSurveyLoad();
   assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
-  assert.deepEqual(
-    question.visibleChoices[0].originalItem,
-    {
-      name: "Afghanistan",
-      locName: { en: "Afghanistan" },
-      alpha2_code: "AF",
-      alpha3_code: "AFG",
+  const originalItem = {
+    name: "Afghanistan",
+    locName: { en: "Afghanistan" },
+    alpha2_code: "AF",
+    alpha3_code: "AFG",
+  };
+  assert.deepEqual(question.visibleChoices[0].originalItem, originalItem, "keeps the original item");
+  assert.deepEqual(question.visibleChoices[0].data, originalItem, "keeps the original item");
+});
+
+QUnit.test("attachData in question", function(assert) {
+  var question = new QuestionDropdownModelTester("q1");
+  question.fromJSON({
+    choicesByUrl: {
+      url: "allcountries",
+      path: "RestResponse;result",
+      attachData: true,
     },
-    "keeps the original item"
-  );
+  });
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 5, "Choices has been loaded");
+  const originalItem = {
+    name: "Afghanistan",
+    locName: { en: "Afghanistan" },
+    alpha2_code: "AF",
+    alpha3_code: "AFG",
+  };
+  assert.deepEqual(question.visibleChoices[0].originalItem, originalItem, "keeps the original item");
+  assert.deepEqual(question.visibleChoices[0].data, originalItem, "keeps the original item");
 });
 
 QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
@@ -433,6 +450,49 @@ QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
     question.choicesByUrl.url,
     "allcountries",
     "question: url has been loaded"
+  );
+  assert.ok(
+    question.choicesByUrl.attachOriginalItems,
+    "question: attachOriginalItems has been loaded"
+  );
+});
+
+QUnit.test("Load attachData value from JSON", function(assert) {
+  var test = new ChoicesRestful();
+  assert.notOk(test.attachData, "attachData initially false");
+  assert.notOk(test.attachOriginalItems, "attachOriginalItems initially false");
+  test.fromJSON({
+    url: "allcountries",
+    path: "RestResponse;result",
+    attachData: true,
+  });
+  assert.ok(test.attachData, "attachData has been loaded");
+  assert.ok(test.attachOriginalItems, "attachOriginalItems has been loaded");
+
+  var question = new QuestionDropdownModel("q1");
+  assert.notOk(
+    question.choicesByUrl.attachData,
+    "question: attachData initially false"
+  );
+  assert.notOk(
+    question.choicesByUrl.attachOriginalItems,
+    "question: attachOriginalItems initially false"
+  );
+  question.fromJSON({
+    choicesByUrl: {
+      url: "allcountries",
+      path: "RestResponse;result",
+      attachData: true,
+    },
+  });
+  assert.equal(
+    question.choicesByUrl.url,
+    "allcountries",
+    "question: url has been loaded"
+  );
+  assert.ok(
+    question.choicesByUrl.attachData,
+    "question: attachData has been loaded"
   );
   assert.ok(
     question.choicesByUrl.attachOriginalItems,

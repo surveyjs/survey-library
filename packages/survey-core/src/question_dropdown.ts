@@ -80,6 +80,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get ariaRole(): string {
     return "combobox";
   }
+  /**
+   * Returns the selected choice item. If no item is selected, returns `null`.
+   */
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
     if (!!selectedItemByValue) {

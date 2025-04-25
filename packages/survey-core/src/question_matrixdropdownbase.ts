@@ -2857,7 +2857,7 @@ Serializer.addClass(
     { name: "keyDuplicationError", serializationProperty: "locKeyDuplicationError", },
     {
       name: "singleInputTitleTemplate", serializationProperty: "locSingleInputTitleTemplate",
-      visibleIf(obj) { return obj.survey?.isSingleVisibleInput; }
+      visibleIf(obj) { return obj.survey?.questionsOnPageMode === "inputPerPage"; }
     },
     {
       name: "cellType",

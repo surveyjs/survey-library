@@ -6,6 +6,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionSingleInputSummary } from "../src/questionSingleInputSummary";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { add } from "lodash";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -1603,4 +1604,28 @@ QUnit.test("check singleInputLocTitle reactivity on peformNext(), panel dynamic"
   assert.equal(counter1, 1, "onStringChanged, #1");
   assert.equal(counter2, 1, "onChanged, #1");
   assert.equal(locStr.textOrHtml, "value: b", "singleInputLocTitle, #1");
+});
+QUnit.test("check singleInputTitleTemplate property visibility", assert => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "matrixdynamic", name: "matrix",
+        rowCount: 1,
+        singleInputTitleTemplate: "value: {row.q1}",
+        columns: [
+          { cellType: "text", name: "q1", defaultDisplayValue: "[not set]" },
+          { cellType: "text", name: "q2" }
+        ]
+      }
+    ],
+  });
+  const prop = Serializer.findProperty("matrixdynamic", "singleInputTitleTemplate");
+  const matrix = survey.getQuestionByName("matrix");
+  assert.equal(prop.visibleIf(matrix), false, "singleInputTitleTemplate visibleIf, #1");
+  survey.questionsOnPageMode = "inputPerPage";
+  assert.equal(prop.visibleIf(matrix), true, "singleInputTitleTemplate visibleIf, #2");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(prop.visibleIf(matrix), false, "singleInputTitleTemplate visibleIf, #3");
 });

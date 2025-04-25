@@ -32,6 +32,10 @@ export async function compareScreenshot(page: Page, elementSelector: string | un
   }
 }
 
+export function getVisibleListItemByText(page: Page, text: string): Locator {
+  return page.locator(".sv-popup__container").filter({ visible: true }).locator(`text=${text}`);
+}
+
 export async function resetFocusToBody(page: Page): Promise<void> {
   await page.evaluate(() => {
     if (!!document.activeElement) {

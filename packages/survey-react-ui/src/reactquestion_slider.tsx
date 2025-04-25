@@ -66,12 +66,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getThumb(i: number, value: number) {
-    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, step, tooltipVisibility, getPercent } = this.question;
+    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, step, tooltipVisibility, getPercent, getClosestToStepValue } = this.question;
 
     let percent: string = getPercent(value) + "%";
 
     let tooltip: ReactElement | null = null;
-    let toolTipValue = step ? this.getClosestToStepValue(value) : value;
+    let toolTipValue = step ? getClosestToStepValue(value) : value;
 
     if (tooltipVisibility !== "never") {
       tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`}>
@@ -190,7 +190,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private handlePointerUp = (e, inputNumber:number) => {
     e.stopPropagation();
-    const { step, focusedThumb, getRenderedValue, allowSwap, renderedminRangeLength, value } = this.question;
+    const { step, focusedThumb, getRenderedValue, allowSwap, renderedminRangeLength, value, getClosestToStepValue } = this.question;
     let renderedValue:number[] = getRenderedValue();
     const focusedThumbValue = renderedValue[focusedThumb];
 
@@ -208,7 +208,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     this.question.focusedThumb = renderedValue.indexOf(focusedThumbValue);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
-        renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+        renderedValue[i] = getClosestToStepValue(renderedValue[i]);
         const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
         input.step = step;
       }
@@ -219,7 +219,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   };
 
   private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {
-    const { max, min, step, allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
+    const { max, min, step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
 
     const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
     let newValue = Math.round(percent / 100 * (max - min) + min);
@@ -256,18 +256,13 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
           }
         }
 
-        renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+        renderedValue[i] = getClosestToStepValue(renderedValue[i]);
       }
     }
 
     this.setSliderValue(renderedValue);
     this.refreshInputRange();
   };
-
-  private getClosestToStepValue(value: number): number {
-    const { step } = this.question;
-    return Math.round(value / step) * step;
-  }
 
   private oldInputValue: number | null = null;
 
@@ -303,7 +298,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private handleRangePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-    const { step, getRenderedValue } = this.question;
+    const { step, getRenderedValue, getClosestToStepValue } = this.question;
     if (this.isRangeMoving) {
       this.refreshInputRange();
       this.isRangeMoving = false;
@@ -313,7 +308,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
         const renderedValue:number[] = getRenderedValue();
         for (let i = 0; i < renderedValue.length; i++) {
-          renderedValue[i] = this.getClosestToStepValue(renderedValue[i]);
+          renderedValue[i] = getClosestToStepValue(renderedValue[i]);
         }
         this.setSliderValue(renderedValue);
       }

@@ -488,10 +488,37 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   assert.deepEqual(q1.getTrackPercentRight(), 20);
 });
 
-QUnit.only("getRenderedValue return correct initial value with negative scale", (assert) => {
+QUnit.test("getRenderedValue return correct initial value with negative scale", (assert) => {
   const q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
   q1.min = -100;
   q1.max = -10;
   assert.deepEqual(q1.getRenderedValue(), [-10]);
+
+  q1.max = 100;
+  assert.deepEqual(q1.getRenderedValue(), [0]);
+
+  q1.min = 10;
+  assert.deepEqual(q1.getRenderedValue(), [10]);
+});
+
+QUnit.test("getClosestToStepValue", (assert) => {
+  const q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.min = 10;
+  q1.max = 100;
+  q1.step = 10;
+  assert.deepEqual(q1.getClosestToStepValue(50), 50);
+  assert.deepEqual(q1.getClosestToStepValue(50.1), 50);
+  assert.deepEqual(q1.getClosestToStepValue(49.9), 50);
+
+  assert.deepEqual(q1.getClosestToStepValue(100.1), 100);
+  assert.deepEqual(q1.getClosestToStepValue(9.9), 10);
+
+  q1.segmentCount = null;
+  q1.min = 0;
+  q1.max = 50;
+  q1.step = 26;
+  assert.deepEqual(q1.getClosestToStepValue(26.1), 26);
+  assert.deepEqual(q1.getClosestToStepValue(50), 26);
 });

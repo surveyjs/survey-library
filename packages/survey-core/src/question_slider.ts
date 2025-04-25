@@ -111,7 +111,7 @@ export class QuestionSliderModel extends Question {
       result = this.value;
       if (typeof result === "undefined" || result.length === 0) {
         this.isIndeterminate = true;
-        return this.isNegativeScale ? [max] : [min];
+        return this.isNegativeScale ? [Math.min(max, 0)] : [min];
       } else {
         return [result];
       }
@@ -141,9 +141,6 @@ export class QuestionSliderModel extends Question {
         result = this.getPercent(Math.max(0, min));
       } else {
         result = this.getPercent(value[0]);
-        // result = this.getPercent(Math.min(value[0], 0));
-        //
-        //result = this.getPercent(Math.max(value[0], 0));
       }
     } else {
       result = this.getPercent(Math.min(...value));
@@ -225,6 +222,17 @@ export class QuestionSliderModel extends Question {
       this.isIndeterminate = false;
     }
   }
+
+  public getClosestToStepValue = (value: number): number => {
+    const { step, min, max } = this;
+    const stepMax = Math.trunc(max / step) * step;
+    const stepMin = Math.trunc(min / step) * step;
+
+    let result = Math.round(value / step) * step;
+    result = Math.max(stepMin, result);
+    result = Math.min(stepMax, result);
+    return result;
+  };
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     super.runConditionCore(values, properties);

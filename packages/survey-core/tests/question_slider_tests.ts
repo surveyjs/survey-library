@@ -508,12 +508,15 @@ QUnit.test("getClosestToStepValue", (assert) => {
   q1.min = 10;
   q1.max = 100;
   q1.step = 10;
+  assert.deepEqual(q1.getClosestToStepValue(9), 10);
   assert.deepEqual(q1.getClosestToStepValue(50), 50);
   assert.deepEqual(q1.getClosestToStepValue(50.1), 50);
   assert.deepEqual(q1.getClosestToStepValue(49.9), 50);
-
+  assert.deepEqual(q1.getClosestToStepValue(91), 90);
   assert.deepEqual(q1.getClosestToStepValue(100.1), 100);
   assert.deepEqual(q1.getClosestToStepValue(9.9), 10);
+  assert.deepEqual(q1.getClosestToStepValue(10), 10);
+  assert.deepEqual(q1.getClosestToStepValue(100), 100);
 
   q1.segmentCount = null;
   q1.min = 0;
@@ -521,4 +524,12 @@ QUnit.test("getClosestToStepValue", (assert) => {
   q1.step = 26;
   assert.deepEqual(q1.getClosestToStepValue(26.1), 26);
   assert.deepEqual(q1.getClosestToStepValue(50), 26);
+
+  // q1.segmentCount = null;
+  // q1.min = -100;
+  // q1.max = -10;
+  // q1.step = 18;
+  // assert.deepEqual(q1.getClosestToStepValue(-10), -10);
+  // assert.deepEqual(q1.getClosestToStepValue(-10.1), -28);
+  // assert.deepEqual(q1.getClosestToStepValue(-100), -100);
 });

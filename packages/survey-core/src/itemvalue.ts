@@ -54,6 +54,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       if (!!value.originalItem) {
         item.originalItem = value.originalItem;
       }
+      if (!!value.data) {
+        item.data = value.data;
+      }
       items.push(item);
     }
   }
@@ -198,7 +201,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (this.getType() != "itemvalue") {
       CustomPropertiesCollection.createProperties(this);
     }
-    this.data = this;
     this.onCreating();
   }
 

@@ -80,6 +80,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get ariaRole(): string {
     return "combobox";
   }
+  /**
+   * Returns the selected choice item. If no item is selected, returns `null`.
+   */
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
     if (!!selectedItemByValue) {
@@ -258,6 +261,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }) choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
+   *
+   * Default value: 25
+   *
+   * > This property does not accept values below 25 to prevent the server from being flooded with requests.
    * @see choicesLazyLoadEnabled
    * @see SurveyModel.onChoicesLazyLoad
    */

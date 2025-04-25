@@ -80,6 +80,7 @@ export { SurveyQuestionImagePicker } from "../src/imagepicker";
 export { SurveyQuestionImage } from "../src/image";
 export { SurveyQuestionSignaturePad } from "../src/signaturepad";
 export { SurveyQuestionButtonGroup } from "../src/reactquestion_buttongroup";
+export { SurveyQuestionButtonGroupDropdown } from "../src/buttongroup-dropdown";
 export { SurveyQuestionCustom, SurveyQuestionComposite } from "../src/reactquestion_custom";
 
 export { Popup } from "../src/components/popup/popup";

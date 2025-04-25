@@ -1,7 +1,6 @@
-import { frameworks, url_test, initSurvey, getSurveyData, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection } from "../helper";
+import { frameworks, url, initSurvey, getSurveyData, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection } from "../helper";
 import { test, expect } from "@playwright/test";
 
-const themeName = "default";
 const title = "text";
 
 const json = {
@@ -41,13 +40,13 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  test.describe(title + " - " + framework, () => {
+  test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto(`${url_test}${themeName}/${framework}`);
-      await initSurvey(page, framework, json);
+      await page.goto(`${url}${framework}`);
     });
 
     test("focus but not enter value in readonly text question", async ({ page }) => {
+      await initSurvey(page, framework, json);
       let exceptionsCount = 0;
       const colorInput = await page.locator('input[type="color"]');
       expect(await colorInput.inputValue()).toBe("#000000");

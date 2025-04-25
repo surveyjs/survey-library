@@ -25,6 +25,7 @@ export var englishStrings = {
   loadingSurvey: "Loading Survey...",
   placeholder: "Select...",
   ratingOptionsCaption: "Select...",
+  buttongroupOptionsCaption: "Select...",
   value: "value",
   requiredError: "Response required.",
   requiredErrorInPanel: "Response required: answer at least one question.",

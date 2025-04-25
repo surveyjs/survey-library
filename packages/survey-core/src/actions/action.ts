@@ -228,7 +228,13 @@ export abstract class BaseAction extends Base implements IAction {
   @property() innerCss: string;
   @property() active: boolean;
   @property() pressed: boolean;
-  public data: any;
+  private _data: any;
+  public get data() {
+    return this._data;
+  }
+  public set data(val: any) {
+    this._data = val;
+  }
   @property() popupModel: any;
   @property() needSeparator: boolean;
   @property() template: string;

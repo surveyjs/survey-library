@@ -5,7 +5,7 @@
   align-items: center;
   flex-direction: row;
   font-size: calcFontSize(1);
-  overflow: auto;
+  overflow-x: auto;
   border: 1px solid $border;
 }
 
@@ -21,7 +21,8 @@
   justify-content: center;
   align-items: center;
   appearance: none;
-  width: 100%;
+  flex-grow: 1;
+  flex-basis: 0;
   padding: 11px calcSize(2);
   line-height: calcLineHeight(1.5);
   outline: none;
@@ -29,7 +30,6 @@
   font-weight: 400;
   background: $background;
   cursor: pointer;
-  overflow: hidden;
   color: $foreground;
   position: relative;
 
@@ -67,14 +67,11 @@
 .sv-button-group__item-decorator {
   display: flex;
   align-items: center;
-  max-width: 100%;
+  white-space: nowrap;
 }
 
 .sv-button-group__item-caption {
   display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .sv-button-group__item-icon+.sv-button-group__item-caption {

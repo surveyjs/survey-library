@@ -24,6 +24,10 @@ export abstract class Operand {
   }
   public hasAsyncFunction(): boolean { return false; }
   public addToAsyncList(list: Array<AsyncFunctionItem>): void {}
+  public addOperandsToList(list: Array<Operand>): void {
+    list.push(this);
+    this.addChildrenToList(list);
+  }
   public isEqual(op: Operand): boolean {
     return !!op && op.getType() === this.getType() && this.isContentEqual(op);
   }
@@ -31,6 +35,7 @@ export abstract class Operand {
   protected areOperatorsEquals(op1: Operand, op2: Operand): boolean {
     return !op1 && !op2 || !!op1 && op1.isEqual(op2);
   }
+  protected addChildrenToList(list: Array<Operand>): void {}
 }
 
 export class BinaryOperand extends Operand {
@@ -123,12 +128,15 @@ export class BinaryOperand extends Operand {
     if (this.left != null)this.left.setVariables(variables);
     if (this.right != null)this.right.setVariables(variables);
   }
-
   public hasFunction(): boolean {
     return (
       (!!this.left && this.left.hasFunction()) ||
       (!!this.right && this.right.hasFunction())
     );
+  }
+  protected addChildrenToList(list: Array<Operand>): void {
+    if (!!this.left)this.left.addOperandsToList(list);
+    if (!!this.right)this.right.addOperandsToList(list);
   }
   public hasAsyncFunction(): boolean {
     return (
@@ -177,6 +185,9 @@ export class UnaryOperand extends Operand {
   }
   public hasFunction(): boolean {
     return this.expression.hasFunction();
+  }
+  protected addChildrenToList(list: Array<Operand>): void {
+    this.expression.addOperandsToList(list);
   }
   public hasAsyncFunction(): boolean {
     return this.expression.hasAsyncFunction();
@@ -230,6 +241,11 @@ export class ArrayOperand extends Operand {
 
   public hasFunction(): boolean {
     return this.values.some((operand) => operand.hasFunction());
+  }
+  protected addChildrenToList(list: Array<Operand>): void {
+    this.values.forEach((el) => {
+      el.addOperandsToList(list);
+    });
   }
   public hasAsyncFunction(): boolean {
     return this.values.some((operand) => operand.hasAsyncFunction());
@@ -398,6 +414,9 @@ export class FunctionOperand extends Operand {
   }
   public isReady(proccessValue: ProcessValue): boolean {
     return !!this.getAsynValue(proccessValue);
+  }
+  protected addChildrenToList(list: Array<Operand>): void {
+    this.parameters.addOperandsToList(list);
   }
   private getAsynValue(proccessValue: ProcessValue): any {
     return proccessValue.asyncValues[this.id];

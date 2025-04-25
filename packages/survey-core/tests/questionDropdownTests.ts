@@ -888,6 +888,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
   };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add(callback);
+  const onGetChoiceDisplayValueCallbackTimeOut = 6 * callbackTimeOutDelta;
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     requestCount++;
     setTimeout(() => {
@@ -895,7 +896,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
         options.setItems(options.values.map(item => ("DisplayText_" + item)));
         responseCount++;
       }
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    }, onGetChoiceDisplayValueCallbackTimeOut);
   });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -923,11 +924,11 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
         assert.equal(question.displayValue, "DisplayText_2", "question.displayValue");
 
         done3();
-      }, onChoicesLazyLoadCallbackTimeOut + 2 * callbackTimeOutDelta);
+      }, onGetChoiceDisplayValueCallbackTimeOut + 2 * callbackTimeOutDelta);
       done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+    }, onGetChoiceDisplayValueCallbackTimeOut / 2);
     done1();
-  }, 0);
+  }, callbackTimeOutDelta);
 });
 
 QUnit.test("storeOthersAsComment is false", assert => {
@@ -1665,7 +1666,7 @@ QUnit.test("ItemValue: check action fields", assert => {
   assert.equal(question.visibleChoices[0].locTitle.text, "Item 1");
   assert.equal(question.visibleChoices[0].title, "Item 1");
   assert.equal(question.visibleChoices[0].id, "Item1");
-  assert.equal(question.visibleChoices[0].data, question.visibleChoices[0]);
+  assert.equal(question.visibleChoices[0].data, undefined);
   assert.equal(question.visibleChoices[0].visible, true);
   question.visibleChoices[0].setIsVisible(false);
   assert.equal(question.visibleChoices[0].visible, false);

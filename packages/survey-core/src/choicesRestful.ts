@@ -350,6 +350,9 @@ export class ChoicesRestful extends Base {
     this.getAllPropertiesNames().forEach(name => {
       (<any>this)[name] = json[name];
     });
+    if (json.attachOriginalItems) {
+      this.attachData = json.attachOriginalItems;
+    }
   }
   public getData(): any {
     const res: any = {};
@@ -472,10 +475,50 @@ export class ChoicesRestful extends Base {
     this.setPropertyValue("allowEmptyResponse", val);
   }
   public get attachOriginalItems(): boolean {
-    return this.getPropertyValue("attachOriginalItems");
+    return this.attachData;
   }
   public set attachOriginalItems(val: boolean) {
-    this.setPropertyValue("attachOriginalItems", val);
+    this.attachData = val;
+  }
+  /**
+   * Specifies whether to attach original data objects to choice items.
+   *
+   * Default value: `false`
+   *
+   * If you enable this property, original data objects will be stored in the `data` property of choice items. For instance, the following code shows how to access a data object of a selected choice item in a Dropdown question:
+   *
+   * ```js
+   * import { Model } from "survey-core";
+   *
+   * const surveyJson = {
+   *   "elements": [{
+   *     "type": "dropdown",
+   *     "name": "country",
+   *     "title": "Select a country",
+   *     "choicesByUrl": {
+   *       "url": "https://surveyjs.io/api/CountriesExample",
+   *       "valueName": "name",
+   *       "attachData": true
+   *     }
+   *   }]
+   * }
+   *
+   * const survey = new Model(surveyJson);
+   *
+   * function retrieveItemData(survey, qName) {
+   *   const q = survey.getQuestionByName(qName);
+   *   if (q && q.selectedItem) {
+   *     return q.selectedItem.data;
+   *   }
+   *   return null;
+   * }
+   * ```
+   */
+  public get attachData(): boolean {
+    return this.getPropertyValue("attachData");
+  }
+  public set attachData(val: boolean) {
+    this.setPropertyValue("attachData", val);
   }
   public get itemValueType(): string {
     if (!this.owner) return "itemvalue";
@@ -512,8 +555,9 @@ export class ChoicesRestful extends Base {
         var item = this.createItemValue(value);
         this.setTitle(item, itemValue);
         this.setCustomProperties(item, itemValue);
-        if (this.attachOriginalItems) {
+        if (this.attachData) {
           item.originalItem = itemValue;
+          item.data = itemValue;
         }
         var imageLink = this.getImageLink(itemValue);
         if (!!imageLink) {
@@ -675,7 +719,7 @@ Serializer.addClass(
       },
     },
     { name: "allowEmptyResponse:boolean" },
-    { name: "attachOriginalItems:boolean", visible: false },
+    { name: "attachData:boolean", alternativeName: "attachOriginalItems", visible: false },
   ],
   function () {
     return new ChoicesRestful();

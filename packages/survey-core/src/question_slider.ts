@@ -225,12 +225,10 @@ export class QuestionSliderModel extends Question {
 
   public getClosestToStepValue = (value: number): number => {
     const { step, min, max } = this;
-    const stepMax = Math.trunc(max / step) * step;
-    const stepMin = Math.trunc(min / step) * step;
 
-    let result = Math.round(value / step) * step;
-    result = Math.max(stepMin, result);
-    result = Math.min(stepMax, result);
+    const maxByStep = min + Math.trunc((max - min) / step) * step;
+    let result = min + Math.round((value - min) / step) * step;
+    result = Math.min(maxByStep, result);
     return result;
   };
 

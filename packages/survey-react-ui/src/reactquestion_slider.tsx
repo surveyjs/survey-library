@@ -57,17 +57,18 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     for (let i = 0; i < value.length; i++) {
       // TODO all keys should be generated ids
       const thumbAndInput = <React.Fragment key={"thumb-" + i}>
-        {this.getInput(i, value[i])}
-        {this.getThumb(i, value[i])}
+        {this.getInput(i)}
+        {this.getThumb(i)}
       </React.Fragment>;
       inputsAndThumbs.push(thumbAndInput);
     }
     return inputsAndThumbs;
   }
 
-  private getThumb(i: number, value: number) {
-    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, step, tooltipVisibility, getPercent, getClosestToStepValue } = this.question;
+  private getThumb(i: number) {
+    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, step, tooltipVisibility, getPercent, getClosestToStepValue, getRenderedValue } = this.question;
 
+    const value = getRenderedValue()[i];
     let percent: string = getPercent(value) + "%";
 
     let tooltip: ReactElement | null = null;
@@ -92,8 +93,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     return thumb;
   }
 
-  private getInput(i:number, value: number) {
-    const { max, min, step, cssClasses, isDisabledAttr } = this.question;
+  private getInput(i:number) {
+    const { max, min, step, cssClasses, isDisabledAttr, getRenderedValue } = this.question;
+
+    const value = getRenderedValue()[i];
 
     const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value} min={min} max={max} step={step}
       onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }

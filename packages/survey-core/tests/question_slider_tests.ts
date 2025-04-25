@@ -505,31 +505,32 @@ QUnit.test("getRenderedValue return correct initial value with negative scale", 
 QUnit.test("getClosestToStepValue", (assert) => {
   const q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
-  q1.min = 10;
-  q1.max = 100;
-  q1.step = 10;
-  assert.deepEqual(q1.getClosestToStepValue(9), 10);
-  assert.deepEqual(q1.getClosestToStepValue(50), 50);
-  assert.deepEqual(q1.getClosestToStepValue(50.1), 50);
-  assert.deepEqual(q1.getClosestToStepValue(49.9), 50);
-  assert.deepEqual(q1.getClosestToStepValue(91), 90);
-  assert.deepEqual(q1.getClosestToStepValue(100.1), 100);
-  assert.deepEqual(q1.getClosestToStepValue(9.9), 10);
-  assert.deepEqual(q1.getClosestToStepValue(10), 10);
-  assert.deepEqual(q1.getClosestToStepValue(100), 100);
 
   q1.segmentCount = null;
-  q1.min = 0;
-  q1.max = 50;
-  q1.step = 26;
-  assert.deepEqual(q1.getClosestToStepValue(26.1), 26);
-  assert.deepEqual(q1.getClosestToStepValue(50), 26);
+  q1.min = 10;
+  q1.max = 100;
+  q1.step = 18;
+  assert.deepEqual(q1.getClosestToStepValue(9.9), 10);
+  assert.deepEqual(q1.getClosestToStepValue(10), 10);
+  assert.deepEqual(q1.getClosestToStepValue(60), 64);
+  assert.deepEqual(q1.getClosestToStepValue(100), 100);
+  assert.deepEqual(q1.getClosestToStepValue(100.1), 100);
 
-  // q1.segmentCount = null;
-  // q1.min = -100;
-  // q1.max = -10;
-  // q1.step = 18;
-  // assert.deepEqual(q1.getClosestToStepValue(-10), -10);
-  // assert.deepEqual(q1.getClosestToStepValue(-10.1), -28);
-  // assert.deepEqual(q1.getClosestToStepValue(-100), -100);
+  q1.segmentCount = null;
+  q1.min = -100;
+  q1.max = -10;
+  q1.step = 18;
+  assert.deepEqual(q1.getClosestToStepValue(-10), -10);
+  assert.deepEqual(q1.getClosestToStepValue(-20), -28);
+  assert.deepEqual(q1.getClosestToStepValue(-100), -100);
+
+  q1.segmentCount = null;
+  q1.min = -90;
+  q1.max = 90;
+  q1.step = 18;
+  assert.deepEqual(q1.getClosestToStepValue(-90), -90);
+  assert.deepEqual(q1.getClosestToStepValue(-10), -18);
+  assert.deepEqual(q1.getClosestToStepValue(0), 0);
+  assert.deepEqual(q1.getClosestToStepValue(10), 18);
+  assert.deepEqual(q1.getClosestToStepValue(90), 90);
 });

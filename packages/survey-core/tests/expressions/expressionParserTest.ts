@@ -1752,3 +1752,13 @@ QUnit.test("No params for getDate function, Bug#9674", function(assert) {
   let runner = new ExpressionRunner("getDate()");
   assert.equal(runner.run(values), null, "Empty paramsters, #1");
 });
+QUnit.test("Operand.addOperandsToList", function(assert) {
+  let operand = new ConditionsParser().parseExpression("{a} + {b}");
+  let list: any[] = [];
+  operand.addOperandsToList(list);
+  assert.equal(list.length, 3, "operands in the list #1");
+  operand = new ConditionsParser().parseExpression("func({a}, 'd', 3) * 4 + {b} > 0");
+  list = [];
+  operand.addOperandsToList(list);
+  assert.equal(list.length, 11, "operands in the list #1");
+});

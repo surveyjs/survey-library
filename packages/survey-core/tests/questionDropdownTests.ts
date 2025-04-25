@@ -888,7 +888,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
   };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add(callback);
-  const onGetChoiceDisplayValueCallbackTimeOut = 5 * callbackTimeOutDelta;
+  const onGetChoiceDisplayValueCallbackTimeOut = 10 * callbackTimeOutDelta;
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     requestCount++;
     setTimeout(() => {

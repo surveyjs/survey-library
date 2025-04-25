@@ -427,20 +427,19 @@ frameworks.forEach(framework => {
         window["Survey"]._setIsTouch(true);
         (window as any).Survey.ListModel.MINELEMENTCOUNT = 2;
       });
-      await initSurvey(page, framework, jsonWithInputs);
-      await page.evaluate(() => {
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onOpenDropdownMenu.add((sender, options) => {
+          if (options.menuType === "popup") options.menuType = "overlay";
+        });
+        window["survey"].fromJSON(json);
         (window as any).survey.applyTheme({
           "cssVariables": {
             "--sjs-font-editorfont-size": "12px",
             "--sjs-font-size": "20px"
           }
         });
-      });
-      await page.evaluate(() => {
-        window["survey"].onOpenDropdownMenu.add((sender, options) => {
-          if (options.menuType === "popup") options.menuType = "overlay";
-        });
-      });
+      }, jsonWithInputs);
 
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 

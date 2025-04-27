@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
 import { PanelModel } from "../src/panel";
 import { Question } from "../src/question";
+import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionSingleInputSummary } from "../src/questionSingleInputSummary";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
@@ -1628,4 +1629,21 @@ QUnit.test("check singleInputTitleTemplate property visibility", assert => {
   assert.equal(prop.visibleIf(matrix), true, "singleInputTitleTemplate visibleIf, #2");
   survey.questionsOnPageMode = "questionPerPage";
   assert.equal(prop.visibleIf(matrix), false, "singleInputTitleTemplate visibleIf, #3");
+});
+QUnit.test("ratingItem small mode", assert => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    elements: [
+      {
+        type: "matrixdynamic", name: "matrix",
+        rowCount: 1,
+        columns: [
+          { cellType: "rating", name: "q1", rateType: "stars" }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "inputPerPage"
+  });
+  assert.equal(survey.currentSingleQuestion.singleInputQuestion.getType(), "rating");
+  assert.notOk((survey.currentSingleQuestion.singleInputQuestion as QuestionRatingModel).itemSmallMode);
 });

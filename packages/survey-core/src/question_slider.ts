@@ -25,10 +25,10 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: "onhover" }) tooltipVisibility: "onhover" | "always" | "never";
   public get step(): number {
     if (this.labels.length > 0) {
-      return (this.max - this.min) / (this.labels.length - 1);
+      return (this.renderedMax - this.renderedMin) / (this.labels.length - 1);
     }
     if (this.segmentCount) {
-      return (this.max - this.min) / this.segmentCount;
+      return (this.renderedMax - this.renderedMin) / this.segmentCount;
     }
     return this.getPropertyValue("step");
   }
@@ -82,23 +82,31 @@ export class QuestionSliderModel extends Question {
       .toString();
   }
 
-  public get renderedmaxRangeLength(): number {
-    return this.maxRangeLength ?? this.max - this.min;
+  public get renderedMax(): number {
+    return this.max <= this.min ? 100 : this.max;
   }
 
-  public get renderedminRangeLength(): number {
+  public get renderedMin(): number {
+    return this.min >= this.max ? 0 : this.min;
+  }
+
+  public get renderedMaxRangeLength(): number {
+    return this.maxRangeLength ?? this.renderedMax - this.renderedMin;
+  }
+
+  public get renderedMinRangeLength(): number {
     return this.minRangeLength ?? this.step;
   }
 
   public isIndeterminate = false;
   public get isNegativeScale():boolean {
-    return this.min < 0;
+    return this.renderedMin < 0;
   }
   @property({ defaultValue: null }) focusedThumb: number | null; // TODO probably need to be just internal not property
   public dragOrClickHelper: DragOrClickHelper;
 
   public getRenderedValue = ():number[] => {
-    const { max, min, renderedmaxRangeLength, sliderType } = this;
+    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, sliderType } = this;
     let result;
 
     if (sliderType === "single") {
@@ -116,8 +124,8 @@ export class QuestionSliderModel extends Question {
     if (result.length === 0) {
       const fullRange = max - min;
       this.isIndeterminate = true;
-      if (Math.abs(fullRange) > renderedmaxRangeLength) {
-        const range = (fullRange - renderedmaxRangeLength) / 2;
+      if (Math.abs(fullRange) > renderedMaxRangeLength) {
+        const range = (fullRange - renderedMaxRangeLength) / 2;
         return [(min + range), (max - range)];
       }
       return [min, max]; // TODO support several values 3 and more
@@ -127,7 +135,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public getTrackPercentLeft = ():number => {
-    const { getRenderedValue, sliderType, min } = this;
+    const { getRenderedValue, sliderType, renderedMin: min } = this;
     const value = getRenderedValue();
     let result;
     if (sliderType === "single") {
@@ -144,7 +152,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public getTrackPercentRight = ():number => {
-    const { getRenderedValue, sliderType, max } = this;
+    const { getRenderedValue, sliderType, renderedMax: max } = this;
     const value = getRenderedValue();
     let result;
 
@@ -162,13 +170,13 @@ export class QuestionSliderModel extends Question {
   };
 
   public getPercent = (value:number):number => {
-    const { max, min } = this;
+    const { renderedMax: max, renderedMin: min } = this;
     const fullRange = max - min;
     return (Math.abs(value - min) / fullRange) * 100;
   };
 
   public ensureMaxRangeBorders = (newValue:number, inputNumber):number => {
-    const { renderedmaxRangeLength, getRenderedValue } = this;
+    const { renderedMaxRangeLength, getRenderedValue } = this;
     const value:number[] = getRenderedValue();
     const oldValue = value[inputNumber];
 
@@ -177,7 +185,7 @@ export class QuestionSliderModel extends Question {
     value[inputNumber] = newValue;
 
     for (let i = 0; i < value.length - 1; i++) {
-      if (Math.abs(value[i] - value[i + 1]) > renderedmaxRangeLength) {
+      if (Math.abs(value[i] - value[i + 1]) > renderedMaxRangeLength) {
         isOutOfRange = true;
         break;
       }
@@ -187,7 +195,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public ensureMinRangeBorders = (newValue:number, inputNumber):number => {
-    const { renderedminRangeLength, getRenderedValue, allowSwap, min, max } = this;
+    const { renderedMinRangeLength, getRenderedValue, allowSwap, renderedMin: min, renderedMax: max } = this;
     const value:number[] = getRenderedValue();
     const oldValue = value[inputNumber];
 
@@ -196,7 +204,7 @@ export class QuestionSliderModel extends Question {
     value[inputNumber] = newValue;
 
     for (let i = 0; i < value.length - 1; i++) {
-      if (Math.abs(value[i] - value[i + 1]) < renderedminRangeLength) {
+      if (Math.abs(value[i] - value[i + 1]) < renderedMinRangeLength) {
         isOutOfRange = true;
         break;
       }
@@ -219,7 +227,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public getClosestToStepValue = (value: number): number => {
-    const { step, min, max } = this;
+    const { step, renderedMin: min, renderedMax: max } = this;
 
     const maxByStep = min + Math.trunc((max - min) / step) * step;
     let result = min + Math.round((value - min) / step) * step;
@@ -242,7 +250,7 @@ export class QuestionSliderModel extends Question {
 
       if (!!maxRunner && maxRunner.canRun) {
         maxRunner.onRunComplete = (res) => {
-          this.max = res ?? this.max;
+          this.max = res ?? this.renderedMax;
         };
         maxRunner.run(values, properties);
       }
@@ -253,7 +261,7 @@ export class QuestionSliderModel extends Question {
 
       if (!!minRunner && minRunner.canRun) {
         minRunner.onRunComplete = (res) => {
-          this.min = res ?? this.min;
+          this.min = res ?? this.renderedMin;
         };
         minRunner.run(values, properties);
       }
@@ -264,13 +272,13 @@ export class QuestionSliderModel extends Question {
     this.registerSychProperties(["segmentCount"],
       () => {
         if (this.segmentCount) {
-          this.step = (this.max - this.min) / this.segmentCount;
+          this.step = (this.renderedMax - this.renderedMin) / this.segmentCount;
         }
       });
     this.registerSychProperties(["step"],
       () => {
         if (this.step) {
-          this.segmentCount = (this.max - this.min) / this.step;
+          this.segmentCount = (this.renderedMax - this.renderedMin) / this.step;
         }
       });
   }

@@ -94,7 +94,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getInput(i:number) {
-    const { max, min, step, cssClasses, isDisabledAttr, getRenderedValue } = this.question;
+    const { renderedMax: max, renderedMin: min, step, cssClasses, isDisabledAttr, getRenderedValue } = this.question;
 
     const value = getRenderedValue()[i];
 
@@ -107,14 +107,14 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getRangeInput() {
-    const { max, min, step, cssClasses, allowDragRange } = this.question;
+    const { renderedMax: max, renderedMin: min, step, cssClasses, allowDragRange } = this.question;
     if (!allowDragRange) return null;
     return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" min={min} max={max} step={step} tabIndex={-1} onChange={ (e)=>{ this.handleRangeOnChange(e); } } onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={ (e)=>{ this.handleRangePointerUp(e); } } />;
   }
 
   private getLabels() {
     const labels = [];
-    const { max, min, labelCount, showEdgeLabels, labels: customLabels, cssClasses, step, labelFormat } = this.question;
+    const { renderedMax: max, renderedMin: min, labelCount, showEdgeLabels, labels: customLabels, cssClasses, step, labelFormat } = this.question;
     const fullRange = max - min;
 
     for (let i = 0; i < labelCount; i++) {
@@ -193,7 +193,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private handlePointerUp = (e, inputNumber:number) => {
     e.stopPropagation();
-    const { step, focusedThumb, getRenderedValue, allowSwap, renderedminRangeLength, value, getClosestToStepValue } = this.question;
+    const { step, focusedThumb, getRenderedValue, allowSwap, renderedMinRangeLength, value, getClosestToStepValue } = this.question;
     let renderedValue:number[] = getRenderedValue();
     const focusedThumbValue = renderedValue[focusedThumb];
 
@@ -210,7 +210,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     if (allowSwap) {
       for (let i = 0; i < renderedValue.length - 1; i++) {
-        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedminRangeLength) {
+        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
           renderedValue = this.oldValue;
           break;
         }
@@ -223,7 +223,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   };
 
   private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {
-    const { max, min, step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
+    const { renderedMax: max, renderedMin: min, step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
 
     const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
     let newValue = Math.round(percent / 100 * (max - min) + min);
@@ -286,7 +286,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
   private isRangeMoving = false;
   private prepareInputRangeForMoving(event: React.PointerEvent<HTMLDivElement>) {
-    const { max, min } = this.question;
+    const { renderedMax: max, renderedMin: min } = this.question;
 
     this.isRangeMoving = true;
 
@@ -328,7 +328,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     if (!this.isRangeMoving) return;
-    const { max, min, getRenderedValue } = this.question;
+    const { renderedMax: max, renderedMin: min, getRenderedValue } = this.question;
     //const diff = +event.target.value > this.oldInputValue ? -step : step;
     const diff = this.oldInputValue - +event.target.value;
     this.oldInputValue = +event.target.value;

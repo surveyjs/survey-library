@@ -214,7 +214,7 @@ QUnit.test("showLabels", (assert) => {
   assert.deepEqual(q1.showLabels, true);
 });
 
-QUnit.test("renderedmaxRangeLength", (assert) => {
+QUnit.test("renderedMaxRangeLength", (assert) => {
   let json:any = {
     elements: [
       {
@@ -227,13 +227,13 @@ QUnit.test("renderedmaxRangeLength", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.renderedmaxRangeLength, 100);
+  assert.deepEqual(q1.renderedMaxRangeLength, 100);
 
   q1.maxRangeLength = 50;
-  assert.deepEqual(q1.renderedmaxRangeLength, 50);
+  assert.deepEqual(q1.renderedMaxRangeLength, 50);
 });
 
-QUnit.test("renderedminRangeLength", (assert) => {
+QUnit.test("renderedMinRangeLength", (assert) => {
   let json:any = {
     elements: [
       {
@@ -245,10 +245,10 @@ QUnit.test("renderedminRangeLength", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.renderedminRangeLength, 10);
+  assert.deepEqual(q1.renderedMinRangeLength, 10);
 
   q1.minRangeLength = 20;
-  assert.deepEqual(q1.renderedminRangeLength, 20);
+  assert.deepEqual(q1.renderedMinRangeLength, 20);
 });
 
 QUnit.test("ensureMaxRangeBorders", (assert) => {
@@ -562,4 +562,14 @@ QUnit.test("getClosestToStepValue", (assert) => {
   assert.deepEqual(q1.getClosestToStepValue(0), 0);
   assert.deepEqual(q1.getClosestToStepValue(10), 18);
   assert.deepEqual(q1.getClosestToStepValue(90), 90);
+});
+
+QUnit.test("min>max", (assert) => {
+  const q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.min = 90;
+  q1.max = 10;
+
+  assert.deepEqual(q1.renderedMin, 0, "min is default");
+  assert.deepEqual(q1.renderedMax, 100, "max is default");
 });

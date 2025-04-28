@@ -160,6 +160,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private handleOnChange = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
+    if (!this.oldValue) return; // Firefox raise one more OnChange after PointerUp and break the value
     const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
     const renderedValue:number[] = getRenderedValue();
 

@@ -8412,6 +8412,9 @@ export class SurveyModel extends SurveyElementCore
       } else {
         this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
       }
+      if (!!this.tocModel) {
+        this.tocModel.updateStickyTOCSize(this.rootElement);
+      }
     }
     if (this.onScrollCallback) {
       this.onScrollCallback();

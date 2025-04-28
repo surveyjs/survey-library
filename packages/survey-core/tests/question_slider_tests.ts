@@ -419,10 +419,24 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
 });
 
 QUnit.test("autoGenerate", (assert) => {
-  let q1 = new QuestionSliderModel("q1");
-  assert.deepEqual(q1.autoGenerate, true);
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        labels: [{
+          text: "t",
+          value: "v"
+        }]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
   q1.labels = [{ text: "t", value: "v" }] as any;
   assert.deepEqual(q1.autoGenerate, false);
+  q1.autoGenerate = true;
+  assert.deepEqual(q1.autoGenerate, true);
 });
 
 QUnit.test("getPercent", (assert) => {

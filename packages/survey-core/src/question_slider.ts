@@ -48,13 +48,7 @@ export class QuestionSliderModel extends Question {
   public set labelCount(val: number) {
     this.setPropertyValue("labelCount", val);
   }
-  public get autoGenerate(): boolean {
-    if (this.labels.length > 0) return false;
-    return this.getPropertyValue("autoGenerate");
-  }
-  public set autoGenerate(val: boolean) {
-    this.setPropertyValue("autoGenerate", val);
-  }
+  @property({ defaultValue: true }) autoGenerate: boolean;
   @propertyArray({ }) labels: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
@@ -224,13 +218,6 @@ export class QuestionSliderModel extends Question {
     this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
   };
 
-  protected setNewValue(newValue: any) {
-    super.setNewValue(newValue);
-    if (this.isIndeterminate) {
-      this.isIndeterminate = false;
-    }
-  }
-
   public getClosestToStepValue = (value: number): number => {
     const { step, min, max } = this;
 
@@ -239,6 +226,13 @@ export class QuestionSliderModel extends Question {
     result = Math.min(maxByStep, result);
     return result;
   };
+
+  public endLoadingFromJson() {
+    super.endLoadingFromJson();
+    if (this.jsonObj.labels !== undefined) {
+      this.autoGenerate = false;
+    }
+  }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     super.runConditionCore(values, properties);
@@ -279,6 +273,13 @@ export class QuestionSliderModel extends Question {
           this.segmentCount = (this.max - this.min) / this.step;
         }
       });
+  }
+
+  protected setNewValue(newValue: any) {
+    super.setNewValue(newValue);
+    if (this.isIndeterminate) {
+      this.isIndeterminate = false;
+    }
   }
 }
 

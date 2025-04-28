@@ -101,6 +101,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value} min={min} max={max} step={step}
       onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }
       onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }
+      onKeyDown={ (e)=>{ this.handleKeyDown(e); } } onKeyUp={ (e)=>{ this.handleKeyUp(e); } }
       disabled={isDisabledAttr}
     />;
     return input;
@@ -355,6 +356,14 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private handleOnBlur = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
     this.question.focusedThumb = null;
+  };
+
+  private handleKeyDown = (e)=> {
+    this.oldValue = this.question.getRenderedValue();
+  };
+
+  private handleKeyUp = (e)=> {
+    this.oldValue = null;
   };
 
   private setSliderValue(newValue) {

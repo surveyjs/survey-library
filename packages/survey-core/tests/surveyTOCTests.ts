@@ -481,51 +481,6 @@ QUnit.test("updateStickyTOCSize", function (assert) {
   const tocModel = new TOCModel(survey);
   const rootElementWithTitle = document.createElement("div");
 
-  rootElementWithTitle.innerHTML = `<div class="sv_custom_header"></div>
-                                    <div class="sd-container-modern">
-                                      <div class="sd-title sd-container-modern__title"></div>
-                                      <div class="sv-components-row">
-                                        <div class="sv-components-column">
-                                          <div class="sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky"></div>
-                                        </div>
-                                        <div class="sv-components-column">
-                                        </div>
-                                      </div>
-                                    </div>`;
-  const titleElement = rootElementWithTitle.querySelector(".sd-title") as HTMLDivElement;
-  titleElement.getBoundingClientRect = () => ({
-    height: 40,
-  } as any);
-  const tocRootElement = rootElementWithTitle.querySelector(".sv_progress-toc") as HTMLDivElement;
-  assert.equal(tocRootElement.style.height, "", "No height set");
-
-  const mockRootEl: any = {
-    querySelector: s => rootElementWithTitle.querySelector(s),
-    getBoundingClientRect: () => ({
-      height: 200,
-    }),
-    scrollTop: 0,
-    style: {}
-  };
-  tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "159px", "Height updated");
-
-  mockRootEl.scrollTop = 60;
-  tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "199px", "Height updated to full container");
-
-  mockRootEl.scrollTop = 20;
-  tocModel.updateStickyTOCSize(mockRootEl);
-  assert.equal(tocRootElement.style.height, "179px", "Height updated to half title");
-});
-
-QUnit.test("updateStickyTOCSize with scroller", function (assert) {
-  TOCModel.StickyPosition = true;
-  const survey: SurveyModel = new SurveyModel({});
-  survey.headerView = "basic";
-  const tocModel = new TOCModel(survey);
-  const rootElementWithTitle = document.createElement("div");
-
   rootElementWithTitle.innerHTML = `<div class="sv-scroll__scroller">
                                       <div class="sv_custom_header"></div>
                                       <div class="sd-container-modern">

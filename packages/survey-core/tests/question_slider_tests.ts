@@ -351,6 +351,21 @@ QUnit.test("ensureMinRangeBorders", (assert) => {
   assert.deepEqual(newValue, 51);
 });
 
+QUnit.test("ensureMinRangeBorders - allowSwap:false", (assert) => {
+  const q1 = new QuestionSliderModel("q1");
+  q1.allowSwap = false;
+  q1.value = [10, 20, 30];
+
+  let newValue = q1.ensureMinRangeBorders(31, 1);
+  assert.deepEqual(newValue, 20, "can't cross next value");
+
+  newValue = q1.ensureMinRangeBorders(10, 1);
+  assert.deepEqual(newValue, 20, "can't cross prev value");
+
+  newValue = q1.ensureMinRangeBorders(31, 2);
+  assert.deepEqual(newValue, 31, "valid change");
+});
+
 QUnit.test("getRenderedValue", (assert) => {
   let json:any = {
     elements: [

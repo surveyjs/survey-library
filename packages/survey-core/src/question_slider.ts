@@ -193,7 +193,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public ensureMinRangeBorders = (newValue:number, inputNumber):number => {
-    const { renderedminRangeLength, getRenderedValue } = this;
+    const { renderedminRangeLength, getRenderedValue, allowSwap, min, max } = this;
     const value:number[] = getRenderedValue();
     const oldValue = value[inputNumber];
 
@@ -205,6 +205,14 @@ export class QuestionSliderModel extends Question {
       if (Math.abs(value[i] - value[i + 1]) < renderedminRangeLength) {
         isOutOfRange = true;
         break;
+      }
+    }
+
+    if (!allowSwap) {
+      const prevValue = inputNumber > 0 ? value[inputNumber - 1] : min;
+      const nextValue = inputNumber < value.length - 1 ? value[inputNumber + 1] : max;
+      if (newValue <= prevValue || newValue >= nextValue) {
+        isOutOfRange = true;
       }
     }
 

@@ -199,15 +199,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     renderedValue.sort((a, b)=>a - b);
 
-    if (allowSwap) {
-      for (let i = 0; i < value.length - 1; i++) {
-        if (Math.abs(value[i] - value[i + 1]) < renderedminRangeLength) {
-          renderedValue = this.oldValue;
-          break;
-        }
-      }
-    }
-
     this.question.focusedThumb = renderedValue.indexOf(focusedThumbValue);
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
@@ -216,6 +207,16 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
         input.step = step;
       }
     }
+
+    if (allowSwap) {
+      for (let i = 0; i < renderedValue.length - 1; i++) {
+        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedminRangeLength) {
+          renderedValue = this.oldValue;
+          break;
+        }
+      }
+    }
+
     this.setSliderValue(renderedValue);
     this.refreshInputRange();
     this.oldValue = null;

@@ -8254,12 +8254,12 @@ export class SurveyModel extends SurveyElementCore
         }
       } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
         if (container === "contentTop") {
-          if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+          if (this.isNavigationButtonsShowingOnTop) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if (container === "contentBottom") {
-          if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+          if (this.isNavigationButtonsShowingOnBottom) {
             containerLayoutElements.push(layoutElement);
           }
         }

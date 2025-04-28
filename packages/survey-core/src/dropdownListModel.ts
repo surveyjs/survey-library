@@ -460,7 +460,7 @@ export class DropdownListModel extends Base {
   }
 
   public get placeholderRendered() {
-    return this.hintString ? "" : this.question.readOnlyText;
+    return (this.hintString || this.question.readOnly || !this.question.isEmpty()) ? "" : this.question.placeholder;
   }
 
   public get listElementId(): string {

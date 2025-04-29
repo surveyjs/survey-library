@@ -386,11 +386,11 @@ QUnit.test("readOnlyText default", assert => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   assert.equal(question.readOnlyText, "click", "use place-holder");
   question.value = "other";
-  assert.equal(question.readOnlyText, "", "use other");
+  assert.equal(question.readOnlyText, "Other (describe)", "use other");
   question.value = "none";
-  assert.equal(question.readOnlyText, "", "use none text");
+  assert.equal(question.readOnlyText, "None", "use none text");
   question.value = 2;
-  assert.equal(question.readOnlyText, "", "use choice text");
+  assert.equal(question.readOnlyText, "item 2", "use choice text");
 });
 QUnit.test("readOnlyText visibleChoices changed", assert => {
   const json = {
@@ -425,8 +425,8 @@ QUnit.test("readOnlyText visibleChoices changed", assert => {
   survey.data = { "q1": "Item 1", "q2": "Item 1" };
 
   const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
-  assert.equal(q2.readOnlyText, "");
-  assert.equal(q2.selectedItem.id, "Item 1");
+  assert.equal(q2.readOnlyText, "Item 1", "readOnlyText");
+  assert.equal(q2.selectedItem.id, "Item 1", "selectedItem.id");
 });
 QUnit.test("readOnlyText render as select", assert => {
   const json = {
@@ -1085,11 +1085,11 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-  assert.equal(question.readOnlyText, "Select...");
+  assert.equal(question.readOnlyText, "Select...", "readOnlyText #1");
   question.value = "i3";
-  assert.equal(question.readOnlyText, "Select...");
+  assert.equal(question.readOnlyText, "Select...", "readOnlyText #2");
   question.choices = ["i1", "i2", "i3"];
-  assert.equal(question.readOnlyText, "");
+  assert.equal(question.readOnlyText, "i3", "readOnlyText #3");
 });
 
 QUnit.test("min page size", assert => {

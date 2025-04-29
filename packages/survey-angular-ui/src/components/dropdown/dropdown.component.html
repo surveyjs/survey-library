@@ -50,8 +50,7 @@
     [attr.aria-label]="model.a11y_input_ariaLabel"
     [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
     [attr.aria-describedby]="model.a11y_input_ariaDescribedBy">
-        <sv-ng-string *ngIf="model.selectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
-        <div>{{ model.readOnlyText }}</div>
+        <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
     </div>
     <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)" aria-hidden="true">
         <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>

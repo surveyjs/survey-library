@@ -87,7 +87,7 @@
     <SvComponent
       :is="'sv-popup'"
       v-if="!question.isReadOnly"
-      :model="question.dropdownListModel.popupModel"
+      :model="model.popupModel"
     ></SvComponent>
     <div
       v-else
@@ -100,10 +100,9 @@
     >
       <SvComponent
         :is="'survey-string'"
-        v-if="question.selectedItemLocText"
-        :locString="question.selectedItemLocText"
+        v-if="question.locReadOnlyText"
+        :locString="question.locReadOnlyText"
       />
-      <div>{{ question.readOnlyText }}</div>
     </div>
     <div
       :class="question.cssClasses.chevronButton"

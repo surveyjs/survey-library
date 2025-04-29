@@ -19,29 +19,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModelValue: DropdownListModel;
   lastSelectedItemValue: ItemValue = null;
 
-  updateReadOnlyText(): void {
-    let result = !!this.selectedItem ? "" : this.placeholder;
-    if(this.renderAs == "select") {
-      if (this.isOtherSelected) {
-        result = this.otherText;
-      } else if (this.isNoneSelected) {
-        result = this.noneText;
-      } else if (!!this.selectedItem) {
-        result = this.selectedItemText;
-      }
-    }
-    this.readOnlyText = result;
-  }
-
   constructor(name: string) {
     super(name);
     this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
+    this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
+      this.getSingleSelectedItem();
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();
@@ -49,6 +37,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.updateReadOnlyText();
+    this.updateInputPlaceholder(this.placeholder);
+  }
+  private updateReadOnlyText(): void {
+    this.readOnlyText = this.calculateReadOnlyText();
+  }
+  private updateInputPlaceholder(val: string) {
+    if (!!this.dropdownListModelValue) {
+      this.dropdownListModel.setInputPlaceholder(val);
+    }
   }
   public get showOptionsCaption(): boolean {
     return this.allowClear;
@@ -73,7 +70,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
+    this.updateInputPlaceholder(val);
   }
+
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
   }
@@ -229,7 +228,25 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
-  @property({ defaultValue: "" }) readOnlyText: string;
+
+  public get readOnlyText(): string {
+    return this.getLocalizableStringText("readOnlyText");
+  }
+  public set readOnlyText(val: string) {
+    this.setLocalizableStringText("readOnlyText", val);
+  }
+  get locReadOnlyText(): LocalizableString {
+    return this.getLocalizableString("readOnlyText");
+  }
+  protected calculateReadOnlyText(): string {
+    if (this.renderAs == "select") {
+      if (this.isOtherSelected) return this.otherText;
+      if (this.isNoneSelected) return this.noneText;
+      if (!!this.selectedItem) return this.selectedItemText;
+    }
+    return !!this.selectedItem ? this.selectedItemText : this.placeholder;
+  }
+
   /**
    * Enables lazy loading. If you set this property to `true`, you should implement the Survey's [`onChoicesLazyLoad`](https://surveyjs.io/form-library/documentation/surveymodel#onChoicesLazyLoad) event handler.
    * @see choicesLazyLoadPageSize

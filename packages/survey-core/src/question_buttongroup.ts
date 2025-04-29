@@ -41,6 +41,20 @@ export class ButtonGroupItemValue extends ItemValue {
 export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
+    this.createLocalizableString("buttongroupOptionsCaption", this, false, true);
+    this.createLocalizableString("readOnlyText", this, true);
+    this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
+      this.updateReadOnlyText();
+    });
+    this.updateReadOnlyText();
+  }
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.updateReadOnlyText();
+    this.dropdownListModelValue?.locStrsChanged();
+  }
+  private updateReadOnlyText(): void {
+    this.readOnlyText = this.displayValue || this.placeholder;
   }
   public getType(): string {
     return "buttongroup";

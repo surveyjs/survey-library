@@ -359,8 +359,9 @@ export class DropdownListModel extends Base {
     }
   }
 
+  @property() inputPlaceholder: string;
   public get placeholderRendered() {
-    return this.hintString ? "" : this.question.readOnlyText;
+    return (this.hintString || this.question.readOnly || !this.question.isEmpty()) ? "" : this.inputPlaceholder;
   }
 
   public get listElementId(): string {
@@ -418,6 +419,7 @@ export class DropdownListModel extends Base {
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
     this.setChoicesLazyLoadEnabled(this.question.choicesLazyLoadEnabled);
+    this.setInputPlaceholder(this.question.placeholder);
     this.setSearchEnabled(this.question.searchEnabled);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
@@ -449,6 +451,10 @@ export class DropdownListModel extends Base {
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {
     this.listModel.setOnFilterStringChangedCallback(newValue ? this.listModelFilterStringChanged : undefined);
+  }
+
+  public setInputPlaceholder(newValue: string): void {
+    this.inputPlaceholder = newValue;
   }
 
   public updateItems(): void {

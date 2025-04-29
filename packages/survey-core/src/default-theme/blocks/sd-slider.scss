@@ -174,6 +174,9 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   background: var(--lbr-slider-thumb-dot-color, $primary);
   width: var(--lbr-slider-thumb-dot-width, calcSize(1.5));
   height: var(--lbr-slider-thumb-dot-height, calcSize(1.5));
+  transition:
+    width $transition-duration,
+    height $transition-duration;
 }
 
 .sd-slider__tooltip {
@@ -191,6 +194,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   flex-direction: column;
   user-select: none;
   border-radius: var(--lbr-tooltip-corder-radius, calcSize(0.5));
+  transition: opacity $transition-duration;
 }
 
 .sd-slider__tooltip-panel {

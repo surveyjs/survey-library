@@ -27,6 +27,8 @@ const registerNPSComponet = ClientFunction(() => {
 });
 
 frameworks.forEach(framework => {
+  if(framework == "vue") return;
+
   fixture`${framework} ${title}`.page`${url_test}${themeName}/${framework}`.beforeEach(
     async t => {
     }

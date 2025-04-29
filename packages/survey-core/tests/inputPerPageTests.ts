@@ -6,7 +6,8 @@ import { QuestionRatingModel } from "../src/question_rating";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionSingleInputSummary } from "../src/questionSingleInputSummary";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
-import { add } from "lodash";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Input Per Page Tests");
@@ -1646,4 +1647,47 @@ QUnit.test("ratingItem small mode", assert => {
   });
   assert.equal(survey.currentSingleQuestion.singleInputQuestion.getType(), "rating");
   assert.notOk((survey.currentSingleQuestion.singleInputQuestion as QuestionRatingModel).itemSmallMode);
+});
+QUnit.test("checkbox vs matrixdropdown", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "products",
+        choices: ["form-library", "survey-creator", "dashboard", "pdf-generator"]
+      },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rowsVisibleIf: "{products} contains {item}",
+        columns: [
+          {
+            name: "nps",
+            cellType: "rating"
+          },
+          {
+            name: "valued-features",
+            cellType: "comment"
+          }
+        ],
+        rows: ["form-library", "survey-creator", "dashboard", "pdf-generator"],
+        hideIfRowsEmpty: true
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("products");
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  checkbox.value = ["form-library", "survey-creator"];
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "matrix", "currentSingleQuestion is matrix, #1");
+  assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #1");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "form-library", "matrix.singleInputLocTitle.textOrHtml, #1");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "products", "currentSingleQuestion is products, #2");
+  checkbox.value = ["survey-creator", "dashboard"];
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "matrix", "currentSingleQuestion is matrix, #3");
+  assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #3");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "survey-creator", "matrix.singleInputLocTitle.textOrHtml, #3");
 });

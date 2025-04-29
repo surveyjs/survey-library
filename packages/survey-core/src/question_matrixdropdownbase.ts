@@ -2730,6 +2730,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void {
     this.clearVisibleRows();
     this.resetRenderedTable();
+    this.resetSingleInput();
   }
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);

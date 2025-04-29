@@ -4506,7 +4506,7 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
 QUnit.test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop, navigationButtonsLocation is `topBottom`, Bug#9812", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "question1" }],
-    navigationButtonsLocation: "topBottom",
+    showNavigationButtons: "both",
   });
   assert.equal(survey.isNavigationButtonsShowingOnBottom, true, "isNavigationButtonsShowingOnBottom is true");
   assert.equal(survey.isNavigationButtonsShowingOnTop, true, "isNavigationButtonsShowingOnTop is true");

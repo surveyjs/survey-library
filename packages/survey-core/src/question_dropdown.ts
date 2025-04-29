@@ -37,9 +37,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.updateReadOnlyText();
+    this.updateInputPlaceholder(this.placeholder);
   }
   private updateReadOnlyText(): void {
     this.readOnlyText = this.calculateReadOnlyText();
+  }
+  private updateInputPlaceholder(val: string) {
+    if (!!this.dropdownListModelValue) {
+      this.dropdownListModel.setInputPlaceholder(val);
+    }
   }
   public get showOptionsCaption(): boolean {
     return this.allowClear;
@@ -64,10 +70,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModel.setInputPlaceholder(val);
-    }
+    this.updateInputPlaceholder(val);
   }
+
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
   }

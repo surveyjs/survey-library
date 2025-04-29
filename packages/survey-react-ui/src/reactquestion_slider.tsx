@@ -35,7 +35,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
         {rangeInput}
-        <div className={cssClasses.visualContainer} onPointerUp={ (e)=>{ this.setValueByClick(e); }}>
+        <div className={cssClasses.visualContainer} onPointerUp={ (e)=>{ this.setValueByClickOnPath(e); }}>
           <div className={cssClasses.visualContainerSlider}>
             <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
             <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
@@ -128,7 +128,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
 
       const label = <React.Fragment key={"label-" + i}>
-        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLongMod : ""}`} style={{ left: position + "%" }}>
+        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLongMod : ""}`}
+          style={{ left: position + "%" }} onPointerUp={ (e)=>{ this.handleLabelPointerUp(e, labelText); } }>
           <div className={cssClasses.labelTick}></div>
           <div className={cssClasses.labelText}>
             {labelFormat.replace("{0}", "" + labelText)}
@@ -224,11 +225,23 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     this.oldValue = null;
   };
 
-  private setValueByClick = (event: React.PointerEvent<HTMLDivElement>) => {
-    const { renderedMax: max, renderedMin: min, step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
+  private setValueByClickOnPath = (event: React.PointerEvent<HTMLDivElement>) => {
+    const { renderedMax: max, renderedMin: min } = this.question;
 
     const percent = ((event.clientX - this.control.getBoundingClientRect().x) / this.control.getBoundingClientRect().width) * 100;
     let newValue = Math.round(percent / 100 * (max - min) + min);
+
+    this.setValueByClick(newValue);
+  };
+
+  private handleLabelPointerUp = (event: React.PointerEvent<HTMLDivElement>, labelText: string) => {
+    const newValue = +labelText;
+    if (isNaN(newValue)) return;
+    this.setValueByClick(newValue);
+  };
+
+  private setValueByClick = (newValue: number) => {
+    const { step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
 
     const renderedValue = getRenderedValue();
     let thumbIndex = 0;
@@ -325,7 +338,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "0px");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
-    this.setValueByClick(event);
+    this.setValueByClickOnPath(event);
   }
 
   private handleRangeOnChange = (event: React.ChangeEvent<HTMLInputElement>): void => {

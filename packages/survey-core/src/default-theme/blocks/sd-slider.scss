@@ -237,13 +237,11 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 
 .sd-slider-labels-container {
   user-select: none;
-  pointer-events: none;
   margin-left: calcSize(0.5 + 1);
   margin-right: calcSize(0.5 + 1);
 
   > div {
     user-select: none;
-    pointer-events: none;
     position: relative;
     display: flex;
     align-items: center;
@@ -253,7 +251,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 
 .sd-slider__label {
   user-select: none;
-  pointer-events: none;
+  cursor: pointer;
   color: $foreground;
   position: absolute;
   width: $slider-thumb-width;

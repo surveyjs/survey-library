@@ -88,10 +88,9 @@
       :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()">
       <survey-string
-        v-if="selectedItemLocText"
-        :locString="selectedItemLocText"
+        v-if="locReadOnlyText"
+        :locString="locReadOnlyText"
       />
-      <div>{{ question.readOnlyText }}</div>
     </div>
     <div
       :class="question.cssClasses.chevronButton"
@@ -131,7 +130,8 @@ export class DropdownComponent extends BaseVue {
     this.model.inputStringRendered = event.target.value;
   }
   showSelectedItemLocText: any = null;
-  selectedItemLocText: any = false;
+  selectedItemLocText: any = undefined;
+  locReadOnlyText: any = undefined;
 
   public click(event: any) {
     this.model?.onClick(event);
@@ -172,6 +172,7 @@ export class DropdownComponent extends BaseVue {
   private updateSelectedItemProperties() {
     this.showSelectedItemLocText = this.question.showSelectedItemLocText;
     this.selectedItemLocText = this.question.selectedItemLocText;
+    this.locReadOnlyText = this.question.locReadOnlyText;
   }
   onCreated(): void {
     this.updateSelectedItemProperties();

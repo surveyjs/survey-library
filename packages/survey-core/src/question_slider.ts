@@ -72,6 +72,7 @@ export class QuestionSliderModel extends Question {
       .append(this.cssClasses.rootSingleMode, this.sliderType === "single")
       .append(this.cssClasses.rootNegativeScaleMode, this.isNegativeScale)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
+      .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
       .toString();
   }
 
@@ -102,7 +103,8 @@ export class QuestionSliderModel extends Question {
   public get isNegativeScale():boolean {
     return this.renderedMin < 0;
   }
-  @property({ defaultValue: null }) focusedThumb: number | null; // TODO probably need to be just internal not property
+  @property({ defaultValue: null }) focusedThumb: number | null;
+  @property({ defaultValue: null }) animatedThumb: boolean | null;
   public dragOrClickHelper: DragOrClickHelper;
 
   public getRenderedValue = ():number[] => {

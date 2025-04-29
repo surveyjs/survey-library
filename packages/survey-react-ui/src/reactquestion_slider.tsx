@@ -192,6 +192,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     }
     const value = this.question.value;
     this.oldValue = Array.isArray(value) ? value.slice() : value;
+    this.question.animatedThumb = false;
   };
 
   private handlePointerUp = (e, inputNumber:number) => {
@@ -242,6 +243,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private setValueByClick = (newValue: number) => {
     const { step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue } = this.question;
+
+    this.question.animatedThumb = true;
 
     const renderedValue = getRenderedValue();
     let thumbIndex = 0;
@@ -304,6 +307,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const { renderedMax: max, renderedMin: min } = this.question;
 
     this.isRangeMoving = true;
+    this.question.animatedThumb = false;
 
     const inputNode = this.rangeInputRef.current;
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");
@@ -373,6 +377,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private handleKeyDown = (e)=> {
     this.oldValue = this.question.getRenderedValue();
+    this.question.animatedThumb = true;
   };
 
   private handleKeyUp = (e)=> {

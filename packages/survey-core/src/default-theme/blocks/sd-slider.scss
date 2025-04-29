@@ -615,3 +615,16 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
     }
   }
 }
+
+.sd-slider--animated-thumb-mode {
+  .sd-slider__thumb-container {
+    transition: left $transition-duration;
+  }
+
+  .sd-slider__track {
+    transition:
+      left $transition-duration,
+      right $transition-duration,
+      width $transition-duration;
+  }
+}

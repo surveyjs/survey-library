@@ -130,7 +130,7 @@
 }
 
 .sd-dropdown--empty {
-  div {
+  & > * {
     min-height: multiply(1.5, $font-editorfont-size);
   }
 }

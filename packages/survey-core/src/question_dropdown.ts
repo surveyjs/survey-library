@@ -64,6 +64,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public set placeholder(val: string) {
     this.setLocalizableStringText("placeholder", val);
+    if (!!this.dropdownListModelValue) {
+      this.dropdownListModel.setInputPlaceholder(val);
+    }
   }
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");

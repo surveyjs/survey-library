@@ -1,18 +1,21 @@
 @use "../variables.scss" as *;
 
-$slider-path-height: var(--lbr-slider-path-height, calcSize(0.5));
-$slider-path-color: var(--lbr-slider-path-color, $border-light);
-$slider-path-color-filled: var(--lbr-slider-path-color-filled, $primary);
-$slider-thumb-width: var(--lbr-slider-thumb-width, calcSize(4));
-$slider-thumb-height: var(--lbr-slider-thumb-height, calcSize(4));
-$slider-thumb-color: var(--lbr-slider-thumb-color, $question-background);
-$slider-tooltip-pointer-width: var(--lbr-tooltip-pointer-width, calcSize(1.5));
-$slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75));
+:root {
+  --sjs-postcss-fix-slider-path-height: var(--lbr-slider-path-height, #{calcSize(0.5)});
+  --sjs-postcss-fix-slider-path-color: var(--lbr-slider-path-color, #{$border-light});
+  --sjs-postcss-fix-slider-path-color-filled: var(--lbr-slider-path-color-filled, #{$primary});
+  --sjs-postcss-fix-slider-thumb-width: var(--lbr-slider-thumb-width, #{calcSize(4)});
+  --sjs-postcss-fix-slider-thumb-height: var(--lbr-slider-thumb-height, #{calcSize(4)});
+  --sjs-postcss-fix-slider-thumb-color: var(--lbr-slider-thumb-color, #{$question-background});
+  --sjs-postcss-fix-slider-tooltip-pointer-width: var(--lbr-tooltip-pointer-width, #{calcSize(1.5)});
+  --sjs-postcss-fix-slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, #{calcSize(0.75)});
+  --sjs-postcss-fix-slider-path-height-preview: var(--lbr-slider-path-height-preview, #{calcSize(0.125)});
+}
 
 @mixin outrangePath {
   position: absolute;
   content: "";
-  height: $slider-path-height;
+  height: var(--sjs-postcss-fix-slider-path-height);
   width: calcSize(1);
 }
 
@@ -45,12 +48,9 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   // }
 }
 
-.sd-slider--single {
-}
-
 .sd-slider-container {
   position: relative;
-  min-height: $slider-thumb-height;
+  min-height: var(--sjs-postcss-fix-slider-thumb-height);
   cursor: pointer;
   margin-left: calcSize(0.5 + 1);
   margin-right: calcSize(0.5 + 1);
@@ -62,15 +62,15 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 
 .sd-slider__track {
   position: absolute;
-  height: $slider-path-height;
-  top: calc($slider-thumb-height / 2 - $slider-path-height / 2);
+  height: var(--sjs-postcss-fix-slider-path-height);
+  top: calc(var(--sjs-postcss-fix-slider-thumb-height) / 2 - var(--sjs-postcss-fix-slider-path-height) / 2);
 }
 
 .sd-slider__inverse-track {
-  background: $slider-path-color;
+  background: var(--sjs-postcss-fix-slider-path-color);
   &::after,
   &::before {
-    background: $slider-path-color;
+    background: var(--sjs-postcss-fix-slider-path-color);
   }
 }
 
@@ -92,30 +92,30 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 
 .sd-slider__range-track {
   left: 0;
-  background: $slider-path-color-filled;
+  background: var(--sjs-postcss-fix-slider-path-color-filled);
 
   &::before {
     @include leftOutrangePath;
-    background: $slider-path-color-filled;
+    background: var(--sjs-postcss-fix-slider-path-color-filled);
   }
 
   &::after {
     @include rightOutrangePath;
-    background: $slider-path-color-filled;
+    background: var(--sjs-postcss-fix-slider-path-color-filled);
   }
 }
 
 .sd-slider__thumb-container {
   position: absolute;
-  margin-left: calc($slider-thumb-width / -2);
+  margin-left: calc(var(--sjs-postcss-fix-slider-thumb-width) / -2);
   z-index: 2;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
-  width: $slider-thumb-width;
-  height: $slider-thumb-height;
+  width: var(--sjs-postcss-fix-slider-thumb-width);
+  height: var(--sjs-postcss-fix-slider-thumb-height);
   border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
 }
 
@@ -159,13 +159,13 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   align-items: center;
 
   border-radius: var(--lbr-slider-thumb-corner-radius, 1024px);
-  background: $slider-thumb-color;
+  background: var(--sjs-postcss-fix-slider-thumb-color);
   box-shadow: var(--lbr-slider-thumb-shadow-offset-x, 0px) var(--lbr-slider-thumb-shadow-offset-y, 1px)
     var(--lbr-slider-thumb-shadow-blur, 2px) var(--lbr-slider-thumb-shadow-spread, 0px)
     var(--lbr-slider-thumb-shadow-color, rgba(0, 0, 0, 0.15));
 
   //  box-sizing: border-box;
-  //  border: var(--lbr-slider-thumb-border-width-focused, 2px) solid $slider-thumb-color;
+  //  border: var(--lbr-slider-thumb-border-width-focused, 2px) solid var(--sjs-postcss-fix-slider-thumb-color);
 }
 
 .sd-slider__thumb-dot {
@@ -182,7 +182,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 .sd-slider__tooltip {
   opacity: 1;
   position: absolute;
-  bottom: calc(100% + $slider-tooltip-pointer-height);
+  bottom: calc(100% + var(--sjs-postcss-fix-slider-tooltip-pointer-height));
   box-shadow:
     var(--lbr-tooltip-shadow-2-offset-x, 0px) var(--lbr-tooltip-shadow-2-offset-y, 1px)
       var(--lbr-tooltip-shadow-2-blur, 2px) var(--lbr-tooltip-shadow-2-spread, 0px)
@@ -208,8 +208,8 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
 
   &::after {
     content: " ";
-    width: calc($slider-tooltip-pointer-height * 1.41);
-    height: calc($slider-tooltip-pointer-height * 1.41);
+    width: calc(var(--sjs-postcss-fix-slider-tooltip-pointer-height) * 1.41);
+    height: calc(var(--sjs-postcss-fix-slider-tooltip-pointer-height) * 1.41);
     background: var(--lbr-tooltip-background-color, $question-background);
     position: absolute;
     box-shadow:
@@ -219,10 +219,13 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
       var(--ctr-tooltip-shadow-2-offset-x, 0px) var(--ctr-tooltip-shadow-2-offset-y, 1px)
         var(--ctr-tooltip-shadow-2-blur, 2px) var(--ctr-tooltip-shadow-2-spread, 0px)
         var(--ctr-tooltip-shadow-2-color, var(--sjs-special-shadow, #00000040));
-    bottom: calc($slider-tooltip-pointer-height * 1.41 / -1);
-    left: calc(50% - $slider-tooltip-pointer-height * 1.41);
+    bottom: calc(var(--sjs-postcss-fix-slider-tooltip-pointer-height) * 1.41 / -1);
+    left: calc(50% - var(--sjs-postcss-fix-slider-tooltip-pointer-height) * 1.41);
     clip-path: polygon(-100% -100%, -100% 200%, 200% 200%);
-    transform: translate(calc($slider-tooltip-pointer-height / 1.41), calc($slider-tooltip-pointer-height / -1.41))
+    transform: translate(
+        calc(var(--sjs-postcss-fix-slider-tooltip-pointer-height) / 1.41),
+        calc(var(--sjs-postcss-fix-slider-tooltip-pointer-height) / -1.41)
+      )
       rotate(-45deg);
   }
 }
@@ -249,7 +252,7 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
     position: relative;
     display: flex;
     align-items: center;
-    min-height: $slider-thumb-height;
+    min-height: var(--sjs-postcss-fix-slider-thumb-height);
   }
 }
 
@@ -258,12 +261,12 @@ $slider-tooltip-pointer-height: var(--lbr-tooltip-pointer-height, calcSize(0.75)
   cursor: pointer;
   color: $foreground;
   position: absolute;
-  width: $slider-thumb-width;
+  width: var(--sjs-postcss-fix-slider-thumb-width);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--lbr-slider-label-gap, calcSize(0.5));
-  margin-left: calc($slider-thumb-width / -2);
+  margin-left: calc(var(--sjs-postcss-fix-slider-thumb-width) / -2);
 }
 
 .sd-slider__label--long {
@@ -297,7 +300,7 @@ input[type="range"].sd-slider__input {
   pointer-events: none;
   -webkit-appearance: none;
   z-index: 4;
-  height: $slider-thumb-height;
+  height: var(--sjs-postcss-fix-slider-thumb-height);
   top: 0;
   width: 100%;
   opacity: 0;
@@ -321,13 +324,13 @@ input[type="range"].sd-slider__input:focus::-webkit-slider-runnable-track {
 }
 
 input[type="range"].sd-slider__input::-webkit-slider-runnable-track {
-  margin: 0 calc($slider-thumb-width / -2);
-  height: $slider-path-height;
+  margin: 0 calc(var(--sjs-postcss-fix-slider-thumb-width) / -2);
+  height: var(--sjs-postcss-fix-slider-path-height);
 }
 
 input[type="range"].sd-slider__input::-moz-range-track {
-  margin: 0 calc($slider-thumb-width / -2);
-  height: $slider-path-height;
+  margin: 0 calc(var(--sjs-postcss-fix-slider-thumb-width) / -2);
+  height: var(--sjs-postcss-fix-slider-path-height);
 }
 
 input[type="range"].sd-slider__input:focus {
@@ -337,7 +340,7 @@ input[type="range"].sd-slider__input:focus {
 input[type="range"].sd-slider__input::-webkit-slider-thumb {
   pointer-events: all;
   height: 67px;
-  width: $slider-thumb-width;
+  width: var(--sjs-postcss-fix-slider-thumb-width);
   border-radius: 0px;
   border: 0 none;
   background: $primary;
@@ -348,14 +351,14 @@ input[type="range"].sd-slider__input::-webkit-slider-thumb {
 }
 
 input[type="range"][name="range-input"].sd-slider__input::-webkit-slider-thumb {
-  height: $slider-thumb-height;
+  height: var(--sjs-postcss-fix-slider-thumb-height);
   top: 0;
 }
 
 input[type="range"].sd-slider__input::-moz-range-thumb {
   pointer-events: all;
   height: 75px;
-  width: $slider-thumb-width;
+  width: var(--sjs-postcss-fix-slider-thumb-width);
   border-radius: 0px;
   border: 0 none;
   background: $primary;
@@ -366,7 +369,7 @@ input[type="range"].sd-slider__input::-moz-range-thumb {
 }
 
 input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
-  height: $slider-thumb-height;
+  height: var(--sjs-postcss-fix-slider-thumb-height);
   top: 0;
 }
 
@@ -472,8 +475,19 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 }
 
 .sd-question--preview {
+  .sd-slider--single {
+    .sd-slider__inverse-track--left {
+      &::before {
+        background: var(--lbr-slider-path-color-filled-preview, $foreground);
+      }
+    }
+
+    &.sd-slider--negative-scale {
+    }
+  }
+
   .sd-slider__track {
-    top: calc($slider-thumb-height / 2 - var(--lbr-slider-path-height-preview, calcSize(0.125)) / 2);
+    top: calc(var(--sjs-postcss-fix-slider-thumb-height) / 2 - var(--sjs-postcss-fix-slider-path-height-preview) / 2);
   }
 
   .sd-slider__input {
@@ -506,32 +520,26 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   }
 
   .sd-slider__inverse-track {
-    height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+    height: var(--sjs-postcss-fix-slider-path-height-preview);
     background: var(--lbr-slider-path-color-preview, $border-light);
     &::after,
     &::before {
-      height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+      height: var(--sjs-postcss-fix-slider-path-height-preview);
       background: var(--lbr-slider-path-color-preview, $border-light);
     }
   }
 
-  .sd-slider__inverse-track--left {
-    &::before {
-      background: var(--lbr-slider-path-color-filled-preview, $foreground);
-    }
-  }
-
   .sd-slider__range-track {
-    height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+    height: var(--sjs-postcss-fix-slider-path-height-preview);
     background: var(--lbr-slider-path-color-filled-preview, $foreground);
 
     &::before {
-      height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+      height: var(--sjs-postcss-fix-slider-path-height-preview);
       display: none;
     }
 
     &::after {
-      height: var(--lbr-slider-path-height-preview, calcSize(0.125));
+      height: var(--sjs-postcss-fix-slider-path-height-preview);
       display: none;
     }
   }

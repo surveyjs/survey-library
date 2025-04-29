@@ -38,12 +38,15 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     return this.questionBase.renderedValue;
   }
   protected renderReadOnlyElement(): React.JSX.Element | null {
-    return <div>{this.question.readOnlyText}</div>;
+    if (this.question.locReadOnlyText) {
+      return this.renderLocString(this.question.locReadOnlyText);
+    } else {
+      return null;
+    }
   }
   protected renderSelect(cssClasses: any): React.JSX.Element {
     let selectElement: React.JSX.Element | null = null;
     if (this.question.isReadOnly) {
-      const text = (this.question.selectedItemLocText) ? this.renderLocString(this.question.selectedItemLocText) : "";
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       selectElement = <div id={this.question.inputId}
@@ -53,7 +56,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         tabIndex={this.question.isDisabledAttr ? undefined : 0}
         className={this.question.getControlClass()}
         ref={(div) => (this.setControl(div))}>
-        {text}
         {this.renderReadOnlyElement()}
       </div>;
     } else {

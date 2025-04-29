@@ -710,6 +710,7 @@ export var defaultCss = {
     labelLongMod: "sd-slider__label--long",
     labelTick: "sd-slider__label-tick",
     labelText: "sd-slider__label-text",
+    clearButton: "",
   },
   comment: {
     root: "sd-input sd-comment",

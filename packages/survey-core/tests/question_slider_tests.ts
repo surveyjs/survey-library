@@ -573,3 +573,32 @@ QUnit.test("min>max", (assert) => {
   assert.deepEqual(q1.renderedMin, 0, "min is default");
   assert.deepEqual(q1.renderedMax, 100, "max is default");
 });
+
+QUnit.test("allowClear", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        allowClear: true
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(q1.allowClear, true, "allowClear is set");
+
+  json = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1"
+      }
+    ]
+  };
+  survey = new SurveyModel(json);
+  q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(q1.allowClear, false, "allowClear is false by default");
+});

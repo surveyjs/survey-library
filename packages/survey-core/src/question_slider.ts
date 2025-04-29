@@ -1,3 +1,5 @@
+import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -53,6 +55,12 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   @property({ defaultValue: true }) allowSwap: boolean;
+  /**
+   * Specifies whether to display a button that clears the question value.
+   *
+   * Default value: `false`
+   */
+  @property({ defaultValue: false }) allowClear: boolean;
 
   constructor(name: string) {
     super(name);
@@ -291,6 +299,23 @@ export class QuestionSliderModel extends Question {
       this.isIndeterminate = false;
     }
   }
+
+  protected getDefaultTitleActions(): Array<Action> {
+    const actions = [];
+    if (!this.isDesignMode) {
+      const clearAction = new Action(
+        {
+          locTitleName: "clearCaption",
+          id: `sv-clr-btn-${this.id}`,
+          action: () => { this.clearValue(true); },
+          innerCss: this.cssClasses.clearButton,
+          visible: <any>new ComputedUpdater(() => this.allowClear && !this.isReadOnly)
+        }
+      );
+      actions.push(clearAction);
+    }
+    return actions;
+  }
 }
 
 Serializer.addClass(
@@ -432,6 +457,12 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.autoGenerate;
       },
+    },
+    {
+      name: "allowClear:boolean",
+      category: "sliderSettings",
+      visibleIndex: 20,
+      default: false,
     },
   ],
   function () {

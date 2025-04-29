@@ -4498,6 +4498,23 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
     "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #top"
   );
 });
+QUnit.test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop, navigationButtonsLocation is `topBottom`, Bug#9812", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "question1" }],
+    navigationButtonsLocation: "topBottom",
+  });
+  assert.equal(survey.isNavigationButtonsShowingOnBottom, true, "isNavigationButtonsShowingOnBottom is true");
+  assert.equal(survey.isNavigationButtonsShowingOnTop, true, "isNavigationButtonsShowingOnTop is true");
+  const getContainerContent = getContainerContentFunction(survey);
+  assert.deepEqual(getContainerContent("contentTop"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "nav both contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "nav both contentBottom");
+});
 
 QUnit.test("simple condition test", function (assert) {
   var survey = new SurveyModel({

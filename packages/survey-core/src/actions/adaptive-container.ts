@@ -7,7 +7,7 @@ import { getLocaleString } from "../surveyStrings";
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
 
-  private responsivityManager: ResponsivityManager;
+  protected responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;
 
@@ -140,6 +140,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.updateItemMode(options.availableSpace, maxSize);
     }
   }
+  protected createResponsivityManager(container: HTMLDivElement): ResponsivityManager {
+    return new ResponsivityManager(
+      container, this,
+    );
+  }
   public initResponsivityManager(container: HTMLDivElement): void {
     if (!!this.responsivityManager) {
       if (this.responsivityManager.container == container) {
@@ -147,9 +152,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       }
       this.responsivityManager.dispose();
     }
-    this.responsivityManager = new ResponsivityManager(
-      container, this,
-    );
+    this.responsivityManager = this.createResponsivityManager(container);
   }
   public resetResponsivityManager(): void {
     if (!!this.responsivityManager) {

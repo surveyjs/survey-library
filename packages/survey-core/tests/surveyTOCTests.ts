@@ -481,14 +481,16 @@ QUnit.test("updateStickyTOCSize", function (assert) {
   const tocModel = new TOCModel(survey);
   const rootElementWithTitle = document.createElement("div");
 
-  rootElementWithTitle.innerHTML = `<div class="sv_custom_header"></div>
-                                    <div class="sd-container-modern">
-                                      <div class="sd-title sd-container-modern__title"></div>
-                                      <div class="sv-components-row">
-                                        <div class="sv-components-column">
-                                          <div class="sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky"></div>
-                                        </div>
-                                        <div class="sv-components-column">
+  rootElementWithTitle.innerHTML = `<div class="sv-scroll__scroller">
+                                      <div class="sv_custom_header"></div>
+                                      <div class="sd-container-modern">
+                                        <div class="sd-title sd-container-modern__title"></div>
+                                        <div class="sv-components-row">
+                                          <div class="sv-components-column">
+                                            <div class="sv_progress-toc sv_progress-toc--left sv_progress-toc--sticky"></div>
+                                          </div>
+                                          <div class="sv-components-column">
+                                          </div>
                                         </div>
                                       </div>
                                     </div>`;
@@ -499,6 +501,18 @@ QUnit.test("updateStickyTOCSize", function (assert) {
   const tocRootElement = rootElementWithTitle.querySelector(".sv_progress-toc") as HTMLDivElement;
   assert.equal(tocRootElement.style.height, "", "No height set");
 
+  const scrollElement = rootElementWithTitle.querySelector(".sv-scroll__scroller") as HTMLDivElement;
+  let _scrollTop = 0;
+  Object.defineProperty(scrollElement, "scrollTop", {
+    get: function() {
+      return _scrollTop;
+    },
+    set: function(value) {
+      _scrollTop = value;
+    },
+    configurable: true // Чтобы можно было позже изменить это свойство
+  });
+
   const mockRootEl: any = {
     querySelector: s => rootElementWithTitle.querySelector(s),
     getBoundingClientRect: () => ({
@@ -507,14 +521,15 @@ QUnit.test("updateStickyTOCSize", function (assert) {
     scrollTop: 0,
     style: {}
   };
+
   tocModel.updateStickyTOCSize(mockRootEl);
   assert.equal(tocRootElement.style.height, "159px", "Height updated");
 
-  mockRootEl.scrollTop = 60;
+  scrollElement.scrollTop = 60;
   tocModel.updateStickyTOCSize(mockRootEl);
   assert.equal(tocRootElement.style.height, "199px", "Height updated to full container");
 
-  mockRootEl.scrollTop = 20;
+  scrollElement.scrollTop = 20;
   tocModel.updateStickyTOCSize(mockRootEl);
   assert.equal(tocRootElement.style.height, "179px", "Height updated to half title");
 });

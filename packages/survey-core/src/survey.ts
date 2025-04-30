@@ -8254,12 +8254,12 @@ export class SurveyModel extends SurveyElementCore
         }
       } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
         if (container === "contentTop") {
-          if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+          if (this.isNavigationButtonsShowingOnTop) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if (container === "contentBottom") {
-          if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+          if (this.isNavigationButtonsShowingOnBottom) {
             containerLayoutElements.push(layoutElement);
           }
         }
@@ -8411,6 +8411,9 @@ export class SurveyModel extends SurveyElementCore
         this.rootElement.classList && this.rootElement.classList.add("sv-root--sticky-top");
       } else {
         this.rootElement.classList && this.rootElement.classList.remove("sv-root--sticky-top");
+      }
+      if (!!this.tocModel) {
+        this.tocModel.updateStickyTOCSize(this.rootElement);
       }
     }
     if (this.onScrollCallback) {

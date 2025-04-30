@@ -334,3 +334,24 @@ QUnit.test("Values as number and as string, Bug#9690", function (assert) {
   assert.strictEqual(q1.value, 2, "q1.value is number");
   assert.strictEqual(survey.getValue("q1"), 2, "survey.getValue('q1') is string");
 });
+QUnit.test("minimumFractionDigits/maximumFractionDigits  onSettingValue property function", function(assert) {
+  const q = new QuestionExpressionModel("q1");
+  assert.equal(q.minimumFractionDigits, -1, "min #0");
+  assert.equal(q.maximumFractionDigits, -1, "max #0");
+
+  q.minimumFractionDigits = 2;
+  assert.equal(q.minimumFractionDigits, 2, "min #1");
+  assert.equal(q.maximumFractionDigits, -1, "max #1");
+
+  q.maximumFractionDigits = 1;
+  assert.equal(q.minimumFractionDigits, 2, "min #2");
+  assert.equal(q.maximumFractionDigits, 2, "max #2");
+
+  q.minimumFractionDigits = 3;
+  assert.equal(q.minimumFractionDigits, 2, "min #3");
+  assert.equal(q.maximumFractionDigits, 2, "max #3");
+
+  q.maximumFractionDigits = 3;
+  assert.equal(q.minimumFractionDigits, 2, "min #4");
+  assert.equal(q.maximumFractionDigits, 3, "max #4");
+});

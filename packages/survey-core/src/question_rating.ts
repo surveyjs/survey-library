@@ -101,13 +101,27 @@ export class QuestionRatingModel extends Question {
         this.setPropertyValue("hasMaxRateDescription", !sender.isEmpty);
       });
 
-    this.initPropertyDependencies();
+    this.createLocalizableString("readOnlyText", this, true);
+    this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
+      this.updateReadOnlyText();
+    });
+    this.updateReadOnlyText();
 
+    this.initPropertyDependencies();
   }
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
     }
+  }
+
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.updateReadOnlyText();
+    this.dropdownListModelValue?.locStrsChanged();
+  }
+  private updateReadOnlyText(): void {
+    this.readOnlyText = this.displayValue || this.placeholder;
   }
 
   endLoadingFromJson() {
@@ -684,7 +698,7 @@ export class QuestionRatingModel extends Question {
   }
 
   public get itemSmallMode() {
-    return this.inMatrixMode && settings.matrix.rateSize == "small";
+    return !this.isSingleInputActive && this.inMatrixMode && settings.matrix.rateSize == "small";
   }
 
   public get ratingRootCss(): string {
@@ -872,9 +886,14 @@ export class QuestionRatingModel extends Question {
   public isItemSelected(item: ItemValue): boolean {
     return item.value == this.value;
   }
-  public get readOnlyText() {
-    if (this.readOnly) return (this.displayValue || this.placeholder);
-    return this.isEmpty() ? this.placeholder : "";
+  public get readOnlyText(): string {
+    return this.getLocalizableStringText("readOnlyText");
+  }
+  public set readOnlyText(val: string) {
+    this.setLocalizableStringText("readOnlyText", val);
+  }
+  get locReadOnlyText(): LocalizableString {
+    return this.getLocalizableString("readOnlyText");
   }
 
   public needResponsiveWidth() {

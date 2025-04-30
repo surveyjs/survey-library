@@ -870,6 +870,36 @@ QUnit.test("Survey Markdown - dropdown and input string", function (assert) {
   assert.equal(dropdownListModel.inputString, "*text1markdown");
 });
 
+QUnit.test("placeholderRendered", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      choices: ["item1", "item2", "item3", "item4", "item5",]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.equal(dropdownListModel.hintString, "", "hintString #1");
+  assert.equal(dropdownListModel.placeholderRendered, "Select...", "placeholderRendered #1");
+
+  dropdownListModel.inputStringRendered = "it";
+  assert.equal(dropdownListModel.hintString, "item1", "hintString #2");
+  assert.equal(dropdownListModel.placeholderRendered, "", "placeholderRendered #2");
+
+  dropdownListModel.inputStringRendered = "";
+  assert.equal(dropdownListModel.placeholderRendered, "Select...", "placeholderRendered #3");
+
+  question.readOnly = true;
+  assert.equal(dropdownListModel.placeholderRendered, "", "placeholderRendered #4");
+
+  question.readOnly = false;
+  assert.equal(dropdownListModel.placeholderRendered, "Select...", "placeholderRendered #5");
+
+  question.value = "item2";
+  assert.equal(dropdownListModel.placeholderRendered, "", "placeholderRendered #6");
+});
+
 QUnit.test("lazy loading clear value", function (assert) {
   const survey = new SurveyModel({
     questions: [{

@@ -38,6 +38,7 @@ registerMarkupTests(
           {
             name: "name",
             type: "slider",
+            sliderType: "range",
             titleLocation: "hidden"
           }
         ]
@@ -51,6 +52,7 @@ registerMarkupTests(
           {
             name: "name",
             type: "slider",
+            sliderType: "range",
             defaultValue: [30, 60],
             titleLocation: "hidden"
           }
@@ -81,6 +83,7 @@ registerMarkupTests(
           {
             name: "name",
             type: "slider",
+            sliderType: "range",
             defaultValue: [30, 60],
             readOnly: true,
             titleLocation: "hidden"
@@ -115,6 +118,7 @@ registerMarkupTests(
     //       {
     //         name: "name",
     //         type: "slider",
+    //         sliderType: "range",
     //         defaultValue: [30, 60],
     //         isRequired: true,
     //         titleLocation: "hidden"

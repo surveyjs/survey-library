@@ -116,6 +116,7 @@ export var englishStrings = {
   ok: "OK",
   cancel: "Cancel",
   createCustomItem: "Create \"{0}\" item...",
+  toc: "Table of contents",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

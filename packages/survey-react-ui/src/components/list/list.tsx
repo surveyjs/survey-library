@@ -74,7 +74,8 @@ export class List extends SurveyElementBase<IListProps, any> {
       <ul
         className={this.model.getListClass()}
         style={ulStyle as any}
-        role="listbox"
+        role={this.model.listRole}
+        aria-label={this.model.a11y_input_ariaLabel}
         id={this.model.elementId}
         onMouseDown={(e) => {
           e.preventDefault();

@@ -1,6 +1,6 @@
 <template>
   <li
-    role="option"
+    :role="model.listItemRole"
     :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
     :key="item.id"

@@ -46,7 +46,8 @@
       v-if="model.renderElements"
       v-bind:class="model.getListClass()"
       v-show="!model.isEmpty"
-      role="listbox"
+      :role="model.listRole"
+      :aria-label="model.a11y_input_ariaLabel"
       :id="model.elementId"
       @mousedown="
         (event) => {

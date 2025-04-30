@@ -42,6 +42,9 @@ export interface IListModel {
   elementId?: string;
   locOwner?: ILocalizableOwner;
   cssClasses?: any;
+  listRole?: string;
+  listItemRole?: string;
+  listAriaLabel?: string;
   onFilterStringChangedCallback?: (text: string) => void;
   onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
 }
@@ -73,6 +76,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: true }) renderElements: boolean;
   @property({ defaultValue: false }) textWrapEnabled: boolean;
   @property({ defaultValue: "sv-list-item-content" }) itemComponent: string;
+  @property({ defaultValue: "listbox" }) listRole: string;
+  @property({ defaultValue: "option" }) listItemRole: string;
+  @property() listAriaLabel: string;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -279,6 +285,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     };
   };
 
+  public get a11y_input_ariaLabel(): string {
+    return this.listAriaLabel;
+  }
   public get filterStringPlaceholder(): string {
     return this.getLocalizationString("filterStringPlaceholder");
   }

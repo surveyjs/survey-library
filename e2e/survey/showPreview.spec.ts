@@ -76,5 +76,40 @@ frameworks.forEach((framework) => {
         q4: "4",
       });
     });
+
+    test("showPreview and page descriptions", async ({ page }) => {
+      const errors: string[] = [];
+      page.on("pageerror", (exception) => {
+        errors.push(exception.message);
+      });
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, {
+        pages: [
+          {
+            name: "page1",
+            description: "p1description",
+            elements: [
+              {
+                type: "text",
+                name: "question1",
+              }
+            ],
+          },
+        ],
+        showPreviewBeforeComplete: "showAllQuestions",
+      });
+      await page.click("input[value=Preview]");
+      const editButtons = await page.locator("input[title=Edit]").count();
+      expect(editButtons).toBe(1);
+      await page.locator("input[title=Edit]").click();
+      await page.locator("input[type=text]").fill("val");
+      await page.click("input[value=Preview]");
+      await page.click("input[value=Complete]");
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({
+        question1: "val"
+      });
+      expect(errors).toHaveLength(0);
+    });
   });
 });

@@ -153,15 +153,15 @@ QUnit.test("labels (custom)", (assert) => {
         segmentCount: 5,
         "labels": [
           {
-            "value": "left",
+            "value": 0,
             "text": "Left"
           },
           {
-            "value": "middle",
+            "value": 50,
             "text": "Middle"
           },
           {
-            "value": "right",
+            "value": 100,
             "text": "Right"
           }
         ]
@@ -171,12 +171,12 @@ QUnit.test("labels (custom)", (assert) => {
 
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.labels[0].value, "left");
-  assert.deepEqual(q1.labels[1].value, "middle");
-  assert.deepEqual(q1.labels[2].value, "right");
+  assert.deepEqual(q1.labels[0].value, 0);
+  assert.deepEqual(q1.labels[1].value, 50);
+  assert.deepEqual(q1.labels[2].value, 100);
 
   assert.deepEqual(q1.labelCount, q1.labels.length);
-  assert.deepEqual(q1.step, 50);
+  assert.deepEqual(q1.step, 20);
 });
 
 QUnit.test("sliderType", (assert) => {

@@ -26,9 +26,6 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: "{0}" }) labelFormat: string;
   @property({ defaultValue: "onhover" }) tooltipVisibility: "onhover" | "always" | "never";
   public get step(): number {
-    if (this.labels.length > 0) {
-      return (this.renderedMax - this.renderedMin) / (this.labels.length - 1);
-    }
     if (this.segmentCount) {
       return (this.renderedMax - this.renderedMin) / this.segmentCount;
     }

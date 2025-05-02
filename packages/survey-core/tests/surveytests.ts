@@ -21813,3 +21813,62 @@ QUnit.test("Show warning on loadig JSON created in higher version of Creator", f
   ConsoleWarnings.warn = prevWarn;
   settings.version = oldVersion;
 });
+QUnit.test("Update hasTitle on load from JSON", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.hasTitle, false, "no title in empty survey");
+  survey.fromJSON({
+    title: "title",
+    elements: [{ name: "q1", type: "text" }]
+  });
+  assert.equal(survey.hasTitle, true, "title presents");
+});
+QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (assert) {
+  const oldFunc = Helpers.randomizeArray;
+  Helpers.randomizeArray = HelpTest.randomizeArray;
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "V001",
+            "choices": [1, 2, 3]
+          }
+        ]
+      },
+      {
+        "questionOrder": "random",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "visibleIf": "{V001} contains 1",
+            "choices": [1, 2]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question2",
+            "visibleIf": "{V001} contains 2",
+            "choices": [1, 2]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question3",
+            "visibleIf": "{V001} contains 3",
+            "choices": [1, 2]
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "questionPerPage",
+  });
+  survey.setValue("V001", [2]);
+  survey.performNext();
+  const page = survey.currentPage;
+  assert.equal(page.name, "page2", "page2 is the current page");
+  assert.equal(survey.currentSingleQuestion.name, "question2", "question2 is the current question");
+  assert.equal(page.rows.length, 1, "one row");
+  assert.equal(page.rows[0].elements.length, 1, "one element in the row");
+  assert.equal(page.rows[0].elements[0].name, "question2", "question2 is the current question in the row");
+  Helpers.randomizeArray = oldFunc;
+});

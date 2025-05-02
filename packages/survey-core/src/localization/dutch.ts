@@ -7,6 +7,7 @@ export var dutchSurveyStrings = {
   previewText: "Voorbeeld",
   editText: "Bewerk",
   startSurveyText: "Start",
+  commentText: "Laat een reactie achter",
   otherItemText: "Anders, nl.",
   noneItemText: "Geen",
   refuseItemText: "Weiger te antwoorden",
@@ -24,6 +25,7 @@ export var dutchSurveyStrings = {
   loadingSurvey: "De vragenlijst is aan het laden...",
   placeholder: "Kies...",
   ratingOptionsCaption: "Selecteren...",
+  buttongroupOptionsCaption: "Selecteren...",
   value: "waarde",
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
@@ -60,6 +62,8 @@ export var dutchSurveyStrings = {
   addRow: "Voeg rij toe",
   removeRow: "Verwijder",
   noRowsText: "Er zijn geen rijen.",
+  rowIndexTemplateTitle: "Rij {rowIndex}",
+  rowNameTemplateTitle: "{rijTitel}",
   addPanel: "Nieuwe toevoegen",
   removePanel: "Verwijder",
   showDetails: "Toon details",
@@ -110,7 +114,8 @@ export var dutchSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Alle keuzes zijn gerangschikt",
   selectToRankEmptyUnrankedAreaText: "Drag en drop keuzes hier om ze te rangschikken",
   ok: "OK",
-  cancel: "Annuleren"
+  cancel: "Annuleren",
+  createCustomItem: "Maak een \"{0}\" item..."
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });
@@ -154,3 +159,8 @@ setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederl
 // choices_Choice: "Choice option" => "Keuze optie"
 // loadingPage: "Loading..." => "Laden..."
 // loadingData: "Loading..." => "Laden..."
+// commentText: "Please leave a comment" => "Laat een reactie achter"
+// buttongroupOptionsCaption: "Select..." => "Selecteren..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rij {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rijTitel}"
+// createCustomItem: "Create \"{0}\" item..." => "Maak een \"{0}\" item..."

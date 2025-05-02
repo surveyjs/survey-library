@@ -9,6 +9,7 @@ export var portugueseBrSurveyStrings = {
   previewText: "Visualizar",
   editText: "Editar",
   startSurveyText: "Começar",
+  commentText: "Por favor, deixe um comentário",
   otherItemText: "Outros (descrever)",
   noneItemText: "Nenhum",
   refuseItemText: "Recusar-se a responder",
@@ -26,6 +27,7 @@ export var portugueseBrSurveyStrings = {
   loadingSurvey: "A pesquisa está carregando...",
   placeholder: "Selecionar...",
   ratingOptionsCaption: "Selecionar...",
+  buttongroupOptionsCaption: "Selecionar...",
   value: "valor",
   requiredError: "Por favor, responda a pergunta.",
   requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",
@@ -62,6 +64,8 @@ export var portugueseBrSurveyStrings = {
   addRow: "Adicionar linha",
   removeRow: "Retirar",
   noRowsText: "Não há filas.",
+  rowIndexTemplateTitle: "Linha {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Adicionar novo",
   removePanel: "Retirar",
   showDetails: "Mostrar detalhes",
@@ -112,7 +116,8 @@ export var portugueseBrSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Todas as opções são classificadas",
   selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las",
   ok: "OKEY",
-  cancel: "Cancelar"
+  cancel: "Cancelar",
+  createCustomItem: "Criar item \"{0}\"..."
 };
 
 setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });
@@ -205,3 +210,8 @@ setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeNam
 // choices_Choice: "Choice option" => "Opção de escolha"
 // loadingPage: "Loading..." => "Carregamento..."
 // loadingData: "Loading..." => "Carregamento..."
+// commentText: "Please leave a comment" => "Por favor, deixe um comentário"
+// buttongroupOptionsCaption: "Select..." => "Selecionar..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Linha {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Criar item \"{0}\"..."

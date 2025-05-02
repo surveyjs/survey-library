@@ -7,6 +7,7 @@ export var hebrewSurveyStrings = {
   previewText: "תצוגה מקדימה",
   editText: "לַעֲרוֹך",
   startSurveyText: "הַתחָלָה",
+  commentText: "אנא השאירו תגובה",
   otherItemText: "אחר (נא לתאר)",
   noneItemText: "אף אחד",
   refuseItemText: "מסרבים לענות",
@@ -24,6 +25,7 @@ export var hebrewSurveyStrings = {
   loadingSurvey: "טעינה מהשרת...",
   placeholder: "בחר...",
   ratingOptionsCaption: "בחר...",
+  buttongroupOptionsCaption: "בחר...",
   value: "ערך",
   requiredError: "אנא השב על השאלה",
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",
@@ -60,6 +62,8 @@ export var hebrewSurveyStrings = {
   addRow: "להוסיף שורה",
   removeRow: "לְהַסִיר",
   noRowsText: "אין שורות.",
+  rowIndexTemplateTitle: "שורה {rowIndex}",
+  rowNameTemplateTitle: "{כותרת שורה}",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
   showDetails: "הראה פרטים",
@@ -110,7 +114,8 @@ export var hebrewSurveyStrings = {
   selectToRankEmptyRankedAreaText: "כל האפשרויות מדורגות",
   selectToRankEmptyUnrankedAreaText: "גרור ושחרר אפשרויות לכאן כדי לדרג אותן",
   ok: "אוקיי",
-  cancel: "ביטל"
+  cancel: "ביטל",
+  createCustomItem: "צור פריט \"{0}\"..."
 };
 
 setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עב�
 // choices_Choice: "Choice option" => "אפשרות בחירה"
 // loadingPage: "Loading..." => "טעינת..."
 // loadingData: "Loading..." => "טעינת..."
+// commentText: "Please leave a comment" => "אנא השאירו תגובה"
+// buttongroupOptionsCaption: "Select..." => "בחר..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "שורה {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{כותרת שורה}"
+// createCustomItem: "Create \"{0}\" item..." => "צור פריט \"{0}\"..."

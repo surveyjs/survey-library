@@ -7,6 +7,7 @@ export var teluguStrings = {
   previewText: "ముందుగా వీక్షించు",
   editText: "మార్పులు చెయ్యి",
   startSurveyText: "ప్రారంభించు",
+  commentText: "దయచేసి ఒక వ్యాఖ్య ఇవ్వండి",
   otherItemText: "ఇతరమైన(వివరించండి)",
   noneItemText: "ఎవరు కాదు",
   refuseItemText: "సమాధానం ఇవ్వడానికి నిరాకరించండి",
@@ -24,6 +25,7 @@ export var teluguStrings = {
   loadingSurvey: "సర్వే లోడ్ అవుతుంది",
   placeholder: "ఎన్నుకోండి",
   ratingOptionsCaption: "ఎంచు...",
+  buttongroupOptionsCaption: "ఎంచు...",
   value: "విలువ",
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
@@ -60,6 +62,8 @@ export var teluguStrings = {
   addRow: "వరుసలు చేర్పించండి",
   removeRow: "తీసేయండి",
   noRowsText: "వరుసలు లేవు.",
+  rowIndexTemplateTitle: "Row {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "కొత్త దాన్ని చేర్పించండి",
   removePanel: "తీసేయండి",
   showDetails: "వివరాలు చూపించు",
@@ -110,7 +114,8 @@ export var teluguStrings = {
   selectToRankEmptyRankedAreaText: "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి",
   selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి",
   ok: "సరే",
-  cancel: "రద్దు"
+  cancel: "రద్దు",
+  createCustomItem: "\"{0}\" ఐటమ్ సృష్టించండి..."
 };
 
 setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", englishName: "Telugu" });
@@ -157,3 +162,8 @@ setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", e
 // choices_Choice: "Choice option" => "ఛాయిస్ ఆప్షన్"
 // loadingPage: "Loading..." => "లోడింగ్..."
 // loadingData: "Loading..." => "లోడింగ్..."
+// commentText: "Please leave a comment" => "దయచేసి ఒక వ్యాఖ్య ఇవ్వండి"
+// buttongroupOptionsCaption: "Select..." => "ఎంచు..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" ఐటమ్ సృష్టించండి..."

@@ -7,6 +7,7 @@ export var slovakSurveyStrings = {
   previewText: "Ukážka",
   editText: "Upraviť",
   startSurveyText: "Spustiť",
+  commentText: "Zanechajte komentár",
   otherItemText: "Iné (opíšte)",
   noneItemText: "Žiadne",
   refuseItemText: "Odmietnuť odpovedať",
@@ -24,6 +25,7 @@ export var slovakSurveyStrings = {
   loadingSurvey: "Načítanie prieskumu...",
   placeholder: "Vybrať...",
   ratingOptionsCaption: "Vybrať...",
+  buttongroupOptionsCaption: "Vybrať...",
   value: "hodnota",
   requiredError: "Požaduje sa odozva.",
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",
@@ -60,6 +62,8 @@ export var slovakSurveyStrings = {
   addRow: "Pridať riadok",
   removeRow: "Odstrániť",
   noRowsText: "K dispozícii nie sú žiadne riadky.",
+  rowIndexTemplateTitle: "Riadok {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Pridať nové",
   removePanel: "Odstrániť",
   showDetails: "Zobraziť podrobnosti",
@@ -110,7 +114,8 @@ export var slovakSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Všetky možnosti sú zoradené",
   selectToRankEmptyUnrankedAreaText: "Presuňte sem voľby, aby ste ich zoradili",
   ok: "OK",
-  cancel: "Zrušiť"
+  cancel: "Zrušiť",
+  createCustomItem: "Vytvoriť položku \"{0}\"..."
 };
 
 setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "slovak", englishName: "Slovak" });
@@ -146,3 +151,8 @@ setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "slova
 // choices_Choice: "Choice option" => "Možnosť výberu"
 // loadingPage: "Loading..." => "Nakladanie..."
 // loadingData: "Loading..." => "Nakladanie..."
+// commentText: "Please leave a comment" => "Zanechajte komentár"
+// buttongroupOptionsCaption: "Select..." => "Vybrať..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Riadok {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Vytvoriť položku \"{0}\"..."

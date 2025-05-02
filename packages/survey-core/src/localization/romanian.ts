@@ -7,6 +7,7 @@ export var romanianSurveyStrings: any = {
   previewText: "previzualizare",
   editText: "Editați",
   startSurveyText: "start",
+  commentText: "Vă rugăm să lăsați un comentariu",
   otherItemText: "Altul(precizaţi)",
   noneItemText: "Nici unul",
   refuseItemText: "Refuză să răspundă",
@@ -24,6 +25,7 @@ export var romanianSurveyStrings: any = {
   loadingSurvey: "Chestionarul se încarcă...",
   placeholder: "Alegeţi...",
   ratingOptionsCaption: "Alege...",
+  buttongroupOptionsCaption: "Alege...",
   value: "valoare",
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",
@@ -60,6 +62,8 @@ export var romanianSurveyStrings: any = {
   addRow: "Adăugare rând",
   removeRow: "Ștergere",
   noRowsText: "Nu există rânduri.",
+  rowIndexTemplateTitle: "Rând {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Adăugare",
   removePanel: "Ștergere",
   showDetails: "Arată detalii",
@@ -110,7 +114,8 @@ export var romanianSurveyStrings: any = {
   selectToRankEmptyRankedAreaText: "Toate opțiunile sunt clasificate",
   selectToRankEmptyUnrankedAreaText: "Glisați și fixați opțiunile aici pentru a le clasifica",
   ok: "OK",
-  cancel: "Anula"
+  cancel: "Anula",
+  createCustomItem: "Creați un articol \"{0}\"..."
 };
 
 setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "rom
 // choices_Choice: "Choice option" => "Opțiune de alegere"
 // loadingPage: "Loading..." => "Încărcare..."
 // loadingData: "Loading..." => "Încărcare..."
+// commentText: "Please leave a comment" => "Vă rugăm să lăsați un comentariu"
+// buttongroupOptionsCaption: "Select..." => "Alege..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rând {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Creați un articol \"{0}\"..."

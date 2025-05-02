@@ -7,6 +7,7 @@ export var finnishSurveyStrings = {
   previewText: "Esikatselu",
   editText: "Muokkaa",
   startSurveyText: "Aloita",
+  commentText: "Jätä kommentti",
   otherItemText: "Muu (tarkenna)",
   noneItemText: "Ei mitään",
   refuseItemText: "Kieltäydy vastaamasta",
@@ -24,6 +25,7 @@ export var finnishSurveyStrings = {
   loadingSurvey: "Kyselyä ladataan palvelimelta...",
   placeholder: "Valitse...",
   ratingOptionsCaption: "Arvioi napauttamalla tätä...",
+  buttongroupOptionsCaption: "Valikoida...",
   value: "arvo",
   requiredError: "Vastaa kysymykseen, kiitos.",
   requiredErrorInPanel: "Vastaa ainakin yhteen kysymykseen.",
@@ -60,6 +62,8 @@ export var finnishSurveyStrings = {
   addRow: "Lisää rivi",
   removeRow: "Poista",
   noRowsText: "Ei rivejä",
+  rowIndexTemplateTitle: "Rivi {rowIndex}",
+  rowNameTemplateTitle: "{rivin otsikko}",
   addPanel: "Lisää uusi",
   removePanel: "Poista",
   showDetails: "Näytä tiedot",
@@ -110,7 +114,8 @@ export var finnishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Kaikki valinnat asetetaan paremmuusjärjestykseen",
   selectToRankEmptyUnrankedAreaText: "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne",
   ok: "OKEI",
-  cancel: "Perua"
+  cancel: "Perua",
+  createCustomItem: "Luo \"{0}\"-kohde..."
 };
 
 setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });
@@ -144,3 +149,8 @@ setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suom
 // choices_Choice: "Choice option" => "Valinta-vaihtoehto"
 // loadingPage: "Loading..." => "Lastaaminen..."
 // loadingData: "Loading..." => "Lastaaminen..."
+// commentText: "Please leave a comment" => "Jätä kommentti"
+// buttongroupOptionsCaption: "Select..." => "Valikoida..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rivi {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rivin otsikko}"
+// createCustomItem: "Create \"{0}\" item..." => "Luo \"{0}\"-kohde..."

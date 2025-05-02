@@ -7,6 +7,7 @@ export var lithuaniaSurveyStrings = {
   previewText: "Peržiūra",
   editText: "Redaguoti",
   startSurveyText: "Pradėti",
+  commentText: "Prašome palikti komentarą",
   otherItemText: "Kita (įvesti)",
   noneItemText: "Nėra",
   refuseItemText: "Atsisakyti atsakyti",
@@ -24,6 +25,7 @@ export var lithuaniaSurveyStrings = {
   loadingSurvey: "Prašome palaukti...",
   placeholder: "Pasirinkti...",
   ratingOptionsCaption: "Žymėti...",
+  buttongroupOptionsCaption: "Žymėti...",
   value: "reikšmė",
   requiredError: "Būtina atsakyti į šį klausimą.",
   requiredErrorInPanel: "Būtina atsakyti bent į vieną klausimą.",
@@ -60,6 +62,8 @@ export var lithuaniaSurveyStrings = {
   addRow: "Pridėti eilutę",
   removeRow: "Ištrinti",
   noRowsText: "Eilių nėra.",
+  rowIndexTemplateTitle: "Eilutė {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Pridėti naują",
   removePanel: "Ištrinti",
   showDetails: "Rodyti išsamią informaciją",
@@ -110,7 +114,8 @@ export var lithuaniaSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Visi pasirinkimai yra reitinguojami",
   selectToRankEmptyUnrankedAreaText: "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte",
   ok: "GERAI",
-  cancel: "Atšaukti"
+  cancel: "Atšaukti",
+  createCustomItem: "Sukurkite elementą \"{0}\"..."
 };
 
 setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "li
 // choices_Choice: "Choice option" => "Pasirinkimo galimybė"
 // loadingPage: "Loading..." => "Pakrovimo..."
 // loadingData: "Loading..." => "Pakrovimo..."
+// commentText: "Please leave a comment" => "Prašome palikti komentarą"
+// buttongroupOptionsCaption: "Select..." => "Žymėti..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Eilutė {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Sukurkite elementą \"{0}\"..."

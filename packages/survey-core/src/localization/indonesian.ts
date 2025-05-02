@@ -7,6 +7,7 @@ export var indonesianStrings = {
   previewText: "Pratinjau",
   editText: "Sunting",
   startSurveyText: "Mulai",
+  commentText: "Silakan tinggalkan komentar",
   otherItemText: "Lainnya (jelaskan)",
   noneItemText: "Tidak Ada",
   refuseItemText: "Menolak untuk menjawab",
@@ -24,6 +25,7 @@ export var indonesianStrings = {
   loadingSurvey: "Memuat survei...",
   placeholder: "Pilih...",
   ratingOptionsCaption: "Pilih...",
+  buttongroupOptionsCaption: "Pilih...",
   value: "nilai",
   requiredError: "Silahkan jawab pertanyaan berikut.",
   requiredErrorInPanel: "Silahkan jawab setidaknya satu petanyaan.",
@@ -60,6 +62,8 @@ export var indonesianStrings = {
   addRow: "Tambah baris",
   removeRow: "Hapus",
   noRowsText: "Tidak ada baris.",
+  rowIndexTemplateTitle: "Baris {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Tambah baru",
   removePanel: "Hapus",
   showDetails: "Tampilkan Detail",
@@ -110,7 +114,8 @@ export var indonesianStrings = {
   selectToRankEmptyRankedAreaText: "Semua pilihan diberi peringkat",
   selectToRankEmptyUnrankedAreaText: "Seret dan lepas pilihan di sini untuk memberi peringkat",
   ok: "OKE",
-  cancel: "Membatalkan"
+  cancel: "Membatalkan",
+  createCustomItem: "Buat item \"{0}\"..."
 };
 
 setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa 
 // choices_Choice: "Choice option" => "Opsi pilihan"
 // loadingPage: "Loading..." => "Loading..."
 // loadingData: "Loading..." => "Loading..."
+// commentText: "Please leave a comment" => "Silakan tinggalkan komentar"
+// buttongroupOptionsCaption: "Select..." => "Pilih..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Baris {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Buat item \"{0}\"..."

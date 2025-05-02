@@ -7,6 +7,7 @@ export var vietnameseSurveyStrings = {
   previewText: "Xem trước",
   editText: "Chỉnh sửa",
   startSurveyText: "Bắt đầu",
+  commentText: "Vui lòng để lại bình luận",
   otherItemText: "Khác (mô tả)",
   noneItemText: "Trống",
   refuseItemText: "Từ chối trả lời",
@@ -24,6 +25,7 @@ export var vietnameseSurveyStrings = {
   loadingSurvey: "Đang tải khảo sát...",
   placeholder: "Chọn...",
   ratingOptionsCaption: "Lựa...",
+  buttongroupOptionsCaption: "Lựa...",
   value: "Giá trị",
   requiredError: "Vui lòng trả lời câu hỏi.",
   requiredErrorInPanel: "Vui lòng trả lời ít nhất một câu hỏi.",
@@ -60,6 +62,8 @@ export var vietnameseSurveyStrings = {
   addRow: "Thêm dòng",
   removeRow: "Xóa",
   noRowsText: "Không có hàng.",
+  rowIndexTemplateTitle: "Hàng {rowIndex}",
+  rowNameTemplateTitle: "{tiêu đề hàng}",
   addPanel: "Thêm mới",
   removePanel: "Xóa",
   showDetails: "Hiển thị chi tiết",
@@ -110,7 +114,8 @@ export var vietnameseSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Tất cả các lựa chọn được xếp hạng",
   selectToRankEmptyUnrankedAreaText: "Kéo và thả các lựa chọn vào đây để xếp hạng chúng",
   ok: "OK",
-  cancel: "Hủy"
+  cancel: "Hủy",
+  createCustomItem: "Tạo vật phẩm \"{0}\"..."
 };
 
 setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "v
 // choices_Choice: "Choice option" => "Tùy chọn lựa chọn"
 // loadingPage: "Loading..." => "Tải..."
 // loadingData: "Loading..." => "Tải..."
+// commentText: "Please leave a comment" => "Vui lòng để lại bình luận"
+// buttongroupOptionsCaption: "Select..." => "Lựa..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Hàng {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{tiêu đề hàng}"
+// createCustomItem: "Create \"{0}\" item..." => "Tạo vật phẩm \"{0}\"..."

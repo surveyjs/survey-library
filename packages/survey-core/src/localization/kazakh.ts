@@ -7,6 +7,7 @@ export var kazakhStrings = {
   previewText: "Алдын ала қарау",
   editText: "Редакциялау",
   startSurveyText: "Бастау",
+  commentText: "Түсініктемені қалдыруыңызды сұраймын",
   otherItemText: "Басқа (өтінеміз, жазыңыз)",
   noneItemText: "Жоқ",
   refuseItemText: "Жауап беруден бас тарту",
@@ -24,6 +25,7 @@ export var kazakhStrings = {
   loadingSurvey: "Серверден жүктеу...",
   placeholder: "Таңдау...",
   ratingOptionsCaption: "Таңдау...",
+  buttongroupOptionsCaption: "Таңдау...",
   value: "мәні",
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",
@@ -60,6 +62,8 @@ export var kazakhStrings = {
   addRow: "Жолды қосу",
   removeRow: "Өшіру",
   noRowsText: "Қатарлар жоқ.",
+  rowIndexTemplateTitle: "Жол {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Жаңа қосу",
   removePanel: "Өшіру",
   showDetails: "Егжей-тегжейін көрсету",
@@ -110,7 +114,8 @@ export var kazakhStrings = {
   selectToRankEmptyRankedAreaText: "Барлық таңдаулар ранжирленген",
   selectToRankEmptyUnrankedAreaText: "Таңдауды рангтеу үшін осында апарып тастау",
   ok: "ЖАҚСЫ",
-  cancel: "Болдырмау"
+  cancel: "Болдырмау",
+  createCustomItem: "«{0}» элементін жасау..."
 };
 
 setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", en
 // choices_Choice: "Choice option" => "Таңдау параметрі"
 // loadingPage: "Loading..." => "Жүктеу..."
 // loadingData: "Loading..." => "Жүктеу..."
+// commentText: "Please leave a comment" => "Түсініктемені қалдыруыңызды сұраймын"
+// buttongroupOptionsCaption: "Select..." => "Таңдау..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Жол {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "«{0}» элементін жасау..."

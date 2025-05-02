@@ -7,6 +7,7 @@ export var hungarianSurveyStrings = {
   previewText: "Előnézet",
   editText: "Szerkesztés",
   startSurveyText: "Rajt",
+  commentText: "Kérjük, írjon megjegyzést",
   otherItemText: "Egyéb (adja meg)",
   noneItemText: "Egyik sem",
   refuseItemText: "A válaszadás megtagadása",
@@ -24,6 +25,7 @@ export var hungarianSurveyStrings = {
   loadingSurvey: "Felmérés betöltése...",
   placeholder: "Válasszon...",
   ratingOptionsCaption: "Kiválaszt...",
+  buttongroupOptionsCaption: "Kiválaszt...",
   value: "érték",
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
   requiredErrorInPanel: "Kérjük, válaszoljon legalább egy kérdésre.",
@@ -60,6 +62,8 @@ export var hungarianSurveyStrings = {
   addRow: "Sor hozzáadása",
   removeRow: "Eltávolítás",
   noRowsText: "Nincsenek sorok.",
+  rowIndexTemplateTitle: "{rowIndex} sor",
+  rowNameTemplateTitle: "{sorcím}",
   addPanel: "Új hozzáadása",
   removePanel: "Eltávolítás",
   showDetails: "Mutasd a részleteket",
@@ -110,7 +114,8 @@ export var hungarianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Minden választási lehetőség rangsorolva van",
   selectToRankEmptyUnrankedAreaText: "Húzza ide a választási lehetőségeket a rangsoroláshoz",
   ok: "OKÉ",
-  cancel: "Érvénytelenít"
+  cancel: "Érvénytelenít",
+  createCustomItem: "\"{0}\" elem létrehozása..."
 };
 
 setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });
@@ -155,3 +160,8 @@ setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "ma
 // choices_Choice: "Choice option" => "Választási lehetőség"
 // loadingPage: "Loading..." => "Berakás..."
 // loadingData: "Loading..." => "Berakás..."
+// commentText: "Please leave a comment" => "Kérjük, írjon megjegyzést"
+// buttongroupOptionsCaption: "Select..." => "Kiválaszt..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "{rowIndex} sor"
+// rowNameTemplateTitle: "{rowTitle}" => "{sorcím}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" elem létrehozása..."

@@ -7,6 +7,7 @@ export var greekSurveyStrings = {
   previewText: "Προεπισκόπηση",
   editText: "Επεξεργασία",
   startSurveyText: "Αρχή",
+  commentText: "Παρακαλώ αφήστε ένα σχόλιο",
   otherItemText: "Άλλο (παρακαλώ διευκρινίστε)",
   noneItemText: "Κανένας",
   refuseItemText: "Αρνηθείτε να απαντήσετε",
@@ -24,6 +25,7 @@ export var greekSurveyStrings = {
   loadingSurvey: "Το ερωτηματολόγιο φορτώνεται απο το διακομιστή...",
   placeholder: "Επιλέξτε...",
   ratingOptionsCaption: "Πατήστε για να βαθμολογήσετε εδώ...",
+  buttongroupOptionsCaption: "Διαλέγω...",
   value: "τιμή",
   requiredError: "Παρακαλώ απαντήστε στην ερώτηση.",
   requiredErrorInPanel: "Απαντήστε σε τουλάχιστον μία ερώτηση.",
@@ -60,6 +62,8 @@ export var greekSurveyStrings = {
   addRow: "Προσθήκη γραμμής",
   removeRow: "Αφαίρεση",
   noRowsText: "Δεν υπάρχουν εγγραφές.",
+  rowIndexTemplateTitle: "Γραμμή {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Προσθέστε νέο",
   removePanel: "Αφαίρεση",
   showDetails: "Εμφάνιση λεπτομερειών",
@@ -110,7 +114,8 @@ export var greekSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Όλες οι επιλογές κατατάσσονται",
   selectToRankEmptyUnrankedAreaText: "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε",
   ok: "OK",
-  cancel: "Ακυρώνω"
+  cancel: "Ακυρώνω",
+  createCustomItem: "Δημιουργία στοιχείου \"{0}\"..."
 };
 
 setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });
@@ -141,3 +146,8 @@ setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελλ
 // choices_Choice: "Choice option" => "Επιλογή επιλογής"
 // loadingPage: "Loading..." => "Φόρτωση..."
 // loadingData: "Loading..." => "Φόρτωση..."
+// commentText: "Please leave a comment" => "Παρακαλώ αφήστε ένα σχόλιο"
+// buttongroupOptionsCaption: "Select..." => "Διαλέγω..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Γραμμή {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Δημιουργία στοιχείου \"{0}\"..."

@@ -7,6 +7,7 @@ export var norwegianSurveyStrings = {
   previewText: "Forhåndsvisning",
   editText: "Redigere",
   startSurveyText: "Start",
+  commentText: "Legg igjen en kommentar",
   otherItemText: "Annet (beskriv)",
   noneItemText: "Ingen",
   refuseItemText: "Nekter å svare",
@@ -24,6 +25,7 @@ export var norwegianSurveyStrings = {
   loadingSurvey: "Undersøkelsen laster...",
   placeholder: "Velg...",
   ratingOptionsCaption: "Velge...",
+  buttongroupOptionsCaption: "Velge...",
   value: "verdi",
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
@@ -60,6 +62,8 @@ export var norwegianSurveyStrings = {
   addRow: "Legg til rad",
   removeRow: "Fjern",
   noRowsText: "Det er ingen rader.",
+  rowIndexTemplateTitle: "Rad {rowIndex}",
+  rowNameTemplateTitle: "{radTittel}",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
   showDetails: "Vis detaljer",
@@ -110,7 +114,8 @@ export var norwegianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Alle valg er rangert",
   selectToRankEmptyUnrankedAreaText: "Dra og slipp valg her for å rangere dem",
   ok: "OK",
-  cancel: "Annullere"
+  cancel: "Annullere",
+  createCustomItem: "Lag \"{0}\" element..."
 };
 
 setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "norsk", englishName: "Norwegian" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "no
 // choices_Choice: "Choice option" => "Valg alternativ"
 // loadingPage: "Loading..." => "Lasting..."
 // loadingData: "Loading..." => "Lasting..."
+// commentText: "Please leave a comment" => "Legg igjen en kommentar"
+// buttongroupOptionsCaption: "Select..." => "Velge..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rad {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{radTittel}"
+// createCustomItem: "Create \"{0}\" item..." => "Lag \"{0}\" element..."

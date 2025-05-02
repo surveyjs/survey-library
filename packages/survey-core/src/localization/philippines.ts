@@ -7,6 +7,7 @@ export var philippinesStrings = {
   previewText: "Silipin",
   editText: "I-edit",
   startSurveyText: "Magsimula",
+  commentText: "Mangyaring mag-iwan ng komento",
   otherItemText: "Iba pa (ilarawan)",
   noneItemText: "wala",
   refuseItemText: "Tumangging sumagot",
@@ -24,6 +25,7 @@ export var philippinesStrings = {
   loadingSurvey: "Nilo-load ang Survey...",
   placeholder: "Pumili...",
   ratingOptionsCaption: "Pumili...",
+  buttongroupOptionsCaption: "Pumili ...",
   value: "halaga",
   requiredError: "Kinakailangan ang tugon.",
   requiredErrorInPanel: "Kinakailangan ang tugon: sagutin ang kahit isang tanong.",
@@ -60,6 +62,8 @@ export var philippinesStrings = {
   addRow: "Magdagdag ng hilera",
   removeRow: "Alisin",
   noRowsText: "Walang mga hilera.",
+  rowIndexTemplateTitle: "Hilera {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Magdagdag ng bago",
   removePanel: "Alisin",
   showDetails: "Ipakita ang mga detalye",
@@ -110,7 +114,8 @@ export var philippinesStrings = {
   selectToRankEmptyRankedAreaText: "Ang lahat ng mga pagpipilian ay pinili para sa pagraranggo",
   selectToRankEmptyUnrankedAreaText: "I-drag ang mga pagpipilian dito upang i-rank ang mga ito",
   ok: "OK",
-  cancel: "Kanselahin"
+  cancel: "Kanselahin",
+  createCustomItem: "Lumikha ng \"{0}\" na item ..."
 };
 
 // Uncomment the lines below if you create a custom dictionary.
@@ -126,3 +131,8 @@ setupLocale({ localeCode: "fil", strings: philippinesStrings, nativeName: "filip
 // choices_Choice: "Choice option" => "Pagpipilian sa pagpipilian"
 // loadingPage: "Loading..." => "Naglo-load..."
 // loadingData: "Loading..." => "Naglo-load..."
+// commentText: "Please leave a comment" => "Mangyaring mag-iwan ng komento"
+// buttongroupOptionsCaption: "Select..." => "Pumili ..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Hilera {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Lumikha ng \"{0}\" na item ..."

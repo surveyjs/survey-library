@@ -7,6 +7,7 @@ export var slovenianStrings = {
   previewText: "Predogled",
   editText: "Uredi",
   startSurveyText: "Začni",
+  commentText: "Prosimo, pustite komentar",
   otherItemText: "Drugo (opišite)",
   noneItemText: "Noben",
   refuseItemText: "Zavrni odgovor",
@@ -24,6 +25,7 @@ export var slovenianStrings = {
   loadingSurvey: "Nalaganje ankete...",
   placeholder: "Izberite...",
   ratingOptionsCaption: "Izberite...",
+  buttongroupOptionsCaption: "Izbrati...",
   value: "vrednost",
   requiredError: "Odgovor je obvezen.",
   requiredErrorInPanel: "Obvezen odgovor: odgovorite na vsaj eno vprašanje.",
@@ -60,6 +62,8 @@ export var slovenianStrings = {
   addRow: "Dodaj vrstico",
   removeRow: "Odstrani",
   noRowsText: "Ni vrstic.",
+  rowIndexTemplateTitle: "Vrstica {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Dodaj novo",
   removePanel: "Odstrani",
   showDetails: "Prikaži podrobnosti",
@@ -110,7 +114,8 @@ export var slovenianStrings = {
   selectToRankEmptyRankedAreaText: "Vse možnosti so izbrane za razvrščanje",
   selectToRankEmptyUnrankedAreaText: "Povlecite izbire sem, da jih razvrstite",
   ok: "V redu",
-  cancel: "Prekliči"
+  cancel: "Prekliči",
+  createCustomItem: "Ustvari element »{0}« ..."
 };
 setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenščina", englishName: "Slovenian" });
 
@@ -118,3 +123,8 @@ setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenš
 // Remove those strings that you have corrected manually
 // loadingPage: "Loading..." => "Nakladanje..."
 // loadingData: "Loading..." => "Nakladanje..."
+// commentText: "Please leave a comment" => "Prosimo, pustite komentar"
+// buttongroupOptionsCaption: "Select..." => "Izbrati..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Vrstica {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Ustvari element »{0}« ..."

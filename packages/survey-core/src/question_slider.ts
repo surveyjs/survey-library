@@ -47,7 +47,7 @@ export class QuestionSliderModel extends Question {
   public set labelCount(val: number) {
     this.setPropertyValue("labelCount", val);
   }
-  @property({ defaultValue: true }) autoGenerate: boolean;
+  //@property({ defaultValue: true }) autoGenerate: boolean;
   @propertyArray({ }) labels: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
@@ -242,12 +242,12 @@ export class QuestionSliderModel extends Question {
     return result;
   };
 
-  public endLoadingFromJson() {
-    super.endLoadingFromJson();
-    if (this.jsonObj.labels !== undefined) {
-      this.autoGenerate = false;
-    }
-  }
+  // public endLoadingFromJson() {
+  //   super.endLoadingFromJson();
+  //   if (this.jsonObj.labels !== undefined) {
+  //     this.autoGenerate = false;
+  //   }
+  // }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     super.runConditionCore(values, properties);
@@ -325,13 +325,13 @@ Serializer.addClass(
       choices: ["range", "single"],
       visibleIndex: 1
     },
-    {
-      name: "autoGenerate",
-      category: "sliderSettings",
-      default: true,
-      visibleIndex: 2,
-      choices: [true, false]
-    },
+    // {
+    //   name: "autoGenerate",
+    //   category: "sliderSettings",
+    //   default: true,
+    //   visibleIndex: 2,
+    //   choices: [true, false]
+    // },
     {
       name: "min:number",
       category: "sliderSettings",
@@ -349,17 +349,17 @@ Serializer.addClass(
       category: "sliderSettings",
       default: 1,
       visibleIndex: 5,
-      visibleIf: function (obj: any) {
-        return obj.autoGenerate;
-      },
+      // visibleIf: function (obj: any) {
+      //   return obj.autoGenerate;
+      // },
     },
     {
       name: "segmentCount:number",
       category: "sliderSettings",
       visibleIndex: 6,
-      visibleIf: function (obj: any) {
-        return obj.autoGenerate;
-      },
+      // visibleIf: function (obj: any) {
+      //   return obj.autoGenerate;
+      // },
     },
     {
       name: "minValueExpression",
@@ -393,9 +393,9 @@ Serializer.addClass(
       name: "labels:itemvalue[]",
       category: "sliderSettings",
       visibleIndex: 11,
-      visibleIf: function (obj: any) {
-        return !obj.autoGenerate;
-      },
+      // visibleIf: function (obj: any) {
+      //   return !obj.autoGenerate;
+      // },
     },
     {
       name: "showLabels:boolean",
@@ -451,9 +451,9 @@ Serializer.addClass(
       category: "sliderSettings",
       visibleIndex: 19,
       default: 6,
-      visibleIf: function (obj: any) {
-        return obj.autoGenerate;
-      },
+      // visibleIf: function (obj: any) {
+      //   return obj.autoGenerate;
+      // },
     },
     {
       name: "allowClear:boolean",

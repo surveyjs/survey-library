@@ -144,14 +144,14 @@ QUnit.test("labelCount", (assert) => {
   assert.deepEqual(q1.labelCount, 4 + 2);
 });
 
-QUnit.test("labels (custom)", (assert) => {
+QUnit.test("customLabels", (assert) => {
   let json:any = {
     elements: [
       {
         type: "slider",
         name: "q1",
         segmentCount: 5,
-        "labels": [
+        "customLabels": [
           {
             "value": 0,
             "text": "Left"
@@ -171,11 +171,11 @@ QUnit.test("labels (custom)", (assert) => {
 
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.labels[0].value, 0);
-  assert.deepEqual(q1.labels[1].value, 50);
-  assert.deepEqual(q1.labels[2].value, 100);
+  assert.deepEqual(q1.customLabels[0].value, 0);
+  assert.deepEqual(q1.customLabels[1].value, 50);
+  assert.deepEqual(q1.customLabels[2].value, 100);
 
-  assert.deepEqual(q1.labelCount, q1.labels.length);
+  assert.deepEqual(q1.labelCount, q1.customLabels.length);
   assert.deepEqual(q1.step, 20);
 });
 
@@ -424,7 +424,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
 //       {
 //         type: "slider",
 //         name: "q1",
-//         labels: [{
+//         customLabels: [{
 //           text: "t",
 //           value: "v"
 //         }]
@@ -433,7 +433,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
 //   };
 //   let survey = new SurveyModel(json);
 //   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-//   q1.labels = [{ text: "t", value: "v" }] as any;
+//   q1.customLabels = [{ text: "t", value: "v" }] as any;
 //   assert.deepEqual(q1.autoGenerate, false);
 //   q1.autoGenerate = true;
 //   assert.deepEqual(q1.autoGenerate, true);
@@ -601,4 +601,19 @@ QUnit.test("allowClear", (assert) => {
   q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
 
   assert.deepEqual(q1.allowClear, false, "allowClear is false by default");
+});
+
+QUnit.test("tooltipVisibility", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(q1.tooltipVisibility, "auto", "auto by default");
 });

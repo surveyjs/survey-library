@@ -24,7 +24,7 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: null }) minRangeLength: number | null;
   @property({ defaultValue: "{0}" }) tooltipFormat: string;
   @property({ defaultValue: "{0}" }) labelFormat: string;
-  @property({ defaultValue: "onhover" }) tooltipVisibility: "onhover" | "always" | "never";
+  @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | /*"always" |*/ "never";
   public get step(): number {
     if (this.segmentCount) {
       return (this.renderedMax - this.renderedMin) / this.segmentCount;
@@ -38,7 +38,7 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: true }) showLabels: boolean;
   @property({ defaultValue: true }) showEdgeLabels: boolean;
   public get labelCount(): number {
-    if (this.labels.length > 0) return this.labels.length;
+    if (this.customLabels.length > 0) return this.customLabels.length;
     if (this.tickSize) {
       return Math.round(100 / this.tickSize) + 2;
     }
@@ -48,7 +48,7 @@ export class QuestionSliderModel extends Question {
     this.setPropertyValue("labelCount", val);
   }
   //@property({ defaultValue: true }) autoGenerate: boolean;
-  @propertyArray({ }) labels: ItemValue[];
+  @propertyArray({ }) customLabels: ItemValue[];
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   @property({ defaultValue: true }) allowSwap: boolean;
@@ -62,7 +62,7 @@ export class QuestionSliderModel extends Question {
   constructor(name: string) {
     super(name);
     this.createNewArray("value");
-    this.createItemValues("labels");
+    this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
   }
@@ -244,7 +244,7 @@ export class QuestionSliderModel extends Question {
 
   // public endLoadingFromJson() {
   //   super.endLoadingFromJson();
-  //   if (this.jsonObj.labels !== undefined) {
+  //   if (this.jsonObj.customLabels !== undefined) {
   //     this.autoGenerate = false;
   //   }
   // }
@@ -390,7 +390,7 @@ Serializer.addClass(
       visibleIndex: 10,
     },
     {
-      name: "labels:itemvalue[]",
+      name: "customLabels:itemvalue[]",
       category: "sliderSettings",
       visibleIndex: 11,
       // visibleIf: function (obj: any) {
@@ -406,9 +406,9 @@ Serializer.addClass(
     {
       name: "tooltipVisibility:string",
       category: "sliderSettings",
-      default: "onhover",
+      default: "auto",
       visibleIndex: 13,
-      choices: ["onhover", "never"]
+      choices: ["auto", "never"]
     },
     {
       name: "labelFormat:string",

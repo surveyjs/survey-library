@@ -75,7 +75,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     let toolTipValue = step ? getClosestToStepValue(value) : value;
 
     if (tooltipVisibility !== "never") {
-      tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "onhover" ? cssClasses.tooltipOnHoverMode : ""}`}>
+      tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "auto" ? cssClasses.tooltipOnHoverMode : ""}`}>
         <div className={cssClasses.tooltipPanel}>
           <div className={cssClasses.tooltipValue} >{tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
         </div>
@@ -115,7 +115,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getLabels() {
     const labels = [];
-    const { renderedMax: max, renderedMin: min, labelCount, showEdgeLabels, labels: customLabels, cssClasses, step, labelFormat } = this.question;
+    const { renderedMax: max, renderedMin: min, labelCount, showEdgeLabels, customLabels, cssClasses, step, labelFormat } = this.question;
     const fullRange = max - min;
 
     for (let i = 0; i < labelCount; i++) {

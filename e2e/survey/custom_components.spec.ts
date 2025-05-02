@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
 const title = "Custom Components";
 

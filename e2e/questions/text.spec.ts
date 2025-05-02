@@ -1,5 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyData, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, getData, setRowItemFlowDirection } from "../helper";
-import { test, expect } from "@playwright/test";
+import { frameworks, url, initSurvey, getSurveyData, test, expect } from "../helper";
 
 const title = "text";
 

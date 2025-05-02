@@ -1,5 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, visibleInViewport } from "../helper";
-import { test, expect } from "@playwright/test";
+import { frameworks, url, initSurvey, getSurveyResult, visibleInViewport, test, expect } from "../helper";
 
 const title = "matrixdropdown";
 

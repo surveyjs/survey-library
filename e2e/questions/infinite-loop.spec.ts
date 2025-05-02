@@ -1,7 +1,6 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, test, expect } from "../helper";
 import { QuestionCheckbox, QuestionText, QuestionRating, QuestionDropdown, QuestionComment } from "../questionHelper";
 import { Survey } from "../surveyHelper";
-import { test, expect } from "@playwright/test";
 
 const title = "infinite-loop";
 

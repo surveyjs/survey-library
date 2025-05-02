@@ -71,4 +71,31 @@ frameworks.forEach((framework) => {
       q4: "4",
     });
   });
+  test("showPreview and page descriptions", async (t) => {
+    await initSurvey(framework, {
+      pages: [
+        {
+          name: "page1",
+          description: "p1description",
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+            }
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAllQuestions",
+    });
+    await t.click("input[value=Preview]");
+    await t.expect(Selector("input[title=Edit]").count).eql(1);
+    await t.click(Selector("input[title=Edit]"));
+    await t.typeText(Selector("input[type=text]"), "val");
+    await t.click(Selector("input[value=Preview]"));
+    await t.click(Selector("input[value=Complete]"));
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
+      question1: "val"
+    });
+  });
 });

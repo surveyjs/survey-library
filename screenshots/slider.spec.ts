@@ -41,5 +41,38 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-slider", "slider-single-preview.png");
     });
 
+    test("Slider: Range Mode", async ({ page }) => {
+      const json = {
+        elements: [{
+          type: "slider",
+          sliderType: "range",
+          name: "q1"
+        }],
+      };
+      const question = new Question(page, "q1");
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+
+      await compareScreenshot(page, ".sd-slider", "slider-range-indeterminate.png");
+
+      await question.setPropertyValue("min", -100);
+      await compareScreenshot(page, ".sd-slider", "slider-range-negative-scale-indeterminate.png");
+
+      await question.setPropertyValue("value", [40, 80]);
+      await compareScreenshot(page, ".sd-slider", "slider-range.png");
+
+      await question.setPropertyValue("value", [-40, 40]);
+      await compareScreenshot(page, ".sd-slider", "slider-range-negative-scale-positive-value.png");
+
+      await question.setPropertyValue("value", [-80, -40]);
+      await compareScreenshot(page, ".sd-slider", "slider-range-negative-scale.png");
+
+      await question.setPropertyValue("readOnly", true);
+      await compareScreenshot(page, ".sd-slider", "slider-range-read-only.png");
+
+      await new Survey(page).showPreview();
+      await compareScreenshot(page, ".sd-slider", "slider-range-preview.png");
+    });
+
   });
 });

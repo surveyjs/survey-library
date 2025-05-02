@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, test, expect } from "../helper";
 
 const title = "RequiredIf property";
 

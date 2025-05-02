@@ -1,6 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, initSurvey, url, getSurveyResult } from "../helper";
-
+import { frameworks, initSurvey, url, getSurveyResult, test, expect } from "../helper";
 const title = "ShowPreview";
 
 const json = {
@@ -78,10 +76,6 @@ frameworks.forEach((framework) => {
     });
 
     test("showPreview and page descriptions", async ({ page }) => {
-      const errors: string[] = [];
-      page.on("pageerror", (exception) => {
-        errors.push(exception.message);
-      });
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, {
         pages: [
@@ -109,7 +103,6 @@ frameworks.forEach((framework) => {
       expect(surveyResult).toEqual({
         question1: "val"
       });
-      expect(errors).toHaveLength(0);
     });
   });
 });

@@ -4747,7 +4747,7 @@ export class SurveyModel extends SurveyElementCore
     });
     this.updateButtonsVisibility();
   }
-  private currentSingleElementValue: IElement;
+  private currentSingleElementValue: IElement | undefined;
   private getSingleElements(includeEl?: IElement): Array<IElement> {
     const res = new Array<IElement>();
     const pages = this.pages;
@@ -4766,10 +4766,10 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public get currentSingleElement(): IElement {
+  public get currentSingleElement(): IElement | undefined {
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
-  public set currentSingleElement(val: IElement) {
+  public set currentSingleElement(val: IElement | undefined) {
     const oldVal = this.currentSingleElement;
     if (val !== oldVal && !this.isCompleted) {
       const valQuestion = val?.isQuestion ? <Question>val : undefined;
@@ -4796,12 +4796,11 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  public get currentSingleQuestion(): Question {
-    const res = this.currentSingleElement;
-    return !!res && res.isQuestion ? <Question>res : undefined;
+  public get currentSingleQuestion(): Question | IPanel {
+    return <any>this.currentSingleElement;
   }
-  public set currentSingleQuestion(val: Question) {
-    this.currentSingleElement = val;
+  public set currentSingleQuestion(val: Question | IPanel) {
+    this.currentSingleElement = <any>val;
   }
   public supportsNestedSingleInput(question: IQuestion): boolean {
     const options = { question: <Question>question, enabled: true };

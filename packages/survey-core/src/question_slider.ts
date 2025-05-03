@@ -1,5 +1,6 @@
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
+import { IQuestion } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -14,6 +15,7 @@ import { DragOrClickHelper } from "./utils/dragOrClickHelper";
  *
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
+
 export class QuestionSliderModel extends Question {
   @property({ defaultValue: "range" }) sliderType: "range" | "single";
   @property({ defaultValue: 100 }) max: number;
@@ -242,6 +244,150 @@ export class QuestionSliderModel extends Question {
     return result;
   };
 
+  public handleRangeOnChange = (event: InputEvent): void => {
+    if (!this.isRangeMoving) return;
+    const { renderedMax: max, renderedMin: min, getRenderedValue } = this;
+    const inputNode = <HTMLInputElement>event.target;
+    const diff = this.oldInputValue - +inputNode.value;
+    this.oldInputValue = +inputNode.value;
+
+    const renderedValue = getRenderedValue();
+    let borderArrived = false;
+    for (let i = 0; i < renderedValue.length; i++) {
+      const newVal = renderedValue[i] - diff;
+      if (newVal <= max && newVal >= min) {
+        renderedValue[i] -= diff;
+      } else {
+        borderArrived = true;
+      }
+    }
+
+    if (borderArrived) { borderArrived = false; return; }
+    this.setSliderValue(renderedValue);
+  };
+
+  public prepareInputRangeForMoving = (event: PointerEvent, rootNode: HTMLElement): void => {
+    const { renderedMax: max, renderedMin: min } = this;
+
+    this.isRangeMoving = true;
+    this.animatedThumb = false;
+
+    //const inputNode = this.rangeInputRef.current;
+    const inputNode = <HTMLInputElement>event.target;
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
+
+    const leftPercent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
+    const newInputValue = leftPercent / 100 * (max - min) + min;
+    inputNode.value = "" + newInputValue;
+    this.oldInputValue = newInputValue;
+  };
+
+  public handleRangePointerUp = (event: PointerEvent, rootNode: HTMLElement) => {
+    const { step, getRenderedValue, getClosestToStepValue } = this;
+    const inputNode = <HTMLInputElement>event.target;
+
+    if (this.isRangeMoving) {
+      this.refreshInputRange(inputNode);
+      this.isRangeMoving = false;
+      if (step) {
+        // const input = this.rangeInputRef.current as HTMLInputElement; //TODO
+        inputNode.step = "" + step;
+
+        const renderedValue:number[] = getRenderedValue();
+        for (let i = 0; i < renderedValue.length; i++) {
+          renderedValue[i] = getClosestToStepValue(renderedValue[i]);
+        }
+        this.setSliderValue(renderedValue);
+      }
+      return;
+    }
+
+    // const inputNode = this.rangeInputRef.current;
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "0px");
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
+    this.setValueByClickOnPath(event, rootNode);
+  };
+
+  public refreshInputRange = (inputNode: HTMLInputElement):void => {
+    const { allowDragRange, getRenderedValue, getPercent } = this;
+    if (!allowDragRange) return;
+    //if (!this.rangeInputRef.current) return;
+    if (!inputNode) return;
+    const renderedValue = getRenderedValue();
+    const percentLastValue = getPercent(renderedValue[renderedValue.length - 1]);
+    const percentFirstValue = getPercent(renderedValue[0]);
+    let percent: number = percentLastValue - percentFirstValue;
+
+    //const inputNode = this.rangeInputRef.current;
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", `calc(${percent}% - 20px - 20px)`); //TODO 20px is thumb width remove hardcode
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${percentFirstValue}% + 20px)`);
+    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "absolute");
+  };
+
+  public setSliderValue = (newValue) => {
+    if (!this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle) {
+      this.value = newValue;
+    }
+  };
+
+  public setValueByClickOnPath = (event: PointerEvent, rootNode: HTMLElement) => {
+    const { renderedMax: max, renderedMin: min } = this;
+
+    const percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
+    let newValue = Math.round(percent / 100 * (max - min) + min);
+
+    this.setValueByClick(newValue, event.target as HTMLInputElement);
+  };
+
+  public setValueByClick = (newValue: number, inputNode: HTMLInputElement) => {
+    const { step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, refreshInputRange, setSliderValue } = this;
+
+    this.animatedThumb = true;
+
+    const renderedValue = getRenderedValue();
+    let thumbIndex = 0;
+
+    for (let i = 0; i < renderedValue.length; i++) {
+      const currentMinValueDiff = Math.abs(renderedValue[thumbIndex] - newValue);
+      const newMinValueDiff = Math.abs(renderedValue[i] - newValue);
+      if (newMinValueDiff < currentMinValueDiff) {
+        thumbIndex = i;
+      }
+    }
+
+    if (renderedValue.length > 1) {
+      newValue = ensureMaxRangeBorders(newValue, thumbIndex);
+      newValue = ensureMinRangeBorders(newValue, thumbIndex);
+    }
+    renderedValue[thumbIndex] = newValue;
+
+    if (step) {
+      const currentValue = getRenderedValue();
+      for (let i = 0; i < renderedValue.length; i++) {
+        const currentValueStep = currentValue[i] / step;
+        const newValueStep = renderedValue[i] / step;
+        const newValueRound = Math.round(newValueStep);
+
+        if (newValueRound === currentValueStep) {
+          if (newValueStep > currentValueStep) {
+            renderedValue[i] = renderedValue[i] + step;
+          } else if (newValueStep < currentValueStep) {
+            renderedValue[i] = renderedValue[i] - step;
+          }
+        }
+
+        renderedValue[i] = getClosestToStepValue(renderedValue[i]);
+      }
+    }
+
+    setSliderValue(renderedValue);
+    //refreshInputRange(this.rangeInputRef.current);
+    refreshInputRange(inputNode);
+  };
+
   // public endLoadingFromJson() {
   //   super.endLoadingFromJson();
   //   if (this.jsonObj.customLabels !== undefined) {
@@ -313,6 +459,9 @@ export class QuestionSliderModel extends Question {
     }
     return actions;
   }
+
+  private isRangeMoving = false;
+  private oldInputValue: number | null = null;
 }
 
 Serializer.addClass(

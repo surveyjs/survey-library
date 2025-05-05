@@ -53,7 +53,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     for (let i = 0; i < value.length; i++) {
       // TODO all keys should be generated ids
-      const thumbAndInput = <React.Fragment key={"thumb-" + i}>
+      const thumbAndInput = <React.Fragment key={value[i]}>
         {this.getInput(i)}
         {this.getThumb(i)}
       </React.Fragment>;
@@ -98,7 +98,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     const value = getRenderedValue()[i];
 
-    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range"
+    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} type="range"
       value={value} min={min} max={max} step={step}
       onChange={ (e)=>{ handleOnChange(e.nativeEvent as InputEvent, i); } }
       onPointerDown={ (e)=>{ handlePointerDown(e.nativeEvent); } } onPointerUp={ (e)=>{ handlePointerUp(e.nativeEvent); } }
@@ -126,7 +126,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     for (let i = 0; i < labelCount; i++) {
       if (!showEdgeLabels && (i === 0 || i === labelCount - 1)) continue;
-      const label = <div key={"label-" + i} className={getLabelCss(i)}
+      const label = <div key={i} className={getLabelCss(i)}
         style={{ left: getLabelPosition(i) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
         <div className={cssClasses.labelTick}></div>
         <div className={cssClasses.labelText}>

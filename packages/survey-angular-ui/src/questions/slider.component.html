@@ -1,9 +1,62 @@
+
+<!-- TODO: -->
+<!--  1. replace all attr.key with trackBy -->
+<!--  2. Property 'value' does not exist on type 'SliderQuestionComponent'. -->
+<div [class]="model.rootCss" #contentElement>
+  <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
+  name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
+  [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step"
+  (input)="model.handleRangeOnChange($any($event))"
+  (pointerdown)="model.handleRangePointerDown($any($event), rootRef)"
+  (pointerup)="model.handleRangePointerUp($any($event), rangeInputRef)" />
   
-  <div [class]="model.rootCss" #contentElement>
-    <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
-    name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
-    [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step"
-    (input)="model.handleRangeOnChange($event)"
-    (pointerdown)="model.handleRangePointerDown($event, contentElement)"
-    (pointerup)="(e)=>{model.handleRangePointerUp(e, rootRef as HTMLElement)}" />
+  <div [class]="model.cssClasses.visualContainer" (pointerup)="model.setValueByClickOnPath($any($event), rootRef)">
+    <div [class]="model.cssClasses.visualContainerSlider">
+      <div [class]="model.cssClasses.inverseTrackLeft" [style]="{ width: model.getTrackPercentLeft() + '%' }"></div>
+      <div [class]="model.cssClasses.inverseTrackRight" [style]="{ width: model.getTrackPercentRight() + '%' }"></div>
+      <div [class]="model.cssClasses.rangeTrack" [style]="{ left: model.getTrackPercentLeft() + '%', right: model.getTrackPercentRight() + '%' }" ></div>
+
+      <ng-container *ngFor="value of (model.getRenderedValue()); index as i;" [attr.key]="value">
+        <input [class]="model.cssClasses.input" [attr.id]="'sjs-slider-input-' + i" type="range" [attr.value]="value" 
+          [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" [attr.disabled]="model.isDisabledAttr"
+          (input)="model.handleOnChange($any($event), i)"
+          (pointerdown)="model.handlePointerDown($any($event))"
+          (pointerup)="model.handlePointerUp($any($event))"
+          (keydown)="model.handleKeyDown($any($event))"
+          (keyup)="model.handleKeyUp($any($event))"
+          (focus)="model.handleOnFocus(i)"
+          (blur)="model.handleOnBlur()"
+        />
+        <div [class]="model.getThumbContainerCss(i)" [style]="{ left: model.getPercent(value) + '%' }">
+          <div *ngIf="model.tooltipVisibility !== 'never'" [class]="model.tooltipCss">
+            <div [class]="model.cssClasses.tooltipPanel">
+              <div [class]="model.cssClasses.tooltipValue">
+                {{model.getTooltipValue(i)}}
+              </div>
+            </div>
+          </div>
+          <div [class]="model.cssClasses.thumb">
+            <div [class]="model.cssClasses.thumbDot"></div>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
   </div>
+  
+
+  <div *ngIf="model.showLabels" [class]="model.cssClasses.labelsContainer">
+    <div>
+      <div *ngFor="value of model.labelCount; index as i;" [attr.key]="i" [class]="model.getLabelCss(i)"
+      [style]="{ left: model.getLabelPosition(i) + '%' }"
+      (pointerup)="model.handleLabelPointerUp($any($event), i)">
+        <ng-container *ngIf="model.showEdgeLabels || (i !== 0 && i !== model.labelCount - 1)">
+          <div [class]="model.cssClasses.labelTick"></div>
+          <div [class]="model.cssClasses.labelText">
+            {{model.getLabelText(i)}}
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

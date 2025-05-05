@@ -9,6 +9,12 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel> {
   @ViewChild("rangeInputRef") rangeInputRef!: ElementRef<HTMLInputElement>;
+  get rootRef(): HTMLElement {
+    return this.elementContentRef?.nativeElement;
+  }
+  get rangeInputElement(): HTMLInputElement {
+    return this.rangeInputRef?.nativeElement;
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("slider-question", SliderQuestionComponent);

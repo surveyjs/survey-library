@@ -13,7 +13,7 @@
             <div :class="question.cssClasses.inverseTrackRight" :style="{ width: question.getTrackPercentRight() + '%' }"></div>
             <div :class="question.cssClasses.rangeTrack" :style="{ left: question.getTrackPercentLeft() + '%', right: question.getTrackPercentRight() + '%' }" ></div>
             
-            <template v-for="(value, i) in question.getRenderedValue()" :key="'thumb-' + i">
+            <template v-for="(value, i) in question.getRenderedValue()" :key="value">
               <input :class="question.cssClasses.input" :id="'sjs-slider-input-' + i" type="range" :value="value" 
                 :min="question.min" :max="question.max" :step="question.step" :disabled="question.isDisabledAttr"
                 @input="(e)=>{question.handleOnChange(e as InputEvent, i)}"
@@ -44,7 +44,7 @@
 
         <div v-if="question.showLabels" :class="question.cssClasses.labelsContainer">
           <div>
-            <div v-for="(value, i) in question.labelCount" :key="'label-' + i" :class="question.getLabelCss(i)"
+            <div v-for="(value, i) in question.labelCount" :key="i" :class="question.getLabelCss(i)"
             :style="{ left: question.getLabelPosition(i) + '%' }"
             @pointerup="(e)=>{question.handleLabelPointerUp(e, i)}">
               <template v-if="question.showEdgeLabels || (i !== 0 && i !== question.labelCount - 1)">

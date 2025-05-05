@@ -3,7 +3,7 @@
     <!-- ko component: { name: 'survey-element-title', params: {element: $data } } --><!-- /ko -->
     <!-- ko if: _showDescription-->
     <div
-      data-bind="visible: data.showPageTitles, css: cssClasses.page.description"
+      data-bind="visible: data.showPageTitles, css: cssClasses.page?.description"
     >
       <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->

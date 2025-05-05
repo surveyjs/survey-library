@@ -27,13 +27,10 @@ const goLastPage = ClientFunction(() => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json);
-    }
-  );
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("showPreview = showAllQuestions", async (t) => {
+    await initSurvey(framework, json);
     await showAllQuestions();
     await goLastPage();
     await t.click("input[value=Preview]");
@@ -53,6 +50,7 @@ frameworks.forEach((framework) => {
     });
   });
   test("showPreview = showAnsweredQuestions", async (t) => {
+    await initSurvey(framework, json);
     await showAnsweredQuestions();
     await goLastPage();
     await t.click("input[value=Preview]");

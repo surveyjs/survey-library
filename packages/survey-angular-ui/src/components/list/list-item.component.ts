@@ -18,8 +18,11 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
     return (this.model as IAction)?.elementId;
   }
 
-  get ariaSelected(): boolean | string {
-    return this.listModel.isItemSelected(this.model) || "";
+  get ariaSelected(): string | undefined {
+    return this.listModel.get_a11y_item_ariaSelected(this.model);
+  }
+  get ariaChecked(): string | undefined {
+    return this.listModel.get_a11y_item_ariaChecked(this.model);
   }
   get class(): string {
     return this.listModel.getItemClass(this.model);

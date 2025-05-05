@@ -193,7 +193,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
 
 export function createPopupModelWithListModel(listOptions: IListModel, popupOptions: IPopupOptionsBase): PopupModel {
   if (!listOptions.listRole) listOptions.listRole = "menu";
-  if (!listOptions.listItemRole) listOptions.listItemRole = "menuitem";
+  if (!listOptions.listItemRole) listOptions.listItemRole = !!listOptions.allowSelection ? "menuitemradio" : "menuitem";
 
   const listModel: ListModel = new ListModel(listOptions as any);
   listModel.onSelectionChanged = (item: Action) => {

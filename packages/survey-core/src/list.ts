@@ -238,6 +238,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };
 
+  public get_a11y_item_ariaSelected: (itemValue: T) => "true" | "false" | undefined = (itemValue: T) => {
+    if (this.listItemRole == "option") return this.isItemSelected(itemValue) ? "true" : "false";
+    return undefined;
+  };
+
+  public get_a11y_item_ariaChecked: (itemValue: T) => "true" | "false" | undefined = (itemValue: T) => {
+    if (this.listItemRole == "menuitemradio") return this.isItemSelected(itemValue) ? "true" : "false";
+    return undefined;
+  };
+
   public isItemSelected: (itemValue: T) => boolean = (itemValue: T) => {
     return this.areSameItems(this.selectedItem, itemValue);
   };

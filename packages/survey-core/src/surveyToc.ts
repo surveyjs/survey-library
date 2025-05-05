@@ -35,6 +35,8 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
     items: items,
     searchEnabled: false,
     locOwner: survey,
+    listRole: "menu",
+    listItemRole: "menuitemradio",
     listAriaLabel: getLocaleString("toc", survey.getLocale())
   };
   var listModel = new ListModel(listOptions as any);

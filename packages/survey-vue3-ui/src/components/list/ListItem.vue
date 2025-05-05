@@ -1,7 +1,8 @@
 <template>
   <li
     :role="model.listItemRole"
-    :aria-selected="model.isItemSelected(item)"
+    :aria-selected="model.get_a11y_item_ariaSelected(item)"
+    :aria-checked="model.get_a11y_item_ariaChecked(item)"
     v-show="model.isItemVisible(item)"
     :key="item.id"
     :id="elementId"

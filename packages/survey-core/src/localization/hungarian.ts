@@ -63,7 +63,7 @@ export var hungarianSurveyStrings = {
   removeRow: "Eltávolítás",
   noRowsText: "Nincsenek sorok.",
   rowIndexTemplateTitle: "{rowIndex} sor",
-  rowNameTemplateTitle: "{sorcím}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Új hozzáadása",
   removePanel: "Eltávolítás",
   showDetails: "Mutasd a részleteket",
@@ -163,5 +163,4 @@ setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "ma
 // commentText: "Please leave a comment" => "Kérjük, írjon megjegyzést"
 // buttongroupOptionsCaption: "Select..." => "Kiválaszt..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "{rowIndex} sor"
-// rowNameTemplateTitle: "{rowTitle}" => "{sorcím}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" elem létrehozása..."

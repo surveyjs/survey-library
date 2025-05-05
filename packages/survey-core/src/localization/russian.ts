@@ -63,7 +63,7 @@ export var russianSurveyStrings = {
   removeRow: "Удалить",
   noRowsText: "Рядов нет.",
   rowIndexTemplateTitle: "Строка {rowIndex}",
-  rowNameTemplateTitle: "{заголовок строки}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Добавить новую",
   removePanel: "Удалить",
   showDetails: "Показать подробности",
@@ -148,5 +148,4 @@ setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "ру
 // commentText: "Please leave a comment" => "Пожалуйста, оставьте комментарий"
 // buttongroupOptionsCaption: "Select..." => "Выбирать..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Строка {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{заголовок строки}"
 // createCustomItem: "Create \"{0}\" item..." => "Создать элемент \"{0}\"..."

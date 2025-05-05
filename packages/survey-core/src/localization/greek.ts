@@ -149,5 +149,4 @@ setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελλ
 // commentText: "Please leave a comment" => "Παρακαλώ αφήστε ένα σχόλιο"
 // buttongroupOptionsCaption: "Select..." => "Διαλέγω..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Γραμμή {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Δημιουργία στοιχείου \"{0}\"..."

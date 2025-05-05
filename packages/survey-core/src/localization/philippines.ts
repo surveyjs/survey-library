@@ -134,5 +134,4 @@ setupLocale({ localeCode: "fil", strings: philippinesStrings, nativeName: "filip
 // commentText: "Please leave a comment" => "Mangyaring mag-iwan ng komento"
 // buttongroupOptionsCaption: "Select..." => "Pumili ..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Hilera {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Lumikha ng \"{0}\" na item ..."

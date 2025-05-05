@@ -154,5 +154,4 @@ setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu
 // commentText: "Please leave a comment" => "Sila tinggalkan komen"
 // buttongroupOptionsCaption: "Select..." => "Pilih..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Baris {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Buat item \"{0}\"..."

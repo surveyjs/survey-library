@@ -63,7 +63,7 @@ export var polishSurveyStrings = {
   removeRow: "Usuń",
   noRowsText: "Nie ma rzędów.",
   rowIndexTemplateTitle: "Wiersz {indeks wiersza}",
-  rowNameTemplateTitle: "{tytuł_wiersza}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Dodaj panel",
   removePanel: "Usuń",
   showDetails: "Pokaż szczegóły",
@@ -152,5 +152,4 @@ setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polsk
 // commentText: "Please leave a comment" => "Proszę o komentarz"
 // buttongroupOptionsCaption: "Select..." => "Wybrać..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Wiersz {indeks wiersza}"
-// rowNameTemplateTitle: "{rowTitle}" => "{tytuł_wiersza}"
 // createCustomItem: "Create \"{0}\" item..." => "Utwórz element \"{0}\"..."

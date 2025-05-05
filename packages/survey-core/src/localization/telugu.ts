@@ -165,5 +165,4 @@ setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", e
 // commentText: "Please leave a comment" => "దయచేసి ఒక వ్యాఖ్య ఇవ్వండి"
 // buttongroupOptionsCaption: "Select..." => "ఎంచు..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" ఐటమ్ సృష్టించండి..."

@@ -63,7 +63,7 @@ export var japaneseSurveyStrings = {
   removeRow: "削除",
   noRowsText: "行がありません。",
   rowIndexTemplateTitle: "行 {rowIndex}",
-  rowNameTemplateTitle: "{行タイトル}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "新規追加",
   removePanel: "削除",
   showDetails: "詳細を表示",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日
 // commentText: "Please leave a comment" => "コメントを残してください"
 // buttongroupOptionsCaption: "Select..." => "選ぶ。。。"
 // rowIndexTemplateTitle: "Row {rowIndex}" => "行 {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{行タイトル}"
 // createCustomItem: "Create \"{0}\" item..." => "「{0}」アイテムを作成..."

@@ -152,5 +152,4 @@ setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "espa
 // commentText: "Please leave a comment" => "Por favor, deja un comentario"
 // buttongroupOptionsCaption: "Select..." => "Escoger..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Fila {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Crear artículo \"{0}\"..."

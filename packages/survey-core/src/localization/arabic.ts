@@ -63,7 +63,7 @@ export var arabicSurveyStrings = {
   removeRow: "إزالة صف",
   noRowsText: "لا توجد صفوف.",
   rowIndexTemplateTitle: "الصف {rowIndex}",
-  rowNameTemplateTitle: "{عنوان الصف}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
   showDetails: "اظهر التفاصيل",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "ال�
 // commentText: "Please leave a comment" => "الرجاء ترك تعليق"
 // buttongroupOptionsCaption: "Select..." => "اختار..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "الصف {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{عنوان الصف}"
 // createCustomItem: "Create \"{0}\" item..." => "قم بإنشاء عنصر \"{0}\" ..."

@@ -158,5 +158,4 @@ setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "�
 // commentText: "Please leave a comment" => "Молиме оставете коментар"
 // buttongroupOptionsCaption: "Select..." => "Изберете..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Ред {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Креирање на \"{0}\" ставка..."

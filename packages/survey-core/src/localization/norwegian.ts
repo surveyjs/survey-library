@@ -63,7 +63,7 @@ export var norwegianSurveyStrings = {
   removeRow: "Fjern",
   noRowsText: "Det er ingen rader.",
   rowIndexTemplateTitle: "Rad {rowIndex}",
-  rowNameTemplateTitle: "{radTittel}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
   showDetails: "Vis detaljer",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "no", strings: norwegianSurveyStrings, nativeName: "no
 // commentText: "Please leave a comment" => "Legg igjen en kommentar"
 // buttongroupOptionsCaption: "Select..." => "Velge..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rad {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{radTittel}"
 // createCustomItem: "Create \"{0}\" item..." => "Lag \"{0}\" element..."

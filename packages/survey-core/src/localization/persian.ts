@@ -63,7 +63,7 @@ export var persianSurveyStrings = {
   removeRow: "حذف",
   noRowsText: "هیچ ردیفی وجود ندارد.",
   rowIndexTemplateTitle: "ردیف {rowIndex}",
-  rowNameTemplateTitle: "{ردیف عنوان}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "جدید",
   removePanel: "حذف",
   showDetails: "نمایش جزئیات",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فا
 // commentText: "Please leave a comment" => "لطفا نظر خود را بنویسید"
 // buttongroupOptionsCaption: "Select..." => "انتخاب..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "ردیف {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{ردیف عنوان}"
 // createCustomItem: "Create \"{0}\" item..." => "مورد \"{0}\" ایجاد کنید..."

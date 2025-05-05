@@ -145,5 +145,4 @@ setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "tür
 // commentText: "Please leave a comment" => "Lütfen bir yorum bırakın"
 // buttongroupOptionsCaption: "Select..." => "Seçmek..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Satır {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" öğesi oluştur..."

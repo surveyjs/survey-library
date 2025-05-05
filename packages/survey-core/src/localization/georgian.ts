@@ -217,5 +217,4 @@ setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქ
 // commentText: "Please leave a comment" => "გთხოვთ დატოვოთ კომენტარი"
 // buttongroupOptionsCaption: "Select..." => "აირჩიეთ..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "შექმენით \"{0}\" ელემენტი..."

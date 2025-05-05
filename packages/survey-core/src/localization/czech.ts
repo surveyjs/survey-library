@@ -63,7 +63,7 @@ export var czechSurveyStrings = {
   removeRow: "Odstranit",
   noRowsText: "Neexistují žádné řádky.",
   rowIndexTemplateTitle: "Řádek {rowIndex}",
-  rowNameTemplateTitle: "{řádekNázev}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Přidat nový",
   removePanel: "Odstranit",
   showDetails: "Zobrazit podrobnosti",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "češt
 // commentText: "Please leave a comment" => "Zanechte prosím komentář"
 // buttongroupOptionsCaption: "Select..." => "Vybrat..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Řádek {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{řádekNázev}"
 // createCustomItem: "Create \"{0}\" item..." => "Vytvořte položku \"{0}\"..."

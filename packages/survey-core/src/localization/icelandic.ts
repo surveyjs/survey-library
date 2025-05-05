@@ -63,7 +63,7 @@ export var icelandicSurveyStrings = {
   removeRow: "Fjarlægja",
   noRowsText: "Það eru engar raðir.",
   rowIndexTemplateTitle: "Röð {rowIndex}",
-  rowNameTemplateTitle: "{rowTitill}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Bæta við nýju",
   removePanel: "Fjarlægðu",
   showDetails: "Sýna upplýsingar",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "í
 // commentText: "Please leave a comment" => "Vinsamlegast skildu eftir athugasemd"
 // buttongroupOptionsCaption: "Select..." => "Velja..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Röð {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitill}"
 // createCustomItem: "Create \"{0}\" item..." => "Búðu til \"{0}\" hlut..."

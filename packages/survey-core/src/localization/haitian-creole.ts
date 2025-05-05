@@ -127,5 +127,4 @@ setupLocale({ localeCode: "ht", strings: haitianCreoleStrings, nativeName: "Krey
 // commentText: "Please leave a comment" => "Tanpri kite yon kòmantè"
 // buttongroupOptionsCaption: "Select..." => "Chwazi ..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Kreye \"{0}\" atik ..."

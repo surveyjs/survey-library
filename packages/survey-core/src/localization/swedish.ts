@@ -152,5 +152,4 @@ setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "sven
 // commentText: "Please leave a comment" => "Lämna gärna en kommentar"
 // buttongroupOptionsCaption: "Select..." => "Utvald..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rad {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Skapa \"{0}\"-objekt..."

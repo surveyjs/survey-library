@@ -63,7 +63,7 @@ export var hindiStrings = {
   removeRow: "हटाए",
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
   rowIndexTemplateTitle: "पंक्ति {rowIndex}",
-  rowNameTemplateTitle: "{पंक्ति शीर्षक}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "नया जोड़ें",
   removePanel: "हटाए",
   showDetails: "विवरण दिखाएँ",
@@ -165,5 +165,4 @@ setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", engl
 // commentText: "Please leave a comment" => "कृपया एक टिप्पणी छोड़ दो"
 // buttongroupOptionsCaption: "Select..." => "चुनना।।।"
 // rowIndexTemplateTitle: "Row {rowIndex}" => "पंक्ति {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{पंक्ति शीर्षक}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" आइटम बनाएँ..."

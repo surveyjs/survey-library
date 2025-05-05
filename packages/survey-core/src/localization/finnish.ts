@@ -63,7 +63,7 @@ export var finnishSurveyStrings = {
   removeRow: "Poista",
   noRowsText: "Ei rivejä",
   rowIndexTemplateTitle: "Rivi {rowIndex}",
-  rowNameTemplateTitle: "{rivin otsikko}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Lisää uusi",
   removePanel: "Poista",
   showDetails: "Näytä tiedot",
@@ -152,5 +152,4 @@ setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suom
 // commentText: "Please leave a comment" => "Jätä kommentti"
 // buttongroupOptionsCaption: "Select..." => "Valikoida..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rivi {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rivin otsikko}"
 // createCustomItem: "Create \"{0}\" item..." => "Luo \"{0}\"-kohde..."

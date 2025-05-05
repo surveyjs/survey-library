@@ -152,4 +152,3 @@ setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "fran�
 // commentText: "Please leave a comment" => "S’il vous plaît laissez un commentaire"
 // buttongroupOptionsCaption: "Select..." => "Choisir..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Ligne {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"

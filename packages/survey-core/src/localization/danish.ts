@@ -164,5 +164,4 @@ setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk
 // commentText: "Please leave a comment" => "Efterlad venligst en kommentar"
 // buttongroupOptionsCaption: "Select..." => "Markere..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Række {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Opret \"{0}\" element..."

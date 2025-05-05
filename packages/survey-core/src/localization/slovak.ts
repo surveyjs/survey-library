@@ -154,5 +154,4 @@ setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "slova
 // commentText: "Please leave a comment" => "Zanechajte komentár"
 // buttongroupOptionsCaption: "Select..." => "Vybrať..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Riadok {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Vytvoriť položku \"{0}\"..."

@@ -164,5 +164,4 @@ setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "rom
 // commentText: "Please leave a comment" => "Vă rugăm să lăsați un comentariu"
 // buttongroupOptionsCaption: "Select..." => "Alege..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rând {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Creați un articol \"{0}\"..."

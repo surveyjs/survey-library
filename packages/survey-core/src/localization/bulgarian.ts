@@ -164,5 +164,4 @@ setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "бълг
 // commentText: "Please leave a comment" => "Моля, оставете коментар"
 // buttongroupOptionsCaption: "Select..." => "Отбран..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Ред {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Създайте елемент \"{0}\"..."

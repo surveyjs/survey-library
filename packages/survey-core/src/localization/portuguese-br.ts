@@ -213,5 +213,4 @@ setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeNam
 // commentText: "Please leave a comment" => "Por favor, deixe um comentário"
 // buttongroupOptionsCaption: "Select..." => "Selecionar..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Linha {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Criar item \"{0}\"..."

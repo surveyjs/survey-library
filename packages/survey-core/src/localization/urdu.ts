@@ -156,5 +156,4 @@ setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", 
 // commentText: "Please leave a comment" => "براہ مہربانی ایک تبصرہ چھوڑ دیں"
 // buttongroupOptionsCaption: "Select..." => "منتخب..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" آئٹم بنائیں..."

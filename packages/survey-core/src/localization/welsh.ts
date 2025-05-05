@@ -164,5 +164,4 @@ setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymrae
 // commentText: "Please leave a comment" => "Gadewch sylw os gwelwch yn dda"
 // buttongroupOptionsCaption: "Select..." => "Dewis..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rhes {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Creu eitem \"{0}\"..."

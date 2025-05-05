@@ -152,5 +152,4 @@ setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "ital
 // commentText: "Please leave a comment" => "Si prega di lasciare un commento"
 // buttongroupOptionsCaption: "Select..." => "Selezionare..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Riga {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Crea un articolo \"{0}\"..."

@@ -164,5 +164,4 @@ setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa 
 // commentText: "Please leave a comment" => "Silakan tinggalkan komentar"
 // buttongroupOptionsCaption: "Select..." => "Pilih..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Baris {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Buat item \"{0}\"..."

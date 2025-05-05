@@ -126,5 +126,4 @@ setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenš
 // commentText: "Please leave a comment" => "Prosimo, pustite komentar"
 // buttongroupOptionsCaption: "Select..." => "Izbrati..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Vrstica {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Ustvari element »{0}« ..."

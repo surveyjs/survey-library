@@ -63,7 +63,7 @@ export var latvianSurveyStrings = {
   removeRow: "Noņemt",
   noRowsText: "Nav rindu.",
   rowIndexTemplateTitle: "Rinda {rowIndex}",
-  rowNameTemplateTitle: "{rindasVirsraksts}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Pievieno jaunu",
   removePanel: "Noņemt",
   showDetails: "Rādīt detalizētu informāciju",
@@ -152,5 +152,4 @@ setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latv
 // commentText: "Please leave a comment" => "Lūdzu, atstājiet komentāru"
 // buttongroupOptionsCaption: "Select..." => "Atlasiet..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rinda {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rindasVirsraksts}"
 // createCustomItem: "Create \"{0}\" item..." => "Izveidot vienumu \"{0}\"..."

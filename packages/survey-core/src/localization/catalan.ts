@@ -63,7 +63,7 @@ export var catalanSurveyStrings = {
   removeRow: "Eliminar una filera",
   noRowsText: "No hi ha files.",
   rowIndexTemplateTitle: "Fila {rowIndex}",
-  rowNameTemplateTitle: "{filaTítol}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Afegeix un nou",
   removePanel: "Treure",
   showDetails: "Mostra els detalls",
@@ -204,5 +204,4 @@ setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "cata
 // commentText: "Please leave a comment" => "Si us plau, deixa un comentari"
 // buttongroupOptionsCaption: "Select..." => "Seleccionar..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Fila {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{filaTítol}"
 // createCustomItem: "Create \"{0}\" item..." => "Crea un element \"{0}\"..."

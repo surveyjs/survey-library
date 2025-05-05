@@ -63,7 +63,7 @@ export var koreanStrings = {
   removeRow: "제거",
   noRowsText: "행이 없습니다.",
   rowIndexTemplateTitle: "행 {rowIndex}",
-  rowNameTemplateTitle: "{행 제목}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "추가",
   removePanel: "제거",
   showDetails: "세부 정보 표시",
@@ -151,5 +151,4 @@ setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어",
 // commentText: "Please leave a comment" => "코멘트를 남겨주세요"
 // buttongroupOptionsCaption: "Select..." => "고르다..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "행 {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{행 제목}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" 항목 만들기..."

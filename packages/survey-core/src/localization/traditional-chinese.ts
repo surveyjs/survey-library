@@ -199,5 +199,4 @@ setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nat
 // commentText: "Please leave a comment" => "請發表評論"
 // buttongroupOptionsCaption: "Select..." => "選擇。。。"
 // rowIndexTemplateTitle: "Row {rowIndex}" => "行 {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "建立 {0} 項目..."

@@ -157,5 +157,4 @@ setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euska
 // commentText: "Please leave a comment" => "Mesedez, utzi iruzkin bat"
 // buttongroupOptionsCaption: "Select..." => "Aukeratu..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Fila {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\" artikulua sortzea..."

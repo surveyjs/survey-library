@@ -164,5 +164,4 @@ setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "li
 // commentText: "Please leave a comment" => "Prašome palikti komentarą"
 // buttongroupOptionsCaption: "Select..." => "Žymėti..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Eilutė {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Sukurkite elementą \"{0}\"..."

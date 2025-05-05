@@ -164,5 +164,4 @@ setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", e
 // commentText: "Please leave a comment" => "กรุณาแสดงความคิดเห็น"
 // buttongroupOptionsCaption: "Select..." => "เลือก   "
 // rowIndexTemplateTitle: "Row {rowIndex}" => "แถว {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "สร้างรายการ \"{0}\"..."

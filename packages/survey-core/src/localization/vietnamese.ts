@@ -63,7 +63,7 @@ export var vietnameseSurveyStrings = {
   removeRow: "Xóa",
   noRowsText: "Không có hàng.",
   rowIndexTemplateTitle: "Hàng {rowIndex}",
-  rowNameTemplateTitle: "{tiêu đề hàng}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Thêm mới",
   removePanel: "Xóa",
   showDetails: "Hiển thị chi tiết",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "v
 // commentText: "Please leave a comment" => "Vui lòng để lại bình luận"
 // buttongroupOptionsCaption: "Select..." => "Lựa..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Hàng {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{tiêu đề hàng}"
 // createCustomItem: "Create \"{0}\" item..." => "Tạo vật phẩm \"{0}\"..."

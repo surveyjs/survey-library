@@ -164,5 +164,4 @@ setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "у
 // commentText: "Please leave a comment" => "Будь ласка, залиште коментар"
 // buttongroupOptionsCaption: "Select..." => "Виберіть..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Рядок {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Створіть пункт \"{0}\"..."

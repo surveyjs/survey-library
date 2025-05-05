@@ -157,5 +157,4 @@ setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nati
 // commentText: "Please leave a comment" => "请发表评论"
 // buttongroupOptionsCaption: "Select..." => "选择。。。"
 // rowIndexTemplateTitle: "Row {rowIndex}" => "行 {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "创建 {0} 项..."

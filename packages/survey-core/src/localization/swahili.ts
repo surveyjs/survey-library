@@ -164,5 +164,4 @@ setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", 
 // commentText: "Please leave a comment" => "Tafadhali acha maoni"
 // buttongroupOptionsCaption: "Select..." => "Teua..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Safu {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Unda kipengee cha \"{0}\"..."

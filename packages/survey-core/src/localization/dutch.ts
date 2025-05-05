@@ -63,7 +63,7 @@ export var dutchSurveyStrings = {
   removeRow: "Verwijder",
   noRowsText: "Er zijn geen rijen.",
   rowIndexTemplateTitle: "Rij {rowIndex}",
-  rowNameTemplateTitle: "{rijTitel}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Nieuwe toevoegen",
   removePanel: "Verwijder",
   showDetails: "Toon details",
@@ -162,5 +162,4 @@ setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederl
 // commentText: "Please leave a comment" => "Laat een reactie achter"
 // buttongroupOptionsCaption: "Select..." => "Selecteren..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rij {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rijTitel}"
 // createCustomItem: "Create \"{0}\" item..." => "Maak een \"{0}\" item..."

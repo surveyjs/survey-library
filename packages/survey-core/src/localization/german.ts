@@ -131,5 +131,4 @@ setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deuts
 // commentText: "Please leave a comment" => "Bitte hinterlassen Sie einen Kommentar"
 // buttongroupOptionsCaption: "Select..." => "Auswählen..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Zeile {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "\"{0}\"-Element erstellen..."

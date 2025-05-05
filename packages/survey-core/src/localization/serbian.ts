@@ -158,5 +158,4 @@ setupLocale({ localeCode: "rs", strings: serbianStrings, nativeName: "srpski", e
 // commentText: "Please leave a comment" => "Molimo ostavite komentar"
 // buttongroupOptionsCaption: "Select..." => "Izaberite..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Red {rovIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
 // createCustomItem: "Create \"{0}\" item..." => "Kreiraj \"{0}\" stavku..."

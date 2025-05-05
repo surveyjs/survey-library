@@ -63,7 +63,7 @@ export var hebrewSurveyStrings = {
   removeRow: "לְהַסִיר",
   noRowsText: "אין שורות.",
   rowIndexTemplateTitle: "שורה {rowIndex}",
-  rowNameTemplateTitle: "{כותרת שורה}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
   showDetails: "הראה פרטים",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עב�
 // commentText: "Please leave a comment" => "אנא השאירו תגובה"
 // buttongroupOptionsCaption: "Select..." => "בחר..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "שורה {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{כותרת שורה}"
 // createCustomItem: "Create \"{0}\" item..." => "צור פריט \"{0}\"..."

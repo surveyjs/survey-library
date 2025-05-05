@@ -63,7 +63,7 @@ export var estonianSurveyStrings = {
   removeRow: "Eemalda",
   noRowsText: "Ridu pole.",
   rowIndexTemplateTitle: "Rida {rowIndex}",
-  rowNameTemplateTitle: "{rea pealkiri}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Lisa uus",
   removePanel: "Eemalda",
   showDetails: "Näita detaile",
@@ -164,5 +164,4 @@ setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "ees
 // commentText: "Please leave a comment" => "Palun jäta kommentaar"
 // buttongroupOptionsCaption: "Select..." => "Valima..."
 // rowIndexTemplateTitle: "Row {rowIndex}" => "Rida {rowIndex}"
-// rowNameTemplateTitle: "{rowTitle}" => "{rea pealkiri}"
 // createCustomItem: "Create \"{0}\" item..." => "Looge üksus \"{0}\"..."

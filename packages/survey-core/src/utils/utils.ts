@@ -94,7 +94,7 @@ function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  if (typeof settings.environment === "undefined") {
+  if (typeof settings.environment === "undefined" || !element.offsetHeight) {
     return false;
   }
 

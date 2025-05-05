@@ -1,0 +1,576 @@
+import { test, expect } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { upArrowImageLink } from "../visualRegressionTests/helper";
+
+const title = "Advanced header screenshot";
+
+frameworks.forEach(framework => {
+  test.describe(`${framework} ${title}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
+
+    test("Check survey advanced header inherit width from survey", async ({ page }) => {
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        focusFirstQuestionAutomatic: true,
+        title: "Survey Title",
+        description: "Survey description",
+        logo: upArrowImageLink,
+        "widthMode": "static",
+        "width": "600",
+        headerView: "advanced",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: "500px",
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-width-by-survey.png");
+    });
+
+    test("Check survey advanced header with overlap", async ({ page }) => {
+      if (framework === "vue") return;
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        focusFirstQuestionAutomatic: true,
+        title: "Survey Title",
+        description: "Survey description",
+        logo: upArrowImageLink,
+        "widthMode": "static",
+        "width": "600",
+        headerView: "advanced",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: "500px",
+            inheritWidthFrom: "survey",
+            "overlapEnabled": true,
+          },
+          "cssVariables": {
+            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-with-overlap.png");
+
+      await page.setViewportSize({ width: 500, height: 600 });
+      await page.evaluate(() => {
+        (window as any).survey.setIsMobile(true);
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-mobile-with-overlap.png");
+    });
+
+    test("Check survey TOC + advanced header with overlap", async ({ page }) => {
+      if (framework === "vue") return;
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        focusFirstQuestionAutomatic: true,
+        title: "Survey Title",
+        description: "Survey description",
+        logo: upArrowImageLink,
+        "widthMode": "static",
+        "width": "600",
+        headerView: "advanced",
+        showTOC: true,
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: "500px",
+            inheritWidthFrom: "survey",
+            "overlapEnabled": true,
+          },
+          "cssVariables": {
+            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-toc-advanced-header-with-overlap.png");
+
+      await page.setViewportSize({ width: 500, height: 600 });
+      await page.evaluate(() => {
+        (window as any).survey.setIsMobile(true);
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-toc-advanced-header-mobile-with-overlap.png");
+    });
+
+    test("Check header background color modes", async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 600 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        focusFirstQuestionAutomatic: true,
+        title: "Survey Title",
+        description: "Survey description",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({ "cssVariables": {}, "header": {}, "headerView": "advanced" });
+      });
+      await page.waitForTimeout(500);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-none.png");
+
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "var(--sjs-primary-backcolor)" }, "header": {}, "headerView": "advanced" });
+      });
+      await page.waitForTimeout(500);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-accent.png");
+
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
+      });
+      await page.waitForTimeout(500);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-none.png");
+
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({ "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" });
+      });
+      await page.waitForTimeout(500);
+      await resetFocusToBody(page);
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-background-custom-set.png");
+    });
+
+    test("Check header background color modes 2", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        "description": "Building your own form management\nsystem has never been easier.",
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "question1",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-header-backcolor": "transparent"
+          },
+          "header": {
+            "inheritWidthFrom": "survey",
+            "height": 256
+          },
+          "headerView": "advanced"
+        });
+      });
+      await page.waitForTimeout(500);
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-text-alignment.png");
+    });
+
+    test("Check survey advanced header with height 300px", async ({ page }) => {
+      await page.setViewportSize({ width: 1200, height: 1000 });
+      await initSurvey(page, framework, {
+        title: "Building your own form management system has never been easier.",
+        description: "With SurveyJS, you can finally avoid using third-party black box SaaS platforms and create a secure and self-hosted form management system, retaining all sensitive data on your own servers.",
+        logo: upArrowImageLink,
+        logoHeight: "200",
+        headerView: "advanced",
+        "widthMode": "static",
+        "width": "1000",
+        "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "question1" }] }],
+      });
+
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D|   | I |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-1-one-row.png");
+
+      /**
+       +---+---+---+
+       | I |   |   |
+       +---+---+---+
+       | T |   |   |
+       +---+---+---+
+       | D |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "bottom"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-2-one-first-column.png");
+
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |T,D|   |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-3-different-rows-1.png");
+
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |   |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-4-different-rows-2.png");
+
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       | I |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "middle",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-5-one-row-close-columns-1.png");
+
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D| I |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            height: 300,
+            inheritWidthFrom: "survey",
+            "logoPositionX": "center",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-fixed-height-6-one-row-close-columns-2.png");
+    });
+
+    test("Check survey advanced header with auto height", async ({ page }) => {
+      await page.setViewportSize({ width: 1200, height: 800 });
+      await initSurvey(page, framework, {
+        title: "Building your own form management system has never been easier.",
+        description: "With SurveyJS, you can finally avoid using third-party black box SaaS platforms and create a secure and self-hosted form management system, retaining all sensitive data on your own servers.",
+        logo: upArrowImageLink,
+        logoHeight: "200",
+        headerView: "advanced",
+        "widthMode": "static",
+        "width": "1000",
+        "pages": [{ "name": "page1", "elements": [{ "type": "text", "name": "question1" }] }],
+      });
+
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D|   | I |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-1-one-row.png");
+
+      /**
+       +---+---+---+
+       | I |   |   |
+       +---+---+---+
+       | T |   |   |
+       +---+---+---+
+       | D |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "bottom"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-2-one-first-column.png");
+
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |T,D|   |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-3-different-rows-1.png");
+
+      /**
+       +---+---+---+
+       |   |   | I |
+       +---+---+---+
+       |   |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "right",
+            "logoPositionY": "top",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-4-different-rows-2.png");
+
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       | I |T,D|   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "middle",
+            "titlePositionX": "center",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "center",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-5-one-row-close-columns-1.png");
+
+      /**
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       |T,D| I |   |
+       +---+---+---+
+       |   |   |   |
+       +---+---+---+
+       */
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "center",
+            "logoPositionY": "middle",
+            "titlePositionX": "left",
+            "titlePositionY": "middle",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "middle"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sv-header", "survey-advanced-header-auto-height-6-one-row-close-columns-2.png");
+    });
+
+    test("Check header height is correct", async ({ page }) => {
+      await page.setViewportSize({ width: 1600, height: 900 });
+      await initSurvey(page, framework, {
+        title: "My Survey",
+        logo: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAgEAeAB4AAD//gASTEVBRFRPT0xTIHYyMC4wAP/bAIQABQUFCAUIDAcHDAwJCQkMDQwMDAwNDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQEFCAgKBwoMBwcMDQwKDA0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0NDQ0N/8QBogAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoLAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgsQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+hEAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/8AAEQgBqwGjAwEiAAIRAQMRAf/aAAwDAQACEQMRAD8A96ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKlhgedgqAnP5UARU9I2kOEBJ9q6W10FQ26Zs+w/rXQRWkUH+rUL+HNAHEx6TcPztx9avR6BKfvED6V1wXFPoA5L/hHj/e/Sj/hHm/vV1mKMUAcXLoUyDK4bFZ76fPGMlDivRaCAeKAPLyuODxSdK7660uG4GcbT6jiucu9GeH5o/mH60AYlFKylDgjBpKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoorb0vSzcESycIOnvQBHp+kvdkO3yoP1rsoLWO3XYgAAqYAKMDgCnCgBgXFPoooAKKKKACiiigAooooAKjKZqSigDIv9LjuASBh+xrkLm0e1ba4xXo1Vbu0S7jKN+B9KAPOCMUVdu7R7V9rDjsaqYoAbRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFPijMrBB1JxQBp6VYfbHy2di9ff2rt1jEYCqMAdBUNnaraRhF9OfrVqgAxRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBRvrRbqMrjnsa4KSMxEq3BFel1zmt2IK+cg5HWgDkaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigArotBs97+c3Ren1rna9C0yLybdRjBxzQBfooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACopoxKhQ9xUtFAHmtzCbeRkPY1BXReIIdrhwOo61ztABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQBPap5kqp6kV6Qg2qB6CuC0mPfcr7c139ABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAGPrUHmwEj+HmuGr0TUF3QOP8AZP8AKvOzwaACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDV0Y4uVrvK4LRzi5Wu9oAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAqX3+pf/AHT/ACrzo9a9EvyFgfP90/yrzs9aAEooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAtWT+XMrehr0ZTkA15gDtORXomnzedCrZycc0AXKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAyNbk8u3PqTiuFNdP4gmyyxg8DnHvXMmgBKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACul0C62EwnvyK5qp7eYwOHHY0AelUVBbTi4QOO4qegAooooAKKKKACiiigAooooAKKKKACiiigAooooAKbI4jUsegGadXOa5fiNfJQ/MeuPSgDnryc3ErOe54qmaAaDQAlFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABSikooA3NIvjbvsc/Ia7NWBGRXmanFdDpmp7CI5Dx2NAHW0UgIIyOlLQAUUUUAFFFFABRRRQAUUUUAFFFFABRRUFxcLbKXY4xQAy8ultYy7HB7CvO5pDM5dupNXL+9a8fJ+6OgqhQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAop4OKjooA39P1drf5JMsnb2rrIZ0nXchBFeaVatr2W0OYjj27UAej0VzlprqyYWX5T69q3o5lkGVINAEtFFFABRRRQAUUUZoAKKqXF7FbDLn8K5q7113OIflFAG7eanHaA5OWHYVyN5fPdn5unYVSdzKdzHJNMoADRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABUsc7xHKMVNRUUAbEWtXEYwTu+tXV8RMv31/KuaoNAHXDxAn9001vECjoprlRS0Ab02vyNwgArOl1O4l43FQewqiabQAu49yTSZoooAM0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUoUtwKAEoq9FptxLjCnHrWtH4eY/fbH0oA5uiuwTQIUPJJq4ui2w/h/WgDhgKXFd+NNt14CL+VI2mW7fwAfTigDz802u7k0W3cYA2n1qk3h5MfKeaAORorcn0KaLlMNWXLaSwffUigCvRS4xSYoAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKVVLHA5NACVJFE0zBUGSa2bHR3kO6UbV/nXT29pFbqFRQMUAc3baEz8yHA9K3bfTYYOQOR61o0o4oAVRjjpS0gpaACiiigAooooAKKKKACmPGrjDAEe9PooAxbnRIpjlflPtXO3OkzW5JxlfUV3lIy7higDzFlK8Gm1295paT8j5WrmrnTpbbqMgdxQBm0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFadhpr3jDsnUn/CgCva2b3TbUHHc11+n6UlmMthnPc9vpVyC1S2G2MYFWgKAFxRjFFFABiiiigAooooAKKKKACiiigAooooAKKKKACiiigAxTWjVhggEU6igDmNS0UcyQD/gNcu6NGcMCD716fWVqGmpdrkfK/rQBwdFWLi2e2Yo4xiq+KACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoorZ0vTTdHe/CCgBNN0trk73GEH612kaCMBVGAKcqBAFXgCnCgBaKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigCleWKXa4Yc9jXDXVu1q5Rh9DXo1Z9/YreJtPXsaAPPzSVYuLdrZyjdqr4oAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoop8UZlYIvJNAFuwsmvZAo4Uck130MKwIEQYAqpYWwtIwo69zWhQAYo6UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAZWpact0u4cOOhrh5EMZKnqK9Nrl9bsAo85B9cUActRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAJ0rrNEs9i+aw5PSsCwtvtUyofu5yfoOa9ASMIABwBQACpRTQKdQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFNdQ42nkGnUUAefala/ZZSB908is+u81S1E0LHGWUZFcHjHFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRVi0h8+VUHc0AdLolr5aeaerdK6IdKgjjEShV6CphQA4UtIKWgAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAEYZGK4PVbT7NKcfdbkV3tYus2vnQlh95eaAOIopTSUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAV0OgW4eQyn+Hp+Nc9XbaFEY4MkYLEn8OKANvFGKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACo5kEilT3FSUUAea3Efluy+hqCtfWYTFOTjAbkVkUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAqjcQPU16NaJ5car6AV55D/rF/wB4fzr0eLoPoKAJqKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigDmfEMfyq/ocVyldp4gH7gf7wri6ACiiigAooooAKKKKACiiigD/9k=",
+        headerView: "advanced",
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              {
+                type: "text",
+                name: "question1",
+              },
+            ],
+          },
+          {
+            name: "page2",
+            elements: [
+              {
+                type: "text",
+                name: "question2",
+              },
+            ],
+          },
+        ],
+      });
+      await page.evaluate(() => {
+        (window as any).survey.applyTheme({
+          "header": {
+            inheritWidthFrom: "survey",
+            "logoPositionX": "left",
+            "logoPositionY": "top",
+            "titlePositionX": "left",
+            "titlePositionY": "bottom",
+            "descriptionPositionX": "left",
+            "descriptionPositionY": "bottom"
+          }
+        });
+      });
+      await compareScreenshot(page, ".sd-root-modern", "survey-advanced-header-correct-height.png");
+    });
+  });
+});

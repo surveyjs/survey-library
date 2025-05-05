@@ -372,10 +372,8 @@ export class QuestionTextModel extends QuestionTextBase {
     } else if (this.maskSettings.saveMaskedValue) {
       if (!_value) {
         this._inputValue = this.maskInstance.getMaskedValue("");
-      } else if (typeof _value == "string") {
-        this._inputValue = _value;
       } else {
-        this.value = this.maskInstance.getMaskedValue(_value);
+        this.inputValue = _value;
       }
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);

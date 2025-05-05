@@ -7,6 +7,7 @@ export var persianSurveyStrings = {
   previewText: "پیش نمایش",
   editText: "ویرایش",
   startSurveyText: "شروع",
+  commentText: "لطفا نظر خود را بنویسید",
   otherItemText: "دیگر(توضیح)",
   noneItemText: "هیچ",
   refuseItemText: "امتناع از پاسخ دادن",
@@ -24,6 +25,7 @@ export var persianSurveyStrings = {
   loadingSurvey: "درحال ایجاد پرسشنامه",
   placeholder: "انتخاب کنید...",
   ratingOptionsCaption: "انتخاب...",
+  buttongroupOptionsCaption: "انتخاب...",
   value: "مقدار",
   requiredError: "لطفا به سوال پاسخ دهید",
   requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",
@@ -60,6 +62,8 @@ export var persianSurveyStrings = {
   addRow: "سطر جدید",
   removeRow: "حذف",
   noRowsText: "هیچ ردیفی وجود ندارد.",
+  rowIndexTemplateTitle: "ردیف {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "جدید",
   removePanel: "حذف",
   showDetails: "نمایش جزئیات",
@@ -110,7 +114,8 @@ export var persianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "همه انتخاب ها رتبه بندی می شوند",
   selectToRankEmptyUnrankedAreaText: "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها",
   ok: "باشه",
-  cancel: "لغو"
+  cancel: "لغو",
+  createCustomItem: "مورد \"{0}\" ایجاد کنید..."
 };
 
 setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فا
 // choices_Choice: "Choice option" => "گزینه انتخاب"
 // loadingPage: "Loading..." => "بارگذاری..."
 // loadingData: "Loading..." => "بارگذاری..."
+// commentText: "Please leave a comment" => "لطفا نظر خود را بنویسید"
+// buttongroupOptionsCaption: "Select..." => "انتخاب..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "ردیف {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "مورد \"{0}\" ایجاد کنید..."

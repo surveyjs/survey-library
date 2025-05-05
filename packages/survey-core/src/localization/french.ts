@@ -7,6 +7,7 @@ export var frenchSurveyStrings = {
   previewText: "Aperçu",
   editText: "Modifier",
   startSurveyText: "Commencer",
+  commentText: "S'il vous plaît laissez un commentaire",
   otherItemText: "Autre (préciser)",
   noneItemText: "Aucun",
   refuseItemText: "Refuser de répondre",
@@ -24,6 +25,7 @@ export var frenchSurveyStrings = {
   loadingSurvey: "Le questionnaire est en cours de chargement...",
   placeholder: "Choisissez...",
   ratingOptionsCaption: "Appuyez ici pour noter...",
+  buttongroupOptionsCaption: "Choisir...",
   value: "valeur",
   requiredError: "La réponse à cette question est obligatoire.",
   requiredErrorInPanel: "Merci de répondre au moins à une question.",
@@ -47,7 +49,7 @@ export var frenchSurveyStrings = {
   urlRequestError: "La requête a renvoyé une erreur '{0}'. {1}",
   urlGetChoicesError: "La requête a renvoyé des données vides ou la propriété 'path' est incorrecte",
   exceedMaxSize: "La taille du fichier ne doit pas excéder {0}.",
-  noUploadFilesHandler: "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l’événement 'onUploadFiles'.",
+  noUploadFilesHandler: "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l'événement 'onUploadFiles'.",
   otherRequiredError: "Merci de préciser le champ 'Autre'.",
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   loadingFile: "Chargement...",
@@ -60,6 +62,8 @@ export var frenchSurveyStrings = {
   addRow: "Ajouter une ligne",
   removeRow: "Supprimer",
   noRowsText: "Il n'y a pas de lignes.",
+  rowIndexTemplateTitle: "Ligne {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Ajouter",
   removePanel: "Supprimer",
   showDetails: "Afficher les détails",
@@ -87,7 +91,7 @@ export var frenchSurveyStrings = {
   signaturePlaceHolderReadOnly: "Pas de signature",
   chooseFileCaption: "Ajouter un fichier",
   takePhotoCaption: "Prendre une photo",
-  photoPlaceholder: "Cliquez sur le bouton ci-dessous pour prendre une photo à l’aide de l’appareil photo.",
+  photoPlaceholder: "Cliquez sur le bouton ci-dessous pour prendre une photo à l'aide de l'appareil photo.",
   fileOrPhotoPlaceholder: "Faites glisser et déposez ou sélectionnez un fichier à télécharger ou à prendre une photo à l’aide de l’appareil photo.",
   replaceFileCaption: "Remplacer le fichier",
   removeFileCaption: "Enlever ce fichier",
@@ -110,7 +114,8 @@ export var frenchSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Tous les choix sont classés",
   selectToRankEmptyUnrankedAreaText: "Faites glisser et déposez les choix ici pour les classer",
   ok: "D’ACCORD",
-  cancel: "Annuler"
+  cancel: "Annuler",
+  createCustomItem: "Créez un élément \"{0}\"..."
 };
 
 setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });
@@ -144,3 +149,6 @@ setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "fran�
 // choices_Choice: "Choice option" => "Option au choix"
 // loadingPage: "Loading..." => "Chargement..."
 // loadingData: "Loading..." => "Chargement..."
+// commentText: "Please leave a comment" => "S’il vous plaît laissez un commentaire"
+// buttongroupOptionsCaption: "Select..." => "Choisir..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Ligne {rowIndex}"

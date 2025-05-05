@@ -7,6 +7,7 @@ export var georgianSurveyStrings = {
   previewText: "გადახედვა",
   editText: "რედაქტირება",
   startSurveyText: "დაქოქვა",
+  commentText: "გთხოვთ დატოვოთ კომენტარი",
   otherItemText: "სხვა (გთხოვთ მიუთითეთ)",
   noneItemText: "არცერთი",
   refuseItemText: "უარი პასუხზე",
@@ -24,6 +25,7 @@ export var georgianSurveyStrings = {
   loadingSurvey: "ჩატვირთვა სერვერიდან...",
   placeholder: "არჩევა...",
   ratingOptionsCaption: "აირჩიეთ...",
+  buttongroupOptionsCaption: "აირჩიეთ...",
   value: "ღირებულება",
   requiredError: "გთხოვთ უპასუხეთ კითხვას.",
   requiredErrorInPanel: "საჭიროა პასუხი: უპასუხეთ მინიმუმ ერთ კითხვას.",
@@ -60,6 +62,8 @@ export var georgianSurveyStrings = {
   addRow: "რიგის დამატება",
   removeRow: "წაშლა",
   noRowsText: "რიგები არ არის.",
+  rowIndexTemplateTitle: "Row {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "ახალი დამატება",
   removePanel: "წაშლა",
   showDetails: "დეტალების ჩვენება",
@@ -110,7 +114,8 @@ export var georgianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "ყველა არჩევანი რანჟირებულია",
   selectToRankEmptyUnrankedAreaText: "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი",
   ok: "კარგი",
-  cancel: "გაუქმება"
+  cancel: "გაუქმება",
+  createCustomItem: "შექმენით \"{0}\" ელემენტი..."
 };
 
 setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქართული", englishName: "Georgian" });
@@ -209,3 +214,7 @@ setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქ
 // choices_Choice: "Choice option" => "არჩევანის ვარიანტი"
 // loadingPage: "Loading..." => "იტვირთება..."
 // loadingData: "Loading..." => "იტვირთება..."
+// commentText: "Please leave a comment" => "გთხოვთ დატოვოთ კომენტარი"
+// buttongroupOptionsCaption: "Select..." => "აირჩიეთ..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "შექმენით \"{0}\" ელემენტი..."

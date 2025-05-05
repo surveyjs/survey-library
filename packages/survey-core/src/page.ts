@@ -291,7 +291,7 @@ export class PageModel extends PanelModel implements IPage {
     if (this.randomizeElements(this.areQuestionsRandomized)) {
       const singleQuestion: any = this.survey?.currentSingleElement;
       if (singleQuestion?.page === this) {
-        this.survey.currentSingleElement = this.elements[0];
+        this.survey.currentSingleElement = this.getFirstVisibleElement();
       }
     }
   }

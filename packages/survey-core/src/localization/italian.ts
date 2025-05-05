@@ -7,6 +7,7 @@ export var italianSurveyStrings = {
   previewText: "Anteprima",
   editText: "Modifica",
   startSurveyText: "Inizio",
+  commentText: "Si prega di lasciare un commento",
   otherItemText: "Altro (descrivi)",
   noneItemText: "Nessuno",
   refuseItemText: "Rifiuta di rispondere",
@@ -24,6 +25,7 @@ export var italianSurveyStrings = {
   loadingSurvey: "Caricamento del questionario in corso...",
   placeholder: "Scegli...",
   ratingOptionsCaption: "Tocca qui per valutare...",
+  buttongroupOptionsCaption: "Selezionare...",
   value: "valore",
   requiredError: "Campo obbligatorio",
   requiredErrorInPanel: "Per Favore, rispondi ad almeno una domanda.",
@@ -60,6 +62,8 @@ export var italianSurveyStrings = {
   addRow: "Aggiungi riga",
   removeRow: "Rimuovi riga",
   noRowsText: "Non ci sono righe.",
+  rowIndexTemplateTitle: "Riga {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Aggiungi riga",
   removePanel: "Elimina",
   showDetails: "Mostra dettagli",
@@ -110,7 +114,8 @@ export var italianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Tutte le scelte sono classificate",
   selectToRankEmptyUnrankedAreaText: "Trascina e rilascia le scelte qui per classificarle",
   ok: "OK",
-  cancel: "Annulla"
+  cancel: "Annulla",
+  createCustomItem: "Crea un articolo \"{0}\"..."
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });
@@ -144,3 +149,7 @@ setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "ital
 // choices_Choice: "Choice option" => "Opzione di scelta"
 // loadingPage: "Loading..." => "Caricamento..."
 // loadingData: "Loading..." => "Caricamento..."
+// commentText: "Please leave a comment" => "Si prega di lasciare un commento"
+// buttongroupOptionsCaption: "Select..." => "Selezionare..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Riga {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Crea un articolo \"{0}\"..."

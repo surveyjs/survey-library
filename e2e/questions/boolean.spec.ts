@@ -1,6 +1,5 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, test, expect } from "../helper";
 import { Question, QuestionBoolean } from "../questionHelper";
-import { test, expect } from "@playwright/test";
 
 const title = "boolean";
 

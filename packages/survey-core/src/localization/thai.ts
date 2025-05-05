@@ -7,6 +7,7 @@ export var thaiStrings = {
   previewText: "ดูตัวอย่าง",
   editText: "แก้ไข",
   startSurveyText: "เริ่ม",
+  commentText: "กรุณาแสดงความคิดเห็น",
   otherItemText: "อื่นๆ (โปรดระบุ)",
   noneItemText: "ไม่มี",
   refuseItemText: "ปฏิเสธที่จะตอบ",
@@ -24,6 +25,7 @@ export var thaiStrings = {
   loadingSurvey: "กำลังโหลด Survey...",
   placeholder: "เลือก...",
   ratingOptionsCaption: "เลือก   ",
+  buttongroupOptionsCaption: "เลือก   ",
   value: "ข้อมูล",
   requiredError: "กรุณาตอบคำถาม",
   requiredErrorInPanel: "กรุณาตอบขั้นต่ำหนึ่งคำถาม",
@@ -60,6 +62,8 @@ export var thaiStrings = {
   addRow: "เพิ่มแถว",
   removeRow: "ลบ",
   noRowsText: "ไม่มีแถว",
+  rowIndexTemplateTitle: "แถว {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "เพิ่ม",
   removePanel: "ลบ",
   showDetails: "แสดงรายละเอียด",
@@ -110,7 +114,8 @@ export var thaiStrings = {
   selectToRankEmptyRankedAreaText: "ตัวเลือกทั้งหมดจะถูกจัดอันดับ",
   selectToRankEmptyUnrankedAreaText: "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ",
   ok: "ตกลง, ได้",
-  cancel: "ยกเลิก"
+  cancel: "ยกเลิก",
+  createCustomItem: "สร้างรายการ \"{0}\"..."
 };
 
 setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", englishName: "Thai" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", e
 // choices_Choice: "Choice option" => "ตัวเลือกตัวเลือก"
 // loadingPage: "Loading..." => "การโหลด   "
 // loadingData: "Loading..." => "การโหลด   "
+// commentText: "Please leave a comment" => "กรุณาแสดงความคิดเห็น"
+// buttongroupOptionsCaption: "Select..." => "เลือก   "
+// rowIndexTemplateTitle: "Row {rowIndex}" => "แถว {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "สร้างรายการ \"{0}\"..."

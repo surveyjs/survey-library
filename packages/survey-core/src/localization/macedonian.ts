@@ -7,6 +7,7 @@ export var macedonianSurveyStrings = {
   previewText: "Преглед",
   editText: "Уредување",
   startSurveyText: "Започнете",
+  commentText: "Молиме оставете коментар",
   otherItemText: "Друго (опиши)",
   noneItemText: "Ништо",
   refuseItemText: "Одбиј да одговориш.",
@@ -24,6 +25,7 @@ export var macedonianSurveyStrings = {
   loadingSurvey: "Анкетата се вчитува ...",
   placeholder: "Изберете ...",
   ratingOptionsCaption: "Изберете...",
+  buttongroupOptionsCaption: "Изберете...",
   value: "вредност",
   requiredError: "Ве молам, одговорете на прашањето.",
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",
@@ -60,6 +62,8 @@ export var macedonianSurveyStrings = {
   addRow: "Додади ред",
   removeRow: "Отстрани",
   noRowsText: "Нема редови.",
+  rowIndexTemplateTitle: "Ред {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Додади ново",
   removePanel: "Отстрани",
   showDetails: "Прикажување на деталите",
@@ -110,7 +114,8 @@ export var macedonianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Сите избори се рангирани",
   selectToRankEmptyUnrankedAreaText: "Влечете и фрлете го изборот овде за да ги рангирате",
   ok: "ДОБРО",
-  cancel: "Откажи"
+  cancel: "Откажи",
+  createCustomItem: "Креирање на \"{0}\" ставка..."
 };
 
 setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });
@@ -150,3 +155,7 @@ setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "�
 // choices_Choice: "Choice option" => "Опција за избор"
 // loadingPage: "Loading..." => "Вчитување..."
 // loadingData: "Loading..." => "Вчитување..."
+// commentText: "Please leave a comment" => "Молиме оставете коментар"
+// buttongroupOptionsCaption: "Select..." => "Изберете..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Ред {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Креирање на \"{0}\" ставка..."

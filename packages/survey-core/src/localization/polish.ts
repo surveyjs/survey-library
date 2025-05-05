@@ -7,6 +7,7 @@ export var polishSurveyStrings = {
   previewText: "Premiera",
   editText: "Edycja",
   startSurveyText: "Start",
+  commentText: "Proszę o komentarz",
   otherItemText: "Inna odpowiedź (wpisz)",
   noneItemText: "Brak",
   refuseItemText: "Odmów odpowiedzi",
@@ -24,6 +25,7 @@ export var polishSurveyStrings = {
   loadingSurvey: "Trwa wczytywanie ankiety...",
   placeholder: "Wybierz...",
   ratingOptionsCaption: "Kliknij tutaj, aby ocenić...",
+  buttongroupOptionsCaption: "Wybrać...",
   value: "Wartość",
   requiredError: "Proszę odpowiedzieć na to pytanie.",
   requiredErrorInPanel: "Proszę odpowiedzieć na co najmniej jedno pytanie.",
@@ -60,6 +62,8 @@ export var polishSurveyStrings = {
   addRow: "Dodaj wiersz",
   removeRow: "Usuń",
   noRowsText: "Nie ma rzędów.",
+  rowIndexTemplateTitle: "Wiersz {indeks wiersza}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Dodaj panel",
   removePanel: "Usuń",
   showDetails: "Pokaż szczegóły",
@@ -110,7 +114,8 @@ export var polishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Wszystkie wybory są uszeregowane",
   selectToRankEmptyUnrankedAreaText: "Przeciągnij i upuść tutaj wybory, aby je uszeregować",
   ok: "OK",
-  cancel: "Anuluj"
+  cancel: "Anuluj",
+  createCustomItem: "Utwórz element \"{0}\"..."
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });
@@ -144,3 +149,7 @@ setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polsk
 // choices_Choice: "Choice option" => "Opcja wyboru"
 // loadingPage: "Loading..." => "Ładowania..."
 // loadingData: "Loading..." => "Ładowania..."
+// commentText: "Please leave a comment" => "Proszę o komentarz"
+// buttongroupOptionsCaption: "Select..." => "Wybrać..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Wiersz {indeks wiersza}"
+// createCustomItem: "Create \"{0}\" item..." => "Utwórz element \"{0}\"..."

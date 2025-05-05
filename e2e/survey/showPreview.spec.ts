@@ -1,6 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, initSurvey, url, getSurveyResult } from "../helper";
-
+import { frameworks, initSurvey, url, getSurveyResult, test, expect } from "../helper";
 const title = "ShowPreview";
 
 const json = {
@@ -74,6 +72,36 @@ frameworks.forEach((framework) => {
         q2: "2",
         q3: "val3",
         q4: "4",
+      });
+    });
+
+    test("showPreview and page descriptions", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, {
+        pages: [
+          {
+            name: "page1",
+            description: "p1description",
+            elements: [
+              {
+                type: "text",
+                name: "question1",
+              }
+            ],
+          },
+        ],
+        showPreviewBeforeComplete: "showAllQuestions",
+      });
+      await page.click("input[value=Preview]");
+      const editButtons = await page.locator("input[title=Edit]").count();
+      expect(editButtons).toBe(1);
+      await page.locator("input[title=Edit]").click();
+      await page.locator("input[type=text]").fill("val");
+      await page.click("input[value=Preview]");
+      await page.click("input[value=Complete]");
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({
+        question1: "val"
       });
     });
   });

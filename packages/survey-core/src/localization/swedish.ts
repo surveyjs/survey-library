@@ -7,6 +7,7 @@ export var swedishSurveyStrings = {
   previewText: "Förhandsvisning",
   editText: "Redigera",
   startSurveyText: "Börja",
+  commentText: "Lämna gärna en kommentar",
   otherItemText: "Annat (beskriv)",
   noneItemText: "Ingen",
   refuseItemText: "Vägra svara",
@@ -24,6 +25,7 @@ export var swedishSurveyStrings = {
   loadingSurvey: "Enkäten laddas...",
   placeholder: "Välj...",
   ratingOptionsCaption: "Tryck här för att betygsätta...",
+  buttongroupOptionsCaption: "Utvald...",
   value: "värde",
   requiredError: "Frågan är obligatorisk.",
   requiredErrorInPanel: "Vänligen svara på minst en fråga.",
@@ -60,6 +62,8 @@ export var swedishSurveyStrings = {
   addRow: "Lägg till rad",
   removeRow: "Ta bort",
   noRowsText: "Det finns inga rader.",
+  rowIndexTemplateTitle: "Rad {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Lägg till ny",
   removePanel: "Ta bort",
   showDetails: "Detaljer",
@@ -110,7 +114,8 @@ export var swedishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Alla val rangordnas",
   selectToRankEmptyUnrankedAreaText: "Dra och släpp val här för att rangordna dem",
   ok: "OKEJ",
-  cancel: "Annullera"
+  cancel: "Annullera",
+  createCustomItem: "Skapa \"{0}\"-objekt..."
 };
 
 setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });
@@ -144,3 +149,7 @@ setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "sven
 // choices_Choice: "Choice option" => "Alternativ för valmöjligheter"
 // loadingPage: "Loading..." => "Lastning..."
 // loadingData: "Loading..." => "Lastning..."
+// commentText: "Please leave a comment" => "Lämna gärna en kommentar"
+// buttongroupOptionsCaption: "Select..." => "Utvald..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rad {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Skapa \"{0}\"-objekt..."

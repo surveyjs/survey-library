@@ -9,6 +9,7 @@ export var haitianCreoleStrings = {
   previewText: "Preview",
   editText: "Edit",
   startSurveyText: "Kòmanse",
+  commentText: "Tanpri kite yon kòmantè",
   otherItemText: "Lòt (dekri)",
   noneItemText: "Okenn",
   refuseItemText: "Refize reponn",
@@ -26,6 +27,7 @@ export var haitianCreoleStrings = {
   loadingSurvey: "Chaje sondaj...",
   placeholder: "Chwazi...",
   ratingOptionsCaption: "Chwazi...",
+  buttongroupOptionsCaption: "Chwazi ...",
   value: "valè",
   requiredError: "Repons obligatwa.",
   requiredErrorInPanel: "Repons obligatwa: reponn omwen yon kesyon.",
@@ -62,6 +64,8 @@ export var haitianCreoleStrings = {
   addRow: "Ajoute Ranje",
   removeRow: "Retire",
   noRowsText: "Pa gen ranje.",
+  rowIndexTemplateTitle: "Row {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Ajoute nouvo",
   removePanel: "Retire",
   showDetails: "Montre detay",
@@ -112,7 +116,15 @@ export var haitianCreoleStrings = {
   selectToRankEmptyRankedAreaText: "Tout chwa yo chwazi pou klasman",
   selectToRankEmptyUnrankedAreaText: "Trennen chwa isit la pou klase yo",
   ok: "OKE",
-  cancel: "Anile"
+  cancel: "Anile",
+  createCustomItem: "Kreye \"{0}\" atik ..."
 };
 
 setupLocale({ localeCode: "ht", strings: haitianCreoleStrings, nativeName: "Kreyòl ayisyen", englishName: "Haitian Creole" });
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// commentText: "Please leave a comment" => "Tanpri kite yon kòmantè"
+// buttongroupOptionsCaption: "Select..." => "Chwazi ..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Kreye \"{0}\" atik ..."

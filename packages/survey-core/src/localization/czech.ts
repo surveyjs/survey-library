@@ -7,6 +7,7 @@ export var czechSurveyStrings = {
   previewText: "Náhled",
   editText: "Upravit",
   startSurveyText: "Začít",
+  commentText: "Zanechte prosím komentář",
   otherItemText: "Jiná odpověď (napište)",
   noneItemText: "Žádný",
   refuseItemText: "Odmítnout odpovědět",
@@ -24,6 +25,7 @@ export var czechSurveyStrings = {
   loadingSurvey: "Probíhá načítání průzkumu...",
   placeholder: "Vyberte...",
   ratingOptionsCaption: "Vybrat...",
+  buttongroupOptionsCaption: "Vybrat...",
   value: "hodnota",
   requiredError: "Odpovězte prosím na otázku.",
   requiredErrorInPanel: "Odpovězte prosím alespoň jednu otázku.",
@@ -60,6 +62,8 @@ export var czechSurveyStrings = {
   addRow: "Přidat řádek",
   removeRow: "Odstranit",
   noRowsText: "Neexistují žádné řádky.",
+  rowIndexTemplateTitle: "Řádek {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Přidat nový",
   removePanel: "Odstranit",
   showDetails: "Zobrazit podrobnosti",
@@ -110,7 +114,8 @@ export var czechSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Všechny možnosti jsou seřazeny",
   selectToRankEmptyUnrankedAreaText: "Přetáhněte volby zde a seřaďte je",
   ok: "OK",
-  cancel: "Zrušit"
+  cancel: "Zrušit",
+  createCustomItem: "Vytvořte položku \"{0}\"..."
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "češt
 // choices_Choice: "Choice option" => "Možnost volby"
 // loadingPage: "Loading..." => "Nakládka..."
 // loadingData: "Loading..." => "Nakládka..."
+// commentText: "Please leave a comment" => "Zanechte prosím komentář"
+// buttongroupOptionsCaption: "Select..." => "Vybrat..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Řádek {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Vytvořte položku \"{0}\"..."

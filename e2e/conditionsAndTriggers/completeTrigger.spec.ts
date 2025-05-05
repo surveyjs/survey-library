@@ -1,6 +1,5 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, test, expect } from "../helper";
 import { QuestionRadiogroup } from "../questionHelper";
-import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
 const title = "completeTrigger";

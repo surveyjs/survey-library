@@ -2179,6 +2179,11 @@ QUnit.test("question checkbox displayValue() with other and comment", (assert) =
   q1.value = ["Item 1", "Item 2", "Other Value"];
   assert.deepEqual(q1.displayValue, "Item 1, Item 2, Other Value", "Other value should be kept");
 });
+QUnit.test("Default comment & otherItem text, Bug#9733", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  assert.equal(q1.commentText, "Please leave a comment", "Default comment text is correct");
+  assert.equal(q1.otherText, "Other (describe)", "Default other item text is correct");
+});
 
 QUnit.test("checkbox with incorrect defaultValue, other & survey.data Bug#7943", (assert) => {
   const survey = new SurveyModel({

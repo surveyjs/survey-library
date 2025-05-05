@@ -2,6 +2,7 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { IQuestion } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property, propertyArray, Serializer } from "./jsonobject";
@@ -230,11 +231,6 @@ export class QuestionSliderModel extends Question {
     return isOutOfRange ? oldValue : newValue;
   };
 
-  public handlePointerDown = (event: PointerEvent): void => {
-    const choice = ItemValue.getItemByValue(this.visibleChoices, this.draggedChoiceValue);
-    this.dragDropRankingChoices.startDrag(event, choice, this, this.draggedTargetNode);
-  };
-
   public getClosestToStepValue = (value: number): number => {
     const { step, renderedMin: min, renderedMax: max } = this;
 
@@ -282,6 +278,20 @@ export class QuestionSliderModel extends Question {
     const newInputValue = leftPercent / 100 * (max - min) + min;
     inputNode.value = "" + newInputValue;
     this.oldInputValue = newInputValue;
+  };
+
+  public handleRangePointerDown = (event: PointerEvent, rootNode: HTMLElement) => {
+    const { dragOrClickHelper, allowDragRange, step, prepareInputRangeForMoving } = this;
+    const inputNode = <HTMLInputElement>event.target;
+
+    if (step) {
+      inputNode.step = "0.1";
+    }
+
+    if (allowDragRange) {
+      dragOrClickHelper.dragHandler = () => { prepareInputRangeForMoving.call(this, event, rootNode); };
+      dragOrClickHelper.onPointerDown(event);
+    }
   };
 
   public handleRangePointerUp = (event: PointerEvent, rootNode: HTMLElement) => {
@@ -388,6 +398,96 @@ export class QuestionSliderModel extends Question {
     refreshInputRange(inputNode);
   };
 
+  public handleOnChange = (event: InputEvent, inputNumber: number): void => {
+    if (!this.oldValue) return; // Firefox raise one more OnChange after PointerUp and break the value
+    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, setSliderValue } = this;
+    const renderedValue:number[] = getRenderedValue();
+    const inputNode = <HTMLInputElement>event.target;
+
+    let newValue: number = +inputNode.value;
+
+    if (renderedValue.length > 1) {
+      newValue = ensureMaxRangeBorders(newValue, inputNumber);
+      if (!allowSwap) {
+        newValue = ensureMinRangeBorders(newValue, inputNumber);
+      }
+    }
+
+    renderedValue.splice(inputNumber, 1, newValue);
+
+    setSliderValue(renderedValue);
+  };
+
+  public handlePointerDown = (e: PointerEvent)=> {
+    const { step, getRenderedValue } = this;
+    const renderedValue = getRenderedValue();
+    if (step) {
+      for (let i = 0; i < renderedValue.length; i++) {
+        const input:any = DomDocumentHelper.getDocument().getElementById(`sjs-slider-input-${i}`); //TODO
+        input.step = 0.1;
+      }
+    }
+    const value = this.value;
+    this.oldValue = Array.isArray(value) ? value.slice() : value;
+    this.animatedThumb = false;
+  };
+
+  public handlePointerUp = (event:PointerEvent) => {
+    event.stopPropagation();
+    const { step, focusedThumb, getRenderedValue, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
+    let renderedValue:number[] = getRenderedValue();
+    const focusedThumbValue = renderedValue[focusedThumb];
+    const inputNode = <HTMLInputElement>event.target;
+
+    renderedValue.sort((a, b)=>a - b);
+
+    this.focusedThumb = renderedValue.indexOf(focusedThumbValue);
+    if (step) {
+      for (let i = 0; i < renderedValue.length; i++) {
+        renderedValue[i] = getClosestToStepValue(renderedValue[i]);
+        const input:any = DomDocumentHelper.getDocument().getElementById(`sjs-slider-input-${i}`); //TODO
+        input.step = step;
+      }
+    }
+
+    if (allowSwap) {
+      for (let i = 0; i < renderedValue.length - 1; i++) {
+        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
+          renderedValue = this.oldValue;
+          break;
+        }
+      }
+    }
+
+    setSliderValue(renderedValue);
+    refreshInputRange(inputNode);
+    this.oldValue = null;
+  };
+
+  public handleKeyDown = (event: KeyboardEvent) => {
+    this.oldValue = this.getRenderedValue();
+    this.animatedThumb = true;
+  };
+
+  public handleKeyUp = (event: KeyboardEvent) => {
+    this.oldValue = null;
+  };
+
+  public handleOnFocus = (inputNumber: number): void => {
+    this.focusedThumb = inputNumber;
+  };
+
+  public handleOnBlur = (): void => {
+    this.focusedThumb = null;
+  };
+
+  public handleLabelPointerUp = (event: PointerEvent, labelText: string) => {
+    const newValue = +labelText;
+    const inputNode = <HTMLInputElement>event.target;
+    if (isNaN(newValue)) return;
+    this.setValueByClick(newValue, inputNode);
+  };
+
   // public endLoadingFromJson() {
   //   super.endLoadingFromJson();
   //   if (this.jsonObj.customLabels !== undefined) {
@@ -462,6 +562,7 @@ export class QuestionSliderModel extends Question {
 
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
+  private oldValue;
 }
 
 Serializer.addClass(

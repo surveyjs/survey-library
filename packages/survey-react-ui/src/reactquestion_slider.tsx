@@ -29,17 +29,14 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const thumbsAndInputs = this.getInputsAndThumbs();
     const labels = showLabels ? this.getLabels() : null;
 
-    const rangeLeftPercent = getTrackPercentLeft() + "%";
-    const rangeRightPercent = getTrackPercentRight() + "%";
-
     return (
       <div className={this.question.rootCss} ref={(div) => (this.setControl(div))}>
         {rangeInput}
         <div className={cssClasses.visualContainer} onPointerUp={ (e)=>{ setValueByClickOnPath(e.nativeEvent as PointerEvent, this.control); }}>
           <div className={cssClasses.visualContainerSlider}>
-            <div className={cssClasses.inverseTrackLeft} style={{ width: rangeLeftPercent }}></div>
-            <div className={cssClasses.inverseTrackRight} style={{ width: rangeRightPercent }}></div>
-            <div className={cssClasses.rangeTrack} style={{ left: rangeLeftPercent, right: rangeRightPercent }} ></div>
+            <div className={cssClasses.inverseTrackLeft} style={{ width: getTrackPercentLeft() + "%" }}></div>
+            <div className={cssClasses.inverseTrackRight} style={{ width: getTrackPercentRight() + "%" }}></div>
+            <div className={cssClasses.rangeTrack} style={{ left: getTrackPercentLeft() + "%", right: getTrackPercentRight() + "%" }} ></div>
             {thumbsAndInputs}
           </div>
         </div>
@@ -94,29 +91,39 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getInput(i:number) {
-    const { renderedMax: max, renderedMin: min, step, cssClasses, isDisabledAttr, getRenderedValue } = this.question;
+    const {
+      renderedMax: max, renderedMin: min, step, cssClasses, isDisabledAttr, getRenderedValue,
+      handleOnChange, handlePointerDown, handlePointerUp, handleKeyDown, handleKeyUp,
+      handleOnFocus, handleOnBlur
+    } = this.question;
 
     const value = getRenderedValue()[i];
 
-    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range" value={value} min={min} max={max} step={step}
-      onChange={ (e)=>{ this.handleOnChange(e, i); } } onFocus={ (e)=>{ this.handleOnFocus(e, i); } } onBlur={ (e)=>{ this.handleOnBlur(e, i); } }
-      onPointerDown={ (e)=>{ this.handlePointerDown(e); } } onPointerUp={ (e)=>{ this.handlePointerUp(e, i); } }
-      onKeyDown={ (e)=>{ this.handleKeyDown(e); } } onKeyUp={ (e)=>{ this.handleKeyUp(e); } }
+    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} key={"input-" + i} type="range"
+      value={value} min={min} max={max} step={step}
+      onChange={ (e)=>{ handleOnChange(e.nativeEvent as InputEvent, i); } }
+      onPointerDown={ (e)=>{ handlePointerDown(e.nativeEvent); } } onPointerUp={ (e)=>{ handlePointerUp(e.nativeEvent); } }
+      onKeyDown={ (e)=>{ handleKeyDown(e.nativeEvent); } } onKeyUp={ (e)=>{ handleKeyUp(e.nativeEvent); } }
+      onFocus={ ()=>{ handleOnFocus(i); } } onBlur={ ()=>{ handleOnBlur(); } }
       disabled={isDisabledAttr}
     />;
     return input;
   }
 
   private getRangeInput() {
-    const { renderedMax: max, renderedMin: min, step, cssClasses, handleRangeOnChange, handleRangePointerUp } = this.question;
+    const { renderedMax: max, renderedMin: min, step, cssClasses, handleRangeOnChange, handleRangePointerDown, handleRangePointerUp } = this.question;
     return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range"
       min={min} max={max} step={step} tabIndex={-1} onChange={(e)=>{ handleRangeOnChange(e.nativeEvent as InputEvent); }}
-      onPointerDown={ (e)=>{ this.handleRangePointerDown(e); } } onPointerUp={(e)=>{ handleRangePointerUp(e.nativeEvent as PointerEvent, this.control); }} />;
+      onPointerDown={ (e)=>{ e.persist(); handleRangePointerDown(e.nativeEvent, this.control); } }
+      onPointerUp={(e)=>{ handleRangePointerUp(e.nativeEvent, this.control); }} />;
   }
 
   private getLabels() {
     const labels = [];
-    const { renderedMax: max, renderedMin: min, labelCount, showEdgeLabels, customLabels, cssClasses, step, labelFormat } = this.question;
+    const {
+      renderedMax: max, renderedMin: min, labelCount, showEdgeLabels,
+      customLabels, cssClasses, step, labelFormat, handleLabelPointerUp
+    } = this.question;
     const fullRange = max - min;
 
     for (let i = 0; i < labelCount; i++) {
@@ -130,7 +137,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
       const label = <React.Fragment key={"label-" + i}>
         <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLongMod : ""}`}
-          style={{ left: position + "%" }} onPointerUp={ (e)=>{ this.handleLabelPointerUp(e, labelText); } }>
+          style={{ left: position + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, labelText); } }>
           <div className={cssClasses.labelTick}></div>
           <div className={cssClasses.labelText}>
             {labelFormat.replace("{0}", "" + labelText)}
@@ -146,109 +153,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       </div>
     </div>;
   }
-
-  private handleOnChange = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
-    if (!this.oldValue) return; // Firefox raise one more OnChange after PointerUp and break the value
-    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, setSliderValue } = this.question;
-    const renderedValue:number[] = getRenderedValue();
-
-    let newValue: number = +event.target.value; // TODO target
-
-    if (renderedValue.length > 1) {
-      newValue = ensureMaxRangeBorders(newValue, inputNumber);
-      if (!allowSwap) {
-        newValue = ensureMinRangeBorders(newValue, inputNumber);
-      }
-    }
-
-    renderedValue.splice(inputNumber, 1, newValue);
-
-    setSliderValue(renderedValue);
-  };
-
-  private oldValue;
-  private handlePointerDown = (e)=> {
-    const { step, getRenderedValue } = this.question;
-    const renderedValue = getRenderedValue();
-    if (step) {
-      for (let i = 0; i < renderedValue.length; i++) {
-        const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
-        input.step = 0.1;
-      }
-    }
-    const value = this.question.value;
-    this.oldValue = Array.isArray(value) ? value.slice() : value;
-    this.question.animatedThumb = false;
-  };
-
-  private handlePointerUp = (e, inputNumber:number) => {
-    e.stopPropagation();
-    const { step, focusedThumb, getRenderedValue, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this.question;
-    let renderedValue:number[] = getRenderedValue();
-    const focusedThumbValue = renderedValue[focusedThumb];
-
-    renderedValue.sort((a, b)=>a - b);
-
-    this.question.focusedThumb = renderedValue.indexOf(focusedThumbValue);
-    if (step) {
-      for (let i = 0; i < renderedValue.length; i++) {
-        renderedValue[i] = getClosestToStepValue(renderedValue[i]);
-        const input:any = document.getElementById(`sjs-slider-input-${i}`); //TODO
-        input.step = step;
-      }
-    }
-
-    if (allowSwap) {
-      for (let i = 0; i < renderedValue.length - 1; i++) {
-        if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
-          renderedValue = this.oldValue;
-          break;
-        }
-      }
-    }
-
-    setSliderValue(renderedValue);
-    refreshInputRange(this.rangeInputRef.current);
-    this.oldValue = null;
-  };
-
-  private handleLabelPointerUp = (event: React.PointerEvent<HTMLDivElement>, labelText: string) => {
-    const newValue = +labelText;
-    if (isNaN(newValue)) return;
-    this.question.setValueByClick(newValue, event.target as HTMLInputElement);
-  };
-
-  private handleRangePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    const { dragOrClickHelper, allowDragRange, step, prepareInputRangeForMoving } = this.question;
-
-    if (step) {
-      const input = this.rangeInputRef.current as HTMLInputElement; //TODO
-      input.step = "0.1";
-    }
-
-    if (allowDragRange) {
-      event.persist();
-      dragOrClickHelper.dragHandler = () => { prepareInputRangeForMoving.call(this, event, this.control); };
-      dragOrClickHelper.onPointerDown(event);
-    }
-  }
-
-  private handleOnFocus = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
-    this.question.focusedThumb = inputNumber;
-  };
-
-  private handleOnBlur = (event: React.ChangeEvent<HTMLInputElement>, inputNumber: number): void => {
-    this.question.focusedThumb = null;
-  };
-
-  private handleKeyDown = (e)=> {
-    this.oldValue = this.question.getRenderedValue();
-    this.question.animatedThumb = true;
-  };
-
-  private handleKeyUp = (e)=> {
-    this.oldValue = null;
-  };
 }
 ReactQuestionFactory.Instance.registerQuestion("slider", (props) => {
   return React.createElement(SurveyQuestionSlider, props);

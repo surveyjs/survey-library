@@ -7,6 +7,7 @@ export var basqueSurveyStrings = {
   previewText: "Aurrebista",
   editText: "Editatu",
   startSurveyText: "Hasi",
+  commentText: "Mesedez, utzi iruzkin bat",
   otherItemText: "Beste bat (zehaztu)",
   noneItemText: "Bat ere ez",
   refuseItemText: "Erantzuteari uko egin",
@@ -24,6 +25,7 @@ export var basqueSurveyStrings = {
   loadingSurvey: "Galdetegia kargatzen...",
   placeholder: "Hautatu...",
   ratingOptionsCaption: "Aukeratu...",
+  buttongroupOptionsCaption: "Aukeratu...",
   value: "balioa",
   requiredError: "Mesedez, galdera erantzun.",
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",
@@ -60,6 +62,8 @@ export var basqueSurveyStrings = {
   addRow: "Errenkada bat gehitu",
   removeRow: "Errenkada bat kendu",
   noRowsText: "Ez dago errenkadarik.",
+  rowIndexTemplateTitle: "Fila {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Berria gehitu",
   removePanel: "Kendu",
   showDetails: "Xehetasunak erakutsi",
@@ -110,7 +114,8 @@ export var basqueSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Aukera guztiak sailkatuta daude",
   selectToRankEmptyUnrankedAreaText: "Arrastaka eta askatzen ditu hemen sailkatzeko",
   ok: "Ados",
-  cancel: "Ezeztatu"
+  cancel: "Ezeztatu",
+  createCustomItem: "\"{0}\" artikulua sortzea..."
 };
 
 setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });
@@ -149,3 +154,8 @@ setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euska
 // choices_Choice: "Choice option" => "Aukeratzeko aukera"
 // loadingPage: "Loading..." => "Karga..."
 // loadingData: "Loading..." => "Karga..."
+// commentText: "Please leave a comment" => "Mesedez, utzi iruzkin bat"
+// buttongroupOptionsCaption: "Select..." => "Aukeratu..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Fila {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" artikulua sortzea..."

@@ -2836,7 +2836,7 @@ QUnit.test(
     var question = new Question("q1");
     assert.equal(
       question.locCommentText.renderedHtml,
-      surveyLocalization.getString("otherItemText"),
+      surveyLocalization.getString("commentText"),
       "Get the default value correctly"
     );
     question.commentText = "New Comment Text";

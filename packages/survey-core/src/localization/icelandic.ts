@@ -7,6 +7,7 @@ export var icelandicSurveyStrings = {
   previewText: "Forskoða",
   editText: "Breyta",
   startSurveyText: "Byrjaðu",
+  commentText: "Vinsamlegast skildu eftir athugasemd",
   otherItemText: "Hinn (skýring)",
   noneItemText: "Enginn",
   refuseItemText: "Neita að svara",
@@ -24,6 +25,7 @@ export var icelandicSurveyStrings = {
   loadingSurvey: "Könnunin er að hlaða...",
   placeholder: "Veldu...",
   ratingOptionsCaption: "Velja...",
+  buttongroupOptionsCaption: "Velja...",
   value: "gildi",
   requiredError: "Vinsamlegast svarið spurningunni.",
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",
@@ -60,6 +62,8 @@ export var icelandicSurveyStrings = {
   addRow: "Bæta við röð",
   removeRow: "Fjarlægja",
   noRowsText: "Það eru engar raðir.",
+  rowIndexTemplateTitle: "Röð {rowIndex}",
+  rowNameTemplateTitle: "{rowTitill}",
   addPanel: "Bæta við nýju",
   removePanel: "Fjarlægðu",
   showDetails: "Sýna upplýsingar",
@@ -110,7 +114,8 @@ export var icelandicSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Öllum valkostum er raðað",
   selectToRankEmptyUnrankedAreaText: "Dragðu og slepptu valkostum hér til að raða þeim",
   ok: "ÓKEI",
-  cancel: "Afturkalla"
+  cancel: "Afturkalla",
+  createCustomItem: "Búðu til \"{0}\" hlut..."
 };
 
 setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "í
 // choices_Choice: "Choice option" => "Valmöguleiki"
 // loadingPage: "Loading..." => "Hleðsla..."
 // loadingData: "Loading..." => "Hleðsla..."
+// commentText: "Please leave a comment" => "Vinsamlegast skildu eftir athugasemd"
+// buttongroupOptionsCaption: "Select..." => "Velja..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Röð {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitill}"
+// createCustomItem: "Create \"{0}\" item..." => "Búðu til \"{0}\" hlut..."

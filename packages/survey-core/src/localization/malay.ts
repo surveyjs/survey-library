@@ -7,6 +7,7 @@ export var malaySurveyStrings = {
   previewText: "Pratonton",
   editText: "Edit",
   startSurveyText: "Mula",
+  commentText: "Sila tinggalkan komen",
   otherItemText: "Lain (terangkan)",
   noneItemText: "Tiada",
   refuseItemText: "Enggan menjawab",
@@ -24,6 +25,7 @@ export var malaySurveyStrings = {
   loadingSurvey: "Memuatkan Tinjauan...",
   placeholder: "Pilih...",
   ratingOptionsCaption: "Pilih...",
+  buttongroupOptionsCaption: "Pilih...",
   value: "nilai",
   requiredError: "Respons diperlukan.",
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",
@@ -60,6 +62,8 @@ export var malaySurveyStrings = {
   addRow: "Tambahkan baris",
   removeRow: "Alih keluar",
   noRowsText: "Tiada baris.",
+  rowIndexTemplateTitle: "Baris {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Tambah baharu",
   removePanel: "Alih keluar",
   showDetails: "Tunjukkan Butiran",
@@ -110,7 +114,8 @@ export var malaySurveyStrings = {
   selectToRankEmptyRankedAreaText: "Semua pilihan disenaraikan",
   selectToRankEmptyUnrankedAreaText: "Seret dan lepaskan pilihan di sini untuk meletakkannya",
   ok: "OK",
-  cancel: "Batal"
+  cancel: "Batal",
+  createCustomItem: "Buat item \"{0}\"..."
 };
 
 setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });
@@ -146,3 +151,8 @@ setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu
 // choices_Choice: "Choice option" => "Pilihan pilihan"
 // loadingPage: "Loading..." => "Memuatkan..."
 // loadingData: "Loading..." => "Memuatkan..."
+// commentText: "Please leave a comment" => "Sila tinggalkan komen"
+// buttongroupOptionsCaption: "Select..." => "Pilih..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Baris {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Buat item \"{0}\"..."

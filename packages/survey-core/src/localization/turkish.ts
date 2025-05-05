@@ -7,6 +7,7 @@ export var turkishSurveyStrings = {
   previewText: "Önizleme",
   editText: "Düzenle",
   startSurveyText: "Başlat",
+  commentText: "Lütfen bir yorum bırakın",
   otherItemText: "Diğer (açıklayınız)",
   noneItemText: "Hiçbiri",
   refuseItemText: "Cevap vermeyi reddet",
@@ -24,6 +25,7 @@ export var turkishSurveyStrings = {
   loadingSurvey: "Anket Yükleniyor...",
   placeholder: "Seçiniz...",
   ratingOptionsCaption: "Seçiniz...",
+  buttongroupOptionsCaption: "Seçmek...",
   value: "değer",
   requiredError: "Lütfen soruya cevap verin.",
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",
@@ -60,6 +62,8 @@ export var turkishSurveyStrings = {
   addRow: "Satır Ekle",
   removeRow: "Kaldır",
   noRowsText: "Satır yok.",
+  rowIndexTemplateTitle: "Satır {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Yeni ekle",
   removePanel: "Kaldır",
   showDetails: "Detayları göster",
@@ -110,7 +114,8 @@ export var turkishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Tüm seçenekler sıralanmıştır",
   selectToRankEmptyUnrankedAreaText: "Seçimleri sıralamak için buraya sürükleyip bırakın",
   ok: "TAMAM",
-  cancel: "İptal"
+  cancel: "İptal",
+  createCustomItem: "\"{0}\" öğesi oluştur..."
 };
 
 setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "türkçe", englishName: "Turkish" });
@@ -137,3 +142,8 @@ setupLocale({ localeCode: "tr", strings: turkishSurveyStrings, nativeName: "tür
 // choices_Choice: "Choice option" => "Seçim seçeneği"
 // loadingPage: "Loading..." => "Yükleme..."
 // loadingData: "Loading..." => "Yükleme..."
+// commentText: "Please leave a comment" => "Lütfen bir yorum bırakın"
+// buttongroupOptionsCaption: "Select..." => "Seçmek..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Satır {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" öğesi oluştur..."

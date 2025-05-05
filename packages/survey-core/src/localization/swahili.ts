@@ -7,6 +7,7 @@ export var swahiliStrings = {
   previewText: "Hakiki",
   editText: "Hariri",
   startSurveyText: "Anza",
+  commentText: "Tafadhali acha maoni",
   otherItemText: "Nyingine (eleza)",
   noneItemText: "Hakuna",
   refuseItemText: "Kukataa kujibu",
@@ -24,6 +25,7 @@ export var swahiliStrings = {
   loadingSurvey: "Tunaandaa utafiti...",
   placeholder: "Chagua...",
   ratingOptionsCaption: "Teua...",
+  buttongroupOptionsCaption: "Teua...",
   value: "thamani",
   requiredError: "Tafadhali jibu hili swali.",
   requiredErrorInPanel: "Tafadhali jibu swali angalau moja.",
@@ -60,6 +62,8 @@ export var swahiliStrings = {
   addRow: "Ongeza safu",
   removeRow: "Toa",
   noRowsText: "Hakuna safu.",
+  rowIndexTemplateTitle: "Safu {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Ongeza mpya",
   removePanel: "Toa",
   showDetails: "Onyesha Maelezo",
@@ -110,7 +114,8 @@ export var swahiliStrings = {
   selectToRankEmptyRankedAreaText: "Chaguzi zote zimeorodheshwa",
   selectToRankEmptyUnrankedAreaText: "Buruta na uache uchaguzi hapa ili kuziorodhesha",
   ok: "Sawa kabisa",
-  cancel: "Katisha"
+  cancel: "Katisha",
+  createCustomItem: "Unda kipengee cha \"{0}\"..."
 };
 
 setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", 
 // choices_Choice: "Choice option" => "Chaguo la uchaguzi"
 // loadingPage: "Loading..." => "Kupakia..."
 // loadingData: "Loading..." => "Kupakia..."
+// commentText: "Please leave a comment" => "Tafadhali acha maoni"
+// buttongroupOptionsCaption: "Select..." => "Teua..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Safu {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Unda kipengee cha \"{0}\"..."

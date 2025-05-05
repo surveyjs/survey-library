@@ -7,6 +7,7 @@ export var croatianStrings = {
   previewText: "Pregled",
   editText: "Uređivanje",
   startSurveyText: "Početak",
+  commentText: "Molimo ostavite komentar",
   otherItemText: "Ostali (opis)",
   noneItemText: "Nitko",
   refuseItemText: "Odbijte odgovoriti",
@@ -24,6 +25,7 @@ export var croatianStrings = {
   loadingSurvey: "Anketa o učitavanje...",
   placeholder: "Odaberite...",
   ratingOptionsCaption: "Odabirati...",
+  buttongroupOptionsCaption: "Odabirati...",
   value: "vrijednost",
   requiredError: "Molim vas odgovorite na pitanje.",
   requiredErrorInPanel: "Molim vas odgovorite na barem jedno pitanje.",
@@ -60,6 +62,8 @@ export var croatianStrings = {
   addRow: "Dodavanje redaka",
   removeRow: "Ukloniti",
   noRowsText: "Nema redova.",
+  rowIndexTemplateTitle: "Redak {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Dodavanje novih",
   removePanel: "Ukloniti",
   showDetails: "Pokaži detalje",
@@ -110,7 +114,8 @@ export var croatianStrings = {
   selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
   selectToRankEmptyUnrankedAreaText: "Ovdje povucite i ispustite odabire da biste ih rangirali",
   ok: "OK",
-  cancel: "Otkazati"
+  cancel: "Otkazati",
+  createCustomItem: "Stvorite \"{0}\" stavku..."
 };
 
 setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski", englishName: "Croatian" });
@@ -154,3 +159,8 @@ setupLocale({ localeCode: "hr", strings: croatianStrings, nativeName: "hrvatski"
 // choices_Choice: "Choice option" => "Opcija izbora"
 // loadingPage: "Loading..." => "Učitavanje..."
 // loadingData: "Loading..." => "Učitavanje..."
+// commentText: "Please leave a comment" => "Molimo ostavite komentar"
+// buttongroupOptionsCaption: "Select..." => "Odabirati..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Redak {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "Stvorite \"{0}\" stavku..."

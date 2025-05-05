@@ -7,6 +7,7 @@ export var simplifiedChineseSurveyStrings = {
   previewText: "预览",
   editText: "编辑",
   startSurveyText: "开始问卷",
+  commentText: "请发表评论",
   otherItemText: "填写其他答案",
   noneItemText: "无",
   refuseItemText: "拒绝回答",
@@ -24,6 +25,7 @@ export var simplifiedChineseSurveyStrings = {
   loadingSurvey: "问卷正在加载中...",
   placeholder: "请选择...",
   ratingOptionsCaption: "选择。。。",
+  buttongroupOptionsCaption: "选择。。。",
   value: "值",
   requiredError: "请填写此问题",
   requiredErrorInPanel: "至少回答一题.",
@@ -60,6 +62,8 @@ export var simplifiedChineseSurveyStrings = {
   addRow: "添加行",
   removeRow: "删除答案",
   noRowsText: "无内容",
+  rowIndexTemplateTitle: "行 {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "新添",
   removePanel: "删除",
   showDetails: "显示详细信息",
@@ -110,7 +114,8 @@ export var simplifiedChineseSurveyStrings = {
   selectToRankEmptyRankedAreaText: "所有选择均已排名",
   selectToRankEmptyUnrankedAreaText: "将选项拖放到此处进行排名",
   ok: "还行",
-  cancel: "取消"
+  cancel: "取消",
+  createCustomItem: "创建 {0} 项..."
 };
 
 setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });
@@ -149,3 +154,8 @@ setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nati
 // choices_Choice: "Choice option" => "Choice 选项"
 // loadingPage: "Loading..." => "装载。。。"
 // loadingData: "Loading..." => "装载。。。"
+// commentText: "Please leave a comment" => "请发表评论"
+// buttongroupOptionsCaption: "Select..." => "选择。。。"
+// rowIndexTemplateTitle: "Row {rowIndex}" => "行 {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rowTitle}"
+// createCustomItem: "Create \"{0}\" item..." => "创建 {0} 项..."

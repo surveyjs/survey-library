@@ -7,6 +7,7 @@ export var estonianSurveyStrings = {
   previewText: "Eelvaade",
   editText: "Muuda",
   startSurveyText: "Alusta",
+  commentText: "Palun jäta kommentaar",
   otherItemText: "Muu (täpsusta)",
   noneItemText: "Mitte midagi",
   refuseItemText: "Keeldu vastamast",
@@ -24,6 +25,7 @@ export var estonianSurveyStrings = {
   loadingSurvey: "Laen ankeeti...",
   placeholder: "Vali...",
   ratingOptionsCaption: "Valima...",
+  buttongroupOptionsCaption: "Valima...",
   value: "väärtus",
   requiredError: "Palun vasta küsimusele.",
   requiredErrorInPanel: "Palun vasta vähemalt ühele küsimusele.",
@@ -60,6 +62,8 @@ export var estonianSurveyStrings = {
   addRow: "Lisa rida",
   removeRow: "Eemalda",
   noRowsText: "Ridu pole.",
+  rowIndexTemplateTitle: "Rida {rowIndex}",
+  rowNameTemplateTitle: "{rea pealkiri}",
   addPanel: "Lisa uus",
   removePanel: "Eemalda",
   showDetails: "Näita detaile",
@@ -110,7 +114,8 @@ export var estonianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Kõik valikud on järjestatud",
   selectToRankEmptyUnrankedAreaText: "Lohistage valikuid siia, et neid järjestada",
   ok: "OK",
-  cancel: "Tühistama"
+  cancel: "Tühistama",
+  createCustomItem: "Looge üksus \"{0}\"..."
 };
 
 setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });
@@ -156,3 +161,8 @@ setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "ees
 // choices_Choice: "Choice option" => "Valiku valik"
 // loadingPage: "Loading..." => "Laadimise..."
 // loadingData: "Loading..." => "Laadimise..."
+// commentText: "Please leave a comment" => "Palun jäta kommentaar"
+// buttongroupOptionsCaption: "Select..." => "Valima..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rida {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rea pealkiri}"
+// createCustomItem: "Create \"{0}\" item..." => "Looge üksus \"{0}\"..."

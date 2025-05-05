@@ -8,6 +8,7 @@ export var englishStrings = {
   previewText: "Preview",
   editText: "Edit",
   startSurveyText: "Start",
+  commentText: "Please leave a comment",
   otherItemText: "Other (describe)",
   noneItemText: "None",
   refuseItemText: "Refuse to answer",

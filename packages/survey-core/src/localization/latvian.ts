@@ -7,6 +7,7 @@ export var latvianSurveyStrings = {
   previewText: "Priekšskatījums",
   editText: "Rediģēt",
   startSurveyText: "Sākt",
+  commentText: "Lūdzu, atstājiet komentāru",
   otherItemText: "Cits (lūdzu, aprakstiet!)",
   noneItemText: "Nav",
   refuseItemText: "Atteikties atbildēt",
@@ -24,6 +25,7 @@ export var latvianSurveyStrings = {
   loadingSurvey: "Ielāde no servera...",
   placeholder: "Izvēlēties...",
   ratingOptionsCaption: "Nospiediet šeit, lai novērtētu...",
+  buttongroupOptionsCaption: "Atlasiet...",
   value: "value",
   requiredError: "Lūdzu, atbildiet uz jautājumu!",
   requiredErrorInPanel: "Lūdzu, atbildiet uz vismaz vienu jautājumu.",
@@ -60,6 +62,8 @@ export var latvianSurveyStrings = {
   addRow: "Pievienot rindu",
   removeRow: "Noņemt",
   noRowsText: "Nav rindu.",
+  rowIndexTemplateTitle: "Rinda {rowIndex}",
+  rowNameTemplateTitle: "{rindasVirsraksts}",
   addPanel: "Pievieno jaunu",
   removePanel: "Noņemt",
   showDetails: "Rādīt detalizētu informāciju",
@@ -110,7 +114,8 @@ export var latvianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Visas izvēles ir sarindotas",
   selectToRankEmptyUnrankedAreaText: "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu",
   ok: "LABI",
-  cancel: "Atcelt"
+  cancel: "Atcelt",
+  createCustomItem: "Izveidot vienumu \"{0}\"..."
 };
 
 setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });
@@ -144,3 +149,8 @@ setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latv
 // choices_Choice: "Choice option" => "Izvēles iespēja"
 // loadingPage: "Loading..." => "Iekraušanas..."
 // loadingData: "Loading..." => "Iekraušanas..."
+// commentText: "Please leave a comment" => "Lūdzu, atstājiet komentāru"
+// buttongroupOptionsCaption: "Select..." => "Atlasiet..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rinda {rowIndex}"
+// rowNameTemplateTitle: "{rowTitle}" => "{rindasVirsraksts}"
+// createCustomItem: "Create \"{0}\" item..." => "Izveidot vienumu \"{0}\"..."

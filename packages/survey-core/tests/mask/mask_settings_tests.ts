@@ -325,3 +325,19 @@ QUnit.test("mask settings changes trigger survey.onPropertyValueChangedCallback"
   (maskedQuestion.maskSettings as any).thousandsSeparator = "-";
   assert.equal(propName, "not triggered->name:thousandsSeparator");
 });
+
+QUnit.test("Inputmask: saveMaskedValue: true doesn't work on changing value outside the input", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "numeric";
+  assert.equal(q.value, undefined, "empty value");
+  assert.equal(q.inputValue, "", "empty inputValue");
+
+  q.value = 12345;
+  assert.equal(q.value, 12345, "q.value #1");
+  assert.equal(q.inputValue, "12,345", "q.inputValue #1");
+
+  q.maskSettings.saveMaskedValue = true;
+  q.value = 54321;
+  assert.equal(q.value, "54,321", "q.value #2");
+  assert.equal(q.inputValue, "54,321", "q.inputValue #2");
+});

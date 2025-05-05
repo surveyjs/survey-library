@@ -123,6 +123,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Specifies whether users can select multiple images or videos.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   public get multiSelect(): boolean {
     return this.getPropertyValue("multiSelect");
@@ -177,8 +179,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   /**
-   * Specifies whether to display labels under images or videos. Labels text are taken from the `text` property of each object in the `choices` array.
-   * @see choices
+   * Specifies whether to display labels under images or videos. Labels text are taken from the `text` property of each object in the [`choices`](#choices) array.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   public get showLabel(): boolean {
     return this.getPropertyValue("showLabel");

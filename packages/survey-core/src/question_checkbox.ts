@@ -231,6 +231,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see minSelectedChoices
    */
   public get maxSelectedChoices(): number {
@@ -247,6 +249,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `minSelectedChoices` value.
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see maxSelectedChoices
    */
   public get minSelectedChoices(): number {

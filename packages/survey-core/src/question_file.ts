@@ -76,10 +76,12 @@ export class QuestionFileModelBase extends Question {
     this.setPropertyValue("storeDataAsText", val);
   }
   /**
-     * Enable this property if you want to wait until files are uploaded to complete the survey.
-     *
-     * Default value: `false`
-     */
+   * Enable this property if you want to wait until files are uploaded to complete the survey.
+   *
+   * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
+   */
   public get waitForUpload(): boolean {
     return this.getPropertyValue("waitForUpload");
   }

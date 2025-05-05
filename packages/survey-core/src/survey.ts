@@ -492,7 +492,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   *
+   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see uploadFiles
    * @see onDownloadFile
    * @see onClearFiles
@@ -922,6 +924,8 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * To let users add their own choice options, enable the [`allowCustomChoices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices) property for individual dropdown questions.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dropdown-custom-choice-options/ (linkStyle))
    */
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
@@ -1992,6 +1996,8 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"onBlur"` (default) - Updates the value after the input field loses focus.
    * - `"onTyping"` - Updates the value on every key press.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    *
    * > Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are reevaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
    *

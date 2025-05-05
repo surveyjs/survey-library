@@ -1754,7 +1754,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("requiredIf", val);
   }
   /**
-   * Specifies whether to display a comment area. Incompatible with the `showOtherItem` property.
+   * Specifies whether to display a comment area.
    * @see comment
    * @see commentText
    * @see showOtherItem

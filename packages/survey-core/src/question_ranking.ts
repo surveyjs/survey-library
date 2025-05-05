@@ -610,6 +610,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * When you enable this property, the Ranking question displays two areas for ranked and unranked choices. To order choices, users should first drag them from the unranked to the ranked area. Use this mode if you want to let users order only the choices they select.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see selectToRankAreasLayout
   */
   public get selectToRankEnabled(): boolean {
@@ -635,6 +637,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * - `"horizontal"` (default) - The ranked and unranked areas are positioned next to each other. Users drag and drop choices between them in the horizontal direction.
    * - `"vertical"`- The ranked area is positioned above the unranked area. Users drag and drop choices between them in the vertical direction.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see selectToRankAreasLayout
   */
   public get selectToRankAreasLayout(): string {

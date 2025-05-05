@@ -354,7 +354,7 @@ export class QuestionTextModel extends QuestionTextBase {
       value = this.maskInstance.getUnmaskedValue(val);
       this._inputValue = this.maskInstance.getMaskedValue(value);
       if (!!value && this.maskSettings.saveMaskedValue) {
-        value = this.maskInstance.getMaskedValue(value);
+        value = this._inputValue;
       }
     }
     this.value = value;
@@ -366,12 +366,19 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   private updateInputValue() {
+    const _value = this.value;
     if (this.maskTypeIsEmpty) {
-      this._inputValue = this.value;
+      this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {
-      this._inputValue = !!this.value ? this.value : this.maskInstance.getMaskedValue("");
+      if (!_value) {
+        this._inputValue = this.maskInstance.getMaskedValue("");
+      } else if (typeof _value == "string") {
+        this._inputValue = _value;
+      } else {
+        this.value = this.maskInstance.getMaskedValue(_value);
+      }
     } else {
-      this._inputValue = this.maskInstance.getMaskedValue(this.value);
+      this._inputValue = this.maskInstance.getMaskedValue(_value);
     }
   }
   private hasToConvertToUTC(val: any): boolean {

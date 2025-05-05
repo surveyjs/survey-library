@@ -1,6 +1,5 @@
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
-import { IQuestion } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
@@ -329,7 +328,7 @@ export class QuestionSliderModel extends Question {
     this.setValueByClickOnPath(event, rootNode);
   };
 
-  public refreshInputRange = (inputNode: HTMLInputElement):void => {
+  public refreshInputRange = (inputNode: HTMLInputElement | null):void => {
     const { allowDragRange, getRenderedValue, getPercent } = this;
     if (!allowDragRange) return;
     //if (!this.rangeInputRef.current) return;

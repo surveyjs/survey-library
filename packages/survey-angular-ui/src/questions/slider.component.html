@@ -1,0 +1,9 @@
+  
+  <div [class]="model.rootCss" #contentElement>
+    <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
+    name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
+    [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step"
+    (input)="model.handleRangeOnChange($event)"
+    (pointerdown)="model.handleRangePointerDown($event, contentElement)"
+    (pointerup)="(e)=>{model.handleRangePointerUp(e, rootRef as HTMLElement)}" />
+  </div>

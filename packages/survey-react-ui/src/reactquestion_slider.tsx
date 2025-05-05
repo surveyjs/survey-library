@@ -120,7 +120,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getLabels() {
     const labels = [];
     const {
-      renderedMax: max, renderedMin: min, labelCount, showEdgeLabels, cssClasses, handleLabelPointerUp,
+      labelCount, showEdgeLabels, cssClasses, handleLabelPointerUp,
       getLabelCss, getLabelText, getLabelPosition
     } = this.question;
 

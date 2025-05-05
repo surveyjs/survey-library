@@ -98,6 +98,13 @@ export class QuestionSliderModel extends Question {
       .toString();
   }
 
+  public getLabelCss = (labelNumber: number): string => {
+    return new CssClassBuilder()
+      .append(this.cssClasses.label)
+      .append(this.cssClasses.labelLongMod, this.getLabelText(labelNumber).length > 10)
+      .toString();
+  };
+
   public get renderedMax(): number {
     return this.max <= this.min ? 100 : this.max;
   }
@@ -488,7 +495,8 @@ export class QuestionSliderModel extends Question {
     this.focusedThumb = null;
   };
 
-  public handleLabelPointerUp = (event: PointerEvent, labelText: string) => {
+  public handleLabelPointerUp = (event: PointerEvent, labelNumber: number) => {
+    const labelText = this.getLabelText(labelNumber);
     const newValue = +labelText;
     const inputNode = <HTMLInputElement>event.target;
     if (isNaN(newValue)) return;
@@ -500,6 +508,23 @@ export class QuestionSliderModel extends Question {
     let value = getRenderedValue()[tooltipNumber];
     value = step ? getClosestToStepValue(value) : value;
     return tooltipFormat.replace("{0}", "" + value);
+  };
+
+  public getLabelText = (labelNumber: number):string => {
+    const { customLabels, step, max, min, labelCount, labelFormat } = this;
+    const fullRange = max - min;
+    const isDecimal = step % 1 != 0;
+    let labelStep = labelNumber * fullRange / (labelCount - 1);
+    let labelText = customLabels.length > 0 ? customLabels[labelNumber].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
+    labelText = labelFormat.replace("{0}", "" + labelText);
+    return labelText;
+  };
+
+  public getLabelPosition = (labelNumber: number):number => {
+    const { max, min, labelCount } = this;
+    const fullRange = max - min;
+    const labelStep = labelNumber * fullRange / (labelCount - 1);
+    return labelStep / fullRange * 100;
   };
 
   // public endLoadingFromJson() {

@@ -120,29 +120,19 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getLabels() {
     const labels = [];
     const {
-      renderedMax: max, renderedMin: min, labelCount, showEdgeLabels,
-      customLabels, cssClasses, step, labelFormat, handleLabelPointerUp
+      renderedMax: max, renderedMin: min, labelCount, showEdgeLabels, cssClasses, handleLabelPointerUp,
+      getLabelCss, getLabelText, getLabelPosition
     } = this.question;
-    const fullRange = max - min;
 
     for (let i = 0; i < labelCount; i++) {
-      let labelStep = i * fullRange / (labelCount - 1);
-      let position = labelStep / fullRange * 100;
-
       if (!showEdgeLabels && (i === 0 || i === labelCount - 1)) continue;
-
-      const isDecimal = step % 1 != 0;
-      const labelText:string = customLabels.length > 0 ? customLabels[i].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
-
-      const label = <React.Fragment key={"label-" + i}>
-        <div className={`${cssClasses.label} ${labelText.length > 10 ? cssClasses.labelLongMod : ""}`}
-          style={{ left: position + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, labelText); } }>
-          <div className={cssClasses.labelTick}></div>
-          <div className={cssClasses.labelText}>
-            {labelFormat.replace("{0}", "" + labelText)}
-          </div>
+      const label = <div key={"label-" + i} className={getLabelCss(i)}
+        style={{ left: getLabelPosition(i) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
+        <div className={cssClasses.labelTick}></div>
+        <div className={cssClasses.labelText}>
+          {getLabelText(i)}
         </div>
-      </React.Fragment>;
+      </div>;
 
       labels.push(label);
     }

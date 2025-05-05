@@ -78,16 +78,24 @@ export class QuestionSliderModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.rootSingleMode, this.sliderType === "single")
-      .append(this.cssClasses.rootNegativeScaleMode, this.isNegativeScale)
+      .append(this.cssClasses.rootNegativeScaleMode, !!this.isNegativeScale)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
       .toString();
   }
 
-  public get thumbContainerCss(): string {
+  public getThumbContainerCss = (thumbNumber: number): string => {
     return new CssClassBuilder()
       .append(this.cssClasses.thumbContainer)
-      .append(this.cssClasses.thumbContainerIndeterminateMode, this.isIndeterminate)
+      .append(this.cssClasses.thumbContainerIndeterminateMode, !!this.isIndeterminate)
+      .append(this.cssClasses.thumbContainerFocusedMode, thumbNumber === this.focusedThumb)
+      .toString();
+  };
+
+  public get tooltipCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.tooltip)
+      .append(this.cssClasses.tooltipOnHoverMode, this.tooltipVisibility === "auto")
       .toString();
   }
 
@@ -486,6 +494,13 @@ export class QuestionSliderModel extends Question {
     const inputNode = <HTMLInputElement>event.target;
     if (isNaN(newValue)) return;
     this.setValueByClick(newValue, inputNode);
+  };
+
+  public getTooltipValue = (tooltipNumber: number):string => {
+    const { step, getClosestToStepValue, getRenderedValue, tooltipFormat } = this;
+    let value = getRenderedValue()[tooltipNumber];
+    value = step ? getClosestToStepValue(value) : value;
+    return tooltipFormat.replace("{0}", "" + value);
   };
 
   // public endLoadingFromJson() {

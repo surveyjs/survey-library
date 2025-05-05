@@ -63,24 +63,23 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getThumb(i: number) {
-    const { cssClasses, thumbContainerCss, tooltipFormat, focusedThumb, step, tooltipVisibility, getPercent, getClosestToStepValue, getRenderedValue } = this.question;
-
+    const {
+      cssClasses, getThumbContainerCss, tooltipVisibility, tooltipCss,
+      getPercent, getRenderedValue, getTooltipValue
+    } = this.question;
     const value = getRenderedValue()[i];
-    let percent: string = getPercent(value) + "%";
-
     let tooltip: ReactElement | null = null;
-    let toolTipValue = step ? getClosestToStepValue(value) : value;
 
     if (tooltipVisibility !== "never") {
-      tooltip = <div className={`${cssClasses.tooltip} ${tooltipVisibility === "auto" ? cssClasses.tooltipOnHoverMode : ""}`}>
+      tooltip = <div className={tooltipCss}>
         <div className={cssClasses.tooltipPanel}>
-          <div className={cssClasses.tooltipValue} >{tooltipFormat.replace("{0}", "" + toolTipValue)}</div>
+          <div className={cssClasses.tooltipValue} >{getTooltipValue(i)}</div>
         </div>
       </div>;
     }
 
     const thumb =
-      <div className={`${thumbContainerCss} ${i === focusedThumb ? cssClasses.thumbContainerFocusedMode : ""}`} style={{ left: percent }}>
+      <div className={getThumbContainerCss(i)} style={{ left: getPercent(value) + "%" }}>
         {tooltip}
         <div className={cssClasses.thumb}>
           <div className={cssClasses.thumbDot}></div>

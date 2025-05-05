@@ -12,6 +12,7 @@
             <div :class="question.cssClasses.inverseTrackLeft" :style="{ width: question.getTrackPercentLeft() + '%' }"></div>
             <div :class="question.cssClasses.inverseTrackRight" :style="{ width: question.getTrackPercentRight() + '%' }"></div>
             <div :class="question.cssClasses.rangeTrack" :style="{ left: question.getTrackPercentLeft() + '%', right: question.getTrackPercentRight() + '%' }" ></div>
+            
             <template v-for="(value, i) in question.getRenderedValue()" :key="'thumb-' + i">
               <input :class="question.cssClasses.input" :id="'sjs-slider-input-' + i" type="range" :value="value" 
                 :min="question.min" :max="question.max" :step="question.step" :disabled="question.isDisabledAttr"
@@ -23,7 +24,21 @@
                 @focus="()=>{question.handleOnFocus(i)}"
                 @blur="()=>{question.handleOnBlur()}"
               />
+              <div :class="question.getThumbContainerCss(i)" :style="{ left: question.getPercent(value) + '%' }">
+                <div v-if="question.tooltipVisibility !== 'never'" :class="question.tooltipCss">
+                  <div :class="question.cssClasses.tooltipPanel">
+                    <div :class="question.cssClasses.tooltipValue">
+                      {{question.getTooltipValue(i)}}
+                    </div>
+                  </div>
+                </div>
+                <div :class="question.cssClasses.thumb">
+                  <div :class="question.cssClasses.thumbDot"></div>
+                </div>
+              </div>
+
             </template>
+
           </div>
         </div>
     </div>

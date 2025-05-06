@@ -51,11 +51,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    *
    * For a Single-Select Matrix, the `columns` array can contain configuration objects with the `text` (display value) and `value` (value to be saved in survey results) properties. Alternatively, the array can contain primitive values that will be used as both the display values and values to be saved in survey results.
    *
-   * [View "Single-Select Matrix" Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    *
    * For a Multi-Select Matrix or Dynamic Matrix, the `columns` array should contain configuration objects with properties described in the [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) API Reference section.
    *
-   * [View "Multi-Select Matrix" Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
    */
   get columns(): Array<any> {
     return this.getPropertyValue("columns");
@@ -76,7 +76,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    *
    * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    */
   get rows(): Array<any> {
     return this.getPropertyValue("rows");
@@ -227,12 +229,17 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
 
   /**
    * Specifies whether to apply shading to alternate matrix rows.
+   *
+   * [Single-Select Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    */
   @property() alternateRows: boolean;
 
   /**
    * Minimum column width in CSS values.
    *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   *
+   * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see width
    */
   public get columnMinWidth(): string {

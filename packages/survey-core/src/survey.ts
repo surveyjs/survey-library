@@ -393,9 +393,11 @@ export class SurveyModel extends SurveyElementCore
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.onValidatePage;
   /**
    * An event that is raised when the survey processes HTML content. Handle this event to modify HTML content before displaying.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-html-form-field/ (linkStyle))
    * @see completedHtml
    * @see loadingHtml
-   * @see QuestionHtmlModel.html
+   * @see [QuestionHtmlModel.html](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html)
    */
   public onProcessHtml: EventBase<SurveyModel, ProcessHtmlEvent> = this.addEvent<SurveyModel, ProcessHtmlEvent>();
   /**
@@ -516,7 +518,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
+   * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   *
+   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles

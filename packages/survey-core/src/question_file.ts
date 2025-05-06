@@ -68,6 +68,10 @@ export class QuestionFileModelBase extends Question {
    * Specifies whether to store file or signature content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
    *
    * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
+   *
+   * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   *
+   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    */
   public get storeDataAsText(): boolean {
     return this.getPropertyValue("storeDataAsText");
@@ -80,7 +84,9 @@ export class QuestionFileModelBase extends Question {
    *
    * Default value: `false`
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
+   * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   *
+   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    */
   public get waitForUpload(): boolean {
     return this.getPropertyValue("waitForUpload");
@@ -197,6 +203,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * - `"file"` (default) - Allows respondents to select a local file.
    * - `"camera"` - Allows respondents to capture and upload a photo.
    * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/photo-capture/ (linkStyle))
    * @see filePlaceholder
    * @see photoPlaceholder
    * @see fileOrPhotoPlaceholder
@@ -491,6 +499,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Specifies whether users can upload multiple files.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    */
   public get allowMultiple(): boolean {
     return this.getPropertyValue("allowMultiple");
@@ -532,6 +542,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   /**
    * An [accept](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
    */
   public get acceptedTypes(): string {
     return this.getPropertyValue("acceptedTypes");
@@ -552,6 +564,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Maximum allowed file size, measured in bytes.
    *
    * Default value: 0 (unlimited)
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    */
   public get maxSize(): number {
     return this.getPropertyValue("maxSize");

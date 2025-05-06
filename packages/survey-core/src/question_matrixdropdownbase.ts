@@ -945,7 +945,7 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
 }
 
 /**
- * A base class for the [QuestionMatrixDropdownModel](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [QuestionMatrixDynamicModel](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
+ * A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData, IMatrixColumnOwner {
   public static get defaultCellType() {
@@ -1079,7 +1079,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Default value: `false`
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/transpose-dynamic-rows-to-columns-in-matrix/ (linkStyle))
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   *
+   * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/transpose-dynamic-rows-to-columns-in-matrix/ (linkStyle))
    */
   public get transposeData(): boolean {
     return this.getPropertyValue("transposeData");
@@ -1180,8 +1182,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"underRowSingle"` - Displays detail sections under their respective rows, but only one detail section can be expanded at a time.
    * - `"none"` (default) - Hides detail sections.
    *
-   * Use the `detailElements` property to specify content of detail sections.
-   * @see detailElements
+   * Use the [`detailElements`](#detailElements) property to specify content of detail sections.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see detailPanel
    */
   public get detailPanelMode(): string {
@@ -1206,8 +1209,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Detail sections are expandable panels displayed under each matrix row. You can use them to display questions that do not fit into the row.
    *
-   * Set the `detailPanelMode` property to `"underRow"` or `"underRowSingle"` to display detail sections.
-   * @see detailPanelMode
+   * Set the [`detailPanelMode`](#detailPanelMode) property to `"underRow"` or `"underRowSingle"` to display detail sections.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see detailPanel
    */
   public get detailElements(): Array<IElement> {
@@ -1350,6 +1354,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
    *
    * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   *
+   * [Multi-Select Matrix Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
+   *
+   * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    */
   public get cellType(): string {
     return this.getPropertyValue("cellType", settings.matrix.defaultCellType);

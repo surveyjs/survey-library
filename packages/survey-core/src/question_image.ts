@@ -39,6 +39,8 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   /**
    * Specifies an image or video URL.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    * @see contentMode
    */
   public get imageLink(): string {
@@ -52,6 +54,8 @@ export class QuestionImageModel extends QuestionNonValue {
   }
   /**
    * Specifies a value for the `alt` attribute of the underlying `<img>` element.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    */
   public get altText(): string {
     return this.getLocalizableStringText("altText");
@@ -67,9 +71,10 @@ export class QuestionImageModel extends QuestionNonValue {
    *
    * Default value: 150
    *
-   * Use the `imageFit` property to specify how to fit the image or video into the container.
+   * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
+   *
+   * > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
    * @see imageWidth
-   * @see imageFit
    */
   public get imageHeight(): string {
     return this.getPropertyValue("imageHeight");
@@ -90,9 +95,10 @@ export class QuestionImageModel extends QuestionNonValue {
    *
    * Default value: 200
    *
-   * Use the `imageFit` property to specify how to fit the image or video into the container.
+   * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
+   *
+   * > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
    * @see imageHeight
-   * @see imageFit
    */
   public get imageWidth(): string {
     return this.getPropertyValue("imageWidth");

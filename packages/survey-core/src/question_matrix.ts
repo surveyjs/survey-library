@@ -308,6 +308,8 @@ export class QuestionMatrixModel
   }
   /**
    * Specifies whether each row requires an answer. If a respondent skips a row, the question displays a validation error.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    * @see isRequired
    * @see eachRowUnique
    * @see validators

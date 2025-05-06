@@ -1691,3 +1691,28 @@ QUnit.test("checkbox vs matrixdropdown", assert => {
   assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #3");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "survey-creator", "matrix.singleInputLocTitle.textOrHtml, #3");
 });
+QUnit.test("matrixdropdown & locRenderingTitle, Bug#9829", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1"
+          }
+        ],
+        rows: ["row1", "row2"]
+      }
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.locRenderedTitle.textOrHtml, "matrix", "locRenderedTitle, #1");
+  assert.equal(matrix["isSingleInputActive"], false, "isSingleInputActive, #1");
+  survey.questionsOnPageMode = "inputPerPage";
+  assert.equal(matrix.locRenderedTitle.textOrHtml, "row1", "locRenderedTitle, #2");
+  assert.equal(matrix["isSingleInputActive"], true, "isSingleInputActive, #2");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(matrix.locRenderedTitle.textOrHtml, "matrix", "locRenderedTitle, #3");
+  assert.equal(matrix["isSingleInputActive"], false, "isSingleInputActive, #3");
+});

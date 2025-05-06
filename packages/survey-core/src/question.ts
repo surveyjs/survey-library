@@ -820,7 +820,9 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    const ssQ = this.survey?.currentSingleQuestion;
+    const sv = this.survey;
+    if (!sv || !sv.isSingleVisibleInput) return false;
+    const ssQ = sv.currentSingleQuestion;
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
   protected singleInputOnAddItem(isOnDataChanging: boolean): void {

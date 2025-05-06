@@ -62,7 +62,7 @@
 <script lang="ts" setup>
 import type { QuestionSliderModel } from "survey-core";
 import { useQuestion } from "./base";
-import { onMounted, onUpdated, ref } from "vue";
+import { onMounted, ref } from "vue";
 defineOptions({
   inheritAttrs: false,
 });

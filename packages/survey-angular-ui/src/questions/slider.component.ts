@@ -9,11 +9,34 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel> {
   @ViewChild("rangeInputRef") rangeInputRef!: ElementRef<HTMLInputElement>;
+
+  override ngOnInit():void {
+    super.ngOnInit();
+    this.model.refreshInputRange(this.rangeInputElement);
+  }
+
+  ngOnChanges():void {
+    this.model.refreshInputRange(this.rangeInputElement);
+  }
+
   get rootRef(): HTMLElement {
     return this.elementContentRef?.nativeElement;
   }
   get rangeInputElement(): HTMLInputElement {
     return this.rangeInputRef?.nativeElement;
+  }
+  get labelCountArray(): number[] {
+    const result:number[] = [];
+    for (let i = 0; i < this.model.labelCount; i++) {
+      result.push(i);
+    }
+    return result;
+  }
+  trackByRenderedValue (i: number, value: number): number {
+    return value;
+  }
+  trackByLabelCount (i: number, value: number): number {
+    return i;
   }
 }
 

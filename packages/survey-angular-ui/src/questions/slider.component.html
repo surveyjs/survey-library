@@ -1,7 +1,4 @@
 
-<!-- TODO: -->
-<!--  1. replace all attr.key with trackBy -->
-<!--  2. Property 'value' does not exist on type 'SliderQuestionComponent'. -->
 <div [class]="model.rootCss" #contentElement>
   <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
   name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
@@ -16,7 +13,7 @@
       <div [class]="model.cssClasses.inverseTrackRight" [style]="{ width: model.getTrackPercentRight() + '%' }"></div>
       <div [class]="model.cssClasses.rangeTrack" [style]="{ left: model.getTrackPercentLeft() + '%', right: model.getTrackPercentRight() + '%' }" ></div>
 
-      <ng-container *ngFor="value of (model.getRenderedValue()); index as i;" [attr.key]="value">
+       <ng-container *ngFor="let value of (model.getRenderedValue()); index as i; trackBy: trackByRenderedValue;">
         <input [class]="model.cssClasses.input" [attr.id]="'sjs-slider-input-' + i" type="range" [attr.value]="value" 
           [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" [attr.disabled]="model.isDisabledAttr"
           (input)="model.handleOnChange($any($event), i)"
@@ -44,10 +41,9 @@
     </div>
   </div>
   
-
   <div *ngIf="model.showLabels" [class]="model.cssClasses.labelsContainer">
     <div>
-      <div *ngFor="value of model.labelCount; index as i;" [attr.key]="i" [class]="model.getLabelCss(i)"
+      <div *ngFor="let value of labelCountArray; index as i; trackBy: trackByLabelCount;"  [class]="model.getLabelCss(i)"
       [style]="{ left: model.getLabelPosition(i) + '%' }"
       (pointerup)="model.handleLabelPointerUp($any($event), i)">
         <ng-container *ngIf="model.showEdgeLabels || (i !== 0 && i !== model.labelCount - 1)">

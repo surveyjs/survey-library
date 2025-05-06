@@ -30,7 +30,7 @@ export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel
     return result;
   }
   trackByRenderedValue (i: number, value: number): number {
-    return value;
+    return i;
   }
   trackByLabelCount (i: number, value: number): number {
     return i;

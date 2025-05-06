@@ -13,7 +13,7 @@
             <div :class="question.cssClasses.inverseTrackRight" :style="{ width: question.getTrackPercentRight() + '%' }"></div>
             <div :class="question.cssClasses.rangeTrack" :style="{ left: question.getTrackPercentLeft() + '%', right: question.getTrackPercentRight() + '%' }" ></div>
             
-            <template v-for="(value, i) in question.getRenderedValue()" :key="value">
+            <template v-for="(value, i) in question.getRenderedValue()" :key="i">
               <input :class="question.cssClasses.input" :id="'sjs-slider-input-' + i" type="range" :value="value" 
                 :min="question.min" :max="question.max" :step="question.step" :disabled="question.isDisabledAttr"
                 @input="(e)=>{question.handleOnChange(e as InputEvent, i)}"

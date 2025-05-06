@@ -1,5 +1,5 @@
-import { frameworks, url, initSurvey } from "../helper";
-import { test, expect, Page, Locator } from "@playwright/test";
+import { frameworks, url, initSurvey, test } from "../helper";
+import { expect, Page, Locator } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
 const title = "slider";

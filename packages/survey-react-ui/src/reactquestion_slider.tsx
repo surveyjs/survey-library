@@ -53,7 +53,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     for (let i = 0; i < value.length; i++) {
       // TODO all keys should be generated ids
-      const thumbAndInput = <React.Fragment key={value[i]}>
+      const thumbAndInput = <React.Fragment key={i}>
         {this.getInput(i)}
         {this.getThumb(i)}
       </React.Fragment>;

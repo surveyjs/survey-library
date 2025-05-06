@@ -2099,6 +2099,38 @@ QUnit.test("checkbox max(min)SelectedChoices validation", (assert) => {
   q.maxSelectedChoices = 5;
   assert.equal(q.maxSelectedChoices, 5, "q.maxSelectedChoices, #5");
 });
+QUnit.test("minSelectedChoices in checkbox & known & other one selection, Bug#9830", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3, 4, 5],
+        showOtherItem: true,
+        showNoneItem: true,
+        showRefuseItem: true,
+        showDontKnowItem: true,
+      },
+    ],
+  });
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.minSelectedChoices = 3;
+  question.value = [2, 3];
+  assert.equal(question.validate(), false, "validate #1");
+  question.clickItemHandler(question.noneItem, true);
+  assert.deepEqual(question.value, ["none"], "value #2");
+  assert.equal(question.validate(), true, "validate #2");
+  question.value = [2, 3];
+  assert.equal(question.validate(), false, "validate #3");
+  question.clickItemHandler(question.refuseItem, true);
+  assert.deepEqual(question.value, ["refused"], "value #4");
+  assert.equal(question.validate(), true, "validate #4");
+  question.value = [2];
+  assert.equal(question.validate(), false, "validate #5");
+  question.clickItemHandler(question.dontKnowItem, true);
+  assert.deepEqual(question.value, ["dontknow"], "value #6");
+  assert.equal(question.validate(), true, "validate #6");
+});
 QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
   const survey = new SurveyModel({
     "elements": [

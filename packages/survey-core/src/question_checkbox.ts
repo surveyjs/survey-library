@@ -128,10 +128,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.isAllSelected = !this.isAllSelected;
   }
   protected allElementsSelected(): boolean {
-    const noneItems = this.getNoneItems();
-    for(let i = 0; i < noneItems.length; i ++) {
-      if(this.isItemSelected(noneItems[i])) return false;
-    }
+    if (this.isNoneItemsSelected()) return false;
     const items = this.getVisibleEnableItems();
     if(items.length === 0) return false;
     const val = this.value;
@@ -145,6 +142,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       if(rVal.indexOf(items[i].value) < 0) return false;
     }
     return true;
+  }
+  private isNoneItemsSelected(): boolean {
+    const noneItems = this.getNoneItems();
+    for (let i = 0; i < noneItems.length; i ++) {
+      if (this.isItemSelected(noneItems[i])) return true;
+    }
+    return false;
   }
   /**
    * Selects all choice items, except "Other" and "None".
@@ -310,7 +314,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (isOnValueChanged) return;
 
-    if (this.minSelectedChoices > 0 && this.checkMinSelectedChoicesUnreached()) {
+    if (this.checkMinSelectedChoicesUnreached()) {
       const minError = new CustomError(
         this.getLocalizationFormatString("minSelectError", this.minSelectedChoices),
         this
@@ -371,6 +375,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.minSelectedChoices < 1) return false;
     var val = this.value;
     var len = !Array.isArray(val) ? 0 : val.length;
+    if (len === 1 && this.isNoneItemsSelected()) return false;
     return len < this.minSelectedChoices;
   }
 

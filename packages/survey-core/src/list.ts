@@ -238,12 +238,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return itemValue.enabled !== undefined && !itemValue.enabled;
   };
 
-  public get_a11y_item_ariaSelected: (itemValue: T) => "true" | "false" | undefined = (itemValue: T) => {
+  public getA11yItemAriaSelected: (itemValue: T) => "true" | "false" | undefined = (itemValue: T) => {
     if (this.listItemRole == "option") return this.isItemSelected(itemValue) ? "true" : "false";
     return undefined;
   };
 
-  public get_a11y_item_ariaChecked: (itemValue: T) => "true" | "false" | undefined = (itemValue: T) => {
+  public getA11yItemAriaChecked: (itemValue: T) => "true" | "false" | undefined = (itemValue: T) => {
     if (this.listItemRole == "menuitemradio") return this.isItemSelected(itemValue) ? "true" : "false";
     return undefined;
   };
@@ -295,7 +295,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     };
   };
 
-  public get a11y_input_ariaLabel(): string {
+  public get a11yInputAriaLabel(): string {
     return this.listAriaLabel;
   }
   public get filterStringPlaceholder(): string {

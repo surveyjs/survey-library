@@ -18,7 +18,7 @@
                 :min="question.min" :max="question.max" :step="question.step" :disabled="question.isDisabledAttr"
                 @input="(e)=>{question.handleOnChange(e as InputEvent, i)}"
                 @pointerdown="(e)=>{question.handlePointerDown(e)}"
-                @pointerup="(e)=>{question.handlePointerUp(e)}"
+                @pointerup="(e)=>{e.stopPropagation();question.handlePointerUp(e)}"
                 @keydown="(e)=>{question.handleKeyDown(e)}"
                 @keyup="(e)=>{question.handleKeyUp(e)}"
                 @focus="()=>{question.handleOnFocus(i)}"

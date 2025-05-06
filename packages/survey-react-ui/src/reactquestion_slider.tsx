@@ -101,7 +101,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} type="range"
       value={value} min={min} max={max} step={step}
       onChange={ (e)=>{ handleOnChange(e.nativeEvent as InputEvent, i); } }
-      onPointerDown={ (e)=>{ handlePointerDown(e.nativeEvent); } } onPointerUp={ (e)=>{ handlePointerUp(e.nativeEvent); } }
+      onPointerDown={ (e)=>{ handlePointerDown(e.nativeEvent); } } onPointerUp={ (e)=>{ e.stopPropagation(); handlePointerUp(e.nativeEvent); } }
       onKeyDown={ (e)=>{ handleKeyDown(e.nativeEvent); } } onKeyUp={ (e)=>{ handleKeyUp(e.nativeEvent); } }
       onFocus={ ()=>{ handleOnFocus(i); } } onBlur={ ()=>{ handleOnBlur(); } }
       disabled={isDisabledAttr}

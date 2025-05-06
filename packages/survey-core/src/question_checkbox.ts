@@ -53,6 +53,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Specifies a property name used to store selected values.
    *
    * Set this property if you want to store selected values in an array of objects instead of an array of primitive values. For example, if you set `valuePropertyName` to `"car"`, the `value` property will contain an array of objects `[{ car: "Ford" }, { car: "Tesla" }]`, not an array of string values `[ "Ford", "Tesla" ]`.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/merge-question-values/ (linkStyle))
    */
   public get valuePropertyName(): string {
     return this.getPropertyValue("valuePropertyName");

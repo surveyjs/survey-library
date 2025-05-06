@@ -1807,6 +1807,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `{rowName}` - A row name (the `value` property within objects in the [`rows`](#rows) array). Use this placeholder if you need to distinguish between matrix rows.
    * - `{rowTitle}` - A row title (the `text` property within objects in the `rows` array).
    * - `{row.columnname}` - The value of a cell in the same row.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
    */
   public get singleInputTitleTemplate(): string {
     return this.getLocalizableStringText("singleInputTitleTemplate");

@@ -222,6 +222,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after the current page is switched.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    * @see currentPageNo
    * @see nextPage
    * @see prevPage
@@ -236,6 +239,8 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised after a question value is changed.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    *
    * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event.
    * @see setValue
@@ -1443,6 +1448,8 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/custom-variables-for-background-form-calculations/ (linkStyle))
    */
   public get calculatedValues(): Array<CalculatedValue> {
     return this.getPropertyValue("calculatedValues");
@@ -1481,6 +1488,8 @@ export class SurveyModel extends SurveyElementCore
    * A cookie name used to save information about survey completion.
    *
    * When this property has a value, the survey creates a cookie with the specified name on completion. This cookie helps ensure that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
    * @see clientId
    */
   public get cookieName(): string {
@@ -2572,7 +2581,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
+   * HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
    * @see processedCompletedBeforeHtml
    */
   public get completedBeforeHtml(): string {
@@ -3165,7 +3176,9 @@ export class SurveyModel extends SurveyElementCore
    * }
    * ```
    *
-   * When you set this property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
+   * [View Demo](https://surveyjs.io/form-library/examples/auto-populate-form-fields/ (linkStyle))
+   *
+   * When you set the `data` property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
    *
    * If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
    * @see setValue
@@ -4603,7 +4616,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
    * - `"questionPerPage"` - Displays each question on a separate page.
-   * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page.
+   * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page. [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/)
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
@@ -5253,7 +5266,7 @@ export class SurveyModel extends SurveyElementCore
     return !!html ? this.processHtml(html, "completed") : "";
   }
   /**
-   * Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
+   * Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName).
    *
    * To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
    */

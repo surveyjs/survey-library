@@ -369,6 +369,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * - `"default"` (default) - The survey element is displayed in full and cannot be collapsed in the UI.
    * - `"expanded"` - The survey element is displayed in full and can be collapsed in the UI.
    * - `"collapsed"` - The survey element displays only `title` and `description` and can be expanded in the UI.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
    * @hidefor PageModel
    * @see toggleState
    * @see collapse

@@ -47,6 +47,8 @@ export class QuestionTextBase extends Question {
 
   /**
    * A placeholder for the input field.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
    */
   @property({ localizable: true, onSet: (val, target) => target.resetRenderedPlaceholder() })
   public placeholder: string;

@@ -1389,6 +1389,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/arrange-multiple-questions-in-single-line/ (linkStyle))
    */
   public get startWithNewLine(): boolean {
     return this.getPropertyValue("startWithNewLine");

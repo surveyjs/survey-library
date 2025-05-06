@@ -10,15 +10,12 @@ import { AngularComponentFactory } from "../component-factory";
 export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel> {
   @ViewChild("rangeInputRef") rangeInputRef!: ElementRef<HTMLInputElement>;
 
-  override ngOnInit():void {
-    super.ngOnInit();
-    this.model.refreshInputRange(this.rangeInputElement);
+  override ngAfterViewInit(): void {
+    super.ngAfterViewInit();
+    if (this.model && this.rangeInputElement) {
+      this.model.refreshInputRange(this.rangeInputElement);
+    }
   }
-
-  ngOnChanges():void {
-    this.model.refreshInputRange(this.rangeInputElement);
-  }
-
   get rootRef(): HTMLElement {
     return this.elementContentRef?.nativeElement;
   }

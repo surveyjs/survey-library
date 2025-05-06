@@ -74,7 +74,4 @@ useQuestion<QuestionSliderModel>(props, rootRef);
 onMounted(() => {
   props.question.refreshInputRange(rangeInputRef.value);
 });
-onUpdated(() => {
-  props.question.refreshInputRange(rangeInputRef.value);
-});
 </script>

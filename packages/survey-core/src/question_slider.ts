@@ -27,6 +27,12 @@ export class QuestionSliderModel extends Question {
   @property({ defaultValue: "{0}" }) tooltipFormat: string;
   @property({ defaultValue: "{0}" }) labelFormat: string;
   @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | /*"always" |*/ "never";
+  get tooltipVisibilityPG(): boolean {
+    return this.tooltipVisibility === "auto";
+  }
+  set tooltipVisibilityPG(newValue: boolean) {
+    this.tooltipVisibility = newValue ? "auto" : "never";
+  }
   public get step(): number {
     if (this.segmentCount) {
       return (this.renderedMax - this.renderedMin) / this.segmentCount;
@@ -696,8 +702,16 @@ Serializer.addClass(
       name: "tooltipVisibility:string",
       category: "sliderSettings",
       default: "auto",
-      visibleIndex: 13,
+      // visibleIndex: 13,
+      visible: false,
       choices: ["auto", "never"]
+    },
+    {
+      name: "tooltipVisibilityPG:boolean",
+      default: true,
+      category: "sliderSettings",
+      isSerializable: false,
+      visibleIndex: 13
     },
     {
       name: "labelFormat:string",

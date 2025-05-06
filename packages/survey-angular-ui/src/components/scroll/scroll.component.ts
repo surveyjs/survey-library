@@ -11,10 +11,16 @@ import { AngularComponentFactory } from "./../../component-factory";
 export class ScrollComponent extends EmbeddedViewContentComponent implements AfterViewInit, OnDestroy {
   public model!: ScrollViewModel;
   @Input() disabled?: boolean;
+  @Input() onInnerHeightChanged?: (hasScroll: boolean) => void;
   @ViewChild("container") container: ElementRef<HTMLElement> | undefined;
   constructor(viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);
     this.model = new ScrollViewModel();
+    this.model.onInnerHeightChanged = (hasScroll: boolean) => {
+      if (!!this.onInnerHeightChanged) {
+        this.onInnerHeightChanged(hasScroll);
+      }
+    };
   }
   ngAfterViewInit() {
     this.model.setRootElement(this.container?.nativeElement as HTMLDivElement);

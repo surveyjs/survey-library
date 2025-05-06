@@ -23,9 +23,12 @@ export class ScrollViewModel {
           : entry.contentRect.width;
         this._scrollbarSizerElement.style.height = height + "px";
       }
+      this.onInnerHeightChanged && this.onInnerHeightChanged(this._containerBodyElement.clientHeight > this._containerElementValue.clientHeight);
     });
     this._containerBodyResizeObserver.observe(this._containerBodyElement);
   }
+
+  onInnerHeightChanged: (hasScroll: boolean) => void;
 
   public onScrollContainer() {
     this._lockScroll = true;

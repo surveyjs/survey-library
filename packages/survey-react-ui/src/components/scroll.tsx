@@ -5,6 +5,7 @@ import { ScrollViewModel } from "survey-core";
 interface IScrollComponentProps {
   children: React.ReactNode;
   disabled?: boolean;
+  onInnerHeightChanged?: (hasScroll: boolean) => void;
 }
 export class Scroll extends React.Component<IScrollComponentProps, any> {
   private model: ScrollViewModel;
@@ -13,6 +14,11 @@ export class Scroll extends React.Component<IScrollComponentProps, any> {
     super(props);
     this.rootRef = React.createRef();
     this.model = new ScrollViewModel();
+    this.model.onInnerHeightChanged = (hasScroll: boolean) => {
+      if (!!this.props.onInnerHeightChanged) {
+        this.props.onInnerHeightChanged(hasScroll);
+      }
+    };
   }
   componentDidMount() {
     const container = this.rootRef.current;

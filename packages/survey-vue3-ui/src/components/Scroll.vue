@@ -17,8 +17,14 @@
 <script lang="ts" setup>
 import { ScrollViewModel } from "survey-core";
 import { onMounted, onUnmounted, ref } from "vue";
-const props = defineProps<{ disabled: any }>();
+const props = defineProps<{ disabled: any, onInnerHeightChanged?: (hasScroll: boolean) => void }>();
 const model = new ScrollViewModel();
+model.onInnerHeightChanged = (hasScroll: boolean) => {
+  if (props.onInnerHeightChanged) {
+    props.onInnerHeightChanged(hasScroll);
+  }
+};
+
 const root = ref<HTMLDivElement>();
 onMounted(() => {
   model.setRootElement(root.value as HTMLDivElement);

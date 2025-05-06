@@ -615,10 +615,8 @@ Serializer.addClass(
   [
     {
       name: "sliderType",
-      category: "sliderSettings",
       default: "range",
       choices: ["range", "single"],
-      visibleIndex: 1
     },
     // {
     //   name: "autoGenerate",
@@ -629,106 +627,76 @@ Serializer.addClass(
     // },
     {
       name: "min:number",
-      category: "sliderSettings",
       default: 0,
-      visibleIndex: 3
     },
     {
       name: "max:number",
-      category: "sliderSettings",
       default: 100,
-      visibleIndex: 4
     },
     {
       name: "step:number",
-      category: "sliderSettings",
       default: 1,
-      visibleIndex: 5,
       // visibleIf: function (obj: any) {
       //   return obj.autoGenerate;
       // },
     },
     {
       name: "segmentCount:number",
-      category: "sliderSettings",
-      visibleIndex: 6,
       // visibleIf: function (obj: any) {
       //   return obj.autoGenerate;
       // },
     },
     {
       name: "minValueExpression",
-      category: "sliderSettings",
-      visibleIndex: 7,
       type: "condition"
     },
     {
       name: "maxValueExpression",
-      category: "sliderSettings",
-      visibleIndex: 8,
       type: "condition"
     },
     {
       name: "minRangeLength:number",
-      category: "sliderSettings",
       visibleIf: function (obj: any) {
         return obj.sliderType === "range";
       },
-      visibleIndex: 9,
     },
     {
       name: "maxRangeLength:number",
-      category: "sliderSettings",
       visibleIf: function (obj: any) {
         return obj.sliderType === "range";
-      },
-      visibleIndex: 10,
+      }
     },
     {
       name: "customLabels:itemvalue[]",
-      category: "sliderSettings",
-      visibleIndex: 11,
       // visibleIf: function (obj: any) {
       //   return !obj.autoGenerate;
       // },
     },
     {
       name: "showLabels:boolean",
-      category: "sliderSettings",
-      visibleIndex: 12,
       default: true,
     },
     {
       name: "tooltipVisibility:string",
-      category: "sliderSettings",
       default: "auto",
-      // visibleIndex: 13,
       visible: false,
       choices: ["auto", "never"]
     },
     {
       name: "tooltipVisibilityPG:boolean",
       default: true,
-      category: "sliderSettings",
       isSerializable: false,
-      visibleIndex: 13
     },
     {
       name: "labelFormat:string",
-      category: "sliderSettings",
-      visibleIndex: 14,
       default: "{0}"
     },
     {
       name: "tooltipFormat:string",
-      category: "sliderSettings",
-      visibleIndex: 15,
       default: "{0}"
     },
     {
       name: "allowDragRange:boolean",
-      category: "sliderSettings",
-      visibleIndex: 16,
       default: true,
       visibleIf: function (obj: any) {
         return obj.sliderType === "range";
@@ -736,8 +704,6 @@ Serializer.addClass(
     },
     {
       name: "allowSwap:boolean",
-      category: "sliderSettings",
-      visibleIndex: 17,
       default: true,
       visibleIf: function (obj: any) {
         return obj.sliderType === "range";
@@ -745,14 +711,10 @@ Serializer.addClass(
     },
     {
       name: "showEdgeLabels:boolean",
-      category: "sliderSettings",
-      visibleIndex: 18,
       default: true
     },
     {
       name: "labelCount:number",
-      category: "sliderSettings",
-      visibleIndex: 19,
       default: 6,
       // visibleIf: function (obj: any) {
       //   return obj.autoGenerate;
@@ -760,8 +722,6 @@ Serializer.addClass(
     },
     {
       name: "allowClear:boolean",
-      category: "sliderSettings",
-      visibleIndex: 20,
       default: false,
     },
   ],

@@ -7,6 +7,7 @@ export var danishSurveyStrings = {
   previewText: "Forpremiere",
   editText: "Redigér",
   startSurveyText: "Start",
+  commentText: "Efterlad venligst en kommentar",
   otherItemText: "Valgfrit svar...",
   noneItemText: "Ingen",
   refuseItemText: "Nægt at svare",
@@ -24,6 +25,7 @@ export var danishSurveyStrings = {
   loadingSurvey: "Spørgeskemaet hentes fra serveren...",
   placeholder: "Vælg...",
   ratingOptionsCaption: "Markere...",
+  buttongroupOptionsCaption: "Markere...",
   value: "værdi",
   requiredError: "Besvar venligst spørgsmålet.",
   requiredErrorInPanel: "Besvar venligst mindst ét spørgsmål.",
@@ -60,6 +62,8 @@ export var danishSurveyStrings = {
   addRow: "Tilføj række",
   removeRow: "Fjern",
   noRowsText: "Der er ingen rækker.",
+  rowIndexTemplateTitle: "Række {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Tilføj ny",
   removePanel: "Fjern",
   showDetails: "Vis detaljer",
@@ -110,7 +114,8 @@ export var danishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Alle valg er rangeret",
   selectToRankEmptyUnrankedAreaText: "Træk og slip valg her for at rangere dem",
   ok: "OK",
-  cancel: "Aflyse"
+  cancel: "Aflyse",
+  createCustomItem: "Opret \"{0}\" element..."
 };
 
 setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk
 // choices_Choice: "Choice option" => "Valgmulighed"
 // loadingPage: "Loading..." => "Pålæsning..."
 // loadingData: "Loading..." => "Pålæsning..."
+// commentText: "Please leave a comment" => "Efterlad venligst en kommentar"
+// buttongroupOptionsCaption: "Select..." => "Markere..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Række {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Opret \"{0}\" element..."

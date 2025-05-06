@@ -7,6 +7,7 @@ export var portugueseSurveyStrings = {
   previewText: "Pré-visualização",
   editText: "Editar",
   startSurveyText: "Começar",
+  commentText: "Por favor, deixe um comentário",
   otherItemText: "Outros (descrever)",
   noneItemText: "Nenhum",
   refuseItemText: "Recusar-se a responder",
@@ -24,6 +25,7 @@ export var portugueseSurveyStrings = {
   loadingSurvey: "O questionário está a carregar...",
   placeholder: "Selecione...",
   ratingOptionsCaption: "Selecione aqui para avaliar...",
+  buttongroupOptionsCaption: "Selecionar...",
   value: "valor",
   requiredError: "Por favor, responda à pergunta.",
   requiredErrorInPanel: "Por favor, responda pelo menos a uma pergunta.",
@@ -60,6 +62,8 @@ export var portugueseSurveyStrings = {
   addRow: "Adicionar linha",
   removeRow: "Remover linha",
   noRowsText: "Não existem linhas.",
+  rowIndexTemplateTitle: "Linha {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Adicionar novo",
   removePanel: "Remover",
   showDetails: "Mostrar detalhes",
@@ -110,7 +114,8 @@ export var portugueseSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Todas as opções são classificadas",
   selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las",
   ok: "OKEY",
-  cancel: "Cancelar"
+  cancel: "Cancelar",
+  createCustomItem: "Criar item \"{0}\"..."
 };
 
 setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "português", englishName: "Portuguese" });
@@ -141,3 +146,7 @@ setupLocale({ localeCode: "pt", strings: portugueseSurveyStrings, nativeName: "p
 // choices_Choice: "Choice option" => "Opção de escolha"
 // loadingPage: "Loading..." => "Carregamento..."
 // loadingData: "Loading..." => "Carregamento..."
+// commentText: "Please leave a comment" => "Por favor, deixe um comentário"
+// buttongroupOptionsCaption: "Select..." => "Selecionar..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Linha {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Criar item \"{0}\"..."

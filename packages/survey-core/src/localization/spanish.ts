@@ -7,6 +7,7 @@ export var spanishSurveyStrings = {
   previewText: "Vista previa",
   editText: "Edita",
   startSurveyText: "Comienza",
+  commentText: "Por favor, deja un comentario",
   otherItemText: "Otro (describa)",
   noneItemText: "Ninguno",
   refuseItemText: "Negarse a responder",
@@ -24,6 +25,7 @@ export var spanishSurveyStrings = {
   loadingSurvey: "La encuesta está cargando...",
   placeholder: "Seleccione...",
   ratingOptionsCaption: "Toca aquí para calificar...",
+  buttongroupOptionsCaption: "Escoger...",
   value: "valor",
   requiredError: "Por favor conteste la pregunta.",
   requiredErrorInPanel: "Por favor, responda al menos una pregunta.",
@@ -60,6 +62,8 @@ export var spanishSurveyStrings = {
   addRow: "Agregue una hilera",
   removeRow: "Eliminar una hilera",
   noRowsText: "No hay hileras.",
+  rowIndexTemplateTitle: "Fila {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Añadir nuevo",
   removePanel: "Retire",
   showDetails: "Mostrar detalles",
@@ -110,7 +114,8 @@ export var spanishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Todas las opciones están clasificadas",
   selectToRankEmptyUnrankedAreaText: "Arrastra y suelta opciones aquí para clasificarlas",
   ok: "De acuerdo",
-  cancel: "Cancelar"
+  cancel: "Cancelar",
+  createCustomItem: "Crear artículo \"{0}\"..."
 };
 
 setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "español", englishName: "Spanish" });
@@ -144,3 +149,7 @@ setupLocale({ localeCode: "es", strings: spanishSurveyStrings, nativeName: "espa
 // choices_Choice: "Choice option" => "Opción de elección"
 // loadingPage: "Loading..." => "Carga..."
 // loadingData: "Loading..." => "Carga..."
+// commentText: "Please leave a comment" => "Por favor, deja un comentario"
+// buttongroupOptionsCaption: "Select..." => "Escoger..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Fila {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Crear artículo \"{0}\"..."

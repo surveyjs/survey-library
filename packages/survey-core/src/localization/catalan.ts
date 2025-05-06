@@ -7,6 +7,7 @@ export var catalanSurveyStrings = {
   previewText: "Preestrena",
   editText: "Editar",
   startSurveyText: "Començar",
+  commentText: "Si us plau, deixa un comentari",
   otherItemText: "Un altre (descrigui)",
   noneItemText: "Cap",
   refuseItemText: "Negar-se a respondre",
@@ -24,6 +25,7 @@ export var catalanSurveyStrings = {
   loadingSurvey: "L'enquesta s'està carregant ...",
   placeholder: "Selecciona ...",
   ratingOptionsCaption: "Seleccionar...",
+  buttongroupOptionsCaption: "Seleccionar...",
   value: "valor",
   requiredError: "Si us plau contesti la pregunta.",
   requiredErrorInPanel: "Resposta necessària: respondre almenys una pregunta.",
@@ -60,6 +62,8 @@ export var catalanSurveyStrings = {
   addRow: "Afegiu una filera",
   removeRow: "Eliminar una filera",
   noRowsText: "No hi ha files.",
+  rowIndexTemplateTitle: "Fila {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Afegeix un nou",
   removePanel: "Treure",
   showDetails: "Mostra els detalls",
@@ -110,7 +114,8 @@ export var catalanSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Totes les opcions estan classificades",
   selectToRankEmptyUnrankedAreaText: "Arrossegueu i deixeu anar les opcions aquí per classificar-les",
   ok: "D'ACORD",
-  cancel: "Cancel·lar"
+  cancel: "Cancel·lar",
+  createCustomItem: "Crea un element \"{0}\"..."
 };
 
 setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });
@@ -196,3 +201,7 @@ setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "cata
 // choices_Choice: "Choice option" => "Opció d'elecció"
 // loadingPage: "Loading..." => "Càrrega..."
 // loadingData: "Loading..." => "Càrrega..."
+// commentText: "Please leave a comment" => "Si us plau, deixa un comentari"
+// buttongroupOptionsCaption: "Select..." => "Seleccionar..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Fila {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Crea un element \"{0}\"..."

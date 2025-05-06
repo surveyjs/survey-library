@@ -7,6 +7,7 @@ export var japaneseSurveyStrings = {
   previewText: "プレビュー",
   editText: "編集",
   startSurveyText: "スタート",
+  commentText: "コメントを残してください",
   otherItemText: "その他（説明）",
   noneItemText: "なし",
   refuseItemText: "回答を拒否する",
@@ -24,6 +25,7 @@ export var japaneseSurveyStrings = {
   loadingSurvey: "アンケートを読み込んでいます...",
   placeholder: "選択",
   ratingOptionsCaption: "選択。。。",
+  buttongroupOptionsCaption: "選ぶ。。。",
   value: "値",
   requiredError: "回答が必要です",
   requiredErrorInPanel: "回答が必要です：少なくとも1つの質問に答えてください。",
@@ -60,6 +62,8 @@ export var japaneseSurveyStrings = {
   addRow: "追加行",
   removeRow: "削除",
   noRowsText: "行がありません。",
+  rowIndexTemplateTitle: "行 {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "新規追加",
   removePanel: "削除",
   showDetails: "詳細を表示",
@@ -110,7 +114,8 @@ export var japaneseSurveyStrings = {
   selectToRankEmptyRankedAreaText: "すべての選択肢がランク付けされます",
   selectToRankEmptyUnrankedAreaText: "ここに選択肢をドラッグアンドドロップしてランク付けします",
   ok: "わかりました",
-  cancel: "キャンセル"
+  cancel: "キャンセル",
+  createCustomItem: "「{0}」アイテムを作成..."
 };
 
 setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日本語", englishName: "Japanese" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日
 // choices_Choice: "Choice option" => "選択オプション"
 // loadingPage: "Loading..." => "積載。。。"
 // loadingData: "Loading..." => "積載。。。"
+// commentText: "Please leave a comment" => "コメントを残してください"
+// buttongroupOptionsCaption: "Select..." => "選ぶ。。。"
+// rowIndexTemplateTitle: "Row {rowIndex}" => "行 {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "「{0}」アイテムを作成..."

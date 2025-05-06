@@ -101,7 +101,7 @@ export class ResponsivityManager {
   private get isContainerVisible(): boolean {
     return !!this.container && isContainerVisible(this.container);
   }
-  private shouldProcessResponsiveness () {
+  protected shouldProcessResponsiveness () {
     return this.isContainerVisible && !this.model.isResponsivenessDisabled && !this.isDisposed;
   }
   private process(): void {

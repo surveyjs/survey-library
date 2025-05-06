@@ -153,7 +153,7 @@ export class Question extends SurveyElement<Question>
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
-    this.createLocalizableString("commentText", this, true, "otherItemText");
+    this.createLocalizableString("commentText", this, true, true);
     this.createLocalizableString("requiredErrorText", this);
     this.createLocalizableString("commentPlaceholder", this);
     this.createLocalizableString("defaultDisplayValue", this);

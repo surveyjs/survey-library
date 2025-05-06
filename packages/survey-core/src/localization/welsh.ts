@@ -7,6 +7,7 @@ export var welshSurveyStrings = {
   previewText: "Rhagolwg",
   editText: "Golygu",
   startSurveyText: "Dechrau",
+  commentText: "Gadewch sylw os gwelwch yn dda",
   otherItemText: "Arall (disgrifiwch)",
   noneItemText: "Dim",
   refuseItemText: "Gwrthod ateb",
@@ -24,6 +25,7 @@ export var welshSurveyStrings = {
   loadingSurvey: "Wrthi’n Llwytho’r Arolwg...",
   placeholder: "Dewiswch...",
   ratingOptionsCaption: "Dewis...",
+  buttongroupOptionsCaption: "Dewis...",
   value: "gwerth",
   requiredError: "Atebwch y cwestiwn.",
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",
@@ -60,6 +62,8 @@ export var welshSurveyStrings = {
   addRow: "Ychwanegu rhes",
   removeRow: "Tynnu",
   noRowsText: "Nid oes unrhyw ffraeau.",
+  rowIndexTemplateTitle: "Rhes {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Ychwanegu o’r newydd",
   removePanel: "Tynnu",
   showDetails: "Dangos manylion",
@@ -110,7 +114,8 @@ export var welshSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Mae'r holl ddewisiadau yn cael eu rhestru",
   selectToRankEmptyUnrankedAreaText: "Dewisiadau llusgo a gollwng yma i'w graddio",
   ok: "OCÊ",
-  cancel: "Canslo"
+  cancel: "Canslo",
+  createCustomItem: "Creu eitem \"{0}\"..."
 };
 
 setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymrae
 // choices_Choice: "Choice option" => "Dewis opsiwn"
 // loadingPage: "Loading..." => "Llwytho..."
 // loadingData: "Loading..." => "Llwytho..."
+// commentText: "Please leave a comment" => "Gadewch sylw os gwelwch yn dda"
+// buttongroupOptionsCaption: "Select..." => "Dewis..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Rhes {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Creu eitem \"{0}\"..."

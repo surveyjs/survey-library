@@ -1,6 +1,5 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, test, expect } from "../helper";
 import { QuestionText, QuestionRadiogroup, QuestionCheckbox, QuestionDropdown, QuestionComment, QuestionRating, QuestionImagePicker, QuestionBoolean, QuestionHtml, QuestionExpression, QuestionFile, QuestionSignaturePad, QuestionMatrix, QuestionMatrixDropdown, QuestionMutlipleText, QuestionPanelDynamic } from "../questionHelper";
-import { test, expect } from "@playwright/test";
 import { Survey } from "../surveyHelper";
 
 const title = "allTypes";

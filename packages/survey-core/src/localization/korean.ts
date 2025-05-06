@@ -7,6 +7,7 @@ export var koreanStrings = {
   previewText: "미리보기",
   editText: "수정",
   startSurveyText: "시작",
+  commentText: "코멘트를 남겨주세요",
   otherItemText: "기타 (설명)",
   noneItemText: "없음",
   refuseItemText: "대답 거부",
@@ -24,6 +25,7 @@ export var koreanStrings = {
   loadingSurvey: "설문조사가 로드중입니다...",
   placeholder: "선택...",
   ratingOptionsCaption: "등급을 매기려면 누르세요.",
+  buttongroupOptionsCaption: "고르다...",
   value: "값",
   requiredError: "질문에 답하시오.",
   requiredErrorInPanel: "하나 이상의 질문에 답하십시오.",
@@ -60,6 +62,8 @@ export var koreanStrings = {
   addRow: "행 추가",
   removeRow: "제거",
   noRowsText: "행이 없습니다.",
+  rowIndexTemplateTitle: "행 {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "추가",
   removePanel: "제거",
   showDetails: "세부 정보 표시",
@@ -110,7 +114,8 @@ export var koreanStrings = {
   selectToRankEmptyRankedAreaText: "모든 선택 항목이 순위가 매겨집니다.",
   selectToRankEmptyUnrankedAreaText: "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다.",
   ok: "그래",
-  cancel: "취소"
+  cancel: "취소",
+  createCustomItem: "\"{0}\" 항목 만들기..."
 };
 
 setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });
@@ -143,3 +148,7 @@ setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어",
 // choices_Choice: "Choice option" => "선택 옵션"
 // loadingPage: "Loading..." => "로드..."
 // loadingData: "Loading..." => "로드..."
+// commentText: "Please leave a comment" => "코멘트를 남겨주세요"
+// buttongroupOptionsCaption: "Select..." => "고르다..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "행 {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" 항목 만들기..."

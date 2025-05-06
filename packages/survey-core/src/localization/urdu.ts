@@ -7,6 +7,7 @@ export var urduSurveyStrings = {
   previewText: "دیکهنا",
   editText: "ترمیم",
   startSurveyText: "شروع کریں",
+  commentText: "براہ مہربانی ایک تبصرہ چھوڑ دیں",
   otherItemText: "دیگر (بیان کریں)",
   noneItemText: "کوئی نہیں",
   refuseItemText: "جواب دینے سے انکار",
@@ -24,6 +25,7 @@ export var urduSurveyStrings = {
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
   placeholder: "...منتخب کریں ",
   ratingOptionsCaption: "منتخب...",
+  buttongroupOptionsCaption: "منتخب...",
   value: "value",
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
@@ -60,6 +62,8 @@ export var urduSurveyStrings = {
   addRow: "قطار شامل کریں۔",
   removeRow: "مٹائے",
   noRowsText: "کوئی قطار نہیں ہیں۔ ",
+  rowIndexTemplateTitle: "Row {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "نیا شامل کریں",
   removePanel: "مٹائے",
   showDetails: "تفصیلات دکھائیں",
@@ -110,7 +114,8 @@ export var urduSurveyStrings = {
   selectToRankEmptyRankedAreaText: "تمام اختیارات کی درجہ بندی کی جاتی ہے",
   selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں",
   ok: "ٹھيک ہے",
-  cancel: "منسوخ"
+  cancel: "منسوخ",
+  createCustomItem: "\"{0}\" آئٹم بنائیں..."
 };
 
 setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });
@@ -148,3 +153,7 @@ setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", 
 // choices_Choice: "Choice option" => "انتخاب کا اختیار"
 // loadingPage: "Loading..." => "لوڈنگ..."
 // loadingData: "Loading..." => "لوڈنگ..."
+// commentText: "Please leave a comment" => "براہ مہربانی ایک تبصرہ چھوڑ دیں"
+// buttongroupOptionsCaption: "Select..." => "منتخب..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Row {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" آئٹم بنائیں..."

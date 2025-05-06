@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { url, initSurvey, frameworks } from "../helper";
+import { url, initSurvey, frameworks, test, expect } from "../helper";
 
 const title = "svgRegistry";
 

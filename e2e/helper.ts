@@ -1,5 +1,5 @@
 import type { Locator, Page } from "@playwright/test";
-import { expect } from "@playwright/test";
+import { expect, test as baseTest } from "@playwright/test";
 
 const environment = process.env.env;
 
@@ -179,3 +179,17 @@ export async function visibleInViewport (page, locator: Locator) {
     );
   }, rect);
 }
+export const test = baseTest.extend<{page: void, skipJSErrors: boolean}>({
+  skipJSErrors: [false, { option: false }],
+  page: async ({ page, skipJSErrors }, use) => {
+    const errors: Array<Error> = [];
+    page.addListener("pageerror", (error) => {
+      errors.push(error);
+    });
+    await use(page);
+    if (!skipJSErrors) {
+      expect(errors).toHaveLength(0);
+    }
+  }
+});
+export { expect };

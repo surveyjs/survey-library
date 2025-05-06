@@ -7,6 +7,7 @@ export var germanSurveyStrings = {
   previewText: "Vorschau",
   editText: "Bearbeiten",
   startSurveyText: "Start",
+  commentText: "Bitte hinterlassen Sie einen Kommentar",
   otherItemText: "Sonstiges (Bitte angeben)",
   noneItemText: "Nichts trifft zu",
   refuseItemText: "Antwort verweigern",
@@ -24,6 +25,7 @@ export var germanSurveyStrings = {
   loadingSurvey: "Umfrage wird geladen...",
   placeholder: "Bitte auswählen...",
   ratingOptionsCaption: "Tippen Sie hier, um zu bewerten...",
+  buttongroupOptionsCaption: "Auswählen...",
   value: "Wert",
   requiredError: "Bitte beantworten Sie diese Frage.",
   requiredErrorInPanel: "Bitte beantworten Sie mindestens eine Frage.",
@@ -60,6 +62,8 @@ export var germanSurveyStrings = {
   addRow: "Zeile hinzufügen",
   removeRow: "Entfernen",
   noRowsText: "Es gibt keine Reihen.",
+  rowIndexTemplateTitle: "Zeile {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Neu hinzufügen",
   removePanel: "Entfernen",
   showDetails: "Details anzeigen",
@@ -110,7 +114,8 @@ export var germanSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet",
   selectToRankEmptyUnrankedAreaText: "Ziehen Sie die Auswahl hierher, um sie zu ordnen",
   ok: "OK",
-  cancel: "Abbrechen"
+  cancel: "Abbrechen",
+  createCustomItem: "\"{0}\"-Element erstellen..."
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });
@@ -123,3 +128,7 @@ setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deuts
 // choices_Choice: "Choice option" => "Wahlmöglichkeit"
 // loadingPage: "Loading..." => "Wird hochgeladen..."
 // loadingData: "Loading..." => "Wird hochgeladen..."
+// commentText: "Please leave a comment" => "Bitte hinterlassen Sie einen Kommentar"
+// buttongroupOptionsCaption: "Select..." => "Auswählen..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Zeile {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\"-Element erstellen..."

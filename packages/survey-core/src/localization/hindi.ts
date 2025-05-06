@@ -7,6 +7,7 @@ export var hindiStrings = {
   previewText: "पूर्वसमीक्षा",
   editText: "संपादित",
   startSurveyText: "शुरू",
+  commentText: "कृपया एक टिप्पणी छोड़ दो",
   otherItemText: "दूसरा (वर्णन करें)",
   noneItemText: "कोई नहीं",
   refuseItemText: "जवाब देने से इनकार",
@@ -24,6 +25,7 @@ export var hindiStrings = {
   loadingSurvey: "सर्वेक्षण खुल रहा है.…",
   placeholder: "चुनें",
   ratingOptionsCaption: "चुनना।।।",
+  buttongroupOptionsCaption: "चुनना।।।",
   value: "मूल्य",
   requiredError: "कृपया प्रश्न का उत्तर दें",
   requiredErrorInPanel: "कृपया कम से कम एक प्रश्न का उत्तर दें",
@@ -60,6 +62,8 @@ export var hindiStrings = {
   addRow: "पंक्ति जोड़ें",
   removeRow: "हटाए",
   noRowsText: "कोई पंक्तियाँ नहीं हैं.",
+  rowIndexTemplateTitle: "पंक्ति {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "नया जोड़ें",
   removePanel: "हटाए",
   showDetails: "विवरण दिखाएँ",
@@ -110,7 +114,8 @@ export var hindiStrings = {
   selectToRankEmptyRankedAreaText: "सभी विकल्पों को रैंक किया गया है",
   selectToRankEmptyUnrankedAreaText: "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें",
   ok: "ठीक है",
-  cancel: "रद्द करना"
+  cancel: "रद्द करना",
+  createCustomItem: "\"{0}\" आइटम बनाएँ..."
 };
 
 setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });
@@ -157,3 +162,7 @@ setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", engl
 // choices_Choice: "Choice option" => "पसंद विकल्प"
 // loadingPage: "Loading..." => "लोड।।।"
 // loadingData: "Loading..." => "लोड।।।"
+// commentText: "Please leave a comment" => "कृपया एक टिप्पणी छोड़ दो"
+// buttongroupOptionsCaption: "Select..." => "चुनना।।।"
+// rowIndexTemplateTitle: "Row {rowIndex}" => "पंक्ति {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "\"{0}\" आइटम बनाएँ..."

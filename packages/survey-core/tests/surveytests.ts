@@ -19802,6 +19802,28 @@ QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, B
   survey.currentSingleQuestion.value = "a";
   assert.equal(survey.currentSingleQuestion.name, "q4", "#2");
 });
+QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, Bug #9826", function (assert) {
+  const surveyJson = {
+    "questionsOnPageMode": "questionPerPage",
+    "elements": [
+      { "type": "text", "name": "q1" },
+      { "type": "text", "name": "q2" },
+      { "type": "text", "name": "q3" },
+      { "type": "text", "name": "q4" }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{q1} = 'a'",
+        "gotoName": "q4"
+      }]
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  assert.equal(survey.currentSingleQuestion.name, "q1", "#1");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(survey.currentSingleQuestion.name, "q4", "#2");
+});
 QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", function (assert) {
   const surveyJson = {
     elements: [
@@ -22020,4 +22042,54 @@ QUnit.test("survey.onPartialSend for regular survey, Bug#9737", function (assert
   survey.setValue("q3", "val3");
   survey.performNext();
   assert.equal(counter, 3, "onPartialSend is raised");
+});
+QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (assert) {
+  const oldFunc = Helpers.randomizeArray;
+  Helpers.randomizeArray = HelpTest.randomizeArray;
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "V001",
+            "choices": [1, 2, 3]
+          }
+        ]
+      },
+      {
+        "questionOrder": "random",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "visibleIf": "{V001} contains 1",
+            "choices": [1, 2]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question2",
+            "visibleIf": "{V001} contains 2",
+            "choices": [1, 2]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question3",
+            "visibleIf": "{V001} contains 3",
+            "choices": [1, 2]
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "questionPerPage",
+  });
+  survey.setValue("V001", [2]);
+  survey.performNext();
+  const page = survey.currentPage;
+  assert.equal(page.name, "page2", "page2 is the current page");
+  assert.equal(survey.currentSingleQuestion.name, "question2", "question2 is the current question");
+  assert.equal(page.rows.length, 1, "one row");
+  assert.equal(page.rows[0].elements.length, 1, "one element in the row");
+  assert.equal(page.rows[0].elements[0].name, "question2", "question2 is the current question in the row");
+  Helpers.randomizeArray = oldFunc;
 });

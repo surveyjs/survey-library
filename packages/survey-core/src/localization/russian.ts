@@ -7,6 +7,7 @@ export var russianSurveyStrings = {
   previewText: "Предварительный просмотр",
   editText: "Редактирование",
   startSurveyText: "Начать",
+  commentText: "Пожалуйста, оставьте комментарий",
   otherItemText: "Другое (пожалуйста, опишите)",
   noneItemText: "Нет",
   refuseItemText: "Отказываюсь отвечать",
@@ -24,6 +25,7 @@ export var russianSurveyStrings = {
   loadingSurvey: "Загрузка с сервера...",
   placeholder: "Выбрать...",
   ratingOptionsCaption: "Нажмите здесь, чтобы оценить...",
+  buttongroupOptionsCaption: "Выбирать...",
   value: "значение",
   requiredError: "Пожалуйста, ответьте на вопрос.",
   requiredErrorInPanel: "Пожалуйста, ответьте по крайней мере на один вопрос.",
@@ -60,6 +62,8 @@ export var russianSurveyStrings = {
   addRow: "Добавить строку",
   removeRow: "Удалить",
   noRowsText: "Рядов нет.",
+  rowIndexTemplateTitle: "Строка {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Добавить новую",
   removePanel: "Удалить",
   showDetails: "Показать подробности",
@@ -110,7 +114,8 @@ export var russianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
   selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их",
   ok: "Хорошо",
-  cancel: "Отмена"
+  cancel: "Отмена",
+  createCustomItem: "Создать элемент \"{0}\"..."
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });
@@ -140,3 +145,7 @@ setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "ру
 // choices_Choice: "Choice option" => "Вариант выбора"
 // loadingPage: "Loading..." => "Загрузка..."
 // loadingData: "Loading..." => "Загрузка..."
+// commentText: "Please leave a comment" => "Пожалуйста, оставьте комментарий"
+// buttongroupOptionsCaption: "Select..." => "Выбирать..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Строка {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Создать элемент \"{0}\"..."

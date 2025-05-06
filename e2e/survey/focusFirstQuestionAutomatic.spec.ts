@@ -1,5 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewport } from "../helper";
-import { test, expect, Locator } from "@playwright/test";
+import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewport, test, expect } from "../helper";
 
 const title = "focusFirstQuestionAutomatic";
 

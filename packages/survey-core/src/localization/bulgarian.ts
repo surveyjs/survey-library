@@ -7,6 +7,7 @@ export var bulgarianStrings = {
   previewText: "Визуализация",
   editText: "редактиране",
   startSurveyText: "Начало",
+  commentText: "Моля, оставете коментар",
   otherItemText: "Друго (опишете)",
   noneItemText: "Нито един",
   refuseItemText: "Отказва да отговори",
@@ -24,6 +25,7 @@ export var bulgarianStrings = {
   loadingSurvey: "Зареждане на анкетата...",
   placeholder: "Изберете...",
   ratingOptionsCaption: "Отбран...",
+  buttongroupOptionsCaption: "Отбран...",
   value: "value",
   requiredError: "Моля, отговорете на следния въпрос.",
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",
@@ -60,6 +62,8 @@ export var bulgarianStrings = {
   addRow: "Добавяне на ред",
   removeRow: "Премахване на ред",
   noRowsText: "Няма редове.",
+  rowIndexTemplateTitle: "Ред {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Добавяне на панел",
   removePanel: "Премахване на панел",
   showDetails: "Показване на подробни данни",
@@ -110,7 +114,8 @@ export var bulgarianStrings = {
   selectToRankEmptyRankedAreaText: "Всички възможности за избор са класирани",
   selectToRankEmptyUnrankedAreaText: "Плъзнете и пуснете опции тук, за да ги класирате",
   ok: "Добре",
-  cancel: "Отмени"
+  cancel: "Отмени",
+  createCustomItem: "Създайте елемент \"{0}\"..."
 };
 
 setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "бълг
 // choices_Choice: "Choice option" => "Опция за избор"
 // loadingPage: "Loading..." => "Зареждане..."
 // loadingData: "Loading..." => "Зареждане..."
+// commentText: "Please leave a comment" => "Моля, оставете коментар"
+// buttongroupOptionsCaption: "Select..." => "Отбран..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Ред {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Създайте елемент \"{0}\"..."

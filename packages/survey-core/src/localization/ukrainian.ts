@@ -7,6 +7,7 @@ export var ukrainianSurveyStrings = {
   previewText: "Попередній перегляд",
   editText: "Редагувати",
   startSurveyText: "Почати",
+  commentText: "Будь ласка, залиште коментар",
   otherItemText: "Інше (будь ласка, опишіть)",
   noneItemText: "Жоден",
   refuseItemText: "Відмовтеся відповідати",
@@ -24,6 +25,7 @@ export var ukrainianSurveyStrings = {
   loadingSurvey: "Завантаження опитування...",
   placeholder: "Вибрати...",
   ratingOptionsCaption: "Виберіть...",
+  buttongroupOptionsCaption: "Виберіть...",
   value: "значення",
   requiredError: "Будь ласка, дайте відповідь.",
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",
@@ -60,6 +62,8 @@ export var ukrainianSurveyStrings = {
   addRow: "Додати рядок",
   removeRow: "Видалити",
   noRowsText: "Рядів немає.",
+  rowIndexTemplateTitle: "Рядок {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "Додати нову",
   removePanel: "Видалити",
   showDetails: "Показати подробиці",
@@ -110,7 +114,8 @@ export var ukrainianSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Всі варіанти ранжуються",
   selectToRankEmptyUnrankedAreaText: "Перетягніть варіанти тут, щоб оцінити їх",
   ok: "ГАРАЗД",
-  cancel: "Скасувати"
+  cancel: "Скасувати",
+  createCustomItem: "Створіть пункт \"{0}\"..."
 };
 
 setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "у
 // choices_Choice: "Choice option" => "Варіант вибору"
 // loadingPage: "Loading..." => "Завантаження..."
 // loadingData: "Loading..." => "Завантаження..."
+// commentText: "Please leave a comment" => "Будь ласка, залиште коментар"
+// buttongroupOptionsCaption: "Select..." => "Виберіть..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "Рядок {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "Створіть пункт \"{0}\"..."

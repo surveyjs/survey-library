@@ -7,6 +7,7 @@ export var arabicSurveyStrings = {
   previewText: "معاينة",
   editText: "تعديل",
   startSurveyText: "بداية",
+  commentText: "الرجاء ترك تعليق",
   otherItemText: "نص آخر",
   noneItemText: "لا شيء",
   refuseItemText: "رفض الإجابة",
@@ -24,6 +25,7 @@ export var arabicSurveyStrings = {
   loadingSurvey: "...يتم تحميل النموذج",
   placeholder: "...اختر",
   ratingOptionsCaption: "اختار...",
+  buttongroupOptionsCaption: "اختار...",
   value: "القيمة",
   requiredError: ".يرجى الإجابة على السؤال",
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",
@@ -60,6 +62,8 @@ export var arabicSurveyStrings = {
   addRow: "اضافة صف",
   removeRow: "إزالة صف",
   noRowsText: "لا توجد صفوف.",
+  rowIndexTemplateTitle: "الصف {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
   showDetails: "اظهر التفاصيل",
@@ -110,7 +114,8 @@ export var arabicSurveyStrings = {
   selectToRankEmptyRankedAreaText: "يتم ترتيب جميع الخيارات",
   selectToRankEmptyUnrankedAreaText: "قم بسحب وإسقاط الخيارات هنا لترتيبها",
   ok: "موافق",
-  cancel: "إلغاء الأمر"
+  cancel: "إلغاء الأمر",
+  createCustomItem: "قم بإنشاء عنصر \"{0}\" ..."
 };
 
 setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });
@@ -156,3 +161,7 @@ setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "ال�
 // choices_Choice: "Choice option" => "خيار الاختيار"
 // loadingPage: "Loading..." => "تحميل..."
 // loadingData: "Loading..." => "تحميل..."
+// commentText: "Please leave a comment" => "الرجاء ترك تعليق"
+// buttongroupOptionsCaption: "Select..." => "اختار..."
+// rowIndexTemplateTitle: "Row {rowIndex}" => "الصف {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "قم بإنشاء عنصر \"{0}\" ..."

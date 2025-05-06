@@ -7,6 +7,7 @@ export var traditionalChineseSurveyStrings = {
   previewText: "預覽",
   editText: "編輯",
   startSurveyText: "開始",
+  commentText: "請發表評論",
   otherItemText: "填寫其他答案",
   noneItemText: "沒有",
   refuseItemText: "拒絕回答",
@@ -24,6 +25,7 @@ export var traditionalChineseSurveyStrings = {
   loadingSurvey: "問卷載入中...",
   placeholder: "請選擇...",
   ratingOptionsCaption: "選擇。。。",
+  buttongroupOptionsCaption: "選擇。。。",
   value: "價值",
   requiredError: "請填寫此問題",
   requiredErrorInPanel: "需要回答：至少回答一個問題。",
@@ -60,6 +62,8 @@ export var traditionalChineseSurveyStrings = {
   addRow: "添加答案",
   removeRow: "刪除答案",
   noRowsText: "沒有行。",
+  rowIndexTemplateTitle: "行 {rowIndex}",
+  rowNameTemplateTitle: "{rowTitle}",
   addPanel: "新增",
   removePanel: "刪除",
   showDetails: "顯示詳細資訊",
@@ -110,7 +114,8 @@ export var traditionalChineseSurveyStrings = {
   selectToRankEmptyRankedAreaText: "所有選擇均已排名",
   selectToRankEmptyUnrankedAreaText: "將選項拖放到此處進行排名",
   ok: "還行",
-  cancel: "取消"
+  cancel: "取消",
+  createCustomItem: "建立 {0} 項目..."
 };
 
 setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });
@@ -191,3 +196,7 @@ setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nat
 // choices_Choice: "Choice option" => "Choice 選項"
 // loadingPage: "Loading..." => "裝載。。。"
 // loadingData: "Loading..." => "裝載。。。"
+// commentText: "Please leave a comment" => "請發表評論"
+// buttongroupOptionsCaption: "Select..." => "選擇。。。"
+// rowIndexTemplateTitle: "Row {rowIndex}" => "行 {rowIndex}"
+// createCustomItem: "Create \"{0}\" item..." => "建立 {0} 項目..."

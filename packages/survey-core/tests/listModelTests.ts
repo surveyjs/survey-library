@@ -515,3 +515,20 @@ QUnit.test("ListModel onItemClick", function (assert) {
   assert.equal(actionCalled, 1);
   assert.equal(selectCalled, 2);
 });
+
+QUnit.test("a11y: list item aria attr", function (assert) {
+  const items = createIActionArray(4);
+  const list = new ListModel({ items: items, selectedItem: items[0], onSelectionChanged: () => { }, allowSelection: true });
+
+  assert.equal(list.listItemRole, "option", "defaultValue listItemRole");
+  assert.equal(list.getA11yItemAriaSelected(list.actions[0]), "true", "0 ariaSelected #1");
+  assert.equal(list.getA11yItemAriaChecked(list.actions[0]), undefined, "0 ariaChecked #1");
+  assert.equal(list.getA11yItemAriaSelected(list.actions[1]), "false", "1 ariaSelected #1");
+  assert.equal(list.getA11yItemAriaChecked(list.actions[1]), undefined, "1 ariaChecked #1");
+
+  list.listItemRole = "menuitemradio";
+  assert.equal(list.getA11yItemAriaSelected(list.actions[0]), undefined, "0 ariaSelected #2");
+  assert.equal(list.getA11yItemAriaChecked(list.actions[0]), "true", "0 ariaChecked #2");
+  assert.equal(list.getA11yItemAriaSelected(list.actions[1]), undefined, "1 ariaSelected #2");
+  assert.equal(list.getA11yItemAriaChecked(list.actions[1]), "false", "1 ariaChecked #2");
+});

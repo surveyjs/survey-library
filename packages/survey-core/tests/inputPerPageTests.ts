@@ -1716,7 +1716,7 @@ QUnit.test("matrixdropdown & locRenderingTitle, Bug#9829", assert => {
   assert.equal(matrix.locRenderedTitle.textOrHtml, "matrix", "locRenderedTitle, #3");
   assert.equal(matrix["isSingleInputActive"], false, "isSingleInputActive, #3");
 });
-QUnit.skip("singleInput and matrix dynamic & wasRendered", assert => {
+QUnit.test("singleInput and matrix dynamic & css recalculation on error", assert => {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -1725,7 +1725,8 @@ QUnit.skip("singleInput and matrix dynamic & wasRendered", assert => {
         "columns": [
           {
             "name": "column1",
-            "cellType": "text"
+            "cellType": "text",
+            "isRequired": true
           }
         ],
         "rowCount": 2
@@ -1736,6 +1737,8 @@ QUnit.skip("singleInput and matrix dynamic & wasRendered", assert => {
   const singleQuestion = getSingleQuestion(survey.currentPage);
   let ok = false;
   singleQuestion.onPropertyChanged.add((_, options)=> {
-    if (options.options.propertyName == "cssRoot") ok = true;
+    if (options.name == "cssRoot") ok = true;
   });
+  survey.performNext();
+  assert.ok(ok, "cssRoot recalculated");
 });

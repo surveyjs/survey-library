@@ -1716,3 +1716,26 @@ QUnit.test("matrixdropdown & locRenderingTitle, Bug#9829", assert => {
   assert.equal(matrix.locRenderedTitle.textOrHtml, "matrix", "locRenderedTitle, #3");
   assert.equal(matrix["isSingleInputActive"], false, "isSingleInputActive, #3");
 });
+QUnit.skip("singleInput and matrix dynamic & wasRendered", assert => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "q",
+        "columns": [
+          {
+            "name": "column1",
+            "cellType": "text"
+          }
+        ],
+        "rowCount": 2
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const singleQuestion = getSingleQuestion(survey.currentPage);
+  let ok = false;
+  singleQuestion.onPropertyChanged.add((_, options)=> {
+    if (options.options.propertyName == "cssRoot") ok = true;
+  });
+});

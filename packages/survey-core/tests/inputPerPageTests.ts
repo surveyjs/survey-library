@@ -495,6 +495,32 @@ QUnit.test("singleInput and focus on errors on singleInputAddItem & tryComplete 
   assert.equal(survey.tryComplete(), true, "compete");
   assert.deepEqual(survey.data, { matrix: [{ q1: "a", q2: "b" }, { q1: "c", q2: "d" }] }, "survey.data");
 });
+QUnit.test("matrixdynamic vs allowRemoveRows = false, Bug#9859", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        defaultValue: [{ q1: "a" }, { q1: "b" }],
+        name: "matrix",
+        columns: [
+          {
+            name: "q1",
+            cellType: "text"
+          }
+        ],
+        allowAddRows: false,
+        allowRemoveRows: false
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(survey.currentSingleQuestion.name, "matrix", "currentSingleQuestion is matrix, #1");
+  const summary = matrix.singleInputSummary;
+  assert.equal(summary?.items.length, 2, "singleInputSummary.items.length, #1");
+  assert.equal(summary.items[0].showRemove, false, "singleInputSummary.items[0].showRemove, #1");
+  assert.equal(summary.items[1].showRemove, false, "singleInputSummary.items[1].showRemove, #1");
+});
 QUnit.test("singleInput and matrix dropdown", assert => {
   const survey = new SurveyModel({
     elements: [

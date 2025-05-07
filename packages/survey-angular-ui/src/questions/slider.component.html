@@ -14,8 +14,8 @@
       <div [class]="model.cssClasses.rangeTrack" [style]="{ left: model.getTrackPercentLeft() + '%', right: model.getTrackPercentRight() + '%' }" ></div>
 
        <ng-container *ngFor="let value of (model.getRenderedValue()); index as i; trackBy: trackByRenderedValue;">
-        <input [class]="model.cssClasses.input" [attr.id]="'sjs-slider-input-' + i" type="range" [attr.value]="value" 
-          [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" [attr.disabled]="model.isDisabledAttr"
+        <input [class]="model.cssClasses.input" [attr.id]="'sjs-slider-input-' + i" type="range" [value]="value" 
+          [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" [disabled]="model.isDisabledAttr"
           (input)="model.handleOnChange($any($event), i)"
           (pointerdown)="model.handlePointerDown($any($event))"
           (pointerup)="model.handlePointerUp($any($event))"

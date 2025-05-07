@@ -990,8 +990,7 @@ export class Question extends SurveyElement<Question>
   protected getSingleInputQuestionsForDynamic(question?: Question): Array<Question> {
     const res = new Array<Question>();
     if (question) {
-      question.onFirstRendering();
-      this.setPropertyValue("singleInputQuestion", question);
+      this.setSingleInputQuestionCore(question);
     }
     const q = this.getPropertyValue("singleInputQuestion");
     if (!!q && q !== this) {
@@ -1003,10 +1002,13 @@ export class Question extends SurveyElement<Question>
   protected getSingleInputAddTextCore(): string { return undefined; }
   protected singleInputAddItemCore(): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
+  private setSingleInputQuestionCore(question: Question): void {
+    question.onFirstRendering();
+    this.setPropertyValue("singleInputQuestion", question);
+  }
   protected setSingleInputQuestion(question: Question): void {
     if (this.singleInputQuestion !== question) {
-      question.onFirstRendering();
-      this.setPropertyValue("singleInputQuestion", question);
+      this.setSingleInputQuestionCore(question);
       this.onSingleInputChanged();
     }
   }

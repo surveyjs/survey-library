@@ -22093,3 +22093,27 @@ QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (ass
   assert.equal(page.rows[0].elements[0].name, "question2", "question2 is the current question in the row");
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("survey.getAllQuestions, get nested questions & creating nested questions on demand, Bug#9844", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [
+          {
+            type: "paneldynamic", name: "q2",
+            templateElements: [
+              { type: "text", name: "q3" },
+            ],
+            panelCount: 1,
+          }
+        ]
+      }
+    ]
+  });
+  assert.equal(survey.getAllQuestions().length, 2, "2 root questions in the survey");
+  const questions = survey.getAllQuestions(true, false, true);
+  assert.equal(questions.length, 3, "3 questions in the survey");
+  assert.equal(questions[2].name, "q3", "the last question is nested");
+});

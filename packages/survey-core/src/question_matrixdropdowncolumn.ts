@@ -790,7 +790,7 @@ export class MatrixDropdownColumn extends Base
       }
       delete json["itemComponent"];
 
-      if (this.jsonObj && json.type === "rating") {
+      if (this.jsonObj && json.type === "rating" && this.isLoadingFromJson) {
         Object.keys(this.jsonObj).forEach((prop) => {
           json[prop] = this.jsonObj[prop];
         });

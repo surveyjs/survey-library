@@ -8761,6 +8761,28 @@ QUnit.test("Serialize default column type correctly", function (assert) {
     columns: [{ name: "col1" }]
   }, "There is no choices");
 });
+QUnit.test("Change column cellType to 'rating', Bug#9853", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix1",
+        columns: [
+          {
+            name: "col1",
+          }
+        ],
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const column = matrix.columns[0];
+  assert.equal(column.name, "col1", "column.name #1");
+  column.name = "col2";
+  column.cellType = "rating";
+  assert.equal(column.name, "col2", "column.name #2");
+});
 QUnit.test("Test property hideIfRowsEmpty for matrix dropdown", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

@@ -6,7 +6,7 @@
       role="progressbar"
       aria-valuemin="0"
       aria-valuemax="100"
-      aria-label="progress"
+      :aria-label="survey.progressBarAriaLabel"
     >
       <span :class="getProgressTextInBarCss(survey.css)">{{
         survey.progressText

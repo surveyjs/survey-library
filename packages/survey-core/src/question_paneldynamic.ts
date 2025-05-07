@@ -33,6 +33,7 @@ import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { getLocaleString } from "./surveyStrings";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -2559,6 +2560,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   public get progress(): string {
     return ((this.currentIndex + 1) / this.visiblePanelCount) * 100 + "%";
+  }
+  public get progressBarAriaLabel(): string {
+    return getLocaleString("progressbar", this.getLocale());
   }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();

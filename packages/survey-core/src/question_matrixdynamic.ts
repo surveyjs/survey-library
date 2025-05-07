@@ -754,6 +754,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const res = new QuestionSingleInputSummary(this, this.locNoRowsText);
     const items = new Array<QuestionSingleInputSummaryItem>();
+    const canRemoveRows = this.canRemoveRows;
     this.visibleRows.forEach((row) => {
       const locText = new LocalizableString(this, true, undefined, this.getSingleInputTitleTemplate());
       locText.setJson(this.locSingleInputTitleTemplate.getJson());
@@ -761,7 +762,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         return row.getTextProcessor().processText(text, true);
       };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singleInputEditRow(row); } });
-      const btnRemove = this.canRemoveRow(row) ? new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
+      const btnRemove = canRemoveRows && this.canRemoveRow(row) ?
+        new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;

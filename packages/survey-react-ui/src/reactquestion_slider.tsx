@@ -23,7 +23,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   protected updateDomElement() {
     this.inputRefs.forEach((ref, index)=> {
-      ref.current.value = "" + this.question.getRenderedValue()[index];
+      if (ref.current) {
+        ref.current.value = "" + this.question.getRenderedValue()[index];
+      }
     });
     super.updateDomElement();
   }

@@ -27,9 +27,7 @@
         <div [class]="model.getThumbContainerCss(i)" [style]="{ left: model.getPercent(value) + '%' }">
           <div *ngIf="model.tooltipVisibility !== 'never'" [class]="model.tooltipCss">
             <div [class]="model.cssClasses.tooltipPanel">
-              <div [class]="model.cssClasses.tooltipValue">
-                {{model.getTooltipValue(i)}}
-              </div>
+              <div [class]="model.cssClasses.tooltipValue">{{model.getTooltipValue(i)}}</div>
             </div>
           </div>
           <div [class]="model.cssClasses.thumb">
@@ -48,9 +46,7 @@
       (pointerup)="model.handleLabelPointerUp($any($event), i)">
         <ng-container *ngIf="model.showEdgeLabels || (i !== 0 && i !== model.labelCount - 1)">
           <div [class]="model.cssClasses.labelTick"></div>
-          <div [class]="model.cssClasses.labelText">
-            {{model.getLabelText(i)}}
-          </div>
+          <div [class]="model.cssClasses.labelText">{{model.getLabelText(i)}}</div>
         </ng-container>
       </div>
     </div>

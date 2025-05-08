@@ -48,6 +48,8 @@ export class QuestionExpressionModel extends Question {
    * An expression used to calculate the question value.
    *
    * Refer to the following help topic for more information: [Expressions](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#expressions).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/expression-question-for-dynamic-form-calculations/ (linkStyle))
    */
   public get expression(): string {
     return this.getPropertyValue("expression", "");
@@ -162,6 +164,8 @@ export class QuestionExpressionModel extends Question {
    * - `"none"` (default)
    *
    * If you use the `"currency"` display style, you can also set the `currency` property to specify a currency other than USD.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/expression-question-for-dynamic-form-calculations/ (linkStyle))
    * @see currency
    * @see minimumFractionDigits
    * @see maximumFractionDigits

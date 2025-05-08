@@ -142,6 +142,8 @@ export class MultipleTextItemModel extends Base
    * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
    *
    * Default value: `"text"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
    */
   public get inputType(): string {
     return this.editor.inputType;
@@ -263,7 +265,7 @@ export class MultipleTextItemModel extends Base
   /**
    * Item validators.
    *
-   * [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
    */
   public get validators(): Array<SurveyValidator> {
     return this.editor.validators;
@@ -509,6 +511,8 @@ export class QuestionMultipleTextModel extends Question
    * ```
    *
    * To enable Markdown support for the `title` property, implement Markdown-to-HTML conversion in the [`onTextMarkdown`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with markdown-it](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/ (linkStyle))
    * @see itemTitleWidth
    * @see addItem
    */

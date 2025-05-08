@@ -59,7 +59,7 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
 /**
   * A class that describes the Dynamic Matrix question type.
   *
-  * Dynamic Matrix allows respondents to add and delete matrix rows. You can use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
+  * Dynamic Matrix allows respondents to add and delete matrix rows. You can use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Single-Line Input](https://surveyjs.io/form-library/documentation/questiontextmodel), [Long Text](https://surveyjs.io/form-library/documentation/questioncommentmodel), and other question types as cell editors.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/ (linkStyle))
   */
@@ -130,6 +130,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a row.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
@@ -231,6 +233,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * The number of rows in the matrix.
+   *
+   * Default value: 2
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see minRowCount
    * @see maxRowCount
    */
@@ -346,6 +352,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * A minimum number of rows in the matrix. Users cannot delete rows if `rowCount` equals `minRowCount`.
    *
    * Default value: 0
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see rowCount
    * @see maxRowCount
    * @see allowRemoveRows
@@ -367,6 +375,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
    *
    * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
@@ -506,6 +516,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * Specifies whether to expand the detail section immediately when a respondent adds a new row.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see detailPanelMode
    */
   public get detailPanelShowOnAdding(): boolean {
@@ -754,6 +766,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     const res = new QuestionSingleInputSummary(this, this.locNoRowsText);
     const items = new Array<QuestionSingleInputSummaryItem>();
+    const canRemoveRows = this.canRemoveRows;
     this.visibleRows.forEach((row) => {
       const locText = new LocalizableString(this, true, undefined, this.getSingleInputTitleTemplate());
       locText.setJson(this.locSingleInputTitleTemplate.getJson());
@@ -761,7 +774,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         return row.getTextProcessor().processText(text, true);
       };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singleInputEditRow(row); } });
-      const btnRemove = this.canRemoveRow(row) ? new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
+      const btnRemove = canRemoveRows && this.canRemoveRow(row) ?
+        new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;
@@ -769,6 +783,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a row.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see confirmDelete
    */
   public get confirmDeleteText() {
@@ -782,6 +798,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * A caption for the Add Row button.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see addRowButtonLocation
    */
   public get addRowText() {
@@ -846,6 +864,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * Use this property to change the default value of remove row button text.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    */
   public get removeRowText() {
     return this.getLocalizableStringText("removeRowText");

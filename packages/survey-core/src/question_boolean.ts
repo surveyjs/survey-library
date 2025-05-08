@@ -108,6 +108,8 @@ export class QuestionBooleanModel extends Question {
    * Gets or sets a text label that corresponds to a positive answer.
    *
    * Default value: "Yes"
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/yes-no-question/ (linkStyle))
    * @see valueTrue
    * @see valueFalse
    */
@@ -143,6 +145,8 @@ export class QuestionBooleanModel extends Question {
    * Gets or sets a text label that corresponds to a negative answer.
    *
    * Default value: "No"
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/yes-no-question/ (linkStyle))
    * @see valueTrue
    * @see valueFalse
    */
@@ -159,6 +163,8 @@ export class QuestionBooleanModel extends Question {
    * A value to save in survey results when respondents give a positive answer.
    *
    * Default value: `true`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/yes-no-question/ (linkStyle))
    * @see labelTrue
    * @see labelFalse
    */
@@ -168,6 +174,8 @@ export class QuestionBooleanModel extends Question {
    * A value to save in survey results when respondents give a negative answer.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/yes-no-question/ (linkStyle))
    * @see labelTrue
    * @see labelFalse
    */

@@ -674,6 +674,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * - [`onUpdatePanelCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePanelCssClasses)
    * - [`onUpdatePageCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePageCssClasses)
    * - [`onUpdateChoiceItemCss`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUpdateChoiceItemCss)
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get cssClasses(): any {
     const _dummy = this.cssClassesValue;

@@ -108,6 +108,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * Use the `{item}` placeholder to reference the current row in the expression.
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
    * @see visibleRows
    * @see columnsVisibleIf
    */
@@ -128,6 +130,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * Use the `{item}` placeholder to reference the current column in the expression.
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/change-visibility-of-rows-in-matrix-table/ (linkStyle))
    * @see rowsVisibleIf
    */
   public get columnsVisibleIf(): string {

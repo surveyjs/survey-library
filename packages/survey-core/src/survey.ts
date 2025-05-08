@@ -200,6 +200,10 @@ export class SurveyModel extends SurveyElementCore
   public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
    * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see firstPageIsStartPage
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
@@ -356,7 +360,6 @@ export class SurveyModel extends SurveyElementCore
    * @see onServerValidateQuestions
    * @see onValidatePanel
    * @see onMatrixCellValidate
-   * @see onSettingQuestionErrors
    */
   public onValidateQuestion: EventBase<SurveyModel, ValidateQuestionEvent> = this.addEvent<SurveyModel, ValidateQuestionEvent>();
   /**
@@ -1917,7 +1920,7 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"onNextPage"` (default) - Triggers validation before the survey is switched to the next page or completed.
-   * - `"onValueChanged"` - Triggers validation each time a question value is changed.
+   * - `"onValueChanged"` - Triggers validation each time a question value is changed. [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/)
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
    *
    * > In SurveyJS Form Library v1.12.5 and earlier, the `"onValueChanged"` mode doesn't work with date input fields because of the way browsers process date values. In most browsers, the value is considered changed as soon as a user starts entering the date in a text input field. This means that a user may only enter the day without having the chance to enter the month and year before validation is triggered. For this reason, date input fields are validated before the survey is switched to the next page or completed. Starting with v1.12.6, `"onValueChanged"` works for date input fields as well as for input fields of other types.
@@ -2619,8 +2622,7 @@ export class SurveyModel extends SurveyElementCore
     return this.navigationBarValue;
   }
   /**
-   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons.
-   * Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
+   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons. Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
@@ -2642,6 +2644,8 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Gets or sets a caption for the Start button.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see firstPageIsStartPage
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
@@ -3014,6 +3018,8 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
    * @see progressBarShowPageNumbers
    * @see progressBarInheritWidthFrom
    */
@@ -3026,6 +3032,8 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
    * @see progressBarShowPageTitles
    * @see progressBarInheritWidthFrom
    */
@@ -6990,6 +6998,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Sets a question value (answer).
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz/ (linkStyle))
+   *
    * > This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
    * @param name A question name.
    * @param newValue A new question value.
@@ -7605,6 +7615,8 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `false`
    *
    * If you set this property to `true`, the timer starts automatically when the survey begins. To specify time limits, use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) and [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) properties.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    *
    * The timer displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property to `"page"` or `"survey"`.
    *

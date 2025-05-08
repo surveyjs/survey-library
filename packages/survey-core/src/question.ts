@@ -489,6 +489,8 @@ export class Question extends SurveyElement<Question>
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/implement-conditional-logic-to-change-question-visibility/ (linkStyle))
    * @see visible
    * @see isVisible
    */
@@ -2138,6 +2140,8 @@ export class Question extends SurveyElement<Question>
    * - While the survey is being loaded from JSON.
    * - The question is just added to the survey and does not yet have an answer.
    * - The respondent left the answer empty.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically (linkStyle))
    * @see defaultValueExpression
    */
   public get defaultValue(): any {
@@ -2152,9 +2156,9 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   /**
-   * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
+   * An expression used to calculate the [`defaultValue`](https://surveyjs.io/form-library/documentation/question#defaultValue).
    *
-   * This expression applies until the question [value](https://surveyjs.io/form-library/documentation/question#value) is specified by an end user or programmatically.
+   * This expression applies until the question [`value`](https://surveyjs.io/form-library/documentation/question#value) is specified by an end user or programmatically.
    *
    * An expression can reference other questions as follows:
    *
@@ -2273,6 +2277,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see SurveyModel.getCorrectAnswerCount
    * @see SurveyModel.getIncorrectAnswerCount
    */
@@ -2329,10 +2335,9 @@ export class Question extends SurveyElement<Question>
   }
   protected getAnswerCorrectIgnoreOrder(): boolean { return false; }
   /**
-  * Returns `true` if a question answer matches the `correctAnswer` property value.
+  * Returns `true` if a question answer matches the [`correctAnswer`](#correctAnswer) property value.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz (linkStyle))
-  * @see correctAnswer
   * @see SurveyModel.getQuizQuestions
   */
   public isAnswerCorrect(): boolean {

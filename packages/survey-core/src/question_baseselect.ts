@@ -879,6 +879,8 @@ export class QuestionSelectBase extends Question {
    * [Ranking Demo](https://surveyjs.io/form-library/examples/add-ranking-question-to-form/ (linkStyle))
    *
    * [Image Picker Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
+   *
+   * [Conditionally Display Choice Options](https://surveyjs.io/form-library/examples/how-to-conditionally-display-choice-options/ (linkStyle))
    * @see choicesByUrl
    * @see choicesFromQuestion
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
@@ -2153,9 +2155,11 @@ export class QuestionSelectBase extends Question {
   /**
    * The name of a component used to render items.
    *
-   * [View Dropdown Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
+   * [Dropdown Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
    *
-   * [View Ranking Demo](https://surveyjs.io/form-library/examples/ranking-with-custom-items/ (linkStyle))
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/ranking-with-custom-items/ (linkStyle))
+   *
+   * [Checkboxes and Radio Button Group Demo](https://surveyjs.io/form-library/examples/add-custom-items-to-single-and-multi-select-questions/ (linkStyle))
    */
   public get itemComponent(): string {
     return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());

@@ -62,6 +62,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     const wrapper = ReactSurveyElementsWrapper.wrapRow(survey, content, this.row);
     return wrapper || content;
   }
+  private lazyRenderingTimeout: ReturnType<typeof setTimeout>;
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
@@ -70,7 +71,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     }
     if (!!el && !this.row.isNeedRender) {
       var rowContainerDiv = el;
-      setTimeout(() => {
+      this.lazyRenderingTimeout = setTimeout(() => {
         this.row.startLazyRendering(rowContainerDiv);
       }, 10);
     }
@@ -87,6 +88,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     return true;
   }
   private stopLazyRendering() {
+    clearTimeout(this.lazyRenderingTimeout);
     this.row.stopLazyRendering();
     this.row.isNeedRender = !this.row.isLazyRendering();
   }

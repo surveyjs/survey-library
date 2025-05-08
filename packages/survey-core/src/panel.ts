@@ -41,6 +41,7 @@ export class QuestionRowModel extends Base {
   private get allowRendering(): boolean {
     return !this.panel || !this.panel.survey || !(this.panel.survey as any)["isLazyRenderingSuspended"];
   }
+  private lazyRenderingTimeout: ReturnType<typeof setTimeout>;
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
@@ -61,7 +62,7 @@ export class QuestionRowModel extends Base {
           this.stopLazyRendering();
         }
       };
-      setTimeout(() => {
+      this.lazyRenderingTimeout = setTimeout(() => {
         if (
           !!this._scrollableParent &&
           !!this._scrollableParent.addEventListener
@@ -91,6 +92,7 @@ export class QuestionRowModel extends Base {
         this._updateVisibility
       );
     }
+    clearTimeout(this.lazyRenderingTimeout);
     this._scrollableParent = undefined;
     this._updateVisibility = undefined;
   }

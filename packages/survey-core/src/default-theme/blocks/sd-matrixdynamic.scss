@@ -85,7 +85,7 @@
 .sd-table__cell.sd-table__cell--drag {
   >div {
     display: flex;
-    justify-content: end;
+    justify-content: flex-end;
     align-items: center;
     margin-left: calcSize(-4);
     width: calcSize(4);

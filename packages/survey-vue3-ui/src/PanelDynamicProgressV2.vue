@@ -9,6 +9,7 @@
         :class="question.cssClasses.progressBar"
         :style="{ width: question.progress }"
         role="progressbar"
+        :aria-label="question.progressBarAriaLabel"
       ></div>
     </div>
     <div

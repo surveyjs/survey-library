@@ -118,6 +118,7 @@ export var englishStrings = {
   cancel: "Cancel",
   createCustomItem: "Create \"{0}\" item...",
   toc: "Table of contents",
+  progressbar: "Progress bar",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

@@ -1,4 +1,5 @@
-import { frameworks, initSurvey, url } from "./helper";
+import { checkA11y, injectAxe } from "axe-playwright";
+import { axeOptions, frameworks, initSurvey, url } from "./helper";
 import { test, expect } from "@playwright/test";
 const title = "navigation";
 
@@ -70,12 +71,14 @@ frameworks.forEach((framework) => {
   test.describe(`${framework} a11y:${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
-      await initSurvey(page, framework, json);
+      await injectAxe(page);
     });
     test("progress bar", async ({ page }) => {
+      await initSurvey(page, framework, json);
       await expect(page.locator("[role='progressbar']")).toHaveAttribute(
         "aria-label"
       );
+      await checkA11y(page, ".sd-progress-buttons", { axeOptions });
     });
   });
 });

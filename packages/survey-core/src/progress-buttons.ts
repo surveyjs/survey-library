@@ -2,6 +2,7 @@ import { Base, EventBase } from "./base";
 import { surveyCss } from "./defaultCss/defaultCss";
 import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
+import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 export class ProgressButtons extends Base {
@@ -129,6 +130,9 @@ export class ProgressButtons extends Base {
   }
   public get progressText(): string {
     return this.getPropertyValue("progressText", undefined, () => this.survey.getProgressText());
+  }
+  public get progressBarAriaLabel(): string {
+    return getLocaleString("progressbar", this.survey.getLocale());
   }
   public resetProgressText(): void {
     this.resetPropertyValue("progressText");

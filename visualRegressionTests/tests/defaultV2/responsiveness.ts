@@ -53,7 +53,7 @@ frameworks.forEach(framework => {
           "description": "Enter 8 characters minimum.",
           "inputType": "password",
           "isRequired": true,
-          "autocomplete": "password",
+          "autocomplete": "current-password",
           "validators": [{
             "type": "text",
             "minLength": 8,

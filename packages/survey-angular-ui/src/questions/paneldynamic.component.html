@@ -4,7 +4,9 @@
   </div>
   <sv-ng-placeholder-paneldynamic [question]="model"></sv-ng-placeholder-paneldynamic>
   <div [class]="model.cssClasses.progress" *ngIf="model.isProgressTopShowing && model.isRangeShowing">
-    <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" role="progressbar"></div>
+    <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }"
+    role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
+    ></div>
   </div>
   <div [class]="model.cssClasses.panelsContainer">
     <ng-container *ngFor="let panel of model.renderedPanels; index as index; trackBy: trackPanelBy">
@@ -27,7 +29,9 @@
   <div [class]="model.cssClasses.footer" *ngIf="!!model.cssClasses.footer">
     <hr [class]="model.cssClasses.separator" />
     <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing && model.isProgressBottomShowing">
-      <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" role="progressbar"></div>
+      <div [class]="model.cssClasses.progressBar" [style]="{ width: model.progress }" 
+      role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
+      ></div>
     </div>
     <div *ngIf="model.footerToolbar.visibleActions.length" [class]="model.cssClasses.footerButtonsContainer">
       <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>

@@ -5,7 +5,7 @@
     role="progressbar"
     aria-valuemin="0"
     aria-valuemax="100"
-    aria-label="progress"
+    :aria-label="model.progressBarAriaLabel"
   >
     <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
       <div

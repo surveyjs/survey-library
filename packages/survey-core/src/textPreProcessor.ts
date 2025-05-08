@@ -162,7 +162,7 @@ export class QuestionTextProcessor implements ITextProcessor {
         ? this.getQuestionDisplayText(question)
         : question.value;
     } else {
-      var allValues = !!this.panel ? this.getValues() : null;
+      const allValues = this.getValues();
       if (allValues) {
         (<any>values)[firstName] = allValues[firstName];
       }

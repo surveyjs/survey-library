@@ -208,7 +208,7 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
     return this.row.getSurvey();
   }
   protected getValues(): any {
-    return this.row.value;
+    return this.row.getAllValues();
   }
   protected getQuestionByName(name: string): Question {
     return this.row.getQuestionByName(name);
@@ -407,7 +407,18 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.isCreatingDetailPanel = false;
   }
   getAllValues(): any {
-    return this.value;
+    const res = this.value;
+    if (this.data) {
+      const rowVal = this.getDataRowValue();
+      if (rowVal) {
+        for (var key in rowVal) {
+          if (res[key] === undefined) {
+            res[key] = rowVal[key];
+          }
+        }
+      }
+    }
+    return res;
   }
   getFilteredValues(): any {
     const res = this.data ? this.data.getDataFilteredValues() : {};
@@ -418,16 +429,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       }
     }
     res.row = this.getAllValues();
-    if (this.data) {
-      const rowVal = this.getDataRowValue();
-      if (rowVal) {
-        for (var key in rowVal) {
-          if (res.row[key] === undefined) {
-            res.row[key] = rowVal[key];
-          }
-        }
-      }
-    }
     this.applyRowVariablesToValues(res, this.rowIndex);
     return res;
   }

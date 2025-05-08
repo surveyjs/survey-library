@@ -33,17 +33,20 @@ export class Row extends BaseVue {
   protected getModel(): Base {
     return this.row;
   }
+  private lazyRenderingTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+
   protected onMounted() {
     if (!!this.row) {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = this.$el;
-        setTimeout(() => {
+        this.lazyRenderingTimeout = setTimeout(() => {
           this.row.startLazyRendering(rowContainerDiv as HTMLElement);
         }, 10);
       }
     }
   }
   beforeDestroy() {
+    clearTimeout(this.lazyRenderingTimeout);
     if (!!this.row && !this.row.isDisposed) {
       this.row.isNeedRender = !this.row.isLazyRendering();
     }

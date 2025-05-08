@@ -123,6 +123,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Specifies whether users can select multiple images or videos.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   public get multiSelect(): boolean {
     return this.getPropertyValue("multiSelect");
@@ -177,8 +179,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   /**
-   * Specifies whether to display labels under images or videos. Labels text are taken from the `text` property of each object in the `choices` array.
-   * @see choices
+   * Specifies whether to display labels under images or videos. Labels text are taken from the `text` property of each object in the [`choices`](#choices) array.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
   public get showLabel(): boolean {
     return this.getPropertyValue("showLabel");
@@ -321,6 +324,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * Default value: 3000
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-calculator-form/ (linkStyle))
+   *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */
   @property({}) public maxImageWidth: number;
@@ -337,6 +342,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * Default value: 3000
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-calculator-form/ (linkStyle))
+   *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */
   @property({}) public maxImageHeight: number;
@@ -344,6 +351,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Specifies a minimum height for image or video containers. Accepts positive numbers and CSS values.
    *
    * Default value: 133
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-calculator-form/ (linkStyle))
    *
    * The `minImageWidth`, `maxImageWidth`, `minImageHeight`, and `maxImageHeight` properties specify boundary values for container sizes. The resulting sizes are selected depending on the available screen space. If you want to specify the exact width and height, use the [`imageWidth`](#imageWidth) and [`imageHeight`](#imageHeight) properties.
    */

@@ -14,9 +14,15 @@ import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
 
 /**
- * A class that describes the Single-Line Input question type.
+ * A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
+ * [Text Entry Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
+ *
+ * [Date-Time Entry Demo](https://surveyjs.io/form-library/examples/datetime-entry-question/ (linkStyle))
+ *
+ * [Numeric Entry Demo](https://surveyjs.io/form-library/examples/numeric-entry-question/ (linkStyle))
+ *
+ * [Color Input Demo](https://surveyjs.io/form-library/examples/color-input-question/ (linkStyle))
  */
 export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
@@ -157,6 +163,14 @@ export class QuestionTextModel extends QuestionTextBase {
    * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
    *
    * Default value: `"text"`
+   *
+   * [Text Entry Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
+   *
+   * [Date-Time Entry Demo](https://surveyjs.io/form-library/examples/datetime-entry-question/ (linkStyle))
+   *
+   * [Numeric Entry Demo](https://surveyjs.io/form-library/examples/numeric-entry-question/ (linkStyle))
+   *
+   * [Color Input Demo](https://surveyjs.io/form-library/examples/color-input-question/ (linkStyle))
    */
   public get inputType(): string {
     return this.getPropertyValue("inputType");

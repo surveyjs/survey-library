@@ -379,6 +379,8 @@ export class MatrixDropdownColumn extends Base
    * A Boolean expression. If it evaluates to `false`, this column becomes read-only.
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    * @see readOnly
    */
   public get enableIf(): string {
@@ -463,6 +465,8 @@ export class MatrixDropdownColumn extends Base
   }
   /**
    * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/columnize-choice-options-of-matrix-cell/ (linkStyle))
    */
   public get showInMultipleColumns(): boolean {
     return this.getPropertyValue("showInMultipleColumns");
@@ -650,6 +654,8 @@ export class MatrixDropdownColumn extends Base
    * Gets or sets the number of columns used to arrange choice options. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
    *
    * Default value: -1 (inherits the actual value from the parent matrix's [`columnColCount`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#columnColCount) property)
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/multi-select-matrix-question/ (linkStyle))
    */
   public get colCount(): number {
     return this.getPropertyValue("colCount");

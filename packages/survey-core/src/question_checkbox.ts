@@ -53,6 +53,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Specifies a property name used to store selected values.
    *
    * Set this property if you want to store selected values in an array of objects instead of an array of primitive values. For example, if you set `valuePropertyName` to `"car"`, the `value` property will contain an array of objects `[{ car: "Ford" }, { car: "Tesla" }]`, not an array of string values `[ "Ford", "Tesla" ]`.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/merge-question-values/ (linkStyle))
    */
   public get valuePropertyName(): string {
     return this.getPropertyValue("valuePropertyName");
@@ -235,6 +237,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see minSelectedChoices
    */
   public get maxSelectedChoices(): number {
@@ -251,6 +255,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `minSelectedChoices` value.
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see maxSelectedChoices
    */
   public get minSelectedChoices(): number {

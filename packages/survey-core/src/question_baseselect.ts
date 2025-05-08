@@ -244,6 +244,12 @@ export class QuestionSelectBase extends Question {
    * Specifies whether to display the "None" choice item.
    *
    * When users select the "None" item in multi-select questions, all other items become unselected.
+   *
+   * [Dropdown Demo](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/ (linkStyle))
+   *
+   * [Checkboxes Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
+   *
+   * [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
    * @see noneItem
    * @see noneText
    * @see [settings.noneItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#noneItemValue)
@@ -863,6 +869,18 @@ export class QuestionSelectBase extends Question {
    * If you add custom properties, refer to the following help topic to learn how to serialize them into JSON: [Add Custom Properties to Property Grid](https://surveyjs.io/survey-creator/documentation/property-grid#add-custom-properties-to-the-property-grid).
    *
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
+   *
+   * [Dropdown Demo](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/ (linkStyle))
+   *
+   * [Checkboxes Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
+   *
+   * [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/add-ranking-question-to-form/ (linkStyle))
+   *
+   * [Image Picker Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
+   *
+   * [Conditionally Display Choice Options](https://surveyjs.io/form-library/examples/how-to-conditionally-display-choice-options/ (linkStyle))
    * @see choicesByUrl
    * @see choicesFromQuestion
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
@@ -876,11 +894,11 @@ export class QuestionSelectBase extends Question {
   /**
    * Copies choice items from a specified question. Accepts a question name.
    *
-   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are copied.
+   * If you specify this property, the [`choices`](#choices), [`choicesVisibleIf`](#choicesVisibleIf), [`choicesEnableIf`](#choicesEnableIf), and [`choicesOrder`](#choicesEnableIf) properties do not apply because their values are copied.
    *
-   * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to copy all choice items.
-   * @see choicesFromQuestionMode
-   * @see choices
+   * In addition, you can specify the [`choicesFromQuestionMode`](#choicesFromQuestionMode) property if you do not want to copy all choice items.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/carry-forward-responses/ (linkStyle))
    */
   public get choicesFromQuestion(): string {
     return this.getPropertyValue("choicesFromQuestion");
@@ -899,7 +917,7 @@ export class QuestionSelectBase extends Question {
   }
   private isLockVisibleChoices: boolean;
   /**
-   * Specifies which choice items to copy from another question. Applies only when the `choicesFromQuestion` property is specified.
+   * Specifies which choice items to copy from another question. Applies only when the [`choicesFromQuestion`](#choicesFromQuestion) property is specified.
    *
    * Possible values:
    *
@@ -907,9 +925,9 @@ export class QuestionSelectBase extends Question {
    * - `"selected"` - Copies only selected choice items.
    * - `"unselected"` - Copies only unselected choice items.
    *
-   * Use the `visibleChoices` property to access copied choice items.
-   * @see choicesFromQuestion
-   * @see visibleChoices
+   * [View Demo](https://surveyjs.io/form-library/examples/carry-forward-responses/ (linkStyle))
+   *
+   * > Use the [`visibleChoices`](#visibleChoices) property to access copied choice items in code.
    */
   public get choicesFromQuestionMode(): string {
     return this.getPropertyValue("choicesFromQuestionMode");
@@ -921,6 +939,8 @@ export class QuestionSelectBase extends Question {
    * Specifies which matrix column or dynamic panel question supplies choice values. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
    *
    * Each choice item consists of a value saved in survey results and a text displayed in the UI. To construct a choice item, assign the `name` of a Dynamic Matrix or Dynamic Panel to the [`choicesFromQuestion`](#choicesFromQuestion) property and specify which dynamic panel question or matrix column supplies values and which provides texts. Use the `choiceValuesFromQuestion` and [`choiceTextsFromQuestion`](#choiceTextsFromQuestion) properties for this purpose. If a choice text is empty, a choice value is used as a display text and saved in survey results.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/pipe-answers-from-dynamic-matrix-or-panel/ (linkStyle))
    */
   public get choiceValuesFromQuestion(): string {
     return this.getPropertyValue("choiceValuesFromQuestion");
@@ -932,6 +952,8 @@ export class QuestionSelectBase extends Question {
    * Specifies which matrix column or dynamic panel question supplies choice texts. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
    *
    * Each choice item consists of a value saved in survey results and a text displayed in the UI. To construct a choice item, assign the `name` of a Dynamic Matrix or Dynamic Panel to the [`choicesFromQuestion`](#choicesFromQuestion) property and specify which dynamic panel question or matrix column supplies values and which provides texts. Use the [`choiceValuesFromQuestion`](#choiceValuesFromQuestion) and `choiceTextsFromQuestion` properties for this purpose. If a choice text is empty, a choice value is used as a display text and saved in survey results.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/pipe-answers-from-dynamic-matrix-or-panel/ (linkStyle))
    */
   public get choiceTextsFromQuestion(): string {
     return this.getPropertyValue("choiceTextsFromQuestion");
@@ -1005,6 +1027,10 @@ export class QuestionSelectBase extends Question {
   }
   /**
    * Displays the "Select All", "None", and "Other" choices on individual rows.
+   *
+   * [Checkboxes Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
+   *
+   * [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
    * @see showNoneItem
    * @see showOtherItem
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
@@ -1399,8 +1425,13 @@ export class QuestionSelectBase extends Question {
     return this.choices;
   }
   /**
-   * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
+   * Specifies whether to display the "Other" choice item.
    *
+   * [Dropdown Demo](https://surveyjs.io/form-library/examples/create-dropdown-menu-in-javascript/ (linkStyle))
+   *
+   * [Checkboxes Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
+   *
+   * [Radio Button Group Demo](https://surveyjs.io/form-library/examples/single-select-radio-button-group/ (linkStyle))
    * @see otherText
    * @see otherItem
    * @see otherErrorText
@@ -2124,9 +2155,11 @@ export class QuestionSelectBase extends Question {
   /**
    * The name of a component used to render items.
    *
-   * [View Dropdown Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
+   * [Dropdown Demo](https://surveyjs.io/form-library/examples/dropdown-box-with-custom-items/ (linkStyle))
    *
-   * [View Ranking Demo](https://surveyjs.io/form-library/examples/ranking-with-custom-items/ (linkStyle))
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/ranking-with-custom-items/ (linkStyle))
+   *
+   * [Checkboxes and Radio Button Group Demo](https://surveyjs.io/form-library/examples/add-custom-items-to-single-and-multi-select-questions/ (linkStyle))
    */
   public get itemComponent(): string {
     return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());

@@ -10,12 +10,14 @@ Usage:
 2. Open the console in the root folder and build the `survey-core` bundle:
 
     ```
-    npm run build_core
+    cd packages/survey-core
+    npm run build
     ```
 
 3. Run the following command:
 
     ```
+    cd ../..
     node .\utils\json_obfuscator.js [path\to\the\survey\json\schema.json]
     ```
 

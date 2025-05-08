@@ -1691,6 +1691,53 @@ QUnit.test("checkbox vs matrixdropdown", assert => {
   assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #3");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "survey-creator", "matrix.singleInputLocTitle.textOrHtml, #3");
 });
+QUnit.test("checkbox vs matrixdynamic", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "products",
+        choices: ["form-library", "survey-creator", "dashboard", "pdf-generator"],
+        valuePropertyName: "product_id"
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        valueName: "products",
+        columns: [
+          {
+            name: "nps",
+            cellType: "rating"
+          },
+          {
+            name: "valued-features",
+            cellType: "comment"
+          }
+        ],
+        rowCount: 0,
+        singleInputTitleTemplate: "Library {row.product_id}",
+        allowAddRows: false,
+        allowRemoveRows: false
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("products");
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  checkbox.renderedValue = ["form-library", "survey-creator"];
+  survey.performNext();
+  assert.equal(matrix.visibleRows.length, 2, "matrix.visibleRows.length, #1");
+  assert.equal(survey.currentSingleQuestion.name, "matrix", "currentSingleQuestion is matrix, #1");
+  assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #1");
+  matrix.singleInputQuestion.value = 3;
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "Library form-library", "matrix.singleInputLocTitle.textOrHtml, #1");
+  survey.performNext();
+  assert.equal(matrix.singleInputQuestion.name, "valued-features", "singleInputQuestion is nps, #2");
+  survey.performNext();
+  assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #3");
+  assert.equal(matrix.singleInputQuestion.isEmpty(), true, "matrix.singleInputQuestion.isEmpty(), #3");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "Library survey-creator", "matrix.singleInputLocTitle.textOrHtml, #3");
+});
 QUnit.test("matrixdropdown & locRenderingTitle, Bug#9829", assert => {
   const survey = new SurveyModel({
     elements: [

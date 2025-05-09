@@ -29,6 +29,12 @@ export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel
     }
     return result;
   }
+  get valueArray(): number[] {
+    if (this.model.isEmpty()) {
+      return this.model.getRenderedValue();
+    }
+    return this.model.value;
+  }
   trackByRenderedValue (i: number, value: number): number {
     return i;
   }

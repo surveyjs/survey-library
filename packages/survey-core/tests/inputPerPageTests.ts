@@ -1768,3 +1768,40 @@ QUnit.test("singleInput and matrix dynamic & css recalculation on error", assert
   survey.performNext();
   assert.ok(ok, "cssRoot recalculated");
 });
+QUnit.test("singleInput show initial record, #1", assert => {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1" },
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "bindings": {
+          "panelCount": "q1"
+        },
+        "templateElements": [
+          { "type": "text", "name": "q2" }
+        ],
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #1");
+  survey.currentSingleQuestion.value = 1;
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputQuestion.name, "q2", "singleInputQuestion is q2, #2");
+  panel.singleInputQuestion.value = "a";
+  survey.performNext();
+  assert.equal(getSingleQuestion(survey.currentPage).name, "panel", "singleInputQuestion is q2, #3");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #3");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #4");
+  survey.currentSingleQuestion.value = 2;
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #5");
+  assert.equal(panel.singleInputQuestion.name, "q2", "singleInputQuestion is q2, #5");
+  assert.equal(panel.singleInputQuestion.isEmpty(), true, "singleInputQuestion is empty, #5");
+  assert.equal(!!panel.singleInputSummary, false, "panel.singleInputSummary, #5");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, #5");
+});

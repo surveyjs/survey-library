@@ -4810,6 +4810,9 @@ export class SurveyModel extends SurveyElementCore
       if (!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleElementValue = val;
       if (!!val) {
+        if (this.isSingleVisibleInput && val.isQuestion) {
+          (<Question>val).onSetAsSingleInput();
+        }
         page.updateRows();
         if (page !== this.currentPage) {
           this.currentPage = page;

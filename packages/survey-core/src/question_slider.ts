@@ -698,6 +698,7 @@ Serializer.addClass(
     {
       name: "allowDragRange:boolean",
       default: true,
+      visible: false,
       visibleIf: function (obj: any) {
         return obj.sliderType === "range";
       },

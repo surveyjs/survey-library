@@ -786,7 +786,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMod
   }
 );
 
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
+QUnit.test("showAllQuestions - pages css after cancelPreview",
   function(assert) {
     const survey = new SurveyModel({
       title: "Test",

@@ -54,6 +54,7 @@ QUnit.test("check css", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
       },
     ],
@@ -68,6 +69,7 @@ QUnit.test("segmentCount", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         segmentCount: 5,
         min: 0,
@@ -90,6 +92,7 @@ QUnit.test("step", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1"
       },
     ],
@@ -102,6 +105,7 @@ QUnit.test("step", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         min: 100,
         max: 200,
@@ -120,6 +124,7 @@ QUnit.test("labelCount", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1"
       },
     ],
@@ -132,6 +137,7 @@ QUnit.test("labelCount", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         min: 0,
         max: 100,
@@ -149,6 +155,7 @@ QUnit.test("customLabels", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         segmentCount: 5,
         "customLabels": [
@@ -184,12 +191,12 @@ QUnit.test("sliderType", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
       },
       {
         type: "slider",
-        name: "q2",
-        sliderType: "single"
+        name: "q2"
       },
     ],
   };
@@ -205,6 +212,7 @@ QUnit.test("showLabels", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
       }
     ],
@@ -219,6 +227,7 @@ QUnit.test("renderedMaxRangeLength", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         min: -50,
         max: 50
@@ -238,6 +247,7 @@ QUnit.test("renderedMinRangeLength", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         step: 10
       }
@@ -256,6 +266,7 @@ QUnit.test("ensureMaxRangeBorders", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         maxRangeLength: 50,
         defaultValue: [10, 60, 110],
@@ -297,6 +308,7 @@ QUnit.test("ensureMaxRangeBorders - allowSwap", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         maxRangeLength: 10
       }
@@ -317,6 +329,7 @@ QUnit.test("ensureMinRangeBorders", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         minRangeLength: 10,
         defaultValue: [30, 40, 50]
@@ -371,6 +384,7 @@ QUnit.test("getRenderedValue", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         minRangeLength: 20,
         maxRangeLength: 50,
@@ -403,6 +417,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         maxRangeLength: 100,
         min: -100,
@@ -433,6 +448,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
 //     elements: [
 //       {
 //         type: "slider",
+//         sliderType: "range",
 //         name: "q1",
 //         customLabels: [{
 //           text: "t",
@@ -589,6 +605,7 @@ QUnit.test("allowClear", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
         allowClear: true
       }
@@ -603,6 +620,7 @@ QUnit.test("allowClear", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1"
       }
     ]
@@ -618,6 +636,7 @@ QUnit.test("tooltipVisibility", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "range",
         name: "q1",
       }
     ]

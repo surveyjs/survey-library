@@ -17,7 +17,7 @@ import { DragOrClickHelper } from "./utils/dragOrClickHelper";
  */
 
 export class QuestionSliderModel extends Question {
-  @property({ defaultValue: "range" }) sliderType: "range" | "single";
+  @property({ defaultValue: "single" }) sliderType: "range" | "single";
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
   @property({ defaultValue: null }) maxValueExpression: string | null;
@@ -614,7 +614,7 @@ Serializer.addClass(
   [
     {
       name: "sliderType",
-      default: "range",
+      default: "single",
       choices: ["range", "single"],
     },
     // {

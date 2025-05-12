@@ -4772,9 +4772,7 @@ export class SurveyModel extends SurveyElementCore
       this.currentPage = this.visiblePages[0];
     }
     this.pages.forEach(page => {
-      if (page.hasShown) {
-        page.updateElementCss(true);
-      }
+      page.updateElementCss(true);
     });
     this.updateButtonsVisibility();
   }

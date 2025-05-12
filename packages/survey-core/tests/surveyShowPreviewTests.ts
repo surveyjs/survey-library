@@ -785,3 +785,46 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMod
     assert.equal(survey.state, "completed", "No errors");
   }
 );
+
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
+  function(assert) {
+    const survey = new SurveyModel({
+      title: "Test",
+      pages: [
+        {
+          name: "page1",
+          title: "Q1",
+          description: "Please complete the following fields",
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              title: "Name of process",
+            }
+          ],
+        },
+        {
+          name: "page2",
+          title: "Q2",
+          description: "Please complete the following fields",
+          elements: [
+            {
+              type: "text",
+              name: "question2",
+              title: "Name of process",
+            }
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAllQuestions",
+    });
+    assert.ok(survey.pages[0].cssClasses.page);
+    assert.ok(survey.pages[1].cssClasses.page);
+    survey.showPreview();
+    assert.ok(survey.pages[0].cssClasses.panel);
+    assert.ok(survey.pages[1].cssClasses.panel);
+    (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
+    assert.ok(survey.pages[0].cssClasses.page);
+    assert.ok(survey.pages[1].cssClasses.page);
+  }
+);

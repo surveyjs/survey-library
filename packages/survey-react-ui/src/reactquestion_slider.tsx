@@ -14,22 +14,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     this.question.refreshInputRange(this.rangeInputRef.current);
   }
 
-  private updateInputRefs() {
-    this.inputRefs = [];
-    this.question.getRenderedValue().forEach((val)=>{
-      this.inputRefs.push(React.createRef());
-    });
-  }
-
-  protected updateDomElement() {
-    this.inputRefs.forEach((ref, index)=> {
-      if (ref.current) {
-        ref.current.value = "" + this.question.getRenderedValue()[index];
-      }
-    });
-    super.updateDomElement();
-  }
-
   protected get question(): QuestionSliderModel {
     return this.questionBase as QuestionSliderModel;
   }
@@ -39,7 +23,6 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): React.JSX.Element {
-    this.updateInputRefs();
     const { cssClasses, showLabels, sliderType, getTrackPercentLeft, getTrackPercentRight, allowDragRange, setValueByClickOnPath } = this.question;
 
     const rangeInput = (sliderType === "single" && allowDragRange) ? null : this.getRangeInput();
@@ -63,14 +46,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private rangeInputRef:React.RefObject<HTMLInputElement>;
-  private inputRefs:React.RefObject<HTMLInputElement>[];
 
   private getInputsAndThumbs() {
     const inputsAndThumbs = [];
     const value:number[] = this.question.getRenderedValue();
 
     for (let i = 0; i < value.length; i++) {
-      // TODO all keys should be generated ids
       const thumbAndInput = <React.Fragment key={i}>
         {this.getInput(i)}
         {this.getThumb(i)}
@@ -116,8 +97,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     const value = getRenderedValue()[i];
 
-    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} ref={this.inputRefs[i]} type="range"
-      min={min} max={max} step={step}
+    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} type="range"
+      min={min} max={max} step={step} value={value}
       onChange={ (e)=>{ handleOnChange(e.nativeEvent as InputEvent, i); } }
       onPointerDown={ (e)=>{ handlePointerDown(e.nativeEvent); } } onPointerUp={ (e)=>{ e.stopPropagation(); handlePointerUp(e.nativeEvent); } }
       onKeyDown={ (e)=>{ handleKeyDown(e.nativeEvent); } } onKeyUp={ (e)=>{ handleKeyUp(e.nativeEvent); } }

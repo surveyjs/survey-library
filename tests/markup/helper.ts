@@ -3,6 +3,7 @@ export interface MarkupTestDescriptor {
   name: string;
   json: any;
   event?: string;
+  isCorrectEvent?: (options: any) => boolean;
   before?: () => void;
   afterRender?: (survey) => void;
   after?: () => void;
@@ -11,6 +12,7 @@ export interface MarkupTestDescriptor {
   etalon?: string;
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
+  initSurveyAfterIdSetup?: (survey: Model) => void;
   getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
   getSnapshot?: (element: HTMLElement) => string;
   timeout?: number;
@@ -107,107 +109,108 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey = platform.surveyFactory(test.json);
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
-    setTimeout(() => {
+    if (!test.isCorrectEvent || test.isCorrectEvent(options)) {
+      setTimeout(() => {
+        let htmlElement = options.htmlElement;
+        if (!!test.getElement) {
+          htmlElement = test.getElement(options.htmlElement);
+        }
+        var all = htmlElement.getElementsByTagName("*");
+        for (var i = 0, max = all.length; i < max; i++) {
+          clearAttributes(all[i], test.removeIds);
+          clearClasses(all[i]);
+        }
+        sortAttributes(all);
+        let newEl = document.createElement("div");
+        newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
+        if (!test.getElement) {
+          newEl = newEl.children[0] as any;
+        }
+        let str = newEl.innerHTML;
+        if (newEl.getElementsByTagName("form").length) {
+          str = newEl.getElementsByTagName("form")[0].innerHTML;
+        }
+        if (!!test.getSnapshot) {
+          str = test.getSnapshot(options.htmlElement);
+        }
 
-      let htmlElement = options.htmlElement;
-      if (!!test.getElement) {
-        htmlElement = test.getElement(options.htmlElement);
-      }
-      var all = htmlElement.getElementsByTagName("*");
-      for (var i = 0, max = all.length; i < max; i++) {
-        clearAttributes(all[i], test.removeIds);
-        clearClasses(all[i]);
-      }
-      sortAttributes(all);
-      let newEl = document.createElement("div");
-      newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
-      if (!test.getElement) {
-        newEl = newEl.children[0] as any;
-      }
-      let str = newEl.innerHTML;
-      if (newEl.getElementsByTagName("form").length) {
-        str = newEl.getElementsByTagName("form")[0].innerHTML;
-      }
-      if (!!test.getSnapshot) {
-        str = test.getSnapshot(options.htmlElement);
-      }
+        var re = /(<!--[\s\S]*?-->)/g;
+        var newstr = str.replace(re, "");
+        newstr = newstr.replace(/(>\s+<)/g, "><").trim();
+        var oldStr = test.etalon || !test.etalon && platform.getStrFromHtml(test.snapshot);
+        oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
+        oldStr = oldStr.replace(/(> +<)/g, "><").trim();
 
-      var re = /(<!--[\s\S]*?-->)/g;
-      var newstr = str.replace(re, "");
-      newstr = newstr.replace(/(>\s+<)/g, "><").trim();
-      var oldStr = test.etalon || !test.etalon && platform.getStrFromHtml(test.snapshot);
-      oldStr = oldStr.replace(/(\r\n|\n|\r|\t)/gm, "");
-      oldStr = oldStr.replace(/(> +<)/g, "><").trim();
+        //temp
+        newstr = sortClasses(newstr);
+        oldStr = sortClasses(oldStr);
+        newstr = sortInlineStyles(newstr);
+        oldStr = sortInlineStyles(oldStr);
 
-      //temp
-      newstr = sortClasses(newstr);
-      oldStr = sortClasses(oldStr);
-      newstr = sortInlineStyles(newstr);
-      oldStr = sortInlineStyles(oldStr);
+        assert.equal(newstr, oldStr,
+          newstr == oldStr ?
+            platform.name + " " + test.name + " rendered correctly" :
+            platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
+        settings.animationEnabled = true;
+        if (test.after) { test.after(); }
+        if (platform.finish)
+          platform.finish(surveyElement);
+        if (newstr != oldStr) {
+          var form = document.createElement("form");
+          form.action = "https://text-compare.com/";
+          form.target = "_blank";
+          form.method = "post";
+          form.id = test.snapshot;
+          reportElement.appendChild(form);
 
-      assert.equal(newstr, oldStr,
-        newstr == oldStr ?
-          platform.name + " " + test.name + " rendered correctly" :
-          platform.name + " " + test.name + " rendered incorrectly, see http://localhost:9876/debug.html#" + test.snapshot);
-      settings.animationEnabled = true;
-      if (test.after) { test.after(); }
-      if (platform.finish)
-        platform.finish(surveyElement);
-      if (newstr != oldStr) {
-        var form = document.createElement("form");
-        form.action = "https://text-compare.com/";
-        form.target = "_blank";
-        form.method = "post";
-        form.id = test.snapshot;
-        reportElement.appendChild(form);
+          var testTitle = document.createElement("h1");
+          testTitle.innerText = test.name + " (" + test.snapshot + ")";
+          form.appendChild(testTitle);
 
-        var testTitle = document.createElement("h1");
-        testTitle.innerText = test.name + " (" + test.snapshot + ")";
-        form.appendChild(testTitle);
+          var table = document.createElement("table");
+          form.appendChild(table);
+          var tableRow = document.createElement("tr");
+          table.appendChild(tableRow);
+          var tableCell1 = document.createElement("td");
+          var tableCell2 = document.createElement("td");
+          var tableCell3 = document.createElement("td");
+          tableRow.appendChild(tableCell1);
+          tableRow.appendChild(tableCell2);
+          tableRow.appendChild(tableCell3);
 
-        var table = document.createElement("table");
-        form.appendChild(table);
-        var tableRow = document.createElement("tr");
-        table.appendChild(tableRow);
-        var tableCell1 = document.createElement("td");
-        var tableCell2 = document.createElement("td");
-        var tableCell3 = document.createElement("td");
-        tableRow.appendChild(tableCell1);
-        tableRow.appendChild(tableCell2);
-        tableRow.appendChild(tableCell3);
+          var caption = document.createElement("h2");
+          caption.innerText = "Expected:";
+          tableCell1.appendChild(caption);
+          var preEl = document.createElement("textarea");
+          preEl.value = format(oldStr);
+          preEl.name = "text1";
+          tableCell1.appendChild(preEl);
 
-        var caption = document.createElement("h2");
-        caption.innerText = "Expected:";
-        tableCell1.appendChild(caption);
-        var preEl = document.createElement("textarea");
-        preEl.value = format(oldStr);
-        preEl.name = "text1";
-        tableCell1.appendChild(preEl);
+          var caption2 = document.createElement("h2");
+          caption2.innerText = "Actual:";
+          tableCell2.appendChild(caption2);
+          var preEl2 = document.createElement("textarea");
+          preEl2.value = format(newstr);
+          preEl2.name = "text2";
+          tableCell2.appendChild(preEl2);
 
-        var caption2 = document.createElement("h2");
-        caption2.innerText = "Actual:";
-        tableCell2.appendChild(caption2);
-        var preEl2 = document.createElement("textarea");
-        preEl2.value = format(newstr);
-        preEl2.name = "text2";
-        tableCell2.appendChild(preEl2);
+          var caption3 = document.createElement("h2");
+          caption3.innerText = "Do:";
+          tableCell3.appendChild(caption3);
+          var submit = document.createElement("button");
+          submit.innerText = "Compare on https://text-compare.com/";
+          tableCell3.appendChild(submit);
+          tableCell3.appendChild(document.createElement("br"));
 
-        var caption3 = document.createElement("h2");
-        caption3.innerText = "Do:";
-        tableCell3.appendChild(caption3);
-        var submit = document.createElement("button");
-        submit.innerText = "Compare on https://text-compare.com/";
-        tableCell3.appendChild(submit);
-        tableCell3.appendChild(document.createElement("br"));
-
-        var download = document.createElement("a");
-        download.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(format(newstr)));
-        download.setAttribute("download", test.snapshot + ".snap.html");
-        download.innerText = "Download snapshot";
-        tableCell3.appendChild(download);
-      }
-      done();
-    }, test.timeout || 10);
+          var download = document.createElement("a");
+          download.setAttribute("href", "data:text/plain;charset=utf-8," + encodeURIComponent(format(newstr)));
+          download.setAttribute("download", test.snapshot + ".snap.html");
+          download.innerText = "Download snapshot";
+          tableCell3.appendChild(download);
+        }
+        done();
+      }, test.timeout || 10);
+    }
   });
   platform.survey.focusFirstQuestionAutomatic = false;
   if (test.initSurvey)
@@ -235,6 +238,12 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
           if (cell.hasQuestion) {
             cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
           }
+          if (cell.hasPanel) {
+            cell.panel.id = `${q.id}row${rowIndex}cell${cellIndex}detailPanel`;
+            cell.panel.questions.forEach((detailQuestion, i) => {
+              detailQuestion.id = `${q.id}row${rowIndex}cell${cellIndex}detailPanel_question${i}`;
+            });
+          }
         });
       });
     }
@@ -250,6 +259,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.pages.map((p: PanelModel, i: number) => {
     p.id = "testidpage" + i;
   });
+  if (test.initSurveyAfterIdSetup) {
+    test.initSurveyAfterIdSetup(platform.survey);
+  }
   platform.render(platform.survey, surveyElement);
 }
 

@@ -31,6 +31,7 @@ export class SurveyQuestionMatrixDetailButton extends ReactSurveyElement {
     return (
       <button
         type="button"
+        title={this.props.item.title}
         onClick={this.handleOnShowHideClick}
         className={this.question.getDetailPanelButtonCss(this.row)}
         aria-expanded={ariaExpanded}

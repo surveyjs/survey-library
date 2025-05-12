@@ -775,7 +775,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.push(
           new Action({
             id: "show-detail",
-            title: this.matrix.getLocalizationString("editText"),
+            title: <any>new ComputedUpdater(() => row.isDetailPanelShowing ? this.matrix.getLocalizationString("hideDetails") : this.matrix.getLocalizationString("showDetails")),
             showTitle: false,
             location: "start",
             component: "sv-matrix-detail-button",

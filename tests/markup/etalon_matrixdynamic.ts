@@ -85,6 +85,44 @@ registerMarkupTests(
       },
       removeIds: true,
       snapshot: "matrixdynamic-totals"
+    },
+    {
+      name: "Test matrixdynamic question with detail panel",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "columns": [
+              {
+                "name": "q1",
+                "html": "test",
+                "cellType": "html",
+              },
+            ],
+            "detailElements": [
+              {
+                "type": "html",
+                "html": "test",
+                "name": "detail-question",
+              },
+            ],
+            "detailPanelMode": "underRowSingle",
+            "rowCount": 2,
+          }
+        ],
+      },
+      snapshot: "matrixdynamic-detail",
+      isCorrectEvent: (options) => {
+        return options.question.name == "matrix";
+      },
+      initSurvey: (survey) => {
+        survey.getQuestionByName("matrix").visibleRows[0].showHideDetailPanelClick();
+      },
+      initSurveyAfterIdSetup: (survey) => {
+        survey.getQuestionByName("matrix").visibleRows[0].showHideDetailPanelClick();
+      }
     }
   ]
 );

@@ -30,7 +30,7 @@ import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
@@ -5295,6 +5295,9 @@ export class SurveyModel extends SurveyElementCore
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
     return SurveyElement.getProgressInfoByElements(pages, false);
+  }
+  public get progressBarAriaLabel(): string {
+    return getLocaleString("progressbar", this.getLocale());
   }
   /**
    * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.

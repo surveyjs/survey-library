@@ -4774,11 +4774,10 @@ export class SurveyModel extends SurveyElementCore
     if (this.isShowingPreview) {
       this.pages.forEach(page => {
         page.onFirstRendering();
-        page.setWasShown(true);
       });
     }
     this.pages.forEach(page => {
-      if (page.hasShown) {
+      if (page.wasRendered) {
         page.updateElementCss(true);
       }
     });

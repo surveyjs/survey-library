@@ -53,6 +53,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Specifies a property name used to store selected values.
    *
    * Set this property if you want to store selected values in an array of objects instead of an array of primitive values. For example, if you set `valuePropertyName` to `"car"`, the `value` property will contain an array of objects `[{ car: "Ford" }, { car: "Tesla" }]`, not an array of string values `[ "Ford", "Tesla" ]`.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/merge-question-values/ (linkStyle))
    */
   public get valuePropertyName(): string {
     return this.getPropertyValue("valuePropertyName");
@@ -128,10 +130,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.isAllSelected = !this.isAllSelected;
   }
   protected allElementsSelected(): boolean {
-    const noneItems = this.getNoneItems();
-    for (let i = 0; i < noneItems.length; i ++) {
-      if (this.isItemSelected(noneItems[i])) return false;
-    }
+    if (this.isNoneItemsSelected()) return false;
     const items = this.getVisibleEnableItems();
     if (items.length === 0) return false;
     const val = this.value;
@@ -145,6 +144,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       if (rVal.indexOf(items[i].value) < 0) return false;
     }
     return true;
+  }
+  private isNoneItemsSelected(): boolean {
+    const noneItems = this.getNoneItems();
+    for (let i = 0; i < noneItems.length; i ++) {
+      if (this.isItemSelected(noneItems[i])) return true;
+    }
+    return false;
   }
   /**
    * Selects all choice items, except "Other" and "None".
@@ -231,6 +237,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see minSelectedChoices
    */
   public get maxSelectedChoices(): number {
@@ -247,6 +255,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `minSelectedChoices` value.
+   *
+   * [Ranking Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see maxSelectedChoices
    */
   public get minSelectedChoices(): number {
@@ -310,7 +320,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (isOnValueChanged) return;
 
-    if (this.minSelectedChoices > 0 && this.checkMinSelectedChoicesUnreached()) {
+    if (this.checkMinSelectedChoicesUnreached()) {
       const minError = new CustomError(
         this.getLocalizationFormatString("minSelectError", this.minSelectedChoices),
         this
@@ -371,6 +381,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.minSelectedChoices < 1) return false;
     var val = this.value;
     var len = !Array.isArray(val) ? 0 : val.length;
+    if (len === 1 && this.isNoneItemsSelected()) return false;
     return len < this.minSelectedChoices;
   }
 

@@ -41,6 +41,7 @@ export class QuestionRowModel extends Base {
   private get allowRendering(): boolean {
     return !this.panel || !this.panel.survey || !(this.panel.survey as any)["isLazyRenderingSuspended"];
   }
+  private lazyRenderingTimeout: ReturnType<typeof setTimeout>;
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
     if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
@@ -61,7 +62,7 @@ export class QuestionRowModel extends Base {
           this.stopLazyRendering();
         }
       };
-      setTimeout(() => {
+      this.lazyRenderingTimeout = setTimeout(() => {
         if (
           !!this._scrollableParent &&
           !!this._scrollableParent.addEventListener
@@ -91,6 +92,7 @@ export class QuestionRowModel extends Base {
         this._updateVisibility
       );
     }
+    clearTimeout(this.lazyRenderingTimeout);
     this._scrollableParent = undefined;
     this._updateVisibility = undefined;
   }
@@ -1256,6 +1258,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * - `"left"` - Displays the title to the left of the input field.
    * - `"hidden"` - Hides the question title.
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/vertically-align-input-fields/ (linkStyle))
+   *
    * > Certain question types (Matrix, Multiple Text) do not support the `"left"` value. For them, the `"top"` value is used.
    */
   public get questionTitleLocation(): string {
@@ -1289,6 +1293,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * Sets consistent width for question titles in CSS values. Applies only when [`questionTitleLocation`](#questionTitleLocation) evaluates to `"left"`.
    *
    * Default value: `undefined`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/vertically-align-input-fields/ (linkStyle))
    */
   @property() questionTitleWidth: string;
   getQuestionTitleWidth(): string {
@@ -2048,6 +2054,8 @@ export class PanelModelBase extends SurveyElement<Question>
    * - `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the survey.
    * - `"top"` - Displays error messages above questions.
    * - `"bottom"` - Displays error messages below questions.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/ (linkStyle))
    */
   public get questionErrorLocation(): string {
     return this.getPropertyValue("questionErrorLocation");
@@ -2324,6 +2332,8 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   /**
    * Disable this property if you want to render the current panel on the same line or row with the previous question or panel.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/arrange-multiple-questions-in-single-line/ (linkStyle))
    */
   public get startWithNewLine(): boolean {
     return this.getPropertyValue("startWithNewLine");

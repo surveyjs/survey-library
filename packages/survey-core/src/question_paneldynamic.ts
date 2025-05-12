@@ -411,6 +411,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * An array of questions and panels included in a panel template.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see template
    * @see panels
    * @see panelCount
@@ -425,6 +427,8 @@ export class QuestionPanelDynamicModel extends Question
    *
    * - `{panelIndex}` - A panel index within the collection of all panels. Starts with 1.
    * - `{visiblePanelIndex}` - A panel index within the collection of visible panels. Starts with 1.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/breakable-loop/ (linkStyle))
    * @see template
    * @see templateDescription
    * @see templateElements
@@ -777,6 +781,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a panel.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see confirmDeleteText
    */
   public get confirmDelete(): boolean {
@@ -954,6 +960,8 @@ export class QuestionPanelDynamicModel extends Question
 
   /**
    * The number of panels in Dynamic Panel.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see minPanelCount
    * @see maxPanelCount
    */
@@ -1088,6 +1096,8 @@ export class QuestionPanelDynamicModel extends Question
    * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
    *
    * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/ (linkStyle))
    * @see panelCount
    * @see minPanelCount
    * @see allowAddPanel

@@ -275,6 +275,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
   /**
    * Specifies the width of the signature area. Accepts positive integer numbers.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
    */
   public get signatureWidth(): number {
     return this.getPropertyValue("signatureWidth");
@@ -358,6 +360,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    * - Hexadecimal colors (`"#FF0000"`)
    * - RGB colors (`"rgb(255,0,0)"`)
    * - Color names (`"red"`)
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see backgroundColor
    */
   public get penColor(): string {

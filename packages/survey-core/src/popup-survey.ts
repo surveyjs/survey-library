@@ -56,6 +56,8 @@ export class PopupSurveyModel extends Base {
    * Default value: 0 (the window is closed immediately)
    *
    * Set this property to a negative value (for instance, -1) to keep the pop-up window open without a time limit.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
    */
   public closeOnCompleteTimeout: number = 0;
   /**
@@ -105,6 +107,8 @@ export class PopupSurveyModel extends Base {
   }
   /**
    * Indicates whether the pop-up window is expanded or collapsed.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
    *
    * You can set this property to `true` or `false` to control the expand state of the pop-up survey. Alternatively, you can use the [`expand()`](#expand) and [`collapse()`](#collapse) methods.
    */
@@ -168,6 +172,8 @@ export class PopupSurveyModel extends Base {
    * Specifies whether to display a button that closes the pop-up window.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
    *
    * If you allow users to close the pop-up window, make sure to implement a UI element that opens it. This element should call the [`show()`](#show) method or enable the [`isShowing`](#isShowing) property.
    * @see expand

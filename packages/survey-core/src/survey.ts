@@ -200,6 +200,10 @@ export class SurveyModel extends SurveyElementCore
   public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
    * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    * @see firstPageIsStartPage
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
@@ -222,6 +226,9 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after the current page is switched.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    * @see currentPageNo
    * @see nextPage
    * @see prevPage
@@ -236,6 +243,8 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised after a question value is changed.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    *
    * To handle value changes in matrix cells or panels within a [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), use the [`onMatrixCellValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixCellValueChanged) or [`onDynamicPanelValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onDynamicPanelValueChanged) event.
    * @see setValue
@@ -351,7 +360,6 @@ export class SurveyModel extends SurveyElementCore
    * @see onServerValidateQuestions
    * @see onValidatePanel
    * @see onMatrixCellValidate
-   * @see onSettingQuestionErrors
    */
   public onValidateQuestion: EventBase<SurveyModel, ValidateQuestionEvent> = this.addEvent<SurveyModel, ValidateQuestionEvent>();
   /**
@@ -393,9 +401,11 @@ export class SurveyModel extends SurveyElementCore
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.onValidatePage;
   /**
    * An event that is raised when the survey processes HTML content. Handle this event to modify HTML content before displaying.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/add-html-form-field/ (linkStyle))
    * @see completedHtml
    * @see loadingHtml
-   * @see QuestionHtmlModel.html
+   * @see [QuestionHtmlModel.html](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html)
    */
   public onProcessHtml: EventBase<SurveyModel, ProcessHtmlEvent> = this.addEvent<SurveyModel, ProcessHtmlEvent>();
   /**
@@ -492,7 +502,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   *
+   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see uploadFiles
    * @see onDownloadFile
    * @see onClearFiles
@@ -514,7 +526,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
+   * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   *
+   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
@@ -922,6 +936,8 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * To let users add their own choice options, enable the [`allowCustomChoices`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#allowCustomChoices) property for individual dropdown questions.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dropdown-custom-choice-options/ (linkStyle))
    */
   public onCreateCustomChoiceItem: EventBase<SurveyModel, CreateCustomChoiceItemEvent> = this.addEvent<SurveyModel, CreateCustomChoiceItemEvent>();
   //#endregion
@@ -1435,6 +1451,8 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/custom-variables-for-background-form-calculations/ (linkStyle))
    */
   public get calculatedValues(): Array<CalculatedValue> {
     return this.getPropertyValue("calculatedValues");
@@ -1473,6 +1491,8 @@ export class SurveyModel extends SurveyElementCore
    * A cookie name used to save information about survey completion.
    *
    * When this property has a value, the survey creates a cookie with the specified name on completion. This cookie helps ensure that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
    * @see clientId
    */
   public get cookieName(): string {
@@ -1900,7 +1920,7 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"onNextPage"` (default) - Triggers validation before the survey is switched to the next page or completed.
-   * - `"onValueChanged"` - Triggers validation each time a question value is changed.
+   * - `"onValueChanged"` - Triggers validation each time a question value is changed. [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/)
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
    *
    * > In SurveyJS Form Library v1.12.5 and earlier, the `"onValueChanged"` mode doesn't work with date input fields because of the way browsers process date values. In most browsers, the value is considered changed as soon as a user starts entering the date in a text input field. This means that a user may only enter the day without having the chance to enter the month and year before validation is triggered. For this reason, date input fields are validated before the survey is switched to the next page or completed. Starting with v1.12.6, `"onValueChanged"` works for date input fields as well as for input fields of other types.
@@ -1992,6 +2012,8 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"onBlur"` (default) - Updates the value after the input field loses focus.
    * - `"onTyping"` - Updates the value on every key press.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    *
    * > Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are reevaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
    *
@@ -2562,7 +2584,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
+   * HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-prevent-duplicate-form-submissions/ (linkStyle))
    * @see processedCompletedBeforeHtml
    */
   public get completedBeforeHtml(): string {
@@ -2598,8 +2622,7 @@ export class SurveyModel extends SurveyElementCore
     return this.navigationBarValue;
   }
   /**
-   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons.
-   * Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
+   * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons. Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
@@ -2621,6 +2644,8 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Gets or sets a caption for the Start button.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see firstPageIsStartPage
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
@@ -2993,6 +3018,8 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
    * @see progressBarShowPageNumbers
    * @see progressBarInheritWidthFrom
    */
@@ -3005,6 +3032,8 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/configure-form-navigation-with-progress-indicators/ (linkStyle))
    * @see progressBarShowPageTitles
    * @see progressBarInheritWidthFrom
    */
@@ -3155,7 +3184,9 @@ export class SurveyModel extends SurveyElementCore
    * }
    * ```
    *
-   * When you set this property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
+   * [View Demo](https://surveyjs.io/form-library/examples/auto-populate-form-fields/ (linkStyle))
+   *
+   * When you set the `data` property in code, the new object overrides the old object that may contain default question values and entered data. If you want to *merge* the new and old objects, call the [`mergeData(newDataObj)`](https://surveyjs.io/form-library/documentation/surveymodel#mergeData) method.
    *
    * If you assign a new object while a respondent takes the survey, set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to 0 to start the survey from the beginning. This will also cause the survey to re-evaluate the [`visibleIf`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIf), [`enableIf`](https://surveyjs.io/form-library/documentation/api-reference/question#enableIf), and other [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
    * @see setValue
@@ -4593,7 +4624,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"singlePage"` - Combines all survey pages into a single page.
    * - `"questionPerPage"` - Displays each question on a separate page.
-   * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page.
+   * - `"inputPerPage"` - Displays each input field on a separate page. Complex questions&mdash;such as [Single-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model)&mdash;are split so that each input field appears on its own page. [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/)
    * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
@@ -4779,6 +4810,9 @@ export class SurveyModel extends SurveyElementCore
       if (!!options && !this.currentPageChangingFromOptions(options)) return;
       this.currentSingleElementValue = val;
       if (!!val) {
+        if (this.isSingleVisibleInput && val.isQuestion) {
+          (<Question>val).onSetAsSingleInput();
+        }
         page.updateRows();
         if (page !== this.currentPage) {
           this.currentPage = page;
@@ -5243,7 +5277,7 @@ export class SurveyModel extends SurveyElementCore
     return !!html ? this.processHtml(html, "completed") : "";
   }
   /**
-   * Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
+   * Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName).
    *
    * To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
    */
@@ -6109,7 +6143,11 @@ export class SurveyModel extends SurveyElementCore
     includeDesignTime: boolean = false,
     includeNested: boolean = false
   ): Array<Question> {
-    if (includeNested) includeDesignTime = false;
+    if (includeNested) {
+      includeDesignTime = false;
+      const pages = visibleOnly ? this.visiblePages : this.pages;
+      pages.forEach(page => page.onFirstRendering());
+    }
     var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(
@@ -6967,6 +7005,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Sets a question value (answer).
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz/ (linkStyle))
+   *
    * > This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`autoAdvanceEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#autoAdvanceEnabled) property is enabled and all questions on the current page have correct answers.
    * @param name A question name.
    * @param newValue A new question value.
@@ -7582,6 +7622,8 @@ export class SurveyModel extends SurveyElementCore
    * Default value: `false`
    *
    * If you set this property to `true`, the timer starts automatically when the survey begins. To specify time limits, use the [`timeLimit`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimit) and [`timeLimitPerPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeLimitPerPage) properties.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    *
    * The timer displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`timerInfoMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timerInfoMode) property to `"page"` or `"survey"`.
    *

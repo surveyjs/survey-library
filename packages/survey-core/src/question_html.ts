@@ -33,7 +33,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
   /**
    * HTML markup to display.
    *
-   * > IMPORTANT: If you get the markup from a third party, ensure that it does not contain malicious code.
+   * [View Demo](https://surveyjs.io/form-library/examples/add-html-form-field/ (linkStyle))
+   *
+   * > If you get the markup from a third party, ensure that it does not contain malicious code.
    */
   public get html(): string {
     return this.getLocalizableStringText("html", "");

@@ -45,10 +45,11 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     return attachKey2click(
       <li
         className={className}
-        role="option"
+        role={this.model.listItemRole}
         style={style as any}
         id={this.item.elementId}
-        aria-selected={this.model.isItemSelected(this.item)}
+        aria-selected={this.model.getA11yItemAriaSelected(this.item)}
+        aria-checked={this.model.getA11yItemAriaChecked(this.item)}
         onClick={(event: any) => {
           this.model.onItemClick(this.item);
           event.stopPropagation();

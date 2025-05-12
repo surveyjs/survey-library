@@ -23,6 +23,7 @@ const props = defineProps<{
   survey: SurveyModel;
 }>();
 const root = ref<HTMLElement>();
+let lazyRenderingTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 useBase(
   () => props.row,
   (newValue, oldValue) => {
@@ -33,13 +34,13 @@ useBase(
   },
   (value) => {
     if (!isBaseElementSubsribed(value)) {
+      clearTimeout(lazyRenderingTimeout)
       value.setRootElement(undefined);
       value.stopLazyRendering();
       value.isNeedRender = !value.isLazyRendering();
     }
   }
 );
-
 onMounted(() => {
   if (props.row) {
     props.row.setRootElement(root.value);

@@ -782,6 +782,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public onSurveyLoad(): void { }
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
+  protected resetWasRendered(): void {
+    this.wasRenderedValue = false;
+  }
   public onFirstRendering(): void {
     if (!this.wasRendered) {
       this.wasRenderedValue = true;

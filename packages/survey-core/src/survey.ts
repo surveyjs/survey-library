@@ -3556,7 +3556,6 @@ export class SurveyModel extends SurveyElementCore
       this.firstPageIsStartPage && this.pages.length > 1 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
-      page.setWasShown(true);
     }
     return page;
   }
@@ -3594,7 +3593,6 @@ export class SurveyModel extends SurveyElementCore
     if (!!newPage) {
       newPage.onFirstRendering();
       newPage.updateCustomWidgets();
-      newPage.setWasShown(true);
     }
     this.locStrsChanged();
     if (!this.isShowingPreview) {

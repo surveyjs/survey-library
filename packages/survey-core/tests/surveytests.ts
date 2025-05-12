@@ -7734,7 +7734,7 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
   var p2 = survey.getPanelByName("p2");
   var p3 = survey.getPanelByName("p3");
   var page = survey.pages[0];
-  page.setWasShown(true);
+  page.onFirstRendering();
   assert.equal(page.elements[0].name, "p3");
   assert.equal(page.elements[3].name, "q1");
   assert.equal(p1.elements[0].name, "p1q2");
@@ -7750,7 +7750,7 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
   p1 = survey.getPanelByName("p1");
   p2 = survey.getPanelByName("p2");
   p3 = survey.getPanelByName("p3");
-  page.setWasShown(true);
+  page.onFirstRendering();
   assert.equal(page.elements[0].name, "q1");
   assert.equal(page.elements[3].name, "p3");
   assert.equal(p1.elements[0].name, "p1q1");

@@ -18,7 +18,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
  */
 export class PageModel extends PanelModel implements IPage {
-  private hasShownValue: boolean = false;
   public isPageContainer: boolean;
 
   constructor(name: string = "") {
@@ -277,15 +276,19 @@ export class PageModel extends PanelModel implements IPage {
    * Returns `true` if the respondent has already seen this page during the current session.
    */
   public get wasShown(): boolean {
-    return this.hasShownValue;
+    return this.wasRendered;
   }
   get hasShown(): boolean {
-    return this.wasShown;
+    return this.wasRendered;
   }
   public setWasShown(val: boolean): void {
-    if (val == this.hasShownValue) return;
-    this.hasShownValue = val;
-    if (this.isDesignMode || val !== true) return;
+    if (!val) {
+      this.resetWasRendered();
+    }
+  }
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
+    if (this.isDesignMode) return;
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
       if (els[i].isPanel) {

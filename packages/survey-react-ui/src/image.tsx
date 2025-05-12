@@ -35,10 +35,9 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
         <img
           className={cssClasses}
           src={this.question.locImageLink.renderedHtml || null}
-          alt={this.question.altText || this.question.title}
+          alt={this.question.renderedAltText}
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
-          //alt={item.text || item.value}
           style={style}
           onLoad={(event: any) => { this.question.onLoadHandler(); }}
           onError={(event: any) => { this.question.onErrorHandler(); }}
@@ -66,6 +65,7 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
           width={this.question.renderedWidth}
           height={this.question.renderedHeight}
           style={style}
+          title={this.question.renderedAltText}
         ></iframe>
       );
     }

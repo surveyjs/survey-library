@@ -344,6 +344,13 @@ export class QuestionTextModel extends QuestionTextBase {
     this.value = value;
   }
 
+  protected convertToCorrectValue(val: any): any {
+    if (val !== undefined && val !== null && typeof val !== "string" && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
+      return this.maskInstance.getMaskedValue(val);
+    }
+    return super.convertToCorrectValue(val);
+  }
+
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.updateInputValue();
@@ -354,11 +361,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {
-      if (!_value) {
-        this._inputValue = this.maskInstance.getMaskedValue("");
-      } else {
-        this.inputValue = _value;
-      }
+      this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);
     }

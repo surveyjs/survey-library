@@ -388,6 +388,16 @@ QUnit.test("getRenderedValue", (assert) => {
   assert.deepEqual(renderedValue[0], 125);
 });
 
+QUnit.test("getRenderedValue: sliderType = 'single'", (assert) => {
+  const q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.value = [40];
+  const renderedValue = q1.getRenderedValue();
+  assert.equal(renderedValue[0], 40);
+  renderedValue[0] = 100;
+  assert.equal(q1.value, 40);
+});
+
 QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
   let json:any = {
     elements: [

@@ -144,7 +144,7 @@ export class QuestionSliderModel extends Question {
         this.isIndeterminate = true;
         return this.isNegativeScale ? [Math.min(max, 0)] : [min];
       } else {
-        return [result];
+        return Array.isArray(result) ? result.slice() : [result];
       }
     }
 

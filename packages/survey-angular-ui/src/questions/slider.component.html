@@ -44,10 +44,8 @@
       <div *ngFor="let value of labelCountArray; index as i; trackBy: trackByLabelCount;"  [class]="model.getLabelCss(i)"
       [style]="{ left: model.getLabelPosition(i) + '%' }"
       (pointerup)="model.handleLabelPointerUp($any($event), i)">
-        <ng-container *ngIf="model.showEdgeLabels || (i !== 0 && i !== model.labelCount - 1)">
-          <div [class]="model.cssClasses.labelTick"></div>
-          <div [class]="model.cssClasses.labelText">{{model.getLabelText(i)}}</div>
-        </ng-container>
+        <div [class]="model.cssClasses.labelTick"></div>
+        <div [class]="model.cssClasses.labelText">{{model.getLabelText(i)}}</div>
       </div>
     </div>
   </div>

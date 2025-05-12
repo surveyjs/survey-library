@@ -47,12 +47,10 @@
             <div v-for="(value, i) in question.labelCount" :key="i" :class="question.getLabelCss(i)"
             :style="{ left: question.getLabelPosition(i) + '%' }"
             @pointerup="(e)=>{question.handleLabelPointerUp(e, i)}">
-              <template v-if="question.showEdgeLabels || (i !== 0 && i !== question.labelCount - 1)">
                 <div :class="question.cssClasses.labelTick"></div>
                 <div :class="question.cssClasses.labelText">
                   {{question.getLabelText(i)}}
                 </div>
-              </template>
             </div>
           </div>
         </div>

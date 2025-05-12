@@ -44,7 +44,6 @@ export class QuestionSliderModel extends Question {
   }
   @property({ defaultValue: null }) segmentCount: number | null;
   @property({ defaultValue: true }) showLabels: boolean;
-  @property({ defaultValue: true }) showEdgeLabels: boolean;
   public get labelCount(): number {
     if (this.customLabels.length > 0) return this.customLabels.length;
     if (this.tickSize) {
@@ -709,10 +708,6 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.sliderType === "range";
       },
-    },
-    {
-      name: "showEdgeLabels:boolean",
-      default: true
     },
     {
       name: "labelCount:number",

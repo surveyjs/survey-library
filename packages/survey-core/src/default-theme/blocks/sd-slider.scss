@@ -587,6 +587,19 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 }
 
 .sd-slider--design-mode {
+  .sd-slider__input,
+  .sd-slider-container,
+  .sd-slider__thumb-container,
+  .sd-slider__label {
+    cursor: default;
+  }
+  input[type="range"].sd-slider__input::-webkit-slider-thumb {
+    cursor: default;
+  }
+  input[type="range"].sd-slider__input::-moz-range-thumb {
+    cursor: default;
+  }
+
   .sd-slider__input {
     &:hover {
       & + .sd-slider__thumb-container {

@@ -166,6 +166,11 @@
 .sd-input--disabled,
 .sd-input--readonly,
 .sd-input--preview {
+  * {
+    width: 100%;
+    display: block;
+  }
+
   .sv-string-viewer {
     max-width: 100%;
     overflow: hidden;

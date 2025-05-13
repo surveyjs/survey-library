@@ -24,6 +24,7 @@ export * from "./etalon_signaturepad";
 export * from "./etalon_expression";
 export * from "./etalon_layout";
 export * from "./etalon_buttongroup";
+export * from "./etalon_slider";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

@@ -49,6 +49,7 @@
 @use "blocks/sd-expression.scss";
 @use "blocks/sd-progress.scss";
 @use "blocks/sd-boolean.scss";
+@use "blocks/sd-slider.scss";
 @use "blocks/sd-paneldynamic.scss";
 @use "blocks/sd-file.scss";
 @use "blocks/sd-hidden.scss";
@@ -157,6 +158,7 @@ body {
     box-shadow: $shadow-medium, $shadow-small;
   }
 }
+
 .sv-components-container-right,
 .sv-components-container-left {
   width: fit-content;

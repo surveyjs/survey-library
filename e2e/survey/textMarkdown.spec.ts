@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
-const title = "Test survey width";
+const title = "Test text markdown";
 
 const json = {
   elements: [
@@ -65,11 +65,15 @@ frameworks.forEach((framework) => {
       const questionDropdownSelect = page.locator(".sd-dropdown");
 
       await questionDropdownSelect.click();
+      await page.waitForTimeout(500);
       await page.locator(".markdownclass", { hasText: "*choice 3*" }).click();
+      await page.waitForTimeout(500);
       await expect(questionValueText).toHaveText("*choice 3*");
 
       await questionDropdownSelect.click();
+      await page.waitForTimeout(500);
       await page.locator(".markdownclass", { hasText: "*choice 2*" }).click();
+      await page.waitForTimeout(500);
       await page.locator("input[value=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);

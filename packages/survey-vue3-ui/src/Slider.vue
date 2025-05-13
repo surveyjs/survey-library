@@ -2,7 +2,7 @@
     <div :class="question.rootCss" ref="rootRef">
         <input v-if="question.sliderType !== 'single' && question.allowDragRange" ref="rangeInputRef"
         name="range-input" :class="question.cssClasses.input" type="range" tabIndex="-1" 
-        :min="question.min" :max="question.max" :step="question.step"
+        :min="question.min" :max="question.max" :step="question.step" aria-hidden="true"
         @input="(e)=>{question.handleRangeOnChange(e as InputEvent)}"
         @pointerdown="(e)=>{question.handleRangePointerDown(e, rootRef as HTMLElement)}"
         @pointerup="(e)=>{question.handleRangePointerUp(e, rootRef as HTMLElement)}" />
@@ -23,6 +23,12 @@
                 @keyup="(e)=>{question.handleKeyUp(e)}"
                 @focus="()=>{question.handleOnFocus(i)}"
                 @blur="()=>{question.handleOnBlur()}"
+                :aria-required="question.a11y_input_ariaRequired"
+                :aria-label="question.a11y_input_ariaLabel"
+                :aria-labelledby="question.a11y_input_ariaLabelledBy"
+                :aria-describedby="question.a11y_input_ariaDescribedBy"
+                :aria-invalid="question.a11y_input_ariaInvalid"
+                :aria-errormessage="question.a11y_input_ariaErrormessage"
               />
               <div :class="question.getThumbContainerCss(i)" :style="{ left: question.getPercent(value) + '%' }">
                 <div v-if="question.tooltipVisibility !== 'never'" :class="question.tooltipCss">

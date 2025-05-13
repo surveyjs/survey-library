@@ -104,13 +104,19 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
       onKeyDown={ (e)=>{ handleKeyDown(e.nativeEvent); } } onKeyUp={ (e)=>{ handleKeyUp(e.nativeEvent); } }
       onFocus={ ()=>{ handleOnFocus(i); } } onBlur={ ()=>{ handleOnBlur(); } }
       disabled={isDisabledAttr}
+      aria-required={this.question.a11y_input_ariaRequired}
+      aria-label={this.question.a11y_input_ariaLabel}
+      aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+      aria-describedby={this.question.a11y_input_ariaDescribedBy}
+      aria-invalid={this.question.a11y_input_ariaInvalid}
+      aria-errormessage={this.question.a11y_input_ariaErrormessage}
     />;
     return input;
   }
 
   private getRangeInput() {
     const { renderedMax: max, renderedMin: min, step, cssClasses, handleRangeOnChange, handleRangePointerDown, handleRangePointerUp } = this.question;
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range"
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" aria-hidden="true"
       min={min} max={max} step={step} tabIndex={-1} onChange={(e)=>{ handleRangeOnChange(e.nativeEvent as InputEvent); }}
       onPointerDown={ (e)=>{ e.persist(); handleRangePointerDown(e.nativeEvent, this.control); } }
       onPointerUp={(e)=>{ handleRangePointerUp(e.nativeEvent, this.control); }} />;

@@ -2,7 +2,7 @@
 <div [class]="model.rootCss" #contentElement>
   <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
   name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
-  [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step"
+  [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" aria-hidden="true"
   (input)="model.handleRangeOnChange($any($event))"
   (pointerdown)="model.handleRangePointerDown($any($event), rootRef)"
   (pointerup)="model.handleRangePointerUp($any($event), rangeInputRef)" />
@@ -23,6 +23,12 @@
           (keyup)="model.handleKeyUp($any($event))"
           (focus)="model.handleOnFocus(i)"
           (blur)="model.handleOnBlur()"
+          [attr.aria-required]="model.a11y_input_ariaRequired"
+          [attr.aria-label]="model.a11y_input_ariaLabel"
+          [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+          [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+          [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+          [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
         />
         <div [class]="model.getThumbContainerCss(i)" [style]="{ left: model.getPercent(value) + '%' }">
           <div *ngIf="model.tooltipVisibility !== 'never'" [class]="model.tooltipCss">

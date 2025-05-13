@@ -269,11 +269,12 @@
   margin-left: calc(var(--sjs-postcss-fix-slider-thumb-width) / -2);
 }
 
-.sd-slider__label--long {
-  // transform: rotate(-40deg);
-  // white-space: break-spaces;
-  // top: -30px;
-  // max-width: 80px;
+.sd-slider__label--long:first-child {
+  align-items: flex-start;
+}
+
+.sd-slider__label--long:last-child {
+  align-items: flex-end;
 }
 
 .sd-slider__label-tick {

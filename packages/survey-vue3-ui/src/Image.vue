@@ -51,6 +51,7 @@
       v-if="question.renderedMode === 'youtube'"
       :class="question.getImageCss()"
       :src="imageLink"
+      :title="question.renderedAltText"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
       :style="{

@@ -75,3 +75,24 @@ registerMarkupTest(
     snapshot: "image-not-load-content"
   }
 );
+
+registerMarkupTest(
+  {
+    name: "Test Image question markup with iframe",
+    json: {
+      questions: [
+        {
+          "type": "image",
+          "imageLink": "testurl",
+          "imageHeight": 450,
+          "imageWidth": 800
+        }
+      ]
+    },
+    initSurvey: survey => {
+      const question = survey.getAllQuestions()[0];
+      question.setPropertyValue("renderedMode", "youtube");
+    },
+    snapshot: "image-youtube"
+  }
+);

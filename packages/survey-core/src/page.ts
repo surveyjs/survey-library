@@ -304,7 +304,7 @@ export class PageModel extends PanelModel implements IPage {
    */
   public scrollToTop() {
     if (!!this.survey) {
-      this.survey.scrollElementToTop(this, null, this, this.id, true, { block: "start" });
+      this.survey.scrollElementToTop(this, null, this, this.id, false, { block: "start" });
     }
   }
   /**

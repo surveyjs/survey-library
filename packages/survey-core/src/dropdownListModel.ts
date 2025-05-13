@@ -547,6 +547,31 @@ export class DropdownListModel extends Base {
   public get inputMode(): "none" | "text" {
     return IsTouch ? "none" : "text";
   }
+  public get popupEnabled(): boolean {
+    return !this.question.isInputReadOnly;
+  }
+
+  public get ariaQuestionRole(): string { return this.filterStringEnabled ? undefined : "combobox"; }
+  public get ariaQuestionRequired(): "true" | "false" { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaRequired; }
+  public get ariaQuestionInvalid(): "true" | "false" { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaInvalid; }
+  public get ariaQuestionErrorMessage(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaErrormessage; }
+  public get ariaQuestionLabel(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabel; }
+  public get ariaQuestionLabelledby(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabelledBy; }
+  public get ariaQuestionDescribedby(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaDescribedBy; }
+  public get ariaQuestionControls(): string { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.listElementId; }
+  public get ariaQuestionExpanded(): "true" | "false" { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.question.ariaExpanded; }
+  public get ariaQuestionActivedescendant(): string { return this.filterStringEnabled ? undefined : this.ariaActivedescendant; }
+
+  public get ariaInputRequired(): "true" | "false" { return this.filterStringEnabled ? this.question.a11y_input_ariaRequired : undefined; }
+  public get ariaInputInvalid(): "true" | "false" { return this.filterStringEnabled ? this.question.a11y_input_ariaInvalid : undefined; }
+  public get ariaInputErrorMessage(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaErrormessage : undefined; }
+  public get ariaInputRole(): string { return this.filterStringEnabled ? "combobox" : undefined; }
+  public get ariaInputLabel(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaLabel : undefined; }
+  public get ariaInputLabelledby(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaLabelledBy : undefined; }
+  public get ariaInputDescribedby(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaDescribedBy : undefined; }
+  public get ariaInputControls(): string { return this.filterStringEnabled && this.popupEnabled ? this.listElementId : undefined; }
+  public get ariaInputExpanded(): "true" | "false" { return this.filterStringEnabled && this.popupEnabled ? this.question.ariaExpanded : undefined; }
+  public get ariaInputActivedescendant(): string { return this.filterStringEnabled ? this.ariaActivedescendant : undefined; }
 
   public setSearchEnabled(newValue: boolean): void {
     this.listModel.setSearchEnabled(IsTouch && (newValue || this.question.allowCustomChoices));

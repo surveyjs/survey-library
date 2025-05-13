@@ -135,7 +135,7 @@
 
 .sd-slider__thumb-container--indeterminate {
   .sd-slider__thumb-dot {
-    background: var(--lbr-slider-thumb-dot-color-undefined, $background);
+    background: var(--lbr-slider-thumb-dot-color-undefined, transparent);
   }
 }
 

@@ -646,3 +646,10 @@ QUnit.test("tooltipVisibility", (assert) => {
 
   assert.deepEqual(q1.tooltipVisibility, "auto", "auto by default");
 });
+
+QUnit.test("incorrect value shoudn't lead to js error", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "range";
+  q1.value = 10;
+  assert.deepEqual(q1.getRenderedValue(), [0, 100]);
+});

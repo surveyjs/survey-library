@@ -148,7 +148,7 @@ export class QuestionSliderModel extends Question {
       }
     }
 
-    result = this.value.slice();
+    result = Array.isArray(this.value) ? this.value.slice() : [];
 
     if (result.length === 0) {
       const fullRange = max - min;

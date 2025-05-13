@@ -1520,6 +1520,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!rows) {
       rows.forEach(row => row.updateElementVisibility());
     }
+    this.updateShowTableAndAddRow();
   }
   protected shouldRunColumnExpression(): boolean {
     return false;

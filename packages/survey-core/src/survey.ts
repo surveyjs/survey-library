@@ -4551,8 +4551,13 @@ export class SurveyModel extends SurveyElementCore
     if(!this.currentPage && this.visiblePageCount > 0) {
       this.currentPage = this.visiblePages[0];
     }
+    if (this.isShowingPreview) {
+      this.pages.forEach(page => {
+        page.onFirstRendering();
+      });
+    }
     this.pages.forEach(page => {
-      if(page.hasShown) {
+      if (page.wasRendered) {
         page.updateElementCss(true);
       }
     });

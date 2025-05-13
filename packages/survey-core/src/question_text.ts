@@ -14,9 +14,15 @@ import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
 
 /**
- * A class that describes the Single-Line Input question type.
+ * A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
+ * [Text Entry Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
+ *
+ * [Date-Time Entry Demo](https://surveyjs.io/form-library/examples/datetime-entry-question/ (linkStyle))
+ *
+ * [Numeric Entry Demo](https://surveyjs.io/form-library/examples/numeric-entry-question/ (linkStyle))
+ *
+ * [Color Input Demo](https://surveyjs.io/form-library/examples/color-input-question/ (linkStyle))
  */
 export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
@@ -157,6 +163,14 @@ export class QuestionTextModel extends QuestionTextBase {
    * A value passed on to the [`type`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#input_types) attribute of the underlying `<input>` element.
    *
    * Default value: `"text"`
+   *
+   * [Text Entry Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
+   *
+   * [Date-Time Entry Demo](https://surveyjs.io/form-library/examples/datetime-entry-question/ (linkStyle))
+   *
+   * [Numeric Entry Demo](https://surveyjs.io/form-library/examples/numeric-entry-question/ (linkStyle))
+   *
+   * [Color Input Demo](https://surveyjs.io/form-library/examples/color-input-question/ (linkStyle))
    */
   public get inputType(): string {
     return this.getPropertyValue("inputType");
@@ -360,6 +374,13 @@ export class QuestionTextModel extends QuestionTextBase {
     this.value = value;
   }
 
+  protected convertToCorrectValue(val: any): any {
+    if (val !== undefined && val !== null && typeof val !== "string" && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
+      return this.maskInstance.getMaskedValue(val);
+    }
+    return super.convertToCorrectValue(val);
+  }
+
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.updateInputValue();
@@ -370,11 +391,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {
-      if (!_value) {
-        this._inputValue = this.maskInstance.getMaskedValue("");
-      } else {
-        this.inputValue = _value;
-      }
+      this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);
     }

@@ -489,6 +489,8 @@ export class Question extends SurveyElement<Question>
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
    * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/implement-conditional-logic-to-change-question-visibility/ (linkStyle))
    * @see visible
    * @see isVisible
    */
@@ -727,6 +729,7 @@ export class Question extends SurveyElement<Question>
     }
     const questions = this.getSingleInputQuestions();
     if (Array.isArray(questions) && questions.length > 0) {
+      questions[0].onFirstRendering();
       return questions[0];
     }
     return undefined;
@@ -820,7 +823,9 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    const ssQ = this.survey?.currentSingleQuestion;
+    const sv = this.survey;
+    if (!sv || !sv.isSingleVisibleInput) return false;
+    const ssQ = sv.currentSingleQuestion;
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
   protected singleInputOnAddItem(isOnDataChanging: boolean): void {
@@ -848,6 +853,13 @@ export class Question extends SurveyElement<Question>
       this.setSingleInputQuestion(q);
     } else {
       this.resetSingleInput();
+    }
+  }
+  public onSetAsSingleInput(): void {
+    if (this.singleInputSummary) {
+      this.resetSingleInputSummary();
+      this.resetPropertyValue("singleInputQuestion");
+      this.resetPropertyValue("singleInputLocTitle");
     }
   }
   public nextSingleInput(): boolean {
@@ -987,7 +999,7 @@ export class Question extends SurveyElement<Question>
   protected getSingleInputQuestionsForDynamic(question?: Question): Array<Question> {
     const res = new Array<Question>();
     if (question) {
-      this.setPropertyValue("singleInputQuestion", question);
+      this.setSingleInputQuestionCore(question);
     }
     const q = this.getPropertyValue("singleInputQuestion");
     if (!!q && q !== this) {
@@ -999,9 +1011,13 @@ export class Question extends SurveyElement<Question>
   protected getSingleInputAddTextCore(): string { return undefined; }
   protected singleInputAddItemCore(): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
+  private setSingleInputQuestionCore(question: Question): void {
+    question.onFirstRendering();
+    this.setPropertyValue("singleInputQuestion", question);
+  }
   protected setSingleInputQuestion(question: Question): void {
     if (this.singleInputQuestion !== question) {
-      this.setPropertyValue("singleInputQuestion", question);
+      this.setSingleInputQuestionCore(question);
       this.onSingleInputChanged();
     }
   }
@@ -1389,6 +1405,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Disable this property if you want to render the current question on the same line or row with the previous question or panel.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/arrange-multiple-questions-in-single-line/ (linkStyle))
    */
   public get startWithNewLine(): boolean {
     return this.getPropertyValue("startWithNewLine");
@@ -1754,7 +1772,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("requiredIf", val);
   }
   /**
-   * Specifies whether to display a comment area. Incompatible with the `showOtherItem` property.
+   * Specifies whether to display a comment area.
    * @see comment
    * @see commentText
    * @see showOtherItem
@@ -2136,6 +2154,8 @@ export class Question extends SurveyElement<Question>
    * - While the survey is being loaded from JSON.
    * - The question is just added to the survey and does not yet have an answer.
    * - The respondent left the answer empty.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically (linkStyle))
    * @see defaultValueExpression
    */
   public get defaultValue(): any {
@@ -2150,9 +2170,9 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   /**
-   * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
+   * An expression used to calculate the [`defaultValue`](https://surveyjs.io/form-library/documentation/question#defaultValue).
    *
-   * This expression applies until the question [value](https://surveyjs.io/form-library/documentation/question#value) is specified by an end user or programmatically.
+   * This expression applies until the question [`value`](https://surveyjs.io/form-library/documentation/question#value) is specified by an end user or programmatically.
    *
    * An expression can reference other questions as follows:
    *
@@ -2271,6 +2291,8 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see SurveyModel.getCorrectAnswerCount
    * @see SurveyModel.getIncorrectAnswerCount
    */
@@ -2327,10 +2349,9 @@ export class Question extends SurveyElement<Question>
   }
   protected getAnswerCorrectIgnoreOrder(): boolean { return false; }
   /**
-  * Returns `true` if a question answer matches the `correctAnswer` property value.
+  * Returns `true` if a question answer matches the [`correctAnswer`](#correctAnswer) property value.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/create-a-scored-quiz (linkStyle))
-  * @see correctAnswer
   * @see SurveyModel.getQuizQuestions
   */
   public isAnswerCorrect(): boolean {

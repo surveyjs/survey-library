@@ -12,7 +12,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
   constructor(cdr: ChangeDetectorRef, vcr: ViewContainerRef, private ngZone: NgZone) {
     super(cdr, vcr);
   }
-
+  private lazyRenderingTimeout?: ReturnType<typeof setTimeout>;
   protected getModel(): QuestionRowModel {
     return this.row;
   }
@@ -25,7 +25,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
       this.row.setRootElement(el);
       if (!this.row.isNeedRender) {
         this.ngZone.runOutsideAngular(() => {
-          setTimeout(() => {
+          this.lazyRenderingTimeout = setTimeout(() => {
             this.row.startLazyRendering(el);
           }, 10);
         });
@@ -46,6 +46,7 @@ export class RowComponent extends BaseAngular<QuestionRowModel> implements After
     }
   }
   private stopLazyRendering() {
+    clearTimeout(this.lazyRenderingTimeout);
     this.row.stopLazyRendering();
     this.row.isNeedRender = !this.row.isLazyRendering();
   }

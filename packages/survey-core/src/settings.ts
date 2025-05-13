@@ -655,6 +655,8 @@ export var settings = {
    *
    * Default value: `{ survey: "h3", page: "h4", panel: "h4", question: "h5" }`
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/change-heading-levels/ (linkStyle))
+   *
    * If you want to modify HTML tags for individual titles, handle `SurveyModel`'s [`onGetTitleTagName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetTitleTagName) event.
    */
   titleTags: {

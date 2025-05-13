@@ -76,7 +76,7 @@ registerMarkupTests(
           const item = createDropdownActionModel(
             { title: "bottom", showTitle: true },
             {
-              verticalPosition: "bottom", horizontalPosition: "center", items: items,
+              verticalPosition: "bottom", horizontalPosition: "center", items: items, allowSelection: true,
               onSelectionChanged: (item, ...params) => { }
             });
           opt.titleActions = [item];

@@ -27,6 +27,8 @@ export class QuestionTextBase extends Question {
    * The maximum text length measured in characters. Assign 0 if the length should be unlimited.
    *
    * Default value: -1 (inherits the actual value from the `SurveyModel`'s [`maxTextLength`](https://surveyjs.io/form-library/documentation/surveymodel#maxTextLength) property).
+   *
+   * [Long Text Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
    */
   public get maxLength(): number {
     return this.getPropertyValue("maxLength");
@@ -45,6 +47,8 @@ export class QuestionTextBase extends Question {
 
   /**
    * A placeholder for the input field.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/text-entry-question/ (linkStyle))
    */
   @property({ localizable: true, onSet: (val, target) => target.resetRenderedPlaceholder() })
   public placeholder: string;

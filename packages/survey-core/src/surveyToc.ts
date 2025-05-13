@@ -7,6 +7,7 @@ import { PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { SurveyModel } from "./survey";
+import { getLocaleString } from "./surveyStrings";
 
 export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase): boolean {
   if (survey.isDesignMode) return true;
@@ -34,6 +35,9 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void): 
     items: items,
     searchEnabled: false,
     locOwner: survey,
+    listRole: "menu",
+    listItemRole: "menuitemradio",
+    listAriaLabel: getLocaleString("toc", survey.getLocale())
   };
   var listModel = new ListModel(listOptions as any);
   listModel.allowSelection = false;

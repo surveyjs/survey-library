@@ -16,6 +16,9 @@ export class SurveyProgress extends SurveyNavigationBase {
   protected get progressText(): string {
     return this.survey.progressText;
   }
+  protected get progressBarAriaLabel(): string {
+    return this.survey.progressBarAriaLabel;
+  }
   render(): React.JSX.Element {
     var progressStyle = {
       width: this.progress + "%",
@@ -28,7 +31,7 @@ export class SurveyProgress extends SurveyNavigationBase {
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label="progress"
+          aria-label={this.progressBarAriaLabel}
         >
           <span
             className={SurveyProgressModel.getProgressTextInBarCss(this.css)}

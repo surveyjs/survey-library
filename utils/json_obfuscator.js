@@ -1,4 +1,4 @@
-const Survey = require("../build/survey-core/survey.core");
+const Survey = require("../packages/survey-core/build/survey.core");
 
 // eslint-disable-next-line no-undef
 const fs = require("fs");

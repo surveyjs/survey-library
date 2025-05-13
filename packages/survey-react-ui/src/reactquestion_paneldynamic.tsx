@@ -78,6 +78,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
           className={this.question.cssClasses.progressBar}
           style={{ width: this.question.progress }}
           role="progressbar"
+          aria-label={this.question.progressBarAriaLabel}
         />
       </div>
     );

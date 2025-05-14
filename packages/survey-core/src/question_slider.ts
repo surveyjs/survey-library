@@ -62,10 +62,7 @@ export class QuestionSliderModel extends Question {
     this.setPropertyValue("customLabels", val);
   }
   public get generatedLabels(): ItemValue[] {
-    return this.getPropertyValue("generatedLabels");
-  }
-  public set generatedLabels(val: ItemValue[]) {
-    this.setPropertyValue("generatedLabels", val);
+    return this.getPropertyValue("generatedLabels", undefined, () => this.calcGeneratedLabels());
   }
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
@@ -84,7 +81,6 @@ export class QuestionSliderModel extends Question {
     this.createItemValues("generatedLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
-    this.calcGeneratedLabels();
   }
 
   public getType(): string {
@@ -605,11 +601,11 @@ export class QuestionSliderModel extends Question {
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
-          this.setPropertyValue("customLabels", this.generatedLabels.slice());
+          this.setPropertyValue("customLabels", this.calcGeneratedLabels());
         }
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
-          this.calcGeneratedLabels();
+          this.resetPropertyValue("generatedLabels");
         }
       });
   }
@@ -642,12 +638,12 @@ export class QuestionSliderModel extends Question {
   private oldInputValue: number | null = null;
   private oldValue;
 
-  private calcGeneratedLabels() : void {
+  private calcGeneratedLabels() : Array<ItemValue> {
     const labels:ItemValue[] = [];
     for (let i = 0; i < this.labelCount; i++) {
       labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
     }
-    this.setPropertyValue("generatedLabels", labels);
+    return labels;
   }
 }
 

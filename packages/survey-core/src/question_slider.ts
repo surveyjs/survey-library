@@ -54,8 +54,13 @@ export class QuestionSliderModel extends Question {
   public set labelCount(val: number) {
     this.setPropertyValue("labelCount", val);
   }
-  //@property({ defaultValue: true }) autoGenerate: boolean;
-  @propertyArray({ }) customLabels: ItemValue[];
+  @property({ defaultValue: true }) autoGenerate: boolean;
+  public get customLabels(): ItemValue[] {
+    return this.getPropertyValue("customLabels");
+  }
+  public set customLabels(val: ItemValue[]) {
+    this.setPropertyValue("customLabels", val);
+  }
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   @property({ defaultValue: true }) allowSwap: boolean;
@@ -539,12 +544,12 @@ export class QuestionSliderModel extends Question {
     }
   };
 
-  // public endLoadingFromJson() {
-  //   super.endLoadingFromJson();
-  //   if (this.jsonObj.customLabels !== undefined) {
-  //     this.autoGenerate = false;
-  //   }
-  // }
+  public endLoadingFromJson() {
+    super.endLoadingFromJson();
+    if (this.jsonObj.customLabels !== undefined) {
+      this.autoGenerate = false;
+    }
+  }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     super.runConditionCore(values, properties);
@@ -583,6 +588,19 @@ export class QuestionSliderModel extends Question {
       () => {
         if (this.step) {
           this.segmentCount = (this.renderedMax - this.renderedMin) / this.step;
+        }
+      });
+    this.registerSychProperties(["autoGenerate"],
+      () => {
+        if (!this.autoGenerate && this.customLabels.length === 0) {
+          const labels = [];
+          for (let i = 0; i < this.labelCount; i++) { // TODO move to property renderedLabels and use in framework too
+            labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
+          }
+          this.setPropertyValue("customLabels", labels);
+        }
+        if (this.autoGenerate) {
+          this.customLabels.splice(0, this.customLabels.length);
         }
       });
   }
@@ -624,13 +642,12 @@ Serializer.addClass(
       default: "single",
       choices: ["range", "single"],
     },
-    // {
-    //   name: "autoGenerate",
-    //   category: "sliderSettings",
-    //   default: true,
-    //   visibleIndex: 2,
-    //   choices: [true, false]
-    // },
+    {
+      name: "autoGenerate",
+      default: true,
+      isSerializable: false,
+      choices: [true, false]
+    },
     {
       name: "min:number",
       default: 0,
@@ -674,9 +691,9 @@ Serializer.addClass(
     },
     {
       name: "customLabels:itemvalue[]",
-      // visibleIf: function (obj: any) {
-      //   return !obj.autoGenerate;
-      // },
+      visibleIf: function (obj: any) {
+        return !obj.autoGenerate;
+      },
     },
     {
       name: "showLabels:boolean",
@@ -719,9 +736,9 @@ Serializer.addClass(
     {
       name: "labelCount:number",
       default: 6,
-      // visibleIf: function (obj: any) {
-      //   return obj.autoGenerate;
-      // },
+      visibleIf: function (obj: any) {
+        return obj.autoGenerate;
+      },
     },
     {
       name: "allowClear:boolean",

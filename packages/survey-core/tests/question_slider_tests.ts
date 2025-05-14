@@ -1,3 +1,4 @@
+import { ItemValue } from "../src/itemvalue";
 import { QuestionSliderModel } from "../src/question_slider";
 import { SurveyModel } from "../src/survey";
 
@@ -652,4 +653,14 @@ QUnit.test("incorrect value shoudn't lead to js error", (assert) => {
   q1.sliderType = "range";
   q1.value = 10;
   assert.deepEqual(q1.getRenderedValue(), [0, 100]);
+});
+
+QUnit.test("getLabelPosition", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  assert.equal(q1.labelCount, 6);
+  assert.deepEqual(q1.getLabelPosition(0), 0);
+  assert.deepEqual(q1.getLabelPosition(1), 20);
+  q1.customLabels = [new ItemValue(50, "middle")];
+  assert.equal(q1.labelCount, 1);
+  assert.deepEqual(q1.getLabelPosition(0), 50);
 });

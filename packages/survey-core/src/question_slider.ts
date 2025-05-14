@@ -526,10 +526,17 @@ export class QuestionSliderModel extends Question {
   };
 
   public getLabelPosition = (labelNumber: number):number => {
-    const { max, min, labelCount } = this;
-    const fullRange = max - min;
-    const labelStep = labelNumber * fullRange / (labelCount - 1);
-    return labelStep / fullRange * 100;
+    const { max, min, labelCount, customLabels } = this;
+    let count = labelCount;
+    if (customLabels.length > 0) {
+      return customLabels[labelNumber].value;
+    } else {
+      count = labelCount - 1;
+      if (count === 0) return 0;
+      const fullRange = max - min;
+      const labelStep = labelNumber * fullRange / count;
+      return labelStep / fullRange * 100;
+    }
   };
 
   // public endLoadingFromJson() {

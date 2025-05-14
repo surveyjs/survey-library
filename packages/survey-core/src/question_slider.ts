@@ -61,6 +61,12 @@ export class QuestionSliderModel extends Question {
   public set customLabels(val: ItemValue[]) {
     this.setPropertyValue("customLabels", val);
   }
+  public get generatedLabels(): ItemValue[] {
+    return this.getPropertyValue("generatedLabels");
+  }
+  public set generatedLabels(val: ItemValue[]) {
+    this.setPropertyValue("generatedLabels", val);
+  }
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   @property({ defaultValue: true }) allowSwap: boolean;
@@ -75,8 +81,10 @@ export class QuestionSliderModel extends Question {
     super(name);
     this.createNewArray("value");
     this.createItemValues("customLabels");
+    this.createItemValues("generatedLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
+    this.calcGeneratedLabels();
   }
 
   public getType(): string {
@@ -129,6 +137,10 @@ export class QuestionSliderModel extends Question {
 
   public get renderedMinRangeLength(): number {
     return this.minRangeLength ?? this.step;
+  }
+
+  public get renderedLabels(): Array<ItemValue> {
+    return this.autoGenerate ? this.generatedLabels : this.customLabels;
   }
 
   public isIndeterminate = false;
@@ -593,14 +605,11 @@ export class QuestionSliderModel extends Question {
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
-          const labels = [];
-          for (let i = 0; i < this.labelCount; i++) { // TODO move to property renderedLabels and use in framework too
-            labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
-          }
-          this.setPropertyValue("customLabels", labels);
+          this.setPropertyValue("customLabels", this.generatedLabels.slice());
         }
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
+          this.calcGeneratedLabels();
         }
       });
   }
@@ -632,6 +641,14 @@ export class QuestionSliderModel extends Question {
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
   private oldValue;
+
+  private calcGeneratedLabels() : void {
+    const labels:ItemValue[] = [];
+    for (let i = 0; i < this.labelCount; i++) {
+      labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
+    }
+    this.setPropertyValue("generatedLabels", labels);
+  }
 }
 
 Serializer.addClass(

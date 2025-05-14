@@ -124,17 +124,16 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getLabels() {
     const labels = [];
-    const {
-      labelCount, cssClasses, handleLabelPointerUp,
-      getLabelCss, getLabelText, getLabelPosition
-    } = this.question;
+    const { renderedLabels, cssClasses, handleLabelPointerUp, getLabelCss } = this.question;
 
-    for (let i = 0; i < labelCount; i++) {
+    for (let i = 0; i < renderedLabels.length; i++) {
+      const value = renderedLabels[i].value;
+      const text = renderedLabels[i].text;
       const label = <div key={i} className={getLabelCss(i)}
-        style={{ left: getLabelPosition(i) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
+        style={{ left: value + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
         <div className={cssClasses.labelTick}></div>
         <div className={cssClasses.labelText}>
-          {getLabelText(i)}
+          {text}
         </div>
       </div>;
 

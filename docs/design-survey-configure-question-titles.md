@@ -47,6 +47,8 @@ const surveyJson = {
 }
 ```
 
+[View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
+
 When enabled, question numbering starts with 1. If you want to start numbering with a different number or use letters instead, specify the Survey's [`questionStartIndex`](https://surveyjs.io/Documentation/Library/?id=surveymodel#questionStartIndex) property. You can include desired prefixes and postfixes in the property value:
 
 ```js
@@ -58,6 +60,8 @@ const surveyJson = {
 }
 ```
 
+[View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
+
 ## Required Mark
 
 Questions that require an answer are marked with an asterisk `*`. You can use the Survey's [`requiredMark`](https://surveyjs.io/Documentation/Library?id=surveymodel#requiredMark) property to set another symbol or specify an explanatory text string:
@@ -68,6 +72,8 @@ const surveyJson = {
   "requiredMark": "!"
 }
 ```
+
+[View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
 
 ## Title Pattern
 
@@ -82,4 +88,4 @@ const surveyJson = {
 }
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))

@@ -400,6 +400,8 @@ Serializer.addProperty("survey", {
 });
 ```
 
+[View Demo](https://surveyjs.io/survey-creator/examples/configure-property-dependencies/ (linkStyle))
+
 ### `isRequired`
 
 A Boolean value that specifies whether the property must have a value. Defaults to `false`. You can add an exclamation mark before `name` as a shortcut for this setting:

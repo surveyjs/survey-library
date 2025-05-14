@@ -100,9 +100,8 @@ ComponentCollection.Instance.add({
 });
 ```
 
-## Further Reading
+## Demos
 
-- [Create Composite Question Types](/form-library/documentation/customize-question-types/create-composite-question-types)
-- [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
-- [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
-- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)
+[Country Dropdown](https://surveyjs.io/survey-creator/examples/javascript-country-select-dropdown-list-template/ (linkStyle))
+
+[Order Table](https://surveyjs.io/survey-creator/examples/order-form-template/ (linkStyle))

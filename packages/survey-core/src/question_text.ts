@@ -124,6 +124,7 @@ export class QuestionTextModel extends QuestionTextBase {
     const inputMask = Serializer.createClass(maskClassName);
     inputMask.onPropertyChanged.add((_, options) => {
       this.onNestedPropertyChanged.fire(this, { name: "maskSettings", newValue: options.newValue, nestedName: options.name });
+      this.updateInputValue();
     });
     inputMask.owner = this;
     return inputMask;

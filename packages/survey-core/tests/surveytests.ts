@@ -15476,6 +15476,44 @@ QUnit.test("Skip trigger test and navigate back", function (assert) {
   survey.prevPage();
   assert.equal(survey.currentPage.name, "page2", "We returned to second page");
 });
+QUnit.test("Skip trigger test and navigate back & questionPerPage, Bug#9886", function (assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "text",
+        name: "q2",
+      },
+      {
+        type: "text",
+        name: "q3",
+      },
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{q1} = 'item2'",
+        gotoName: "q3",
+      },
+    ],
+  });
+  survey.getQuestionByName("q1").value = "item2";
+  assert.equal(survey.currentSingleQuestion.name, "q3", "We moved to another page");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "We returned to first page skipping second");
+  survey.getQuestionByName("q1").value = "item1";
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "We moved to second page");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "We moved to third page");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "We returned to second page");
+});
 
 QUnit.test("Two skip triggers test", function (assert) {
   var focusedQuestions: Array<string> = [];

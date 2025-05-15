@@ -153,7 +153,7 @@ function trunc(params: any[]): any {
     const num = arr[0];
     const precision = arr[1] || -1;
     if (Helpers.isNumber(num) && Helpers.isNumber(precision)) {
-      const regexp = new RegExp("^-?\\d+(?:\.\\d{0," + precision + "})?");
+      const regexp = new RegExp("^-?\\d+(?:.\\d{0," + precision + "})?");
       return Number(num.toString().match(regexp)[0]);
     }
   }

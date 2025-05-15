@@ -319,7 +319,70 @@ QUnit.test("Run min/max functions with zeros, Bug #2229", function(assert) {
   values = { var1: 0, var2: -3 };
   assert.equal(runner.run(values), 0, "0, -3, max is 0");
 });
-
+QUnit.test("Run round() function without precision", function(assert) {
+  const runner = new ExpressionRunner("round({num})");
+  var values = { num: 0.5 };
+  assert.equal(runner.run(values), 1, "0.5 is rounded to 1");
+  values = { num: -0.5 };
+  assert.equal(runner.run(values), -1, "-0.5 is rounded to -1");
+  (<any>values).num = "0.5";
+  assert.deepEqual(runner.run(values), 1, "A string value \"0.5\" is rounded to a numeric value 1");
+  (<any>values).num = "-0.5";
+  assert.deepEqual(runner.run(values), -1, "A string value \"-0.5\" is rounded to a numeric value -1");
+  (<any>values).num = undefined;
+  assert.deepEqual(runner.run(values), NaN, "The value passed to the round() function is not a number");
+});
+QUnit.test("Run round() function with precision", function(assert) {
+  const runner = new ExpressionRunner("round({num}, {precision})");
+  var values = { num: 1.005, precision: 2 };
+  assert.equal(runner.run(values), 1.01, "1.005 is rounded to 1.01");
+  values = { num: 2.175, precision: 2 };
+  assert.equal(runner.run(values), 2.18, "2.175 is rounded to 2.18");
+  values = { num: 5.015, precision: 2 };
+  assert.equal(runner.run(values), 5.02, "5.015 is rounded to 5.02");
+  values = { num: 1, precision: 2 };
+  assert.equal(runner.run(values), 1, "1 is rounded to 1 with precision of 2");
+  values = { num: -1.005, precision: 2 };
+  assert.equal(runner.run(values), -1.01, "-1.005 is rounded to -1.01");
+  values = { num: -2.175, precision: 2 };
+  assert.equal(runner.run(values), -2.18, "-2.175 is rounded to -2.18");
+  values = { num: -5.015, precision: 2 };
+  assert.equal(runner.run(values), -5.02, "-5.015 is rounded to -5.02");
+  values = { num: -1, precision: 2 };
+  assert.equal(runner.run(values), -1, "-1 is rounded to -1 with precision of 2");
+  (<any>values).precision = "test";
+  assert.deepEqual(runner.run(values), NaN, "The precision value passed to the round() function is not a number");
+});
+QUnit.test("Run trunc() function without precision", function(assert) {
+  const runner = new ExpressionRunner("trunc({num})");
+  var values = { num: 1.5 };
+  assert.equal(runner.run(values), 1, "1.5 is truncated to 1");
+  values = { num: -1.5 };
+  assert.equal(runner.run(values), -1, "-1.5 is truncated to -1");
+  values = { num: -0.5 };
+  assert.equal(runner.run(values), 0, "-0.5 is truncated to 0");
+  (<any>values).num = "-0.5";
+  assert.deepEqual(runner.run(values), 0, "A string value \"-0.5\" is truncated to a numeric value 0");
+  (<any>values).num = undefined;
+  assert.deepEqual(runner.run(values), NaN, "The value passed to the trunc() function is not a number");
+});
+QUnit.test("Run trunc() function with precision", function(assert) {
+  const runner = new ExpressionRunner("trunc({num}, {precision})");
+  var values = { num: 1.005, precision: 2 };
+  assert.equal(runner.run(values), 1, "1.005 is truncated to 1 with precision of 2");
+  values = { num: 2.175, precision: 1 };
+  assert.equal(runner.run(values), 2.1, "2.175 is truncated to 2.1 with precision of 1");
+  values = { num: 5.015, precision: 2 };
+  assert.equal(runner.run(values), 5.01, "5.015 is truncated to 5.01 with precision of 2");
+  values = { num: -1.005, precision: 2 };
+  assert.equal(runner.run(values), -1, "-1.005 is truncated to -1 with precision of 2");
+  values = { num: -2.175, precision: 1 };
+  assert.equal(runner.run(values), -2.1, "-2.175 is truncated to -2.1 with precision of 1");
+  values = { num: -5.015, precision: 2 };
+  assert.equal(runner.run(values), -5.01, "-5.015 is truncated to -5.01 with precision of 2");
+  (<any>values).precision = "test";
+  assert.deepEqual(runner.run(values), NaN, "The precision value passed to the truncated() function is not a number");
+});
 QUnit.test("Run age function", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var values = { bithday: new Date(1974, 1, 1) };

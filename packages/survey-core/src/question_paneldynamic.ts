@@ -2088,6 +2088,7 @@ export class QuestionPanelDynamicModel extends Question
       cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
     this.isValueChangingInternally = true;
+    let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
       const panel = panels[i];
       var panelValues = this.getPanelItemData(panel.data);
@@ -2096,9 +2097,13 @@ export class QuestionPanelDynamicModel extends Question
       const panelName = QuestionPanelDynamicItem.ItemVariableName;
       newValues[panelName] = panelValues;
       newValues[QuestionPanelDynamicItem.IndexVariableName.toLowerCase()] = i;
+      newValues[QuestionPanelDynamicItem.VisibleIndexVariableName.toLowerCase()] = visibleIndex;
       const newProps = Helpers.createCopy(properties);
       newProps[panelName] = panel;
       panel.runCondition(newValues, newProps);
+      if (panel.isVisible) {
+        visibleIndex++;
+      }
     }
     this.isValueChangingInternally = false;
   }

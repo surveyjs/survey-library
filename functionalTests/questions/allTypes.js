@@ -182,7 +182,7 @@ frameworks.forEach(framework => {
     await t
       .click(Selector("span").withText("dropdown_question")
         .parent(".sd-question")
-        .find("div[role='combobox']"))
+        .find("*[role='combobox']"))
       .click(getListItemByText("item1"));
 
     await t.typeText(
@@ -253,7 +253,7 @@ frameworks.forEach(framework => {
       .parent(".sd-question")
       .find("tr").withText("Row 1");
     await t
-      .click(matrixDropdownRow.find("div[aria-label='row Row 1, column Column 1']"))
+      .click(matrixDropdownRow.find("*[aria-label='row Row 1, column Column 1']"))
       .click(getListItemByText("1"));
     await t.click(
       Selector("span").withText("matrixdynamic_question")

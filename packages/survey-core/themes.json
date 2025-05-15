@@ -621,6 +621,14 @@
         "type": "color"
       }
     },
+    "special": {
+      "red": {
+        "category": "color",
+        "exportKey": "color",
+        "value": "rgba(156, 2, 39, 1)",
+        "type": "color"
+      }
+    },
     "shadow": {
       "small": {
         "category": "effect",

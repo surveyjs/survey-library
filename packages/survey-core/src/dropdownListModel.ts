@@ -551,16 +551,16 @@ export class DropdownListModel extends Base {
     return !this.question.isInputReadOnly;
   }
 
-  public get ariaQuestionRole(): string { return this.filterStringEnabled ? undefined : "combobox"; }
-  public get ariaQuestionRequired(): "true" | "false" { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaRequired; }
-  public get ariaQuestionInvalid(): "true" | "false" { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaInvalid; }
-  public get ariaQuestionErrorMessage(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaErrormessage; }
-  public get ariaQuestionLabel(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabel; }
-  public get ariaQuestionLabelledby(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabelledBy; }
-  public get ariaQuestionDescribedby(): string { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaDescribedBy; }
-  public get ariaQuestionControls(): string { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.listElementId; }
-  public get ariaQuestionExpanded(): "true" | "false" { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.question.ariaExpanded; }
-  public get ariaQuestionActivedescendant(): string { return this.filterStringEnabled ? undefined : this.ariaActivedescendant; }
+  public get ariaQuestionRole(): string | undefined { return this.filterStringEnabled ? undefined : "combobox"; }
+  public get ariaQuestionRequired(): "true" | "false" | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaRequired; }
+  public get ariaQuestionInvalid(): "true" | "false" | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaInvalid; }
+  public get ariaQuestionErrorMessage(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaErrormessage; }
+  public get ariaQuestionLabel(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabel; }
+  public get ariaQuestionLabelledby(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabelledBy; }
+  public get ariaQuestionDescribedby(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaDescribedBy; }
+  public get ariaQuestionControls(): string | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.listElementId; }
+  public get ariaQuestionExpanded(): "true" | "false" | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.question.ariaExpanded; }
+  public get ariaQuestionActivedescendant(): string | undefined { return this.filterStringEnabled ? undefined : this.ariaActivedescendant; }
 
   public get ariaInputRequired(): "true" | "false" { return this.filterStringEnabled ? this.question.a11y_input_ariaRequired : undefined; }
   public get ariaInputInvalid(): "true" | "false" { return this.filterStringEnabled ? this.question.a11y_input_ariaInvalid : undefined; }

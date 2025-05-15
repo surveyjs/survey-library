@@ -103,6 +103,7 @@ export class QuestionDropdown extends Question {
   public async click(): Promise<void> {
     await this.scrollIntoViewIfNeeded();
     const loc = this.question.locator(".sd-input.sd-dropdown");
+    await loc.focus();
     await loc.click();
   }
   public async selectItemByText(val: string): Promise<void> {
@@ -188,7 +189,7 @@ export class QuestionMatrixDropdownBase extends Question {
   public async getCellQuestionLocator(rowVal: string|number, colVal: string): Promise<Locator> {
     await this.scrollIntoViewIfNeeded();
     const label = "row " + rowVal.toString() + ", column " + colVal;
-    const div = this.page.locator("div[aria-label='" + label + "']");
+    const div = this.page.locator("*[aria-label='" + label + "']");
     const cellQuestion = this.question.locator(".sd-table__question-wrapper").filter({ has: div });
     const row = this.question.locator("tr").filter({ has: div });
     row.scrollIntoViewIfNeeded();

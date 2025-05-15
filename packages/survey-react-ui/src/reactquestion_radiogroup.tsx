@@ -171,6 +171,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
+  private get ariaLabel(): string {
+    return this.props.ariaLabel;
+  }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (!this.question) return false;
@@ -226,6 +229,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(this.item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
+            aria-label={this.ariaLabel || null}
           />
           {
             this.cssClasses.materialDecorator ?

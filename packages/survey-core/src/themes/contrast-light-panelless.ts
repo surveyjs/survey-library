@@ -33,7 +33,7 @@ export default {
     "--sjs-border-light": "rgba(0, 0, 0, 0.2)",
     "--sjs-border-default": "rgba(0, 0, 0, 1)",
     "--sjs-border-inside": "rgba(0, 0, 0, 0.16)",
-    "--sjs-special-red": "rgba(229, 10, 62, 1)",
+    "--sjs-special-red": "rgba(156, 2, 39, 1)",
     "--sjs-special-red-light": "rgba(229, 10, 62, 0.1)",
     "--sjs-special-red-forecolor": "rgba(255, 255, 255, 1)",
     "--sjs-special-green": "rgba(25, 179, 148, 1)",

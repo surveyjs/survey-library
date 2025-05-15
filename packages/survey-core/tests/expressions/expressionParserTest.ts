@@ -352,7 +352,36 @@ QUnit.test("Run round() function with precision", function(assert) {
   assert.equal(runner.run(values), -1, "-1 is rounded to -1 with precision of 2");
   (<any>values).precision = "test";
   assert.deepEqual(runner.run(values), NaN, "The precision value passed to the round() function is not a number");
-
+});
+QUnit.test("Run trunc() function without precision", function(assert) {
+  const runner = new ExpressionRunner("trunc({num})");
+  var values = { num: 1.5 };
+  assert.equal(runner.run(values), 1, "1.5 is truncated to 1");
+  values = { num: -1.5 };
+  assert.equal(runner.run(values), -1, "-1.5 is truncated to -1");
+  values = { num: -0.5 };
+  assert.equal(runner.run(values), 0, "-0.5 is truncated to 0");
+  (<any>values).num = "-0.5";
+  assert.deepEqual(runner.run(values), 0, "A string value \"-0.5\" is truncated to a numeric value 0");
+  (<any>values).num = undefined;
+  assert.deepEqual(runner.run(values), NaN, "The value passed to the trunc() function is not a number");
+});
+QUnit.test("Run trunc() function with precision", function(assert) {
+  const runner = new ExpressionRunner("trunc({num}, {precision})");
+  var values = { num: 1.005, precision: 2 };
+  assert.equal(runner.run(values), 1, "1.005 is truncated to 1 with precision of 2");
+  values = { num: 2.175, precision: 1 };
+  assert.equal(runner.run(values), 2.1, "2.175 is truncated to 2.1 with precision of 1");
+  values = { num: 5.015, precision: 2 };
+  assert.equal(runner.run(values), 5.01, "5.015 is truncated to 5.01 with precision of 2");
+  values = { num: -1.005, precision: 2 };
+  assert.equal(runner.run(values), -1, "-1.005 is truncated to -1 with precision of 2");
+  values = { num: -2.175, precision: 1 };
+  assert.equal(runner.run(values), -2.1, "-2.175 is truncated to -2.1 with precision of 1");
+  values = { num: -5.015, precision: 2 };
+  assert.equal(runner.run(values), -5.01, "-5.015 is truncated to -5.01 with precision of 2");
+  (<any>values).precision = "test";
+  assert.deepEqual(runner.run(values), NaN, "The precision value passed to the truncated() function is not a number");
 });
 QUnit.test("Run age function", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");

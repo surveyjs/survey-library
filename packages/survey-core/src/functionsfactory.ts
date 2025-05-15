@@ -146,6 +146,21 @@ function round(params: any[]): any {
 }
 FunctionFactory.Instance.register("round", round);
 
+function trunc(params: any[]): any {
+  var arr: any[] = [];
+  getParamsAsArray(params, arr);
+  if (arr.length > 0) {
+    const num = arr[0];
+    const precision = arr[1] || -1;
+    if (Helpers.isNumber(num) && Helpers.isNumber(precision)) {
+      const regexp = new RegExp("^-?\\d+(?:\.\\d{0," + precision + "})?");
+      return Number(num.toString().match(regexp)[0]);
+    }
+  }
+  return NaN;
+}
+FunctionFactory.Instance.register("trunc", trunc);
+
 function getInArrayParams(params: any[], originalParams: any[]): any {
   if (params.length < 2 || params.length > 3) return null;
   const arr = params[0];

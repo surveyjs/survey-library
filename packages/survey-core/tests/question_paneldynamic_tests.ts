@@ -6414,6 +6414,23 @@ QUnit.test("templateVisibleIf & renderMode: tab, tabbedMenu&templateTabTitle in 
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
   assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
 });
+QUnit.test("Using visiblePanelIndex in the expression in panel dynamic,Bug#9874", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "expression", name: "q1", expression: "{visiblePanelIndex}" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 3
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.panels[0].getQuestionByName("q1").value, 0, "visiblePanelIndex is 0");
+  assert.equal(panel.panels[1].getQuestionByName("q1").value, 1, "visiblePanelIndex is 1");
+  assert.equal(panel.panels[2].getQuestionByName("q1").value, 2, "visiblePanelIndex is 2");
+});
 QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceholder in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [

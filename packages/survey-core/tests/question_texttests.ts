@@ -596,5 +596,8 @@ QUnit.test("Support mask in displayValue, #9268", function (assert) {
   assert.equal(q1.getDisplayValue(false, 1234), "1 234", "getDisplayValue with value #1");
 
   q1.maskSettings.saveMaskedValue = true;
+  q1.value = "1 234 567,3";
   assert.equal(q1.getDisplayValue(false, 1234), "1 234", "getDisplayValue with value #2");
+  assert.equal(q1.value, "1 234 567,3", "Have the same value");
+  assert.equal(q1.inputValue, "1 234 567,3", "Have the same input value");
 });

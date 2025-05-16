@@ -11,6 +11,7 @@
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
+        :aria-label="ariaLabel"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"
@@ -40,6 +41,7 @@ const props = defineProps<{
   question: QuestionRadiogroupModel;
   item: ItemValue;
   hideLabel?: boolean;
+  ariaLabel?: string;
 }>();
 const getLabelClass = (item: any) => {
   return props.question.getLabelClass(item);

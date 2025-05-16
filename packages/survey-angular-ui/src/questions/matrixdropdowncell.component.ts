@@ -100,4 +100,7 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   public get canRender() {
     return this.question && this.question.survey && this.cell.isVisible;
   }
+  public get ariaLabel() {
+    return this.question.getCellAriaLabel(this.cell.row.locText.renderedHtml, this.cell.column.locTitle.renderedHtml);
+  }
 }

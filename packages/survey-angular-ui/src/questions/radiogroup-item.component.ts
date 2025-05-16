@@ -7,6 +7,7 @@ import { Component, Input } from "@angular/core";
 export class RadiogroupItemComponent {
   @Input() question: any;
   @Input() model: any;
+  @Input() ariaLabel?: string;
   constructor() {
   }
 }

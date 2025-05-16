@@ -66,7 +66,13 @@ export class QuestionSliderModel extends Question {
   }
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
-  @property({ defaultValue: true }) allowSwap: boolean;
+  public get allowSwap(): boolean {
+    if (this.minRangeLength) return false;
+    return this.getPropertyValue("allowSwap", true);
+  }
+  public set allowSwap(val: boolean) {
+    this.setPropertyValue("allowSwap", val);
+  }
   /**
    * Specifies whether to display a button that clears the question value.
    *
@@ -219,7 +225,7 @@ export class QuestionSliderModel extends Question {
     return (Math.abs(value - min) / fullRange) * 100;
   };
 
-  public ensureMaxRangeBorders = (newValue:number, inputNumber):number => {
+  public ensureMaxRangeBorders = (newValue:number, inputNumber:number):number => {
     const { renderedMaxRangeLength, getRenderedValue } = this;
     const value:number[] = getRenderedValue();
     const oldValue = value[inputNumber];
@@ -238,7 +244,7 @@ export class QuestionSliderModel extends Question {
     return isOutOfRange ? oldValue : newValue;
   };
 
-  public ensureMinRangeBorders = (newValue:number, inputNumber):number => {
+  public ensureMinRangeBorders = (newValue:number, inputNumber:number):number => {
     const { renderedMinRangeLength, getRenderedValue, allowSwap, renderedMin: min, renderedMax: max } = this;
     const value:number[] = getRenderedValue();
     const oldValue = value[inputNumber];
@@ -371,7 +377,7 @@ export class QuestionSliderModel extends Question {
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "absolute");
   };
 
-  public setSliderValue = (newValue) => {
+  public setSliderValue = (newValue: number | number[]) => {
     if (!this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle) {
       if (this.sliderType === "single") {
         this.value = Array.isArray(newValue) ? newValue[0] : newValue;
@@ -494,7 +500,7 @@ export class QuestionSliderModel extends Question {
     if (allowSwap) {
       for (let i = 0; i < renderedValue.length - 1; i++) {
         if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
-          renderedValue = this.oldValue;
+          renderedValue = <number[]>this.oldValue;
           break;
         }
       }
@@ -664,7 +670,7 @@ export class QuestionSliderModel extends Question {
 
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
-  private oldValue;
+  private oldValue: number | number[];
 
   private calcGeneratedLabels() : Array<ItemValue> {
     const labels:ItemValue[] = [];

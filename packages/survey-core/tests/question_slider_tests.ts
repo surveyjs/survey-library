@@ -724,3 +724,11 @@ QUnit.test("sliderType='single' but defaultValue is array", (assert) => {
   assert.equal(q1.getRenderedValue(), 50, "rendered value is ok");
   assert.equal(q1.value, 50, "value is ok");
 });
+
+QUnit.test("disable allowSwap when minRangeLength is set", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "range";
+  assert.equal(q1.allowSwap, true, "default");
+  q1.minRangeLength = 20;
+  assert.equal(q1.allowSwap, false, "disabled due to minRangeLength");
+});

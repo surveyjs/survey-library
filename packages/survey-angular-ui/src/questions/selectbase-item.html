@@ -6,7 +6,7 @@
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
       <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" [class]="question.getLabelClass(model)"
-        [model]="model" [question]="question" sv-ng-radiogroup-item>
+        [model]="model" [question]="question" sv-ng-radiogroup-item [ariaLabel]="ariaLabel">
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
     </ng-container>

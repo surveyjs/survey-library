@@ -69,6 +69,7 @@
           :question="cell.question"
           :item="cell.item"
           :hideLabel="true"
+          :ariaLabel= "cell.question.parentQuestion.getCellAriaLabel(cell.row.locText.renderedHtml, cell.column.locTitle.renderedHtml)"
         ></SvComponent>
         <SvComponent
           :is="'survey-checkbox-item'"

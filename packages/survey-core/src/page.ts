@@ -11,6 +11,7 @@ import {
 import { PanelModelBase, PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { settings } from "./settings";
 
 /**
  * The `PageModel` object describes a survey page and contains properties and methods that allow you to control the page and access its elements (panels and questions).
@@ -92,6 +93,9 @@ export class PageModel extends PanelModel implements IPage {
   protected setTitleValue(val: string): void {
     super.setTitleValue(val);
     this.navigationLocStrChanged();
+  }
+  protected getDefaultTitleTagName(): string {
+    return settings.titleTags.page;
   }
   /**
    * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar), [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"pages"`, and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarShowPageTitles) is `true`.

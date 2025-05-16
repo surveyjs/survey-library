@@ -1460,7 +1460,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public get isRenderModeList(): boolean {
-    return this.displayMode === "list";
+    return this.displayMode === "list" || this.isSingleInputActive;
   }
   public get isRenderModeTab(): boolean {
     return this.displayMode === "tab" && !this.isSingleInputActive;

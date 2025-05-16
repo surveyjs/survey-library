@@ -78,9 +78,6 @@ export class QuestionSliderModel extends Question {
     super(name);
     if (!this.isDesignMode) {
       this.createItemValues("customLabels");
-      this.createItemValues("generatedLabels");
-      this.createItemValues("renderedLabels");
-      this.setPropertyValue("generatedLabels", this.calcGeneratedLabels()); // TODO with Andrew
     }
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
@@ -139,7 +136,9 @@ export class QuestionSliderModel extends Question {
   }
 
   public get renderedLabels(): Array<ItemValue> {
-    return this.autoGenerate ? this.generatedLabels : this.customLabels;
+    const glabels = this.generatedLabels;
+    const clabels = this.customLabels;
+    return this.autoGenerate ? glabels : clabels;
   }
 
   public isIndeterminate = false;
@@ -570,7 +569,6 @@ export class QuestionSliderModel extends Question {
     if (!this.isDesignMode && this.sliderType === "range") {
       this.createNewArray("value");
     }
-    this.setPropertyValue("generatedLabels", this.calcGeneratedLabels()); // TODO with Andrew
   }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
@@ -614,6 +612,11 @@ export class QuestionSliderModel extends Question {
         }
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["step"],
+      () => {
+        this.resetPropertyValue("generatedLabels");
+      }
+    );
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
@@ -622,7 +625,6 @@ export class QuestionSliderModel extends Question {
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
           this.resetPropertyValue("generatedLabels");
-          this.setPropertyValue("generatedLabels", this.calcGeneratedLabels()); // TODO with Andrew
         }
       }
     );
@@ -650,6 +652,14 @@ export class QuestionSliderModel extends Question {
       actions.push(clearAction);
     }
     return actions;
+  }
+
+  protected setDefaultValue() {
+    super.setDefaultValue();
+    const val = this.defaultValue;
+    if (this.sliderType === "single" && Array.isArray(val)) {
+      this.setSliderValue(val);
+    }
   }
 
   private isRangeMoving = false;

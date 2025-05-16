@@ -402,6 +402,7 @@ QUnit.test("ensureMinRangeBorders", (assert) => {
 
 QUnit.test("ensureMinRangeBorders - allowSwap:false", (assert) => {
   const q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "range";
   q1.allowSwap = false;
   q1.value = [10, 20, 30];
 
@@ -472,8 +473,8 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
   renderedValue = q1.getRenderedValue();
   assert.deepEqual(renderedValue, [-80, -60]);
 
-  q1.min = 0;
   q1.max = 100;
+  q1.min = 0;
   q1.maxRangeLength = 20;
   renderedValue = q1.getRenderedValue();
   assert.deepEqual(renderedValue, [40, 60]);
@@ -537,8 +538,8 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   assert.deepEqual(q1.getTrackPercentRight(), 0);
 
   q1.sliderType = "range";
-  q1.min = 0;
   q1.max = 100;
+  q1.min = 0;
   q1.value = [20, 80];
   assert.deepEqual(q1.getTrackPercentLeft(), 20);
   assert.deepEqual(q1.getTrackPercentRight(), 20);
@@ -567,8 +568,8 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   assert.deepEqual(q1.getTrackPercentLeft(), 25);
   assert.deepEqual(q1.getTrackPercentRight(), 25);
 
-  q1.min = -110;
   q1.max = -10;
+  q1.min = -110;
   q1.value = [-85, -35];
   assert.deepEqual(q1.getTrackPercentLeft(), 25);
   assert.deepEqual(q1.getTrackPercentRight(), 25);
@@ -720,5 +721,6 @@ QUnit.test("sliderType='single' but defaultValue is array", (assert) => {
   let q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
   q1.defaultValue = [50, 60];
-  assert.equal(q1.value, 50);
+  assert.equal(q1.getRenderedValue(), 50, "rendered value is ok");
+  assert.equal(q1.value, 50, "value is ok");
 });

@@ -136,9 +136,9 @@ export class QuestionSliderModel extends Question {
   }
 
   public get renderedLabels(): Array<ItemValue> {
-    const glabels = this.generatedLabels;
-    const clabels = this.customLabels;
-    return this.autoGenerate ? glabels : clabels;
+    const generatedLabels = this.generatedLabels; // need this const due to observability reasons
+    const customLabels = this.customLabels; // need this const due to observability reasons
+    return this.autoGenerate ? generatedLabels : customLabels;
   }
 
   public isIndeterminate = false;

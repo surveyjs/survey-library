@@ -3691,6 +3691,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
+    this.skippedPages = [];
     this.completedByTriggers = undefined;
     if (clearData) {
       this.setDataCore(null, true);
@@ -3987,13 +3988,7 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   public performPrevious(): boolean {
-    const q = this.currentSingleElement;
-    if(!q) return this.prevPage();
-    const questions = this.getSingleElements();
-    const index = questions.indexOf(q);
-    if(index === 0) return false;
-    this.currentSingleElement = questions[index - 1];
-    return true;
+    return this.prevPage();
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.canGoTroughValidation()) return false;
@@ -4298,22 +4293,45 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public prevPage(): boolean {
-    if(this.currentSingleElement) return this.performPrevious();
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
+    const curElement = this.currentSingleElement;
+    if (this.doSkipOnPrevPage(curElement)) return true;
+    if (curElement) return this.prevPageSingleElement(curElement);
 
-    const skipped = this.skippedPages.find(sp => sp.to == this.currentPage);
-    if (skipped) {
-      this.currentPage = skipped.from;
-      this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
-    }
-    else {
-      const vPages = this.visiblePages;
-      const index = vPages.indexOf(this.currentPage);
-      this.currentPage = vPages[index - 1];
-    }
+    const vPages = this.visiblePages;
+    const index = vPages.indexOf(this.currentPage);
+    this.currentPage = vPages[index - 1];
     return true;
   }
+  private doSkipOnPrevPage(curElement: IElement): boolean {
+    const toEl = curElement || this.currentPage;
+    const skipped = this.skippedPages.find(sp => sp.to === toEl);
+    let elTo: any = undefined;
+    if (!!skipped) {
+      this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
+      const el = skipped.from;
+      if (!el.isDisposed && el.isVisible) {
+        elTo = el;
+      }
+    }
+    if (!!elTo) {
+      if (!!curElement) {
+        this.currentSingleElement = elTo;
+      } else {
+        this.currentPage = elTo;
+      }
+    }
+    return !!elTo;
+  }
+  private prevPageSingleElement(curElement: IElement): boolean {
+    const questions = this.getSingleElements();
+    const index = questions.indexOf(curElement);
+    if(index <= 0) return false;
+    this.currentSingleElement = questions[index - 1];
+    return true;
+  }
+
   /**
    * Completes the survey if it currently displays the last page and the page contains no validation errors. If both these conditions are met, this method returns `true`; otherwise, `false`.
    *
@@ -4625,6 +4643,7 @@ export class SurveyModel extends SurveyElementCore
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
+    this.skippedPages = [];
     this.currentSingleElement = undefined;
     if(oldValue === "singlePage") {
       this.updatePagesContainer();
@@ -7916,7 +7935,8 @@ export class SurveyModel extends SurveyElementCore
     const oldQuestion = this.focusingQuestionInfo?.question;
     if (oldQuestion === question) return false;
     this.focusingQuestionInfo = { question: question, onError: onError };
-    this.skippedPages.push({ from: this.currentPage, to: question.page });
+    const curElement = this.currentSingleElement;
+    this.skippedPages.push({ from: curElement || this.currentPage, to: curElement ? question : question.page });
     const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;

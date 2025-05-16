@@ -112,9 +112,6 @@ export class QuestionTextModel extends QuestionTextBase {
       maskClassName = "masksettings";
     }
     const inputMask = Serializer.createClass(maskClassName);
-    inputMask.onPropertyChanged.add((_, options) => {
-      this.updateInputValue();
-    });
     inputMask.owner = this.survey;
     return inputMask;
   }

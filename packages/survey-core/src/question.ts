@@ -1993,6 +1993,7 @@ export class Question extends SurveyElement<Question>
    * | Radio Button Group | `string` \| `number` |
    * | Ranking | <code>Array&lt;string &#124; number&gt;</code> |
    * | Rating Scale | `number` \| `string` |
+   * | Slider | <code>Array&lt;string &#124; number&gt;</code> |
    * | Signature | `string` (base64-encoded image) |
    * | Single-Line Input | `string` \| `number` \| `Date` |
    * | Single-Select Matrix | `object` |

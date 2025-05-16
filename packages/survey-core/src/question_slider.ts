@@ -76,9 +76,11 @@ export class QuestionSliderModel extends Question {
 
   constructor(name: string) {
     super(name);
-    this.createNewArray("value");
-    this.createItemValues("customLabels");
-    this.createItemValues("generatedLabels");
+    if (!this.isDesignMode) {
+      this.createItemValues("customLabels");
+      this.createItemValues("generatedLabels");
+      this.createItemValues("renderedLabels");
+    }
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
   }
@@ -371,7 +373,14 @@ export class QuestionSliderModel extends Question {
 
   public setSliderValue = (newValue) => {
     if (!this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle) {
-      this.value = newValue;
+      if (this.sliderType === "single") {
+        this.value = Array.isArray(newValue) ? newValue[0] : newValue;
+        return;
+      }
+      if (this.sliderType === "range") {
+        this.value = newValue;
+        return;
+      }
     }
   };
 
@@ -557,6 +566,9 @@ export class QuestionSliderModel extends Question {
     if (this.jsonObj.customLabels !== undefined) {
       this.autoGenerate = false;
     }
+    if (!this.isDesignMode && this.sliderType === "range") {
+      this.createNewArray("value");
+    }
   }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
@@ -591,13 +603,15 @@ export class QuestionSliderModel extends Question {
         if (this.segmentCount) {
           this.step = (this.renderedMax - this.renderedMin) / this.segmentCount;
         }
-      });
+      }
+    );
     this.registerSychProperties(["step"],
       () => {
         if (this.step) {
           this.segmentCount = (this.renderedMax - this.renderedMin) / this.step;
         }
-      });
+      }
+    );
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
@@ -607,7 +621,8 @@ export class QuestionSliderModel extends Question {
           this.customLabels.splice(0, this.customLabels.length);
           this.resetPropertyValue("generatedLabels");
         }
-      });
+      }
+    );
   }
 
   protected setNewValue(newValue: any) {

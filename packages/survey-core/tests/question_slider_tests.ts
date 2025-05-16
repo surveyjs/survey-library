@@ -10,6 +10,25 @@ QUnit.test("check value", (assert) => {
       {
         type: "slider",
         name: "q1",
+        sliderType: "single"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  assert.equal(q1.value, undefined);
+
+  q1.value = 50;
+  assert.deepEqual(survey.data, { q1: 50 });
+});
+
+QUnit.test("check value: range", (assert) => {
+  var json = {
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        sliderType: "range"
       },
     ],
   };
@@ -17,8 +36,8 @@ QUnit.test("check value", (assert) => {
   const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
   assert.deepEqual(q1.value, []);
 
-  q1.value = [1, 3];
-  assert.deepEqual(q1.value, [1, 3]);
+  q1.value = [20, 40];
+  assert.deepEqual(survey.data, { q1: [20, 40] });
 });
 
 QUnit.test("check getType", (assert) => {
@@ -26,6 +45,7 @@ QUnit.test("check getType", (assert) => {
     elements: [
       {
         type: "slider",
+        sliderType: "single",
         name: "q1",
       },
     ],
@@ -35,19 +55,34 @@ QUnit.test("check getType", (assert) => {
   assert.equal(q1.getType(), "slider");
 });
 
-QUnit.test("check defaultValue", (assert) => {
+QUnit.test("check defaultValue: single", (assert) => {
   var json = {
     elements: [
       {
         type: "slider",
+        sliderType: "single",
         name: "q1",
-        defaultValue: [1, 3]
+        defaultValue: 50
       },
     ],
   };
   const survey = new SurveyModel(json);
-  const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.value, [1, 3]);
+  assert.deepEqual(survey.data, { q1: 50 });
+});
+
+QUnit.test("check defaultValue: range", (assert) => {
+  var json = {
+    elements: [
+      {
+        type: "slider",
+        sliderType: "range",
+        name: "q1",
+        defaultValue: [20, 40]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  assert.deepEqual(survey.data, { q1: [20, 40] });
 });
 
 QUnit.test("check css", (assert) => {
@@ -664,4 +699,19 @@ QUnit.test("getLabelPosition", (assert) => {
   q1.customLabels = [new ItemValue(50, "middle")];
   assert.equal(q1.labelCount, 1);
   assert.deepEqual(q1.getLabelPosition(0), 50);
+});
+
+QUnit.test("setSliderValue", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.setSliderValue(50);
+  assert.equal(q1.value, 50);
+  q1.setSliderValue([50]);
+  assert.equal(q1.value, 50);
+  q1.setSliderValue([50, 60]);
+  assert.equal(q1.value, 50);
+
+  q1.sliderType = "range";
+  q1.setSliderValue([50, 60]);
+  assert.deepEqual(q1.value, [50, 60]);
 });

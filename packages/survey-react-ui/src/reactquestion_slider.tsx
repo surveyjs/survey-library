@@ -128,12 +128,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
     for (let i = 0; i < renderedLabels.length; i++) {
       const value = renderedLabels[i].value;
-      const text = renderedLabels[i].text;
+      const text = renderedLabels[i].locText;
       const label = <div key={i} className={getLabelCss(i)}
         style={{ left: value + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
         <div className={cssClasses.labelTick}></div>
         <div className={cssClasses.labelText}>
-          {text}
+          {this.renderLocString(text)}
         </div>
       </div>;
 

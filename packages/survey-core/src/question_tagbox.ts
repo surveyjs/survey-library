@@ -168,7 +168,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public getType(): string {
     return "tagbox";
   }
-  public get ariaRole(): string {
+  public get a11yInputAriaRole(): string | null {
     return "combobox";
   }
   public get popupModel(): PopupModel {

@@ -19,10 +19,7 @@ frameworks.forEach(framework => {
       "showQuestionNumbers": false
     });
 
-    const QuestionNode = Selector("span")
-      .withText("Please sign here")
-      .parent("[aria-labelledby]");
-
+    const QuestionNode = Selector(".sd-question");
     const SignCanvas = QuestionNode.find("canvas");
     const ClearBtn = QuestionNode.find("button[title='Clear']");
     const Placeholder = QuestionNode.find(".sjs_sp_placeholder");
@@ -66,10 +63,7 @@ frameworks.forEach(framework => {
           }, 1000);
       });
     })();
-    const QuestionNode = Selector("span")
-      .withText("Please sign here")
-      .parent("[aria-labelledby]");
-
+    const QuestionNode = Selector(".sd-question");
     const SignCanvas = QuestionNode.find("canvas");
     const ClearBtn = QuestionNode.find("button[title='Clear']");
     const Placeholder = QuestionNode.find(".sjs_sp_placeholder");

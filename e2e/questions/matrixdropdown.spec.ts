@@ -60,24 +60,28 @@ frameworks.forEach((framework) => {
 
       // answer for row 1
       await page.getByLabel("row angularjs v1.x, column Do").locator("label").filter({ hasText: "Yes" }).locator("span").first().click();
-      await page.getByRole("combobox", { name: "row angularjs v1.x, column" }).first().click();
+      await page.getByRole("combobox", { name: "row angularjs v1.x, column How long do you use it?" }).first().focus();
+      await page.getByRole("combobox", { name: "row angularjs v1.x, column How long do you use it?" }).first().click();
       await page.locator(".sv-list__item").filter({ hasText: "2", visible: true }).click();
       await page.mouse.click(1, 1);
       await page.getByLabel("row angularjs v1.x, column What is main strength?").getByText("Fast").click();
-      await page.getByRole("textbox", { name: "row angularjs v1.x, column" }).fill("why hello world so hard");
-      await page.getByRole("combobox", { name: "row angularjs v1.x, column" }).nth(2).click();
+      await page.getByRole("textbox", { name: "row angularjs v1.x, column Please describe your experience" }).fill("why hello world so hard");
+      await page.getByRole("combobox", { name: "row angularjs v1.x, column Please rate the framework itself" }).first().focus();
+      await page.getByRole("combobox", { name: "row angularjs v1.x, column Please rate the framework itself" }).first().click();
       await page.locator(".sv-list__item").filter({ hasText: "Excelent" }).click();
       await page.mouse.click(1, 1);
 
       // answer for row 3
       await page.getByLabel("row knockoutjs, column Do you").locator("label").filter({ hasText: "No" }).locator("span").first().click();
-      await page.getByRole("combobox", { name: "row knockoutjs, column How" }).first().click();
+      await page.getByRole("combobox", { name: "row knockoutjs, column How long do you use it?" }).first().focus();
+      await page.getByRole("combobox", { name: "row knockoutjs, column How long do you use it?" }).first().click();
       await page.locator(".sv-list__item").filter({ hasText: "5", visible: true }).click();
       await page.mouse.click(1, 1);
       await page.getByLabel("row knockoutjs, column What").getByText("Easy").click();
       await page.getByLabel("row knockoutjs, column What").getByText("Powerfull").click();
-      await page.getByRole("textbox", { name: "row knockoutjs, column Please" }).fill("it is not 2016");
-      await page.getByRole("combobox", { name: "row knockoutjs, column Please" }).first().click();
+      await page.getByRole("textbox", { name: "row knockoutjs, column Please describe your experience" }).fill("it is not 2016");
+      await page.getByRole("combobox", { name: "row knockoutjs, column Please rate the framework itself" }).first().focus();
+      await page.getByRole("combobox", { name: "row knockoutjs, column Please rate the framework itself" }).first().click();
       await page.locator(".sv-list__item").filter({ hasText: "Good", visible: true }).click();
 
       await page.click("input[value=Complete]");

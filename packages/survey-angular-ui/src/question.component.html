@@ -1,9 +1,6 @@
 <ng-template #template>
   <div *ngIf="!!model" #elementContainer [class]="model.getRootCss()" [style]="model.getRootStyle()" [id]="model.id"
-    [attr.data-name]="model.name" [attr.role]="model.ariaRole" [attr.aria-required]="model.ariaRequired"
-    [attr.aria-invalid]="model.ariaInvalid" [attr.aria-label]="model.ariaLabel"
-    [attr.aria-labelledby]="model.ariaLabelledBy" [attr.aria-describedby]="model.ariaDescribedBy"
-    [attr.aria-expanded]="model.ariaExpanded">
+    [attr.data-name]="model.name">
     <sv-breadcrumbs
       *ngIf="model.singleInputHasActions"
       [model]="model.singleInputActions"

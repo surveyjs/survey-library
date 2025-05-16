@@ -907,6 +907,9 @@ export class QuestionRatingModel extends Question {
     return this.getLocalizableString("readOnlyText");
   }
 
+  public get a11yInputAriaRole(): string | null {
+    return this.renderAs === "dropdown" ? "combobox" : null;
+  }
   public needResponsiveWidth() {
     const rateValues = this.getPropertyValue("rateValues");
     const rateStep = this.getPropertyValue("rateStep");

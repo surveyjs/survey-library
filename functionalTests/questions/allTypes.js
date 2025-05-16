@@ -160,48 +160,48 @@ frameworks.forEach(framework => {
 
     await t.typeText(
       Selector("span").withText("text_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("input"),
       "test text"
     );
 
     await t.click(
       Selector("span").withText("checkbox_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("span")
         .withText("item1")
     );
 
     await t.click(
       Selector("span").withText("radiogroup_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("span")
         .withText("item1")
     );
 
     await t
       .click(Selector("span").withText("dropdown_question")
-        .parent("[data-name]")
-        .find("div[role='combobox']"))
+        .parent(".sd-question")
+        .find("*[role='combobox']"))
       .click(getListItemByText("item1"));
 
     await t.typeText(
       Selector("span").withText("comment_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("textarea"),
       "test comment"
     );
 
     await t.click(
       Selector("span").withText("rating_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("span")
         .withText("3")
     );
 
     await t.click(
       Selector("span").withText("imagepicker_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("img")
         .withAttribute("alt", "item1")
         .parent()
@@ -209,7 +209,7 @@ frameworks.forEach(framework => {
 
     await t.click(
       Selector("span").withText("boolean_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("span")
         .withText("Yes")
     );
@@ -220,21 +220,21 @@ frameworks.forEach(framework => {
 
     await t.click(
       Selector("span").withText("signature_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("button")
         .withAttribute("title", "Clear")
     );
 
     await t.hover(
       Selector("span").withText("expression_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("div")
         .withText("1")
     );
 
     await t.click(
       Selector("span").withText("file_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("button")
         .withText("Clear")
         .filterVisible()
@@ -242,7 +242,7 @@ frameworks.forEach(framework => {
 
     await t.click(
       Selector("span").withText("matrix_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("tr")
         .withText("Row 1")
         .find("input[type='radio']")
@@ -250,21 +250,21 @@ frameworks.forEach(framework => {
     );
 
     const matrixDropdownRow = Selector("span").withText("matrixdropdown_question")
-      .parent("[data-name]")
+      .parent(".sd-question")
       .find("tr").withText("Row 1");
     await t
-      .click(matrixDropdownRow.find("div[aria-label='row Row 1, column Column 1']"))
+      .click(matrixDropdownRow.find("*[aria-label='row Row 1, column Column 1']"))
       .click(getListItemByText("1"));
     await t.click(
       Selector("span").withText("matrixdynamic_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("button")
         .withAttribute("title", "Remove")
     );
 
     await t.typeText(
       Selector("span").withText("multipletext_question")
-        .parent("[data-name]")
+        .parent(".sd-question")
         .find("input"),
       "test multiple text"
     );
@@ -274,12 +274,12 @@ frameworks.forEach(framework => {
     await t.click(getDynamicPanelRemoveButton("paneldynamic", "Remove"));
 
     // const rankItem1 = Selector("span").withText('ranking_question')
-    //   .parent("[data-name]")
+    //   .parent(".sd-question")
     //   .find("div")W
     //   .withText("item1");
 
     // const rankItem2 = Selector("span").withText('ranking_question')
-    //   .parent("[data-name]")
+    //   .parent(".sd-question")
     //   .find("div")
     //   .withText("item2");
     // await t.dragToElement(rankItem1, rankItem2, { destinationOffsetY: -1, speed: 0.1 });

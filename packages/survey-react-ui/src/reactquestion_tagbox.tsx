@@ -35,14 +35,16 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         required={this.question.isRequired}
         onKeyDown={this.keyhandler}
         onBlur={this.blur}
-        role={this.question.ariaRole}
-        aria-required={this.question.ariaRequired}
-        aria-label={this.question.ariaLabel}
-        aria-invalid={this.question.ariaInvalid}
-        aria-errormessage={this.question.ariaErrormessage}
-        aria-expanded={this.question.ariaExpanded}
-        aria-controls={dropdownListModel.listElementId}
-        aria-activedescendant={dropdownListModel.ariaActivedescendant}
+        role={dropdownListModel.ariaQuestionRole}
+        aria-required={dropdownListModel.ariaQuestionRequired}
+        aria-invalid={dropdownListModel.ariaQuestionInvalid}
+        aria-errormessage={dropdownListModel.ariaQuestionErrorMessage}
+        aria-label={dropdownListModel.ariaQuestionLabel}
+        aria-labelledby={dropdownListModel.ariaQuestionLabelledby}
+        aria-describedby={dropdownListModel.ariaQuestionDescribedby}
+        aria-expanded={dropdownListModel.ariaQuestionExpanded}
+        aria-controls={dropdownListModel.ariaQuestionControls}
+        aria-activedescendant={dropdownListModel.ariaQuestionActivedescendant}
         ref={(div) => (this.setControl(div))}
       >
         <div className={this.question.cssClasses.controlValue}>

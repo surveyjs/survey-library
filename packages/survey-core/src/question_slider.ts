@@ -80,6 +80,7 @@ export class QuestionSliderModel extends Question {
       this.createItemValues("customLabels");
       this.createItemValues("generatedLabels");
       this.createItemValues("renderedLabels");
+      this.setPropertyValue("generatedLabels", this.calcGeneratedLabels()); // TODO with Andrew
     }
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
@@ -122,11 +123,11 @@ export class QuestionSliderModel extends Question {
   };
 
   public get renderedMax(): number {
-    return this.max <= this.min ? 100 : this.max;
+    return this.max; // TODO
   }
 
   public get renderedMin(): number {
-    return this.min >= this.max ? 0 : this.min;
+    return this.min; // TODO
   }
 
   public get renderedMaxRangeLength(): number {
@@ -159,7 +160,7 @@ export class QuestionSliderModel extends Question {
         this.isIndeterminate = true;
         return this.isNegativeScale ? [Math.min(max, 0)] : [min];
       } else {
-        return Array.isArray(result) ? result.slice() : [result];
+        return Array.isArray(result) ? [result[0]] : [result];
       }
     }
 
@@ -538,7 +539,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public getLabelText = (labelNumber: number):string => {
-    const { customLabels, step, max, min, labelCount, labelFormat } = this;
+    const { customLabels, step, renderedMax: max, renderedMin: min, labelCount, labelFormat } = this;
     const fullRange = max - min;
     const isDecimal = step % 1 != 0;
     let labelStep = labelNumber * fullRange / (labelCount - 1);
@@ -548,7 +549,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public getLabelPosition = (labelNumber: number):number => {
-    const { max, min, labelCount, customLabels } = this;
+    const { renderedMax: max, renderedMin: min, labelCount, customLabels } = this;
     let count = labelCount;
     if (customLabels.length > 0) {
       return customLabels[labelNumber].value;
@@ -569,6 +570,7 @@ export class QuestionSliderModel extends Question {
     if (!this.isDesignMode && this.sliderType === "range") {
       this.createNewArray("value");
     }
+    this.setPropertyValue("generatedLabels", this.calcGeneratedLabels()); // TODO with Andrew
   }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
@@ -620,6 +622,7 @@ export class QuestionSliderModel extends Question {
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
           this.resetPropertyValue("generatedLabels");
+          this.setPropertyValue("generatedLabels", this.calcGeneratedLabels()); // TODO with Andrew
         }
       }
     );
@@ -662,6 +665,12 @@ export class QuestionSliderModel extends Question {
   }
 }
 
+function getCorrectMinMax(min: any, max: any, isMax: boolean): any {
+  let val = isMax ? max : min;
+  if (min > max) return isMax ? min : max;
+  return val;
+}
+
 Serializer.addClass(
   "slider",
   [
@@ -679,10 +688,16 @@ Serializer.addClass(
     {
       name: "min:number",
       default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        return getCorrectMinMax(val, obj.max, false);
+      },
     },
     {
       name: "max:number",
       default: 100,
+      onSettingValue: (obj: any, val: any): any => {
+        return getCorrectMinMax(obj.min, val, true);
+      },
     },
     {
       name: "step:number",

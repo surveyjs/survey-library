@@ -633,8 +633,8 @@ QUnit.test("min>max", (assert) => {
   q1.min = 90;
   q1.max = 10;
 
-  assert.deepEqual(q1.renderedMin, 0, "min is default");
-  assert.deepEqual(q1.renderedMax, 100, "max is default");
+  assert.deepEqual(q1.min, 90, "min is set");
+  assert.deepEqual(q1.max, 90, "max is set to min");
 });
 
 QUnit.test("allowClear", (assert) => {
@@ -714,4 +714,11 @@ QUnit.test("setSliderValue", (assert) => {
   q1.sliderType = "range";
   q1.setSliderValue([50, 60]);
   assert.deepEqual(q1.value, [50, 60]);
+});
+
+QUnit.test("sliderType='single' but defaultValue is array", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.defaultValue = [50, 60];
+  assert.equal(q1.value, 50);
 });

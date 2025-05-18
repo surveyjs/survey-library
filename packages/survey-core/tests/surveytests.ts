@@ -19862,6 +19862,32 @@ QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, B
   survey.currentSingleQuestion.value = "a";
   assert.equal(survey.currentSingleQuestion.name, "q4", "#2");
 });
+QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly if executeSkipOnValueChanged = false, Bug #9903", function (assert) {
+  settings.triggers.executeSkipOnValueChanged = false;
+  const surveyJson = {
+    "questionsOnPageMode": "questionPerPage",
+    "elements": [
+      { "type": "text", "name": "q1" },
+      { "type": "text", "name": "q2" },
+      { "type": "text", "name": "q3" },
+      { "type": "text", "name": "q4" }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{q1} = 'a'",
+        "gotoName": "q4"
+      }]
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  assert.equal(survey.currentSingleQuestion.name, "q1", "#1");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(survey.currentSingleQuestion.name, "q1", "#2");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q4", "#3");
+  settings.triggers.executeSkipOnValueChanged = true;
+});
 QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", function (assert) {
   const surveyJson = {
     elements: [

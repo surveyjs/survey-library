@@ -88,17 +88,29 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   //   super.ghostPositionChanged();
   // }
 
+  private findRowInMatrixById(matrix: QuestionMatrixDynamicModel, rowid) {
+    return matrix.renderedTable.rows.filter(
+      (renderedRow: any) => renderedRow.row && renderedRow.row.id === rowid
+    )[0];
+  }
+
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: any
   ): MatrixDropdownRowModelBase {
     const matrix = this.parentElement;
-    let dropTargetRenderedRow;
+    let dropTargetRenderedRow = this.findRowInMatrixById(matrix, dataAttributeValue);
+    if (!dropTargetRenderedRow) {
+      const matrices = this.survey.getAllQuestions().filter(q => q instanceof QuestionMatrixDynamicModel);
+      for (let i = 0; i < matrices.length; i++) {
+        dropTargetRenderedRow = this.findRowInMatrixById(matrices[i], dataAttributeValue);
+        if (dropTargetRenderedRow) {
+          this.dropTargetParentElement = matrices[i];
+          break;
+        }
+      }
+    }
 
-    dropTargetRenderedRow = matrix.renderedTable.rows.filter(
-      (renderedRow: any) => renderedRow.row && renderedRow.row.id === dataAttributeValue
-    )[0];
-
-    return dropTargetRenderedRow.row;
+    return dropTargetRenderedRow?.row;
   }
   public canInsertIntoThisRow(row: MatrixDynamicRowModel): boolean {
     const lockedRows = this.parentElement.lockedRowCount;
@@ -124,7 +136,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     let draggedElementIndex;
     let draggedRenderedRow;
 
-    const renderedRows = this.parentElement.renderedTable.rows;
+    const renderedRows = this.dropTargetParentElement.renderedTable.rows;
     renderedRows.forEach((renderedRow, index) => {
       if (renderedRow.row === this.dropTarget) {
         // renderedRow.isGhostRow = true;

@@ -29,6 +29,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   protected abstract get draggedElementType(): string;
   protected parentElement: T;
   public dropTarget: any = null;
+  protected dropTargetParentElement: T;
   protected get dropTargetDataAttributeName(): string {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
@@ -56,6 +57,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   public dragInit(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
+    this.dropTargetParentElement = parentElement;
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.domAdapter.draggedElementShortcut = this.createDraggedElementShortcut(
       shortcutText,

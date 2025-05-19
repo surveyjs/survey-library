@@ -9,6 +9,7 @@ import { ItemValue, QuestionCheckboxModel } from "survey-core";
 export class CheckboxItemComponent {
   @Input() question!: QuestionCheckboxModel;
   @Input() model!: ItemValue;
+  @Input() ariaLabel?: string;
   constructor() {
   }
   onChange(event: any) {

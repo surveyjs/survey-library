@@ -2,7 +2,7 @@
   <div role="presentation" [class]="question.getItemClass(model)" #container>
     <ng-container [ngSwitch]="inputType">
       <label *ngSwitchCase="'checkbox'" [class]="question.getLabelClass(model)" [model]="model" [question]="question"
-        sv-ng-checkbox-item>
+        sv-ng-checkbox-item [ariaLabel]="ariaLabel">
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
       <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" [class]="question.getLabelClass(model)"

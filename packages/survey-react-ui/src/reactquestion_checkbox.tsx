@@ -174,6 +174,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   private get hideCaption(): boolean {
     return this.props.hideCaption === true;
   }
+  private get ariaLabel(): string {
+    return this.props.ariaLabel || null;
+  }
   public componentDidUpdate(prevProps: any, prevState: any): void {
     super.componentDidUpdate(prevProps, prevState);
     if (prevProps.item !== this.props.item && !this.question.isDesignMode) {
@@ -231,6 +234,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             checked={isChecked}
             onChange={this.handleOnChange}
             required={this.question.hasRequiredError()}
+            aria-label={this.ariaLabel}
           />
           {
             this.cssClasses.materialDecorator ?

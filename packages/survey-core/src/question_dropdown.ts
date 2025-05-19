@@ -79,6 +79,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getType(): string {
     return "dropdown";
   }
+  public get isNewA11yStructure() {
+    return true;
+  }
   public get a11yQuestionAriaRole(): string | null {
     return this.searchEnabled ? null : "combobox";
   }

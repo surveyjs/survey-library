@@ -31,10 +31,10 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
         onInput={this.updateValueOnEvent}
         onClick={click}
         onKeyUp={keyup}
-        aria-required={this.question.ariaRequired}
-        aria-label={this.question.ariaLabel}
-        aria-invalid={this.question.ariaInvalid}
-        aria-errormessage={this.question.ariaErrormessage}
+        aria-required={this.question.a11y_input_ariaRequired}
+        aria-label={this.question.a11y_input_ariaLabel}
+        aria-invalid={this.question.a11y_input_ariaInvalid}
+        aria-errormessage={this.question.a11y_input_ariaErrormessage}
         required={this.question.isRequired}>
         {this.question.allowClear ? (<option value="">{this.question.placeholder}</option>) : null}
         {this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item} />)}

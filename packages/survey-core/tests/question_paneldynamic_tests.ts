@@ -7658,6 +7658,35 @@ QUnit.test("defaultRowValue in dynamic panel, Bug#8819", function (assert) {
   panel.panels[1].questions[0].addRow();
   assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }, { "col1": "abc" }] }], "#3");
 });
+QUnit.test("Do not allow to make panelCount be less than minPanelCount prop & more than maxPanelCount at design, Bug#9906", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [{ type: "text", name: "q1" }],
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.panelCount = 1;
+  panel.minPanelCount = 3;
+  assert.equal(panel.panelCount, 3, "#1");
+  panel.panelCount = 2;
+  assert.equal(panel.panelCount, 2, "#2");
+  panel.panelCount = 10;
+  panel.maxPanelCount = 5;
+  assert.equal(panel.panelCount, 5, "#3");
+  panel.panelCount = 7;
+  assert.equal(panel.panelCount, 7, "#4");
+  panel.panelCount = 4;
+  assert.equal(panel.panelCount, 4, "#5");
+  survey.setDesignMode(true);
+  panel.panelCount = 2;
+  assert.equal(panel.panelCount, 3, "#6");
+  panel.panelCount = 10;
+  assert.equal(panel.panelCount, 5, "#7");
+});
 QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
   const survey = new SurveyModel({
     "elements": [

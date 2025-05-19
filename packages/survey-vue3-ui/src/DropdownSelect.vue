@@ -9,10 +9,10 @@
         @keyup="keyUp"
         :autocomplete="question.autocomplete"
         :class="question.getControlClass()"
-        :aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
-        :aria-invalid="question.ariaInvalid"
-        :aria-errormessage="question.ariaErrormessage"
+        :aria-required="question.a11y_input_ariaRequired"
+        :aria-label="question.a11y_input_ariaLabel"
+        :aria-invalid="question.a11y_input_ariaInvalid"
+        :aria-errormessage="question.a11y_input_ariaErrormessage"
         :required="question.isRequired"
       >
         <option v-if="question.allowClear" value="">

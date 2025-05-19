@@ -973,6 +973,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set panelCount(val: number) {
     if (val < 0) return;
+    if (!this.isLoadingFromJson && this.isDesignMode) {
+      const min = this.minPanelCount;
+      if (val < min) {
+        val = min;
+      }
+      const max = this.maxPanelCount;
+      if (max > 0 && val > max) {
+        val = max;
+      }
+    }
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) {
       this.setPropertyValue("panelCount", val);
       this.updateFooterActions();
@@ -1460,7 +1470,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public get isRenderModeList(): boolean {
-    return this.displayMode === "list";
+    return this.displayMode === "list" || this.isSingleInputActive;
   }
   public get isRenderModeTab(): boolean {
     return this.displayMode === "tab" && !this.isSingleInputActive;
@@ -2670,6 +2680,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
     legacyNavigation: boolean;
+
+  public get ariaRole() {
+    return "group";
+  }
+  public get ariaRequired() {
+    return null;
+  }
+  public get ariaInvalid() {
+    return null;
+  }
   private updateFooterActionsCallback: any;
   private updateFooterActions() {
     if (!!this.updateFooterActionsCallback) {

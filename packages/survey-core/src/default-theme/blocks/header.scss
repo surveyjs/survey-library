@@ -49,10 +49,16 @@
 }
 
 .sv-header__without-background {
-
-  .sv-header--mobile,
+  // .sv-header--mobile,
   .sv-header__content {
     padding-bottom: 0;
+  }
+}
+
+.sd-body {
+  .sv-header__content {
+    padding-top: 0;
+    padding-bottom: calcSize(5);
   }
 }
 

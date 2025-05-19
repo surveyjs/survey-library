@@ -1720,3 +1720,13 @@ QUnit.test("ExpressionRunner: do not convert to number extreme large strings", f
   values.a = "9999999999999999";
   assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
 });
+QUnit.test("Operand.addOperandsToList", function(assert) {
+  let operand = new ConditionsParser().parseExpression("{a} + {b}");
+  let list: any[] = [];
+  operand.addOperandsToList(list);
+  assert.equal(list.length, 3, "operands in the list #1");
+  operand = new ConditionsParser().parseExpression("func({a}, 'd', 3) * 4 + {b} > 0");
+  list = [];
+  operand.addOperandsToList(list);
+  assert.equal(list.length, 11, "operands in the list #1");
+});

@@ -1132,6 +1132,38 @@ QUnit.test("singleInput & singleInputSummary, showRemove", assert => {
   assert.equal(panel.singleInputSummary.items.length, 1, "singleInputSummary.items.length, #2");
   assert.equal(panel.singleInputSummary.items[0].showRemove, false, "singleInputSummary.items[0].showRemove, #1");
 });
+QUnit.test("singleInput & singleInputSummary, showAdd && carousel display mode, Bug##9900", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel1",
+        panelCount: 2,
+        minPanelCount: 1,
+        maxPanelCount: 3,
+        templateElements: [
+          { type: "text", name: "q1" },
+        ],
+        displayMode: "carousel"
+      },
+      { type: "text", name: "q2" }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = survey.getQuestionByName("panel1");
+  const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
+  panel.singleInputQuestion.value = "a";
+  survey.performNext();
+  panel.singleInputQuestion.value = "b";
+  survey.performNext();
+  assert.equal(panel.singleInputSummary.items.length, 2, "singleInputSummary.items.length, #1");
+  assert.equal(addBtn.visible, true, "addBtn visible #1");
+  addBtn.action();
+  panel.singleInputQuestion.value = "c";
+  survey.performNext();
+  assert.equal(addBtn.visible, false, "addBtn visible #2");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { panel1: [{ q1: "a" }, { q1: "b" }, { q1: "c" }] }, "survey.data");
+});
 const nestedJSON = {
   elements: [
     {

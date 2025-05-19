@@ -43,11 +43,7 @@
             [attr.readonly]="dropdownModel.filterReadOnly ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
-        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" aria-hidden="true"
-            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton">
-            <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"
-                [size]="'auto'" sv-ng-svg-icon></svg>
-        </div>
+        <sv-ng-action-bar [model]="model.editorButtons"></sv-ng-action-bar>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="dropdownModel.popupModel"></sv-ng-popup>
     <div *ngIf="model.isReadOnly" [class]="model.getControlClass()" 
@@ -61,9 +57,9 @@
     [attr.aria-expanded]="false"
     [attr.aria-readonly]="true"
     [attr.aria-disabled]="true">
-        <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
-    </div>
-    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)" aria-hidden="true">
-        <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
+        <div [class]="model.cssClasses.controlValue">
+            <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
+        </div>
+        <sv-ng-action-bar [model]="model.editorButtons"></sv-ng-action-bar>
     </div>
 </div>

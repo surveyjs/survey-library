@@ -1094,3 +1094,21 @@ QUnit.test("DropdownListModel filter event", (assert) => {
   assert.equal(list.renderedActions.length, 4);
   assert.equal(getfilteredItems().length, 1);
 });
+
+QUnit.test("DropdownListModel buttons", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "q1",
+      searchEnabled: true,
+      choices: ["item1", "item2", "item3", "item4", "item5"]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const editorButtons = dropdownListModel["editorButtons"];
+
+  assert.equal(editorButtons.actions.length, 2);
+  assert.equal(editorButtons.actions[0].id, "clear");
+  assert.equal(editorButtons.actions[1].id, "chevron");
+});

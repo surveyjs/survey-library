@@ -1,11 +1,13 @@
-import { IAction } from "./actions/action";
-import { Base } from "./base";
+import { Action, IAction } from "./actions/action";
+import { ActionContainer } from "./actions/container";
+import { Base, ComputedUpdater } from "./base";
 import { IDropdownMenuOptions } from "./base-interfaces";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { IListModel, ListModel } from "./list";
+import { LocalizableString } from "./localizablestring";
 import { IPopupOptionsBase, PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
@@ -25,6 +27,8 @@ export class DropdownListModel extends Base {
 
   private _markdownMode = false;
   private _popupModel: PopupModel;
+  private chevronButton: Action;
+  private clearButton: Action;
   private filteredItems: Array<ItemValue> = undefined;
   @property({ defaultValue: false }) focused: boolean;
   private get focusFirstInputSelector(): string {
@@ -49,6 +53,7 @@ export class DropdownListModel extends Base {
       }
     }
   };
+  public editorButtons: ActionContainer;
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
@@ -140,6 +145,47 @@ export class DropdownListModel extends Base {
     };
   }
 
+  protected createButtons(): void {
+    this.editorButtons = new ActionContainer();
+    this.editorButtons.containerCss = "sd-dropdown-action-bar";
+
+    this.chevronButton = new Action({
+      id: "chevron",
+      css: "sd-dropdown_chevron-button",
+      iconName: this.question.cssClasses.chevronButtonIconId || "icon-chevron",
+      iconSize: "auto",
+      showTitle: false,
+      locTitle: this.locSelectCaption,
+      action: (context: any) => {
+        this.onClick();
+      }
+    });
+
+    this.clearButton = new Action({
+      id: "clear",
+      css: "sd-dropdown_clean-button",
+      iconName: this.question.cssClasses.cleanButtonIconId || "icon-cancel-24x24",
+      iconSize: "auto",
+      showTitle: false,
+      locTitle: this.locClearCaption,
+      visible: new ComputedUpdater(() => {
+        const isEmpty = this.question.isEmpty();
+        const isReadOnly = this.question.isReadOnly;
+        return this.question.allowClear && !isEmpty && !isReadOnly;
+      }),
+      action: (context: any) => {
+        this.onClear();
+      }
+    });
+
+    this.editorButtons.setItems([this.clearButton, this.chevronButton]);
+    this.editorButtons.actions.forEach(action => action.cssClasses = {
+      item: "sd-editor-button-item",
+      itemIcon: "sv-editor-button-item__icon",
+      itemPressed: "sd-editor-button-item--pressed",
+    });
+  }
+
   protected createPopup(): void {
     const popupOptions: IPopupOptionsBase = { verticalPosition: "bottom", horizontalPosition: "center", showPointer: false };
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, popupOptions);
@@ -155,6 +201,7 @@ export class DropdownListModel extends Base {
     });
     this._popupModel.onVisibilityChanged.add((_, option: { isVisible: boolean }) => {
       this.popupVisibilityChanged(option.isVisible);
+      this.chevronButton.pressed = option.isVisible;
     });
   }
 
@@ -512,6 +559,8 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
+    this.createLocalizableString("clearCaption", this.question, false, true);
+    this.createLocalizableString("selectCaption", this.question, false, true);
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
@@ -524,6 +573,7 @@ export class DropdownListModel extends Base {
     this.setAllowCustomChoices(this.question.allowCustomChoices);
     this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
+    this.createButtons();
     this.resetItemsSettings();
     const classes = question.cssClasses;
     this.updateCssClasses(classes.popup, classes.list);
@@ -532,6 +582,27 @@ export class DropdownListModel extends Base {
   get popupModel(): PopupModel {
     return this._popupModel;
   }
+
+  public get clearCaption(): string {
+    return this.getLocalizableStringText("clearCaption");
+  }
+  public set clearCaption(value: string) {
+    this.setLocalizableStringText("clearCaption", value);
+  }
+  get locClearCaption(): LocalizableString {
+    return this.getLocalizableString("clearCaption");
+  }
+
+  public get selectCaption(): string {
+    return this.getLocalizableStringText("selectCaption");
+  }
+  public set selectCaption(value: string) {
+    this.setLocalizableStringText("selectCaption", value);
+  }
+  get locSelectCaption(): LocalizableString {
+    return this.getLocalizableString("selectCaption");
+  }
+
   public get inputAvailable(): boolean {
     return this.searchEnabled || this.allowCustomChoices;
   }
@@ -597,11 +668,11 @@ export class DropdownListModel extends Base {
     this.listModel.setItems(this.getAvailableItems());
   }
 
-  public onClick(event: any): void {
+  public onClick(event?: any): void {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    this.question.focusInputElement(false);
+    // this.question.focusInputElement(false);
   }
   public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {
@@ -622,7 +693,7 @@ export class DropdownListModel extends Base {
       this.changeSelectionWithKeyboard(false);
   }
 
-  public onClear(event: any): void {
+  public onClear(event?: any): void {
     this.question.clearValue(true);
     this._popupModel.hide();
     if (event) {

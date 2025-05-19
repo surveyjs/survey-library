@@ -13,8 +13,10 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  padding-inline-end: calcSize(6); //padding-right
+  padding-inline-end: calcSize(0.5); //padding-right
   padding-inline-start: calcSize(2); //padding-left
+  padding-block: calcSize(0.5);
+  gap: calcSize(2);
 
   opacity: 1;
   display: flex;
@@ -58,33 +60,44 @@
   font-size: $font-editorfont-size;
 
   position: relative;
+  display: flex;
+  padding: multiply(0.5, $font-editorfont-size) 0px multiply(0.5, $font-editorfont-size) 0px;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1 0 0;
 }
 
-.sd-dropdown_clean-button {
+.sd-dropdown-action-bar {
+  overflow: unset;
+  gap: multiply(0.25, $font-editorfont-size);
+}
+
+.sd-editor-button-item {
+  @include mixins.hideButtonStyles;
+
   display: flex;
+  padding: multiply(0.5, $font-editorfont-size);
   justify-content: center;
   align-items: center;
-  padding: 0 calcSize(1);
-  margin: auto 0;
-  cursor: pointer;
+  align-self: stretch;
+  border-radius: multiply(0.125, $font-editorfont-size);
+
+  &:hover {
+    background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
+  }
 }
 
-.sd-dropdown_chevron-button {
-  position: absolute;
-  width: calcSize(5);
-  top: 0;
-  bottom: 0;
-  inset-inline-end: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-inline-end: calcSize(0.5);
-  box-sizing: content-box;
-  cursor: pointer;
+.sd-input--readonly .sd-editor-button-item:hover,
+.sd-input--readonly .sd-editor-button-item:focus {
+  background: transparent;
 }
 
-.sd-dropdown_chevron-button-svg,
-.sd-dropdown_clean-button-svg {
+.sd-editor-button-item--pressed {
+  opacity: var(--lbr-editor-button-icon-opacity-pressed, 0.5);
+  background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
+}
+
+.sv-editor-button-item__icon {
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
 
@@ -93,8 +106,18 @@
   }
 }
 
+.sd-question--readonly .sv-editor-button-item__icon {
+  opacity: var(--lbr-editor-button-icon-opacity-disabled, 0.25);
+}
+
+.sd-question--preview .sd-dropdown_chevron-button {
+  display: none;
+}
+
 .sd-input.sd-dropdown:focus-within {
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+  box-shadow:
+    $shadow-inner-reset,
+    0 0 0 2px $primary;
 }
 
 .sd-input.sd-dropdown.sd-input--readonly {
@@ -166,24 +189,12 @@
 .sd-dropdown.sd-input--disabled,
 .sd-dropdown.sd-input--readonly,
 .sd-dropdown.sd-input--preview {
-  * {
-    width: 100%;
-    display: block;
-  }
-
   .sv-string-viewer {
+    width: 100%;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-}
-
-.sd-question--readonly .sd-dropdown_chevron-button use {
-  opacity: 0.24;
-}
-
-.sd-question--preview .sd-dropdown_chevron-button {
-  display: none;
 }
 
 .sv-dropdown-popup {
@@ -252,7 +263,9 @@
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sd-dropdown {
-    background-position: left calcSize(1.5) top 50%, 0 0;
+    background-position:
+      left calcSize(1.5) top 50%,
+      0 0;
   }
 }
 

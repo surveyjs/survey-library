@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Helpers, Question, DropdownListModel, settings, QuestionDropdownModel } from "survey-core";
 import { Popup } from "./components/popup/popup";
-import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
   inputElement: HTMLInputElement | null;
@@ -39,7 +39,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   protected renderReadOnlyElement(): React.JSX.Element | null {
     if (this.question.locReadOnlyText) {
-      return this.renderLocString(this.question.locReadOnlyText);
+      return (<div className={this.question.cssClasses.controlValue}>
+        {this.renderLocString(this.question.locReadOnlyText)}
+      </div>);
     } else {
       return null;
     }
@@ -62,6 +64,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         className={this.question.getControlClass()}
         ref={(div) => (this.setControl(div))}>
         {this.renderReadOnlyElement()}
+        <SurveyActionBar model={dropdownListModel.editorButtons}></SurveyActionBar>
       </div>;
     } else {
       selectElement = <>
@@ -73,7 +76,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     return (
       <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
-        {this.createChevronButton()}
       </div>
     );
   }
@@ -154,45 +156,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           onFocus={this.focus}
         ></input>
       </div>
-      {this.createClearButton()}
+      <SurveyActionBar model={dropdownListModel.editorButtons}></SurveyActionBar>
     </div>);
-  }
-
-  createClearButton(): React.JSX.Element | null {
-    if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
-
-    const style = { display: !this.question.showClearButton ? "none" : "" };
-    return (
-      <div
-        className={this.question.cssClasses.cleanButton}
-        style={style}
-        onClick={this.clear}
-        aria-hidden="true"
-      >
-        <SvgIcon
-          className={this.question.cssClasses.cleanButtonSvg}
-          iconName={this.question.cssClasses.cleanButtonIconId}
-          title={this.question.clearCaption}
-          size={"auto"}
-        ></SvgIcon>
-      </div>
-    );
-  }
-
-  createChevronButton(): React.JSX.Element | null {
-    if (!this.question.cssClasses.chevronButtonIconId) return null;
-
-    return (
-      <div className={this.question.cssClasses.chevronButton}
-        aria-hidden="true"
-        onPointerDown={this.chevronPointerDown}>
-        <SvgIcon
-          className={this.question.cssClasses.chevronButtonSvg}
-          iconName={this.question.cssClasses.chevronButtonIconId}
-          size={"auto"}
-        ></SvgIcon>
-      </div>
-    );
   }
 
   protected renderOther(cssClasses: any): React.JSX.Element {

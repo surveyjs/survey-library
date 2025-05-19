@@ -4,6 +4,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { SurveyQuestionTagboxItem } from "./tagbox-item";
 import { TagboxFilterString } from "./tagbox-filter";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTagboxModel> {
   constructor(props: any) {
@@ -51,7 +52,8 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
           {items}
           <TagboxFilterString model={dropdownMultiSelectListModel} question={this.question}></TagboxFilterString>
         </div>
-        {this.createClearButton()}
+        {/* {this.createClearButton()} */}
+        <SurveyActionBar model={dropdownListModel.editorButtons}></SurveyActionBar>
       </div>);
   }
 

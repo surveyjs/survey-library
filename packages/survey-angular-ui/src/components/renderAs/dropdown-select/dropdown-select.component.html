@@ -3,8 +3,8 @@
     <select *ngIf="!model.isReadOnly" [attr.id]="model.inputId" [(ngModel)]="editableValue"
       [disabled]="model.isInputReadOnly" (click)="click($event)" (keyup)="keyup($event)"
       [class]="model.getControlClass()" [attr.autocomplete]="model.autocomplete" [required]="model.isRequired"
-      [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel"
-      [attr.aria-invalid]="model.ariaInvalid" [attr.aria-errormessage]="model.ariaErrormessage">
+      [attr.aria-required]="model.a11y_input_ariaRequired" [attr.aria-label]="model.a11y_input_ariaLabel"
+      [attr.aria-invalid]="model.a11y_input_ariaInvalid" [attr.aria-errormessage]="model.a11y_input_ariaErrormessage">
       <option *ngIf="model.allowClear" value="">{{ model.placeholder }}</option>
       <ng-template *ngFor="let item of model.visibleChoices"
         [component]="{ name: 'sv-dropdown-option-item', data: { item } }"></ng-template>

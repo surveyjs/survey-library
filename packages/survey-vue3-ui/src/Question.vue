@@ -5,6 +5,13 @@
     ref="root"
     v-on:focusin="element.focusIn()"
     :id="element.id"
+    :role="element.ariaRole"
+    :aria-required="element.ariaRequired"
+    :aria-invalid="element.ariaInvalid"
+    :aria-label="element.ariaLabel"
+    :aria-labelledby="element.ariaLabelledBy"
+    :aria-describedby="element.ariaDescribedBy"
+    :aria-expanded="element.ariaExpanded"
     :data-name="element.name"
   >
     <SvComponent

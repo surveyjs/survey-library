@@ -4169,8 +4169,10 @@ export class SurveyModel extends SurveyElementCore
         keys = q.getValue();
       }
     }
-    this.checkTriggers(keys, false, false, true, q.name);
-    this.currentSingleElement = questions[index + 1];
+    this.checkTriggers(keys, true, false, true, q.name);
+    if (q === this.currentSingleElement) {
+      this.currentSingleElement = questions[index + 1];
+    }
     return true;
   }
   public performPrevious(): boolean {

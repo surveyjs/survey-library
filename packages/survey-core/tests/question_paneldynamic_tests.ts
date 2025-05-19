@@ -22,7 +22,6 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
-import { template } from "lodash";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -7659,7 +7658,7 @@ QUnit.test("defaultRowValue in dynamic panel, Bug#8819", function (assert) {
   panel.panels[1].questions[0].addRow();
   assert.deepEqual(panel.value, [{ matrix1: [{ "col1": "abc" }] }, { matrix1: [{ "col1": "abc" }, { "col1": "abc" }] }], "#3");
 });
-QUnit.test("Do not allow to make panelCount be less than minPanelCount prop & more than maxPanelCount, Bug#9906", function (assert) {
+QUnit.test("Do not allow to make panelCount be less than minPanelCount prop & more than maxPanelCount at design, Bug#9906", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -7674,12 +7673,19 @@ QUnit.test("Do not allow to make panelCount be less than minPanelCount prop & mo
   panel.minPanelCount = 3;
   assert.equal(panel.panelCount, 3, "#1");
   panel.panelCount = 2;
-  assert.equal(panel.panelCount, 3, "#2");
+  assert.equal(panel.panelCount, 2, "#2");
   panel.panelCount = 10;
   panel.maxPanelCount = 5;
   assert.equal(panel.panelCount, 5, "#3");
   panel.panelCount = 7;
-  assert.equal(panel.panelCount, 5, "#4");
+  assert.equal(panel.panelCount, 7, "#4");
+  panel.panelCount = 4;
+  assert.equal(panel.panelCount, 4, "#5");
+  survey.setDesignMode(true);
+  panel.panelCount = 2;
+  assert.equal(panel.panelCount, 3, "#6");
+  panel.panelCount = 10;
+  assert.equal(panel.panelCount, 5, "#7");
 });
 QUnit.test("maxRowCount & footer buttons, Bug#8865", function (assert) {
   const survey = new SurveyModel({

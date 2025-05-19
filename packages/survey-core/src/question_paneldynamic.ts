@@ -973,7 +973,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set panelCount(val: number) {
     if (val < 0) return;
-    if (!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson && this.isDesignMode) {
       const min = this.minPanelCount;
       if (val < min) {
         val = min;

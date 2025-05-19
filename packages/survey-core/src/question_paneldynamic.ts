@@ -2680,6 +2680,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
     legacyNavigation: boolean;
+
+  public get ariaRole() {
+    return "group";
+  }
+  public get ariaRequired() {
+    return null;
+  }
+  public get ariaInvalid() {
+    return null;
+  }
   private updateFooterActionsCallback: any;
   private updateFooterActions() {
     if (!!this.updateFooterActionsCallback) {

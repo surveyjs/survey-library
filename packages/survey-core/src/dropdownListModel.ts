@@ -559,7 +559,7 @@ export class DropdownListModel extends Base {
   public get ariaQuestionLabelledby(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabelledBy; }
   public get ariaQuestionDescribedby(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaDescribedBy; }
   public get ariaQuestionControls(): string | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.listElementId; }
-  public get ariaQuestionExpanded(): "true" | "false" | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.question.ariaExpanded; }
+  public get ariaQuestionExpanded(): "true" | "false" | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.question.a11y_input_ariaExpanded; }
   public get ariaQuestionActivedescendant(): string | undefined { return this.filterStringEnabled ? undefined : this.ariaActivedescendant; }
 
   public get ariaInputRequired(): "true" | "false" { return this.filterStringEnabled ? this.question.a11y_input_ariaRequired : undefined; }
@@ -570,7 +570,7 @@ export class DropdownListModel extends Base {
   public get ariaInputLabelledby(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaLabelledBy : undefined; }
   public get ariaInputDescribedby(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaDescribedBy : undefined; }
   public get ariaInputControls(): string { return this.filterStringEnabled && this.popupEnabled ? this.listElementId : undefined; }
-  public get ariaInputExpanded(): "true" | "false" { return this.filterStringEnabled && this.popupEnabled ? this.question.ariaExpanded : undefined; }
+  public get ariaInputExpanded(): "true" | "false" { return this.filterStringEnabled && this.popupEnabled ? this.question.a11y_input_ariaExpanded : undefined; }
   public get ariaInputActivedescendant(): string { return this.filterStringEnabled ? this.ariaActivedescendant : undefined; }
 
   public setSearchEnabled(newValue: boolean): void {

@@ -973,6 +973,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set panelCount(val: number) {
     if (val < 0) return;
+    if (!this.isLoadingFromJson) {
+      const min = this.minPanelCount;
+      if (val < min) {
+        val = min;
+      }
+      const max = this.maxPanelCount;
+      if (max > 0 && val > max) {
+        val = max;
+      }
+    }
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) {
       this.setPropertyValue("panelCount", val);
       this.updateFooterActions();

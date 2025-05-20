@@ -732,3 +732,17 @@ QUnit.test("disable allowSwap when minRangeLength is set", (assert) => {
   q1.minRangeLength = 20;
   assert.equal(q1.allowSwap, false, "disabled due to minRangeLength");
 });
+QUnit.test("auto generated labels", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  (<any>q1.generatedLabels).customTag = "#1";
+  assert.equal(q1.generatedLabels.length, 6, "generated labels #1");
+  q1.max = 120;
+  assert.equal(q1.generatedLabels.length, 6, "generated labels #2");
+  assert.equal((<any>q1.generatedLabels).customTag, "#1", "custom tag #2");
+  q1.autoGenerate = false;
+  assert.equal(q1.generatedLabels.length, 6, "generated labels #3");
+  assert.equal((<any>q1.generatedLabels).customTag, "#1", "custom tag #3");
+  q1.autoGenerate = true;
+  assert.equal(q1.generatedLabels.length, 6, "generated labels #4");
+  assert.equal((<any>q1.generatedLabels).customTag, "#1", "custom tag #4");
+});

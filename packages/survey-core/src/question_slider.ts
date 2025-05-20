@@ -618,7 +618,7 @@ export class QuestionSliderModel extends Question {
         }
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["step"],
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate"],
       () => {
         this.resetPropertyValue("generatedLabels");
       }
@@ -630,7 +630,6 @@ export class QuestionSliderModel extends Question {
         }
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
-          this.resetPropertyValue("generatedLabels");
         }
       }
     );

@@ -33,6 +33,7 @@ import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { getLocaleString } from "./surveyStrings";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -972,6 +973,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set panelCount(val: number) {
     if (val < 0) return;
+    if (!this.isLoadingFromJson && this.isDesignMode) {
+      const min = this.minPanelCount;
+      if (val < min) {
+        val = min;
+      }
+      const max = this.maxPanelCount;
+      if (max > 0 && val > max) {
+        val = max;
+      }
+    }
     if (!this.canBuildPanels || this.wasNotRenderedInSurvey) {
       this.setPropertyValue("panelCount", val);
       this.updateFooterActions();
@@ -1459,7 +1470,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public get isRenderModeList(): boolean {
-    return this.displayMode === "list";
+    return this.displayMode === "list" || this.isSingleInputActive;
   }
   public get isRenderModeTab(): boolean {
     return this.displayMode === "tab" && !this.isSingleInputActive;
@@ -2087,6 +2098,7 @@ export class QuestionPanelDynamicModel extends Question
       cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
     this.isValueChangingInternally = true;
+    let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
       const panel = panels[i];
       var panelValues = this.getPanelItemData(panel.data);
@@ -2095,9 +2107,13 @@ export class QuestionPanelDynamicModel extends Question
       const panelName = QuestionPanelDynamicItem.ItemVariableName;
       newValues[panelName] = panelValues;
       newValues[QuestionPanelDynamicItem.IndexVariableName.toLowerCase()] = i;
+      newValues[QuestionPanelDynamicItem.VisibleIndexVariableName.toLowerCase()] = visibleIndex;
       const newProps = Helpers.createCopy(properties);
       newProps[panelName] = panel;
       panel.runCondition(newValues, newProps);
+      if (panel.isVisible) {
+        visibleIndex++;
+      }
     }
     this.isValueChangingInternally = false;
   }
@@ -2570,6 +2586,9 @@ export class QuestionPanelDynamicModel extends Question
   public get progress(): string {
     return ((this.currentIndex + 1) / this.visiblePanelCount) * 100 + "%";
   }
+  public get progressBarAriaLabel(): string {
+    return getLocaleString("progressbar", this.getLocale());
+  }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
   }
@@ -2661,6 +2680,16 @@ export class QuestionPanelDynamicModel extends Question
   }
   @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
     legacyNavigation: boolean;
+
+  public get ariaRole() {
+    return "group";
+  }
+  public get ariaRequired() {
+    return null;
+  }
+  public get ariaInvalid() {
+    return null;
+  }
   private updateFooterActionsCallback: any;
   private updateFooterActions() {
     if (!!this.updateFooterActionsCallback) {

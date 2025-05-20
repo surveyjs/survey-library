@@ -296,5 +296,34 @@ frameworks.forEach((framework) => {
       });
       await checkA11y(page, axeContext, { axeOptions: axeOptions });
     });
+    test("axe check matrixdynamic with detail panel", async ({ page }) => {
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "columns": [
+              {
+                "name": "q1",
+                "cellType": "text",
+              },
+            ],
+            "detailElements": [
+              {
+                "type": "text",
+                "name": "detail-question",
+              },
+            ],
+            "detailPanelMode": "underRowSingle",
+            "rowCount": 2,
+          }
+        ],
+      });
+      await page.evaluate(() => {
+        (window as any).survey.getQuestionByName("matrix").visibleRows[0].showHideDetailPanelClick();
+      });
+      await checkA11y(page, axeContext, { axeOptions: axeOptions });
+    });
   });
 });

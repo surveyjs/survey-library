@@ -46,13 +46,18 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   protected renderSelect(cssClasses: any): React.JSX.Element {
     let selectElement: React.JSX.Element | null = null;
+    const dropdownListModel = this.question.dropdownListModel;
     if (this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       selectElement = <div id={this.question.inputId}
-        aria-label={this.question.a11y_input_ariaLabel}
-        aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-        aria-describedby={this.question.a11y_input_ariaDescribedBy}
+        role={dropdownListModel?.ariaQuestionRole}
+        aria-label={dropdownListModel?.ariaQuestionLabel}
+        aria-labelledby={dropdownListModel?.ariaQuestionLabelledby}
+        aria-describedby={dropdownListModel?.ariaQuestionDescribedby}
+        aria-expanded="false"
+        aria-readonly="true"
+        aria-disabled="true"
         tabIndex={this.question.isDisabledAttr ? undefined : 0}
         className={this.question.getControlClass()}
         ref={(div) => (this.setControl(div))}>
@@ -60,8 +65,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       </div>;
     } else {
       selectElement = <>
-        {this.renderInput(this.question["dropdownListModel"])}
-        <Popup model={this.question?.dropdownListModel?.popupModel}></Popup>
+        {this.renderInput(dropdownListModel)}
+        <Popup model={dropdownListModel.popupModel}></Popup>
       </>;
     }
 
@@ -102,15 +107,16 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       onKeyDown={this.keyhandler}
       onBlur={this.blur}
       onFocus={this.focus}
-      role={this.question.ariaRole}
-      aria-required={this.question.ariaRequired}
-      aria-label={this.question.ariaLabel}
-      aria-labelledby={this.question.ariaLabelledBy}
-      aria-invalid={this.question.ariaInvalid}
-      aria-errormessage={this.question.ariaErrormessage}
-      aria-expanded={this.question.ariaExpanded}
-      aria-controls={dropdownListModel.listElementId}
-      aria-activedescendant={dropdownListModel.ariaActivedescendant}
+      role={dropdownListModel.ariaQuestionRole}
+      aria-required={dropdownListModel.ariaQuestionRequired}
+      aria-invalid={dropdownListModel.ariaQuestionInvalid}
+      aria-errormessage={dropdownListModel.ariaQuestionErrorMessage}
+      aria-expanded={dropdownListModel.ariaQuestionExpanded}
+      aria-label={dropdownListModel.ariaQuestionLabel}
+      aria-labelledby={dropdownListModel.ariaQuestionLabelledby}
+      aria-describedby={dropdownListModel.ariaQuestionDescribedby}
+      aria-controls={dropdownListModel.ariaQuestionControls}
+      aria-activedescendant={dropdownListModel.ariaQuestionActivedescendant}
       ref={(div) => (this.setControl(div))}
     >
       {dropdownListModel.showHintPrefix ?
@@ -128,13 +134,16 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           id={this.question.getInputId()}
           ref={(element) => (this.inputElement = element)}
           className={this.question.cssClasses.filterStringInput}
-          role={dropdownListModel.filterStringEnabled ? this.question.ariaRole : undefined}
-          aria-expanded={this.question.ariaExpanded}
-          aria-label={this.question.a11y_input_ariaLabel}
-          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-          aria-describedby={this.question.a11y_input_ariaDescribedBy}
-          aria-controls={dropdownListModel.listElementId}
-          aria-activedescendant={dropdownListModel.ariaActivedescendant}
+          role={dropdownListModel.ariaInputRole}
+          aria-required={dropdownListModel.ariaInputRequired}
+          aria-invalid={dropdownListModel.ariaInputInvalid}
+          aria-errormessage={dropdownListModel.ariaInputErrorMessage}
+          aria-expanded={dropdownListModel.ariaInputExpanded}
+          aria-label={dropdownListModel.ariaInputLabel}
+          aria-labelledby={dropdownListModel.ariaInputLabelledby}
+          aria-describedby={dropdownListModel.ariaInputDescribedby}
+          aria-controls={dropdownListModel.ariaInputControls}
+          aria-activedescendant={dropdownListModel.ariaInputActivedescendant}
           placeholder={dropdownListModel.placeholderRendered}
           readOnly={dropdownListModel.filterReadOnly ? true : undefined}
           tabIndex={dropdownListModel.noTabIndex ? undefined : -1}

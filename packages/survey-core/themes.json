@@ -2432,6 +2432,14 @@
         "category": "effect",
         "exportKey": "effect"
       }
+    },
+    "special": {
+      "red": {
+        "category": "color",
+        "exportKey": "color",
+        "value": "rgba(156, 2, 39, 1)",
+        "type": "color"
+      }
     }
   },
   "default-dark": {
@@ -4841,6 +4849,14 @@
         },
         "category": "effect",
         "exportKey": "effect"
+      }
+    },
+    "special": {
+      "red": {
+        "category": "color",
+        "exportKey": "color",
+        "value": "rgba(156, 2, 39, 1)",
+        "type": "color"
       }
     }
   },

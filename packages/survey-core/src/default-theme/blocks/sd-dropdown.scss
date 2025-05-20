@@ -163,9 +163,14 @@
   }
 }
 
-.sd-input--disabled,
-.sd-input--readonly,
-.sd-input--preview {
+.sd-dropdown.sd-input--disabled,
+.sd-dropdown.sd-input--readonly,
+.sd-dropdown.sd-input--preview {
+  * {
+    width: 100%;
+    display: block;
+  }
+
   .sv-string-viewer {
     max-width: 100%;
     overflow: hidden;

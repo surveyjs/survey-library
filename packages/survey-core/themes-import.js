@@ -93,12 +93,12 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
   // eslint-disable-next-line no-console
   console.log(themeName);
 
-  const generalGroup = MikeThemes[themeName]["general"];
-  const primaryGroup = MikeThemes[themeName]["primary"];
-  const secondaryGroup = MikeThemes[themeName]["secondary"];
-  const shadowGroup = MikeThemes[themeName]["shadow"];
-  const bordersGroup = MikeThemes[themeName]["borders"];
-  const specialGroup = MikeThemes[themeName]["special"];
+  const generalGroup = MikeThemes[themeName]["general"] || undefined;
+  const primaryGroup = MikeThemes[themeName]["primary"] || undefined;
+  const secondaryGroup = MikeThemes[themeName]["secondary"] || undefined;
+  const shadowGroup = MikeThemes[themeName]["shadow"] || undefined;
+  const bordersGroup = MikeThemes[themeName]["borders"] || undefined;
+  const specialGroup = MikeThemes[themeName]["special"] || undefined;
 
   const displayThemeName = getDisplayName(themeName);
   themes[displayThemeName] = {};

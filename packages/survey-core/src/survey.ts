@@ -30,7 +30,7 @@ import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
 import { ProcessValue } from "./conditionProcessValue";
-import { surveyLocalization } from "./surveyStrings";
+import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
@@ -3556,7 +3556,6 @@ export class SurveyModel extends SurveyElementCore
       this.firstPageIsStartPage && this.pages.length > 1 ? this.pages[0] : null;
     if (!!page) {
       page.onFirstRendering();
-      page.setWasShown(true);
     }
     return page;
   }
@@ -3594,7 +3593,6 @@ export class SurveyModel extends SurveyElementCore
     if (!!newPage) {
       newPage.onFirstRendering();
       newPage.updateCustomWidgets();
-      newPage.setWasShown(true);
     }
     this.locStrsChanged();
     if (!this.isShowingPreview) {
@@ -3881,6 +3879,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompletedBefore = false;
     this.isLoading = false;
     this.completedByTriggers = undefined;
+    this.skippedPages = [];
     if (clearData) {
       this.setDataCore(null, true);
     }
@@ -4170,26 +4169,14 @@ export class SurveyModel extends SurveyElementCore
         keys = q.getValue();
       }
     }
-    this.checkTriggers(keys, false, false, true, q.name);
-    this.currentSingleElement = questions[index + 1];
+    this.checkTriggers(keys, true, false, true, q.name);
+    if (q === this.currentSingleElement) {
+      this.currentSingleElement = questions[index + 1];
+    }
     return true;
   }
   public performPrevious(): boolean {
-    const q = this.currentSingleElement;
-    if (!q) return this.prevPage();
-    this.resetNavigationButton();
-    if (this.isSingleVisibleInput) {
-      if ((<Question>q).prevSingleInput()) {
-        this.updateButtonsVisibility();
-        return true;
-      }
-    }
-    if (!q) return this.prevPage();
-    const questions = this.getSingleElements();
-    const index = questions.indexOf(q);
-    if (index === 0) return false;
-    this.currentSingleElement = questions[index - 1];
-    return true;
+    return this.prevPage();
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
     if (this.canGoTroughValidation()) return false;
@@ -4489,19 +4476,48 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public prevPage(): boolean {
-    if (this.currentSingleElement) return this.performPrevious();
     if (this.isFirstPage || this.state === "starting") return false;
     this.resetNavigationButton();
+    const curElement = this.currentSingleElement;
+    if (this.doSkipOnPrevPage(curElement)) return true;
+    if (curElement) return this.prevPageSingleElement(curElement);
 
-    const skipped = this.skippedPages.find(sp => sp.to == this.currentPage);
-    if (skipped) {
-      this.currentPage = skipped.from;
+    const vPages = this.visiblePages;
+    const index = vPages.indexOf(this.currentPage);
+    this.currentPage = vPages[index - 1];
+    return true;
+  }
+  private doSkipOnPrevPage(curElement: IElement): boolean {
+    const toEl = curElement || this.currentPage;
+    const skipped = this.skippedPages.find(sp => sp.to === toEl);
+    let elTo: any = undefined;
+    if (!!skipped) {
       this.skippedPages.splice(this.skippedPages.indexOf(skipped), 1);
-    } else {
-      const vPages = this.visiblePages;
-      const index = vPages.indexOf(this.currentPage);
-      this.currentPage = vPages[index - 1];
+      const el = skipped.from;
+      if (!el.isDisposed && el.isVisible) {
+        elTo = el;
+      }
     }
+    if (!!elTo) {
+      if (!!curElement) {
+        this.currentSingleElement = elTo;
+      } else {
+        this.currentPage = elTo;
+      }
+    }
+    return !!elTo;
+  }
+  private prevPageSingleElement(curElement: IElement): boolean {
+    if (this.isSingleVisibleInput) {
+      if ((<Question>curElement).prevSingleInput()) {
+        this.updateButtonsVisibility();
+        return true;
+      }
+    }
+    const questions = this.getSingleElements();
+    const index = questions.indexOf(curElement);
+    if (index === 0) return false;
+    this.currentSingleElement = questions[index - 1];
     return true;
   }
   /**
@@ -4771,8 +4787,13 @@ export class SurveyModel extends SurveyElementCore
     if (!this.currentPage && this.visiblePageCount > 0) {
       this.currentPage = this.visiblePages[0];
     }
+    if (this.isShowingPreview) {
+      this.pages.forEach(page => {
+        page.onFirstRendering();
+      });
+    }
     this.pages.forEach(page => {
-      if (page.hasShown) {
+      if (page.wasRendered) {
         page.updateElementCss(true);
       }
     });
@@ -4853,6 +4874,7 @@ export class SurveyModel extends SurveyElementCore
   private changeCurrentPageFromPreview: boolean;
   protected onQuestionsOnPageModeChanged(oldValue: string): void {
     if (this.isShowingPreview || this.isDesignMode) return;
+    this.skippedPages = [];
     this.currentSingleElement = undefined;
     if (oldValue === "singlePage") {
       this.updatePagesContainer();
@@ -5295,6 +5317,9 @@ export class SurveyModel extends SurveyElementCore
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
     return SurveyElement.getProgressInfoByElements(pages, false);
+  }
+  public get progressBarAriaLabel(): string {
+    return getLocaleString("progressbar", this.getLocale());
   }
   /**
    * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event to change this text.
@@ -8122,7 +8147,8 @@ export class SurveyModel extends SurveyElementCore
     const oldQuestion = this.focusingQuestionInfo?.question;
     if (oldQuestion === question) return false;
     this.focusingQuestionInfo = { question: question, onError: onError };
-    this.skippedPages.push({ from: this.currentPage, to: question.page });
+    const curElement = this.currentSingleElement;
+    this.skippedPages.push({ from: curElement || this.currentPage, to: curElement ? question : question.page });
     const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
     if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
@@ -8274,18 +8300,29 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (container === "header" && !isBelowHeader) {
-            layoutElement.index = -150;
-            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+          if (this.showTOC && !(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop && !this.isStartPageActive) {
+            if (container === "center") {
+              if (!isBelowHeader) {
+                layoutElement.index = -150;
+              } else {
+                delete layoutElement.index;
+              }
               containerLayoutElements.push(layoutElement);
             }
-          }
-          if (container === "center" && isBelowHeader) {
-            if (!!layoutElement.index) {
-              delete layoutElement.index;
+          } else {
+            if (container === "header" && !isBelowHeader) {
+              layoutElement.index = -150;
+              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
-            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
-              containerLayoutElements.push(layoutElement);
+            if (container === "center" && isBelowHeader) {
+              if (!!layoutElement.index) {
+                delete layoutElement.index;
+              }
+              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
           }
           if (container === "footer") {
@@ -8320,7 +8357,7 @@ export class SurveyModel extends SurveyElementCore
         if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
           const advHeader = layoutElement && layoutElement.data as Cover;
           if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
-            if (container === "center") {
+            if (container === "contentTop") {
               containerLayoutElements.push(layoutElement);
             }
           } else {

@@ -152,6 +152,16 @@ export class QuestionImageModel extends QuestionNonValue {
     return this.getPropertyValue("renderedMode", "image");
   }
 
+  public get ariaInvalid() {
+    return null;
+  }
+  public get ariaLabel () {
+    return null;
+  }
+  public get renderedAltText() {
+    return this.altText || this.title;
+  }
+
   public getImageCss(): string {
     const imageHeightProperty = this.getPropertyByName("imageHeight");
     const imageWidthProperty = this.getPropertyByName("imageWidth");

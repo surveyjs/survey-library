@@ -90,8 +90,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getType(): string {
     return "dropdown";
   }
-  public get ariaRole(): string {
-    return "combobox";
+  public get isNewA11yStructure() {
+    return true;
+  }
+  public get a11yQuestionAriaRole(): string | null {
+    return this.searchEnabled ? null : "combobox";
+  }
+  public get a11yInputAriaRole(): string | null {
+    return this.searchEnabled ? "combobox" : null;
   }
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.

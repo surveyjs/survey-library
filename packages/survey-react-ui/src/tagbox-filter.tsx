@@ -77,13 +77,16 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
             disabled={this.question.isInputReadOnly}
             readOnly={this.model.filterReadOnly ? true : undefined}
             size={!this.model.inputStringRendered ? 1 : undefined}
-            role={this.model.filterStringEnabled ? this.question.ariaRole : undefined}
-            aria-expanded={this.question.ariaExpanded}
-            aria-label={this.question.a11y_input_ariaLabel}
-            aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-            aria-describedby={this.question.a11y_input_ariaDescribedBy}
-            aria-controls={this.model.listElementId}
-            aria-activedescendant={this.model.ariaActivedescendant}
+            role={this.model.ariaInputRole}
+            aria-required={this.model.ariaInputRequired}
+            aria-invalid={this.model.ariaInputInvalid}
+            aria-errormessage={this.model.ariaInputErrorMessage}
+            aria-expanded={this.model.ariaInputExpanded}
+            aria-label={this.model.ariaInputLabel}
+            aria-labelledby={this.model.ariaInputLabelledby}
+            aria-describedby={this.model.ariaInputDescribedby}
+            aria-controls={this.model.ariaInputControls}
+            aria-activedescendant={this.model.ariaInputActivedescendant}
             placeholder={this.model.filterStringPlaceholder}
             onKeyDown={(e) => { this.keyhandler(e); }}
             onChange={(e) => { this.onChange(e); }}

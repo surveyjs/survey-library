@@ -3,7 +3,7 @@ import { PageModel } from "../src/page";
 import { Question } from "../src/question";
 import { PanelModel, QuestionRowModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
-import { JsonObject } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { FlowPanelModel } from "../src/flowpanel";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
@@ -13,6 +13,8 @@ import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
+import { CustomWidgetCollection } from "../src/questionCustomWidgets";
+import { Helpers } from "../src/helpers";
 export default QUnit.module("Panel");
 
 QUnit.test("questions-elements synhronization", function (assert) {
@@ -3562,4 +3564,42 @@ QUnit.test("Check that startWithNewLine doesn't trigger animation", (assert) => 
   question2.startWithNewLine = false;
   assert.equal(page.visibleRows.length, 1);
   settings.animationEnabled = false;
+});
+
+QUnit.test("test titleTagName of ", assert => {
+  const savedTitleTags = Helpers.createCopy(settings.titleTags);
+  settings.titleTags.survey = "h1";
+  settings.titleTags.page = "h2";
+  settings.titleTags.panel = "h3";
+  settings.titleTags.question = "h4";
+
+  const dynamicContainer = {
+    name: "dynamic_container",
+    title: "Dynamic Container",
+    iconName: "icon-dynamic_container",
+    widgetIsLoaded() { return true; },
+    isFit(question) { return question.getType() === "panel"; },
+    init() {
+      Serializer.addClass("dynamic_container", [], undefined, "panel");
+      Serializer.addProperty("dynamic_container", { name: "section_identifier", displayName: "Section Identifier" });
+    },
+  };
+
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.add(dynamicContainer, "customtype");
+
+  try {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("Page 1");
+    const panel = Serializer.createClass("dynamic_container", { "type": "dynamic_container", "name": "q1" }) as PanelModel;
+    page.addPanel(panel);
+
+    assert.equal(survey.getAllPanels().length, 1);
+    assert.equal(panel.titleTagName, "h3");
+    assert.equal(page.titleTagName, "h2");
+
+  } finally {
+    CustomWidgetCollection.Instance.clear();
+    settings.titleTags = savedTitleTags;
+  }
 });

@@ -14,13 +14,18 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export async function compareScreenshot(page: Page, elementSelector: string | undefined, screenshotName: string, elementIndex = 0) {
+export async function compareScreenshot(page: Page, elementSelector: string | Locator | undefined, screenshotName: string, elementIndex = 0) {
   await page.addStyleTag({
     content: "textarea::-webkit-resizer { visibility: hidden !important; }"
   });
 
-  if (!!elementSelector) {
-    const element = page.locator(elementSelector).filter({ visible: true });
+  let currentElement = elementSelector;
+  if (!!currentElement && typeof currentElement == "string") {
+    currentElement = page.locator(currentElement);
+  }
+
+  if (!!currentElement) {
+    const element = (<Locator>currentElement).filter({ visible: true });
     await expect.soft(element.nth(elementIndex)).toBeVisible();
     await expect.soft(element.nth(elementIndex)).toHaveScreenshot(screenshotName, {
       timeout: 10000

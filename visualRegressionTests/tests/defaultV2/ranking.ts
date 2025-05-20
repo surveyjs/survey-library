@@ -163,15 +163,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const item1 = Selector("span")
-        .withText("ranking question")
-        .parent("[aria-labelledby]")
-        .find("span")
-        .withText("item1");
-
-      const qustion = Selector("span")
-        .withText("ranking question")
-        .parent("[aria-labelledby]");
+      const item1 = Selector(".sv-ranking-item__text span").withText("item1");
 
       const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
         (<HTMLElement>document.getElementById("surveyElement")).style.margin = "50px";
@@ -182,7 +174,7 @@ frameworks.forEach(framework => {
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-      await t.dragToElement(item1, qustion, { speed: 0.1 });
+      await t.dragToElement(item1, Selector(".sd-question"), { speed: 0.1 });
       await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
@@ -202,15 +194,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const item1 = Selector("span")
-        .withText("ranking question")
-        .parent("[aria-labelledby]")
-        .find("span")
-        .withText("item1");
-
-      const qustion = Selector("span")
-        .withText("ranking question")
-        .parent("[aria-labelledby]");
+      const item1 = Selector(".sv-ranking-item__text span").withText("item1");
 
       const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
         (<HTMLElement>document.getElementById("surveyElement")).style.position = "relative";
@@ -223,7 +207,7 @@ frameworks.forEach(framework => {
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-      await t.dragToElement(item1, qustion, { speed: 0.1 });
+      await t.dragToElement(item1, Selector(".sd-question"), { speed: 0.1 });
       await takeElementScreenshot("question-ranking-shortcut-position-container-relative-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
@@ -243,15 +227,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const item1 = Selector("span")
-        .withText("ranking question")
-        .parent("[aria-labelledby]")
-        .find("span")
-        .withText("item1");
-
-      const qustion = Selector("span")
-        .withText("ranking question")
-        .parent("[aria-labelledby]");
+      const item1 = Selector(".sv-ranking-item__text span").withText("item1");
 
       const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
         (<HTMLElement>document.getElementById("surveyElement")).style.height = "300px";

@@ -7734,7 +7734,7 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
   var p2 = survey.getPanelByName("p2");
   var p3 = survey.getPanelByName("p3");
   var page = survey.pages[0];
-  page.setWasShown(true);
+  page.onFirstRendering();
   assert.equal(page.elements[0].name, "p3");
   assert.equal(page.elements[3].name, "q1");
   assert.equal(p1.elements[0].name, "p1q2");
@@ -7750,7 +7750,7 @@ QUnit.test("Randomize questions in page and panels", function (assert) {
   p1 = survey.getPanelByName("p1");
   p2 = survey.getPanelByName("p2");
   p3 = survey.getPanelByName("p3");
-  page.setWasShown(true);
+  page.onFirstRendering();
   assert.equal(page.elements[0].name, "q1");
   assert.equal(page.elements[3].name, "p3");
   assert.equal(p1.elements[0].name, "p1q1");
@@ -15476,6 +15476,44 @@ QUnit.test("Skip trigger test and navigate back", function (assert) {
   survey.prevPage();
   assert.equal(survey.currentPage.name, "page2", "We returned to second page");
 });
+QUnit.test("Skip trigger test and navigate back & questionPerPage, Bug#9886", function (assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "text",
+        name: "q2",
+      },
+      {
+        type: "text",
+        name: "q3",
+      },
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{q1} = 'item2'",
+        gotoName: "q3",
+      },
+    ],
+  });
+  survey.getQuestionByName("q1").value = "item2";
+  assert.equal(survey.currentSingleQuestion.name, "q3", "We moved to another page");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "We returned to first page skipping second");
+  survey.getQuestionByName("q1").value = "item1";
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "We moved to second page");
+  survey.nextPage();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "We moved to third page");
+  survey.prevPage();
+  assert.equal(survey.currentSingleQuestion.name, "q2", "We returned to second page");
+});
 
 QUnit.test("Two skip triggers test", function (assert) {
   var focusedQuestions: Array<string> = [];
@@ -19824,6 +19862,32 @@ QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly, B
   survey.currentSingleQuestion.value = "a";
   assert.equal(survey.currentSingleQuestion.name, "q4", "#2");
 });
+QUnit.test("questionsOnPageMode=questionPerPage & skip doesn't work correctly if executeSkipOnValueChanged = false, Bug #9903", function (assert) {
+  settings.triggers.executeSkipOnValueChanged = false;
+  const surveyJson = {
+    "questionsOnPageMode": "questionPerPage",
+    "elements": [
+      { "type": "text", "name": "q1" },
+      { "type": "text", "name": "q2" },
+      { "type": "text", "name": "q3" },
+      { "type": "text", "name": "q4" }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{q1} = 'a'",
+        "gotoName": "q4"
+      }]
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  assert.equal(survey.currentSingleQuestion.name, "q1", "#1");
+  survey.currentSingleQuestion.value = "a";
+  assert.equal(survey.currentSingleQuestion.name, "q1", "#2");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q4", "#3");
+  settings.triggers.executeSkipOnValueChanged = true;
+});
 QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", function (assert) {
   const surveyJson = {
     elements: [
@@ -21029,15 +21093,15 @@ QUnit.test("getContainerContent - show advanced header in content top container 
   assert.equal(survey.questionsOnPageMode, "standard");
   assert.equal(survey.showProgressBar, false);
   assert.equal(survey.progressBarLocation, "auto");
-  assert.deepEqual(getContainerContent("header"), [], "");
-  assert.deepEqual(getContainerContent("center"), [{
+  assert.deepEqual(getContainerContent("header"), [], "header");
+  assert.deepEqual(getContainerContent("center"), [], "center");
+  assert.deepEqual(getContainerContent("footer"), [], "footer");
+  assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-header",
     "container": "header",
     "id": "advanced-header",
     "index": -100
-  }], "header in center");
-  assert.deepEqual(getContainerContent("footer"), [], "footer");
-  assert.deepEqual(getContainerContent("contentTop"), [], "center top");
+  }], "header in center top");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
     "id": "buttons-navigation"
@@ -22116,4 +22180,61 @@ QUnit.test("survey.getAllQuestions, get nested questions & creating nested quest
   const questions = survey.getAllQuestions(true, false, true);
   assert.equal(questions.length, 3, "3 questions in the survey");
   assert.equal(questions[2].name, "q3", "the last question is nested");
+});
+
+QUnit.test("getContainerContent - TOC + title + progress above", function (assert) {
+  const json = {
+    "title": "Some title text",
+    "pages": [
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "question2",
+          },
+        ]
+      },
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+          }
+        ]
+      },
+    ],
+    "showProgressBar": true,
+    "progressBarLocation": "aboveheader",
+    "progressBarType": "questions",
+    "showTOC": true,
+    "headerView": "advanced"
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [], "header is empty");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions",
+    "index": -150
+  }], "progress + toc in center");
+  assert.deepEqual(getContainerContent("footer"), [], "footer is empty");
+  assert.deepEqual(getContainerContent("contentTop"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "header in content top");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "nav buttons in content bottom");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-navigation-toc",
+    "id": "toc-navigation"
+  }], "show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "right is empty");
 });

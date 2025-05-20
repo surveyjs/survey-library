@@ -340,4 +340,44 @@ QUnit.test("Inputmask: saveMaskedValue: true doesn't work on changing value outs
   q.value = 54321;
   assert.equal(q.value, "54,321", "q.value #2");
   assert.equal(q.inputValue, "54,321", "q.inputValue #2");
+
+  q.value = 54.321;
+  assert.equal(q.value, "54.32", "q.value #3");
+  assert.equal(q.inputValue, "54.32", "q.inputValue #3");
+});
+
+QUnit.test("Inputmask: saveMaskedValue: true & decimalSeparator ',' , doesn't work on changing value outside the input", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "numeric";
+  q.maskSettings.saveMaskedValue = true;
+  (<InputMaskNumeric>q.maskSettings).decimalSeparator = ",";
+  (<InputMaskNumeric>q.maskSettings).thousandsSeparator = " ";
+  assert.equal(q.value, undefined, "empty value");
+  assert.equal(q.inputValue, "", "empty inputValue");
+
+  q.value = 54321;
+  assert.equal(q.value, "54 321", "q.value #1");
+  assert.equal(q.inputValue, "54 321", "q.inputValue #1");
+
+  q.value = 54.321;
+  assert.equal(q.value, "54,32", "q.value #2");
+  assert.equal(q.inputValue, "54,32", "q.inputValue #2");
+});
+
+QUnit.test("Currency Input Mask: update the prefix at runtime", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "currency";
+
+  const maskSettings = <InputMaskCurrency>q.maskSettings;
+  maskSettings.prefix = "*";
+  assert.equal(q.value, undefined, "empty value");
+  assert.equal(q.inputValue, "", "empty inputValue");
+
+  q.value = 123;
+  assert.equal(q.value, "123", "q.value #1");
+  assert.equal(q.inputValue, "*123", "q.inputValue #1");
+
+  maskSettings.prefix = "$";
+  assert.equal(q.value, "123", "q.value #2");
+  assert.equal(q.inputValue, "$123", "q.inputValue #2");
 });

@@ -152,6 +152,24 @@ frameworks.forEach(framework => {
       expect(headingY).toBeGreaterThanOrEqual(0);
     });
 
+    test("Page should not be scrolled to top of survey if top of survey is visible", async ({ page }) => {
+      await initSurvey(page, framework, scrollJson);
+      await page.evaluate(() => {
+        const container = window.document.getElementById("surveyElement");
+        const parentDiv = container?.parentNode;
+        const newNode = document.createElement("div");
+        newNode.style.height = "200px";
+        parentDiv?.insertBefore(newNode, container);
+        window["survey"].navigationButtonsLocation = "top";
+      });
+
+      await page.locator("input[value=Next]").click();
+      const headingY = await page.evaluate(() => {
+        return document.querySelector("h3")?.getBoundingClientRect().y;
+      });
+      expect(headingY).toBeGreaterThanOrEqual(200);
+    });
+
     test("Page should be scrolled to top of survey fit to container", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
       await page.evaluate(() => {

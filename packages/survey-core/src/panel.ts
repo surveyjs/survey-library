@@ -472,6 +472,11 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   protected removeFromParent(): void {}
   protected canShowTitle(survey: ISurvey): boolean { return true; }
+
+  protected getDefaultTitleTagName(): string {
+    return settings.titleTags.panel;
+  }
+
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
     if (!this.hasTitle && this.isDesignMode) return false;

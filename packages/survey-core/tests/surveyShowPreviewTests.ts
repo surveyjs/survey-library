@@ -785,3 +785,85 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMod
     assert.equal(survey.state, "completed", "No errors");
   }
 );
+
+QUnit.test("showAllQuestions - pages css after cancelPreview",
+  function(assert) {
+    const survey = new SurveyModel({
+      title: "Test",
+      pages: [
+        {
+          name: "page1",
+          title: "Q1",
+          description: "Please complete the following fields",
+          elements: [
+            {
+              type: "text",
+              name: "question1",
+              title: "Name of process",
+            }
+          ],
+        },
+        {
+          name: "page2",
+          title: "Q2",
+          description: "Please complete the following fields",
+          elements: [
+            {
+              type: "text",
+              name: "question2",
+              title: "Name of process",
+            }
+          ],
+        },
+      ],
+      showPreviewBeforeComplete: "showAllQuestions",
+    });
+    assert.ok(survey.pages[0].cssClasses.page);
+    assert.ok(survey.pages[1].cssClasses.page);
+    survey.showPreview();
+    assert.ok(survey.pages[0].cssClasses.panel);
+    assert.ok(survey.pages[1].cssClasses.panel);
+    (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
+    assert.ok(survey.pages[0].cssClasses.page);
+    assert.ok(survey.pages[1].cssClasses.page);
+  }
+);
+
+QUnit.test("Add row button on showPreview",
+  function(assert) {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "text",
+              "name": "question1"
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "matrixdynamic",
+              "name": "question2",
+              "columns": []
+            }
+          ]
+        }
+      ]
+    });
+    survey.showPreview();
+    assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix rendered first time)");
+    (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
+    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview");
+
+    survey.getAllQuestions()[1].resetRenderedTable();
+    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow");
+    survey.showPreview();
+    assert.notOk(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "do not show AddRow on preview (matrix has been rendered already)");
+    (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
+    assert.ok(survey.getAllQuestions()[1].renderedTable.showAddRowOnBottom, "show AddRow on cancel preview again");
+  }
+);

@@ -3,6 +3,7 @@
     type="button"
     :class="question.getDetailPanelButtonCss(row)"
     @click="() => row.showHideDetailPanelClick()"
+    :title="item.title"
     v-bind:aria-expanded="
       question.getIsDetailPanelShowing(row) ? 'true' : 'false'
     "

@@ -138,7 +138,12 @@ export class Question extends SurveyElement<Question>
   private set _isMobile(val: boolean) { this.setPropertyValue("_isMobile", val); }
   public get forceIsInputReadOnly(): boolean { return this.getPropertyValue("forceIsInputReadOnly"); }
   public set forceIsInputReadOnly(val: boolean) { this.setPropertyValue("forceIsInputReadOnly", val); }
-  public get ariaExpanded(): "true" | "false" { return this.getPropertyValue("ariaExpanded"); }
+  public get ariaExpanded(): "true" | "false" {
+    if (this.isNewA11yStructure) {
+      return null;
+    }
+    return this.getPropertyValue("ariaExpanded");
+  }
   public set ariaExpanded(val: "true" | "false") { this.setPropertyValue("ariaExpanded", val); }
 
   constructor(name: string) {
@@ -3218,6 +3223,9 @@ export class Question extends SurveyElement<Question>
   }
   public get a11y_input_ariaErrormessage(): string {
     return this.hasCssError() ? this.id + "_errors" : null;
+  }
+  public get a11y_input_ariaExpanded(): "true" | "false" {
+    return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
 

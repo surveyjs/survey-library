@@ -336,9 +336,14 @@ ComponentCollection.Instance.add({
 });
 ```
 
-## Further Reading
+## Demos
 
-- [Create Specialized Question Types](/form-library/documentation/customize-question-types/create-specialized-question-types)
-- [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
-- [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
-- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)
+[Full Name Question](https://surveyjs.io/survey-creator/examples/add-full-name-to-form-template/ (linkStyle))
+
+[Shipping Details Question](https://surveyjs.io/survey-creator/examples/add-shipping-details-to-form-template/ (linkStyle))
+
+[Contact Information Template](https://surveyjs.io/survey-creator/examples/add-contact-information-to-form-template/ (linkStyle))
+
+[Address Template](https://surveyjs.io/survey-creator/examples/add-address-to-form-template/ (linkStyle))
+
+[Smart Search Input](https://surveyjs.io/survey-creator/examples/smart-search-input/ (linkStyle))

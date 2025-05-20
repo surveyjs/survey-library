@@ -149,6 +149,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           id={question.id}
           className={question.getRootCss()}
           style={rootStyle}
+          data-name={question.name}
           role={question.ariaRole}
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
@@ -156,7 +157,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-labelledby={question.ariaLabelledBy}
           aria-describedby={question.ariaDescribedBy}
           aria-expanded={question.ariaExpanded}
-          data-name={question.name}
         >
           {singleBreadcrumbs}
           {errorsAboveQuestion}

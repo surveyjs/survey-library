@@ -124,6 +124,7 @@ export class QuestionTextModel extends QuestionTextBase {
     const inputMask = Serializer.createClass(maskClassName);
     inputMask.onPropertyChanged.add((_, options) => {
       this.onNestedPropertyChanged.fire(this, { name: "maskSettings", newValue: options.newValue, nestedName: options.name });
+      this.updateInputValue();
     });
     inputMask.owner = this;
     return inputMask;
@@ -374,6 +375,13 @@ export class QuestionTextModel extends QuestionTextBase {
     this.value = value;
   }
 
+  protected convertToCorrectValue(val: any): any {
+    if (val !== undefined && val !== null && typeof val !== "string" && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
+      return this.maskInstance.getMaskedValue(val);
+    }
+    return super.convertToCorrectValue(val);
+  }
+
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.updateInputValue();
@@ -384,11 +392,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {
-      if (!_value) {
-        this._inputValue = this.maskInstance.getMaskedValue("");
-      } else {
-        this.inputValue = _value;
-      }
+      this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
     } else {
       this._inputValue = this.maskInstance.getMaskedValue(_value);
     }
@@ -667,7 +671,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
   public readOnlyBlocker = (event: any) => {
-    if (this.isReadOnlyAttr) {
+    if (this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1) {
       event.preventDefault();
       return true;
     }

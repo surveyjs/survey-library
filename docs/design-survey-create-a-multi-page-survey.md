@@ -377,6 +377,8 @@ const surveyJson = {
 };
 ```
 
+[View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
+
 If you need to access the start page in code, you can use the [`startPage`](https://surveyjs.io/Documentation/Library?id=surveymodel#startPage) property:
 
 ```js

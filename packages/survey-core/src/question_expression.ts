@@ -430,7 +430,7 @@ export function getCurrecyCodes(): Array<string> {
   ];
 }
 
-function getCorrectMinMax(obj: QuestionExpressionModel, min: any, max: any, isMax: boolean): any {
+function getCorrectMinMax(min: any, max: any, isMax: boolean): any {
   let val = isMax ? max : min;
   if (min == -1 || max == -1) return val;
   if (min > max) return isMax ? min : max;
@@ -460,14 +460,14 @@ Serializer.addClass(
     {
       name: "maximumFractionDigits:number",
       onSettingValue: (obj: any, val: any): any => {
-        return getCorrectMinMax(obj, obj.minimumFractionDigits, val, true);
+        return getCorrectMinMax(obj.minimumFractionDigits, val, true);
       },
       default: -1
     },
     {
       name: "minimumFractionDigits:number",
       onSettingValue: (obj: any, val: any): any => {
-        return getCorrectMinMax(obj, val, obj.maximumFractionDigits, false);
+        return getCorrectMinMax(val, obj.maximumFractionDigits, false);
       },
       default: -1
     },

@@ -446,7 +446,7 @@ export class QuestionSliderModel extends Question {
   };
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
-    if (!this.oldValue) return; // Firefox raise one more OnChange after PointerUp and break the value
+    if (this.oldValue === null) return; // Firefox raise one more OnChange after PointerUp and break the value
     const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, setSliderValue } = this;
     const renderedValue:number[] = getRenderedValue();
     const inputNode = <HTMLInputElement>event.target;
@@ -669,7 +669,7 @@ export class QuestionSliderModel extends Question {
 
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
-  private oldValue: number | number[];
+  private oldValue: number | number[] | null = null;
 
   private calcGeneratedLabels() : Array<ItemValue> {
     const labels:ItemValue[] = [];
@@ -729,11 +729,11 @@ Serializer.addClass(
     },
     {
       name: "minValueExpression",
-      type: "condition"
+      type: "expression"
     },
     {
       name: "maxValueExpression",
-      type: "condition"
+      type: "expression"
     },
     {
       name: "minRangeLength:number",

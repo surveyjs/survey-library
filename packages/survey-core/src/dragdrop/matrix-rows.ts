@@ -4,6 +4,11 @@ import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
+  private dropTargetIndex;
+  private draggedRenderedRow;
+  private lastDropTargetParentElement;
+  private lastDropTargetIndex;
+
   protected get draggedElementType(): string {
     return "matrix-row";
   }
@@ -58,15 +63,16 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
     }
 
-    //this.isBottom = null;
-
     const renderedRows = this.parentElement.renderedTable.rows;
+    let draggedElementIndex = -1;
     renderedRows.forEach((renderedRow, index) => {
       if (renderedRow.row === this.draggedElement) {
+        this.draggedRenderedRow = renderedRow;
+        draggedElementIndex = index;
         renderedRow.isGhostRow = true;
       }
     });
-
+    renderedRows.splice(draggedElementIndex, 1);
     this.fromIndex = this.parentElement.visibleRows.indexOf(this.draggedElement);
     return draggedElementShortcut;
   }
@@ -74,43 +80,31 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   private fromIndex: number = null;
   private toIndex: number = null;
 
-  // protected ghostPositionChanged(): void {
-  //   let ghostPosition;
-  //   this.parentElement.renderedTable.rows.forEach(
-  //     (renderedRow: QuestionMatrixDropdownRenderedRow) => {
-
-  //       ghostPosition = this.getGhostPosition(
-  //         renderedRow.row
-  //       );
-  //       renderedRow.isGhostRow = !ghostPosition;
-  //     }
-  //   );
-  //   super.ghostPositionChanged();
-  // }
-
-  private findRowInMatrixById(matrix: QuestionMatrixDynamicModel, rowid) {
-    return matrix.renderedTable.rows.filter(
+  private findRowIndexInMatrixById(matrix: QuestionMatrixDynamicModel, rowid) {
+    const rows = matrix.renderedTable.rows;
+    const row = rows.filter(
       (renderedRow: any) => renderedRow.row && renderedRow.row.id === rowid
     )[0];
+    return rows.indexOf(row);
   }
 
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: any
   ): MatrixDropdownRowModelBase {
     const matrix = this.parentElement;
-    let dropTargetRenderedRow = this.findRowInMatrixById(matrix, dataAttributeValue);
-    if (!dropTargetRenderedRow) {
+    this.dropTargetIndex = this.findRowIndexInMatrixById(matrix, dataAttributeValue);
+    if (this.dropTargetIndex < 0) {
       const matrices = this.survey.getAllQuestions().filter(q => q instanceof QuestionMatrixDynamicModel);
       for (let i = 0; i < matrices.length; i++) {
-        dropTargetRenderedRow = this.findRowInMatrixById(matrices[i], dataAttributeValue);
-        if (dropTargetRenderedRow) {
+        this.dropTargetIndex = this.findRowIndexInMatrixById(matrices[i], dataAttributeValue);
+        if (this.dropTargetIndex >= 0) {
           this.dropTargetParentElement = matrices[i];
           break;
         }
       }
     }
 
-    return dropTargetRenderedRow?.row;
+    return matrix.renderedTable.rows[this.dropTargetIndex]?.row;
   }
   public canInsertIntoThisRow(row: MatrixDynamicRowModel): boolean {
     const lockedRows = this.parentElement.lockedRowCount;
@@ -132,46 +126,16 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (this.isDropTargetDoesntChanged(this.isBottom)) return;
 
-    let dropTargetIndex;
-    let draggedElementIndex;
-    let draggedRenderedRow;
+    if (this.lastDropTargetParentElement) {
+      const renderedRows = this.lastDropTargetParentElement?.renderedTable.rows;
+      renderedRows.splice(this.lastDropTargetIndex, 1);
+    }
 
-    const renderedRows = this.dropTargetParentElement.renderedTable.rows;
-    renderedRows.forEach((renderedRow, index) => {
-      if (renderedRow.row === this.dropTarget) {
-        // renderedRow.isGhostRow = true;
-        dropTargetIndex = index;
-      }
-      if (renderedRow.row === this.draggedElement) {
-        draggedRenderedRow = renderedRow;
-        draggedElementIndex = index;
-        draggedRenderedRow.isGhostRow = true;
-      }
-    });
+    this.lastDropTargetParentElement = this.dropTargetParentElement;
+    this.lastDropTargetIndex = this.dropTargetIndex;
+    this.dropTargetParentElement.renderedTable.rows.splice(this.dropTargetIndex, 0, this.draggedRenderedRow);
+    this.toIndex = this.dropTargetParentElement.visibleRows.indexOf(this.dropTarget);
 
-    renderedRows.splice(draggedElementIndex, 1);
-    renderedRows.splice(dropTargetIndex, 0, draggedRenderedRow);
-    this.toIndex = this.parentElement.visibleRows.indexOf(this.dropTarget);
-
-    // const matrix = this.parentElement;
-    // const fromIndex = matrix.visibleRows.indexOf(this.draggedElement);
-    // const toIndex = matrix.visibleRows.indexOf(this.dropTarget);
-    // matrix.moveRowByIndex(fromIndex, toIndex);
-
-    // if (draggedElementIndex !== dropTargetIndex) {
-    //   dropTargetNode.classList.remove("sv-matrix__drag-drop--moveup");
-    //   dropTargetNode.classList.remove("sv-matrix__drag-drop--movedown");
-    //   this.dropTarget.isDragDropMoveDown = false;
-    //   this.dropTarget.isDragDropMoveUp = false;
-    // }
-
-    // if (draggedElementIndex > dropTargetIndex) {
-    //   this.dropTarget.isDragDropMoveDown = true;
-    // }
-
-    // if (draggedElementIndex < dropTargetIndex) {
-    //   this.dropTarget.isDragDropMoveUp = true;
-    // }
     super.ghostPositionChanged();
   }
 

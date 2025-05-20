@@ -82,12 +82,6 @@ const model = computed(() => {
 const click = (event: any) => {
   model.value?.onClick(event);
 };
-const chevronPointerDown = (event: any) => {
-  model.value?.chevronPointerDown(event);
-};
-const clear = (event: any) => {
-  model.value?.onClear(event);
-};
 const keyhandler = (event: any) => {
   model.value?.keyHandler(event);
 };

@@ -1,10 +1,9 @@
 import * as React from "react";
-import { QuestionTagboxModel, DropdownListModel, DropdownMultiSelectListModel } from "survey-core";
+import { QuestionTagboxModel, DropdownMultiSelectListModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { SurveyQuestionTagboxItem } from "./tagbox-item";
 import { TagboxFilterString } from "./tagbox-filter";
-import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTagboxModel> {
   constructor(props: any) {
@@ -22,8 +21,8 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
     return renderedItem;
   }
 
-  protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
-    const dropdownMultiSelectListModel = dropdownListModel as DropdownMultiSelectListModel;
+  protected renderInput(): React.JSX.Element {
+    const dropdownListModel = this.dropdownListModel as DropdownMultiSelectListModel;
     const items = this.question.selectedChoices.map((choice, index) => { return this.renderItem("item" + index, choice); });
     return (
       <div
@@ -50,10 +49,9 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
-          <TagboxFilterString model={dropdownMultiSelectListModel} question={this.question}></TagboxFilterString>
+          <TagboxFilterString model={dropdownListModel} question={this.question}></TagboxFilterString>
         </div>
-        {/* {this.createClearButton()} */}
-        <SurveyActionBar model={dropdownListModel.editorButtons}></SurveyActionBar>
+        {this.renderEditorButtons()}
       </div>);
   }
 

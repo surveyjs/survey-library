@@ -28,6 +28,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   focus = (event: any) => {
     this.question.onFocus(event);
   };
+  protected get dropdownListModel(): DropdownListModel {
+    return this.question["dropdownListModel"];
+  }
   protected getStateElement() {
     return this.question["dropdownListModel"];
   }
@@ -48,7 +51,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   protected renderSelect(cssClasses: any): React.JSX.Element {
     let selectElement: React.JSX.Element | null = null;
-    const dropdownListModel = this.question.dropdownListModel;
+    const dropdownListModel = this.dropdownListModel;
     if (this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -64,11 +67,11 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         className={this.question.getControlClass()}
         ref={(div) => (this.setControl(div))}>
         {this.renderReadOnlyElement()}
-        <SurveyActionBar model={dropdownListModel.editorButtons}></SurveyActionBar>
+        {this.renderEditorButtons()}
       </div>;
     } else {
       selectElement = <>
-        {this.renderInput(dropdownListModel)}
+        {this.renderInput()}
         <Popup model={dropdownListModel.popupModel}></Popup>
       </>;
     }
@@ -80,17 +83,18 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     );
   }
 
-  renderValueElement(dropdownListModel: DropdownListModel): React.JSX.Element | null {
+  renderValueElement(): React.JSX.Element | null {
     if (this.question.showInputFieldComponent) {
-      return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: dropdownListModel.getSelectedAction(), question: this.question });
+      return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: this.dropdownListModel.getSelectedAction(), question: this.question });
     } else if (this.question.showSelectedItemLocText) {
       return this.renderLocString(this.question.selectedItemLocText);
     }
     return null;
   }
 
-  protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
-    let valueElement: React.JSX.Element | null = this.renderValueElement(dropdownListModel);
+  protected renderInput(): React.JSX.Element {
+    const dropdownListModel = this.dropdownListModel;
+    let valueElement: React.JSX.Element | null = this.renderValueElement();
     const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
@@ -156,7 +160,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           onFocus={this.focus}
         ></input>
       </div>
-      <SurveyActionBar model={dropdownListModel.editorButtons}></SurveyActionBar>
+      {this.renderEditorButtons()}
     </div>);
   }
 
@@ -172,6 +176,14 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         />
       </div>
     );
+  }
+
+  protected renderEditorButtons(): React.JSX.Element | null {
+    if (this.dropdownListModel.editorButtonsIsVisible) {
+      return <SurveyActionBar model={this.dropdownListModel.editorButtons}></SurveyActionBar>;
+    } else {
+      return null;
+    }
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {

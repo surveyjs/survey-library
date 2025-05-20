@@ -19,7 +19,7 @@
             </ng-container>
             <ng-template [component]="{ name: 'sv-tagbox-filter', data: { model: dropdownModel, question: model } }"></ng-template>
         </div>
-        <sv-ng-action-bar [model]="model.editorButtons"></sv-ng-action-bar>
+        <sv-ng-action-bar *ngIf="dropdownModel.editorButtonsIsVisible" [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
     <div *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId"
@@ -36,6 +36,6 @@
         <div [class]="model.cssClasses.controlValue">
             <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
         </div>
-        <sv-ng-action-bar [model]="model.editorButtons"></sv-ng-action-bar>
+        <sv-ng-action-bar *ngIf="dropdownModel.editorButtonsIsVisible" [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
     </div>
 </div>

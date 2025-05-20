@@ -43,7 +43,7 @@
             [attr.readonly]="dropdownModel.filterReadOnly ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
-        <sv-ng-action-bar [model]="model.editorButtons"></sv-ng-action-bar>
+        <sv-ng-action-bar *ngIf="dropdownModel.editorButtonsIsVisible" [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="dropdownModel.popupModel"></sv-ng-popup>
     <div *ngIf="model.isReadOnly" [class]="model.getControlClass()" 
@@ -60,6 +60,6 @@
         <div [class]="model.cssClasses.controlValue">
             <sv-ng-string *ngIf="model.locReadOnlyText" [model]="model.locReadOnlyText"></sv-ng-string>
         </div>
-        <sv-ng-action-bar [model]="model.editorButtons"></sv-ng-action-bar>
+        <sv-ng-action-bar *ngIf="dropdownModel.editorButtonsIsVisible" [model]="dropdownModel.editorButtons"></sv-ng-action-bar>
     </div>
 </div>

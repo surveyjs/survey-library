@@ -24,7 +24,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super(name);
     this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("clearCaption", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);
     this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
@@ -143,16 +142,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
-  }
-
-  public get clearCaption(): string {
-    return this.getLocalizableStringText("clearCaption");
-  }
-  public set clearCaption(value: string) {
-    this.setLocalizableStringText("clearCaption", value);
-  }
-  get locClearCaption(): LocalizableString {
-    return this.getLocalizableString("clearCaption");
   }
 
   public get readOnlyText(): string {

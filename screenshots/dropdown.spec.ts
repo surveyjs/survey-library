@@ -331,7 +331,7 @@ frameworks.forEach(framework => {
       });
 
       await compareScreenshot(page, ".sd-question", "dropdown-rtl-question-answered.png");
-      await page.locator(".sd-dropdown_clean-button").click();
+      await page.locator(".sd-editor-clean-button").click();
       await compareScreenshot(page, ".sd-question", "dropdown-rtl-question.png");
       await page.evaluate(() => {
         document.body.setAttribute("dir", "ltr");
@@ -407,9 +407,9 @@ frameworks.forEach(framework => {
           if (options.menuType === "popup") options.menuType = "overlay";
         });
       });
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await page.getByText("item1", { exact: true }).click();
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await compareScreenshot(page, ".sv-popup.sv-single-select-list", "dropdown-question-overlay-popup-selected.png");
     });
 

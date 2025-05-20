@@ -16,7 +16,6 @@
   padding-inline-end: calcSize(0.5); //padding-right
   padding-inline-start: calcSize(2); //padding-left
   padding-block: calcSize(0.5);
-  gap: calcSize(2);
 
   opacity: 1;
   display: flex;
@@ -26,6 +25,12 @@
 
 .sd-dropdown[disabled] {
   pointer-events: none;
+}
+
+select.sd-dropdown {
+  padding-inline-start: calcSize(2); //padding-left
+  padding-inline-end: calcSize(0.5); //padding-right
+  padding-block: calcSize(1.5);
 }
 
 .sd-dropdown--empty:not(.sd-input--disabled),
@@ -60,16 +65,17 @@
   font-size: $font-editorfont-size;
 
   position: relative;
-  display: flex;
+  // display: flex;
   padding: multiply(0.5, $font-editorfont-size) 0px multiply(0.5, $font-editorfont-size) 0px;
-  flex-direction: column;
-  align-items: flex-start;
-  flex: 1 0 0;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // flex: 1 0 0;
 }
 
 .sd-dropdown-action-bar {
   overflow: unset;
   gap: multiply(0.25, $font-editorfont-size);
+  margin-inline-start: calcSize(1);
 }
 
 .sd-editor-button-item {
@@ -113,8 +119,31 @@
   opacity: var(--lbr-editor-button-icon-opacity-disabled, 0.25);
 }
 
-.sd-question--preview .sd-dropdown_chevron-button {
-  display: none;
+.sd-dropdown_chevron-button {
+  position: absolute;
+  width: calcSize(5);
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-inline-end: calcSize(0.5);
+  box-sizing: content-box;
+  cursor: pointer;
+}
+
+.sd-dropdown_chevron-button-svg {
+  width: multiply(1.5, $font-editorfont-size);
+  height: multiply(1.5, $font-editorfont-size);
+
+  use {
+    pointer-events: none;
+  }
+}
+
+.sd-question--readonly .sd-dropdown_chevron-button use {
+  opacity: 0.24;
 }
 
 .sd-input.sd-dropdown:focus-within {
@@ -129,8 +158,8 @@
 .sd-dropdown__filter-string-input {
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
+  // top: 0;
+  // bottom: 0;
   width: 100%;
   max-width: 100%;
   border: none;
@@ -172,6 +201,8 @@
 
 .sd-dropdown__hint-prefix {
   color: $font-editorfont-placeholdercolor;
+  display: flex;
+  align-items: center;
 
   span {
     white-space: pre;

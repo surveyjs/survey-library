@@ -2,9 +2,13 @@
 
 .sd-input.sd-tagbox:not(.sd-tagbox--empty).sd-input--editable {
   height: auto;
-  padding: calcSize(0.5);
-  padding-inline-end: calcSize(6); //padding-right
+  // padding: calcSize(0.5);
+  // padding-inline-end: calcSize(6); //padding-right
   padding-inline-start: calcSize(0.5); //padding-left
+
+  .sd-tagbox__value {
+    padding: 0;
+  }
 }
 
 .sd-tagbox{

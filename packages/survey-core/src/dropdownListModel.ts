@@ -151,8 +151,7 @@ export class DropdownListModel extends Base {
 
     this.chevronButton = new Action({
       id: "chevron",
-      css: this.question.cssClasses.chevronButton || "sd-dropdown_chevron-button",
-      innerCss: this.question.cssClasses.chevronButtonSvg || "sd-dropdown_chevron-button-svg",
+      css: "sd-editor-chevron-button",
       iconName: this.question.cssClasses.chevronButtonIconId || "icon-chevron",
       iconSize: "auto",
       showTitle: false,
@@ -164,8 +163,7 @@ export class DropdownListModel extends Base {
 
     this.clearButton = new Action({
       id: "clear",
-      css: this.question.cssClasses.cleanButton || "sd-dropdown_clean-button",
-      innerCss: this.question.cssClasses.cleanButtonSvg || "sd-dropdown_clean-button-svg",
+      css: "sd-editor-clean-button",
       iconName: this.question.cssClasses.cleanButtonIconId || "icon-cancel-24x24",
       iconSize: "auto",
       showTitle: false,

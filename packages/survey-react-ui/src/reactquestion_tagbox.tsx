@@ -66,14 +66,6 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       </div>
     );
   }
-
-  protected renderReadOnlyElement(): React.JSX.Element | null {
-    if (this.question.locReadOnlyText) {
-      return this.renderLocString(this.question.locReadOnlyText);
-    } else {
-      return null;
-    }
-  }
 }
 
 ReactQuestionFactory.Instance.registerQuestion("tagbox", (props) => {

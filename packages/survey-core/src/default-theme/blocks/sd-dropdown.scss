@@ -66,7 +66,8 @@ select.sd-dropdown {
 
   position: relative;
   // display: flex;
-  padding: multiply(0.5, $font-editorfont-size) 0px multiply(0.5, $font-editorfont-size) 0px;
+  margin-block: calcSize(1);
+  margin-inline: 0;
   // flex-direction: column;
   // align-items: flex-start;
   // flex: 1 0 0;
@@ -82,11 +83,12 @@ select.sd-dropdown {
   @include mixins.hideButtonStyles;
 
   display: flex;
-  padding: multiply(0.5, $font-editorfont-size);
+  padding: calcSize(1);
   justify-content: center;
   align-items: center;
   align-self: stretch;
   border-radius: multiply(0.125, $font-editorfont-size);
+  cursor: pointer;
 
   &:hover {
     background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
@@ -158,8 +160,7 @@ select.sd-dropdown {
 .sd-dropdown__filter-string-input {
   position: absolute;
   left: 0;
-  // top: 0;
-  // bottom: 0;
+  top: 0;
   width: 100%;
   max-width: 100%;
   border: none;
@@ -182,11 +183,6 @@ select.sd-dropdown {
   color: $font-editorfont-placeholdercolor;
 }
 
-.sd-dropdown--empty {
-  & > * {
-    min-height: multiply(1.5, $font-editorfont-size);
-  }
-}
 
 .sd-dropdown__filter-string-input::placeholder {
   color: $foreground;

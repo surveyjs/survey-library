@@ -407,9 +407,10 @@ frameworks.forEach(framework => {
           if (options.menuType === "popup") options.menuType = "overlay";
         });
       });
-      await page.locator(".sd-editor-chevron-button").click();
+      const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
+      await questionDropdownSelect.click();
       await page.getByText("item1", { exact: true }).click();
-      await page.locator(".sd-editor-chevron-button").click();
+      await questionDropdownSelect.click();
       await compareScreenshot(page, ".sv-popup.sv-single-select-list", "dropdown-question-overlay-popup-selected.png");
     });
 

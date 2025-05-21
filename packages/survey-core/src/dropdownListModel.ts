@@ -17,7 +17,7 @@ import { SurveyModel } from "./survey";
 import { CreateCustomChoiceItemEvent } from "./survey-events-api";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch, calculateIsTablet } from "./utils/devices";
-import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
+import { classesToSelector, doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
 
 export class DropdownListModel extends Base {
   readonly minPageSize = 25;
@@ -156,6 +156,7 @@ export class DropdownListModel extends Base {
       iconSize: "auto",
       showTitle: false,
       locTitle: this.locSelectCaption,
+      disableTabStop: true,
       action: (context: any) => {
         this.onClick();
       }
@@ -168,6 +169,7 @@ export class DropdownListModel extends Base {
       iconSize: "auto",
       showTitle: false,
       locTitle: this.locClearCaption,
+      disableTabStop: true,
       visible: new ComputedUpdater(() => {
         const isEmpty = this.question.isEmpty();
         const isReadOnly = this.question.isReadOnly;
@@ -673,7 +675,7 @@ export class DropdownListModel extends Base {
     if (this.question.readOnly || this.question.isDesignMode || this.question.isPreviewStyle || this.question.isReadOnlyAttr) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    // this.question.focusInputElement(false);
+    this.question.focusInputElement(false);
   }
   public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {
@@ -757,8 +759,6 @@ export class DropdownListModel extends Base {
       this.popupModel.show();
       this.changeSelectionWithKeyboard(false);
       isStopPropagation = true;
-    } else if (event.keyCode === 9) {
-      this.popupModel.hide();
     } else if (!this.popupModel.isVisible && event.keyCode === 32) {
       this.popupModel.show();
       this.changeSelectionWithKeyboard(false);
@@ -810,6 +810,9 @@ export class DropdownListModel extends Base {
     }
   }
   onBlur(event: any): void {
+    const rootElement = event.target.closest(classesToSelector(this.question.cssClasses.root));
+    if (rootElement.contains(event.relatedTarget)) return;
+
     this.focused = false;
     if (this.popupModel.isVisible && this.popupModel.displayMode == "overlay") {
       return;

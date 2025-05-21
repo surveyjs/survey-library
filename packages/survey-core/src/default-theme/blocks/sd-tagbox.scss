@@ -11,7 +11,7 @@
   }
 }
 
-.sd-tagbox{
+.sd-tagbox {
   &.sd-input--disabled,
   &.sd-input--readonly,
   &.sd-input--preview {
@@ -104,6 +104,7 @@
   display: flex;
   flex-wrap: wrap;
   flex-grow: 1;
+  align-content: center;
   padding-inline: unset;
   margin-inline: unset;
   margin-block: unset;
@@ -111,6 +112,7 @@
 
 .sd-tagbox__filter-string-input {
   width: 100%;
+  height: 100%;
   display: flex;
   flex-grow: 1;
   // position: initial;
@@ -142,6 +144,7 @@
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
     width: 100%;
+    height: 100%;
   }
 }
 

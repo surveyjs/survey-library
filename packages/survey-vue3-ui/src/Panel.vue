@@ -27,6 +27,9 @@
       :style="{ paddingLeft: element.innerPaddingLeft }"
       v-if="element.renderedIsExpanded"
       :class="element.cssClasses.panel.content"
+      :role="element.ariaRole"
+      :aria-labelledby="element.ariaLabelledBy"
+      :aria-label="element.ariaLabel"
     >
       <template v-for="row in element.visibleRows" :key="row.id">
         <SvComponent

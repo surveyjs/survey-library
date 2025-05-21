@@ -3467,3 +3467,31 @@ QUnit.test("Page & Panel should have different title&description properties", fu
   assert.equal(panelTitle.placeholder, "panelT", "panel title unique");
   assert.equal(panelDescription.placeholder, "panelD", "panel description unique");
 });
+QUnit.test("column isRequired vs default value in column&question, Bug#9920", function (assert) {
+  const doChecks = (num: number, dv1: boolean | undefined, dv2: boolean | undefined, dv3: boolean | undefined,
+    v1: boolean, v2: boolean, v3: boolean): void => {
+    const q = new QuestionMatrixDynamicModel("q1");
+    const col1 = q.addColumn("col1");
+    col1.isRequired = true;
+    const col2 = q.addColumn("col2");
+    col2.isRequired = false;
+    const col3 = q.addColumn("col3");
+    assert.equal(col1.toJSON().isRequired, dv1, "col1.toJSON() is required, #" + num);
+    assert.equal(col2.toJSON().isRequired, dv2, "col2.toJSON() is required, #" + num);
+    assert.equal(col3.toJSON().isRequired, dv3, "col3.toJSON() is required, #" + num);
+    assert.equal(col1.isRequired, v1, "col1 is required, #" + num);
+    assert.equal(col2.isRequired, v2, "col2 is required, #" + num);
+    assert.equal(col3.isRequired, v3, "col3 is required, #" + num);
+  };
+  doChecks(1, true, undefined, undefined, true, false, false);
+  Serializer.findProperty("question", "isRequired").defaultValue = true;
+  doChecks(2, undefined, false, undefined, true, false, true);
+  Serializer.findProperty("question", "isRequired").defaultValue = undefined;
+  doChecks(3, true, undefined, undefined, true, false, false);
+  Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = true;
+  doChecks(4, undefined, false, undefined, true, false, true);
+  Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = false;
+  doChecks(5, true, undefined, undefined, true, false, false);
+  Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = undefined;
+  doChecks(6, true, undefined, undefined, true, false, false);
+});

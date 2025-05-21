@@ -15,7 +15,9 @@
   &.sd-input--disabled,
   &.sd-input--readonly,
   &.sd-input--preview {
-    white-space: normal;
+    .sd-tagbox__value {
+      white-space: normal;
+    }
   }
 }
 

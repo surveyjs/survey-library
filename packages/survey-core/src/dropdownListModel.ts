@@ -810,8 +810,8 @@ export class DropdownListModel extends Base {
     }
   }
   onBlur(event: any): void {
-    const rootElement = event.target.closest(classesToSelector(this.question.cssClasses.root));
-    if (rootElement.contains(event.relatedTarget)) return;
+    const rootElement = event?.target?.closest(classesToSelector(this.question.cssClasses.root));
+    if (!!rootElement && rootElement.contains(event.relatedTarget)) return;
 
     this.focused = false;
     if (this.popupModel.isVisible && this.popupModel.displayMode == "overlay") {

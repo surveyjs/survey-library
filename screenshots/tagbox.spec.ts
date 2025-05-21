@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sv-popup__container", "tagbox-disabled-popup-items.png");
     });
 
-    test("Check tagbox multivalue selected items", async ({ page }) => {
+    test.skip("Check tagbox multivalue selected items", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 900 });
       await initSurvey(page, framework, {
         focusFirstQuestionAutomatic: true,

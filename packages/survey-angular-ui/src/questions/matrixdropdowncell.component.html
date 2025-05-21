@@ -28,7 +28,7 @@
       <ng-container *ngIf="cell.isItemChoice">
         <ng-template
           [component]="{ name: question.getCellWrapperComponentName(cell.cell), data: { componentData: question.getCellWrapperComponentData(cell.cell)} }">
-          <sv-ng-selebase-item [showLabel]="false" [inputType]="cell.isCheckbox ? 'checkbox': 'radio'"
+          <sv-ng-selebase-item [showLabel]="false" [inputType]="cell.isCheckbox ? 'checkbox': 'radio'" [ariaLabel]="ariaLabel"
             [question]="cell.question" [model]="cell.item"></sv-ng-selebase-item>
         </ng-template>
       </ng-container>

@@ -404,6 +404,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public set defaultValue(newValue: any) {
     this.defaultValueValue = newValue;
+    if (newValue !== undefined) {
+      this.defaultValueFunc = undefined;
+    }
   }
   public isDefaultValue(value: any): boolean {
     return this.isDefaultValueByObj(undefined, value);

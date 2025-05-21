@@ -692,7 +692,7 @@ Serializer.addClass(
     {
       name: "sliderType",
       default: "single",
-      choices: ["range", "single"],
+      choices: ["single", "range"],
     },
     {
       name: "autoGenerate",

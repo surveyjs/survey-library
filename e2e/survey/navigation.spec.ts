@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
       await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
       await page.locator("input[value=Next]").click();
       const headingY = await page.evaluate(() => {
-        return document.querySelector("h3")?.getBoundingClientRect().y;
+        return document.querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
       expect(headingY).toBeGreaterThanOrEqual(0);
     });
@@ -187,7 +187,7 @@ frameworks.forEach(framework => {
       await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
       await page.locator("input[value=Next]").click();
       const headingY = await page.evaluate(() => {
-        return document.querySelector("h3")?.getBoundingClientRect().y;
+        return document.querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
       expect(headingY).toBeGreaterThanOrEqual(0);
     });

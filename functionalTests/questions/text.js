@@ -149,7 +149,7 @@ frameworks.forEach((framework) => {
 
   test("expand collapse title", async (t) => {
     const title = "Please enter your name:";
-    const questionTitle = Selector("h5").withText(title);
+    const questionTitle = Selector("div").withAttribute("id", /ariaTitle$/).withText(title);
     const contentItem = Selector("input[type='text']");
 
     await t

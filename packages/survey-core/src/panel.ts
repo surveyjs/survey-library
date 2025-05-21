@@ -1725,6 +1725,18 @@ export class PanelModelBase extends SurveyElement<Question>
       row.updateVisible();
     }
   }
+  public get ariaTitleId(): string {
+    return this.id + "_ariaTitle";
+  }
+  public get ariaLabelledBy(): string {
+    return this.hasTitle ? this.ariaTitleId : null;
+  }
+  public get ariaLabel(): string {
+    return this.hasTitle ? null : (this.title || this.name || null);
+  }
+  public get ariaRole(): string {
+    return "group";
+  }
   public get processedTitle() {
     return this.getRenderedTitle(this.locTitle.textOrHtml);
   }

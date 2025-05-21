@@ -15983,10 +15983,10 @@ QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", as
     ]
   });
   setOldTheme(survey);
-  assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
-  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
-  assert.equal(survey.pages[0].titleTagName, "h4");
-  assert.equal(survey.titleTagName, "h3");
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "div");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "div");
+  assert.equal(survey.pages[0].titleTagName, "div");
+  assert.equal(survey.titleTagName, "div");
   assert.equal(survey.cssTitle, survey.css.title, "survey css");
   assert.equal(survey.pages[0].cssTitle, "sv_page_title", "page css");
   assert.ok(survey.getQuestionByName("q1").getTitleOwner());

@@ -328,6 +328,8 @@ The following built-in functions are available:
 - [`max`](#max)
 - [`min`](#min)
 - [`avg`](#avg)
+- [`round`](#round)
+- [`trunc`](#trunc)
 - [`sumInArray`](#suminarray)
 - [`maxInArray`](#maxinarray)
 - [`minInArray`](#mininarray)
@@ -525,7 +527,7 @@ Returns the maximum of passed numbers.
 
 #### `min`
 
-*Definition*: `min(par1: number, par2: number, ...): number`
+*Definition*: `min(param1: number, param2: number, ...): number`
 
 Returns the minimum of passed numbers.
 
@@ -537,13 +539,57 @@ Returns the minimum of passed numbers.
 
 #### `avg`
 
-*Definition*: `avg(par1: number, par2: number, ...): number`
+*Definition*: `avg(param1: number, param2: number, ...): number`
 
 Returns the average of passed numbers.
 
 *Example*: `"expression": "avg({total1}, {total2}, {total3})"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L118-L127 (linkStyle))
+
+---
+
+#### `round`
+
+*Definition*: `round(num: number, precision?: number): number`
+
+Rounds the given number to the specified number of decimal places. If the `precision` parameter is omitted, the given number is rounded to the nearest integer.
+
+*Examples:*
+
+```js
+"expression": "round({numericQuestion}, 2)" // Rounds the value of `numericQuestion` to two decimal places
+"expression": "round(0.5)" // 1
+"expression": "round(-0.5)" // -1
+"expression": "round(1.005, 2)" // 1.01
+"expression": "round(2.175, 2)" // 2.18
+"expression": "round(-1.005, 2)" // -1.01
+"expression": "round(-2.175, 2)" // -2.18
+```
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/2c5c9367646847899e773554c021418d8e2b5f05/packages/survey-core/src/functionsfactory.ts#L133-L147 (linkStyle))
+
+---
+
+#### `trunc`
+
+*Definition*: `trunc(num: number, precision?: number): number`
+
+Truncates the given number to the specified number of decimal places. If the `precision` parameter is omitted, only the integer part is returned. Trailing zeroes in the decimal part are removed after truncation.
+
+*Examples:*
+
+```js
+"expression": "trunc({numericQuestion}, 2)" // Truncates the value of `numericQuestion` to two decimal places
+"expression": "trunc(0.5)" // 0
+"expression": "trunc(-0.5)" // 0
+"expression": "trunc(1.005, 2)" // 1
+"expression": "trunc(2.175, 1)" // 2.1
+"expression": "trunc(-1.005, 2)" // -1
+"expression": "trunc(-2.175, 1)" // -2.17
+```
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/2c5c9367646847899e773554c021418d8e2b5f05/packages/survey-core/src/functionsfactory.ts#L149-L162 (linkStyle))
 
 ---
 

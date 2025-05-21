@@ -671,7 +671,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
   public readOnlyBlocker = (event: any) => {
-    if (this.isReadOnlyAttr) {
+    if (this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1) {
       event.preventDefault();
       return true;
     }

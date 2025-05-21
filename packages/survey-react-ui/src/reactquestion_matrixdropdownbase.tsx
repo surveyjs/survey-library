@@ -428,6 +428,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         isFirst={this.cell.isFirstChoice}
         index={this.cell.choiceIndex.toString()}
         hideCaption={true}
+        ariaLabel={this.getCellAriaLabel()}
       />
     );
   }
@@ -444,7 +445,11 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         isChecked={this.cell.question.value === this.cell.item.value}
         isDisabled={this.cell.question.isReadOnly || !this.cell.item.isEnabled}
         hideCaption={true}
+        ariaLabel={this.getCellAriaLabel()}
       />
     );
+  }
+  private getCellAriaLabel(): string {
+    return this.question.parentQuestion.getCellAriaLabel(this.cell.row.locText.renderedHtml, this.cell.column.locTitle.renderedHtml);
   }
 }

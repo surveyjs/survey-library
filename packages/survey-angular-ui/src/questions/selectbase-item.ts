@@ -14,6 +14,7 @@ export class SelectBaseItemComponent extends BaseAngular<ItemValue> implements A
   @Input() model!: ItemValue | any;
   @Input() inputType!: string;
   @Input() showLabel: boolean = true;
+  @Input() ariaLabel?: string;
   @ViewChild("container", { read: ElementRef }) container!: ElementRef<HTMLDivElement>;
   protected getModel(): ItemValue {
     return this.model;

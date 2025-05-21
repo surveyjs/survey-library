@@ -8,6 +8,7 @@ import "../src/localization/finnish";
 import "../src/localization/german";
 import "../src/localization/swedish";
 import "../src/localization/czech";
+import "../src/localization/ukrainian";
 import "../src/localization/portuguese";
 import "../src/localization/portuguese-br";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
@@ -219,11 +220,20 @@ QUnit.test(
     assert.equal(surveyLocalization.currentLocale, "cs", "sz => sc, current");
     surveyLocalization.defaultLocale = "cz";
     assert.equal(surveyLocalization.defaultLocale, "cs", "sz => sc, default");
-    assert.equal(
-      surveyLocalization.getString("pagePrevText"),
-      "Předchozí",
-      "Set locale correctly"
-    );
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Předchozí", "Set locale correctly");
+    surveyLocalization.defaultLocale = oldDl;
+    surveyLocalization.currentLocale = oldCl;
+  }
+);
+QUnit.test("Ukraine locale is 'uk', but support the old one 'ua', Bug #9908",
+  function(assert) {
+    var oldDl = surveyLocalization.defaultLocale;
+    var oldCl = surveyLocalization.currentLocale;
+    surveyLocalization.currentLocale = "ua";
+    assert.equal(surveyLocalization.currentLocale, "uk", "ua => uk, current");
+    surveyLocalization.defaultLocale = "ua";
+    assert.equal(surveyLocalization.defaultLocale, "uk", "ua => uk, default");
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly");
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }

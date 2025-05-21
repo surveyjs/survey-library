@@ -25,15 +25,18 @@ export var surveyLocalization = {
     return this.currentLocaleValue === this.defaultLocaleValue ? "" : this.currentLocaleValue;
   },
   set currentLocale(val: string) {
-    if (val === "cz") val = "cs";
-    this.currentLocaleValue = val;
+    this.currentLocaleValue = this.getCorrectLocaleName(val);
   },
   get defaultLocale() {
     return this.defaultLocaleValue;
   },
   set defaultLocale(val: string) {
-    if (val === "cz") val = "cs";
-    this.defaultLocaleValue = val;
+    this.defaultLocaleValue = this.getCorrectLocaleName(val);
+  },
+  getCorrectLocaleName(loc: string): string {
+    if (loc === "cz") loc = "cs";
+    if (loc === "ua") loc = "uk";
+    return loc;
   },
   getLocaleStrings(loc: string): any {
     return this.locales[loc];

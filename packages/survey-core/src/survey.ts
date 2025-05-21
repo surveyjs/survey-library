@@ -8300,18 +8300,29 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (container === "header" && !isBelowHeader) {
-            layoutElement.index = -150;
-            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+          if (this.showTOC && !(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop && !this.isStartPageActive) {
+            if (container === "center") {
+              if (!isBelowHeader) {
+                layoutElement.index = -150;
+              } else {
+                delete layoutElement.index;
+              }
               containerLayoutElements.push(layoutElement);
             }
-          }
-          if (container === "center" && isBelowHeader) {
-            if (!!layoutElement.index) {
-              delete layoutElement.index;
+          } else {
+            if (container === "header" && !isBelowHeader) {
+              layoutElement.index = -150;
+              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
-            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
-              containerLayoutElements.push(layoutElement);
+            if (container === "center" && isBelowHeader) {
+              if (!!layoutElement.index) {
+                delete layoutElement.index;
+              }
+              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
           }
           if (container === "footer") {
@@ -8346,7 +8357,7 @@ export class SurveyModel extends SurveyElementCore
         if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
           const advHeader = layoutElement && layoutElement.data as Cover;
           if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
-            if (container === "center") {
+            if (container === "contentTop") {
               containerLayoutElements.push(layoutElement);
             }
           } else {

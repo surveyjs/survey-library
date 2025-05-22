@@ -179,11 +179,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
 
   protected renderEditorButtons(): React.JSX.Element | null {
-    if (this.dropdownListModel.editorButtonsIsVisible) {
-      return <SurveyActionBar model={this.dropdownListModel.editorButtons}></SurveyActionBar>;
-    } else {
-      return null;
-    }
+    return <SurveyActionBar model={this.dropdownListModel.editorButtons}></SurveyActionBar>;
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {

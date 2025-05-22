@@ -157,6 +157,9 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locSelectCaption,
       disableTabStop: true,
+      visible: new ComputedUpdater(() => {
+        return !this.question.isPreviewStyle;
+      }),
       action: (context: any) => {
         this.onClick();
       }
@@ -437,7 +440,6 @@ export class DropdownListModel extends Base {
     }
   }) customValue: string;
 
-  @property({ defaultValue: true }) editorButtonsIsVisible: boolean;
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property() choicesLazyLoadEnabled: boolean;
   @property({

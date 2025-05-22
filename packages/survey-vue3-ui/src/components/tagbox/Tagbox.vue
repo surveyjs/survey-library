@@ -34,7 +34,7 @@
           :question="question"
         ></SvComponent>
       </div>
-      <SvComponent v-if="model.editorButtonsIsVisible" :is="'sv-action-bar'" :model="model.editorButtons" />
+      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>
     <SvComponent
       :is="'sv-popup'"
@@ -61,7 +61,7 @@
           :locString="question.locReadOnlyText"
         />
       </div>
-      <SvComponent v-if="model.editorButtonsIsVisible" :is="'sv-action-bar'" :model="model.editorButtons" />
+      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>
   </div>
 </template>

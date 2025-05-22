@@ -161,6 +161,7 @@ select.sd-dropdown {
   position: absolute;
   left: 0;
   top: 0;
+  bottom: 0;
   width: 100%;
   max-width: 100%;
   border: none;
@@ -182,7 +183,6 @@ select.sd-dropdown {
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
   color: $font-editorfont-placeholdercolor;
 }
-
 
 .sd-dropdown__filter-string-input::placeholder {
   color: $foreground;

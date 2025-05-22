@@ -10,6 +10,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
@@ -3488,6 +3489,26 @@ QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (asser
   assert.ok(q.isEmpty(), "q.value #2");
   survey.data = { question1: { q1: "test2", q2: "other", "q2-Comment": "def" } };
   assert.deepEqual(q.value, { q1: "test2", q2: "other", "q2-Comment": "def" }, "q.value #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: with checkbox & showOtherItem, Bug#9929", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "checkbox", choices: [1, 2, 3], showOtherItem: true }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1" }
+    ]
+  });
+  survey.data = { question1: [2, "other"], "question1-Comment": "abc" };
+  const q = <QuestionCustomModel>survey.getQuestionByName("question1");
+  const cQ = <QuestionCheckboxModel>q.contentQuestion;
+  assert.deepEqual(cQ.value, [2, "other"], "q.value #1");
+  assert.deepEqual(cQ.comment, "abc", "q.comment #1");
+  cQ.comment = "def";
+  assert.deepEqual(survey.data, { question1: [2, "other"], "question1-Comment": "def" }, "survey.data #2");
 
   ComponentCollection.Instance.clear();
 });

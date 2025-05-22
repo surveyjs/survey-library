@@ -224,12 +224,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const value = this.createNewValue();
     if (!Array.isArray(value) && toIndex >= value.length) return;
     value.splice(toIndex, 0, rowData);
+    this.rowCount++;
     this.value = value;
   }
   public removeRowByIndex(fromIndex: number):void {
     const value = this.createNewValue();
     if (!Array.isArray(value) && fromIndex >= value.length) return;
     value.splice(fromIndex, 1);
+    this.rowCount--;
     this.value = value;
   }
   public clearOnDrop(): void {

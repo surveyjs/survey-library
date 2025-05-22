@@ -465,6 +465,68 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
 });
 
+QUnit.test("rows: check matrixdynamic d&d between different matrices", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q1",
+        columns: ["Col1"],
+        defaultValue: [{ Col1: "item1" }, { Col1: "item2" }, { Col1: "item3" }],
+        rowCount: 3,
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q2",
+        columns: ["Col1"],
+        defaultValue: [{ Col1: "item4" }, { Col1: "item5" }, { Col1: "item6" }],
+        rowCount: 3,
+        choices: ["item4", "item5", "item6"],
+      }
+    ]
+  });
+  const question1: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q1")
+  );
+  const question2: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q2")
+  );
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  // Drag row from first matrix to second
+  let draggedRow = question1.visibleRows[1];
+  let dropRow = question2.visibleRows[1];
+
+  ddHelper["parentElement"] = question1;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper.dropTarget = dropRow;
+  ddHelper["onStartDrag"]();
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 1);
+  assert.ok(question1.renderedTable.rows[3].isGhostRow);
+
+  ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = true;
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 2);
+  assert.strictEqual(question2.renderedTable.rows[3].row, dropRow);
+  assert.ok(question2.renderedTable.rows[4].isGhostRow);
+  assert.strictEqual(question2.renderedTable.rows[4].row, draggedRow);
+
+  ddHelper["doDrop"]();
+  ddHelper.clear();
+
+  // Verify row was moved correctly
+  assert.equal(question1.visibleRows.length, 2, "First matrix has two rows left");
+  assert.equal(question2.visibleRows.length, 4, "Second matrix has four rows");
+  assert.deepEqual(question1.value, [{ "Col1": "item1" }, { "Col1": "item3" }], "Dragged row is gone from first matrix");
+  assert.deepEqual(question2.value, [{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }], "Dragged row is now in second matrix");
+});
+
 QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
   const json = {
     questions: [

@@ -423,13 +423,15 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
 
   ddHelper["parentElement"] = question;
   ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
   ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
   assert.equal(ddHelper["fromIndex"], 1);
   assert.ok(question.renderedTable.rows[3].isGhostRow);
 
   ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = true;
   ddHelper["afterDragOver"](<any>undefined);
-  assert.equal(ddHelper["toIndex"], 2);
+  assert.equal(ddHelper["toIndex"], 3);
   assert.strictEqual(question.renderedTable.rows[4].row, dropRow);
   assert.ok(question.renderedTable.rows[5].isGhostRow);
   assert.strictEqual(question.renderedTable.rows[5].row, draggedRow);
@@ -444,11 +446,13 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
 
   ddHelper["parentElement"] = question;
   ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
   ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
   assert.equal(ddHelper["fromIndex"], 2);
   assert.ok(question.renderedTable.rows[5].isGhostRow);
 
   ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = false;
   ddHelper["afterDragOver"](<any>undefined);
   assert.equal(ddHelper["toIndex"], 0);
   assert.strictEqual(question.renderedTable.rows[2].row, dropRow);

@@ -122,7 +122,7 @@ frameworks.forEach(framework => {
     });
 
     test("hide survey title", async ({ page }) => {
-      const surveyTitle = page.locator("h3", { hasText: "Software developer survey." });
+      const surveyTitle = page.getByLabel("Software developer survey.");
       await expect(surveyTitle).toBeVisible();
 
       await page.evaluate(() => {
@@ -134,7 +134,7 @@ frameworks.forEach(framework => {
     });
 
     test("hide page title", async ({ page }) => {
-      const pageTitle = page.locator("h4", { hasText: "What operating system do you use?" });
+      const pageTitle = page.locator("div[id$=ariaTitle]", { hasText: "What operating system do you use?" });
       await expect(pageTitle).toBeVisible();
 
       await page.evaluate(() => {

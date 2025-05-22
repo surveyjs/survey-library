@@ -34,7 +34,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const visibleAction = page.locator("h5 .sv-action:not(.sv-action--hidden)");
+      const visibleAction = page.locator("div[id$=ariaTitle][id^=sq] .sv-action:not(.sv-action--hidden)");
       await expect(visibleAction.locator("button")).toHaveText("Action");
       await expect(visibleAction).toBeVisible();
       await expect(visibleAction.locator("button svg use")).toHaveCount(0);
@@ -66,7 +66,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const visibleAction = page.locator("h5 .sv-action:not(.sv-action--hidden)");
+      const visibleAction = page.locator("div[id$=ariaTitle][id^=sq] .sv-action:not(.sv-action--hidden)");
       await expect(visibleAction.locator("button")).toHaveText("Action");
       await expect(visibleAction.locator("button")).toHaveAttribute("tabindex", "-1");
     });
@@ -89,9 +89,9 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator("h5 use").nth(1)).toHaveAttribute("xlink:href", "#icon-action");
-      await expect(page.locator("h5 button span.sd-action__title")).toHaveClass(/sv-action-bar-item__title--with-icon/);
-      await expect(page.locator("h5 button .sd-action__icon")).toHaveCSS("width", "20px");
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] use").nth(1)).toHaveAttribute("xlink:href", "#icon-action");
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] button span.sd-action__title")).toHaveClass(/sv-action-bar-item__title--with-icon/);
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] button .sd-action__icon")).toHaveCSS("width", "20px");
     });
 
     test("check item with showTitle false", async ({ page }) => {
@@ -110,7 +110,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator("h5 .sv-action:not(.sv-action--hidden) span.sv-action-bar-item__title")).toHaveCount(0);
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] .sv-action:not(.sv-action--hidden) span.sv-action-bar-item__title")).toHaveCount(0);
     });
 
     test("check item with showTitle false and without icon", async ({ page }) => {
@@ -128,7 +128,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator("h5 .sv-action span.sd-action__title")).toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] .sv-action span.sd-action__title")).toBeVisible();
     });
 
     test("check action with separator", async ({ page }) => {
@@ -146,7 +146,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator("h5 .sv-action div.sv-action-bar-separator")).toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] .sv-action div.sv-action-bar-separator")).toBeVisible();
     });
 
     test("check invisible item", async ({ page }) => {
@@ -164,7 +164,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator("h5 .sv-action").first()).not.toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sq] .sv-action").first()).not.toBeVisible();
     });
 
     test("check expand/collapse action", async ({ page }) => {
@@ -226,7 +226,7 @@ frameworks.forEach((framework) => {
         ],
       };
       await initSurvey(page, framework, json);
-      await expect(page.locator("h4 .sv-title-actions")).toHaveCount(0);
+      await expect(page.locator("div[id$=ariaTitle][id^=sp] .sv-title-actions")).toHaveCount(0);
     });
 
     test("check page title actions appear", async ({ page }) => {
@@ -251,7 +251,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator("h4 .sv-title-actions").first()).toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sp] .sv-title-actions").first()).toBeVisible();
     });
 
     test("check responsivity manager is disposed when action bar is disposed", async ({ page }) => {
@@ -468,7 +468,7 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
-      const hiddenAction = page.locator("h5 .sv-action.sv-action--hidden").first();
+      const hiddenAction = page.locator("div[id$=ariaTitle][id^=sq] .sv-action.sv-action--hidden").first();
       const contentWidth = await hiddenAction.locator(".sv-action__content").evaluate(el => el.offsetWidth);
       expect(contentWidth).toBeGreaterThan(0);
 

@@ -16,6 +16,7 @@
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
         :required="question.hasRequiredError()"
+        :aria-label="ariaLabel"
       /><span
         v-if="question.cssClasses.materialDecorator"
         :class="question.cssClasses.materialDecorator"
@@ -46,6 +47,7 @@ const props = defineProps<{
   question: QuestionCheckboxModel;
   item: ItemValue;
   hideLabel?: boolean;
+  ariaLabel?: string;
 }>();
 
 useSelectBaseItem(

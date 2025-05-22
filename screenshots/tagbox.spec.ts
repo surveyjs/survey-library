@@ -173,6 +173,7 @@ frameworks.forEach(framework => {
       await page.locator("span").filter({ hasText: "Cancel" }).click();
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item1");
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup.png");
     });
 

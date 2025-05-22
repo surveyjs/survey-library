@@ -120,7 +120,7 @@ frameworks.forEach((framework) => {
   });
 
   test("expand collapse title", async (t) => {
-    const panelTitle = Selector("h4").withText("Panel 1");
+    const panelTitle = Selector("div").withAttribute("id", /ariaTitle$/).withText("Panel 1");
     const contentItem = Selector("[data-name='question2']");
 
     assert.equal(await contentItem.visible, true);
@@ -129,7 +129,7 @@ frameworks.forEach((framework) => {
     assert.equal(await contentItem.visible, false);
   });
   test("expand collapse title by name", async (t) => {
-    const panelTitle = Selector("h4").withText("panel2");
+    const panelTitle = Selector("div.sd-title").withAttribute("id", /ariaTitle$/).withText("panel2");
     const contentItem = Selector("[data-name='q1']");
 
     assert.equal(await contentItem.visible, false);

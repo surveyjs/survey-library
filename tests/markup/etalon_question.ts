@@ -122,7 +122,7 @@ registerMarkupTest(
       settings.titleTags.question = "label";
     },
     after() {
-      settings.titleTags.question = "h5";
+      settings.titleTags.question = "div";
     },
     event: "onAfterRenderPage"
   },

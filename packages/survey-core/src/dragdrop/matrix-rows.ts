@@ -3,6 +3,7 @@ import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
+import { DragDropAllowEvent } from "src/survey-events-api";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   private draggedRenderedRow;
   private initialDraggedElementIndex: number;
@@ -128,9 +129,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (!this.dropTarget) return;
+    const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
+    const options: DragDropAllowEvent = {
+      allow: dropTargetMatrix == this.parentElement
+    } as any;
+    if (!this.survey.dragAndDropAllow(options)) return;
 
     this.removeGhost();
-    const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
     this.lastDropTargetParentElement = dropTargetMatrix;
 
     const renderedRows = dropTargetMatrix.renderedTable.rows;

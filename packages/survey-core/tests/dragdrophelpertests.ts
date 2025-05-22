@@ -495,6 +495,11 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
     survey.getQuestionByName("q2")
   );
 
+  let allowDragDrop = false;
+  survey.onDragDropAllow.add((_, o) => {
+    o.allow = allowDragDrop;
+  });
+
   const ddHelper = new DragDropMatrixRows(survey);
 
   // Drag row from first matrix to second
@@ -510,10 +515,16 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
   assert.ok(question1.renderedTable.rows[3].isGhostRow);
 
   ddHelper.dropTarget = dropRow;
+  assert.equal(ddHelper["toIndex"], null);
+  assert.ok(question1.renderedTable.rows[3].isGhostRow);
+  assert.strictEqual(question2.renderedTable.rows.length, 6);
+
+  allowDragDrop = true;
   ddHelper.isBottom = true;
   ddHelper["afterDragOver"](<any>undefined);
   assert.equal(ddHelper["toIndex"], 2);
   assert.strictEqual(question2.renderedTable.rows[3].row, dropRow);
+  assert.strictEqual(question2.renderedTable.rows.length, 7);
   assert.ok(question2.renderedTable.rows[4].isGhostRow);
   assert.strictEqual(question2.renderedTable.rows[4].row, draggedRow);
 

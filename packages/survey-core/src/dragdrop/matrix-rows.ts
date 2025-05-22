@@ -5,7 +5,9 @@ import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_m
 import { DragDropCore } from "./core";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   private draggedRenderedRow;
+  private initialDraggedElementIndex: number;
   private lastDropTargetParentElement;
+  private dropIsBanned = false;
 
   protected get draggedElementType(): string {
     return "matrix-row";
@@ -28,8 +30,9 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     let index = renderedRows.findIndex(r => r.row === this.draggedElement);
     if (index >= 0) {
       this.draggedRenderedRow = renderedRows[index];
+      this.initialDraggedElementIndex = index;
       this.draggedRenderedRow.isGhostRow = true;
-      renderedRows.splice(index, 1);
+      this.lastDropTargetParentElement = this.parentElement;
     }
 
     const matrices = this.survey.getAllQuestions().filter(q => q instanceof QuestionMatrixDynamicModel);
@@ -108,15 +111,25 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return clientY >= rect.y + rect.height / 2;
   }
 
+  private removeGhost() {
+    const lastRenderedRows = this.lastDropTargetParentElement.renderedTable.rows;
+    const draggedRenderedRowIndex = lastRenderedRows.indexOf(this.draggedRenderedRow);
+    if (draggedRenderedRowIndex >= 0) lastRenderedRows.splice(draggedRenderedRowIndex, 1);
+  }
+
+  protected doBanDropHere = (): void => {
+    if (!this.dropIsBanned) {
+      this.removeGhost();
+      this.parentElement.renderedTable.rows.splice(this.initialDraggedElementIndex, 0, this.draggedRenderedRow);
+      this.dropIsBanned = true;
+      this.lastDropTargetParentElement = this.parentElement;
+    }
+  };
+
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (!this.dropTarget) return;
 
-    if (this.lastDropTargetParentElement) {
-      const lastRenderedRows = this.lastDropTargetParentElement.renderedTable.rows;
-      const draggedRenderedRowIndex = lastRenderedRows.indexOf(this.draggedRenderedRow);
-      if (draggedRenderedRowIndex >= 0) lastRenderedRows.splice(draggedRenderedRowIndex, 1);
-    }
-
+    this.removeGhost();
     const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
     this.lastDropTargetParentElement = dropTargetMatrix;
 
@@ -129,6 +142,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
     this.toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
     this.toMatrix = dropTargetMatrix;
+    this.dropIsBanned = false;
 
     super.ghostPositionChanged();
   }

@@ -56,7 +56,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   public dragInit(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
-    this.dropTargetParentElement = parentElement;
     const shortcutText = this.getShortcutText(this.draggedElement);
     this.domAdapter.draggedElementShortcut = this.createDraggedElementShortcut(
       shortcutText,

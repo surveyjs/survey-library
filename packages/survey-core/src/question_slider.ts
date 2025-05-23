@@ -377,7 +377,7 @@ export class QuestionSliderModel extends Question {
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "absolute");
   };
 
-  public setSliderValue = (newValue: number | number[]) => {
+  public setSliderValue = (newValue: number | number[]) => { // TODO move to setNewValue
     if (!this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle) {
       if (this.sliderType === "single") {
         this.value = Array.isArray(newValue) ? newValue[0] : newValue;
@@ -637,7 +637,17 @@ export class QuestionSliderModel extends Question {
     );
   }
 
-  protected setNewValue(newValue: any) {
+  protected setNewValue(newValue: any): void {
+    if (this.sliderType === "single" && !Array.isArray(newValue)) {
+      if (newValue < this.min) newValue = this.min;
+      if (newValue > this.max) newValue = this.max;
+    } else {
+      let [newMin, newMax] = newValue.sort(); // TODO more than 2
+      if (newMin < this.min) newMin = this.min;
+      if (newMax > this.max) newMax = this.max;
+      newValue = [newMin, newMax];
+    }
+
     super.setNewValue(newValue);
     if (this.isIndeterminate) {
       this.isIndeterminate = false;

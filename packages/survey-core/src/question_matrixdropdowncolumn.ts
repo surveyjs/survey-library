@@ -314,9 +314,10 @@ export class MatrixDropdownColumn extends Base
    * @see readOnly
    */
   public get isRequired(): boolean {
-    return this.templateQuestion.isRequired;
+    return this.getPropertyValue("isRequired");
   }
   public set isRequired(val: boolean) {
+    this.setPropertyValue("isRequired", val);
     this.templateQuestion.isRequired = val;
   }
   public get isRenderedRequired(): boolean {
@@ -929,7 +930,13 @@ Serializer.addClass(
       },
     },
     { name: "colCount", default: -1, choices: [-1, 0, 1, 2, 3, 4] },
-    "isRequired:boolean",
+    { name: "isRequired:boolean", defaultFunc: (obj: Base) => {
+      const q = (<any>obj)?.templateQuestion;
+      if (!!q) {
+        return Serializer.findProperty(q.getType(), "isRequired").getDefaultValue(q) || false;
+      }
+      return false;
+    } },
     "isUnique:boolean",
     {
       name: "requiredErrorText:text",

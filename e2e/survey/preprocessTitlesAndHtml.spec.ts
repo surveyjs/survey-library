@@ -46,16 +46,16 @@ frameworks.forEach((framework) => {
     test("check title and html", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
-
+      const titleLocator = page.locator("div[id$=ariaTitle][id^=sq]");
       // Check first title
       let text = "A. Please type your name (*)";
-      await expect(page.locator("h5").first()).toBeVisible();
-      await expect(await page.locator("h5").first().textContent()).toBe(text);
+      await expect(titleLocator.first()).toBeVisible();
+      await expect(await titleLocator.first().textContent()).toBe(text);
 
       // Check second title
       text = "B. Please type your e-mail (*)";
-      await expect(page.locator("h5").nth(1)).toBeVisible();
-      await expect(await page.locator("h5").nth(1).textContent()).toBe(text);
+      await expect(titleLocator.nth(1)).toBeVisible();
+      await expect(await titleLocator.nth(1).textContent()).toBe(text);
 
       // Fill first page
       await page.locator(".sd-text").nth(0).fill("wombat");
@@ -64,8 +64,8 @@ frameworks.forEach((framework) => {
 
       // Check third title
       text = "C. wombat, please tell us what is on your mind";
-      await expect(page.locator("h5").first()).toBeVisible();
-      await expect(await page.locator("h5").first().textContent()).toBe(text);
+      await expect(titleLocator.first()).toBeVisible();
+      await expect(await titleLocator.first().textContent()).toBe(text);
 
       // Fill second page
       await page.locator("textarea").fill("fresh grasses");

@@ -192,7 +192,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete", "");
+    return this.getPropertyValue("autocomplete");
   }
   public set autocomplete(val: string) {
     this.setPropertyValue("autocomplete", val);

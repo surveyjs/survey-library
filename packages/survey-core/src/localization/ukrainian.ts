@@ -118,7 +118,7 @@ export var ukrainianSurveyStrings = {
   createCustomItem: "Створіть пункт \"{0}\"..."
 };
 
-setupLocale({ localeCode: "ua", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });
+setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

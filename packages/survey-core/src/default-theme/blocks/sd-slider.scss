@@ -421,6 +421,19 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 // }
 
 .sd-question--readonly {
+  .sd-slider__input,
+  .sd-slider-container,
+  .sd-slider__thumb-container,
+  .sd-slider__label {
+    cursor: default;
+  }
+  input[type="range"].sd-slider__input::-webkit-slider-thumb {
+    cursor: default;
+  }
+  input[type="range"].sd-slider__input::-moz-range-thumb {
+    cursor: default;
+  }
+
   .sd-slider__input {
     &:hover {
       & + .sd-slider__thumb-container {
@@ -648,5 +661,21 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
       left $transition-duration,
       right $transition-duration,
       width $transition-duration;
+  }
+}
+
+[dir="rtl"],
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+  .sd-slider,
+  .sd-slider__label-text,
+  .sd-slider__input,
+  .sd-slider__tooltip-value {
+    transform: scale(-1, 1);
+  }
+
+  .sd-slider__label-text,
+  .sd-slider__tooltip-value {
+    direction: ltr; // need for the "minus" sign
   }
 }

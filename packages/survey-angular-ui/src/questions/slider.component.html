@@ -2,7 +2,7 @@
 <div [class]="model.rootCss" #contentElement>
   <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
   name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
-  [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" aria-hidden="true"
+  [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" role="presentation"
   (input)="model.handleRangeOnChange($any($event))"
   (pointerdown)="model.handleRangePointerDown($any($event), rootRef)"
   (pointerup)="model.handleRangePointerUp($any($event), rangeInputRef)" />

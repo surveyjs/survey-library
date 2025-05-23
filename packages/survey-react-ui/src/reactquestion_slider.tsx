@@ -116,7 +116,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getRangeInput() {
     const { renderedMax: max, renderedMin: min, step, cssClasses, handleRangeOnChange, handleRangePointerDown, handleRangePointerUp } = this.question;
-    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" aria-hidden="true"
+    return <input name={"range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" role="presentation"
       min={min} max={max} step={step} tabIndex={-1} onChange={(e)=>{ handleRangeOnChange(e.nativeEvent as InputEvent); }}
       onPointerDown={ (e)=>{ e.persist(); handleRangePointerDown(e.nativeEvent, this.control); } }
       onPointerUp={(e)=>{ handleRangePointerUp(e.nativeEvent, this.control); }} />;

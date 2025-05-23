@@ -392,10 +392,12 @@ export class QuestionSliderModel extends Question {
 
   public setValueByClickOnPath = (event: PointerEvent, rootNode: HTMLElement) => {
     const { renderedMax: max, renderedMin: min } = this;
+    let isRtl = DomDocumentHelper.getComputedStyle(DomDocumentHelper.getBody()).direction == "rtl";
 
-    const percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
+    let percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
+    if (isRtl) percent = 100 - percent;
+
     let newValue = Math.round(percent / 100 * (max - min) + min);
-
     this.setValueByClick(newValue, event.target as HTMLInputElement);
   };
 

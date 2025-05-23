@@ -748,7 +748,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Returns a survey element with a specified `name`. This method can find survey elements within nested elements.
+   * Returns a survey element with a specified `name`. This method can find survey elements within nested panels.
    * @param name An element name.
    */
   public getElementByName(name: string): IElement {

@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Helpers, Question, DropdownListModel, settings, QuestionDropdownModel } from "survey-core";
 import { Popup } from "./components/popup/popup";
-import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 
 export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuestionUncontrolledElement<T> {
   inputElement: HTMLInputElement | null;
@@ -28,6 +28,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   focus = (event: any) => {
     this.question.onFocus(event);
   };
+  protected get dropdownListModel(): DropdownListModel {
+    return this.question["dropdownListModel"];
+  }
   protected getStateElement() {
     return this.question["dropdownListModel"];
   }
@@ -39,14 +42,16 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   }
   protected renderReadOnlyElement(): React.JSX.Element | null {
     if (this.question.locReadOnlyText) {
-      return this.renderLocString(this.question.locReadOnlyText);
+      return (<div className={this.question.cssClasses.controlValue}>
+        {this.renderLocString(this.question.locReadOnlyText)}
+      </div>);
     } else {
       return null;
     }
   }
   protected renderSelect(cssClasses: any): React.JSX.Element {
     let selectElement: React.JSX.Element | null = null;
-    const dropdownListModel = this.question.dropdownListModel;
+    const dropdownListModel = this.dropdownListModel;
     if (this.question.isReadOnly) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -62,10 +67,11 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         className={this.question.getControlClass()}
         ref={(div) => (this.setControl(div))}>
         {this.renderReadOnlyElement()}
+        {this.renderEditorButtons()}
       </div>;
     } else {
       selectElement = <>
-        {this.renderInput(dropdownListModel)}
+        {this.renderInput()}
         <Popup model={dropdownListModel.popupModel}></Popup>
       </>;
     }
@@ -73,22 +79,22 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     return (
       <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
-        {this.createChevronButton()}
       </div>
     );
   }
 
-  renderValueElement(dropdownListModel: DropdownListModel): React.JSX.Element | null {
+  renderValueElement(): React.JSX.Element | null {
     if (this.question.showInputFieldComponent) {
-      return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: dropdownListModel.getSelectedAction(), question: this.question });
+      return ReactElementFactory.Instance.createElement(this.question.inputFieldComponentName, { item: this.dropdownListModel.getSelectedAction(), question: this.question });
     } else if (this.question.showSelectedItemLocText) {
       return this.renderLocString(this.question.selectedItemLocText);
     }
     return null;
   }
 
-  protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
-    let valueElement: React.JSX.Element | null = this.renderValueElement(dropdownListModel);
+  protected renderInput(): React.JSX.Element {
+    const dropdownListModel = this.dropdownListModel;
+    let valueElement: React.JSX.Element | null = this.renderValueElement();
     const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
@@ -154,45 +160,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           onFocus={this.focus}
         ></input>
       </div>
-      {this.createClearButton()}
+      {this.renderEditorButtons()}
     </div>);
-  }
-
-  createClearButton(): React.JSX.Element | null {
-    if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
-
-    const style = { display: !this.question.showClearButton ? "none" : "" };
-    return (
-      <div
-        className={this.question.cssClasses.cleanButton}
-        style={style}
-        onClick={this.clear}
-        aria-hidden="true"
-      >
-        <SvgIcon
-          className={this.question.cssClasses.cleanButtonSvg}
-          iconName={this.question.cssClasses.cleanButtonIconId}
-          title={this.question.clearCaption}
-          size={"auto"}
-        ></SvgIcon>
-      </div>
-    );
-  }
-
-  createChevronButton(): React.JSX.Element | null {
-    if (!this.question.cssClasses.chevronButtonIconId) return null;
-
-    return (
-      <div className={this.question.cssClasses.chevronButton}
-        aria-hidden="true"
-        onPointerDown={this.chevronPointerDown}>
-        <SvgIcon
-          className={this.question.cssClasses.chevronButtonSvg}
-          iconName={this.question.cssClasses.chevronButtonIconId}
-          size={"auto"}
-        ></SvgIcon>
-      </div>
-    );
   }
 
   protected renderOther(cssClasses: any): React.JSX.Element {
@@ -207,6 +176,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         />
       </div>
     );
+  }
+
+  protected renderEditorButtons(): React.JSX.Element | null {
+    return <SurveyActionBar model={this.dropdownListModel.editorButtons}></SurveyActionBar>;
   }
 
   componentDidUpdate(prevProps: any, prevState: any) {

@@ -3422,8 +3422,13 @@ export class SurveyModel extends SurveyElementCore
     var vPages = this.visiblePages;
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
+    const curEl = this.currentSingleElement;
+    if (!this.isShowingPreview && !!curEl && newPage !== (<any>curEl).page) {
+      this.currentSingleElement = newPage.getFirstVisibleElement();
+      return;
+    }
     var oldValue = this.currentPage;
-    if (!this.isShowingPreview && !this.currentSingleElement && !this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !curEl && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();

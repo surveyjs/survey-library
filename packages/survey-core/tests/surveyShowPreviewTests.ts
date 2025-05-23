@@ -267,8 +267,8 @@ QUnit.test(
     );
     survey.cancelPreview();
     assert.equal(survey.visiblePages.length, 2, "We two pages");
-    assert.equal(survey.currentSingleQuestion.name, "q1", "the single question is set correctly");
-    assert.equal(survey.pages[0].rows.length, 1, "There is one row only in the current page");
+    assert.equal(survey.currentSingleQuestion.name, "q3", "the single question is set correctly");
+    assert.equal(survey.pages[1].rows.length, 1, "There is one row only in the current page");
     assert.equal(survey.getAllPanels().length, 0, "There is no panels");
     assert.equal(
       survey.getAllQuestions().length,

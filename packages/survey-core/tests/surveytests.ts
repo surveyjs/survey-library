@@ -21870,6 +21870,27 @@ QUnit.test("Update hasTitle on load from JSON", function (assert) {
   });
   assert.equal(survey.hasTitle, true, "title presents");
 });
+QUnit.test("Move into another page by code in questionPerPage mode, Bug#9917", function(assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      { name: "p3", elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  assert.equal(survey.currentPage.name, "p1", "current page #1");
+  assert.equal(survey.currentSingleElement.name, "q1", "current question #1");
+  survey.nextPage();
+  assert.equal(survey.currentPage.name, "p2", "current page #2");
+  assert.equal(survey.currentSingleElement.name, "q2", "current question #2");
+  survey.currentPageNo = 2;
+  assert.equal(survey.currentPage.name, "p3", "current page #3");
+  assert.equal(survey.currentSingleElement.name, "q3", "current question #3");
+  survey.currentPageNo = 0;
+  assert.equal(survey.currentPage.name, "p1", "current page #4");
+  assert.equal(survey.currentSingleElement.name, "q1", "current question #4");
+});
 QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;

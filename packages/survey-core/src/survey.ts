@@ -3576,6 +3576,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * - Set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
    * - Assign a required page name to the [`currentElementName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentElementName) property.
+   * - Assign a required page to the [`currentElement`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentElement) property.
    *
    * The `currentPage` property does not return the start page even if it is current. Use the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage) property instead if your survey contains a start page.
    */
@@ -3617,12 +3618,7 @@ export class SurveyModel extends SurveyElementCore
    * | `"standard"` or `"singlePage"` | Page |
    * | `"questionPerPage"` | Question or Panel |
    * | `"inputPerPage"` | Question |
-   *
-   * If you want to access the current survey element, pass the `currentElementName` value to the [`getElementByName(name)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getElementByName) method:
-   *
-   * ```js
-   * const currentElement = survey.getElementByName(survey.currentElementName);
-   * ```
+   * @see currentElement
    */
   public get currentElementName(): string {
     return this.currentElement?.name || "";
@@ -3632,6 +3628,17 @@ export class SurveyModel extends SurveyElementCore
       this.currentElement = this.getElementByName(val);
     }
   }
+  /**
+   * Gets or sets the current page, panel, or question (depends on the [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) value).
+   *
+   * The following table illustrates the dependency between `questionsOnPageMode` values and the types of survey elements that the `currentElement` property can contain:
+   *
+   * | `questionsOnPageMode` | Survey element |
+   * | --------------------- | -------------- |
+   * | `"standard"` or `"singlePage"` | Page |
+   * | `"questionPerPage"` | Question or Panel |
+   * | `"inputPerPage"` | Question |
+   */
   public get currentElement(): ISurveyElement {
     return this.currentSingleElement || this.currentPage;
   }

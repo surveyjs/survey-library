@@ -1303,3 +1303,29 @@ QUnit.test("dateTime processInput: time 12 hours v2", function (assert) {
   assert.equal(result.value, "11:45 pm", "type m");
   assert.equal(result.caretPosition, 8, "type m");
 });
+
+QUnit.test("getMaxDateForMonth method", function (assert) {
+  const maskInstance = new InputMaskDateTime();
+  const getMaxDateForMonth = (maskInstance as any).getMaxDateForMonth.bind(maskInstance);
+
+  // Test regular months
+  assert.equal(getMaxDateForMonth(2024, 1), 31, "January has 31 days");
+  assert.equal(getMaxDateForMonth(2024, 3), 31, "March has 31 days");
+  assert.equal(getMaxDateForMonth(2024, 4), 30, "April has 30 days");
+  assert.equal(getMaxDateForMonth(2024, 5), 31, "May has 31 days");
+  assert.equal(getMaxDateForMonth(2024, 6), 30, "June has 30 days");
+  assert.equal(getMaxDateForMonth(2024, 7), 31, "July has 31 days");
+  assert.equal(getMaxDateForMonth(2024, 8), 31, "August has 31 days");
+  assert.equal(getMaxDateForMonth(2024, 9), 30, "September has 30 days");
+  assert.equal(getMaxDateForMonth(2024, 10), 31, "October has 31 days");
+  assert.equal(getMaxDateForMonth(2024, 11), 30, "November has 30 days");
+  assert.equal(getMaxDateForMonth(2024, 12), 31, "December has 31 days");
+
+  // Test February in different years
+  assert.equal(getMaxDateForMonth(2024, 2), 29, "February 2024 (leap year) has 29 days");
+  assert.equal(getMaxDateForMonth(2023, 2), 28, "February 2023 (non-leap year) has 28 days");
+  assert.equal(getMaxDateForMonth(2000, 2), 29, "February 2000 (leap year divisible by 400) has 29 days");
+  assert.equal(getMaxDateForMonth(2100, 2), 28, "February 2100 (non-leap year divisible by 100) has 28 days");
+  assert.equal(getMaxDateForMonth(2020, 2), 29, "February 2020 (leap year) has 29 days");
+  assert.equal(getMaxDateForMonth(2019, 2), 28, "February 2019 (non-leap year) has 28 days");
+});

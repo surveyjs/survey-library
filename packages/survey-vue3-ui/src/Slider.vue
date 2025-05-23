@@ -1,7 +1,7 @@
 <template>
     <div :class="question.rootCss" ref="rootRef">
         <input v-if="question.sliderType !== 'single' && question.allowDragRange" ref="rangeInputRef"
-        role="presentation" :class="question.cssClasses.input" type="range" tabIndex="-1" 
+        name="range-input" :class="question.cssClasses.input" type="range" tabIndex="-1" 
         :min="question.min" :max="question.max" :step="question.step" aria-hidden="true"
         @input="(e)=>{question.handleRangeOnChange(e as InputEvent)}"
         @pointerdown="(e)=>{question.handleRangePointerDown(e, rootRef as HTMLElement)}"

@@ -3645,7 +3645,6 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a page, panel, or question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    * @param name A survey element name.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the survey element. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A survey element with the specified name.
    * @see currentElementName
    */
@@ -6091,7 +6090,6 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    * @param name A question name.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A question with the specified name.
    * @see getAllQuestions
    * @see getQuestionByValueName
@@ -6120,7 +6118,6 @@ export class SurveyModel extends SurveyElementCore
    *
    * > Since `valueName` does not have to be unique, multiple questions can have the same `valueName` value. In this case, the `getQuestionByValueName()` method returns the first such question. If you need to get all questions with the same `valueName`, call the `getQuestionsByValueName()` method.
    * @param valueName A question's `valueName` property value.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A question with a specified `valueName`.
    * @see getAllQuestions
    * @see getQuestionByName
@@ -6135,7 +6132,6 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
    * @param valueName A question's `valueName` property value.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns An array of questions with a specified `valueName`.
    * @see getAllQuestions
    * @see getQuestionByName
@@ -6192,7 +6188,6 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a page with a specified name.
    * @param name A page [name](https://surveyjs.io/form-library/documentation/api-reference/page-model#name).
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the survey element. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A page with the specified name.
    */
   public getPageByName(name: string): PageModel {
@@ -6273,7 +6268,6 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
    * @param name A panel name.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A panel with the specified name.
    * @see getAllPanels
    */

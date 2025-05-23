@@ -326,7 +326,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   private getMaxDateForMonth(year: number, month: number) {
-    if (month == 2) return year % 4 == 0 && year % 100 != 0 || year % 400 ? 29 : 28;
+    if (month == 2) return year % 4 == 0 && year % 100 != 0 || year % 400 == 0 ? 29 : 28;
     return [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
   }
 

@@ -130,8 +130,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (!this.dropTarget) return;
     const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
+    const bottomOffset = this.isBottom ? 1 : 0;
+    const toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
     const options: DragDropAllowEvent = {
-      allow: dropTargetMatrix == this.parentElement
+      allow: dropTargetMatrix == this.parentElement,
+      draggedElement: this.draggedRenderedRow.row,
+      fromElement: this.parentElement,
+      toElement: dropTargetMatrix,
+      beforeElement: dropTargetMatrix.rows[toIndex],
+      afterElement: dropTargetMatrix.rows[toIndex],
     } as any;
     if (!this.survey.dragAndDropAllow(options)) return;
 
@@ -140,12 +147,11 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     const renderedRows = dropTargetMatrix.renderedTable.rows;
     const dropTargetRenderedRowIndex = renderedRows.findIndex(r => r.row == this.dropTarget);
-    const bottomOffset = this.isBottom ? 1 : 0;
 
     if (dropTargetRenderedRowIndex >= 0) {
       renderedRows.splice(dropTargetRenderedRowIndex + bottomOffset, 0, this.draggedRenderedRow);
     }
-    this.toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
+    this.toIndex = toIndex;
     this.toMatrix = dropTargetMatrix;
     this.dropIsBanned = false;
 

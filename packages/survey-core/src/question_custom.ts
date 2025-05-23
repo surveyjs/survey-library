@@ -836,6 +836,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     if(this.isValueChanging(name, newValue)) return;
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
   }
+  updateCommentFromSurvey(newValue: any): any {
+    super.updateCommentFromSurvey(newValue);
+    const q = this.contentQuestion;
+    if (!!q) {
+      q.updateCommentFromSurvey(newValue);
+    }
+  }
+  public get requireUpdateCommentValue(): boolean { return this.contentQuestion?.requireUpdateCommentValue; }
   protected onSetData(): void {
     super.onSetData();
     if (!!this.survey && !this.isEmpty()) {

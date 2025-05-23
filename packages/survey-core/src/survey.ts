@@ -3625,19 +3625,26 @@ export class SurveyModel extends SurveyElementCore
    * ```
    */
   public get currentElementName(): string {
-    return this.currentSingleElement?.name || this.currentPage?.name || "";
+    return this.currentElement?.name || "";
   }
-  public set currentElementName(value: string) {
-    const el = this.getElementByName(value);
-    if (el) {
-      if (el.isPage) {
-        this.currentPage = <PageModel>el;
+  public set currentElementName(val: string) {
+    if (!!val) {
+      this.currentElement = this.getElementByName(val);
+    }
+  }
+  public get currentElement(): ISurveyElement {
+    return this.currentSingleElement || this.currentPage;
+  }
+  public set currentElement(val: ISurveyElement) {
+    if (val) {
+      if (val.isPage) {
+        this.currentPage = <PageModel>val;
       } else {
-        const page = (<any>el).page;
+        const page = (<any>val).page;
         if (!!page && !this.isSingleVisibleQuestion) {
           this.currentPage = page;
         } else {
-          this.currentSingleElement = <IElement>el;
+          this.currentSingleElement = <IElement>val;
         }
       }
     }

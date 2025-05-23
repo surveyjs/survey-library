@@ -22137,25 +22137,35 @@ QUnit.test("survey.currentElementName", function(assert) {
     ]
   });
   assert.equal(survey.currentElementName, "p1", "current element name #1");
+  assert.equal(survey.currentElement.name, "p1", "current element #1");
   survey.currentElementName = "p3";
   assert.equal(survey.currentElementName, "p3", "current element name #2");
+  assert.equal(survey.currentElement.name, "p3", "current element #2");
   survey.currentElementName = "q2_1";
   assert.equal(survey.currentElementName, "p2", "current element name #3");
+  assert.equal(survey.currentElement.name, "p2", "current element #3");
   survey.currentElementName = "nothing";
   assert.equal(survey.currentElementName, "p2", "current element name #3_2");
+  assert.equal(survey.currentElement.name, "p2", "current element #3_2");
   survey.questionsOnPageMode = "questionPerPage";
   assert.equal(survey.currentElementName, "q1_1", "current element name #4");
+  assert.equal(survey.currentElement.name, "q1_1", "current element #4");
   survey.currentElementName = "q3_2";
   assert.equal(survey.currentElementName, "q3_2", "current element name #5");
+  assert.equal(survey.currentElement.name, "q3_2", "current element #5");
   survey.currentElementName = "p1";
   assert.equal(survey.currentElementName, "q1_1", "current element name #6");
+  assert.equal(survey.currentElement.name, "q1_1", "current element #6");
   survey.questionsOnPageMode = "inputPerPage";
   survey.currentElementName = "q2_1";
   assert.equal(survey.currentElementName, "q2_1", "current element name #7");
+  assert.equal(survey.currentElement.name, "q2_1", "current element #7");
   survey.currentElementName = "p3";
   assert.equal(survey.currentElementName, "q3_1", "current element name #8");
+  assert.equal(survey.currentElement.name, "q3_1", "current element #8");
   survey.currentElementName = "nothing";
   assert.equal(survey.currentElementName, "q3_1", "current element name #9");
+  assert.equal(survey.currentElement.name, "q3_1", "current element #9");
 });
 QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (assert) {
   const oldFunc = Helpers.randomizeArray;

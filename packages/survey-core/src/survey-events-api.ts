@@ -10,7 +10,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
-import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
@@ -979,11 +979,11 @@ export interface DragDropAllowEvent {
   /**
    * A survey element being dragged.
    */
-  draggedElement: IElement;
+  draggedElement: IElement | MatrixDynamicRowModel;
   /**
    * A survey element from which `draggedElement` is being dragged. This parameter is `null` if `draggedElement` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
    */
-  fromElement: IPanel;
+  fromElement: IPanel | IElement;
   /**
    * A survey element to which `draggedElement` is being dragged.
    */
@@ -991,11 +991,11 @@ export interface DragDropAllowEvent {
   /**
    * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
    */
-  insertBefore: IElement;
+  insertBefore: IElement | MatrixDynamicRowModel;
   /**
    * A survey element after which `draggedElement` will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if `draggedElement` will be placed above all other elements within the container.
    */
-  insertAfter: IElement;
+  insertAfter: IElement | MatrixDynamicRowModel;
   /**
    * A parent container (page or panel) within which `draggedElement` will be placed.
    */

@@ -219,15 +219,15 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       return;
     }
 
+    let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
+
+    this.allowDropHere = true;
+
+    if (this.isDropTargetDoesntChanged(isBottom)) return;
+
+    this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
+    this.isBottom = isBottom;
     if (this.draggedElement != this.dropTarget) {
-      let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
-
-      this.allowDropHere = true;
-
-      if (this.isDropTargetDoesntChanged(isBottom)) return;
-
-      this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
-      this.isBottom = isBottom;
       this.afterDragOver(dropTargetNode);
     }
     this.prevDropTarget = this.dropTarget;

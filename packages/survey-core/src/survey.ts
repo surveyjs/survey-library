@@ -3604,6 +3604,28 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
+  public get currentElementName(): string {
+    return this.currentSingleElement?.name || this.currentPage?.name || "";
+  }
+  public set currentElementName(value: string) {
+    const el = this.getElementByName(value);
+    if (el) {
+      if (el.isPage) {
+        this.currentPage = <PageModel>el;
+      } else {
+        const page = (<any>el).page;
+        if (!!page && !this.isSingleVisibleQuestion) {
+          this.currentPage = page;
+        } else {
+          this.currentSingleElement = <IElement>el;
+        }
+      }
+    }
+  }
+  public getElementByName(name: string): ISurveyElement {
+    if (!name) return null;
+    return this.getPageByName(name) || this.getPanelByName(name) || this.getQuestionByName(name);
+  }
   public tryNavigateToPage(page: PageModel/*, serverValidationRes?: (res: boolean)=> void*/): boolean {
     if (!this.performValidationOnPageChanging(page)) return false;
     const index = this.visiblePages.indexOf(page);

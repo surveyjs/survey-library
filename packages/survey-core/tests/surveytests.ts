@@ -22128,6 +22128,35 @@ QUnit.test("Move into another page by code in questionPerPage mode, Bug#9917", f
   assert.equal(survey.currentPage.name, "p1", "current page #4");
   assert.equal(survey.currentSingleElement.name, "q1", "current question #4");
 });
+QUnit.test("survey.currentElementName", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1_1" }, { type: "text", name: "q1_2" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2_1" }, { type: "text", name: "q2_2" }] },
+      { name: "p3", elements: [{ type: "text", name: "q3_1" }, { type: "text", name: "q3_2" }] }
+    ]
+  });
+  assert.equal(survey.currentElementName, "p1", "current element name #1");
+  survey.currentElementName = "p3";
+  assert.equal(survey.currentElementName, "p3", "current element name #2");
+  survey.currentElementName = "q2_1";
+  assert.equal(survey.currentElementName, "p2", "current element name #3");
+  survey.currentElementName = "nothing";
+  assert.equal(survey.currentElementName, "p2", "current element name #3_2");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(survey.currentElementName, "q1_1", "current element name #4");
+  survey.currentElementName = "q3_2";
+  assert.equal(survey.currentElementName, "q3_2", "current element name #5");
+  survey.currentElementName = "p1";
+  assert.equal(survey.currentElementName, "q1_1", "current element name #6");
+  survey.questionsOnPageMode = "inputPerPage";
+  survey.currentElementName = "q2_1";
+  assert.equal(survey.currentElementName, "q2_1", "current element name #7");
+  survey.currentElementName = "p3";
+  assert.equal(survey.currentElementName, "q3_1", "current element name #8");
+  survey.currentElementName = "nothing";
+  assert.equal(survey.currentElementName, "q3_1", "current element name #9");
+});
 QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;

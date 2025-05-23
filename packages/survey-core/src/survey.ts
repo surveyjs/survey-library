@@ -3572,7 +3572,10 @@ export class SurveyModel extends SurveyElementCore
    * survey.currentPage = survey.getPageByName("my-page-name");
    * ```
    *
-   * Alternatively, you can change the current page if you set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
+   * Alternative ways to change the current page are listed below:
+   *
+   * - Set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
+   * - Assign a required page name to the [`currentElementName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentElementName) property.
    *
    * The `currentPage` property does not return the start page even if it is current. Use the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage) property instead if your survey contains a start page.
    */
@@ -3604,6 +3607,23 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
+  /**
+   * Specifies the current page, panel, or question (depends on the [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) value) using its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   *
+   * The following table illustrates the dependency between `questionsOnPageMode` values and the types of survey elements that the `currentElementName` property can specify:
+   *
+   * | `questionsOnPageMode` | Survey element |
+   * | --------------------- | -------------- |
+   * | `"standard"` or `"singlePage"` | Page |
+   * | `"questionPerPage"` | Question or Panel |
+   * | `"inputPerPage"` | Question |
+   *
+   * If you want to access the current survey element, pass the `currentElementName` value to the [`getElementByName(name)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getElementByName) method:
+   *
+   * ```js
+   * const currentElement = survey.getElementByName(survey.currentElementName);
+   * ```
+   */
   public get currentElementName(): string {
     return this.currentSingleElement?.name || this.currentPage?.name || "";
   }
@@ -3622,6 +3642,13 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  /**
+   * Returns a page, panel, or question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   * @param name A survey element name.
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the survey element. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A survey element with the specified name.
+   * @see currentElementName
+   */
   public getElementByName(name: string): ISurveyElement {
     if (!name) return null;
     return this.getPageByName(name) || this.getPanelByName(name) || this.getQuestionByName(name);
@@ -6063,9 +6090,9 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
-   * @param name A question name
+   * @param name A question name.
    * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
-   * @returns A question with a specified name.
+   * @returns A question with the specified name.
    * @see getAllQuestions
    * @see getQuestionByValueName
    */
@@ -6165,6 +6192,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a page with a specified name.
    * @param name A page [name](https://surveyjs.io/form-library/documentation/api-reference/page-model#name).
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the survey element. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A page with the specified name.
    */
   public getPageByName(name: string): PageModel {
     for (var i: number = 0; i < this.pages.length; i++) {
@@ -6245,7 +6274,7 @@ export class SurveyModel extends SurveyElementCore
    * Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
    * @param name A panel name.
    * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
-   * @returns A panel with a specified name.
+   * @returns A panel with the specified name.
    * @see getAllPanels
    */
   public getPanelByName(
@@ -8162,7 +8191,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Focuses a question with a specified name. Switches the current page if needed.
    * @param name A question name.
-   * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
+   * @returns `false` if the survey does not contain a question with the specified name or this question is hidden; otherwise, `true`.
    * @see focusFirstQuestion
    * @see autoFocusFirstQuestion
    */

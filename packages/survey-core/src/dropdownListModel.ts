@@ -145,6 +145,13 @@ export class DropdownListModel extends Base {
     };
   }
 
+  private checkFocusRemainsWithinComponent(event: any): boolean {
+    if (!this.question.cssClasses.root || !event?.target) return false;
+
+    const rootElement = event.target.closest(classesToSelector(this.question.cssClasses.root));
+    return (rootElement && rootElement.contains(event.relatedTarget));
+  }
+
   protected createButtons(): void {
     this.editorButtons = new ActionContainer();
     this.editorButtons.containerCss = "sd-dropdown-action-bar";
@@ -157,6 +164,9 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locSelectCaption,
       disableTabStop: true,
+      enabled: new ComputedUpdater(() => {
+        return !this.question.isInputReadOnly;
+      }),
       visible: new ComputedUpdater(() => {
         return !this.question.isPreviewStyle;
       }),
@@ -173,6 +183,9 @@ export class DropdownListModel extends Base {
       showTitle: false,
       locTitle: this.locClearCaption,
       disableTabStop: true,
+      enabled: new ComputedUpdater(() => {
+        return !this.question.isInputReadOnly;
+      }),
       visible: new ComputedUpdater(() => {
         const isEmpty = this.question.isEmpty();
         const isReadOnly = this.question.isReadOnly;
@@ -811,9 +824,9 @@ export class DropdownListModel extends Base {
       this.updateQuestionChoices();
     }
   }
+
   onBlur(event: any): void {
-    const rootElement = event?.target?.closest(classesToSelector(this.question.cssClasses.root));
-    if (!!rootElement && rootElement.contains(event.relatedTarget)) return;
+    if (this.checkFocusRemainsWithinComponent(event)) return;
 
     this.focused = false;
     if (this.popupModel.isVisible && this.popupModel.displayMode == "overlay") {

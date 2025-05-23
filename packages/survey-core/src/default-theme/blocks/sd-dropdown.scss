@@ -119,6 +119,7 @@ select.sd-dropdown {
 
 .sd-question--readonly .sd-editor-button-item {
   opacity: var(--lbr-editor-button-icon-opacity-disabled, 0.25);
+  cursor: default;
 }
 
 .sd-dropdown_chevron-button {

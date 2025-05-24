@@ -34,15 +34,15 @@ export class QuestionSliderModel extends Question {
     this.tooltipVisibility = newValue ? "auto" : "never";
   }
   public get step(): number {
-    if (this.segmentCount) {
-      return (this.renderedMax - this.renderedMin) / this.segmentCount;
-    }
+    // if (this.segmentCount) {
+    //   return (this.renderedMax - this.renderedMin) / this.segmentCount;
+    // }
     return this.getPropertyValue("step");
   }
   public set step(val: number) {
     this.setPropertyValue("step", val);
   }
-  @property({ defaultValue: null }) segmentCount: number | null;
+  // @property({ defaultValue: null }) segmentCount: number | null;
   @property({ defaultValue: true }) showLabels: boolean;
   public get labelCount(): number {
     if (this.customLabels.length > 0) return this.customLabels.length;
@@ -606,20 +606,20 @@ export class QuestionSliderModel extends Question {
   }
 
   protected initPropertyDependencies() {
-    this.registerSychProperties(["segmentCount"],
-      () => {
-        if (this.segmentCount) {
-          this.step = (this.renderedMax - this.renderedMin) / this.segmentCount;
-        }
-      }
-    );
-    this.registerSychProperties(["step"],
-      () => {
-        if (this.step) {
-          this.segmentCount = (this.renderedMax - this.renderedMin) / this.step;
-        }
-      }
-    );
+    // this.registerSychProperties(["segmentCount"],
+    //   () => {
+    //     if (this.segmentCount) {
+    //       this.step = (this.renderedMax - this.renderedMin) / this.segmentCount;
+    //     }
+    //   }
+    // );
+    // this.registerSychProperties(["step"],
+    //   () => {
+    //     if (this.step) {
+    //       this.segmentCount = (this.renderedMax - this.renderedMin) / this.step;
+    //     }
+    //   }
+    // );
     this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate"],
       () => {
         this.resetPropertyValue("generatedLabels");
@@ -733,12 +733,12 @@ Serializer.addClass(
       //   return obj.autoGenerate;
       // },
     },
-    {
-      name: "segmentCount:number",
-      // visibleIf: function (obj: any) {
-      //   return obj.autoGenerate;
-      // },
-    },
+    // {
+    //   name: "segmentCount:number",
+    //   // visibleIf: function (obj: any) {
+    //   //   return obj.autoGenerate;
+    //   // },
+    // },
     {
       name: "minValueExpression",
       type: "expression"

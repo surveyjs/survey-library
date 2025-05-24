@@ -507,6 +507,11 @@ export class Base {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
+    if (!!calcFunc && Array.isArray(res) && res.length === 0 && (<any>res).isReset === true) {
+      delete (<any>res).isReset;
+      this.setArrayPropertyDirectly(name, calcFunc(), false);
+      return res;
+    }
     if (this.isValueUndefined(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if (locStr) return locStr.text;
@@ -1138,6 +1143,9 @@ export class Base {
         Object.getPrototypeOf(src).push.call(src, item);
         if (onPush) onPush(src[i]);
       }
+      delete (<any>src).isReset;
+    } else {
+      (<any>src).isReset = true;
     }
     const arrayChanges = new ArrayChanges(
       0,

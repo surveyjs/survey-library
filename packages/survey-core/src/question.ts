@@ -1998,6 +1998,7 @@ export class Question extends SurveyElement<Question>
    * | Radio Button Group | `string` \| `number` |
    * | Ranking | <code>Array&lt;string &#124; number&gt;</code> |
    * | Rating Scale | `number` \| `string` |
+   * | Slider | <code>Array&lt;string &#124; number&gt;</code> |
    * | Signature | `string` (base64-encoded image) |
    * | Single-Line Input | `string` \| `number` \| `Date` |
    * | Single-Select Matrix | `object` |
@@ -3227,6 +3228,18 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
+
+  private _syncPropertiesChanging: boolean = false;
+  protected registerSychProperties(names: Array<string>, func: any) {
+    this.registerFunctionOnPropertiesValueChanged(names,
+      () => {
+        if (!this._syncPropertiesChanging) {
+          this._syncPropertiesChanging = true;
+          func();
+          this._syncPropertiesChanging = false;
+        }
+      });
+  }
 }
 function makeNameValid(str: string): string {
   if (!str) return str;

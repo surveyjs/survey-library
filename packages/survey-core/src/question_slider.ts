@@ -692,9 +692,9 @@ export class QuestionSliderModel extends Question {
   }
 }
 
-function getCorrectMinMax(min: any, max: any, isMax: boolean): any {
+function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any {
   let val = isMax ? max : min;
-  if (min > max) return isMax ? min : max;
+  if (min >= max) return isMax ? min + step : max - step;
   return val;
 }
 
@@ -716,14 +716,14 @@ Serializer.addClass(
       name: "min:number",
       default: 0,
       onSettingValue: (obj: any, val: any): any => {
-        return getCorrectMinMax(val, obj.max, false);
+        return getCorrectMinMax(val, obj.max, false, obj.step);
       },
     },
     {
       name: "max:number",
       default: 100,
       onSettingValue: (obj: any, val: any): any => {
-        return getCorrectMinMax(obj.min, val, true);
+        return getCorrectMinMax(obj.min, val, true, obj.step);
       },
     },
     {

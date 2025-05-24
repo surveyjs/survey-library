@@ -635,7 +635,11 @@ QUnit.test("min>max", (assert) => {
   q1.max = 10;
 
   assert.deepEqual(q1.min, 90, "min is set");
-  assert.deepEqual(q1.max, 90, "max is set to min");
+  assert.deepEqual(q1.max, 91, "max < min is set to min + step");
+
+  q1.min = 90;
+  q1.max = 90;
+  assert.deepEqual(q1.max, 91, "max = min is set to min + step");
 });
 
 QUnit.test("allowClear", (assert) => {

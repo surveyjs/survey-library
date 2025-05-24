@@ -46,7 +46,7 @@ frameworks.forEach((framework) => {
       await page.getByText("40", { exact: true }).click();
       await expect(input).toHaveValue("40");
 
-      await new Survey(page).checkData({ q1: [40] });
+      await new Survey(page).checkData({ q1: 40 });
     });
     test("Slider: Choose Value: Range Mode", async ({ page }) => {
       const json = {

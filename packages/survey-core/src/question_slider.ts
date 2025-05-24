@@ -638,14 +638,14 @@ export class QuestionSliderModel extends Question {
   }
 
   protected setNewValue(newValue: any): void {
-    if (this.sliderType === "single" && !Array.isArray(newValue)) {
+    if (!Array.isArray(newValue)) {
       if (newValue < this.min) newValue = this.min;
       if (newValue > this.max) newValue = this.max;
     } else {
-      let [newMin, newMax] = newValue.sort(); // TODO more than 2
-      if (newMin < this.min) newMin = this.min;
-      if (newMax > this.max) newMax = this.max;
-      newValue = [newMin, newMax];
+      newValue.forEach((el, i) => {
+        if (el < this.min) newValue[i] = this.min;
+        if (el > this.max) newValue[i] = this.max;
+      });
     }
 
     super.setNewValue(newValue);

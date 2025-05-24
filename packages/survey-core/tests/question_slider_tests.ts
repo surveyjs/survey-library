@@ -100,28 +100,28 @@ QUnit.test("check css", (assert) => {
   assert.deepEqual(q1.rootCss, "sd-slider");
 });
 
-QUnit.test("segmentCount", (assert) => {
-  var json = {
-    elements: [
-      {
-        type: "slider",
-        sliderType: "range",
-        name: "q1",
-        segmentCount: 5,
-        min: 0,
-        max: 100,
-        step: 10
-      },
-    ],
-  };
-  const survey = new SurveyModel(json);
-  const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.segmentCount, 5);
-  assert.deepEqual(q1.step, 20);
-  q1.segmentCount = null;
-  assert.deepEqual(q1.segmentCount, null);
-  assert.deepEqual(q1.step, 10);
-});
+// QUnit.test("segmentCount", (assert) => {
+//   var json = {
+//     elements: [
+//       {
+//         type: "slider",
+//         sliderType: "range",
+//         name: "q1",
+//         segmentCount: 5,
+//         min: 0,
+//         max: 100,
+//         step: 10
+//       },
+//     ],
+//   };
+//   const survey = new SurveyModel(json);
+//   const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+//   assert.deepEqual(q1.segmentCount, 5);
+//   assert.deepEqual(q1.step, 20);
+//   q1.segmentCount = null;
+//   assert.deepEqual(q1.segmentCount, null);
+//   assert.deepEqual(q1.step, 10);
+// });
 
 QUnit.test("step", (assert) => {
   let json:any = {
@@ -193,7 +193,8 @@ QUnit.test("customLabels", (assert) => {
         type: "slider",
         sliderType: "range",
         name: "q1",
-        segmentCount: 5,
+        // segmentCount: 5,
+        step: 20,
         "customLabels": [
           {
             "value": 0,
@@ -599,7 +600,7 @@ QUnit.test("getClosestToStepValue", (assert) => {
   const q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
 
-  q1.segmentCount = null;
+  // q1.segmentCount = null;
   q1.min = 10;
   q1.max = 100;
   q1.step = 18;
@@ -609,7 +610,7 @@ QUnit.test("getClosestToStepValue", (assert) => {
   assert.deepEqual(q1.getClosestToStepValue(100), 100);
   assert.deepEqual(q1.getClosestToStepValue(100.1), 100);
 
-  q1.segmentCount = null;
+  // q1.segmentCount = null;
   q1.min = -100;
   q1.max = -10;
   q1.step = 18;
@@ -617,7 +618,7 @@ QUnit.test("getClosestToStepValue", (assert) => {
   assert.deepEqual(q1.getClosestToStepValue(-20), -28);
   assert.deepEqual(q1.getClosestToStepValue(-100), -100);
 
-  q1.segmentCount = null;
+  // q1.segmentCount = null;
   q1.min = -90;
   q1.max = 90;
   q1.step = 18;

@@ -3613,3 +3613,57 @@ QUnit.test("Composite: survey set data & set comment, Bug#9747", function (asser
 
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Custom: isMobile flag, Bug#9927", function (assert) {
+  ComponentCollection.Instance.add(
+    {
+      name: "test",
+      questionJSON: { type: "text" }
+    }
+  );
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.contentQuestion.isMobile, false);
+
+  survey.setIsMobile(true);
+  assert.equal(q1.contentQuestion.isMobile, true);
+
+  survey.setIsMobile(false);
+  assert.equal(q1.contentQuestion.isMobile, false);
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite: isMobile flag, Bug#9927", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, false);
+  assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
+
+  survey.setIsMobile(true);
+  assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, true);
+  assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, true);
+
+  survey.setIsMobile(false);
+  assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, false);
+  assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
+  ComponentCollection.Instance.clear();
+});

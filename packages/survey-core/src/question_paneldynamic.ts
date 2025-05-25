@@ -2038,6 +2038,10 @@ export class QuestionPanelDynamicModel extends Question
     this.setPanelsSurveyImpl();
     this.setPanelsState();
     this.assignOnPropertyChangedToTemplate();
+    if (this.data && this.isValueChangedWithoutPanels) {
+      this.isValueChangedWithoutPanels = false;
+      this.runTriggersOnBuildPanelsFirstTime();
+    }
     if (!!this.survey) {
       for (var i = 0; i < this.panelCount; i++) {
         this.notifyOnPanelAddedRemoved(true, i);
@@ -2050,6 +2054,16 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.isBuildingPanelsFirstTime = false;
     this.releaseAnimations();
+  }
+  private runTriggersOnBuildPanelsFirstTime(): void {
+    const val = this.value;
+    this.visiblePanelsCore.forEach(p => {
+      const panelValue = this.getPanelItemData(p.data);
+      if (!Helpers.isValueEmpty(panelValue)) {
+        const triggeredValue = Helpers.createCopyWithPrefix(panelValue, QuestionPanelDynamicItem.ItemVariableName + ".");
+        p.questions.forEach(q => q.runTriggers("", undefined, triggeredValue));
+      }
+    });
   }
   private get showAddPanelButton(): boolean { return this.allowAddPanel && !this.isReadOnly; }
   private get wasNotRenderedInSurvey(): boolean {
@@ -2117,8 +2131,12 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.isValueChangingInternally = false;
   }
+  private isValueChangedWithoutPanels: boolean;
   onAnyValueChanged(name: string, questionName: string): void {
     super.onAnyValueChanged(name, questionName);
+    if (!this.hasPanelBuildFirstTime && name === this.getValueName()) {
+      this.isValueChangedWithoutPanels = true;
+    }
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].onAnyValueChanged(name, questionName);
       this.panelsCore[i].onAnyValueChanged(QuestionPanelDynamicItem.ItemVariableName, "");

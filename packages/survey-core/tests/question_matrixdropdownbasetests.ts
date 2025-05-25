@@ -949,7 +949,47 @@ QUnit.test("question.setValueIf, basic functionality", function (assert) {
   q3.value = 5;
   assert.equal(q2.value, "klm", "value is set, #6");
 });
-
+QUnit.test("cell.setValueExpression for matrix on the second page, Bug#9942", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix1",
+          valueName: "matrix",
+          rowCount: 1,
+          columns: [{ name: "q1", cellType: "text" }],
+        }
+      ]
+    },
+    {
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix2",
+          valueName: "matrix",
+          columns: [
+            { name: "q2", cellType: "text", setValueExpression: "{row.q1} + {row.q3}" },
+            { name: "q3", cellType: "text" },
+          ]
+        },
+      ]
+    }
+    ]
+  });
+  const matrix1 = survey.getQuestionByName("matrix1");
+  const matrix2 = survey.getQuestionByName("matrix2");
+  matrix1.visibleRows[0].cells[0].question.value = 10;
+  matrix1.addRow();
+  matrix1.visibleRows[1].cells[0].question.value = 20;
+  survey.nextPage();
+  const rows = matrix2.visibleRows;
+  assert.equal(rows.length, 2, "rows count");
+  assert.equal(rows[0].getQuestionByName("q2").value, 10, "q2 value, row 1");
+  assert.equal(rows[1].getQuestionByName("q2").value, 20, "q2 value, row 2");
+  rows[0].getQuestionByName("q3").value = 5;
+  assert.equal(rows[0].getQuestionByName("q2").value, 15, "q2 value, row 1");
+});
 QUnit.test("question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     questionErrorLocation: "bottom",

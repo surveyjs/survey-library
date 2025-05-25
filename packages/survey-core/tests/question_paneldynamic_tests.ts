@@ -433,6 +433,47 @@ QUnit.test("Support visibleIf and panel variable, question.valueName", function(
     "panelQ1 is 'val'"
   );
 });
+QUnit.test("cell.setValueExpression for panel on the second page, Bug#9942", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          valueName: "panel",
+          panelCount: 1,
+          templateElements: [{ name: "q1", type: "text" }],
+        }
+      ]
+    },
+    {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel2",
+          valueName: "panel",
+          templateElements: [
+            { name: "q2", type: "text", setValueExpression: "{panel.q1} + {panel.q3}" },
+            { name: "q3", type: "text" },
+          ]
+        },
+      ]
+    }
+    ]
+  });
+  const panel1 = survey.getQuestionByName("panel1");
+  const panel2 = survey.getQuestionByName("panel2");
+  panel1.panels[0].questions[0].value = 10;
+  panel1.addPanel();
+  panel1.panels[1].questions[0].value = 20;
+  survey.nextPage();
+  const panels = panel2.panels;
+  assert.equal(panels.length, 2, "panels count");
+  assert.equal(panels[0].getQuestionByName("q2").value, 10, "q2 value, panel 1");
+  assert.equal(panels[1].getQuestionByName("q2").value, 20, "q2 value, panel 2");
+  panels[0].getQuestionByName("q3").value = 5;
+  assert.equal(panels[0].getQuestionByName("q2").value, 15, "q2 value, panel 1");
+});
 QUnit.test("Support panelIndex in visibleIf expression", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");

@@ -2642,13 +2642,13 @@ QUnit.test("Create multiple choice item for checkbox", (assert) => {
     ]
   });
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  assert.equal(q.choices[0].getType(), "multiplechoice", "choice 0 is multiplechoice");
-  assert.equal(q.choices[2].getType(), "multiplechoice", "choice 2 is multiplechoice");
-  assert.equal(q.selectAllItem.getType(), "multiplechoice", "selectAllItem is multiplechoice");
-  assert.equal(q.noneItem.getType(), "multiplechoice", "noneItem is multiplechoice");
-  assert.equal(q.otherItem.getType(), "multiplechoice", "otherItem is multiplechoice");
-  assert.equal(q.refuseItem.getType(), "multiplechoice", "refuseItem is multiplechoice");
-  assert.equal(q.dontKnowItem.getType(), "multiplechoice", "dontKnowItem is multiplechoice");
+  assert.equal(q.choices[0].getType(), "checkboxitem", "choice 0 is checkboxitem");
+  assert.equal(q.choices[2].getType(), "checkboxitem", "choice 2 is checkboxitem");
+  assert.equal(q.selectAllItem.getType(), "checkboxitem", "selectAllItem is checkboxitem");
+  assert.equal(q.noneItem.getType(), "checkboxitem", "noneItem is checkboxitem");
+  assert.equal(q.otherItem.getType(), "checkboxitem", "otherItem is checkboxitem");
+  assert.equal(q.refuseItem.getType(), "checkboxitem", "refuseItem is checkboxitem");
+  assert.equal(q.dontKnowItem.getType(), "checkboxitem", "dontKnowItem is checkboxitem");
   assert.equal(q.selectAllItem.isExclusive, false, "selectAllItem => isExclusive");
   assert.equal(q.noneItem.isExclusive, true, "noneItem => isExclusive");
   assert.equal(q.otherItem.isExclusive, false, "otherItem  => isExclusive");

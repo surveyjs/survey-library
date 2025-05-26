@@ -13,7 +13,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 
-export class MultipleChoice extends ItemValue {
+export class CheckboxItem extends ItemValue {
   public get isExclusive(): boolean {
     return this.getPropertyValue("isExclusive");
   }
@@ -21,7 +21,7 @@ export class MultipleChoice extends ItemValue {
     this.setPropertyValue("isExclusive", val);
   }
   public getType(): string {
-    return "multiplechoice";
+    return "checkboxitem";
   }
 }
 
@@ -49,7 +49,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return "checkbox";
   }
   protected getItemValueType() {
-    return "multiplechoice";
+    return "checkboxitem";
   }
   protected createSelectAllItem(): ItemValue {
     const res = this.createItemValue("");
@@ -734,9 +734,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   // EO a11y
 }
-Serializer.addClass("multiplechoice",
+Serializer.addClass("checkboxitem",
   [{ name: "isExclusive:boolean", visible: false }],
-  (value: any) => new MultipleChoice(value), "itemvalue");
+  (value: any) => new CheckboxItem(value), "itemvalue");
 
 Serializer.addClass(
   "checkbox",
@@ -776,7 +776,7 @@ Serializer.addClass(
   },
   "checkboxbase"
 );
-Serializer.getProperty("checkbox", "choices").type = "multiplechoice[]";
+Serializer.getProperty("checkbox", "choices").type = "checkboxitem[]";
 
 QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
   var q = new QuestionCheckboxModel(name);

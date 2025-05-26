@@ -17,6 +17,16 @@ import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
+export class ChoiceItem extends ItemValue {
+  public getType(): string { return "choiceitem"; }
+  public get hasComment(): boolean {
+    return this.getPropertyValue("hasComment");
+  }
+  public set hasComment(val: boolean) {
+    this.setPropertyValue("hasComment", val);
+  }
+}
+
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
@@ -29,7 +39,7 @@ export class QuestionSelectBase extends Question {
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private prevOtherValue: string;
-  private otherItemValue: ItemValue = new ItemValue("other");
+  private otherItemValue: ItemValue;
   private choicesFromUrl: Array<ItemValue>;
   private cachedValueForUrlRequests: any;
   private isChoicesLoaded: boolean;
@@ -48,6 +58,8 @@ export class QuestionSelectBase extends Question {
 
   constructor(name: string) {
     super(name);
+    this.otherItemValue = this.createItemValue("other");
+    this.otherItem.hasComment = true;
     this.noneItemValue = this.createDefaultItem(settings.noneItemValue, "noneText", "noneItemText");
     this.refuseItemValue = this.createDefaultItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createDefaultItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
@@ -145,7 +157,7 @@ export class QuestionSelectBase extends Question {
     return [this.commentId, this.otherId];
   }
   protected getItemValueType(): string {
-    return "itemvalue";
+    return "choiceitem";
   }
   public createItemValue(value: any, text?: string): ItemValue {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), { value: value });
@@ -2213,13 +2225,20 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
   }
   return obj.carryForwardQuestionType === mode;
 }
+
+Serializer.addClass("choiceitem",
+  [{ name: "hasComment:boolean", visible: false }],
+  (value) => new ChoiceItem(value),
+  "itemvalue"
+);
+
 Serializer.addClass(
   "selectbase",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     "choicesFromQuestion:question_carryforward",
     {
-      name: "choices:itemvalue[]", uniqueProperty: "value",
+      name: "choices:choiceitem[]", uniqueProperty: "value",
       baseValue: function () {
         return getLocaleString("choices_Item");
       },

@@ -72,7 +72,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     if (this.isReadOnlyAttr) return;
     this.renderedValue = item.value;
   }
-
+  public isCommentShowing(item: ItemValue): boolean {
+    return item && item.hasComment && this.isItemSelected(item);
+  }
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];
     if (!this.isDesignMode) {

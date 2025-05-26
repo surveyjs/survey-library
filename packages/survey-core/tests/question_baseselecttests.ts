@@ -2630,3 +2630,44 @@ QUnit.test("Checkbox question show selected item incorrectly if choices set afte
   assert.equal(q1.isOtherSelected, false, "q1.isOtherSelected is false");
   assert.equal(q1.selectedChoices.length, 2, "q1.selectedChoices.length is correct");
 });
+QUnit.test("Dropdown question and choiceitem type", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(q1.choices[0].getType(), "choiceitem", "choiceitem type for choices[0]");
+  assert.equal(q1.choices[2].getType(), "choiceitem", "choiceitem type for choices[2]");
+  assert.equal(q1.otherItem.getType(), "choiceitem", "choiceitem type for otherItem");
+});
+QUnit.test("Radiogroup question and choices has comment", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, 3],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.choices[0].hasComment, false, "choices[0].hasComment");
+  assert.equal(q1.choices[1].hasComment, true, "choices[1].hasComment");
+  assert.equal(q1.otherItem.hasComment, true, "choices[1].hasComment");
+  assert.equal(q1.isCommentShowing(q1.choices[0]), false, "isCommentShowing for choices[0], #1");
+  assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #1");
+  assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #1");
+  q1.clickItemHandler(q1.otherItem);
+  assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #2");
+  assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #2");
+  q1.clickItemHandler(q1.choices[1]);
+  assert.equal(q1.isCommentShowing(q1.choices[1]), true, "isCommentShowing for choices[1], #3");
+  assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #3");
+});

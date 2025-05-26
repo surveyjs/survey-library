@@ -55,7 +55,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const res = this.createItemValue("");
     res.value = "";
     res.id = "selectall";
-    this.selectAllItemText = this.createLocalizableString("selectAllText", this.selectAllItem, true, "selectAllItemText");
+    this.selectAllItemText = this.createLocalizableString("selectAllText", res, true, "selectAllItemText");
     res.locOwner = this;
     res.setLocText(this.selectAllItemText);
     return res;

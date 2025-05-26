@@ -2630,3 +2630,61 @@ QUnit.test("Checkbox question show selected item incorrectly if choices set afte
   assert.equal(q1.isOtherSelected, false, "q1.isOtherSelected is false");
   assert.equal(q1.selectedChoices.length, 2, "q1.selectedChoices.length is correct");
 });
+QUnit.test("Create multiple choice item for checkbox", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        hasOther: true,
+        choices: [1, 2, 3]
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.choices[0].getType(), "multiplechoice", "choice 0 is multiplechoice");
+  assert.equal(q.choices[2].getType(), "multiplechoice", "choice 2 is multiplechoice");
+  assert.equal(q.selectAllItem.getType(), "multiplechoice", "selectAllItem is multiplechoice");
+  assert.equal(q.noneItem.getType(), "multiplechoice", "noneItem is multiplechoice");
+  assert.equal(q.otherItem.getType(), "multiplechoice", "otherItem is multiplechoice");
+  assert.equal(q.refuseItem.getType(), "multiplechoice", "refuseItem is multiplechoice");
+  assert.equal(q.dontKnowItem.getType(), "multiplechoice", "dontKnowItem is multiplechoice");
+  assert.equal(q.selectAllItem.isExclusive, false, "selectAllItem => isExclusive");
+  assert.equal(q.noneItem.isExclusive, true, "noneItem => isExclusive");
+  assert.equal(q.otherItem.isExclusive, false, "otherItem  => isExclusive");
+  assert.equal(q.refuseItem.isExclusive, true, "refuseItem => isExclusive");
+  assert.equal(q.dontKnowItem.isExclusive, true, "dontKnowItem => isExclusive");
+});
+QUnit.test("checkbox vs selectAll and isExclusive", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", { value: "none2", isExclusive: true }, "orange"],
+        showNoneItem: true,
+        showSelectAllItem: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.toggleSelectAll();
+  assert.deepEqual(q.value, ["apple", "banana", "orange"], "#1");
+  assert.equal(q.isAllSelected, true, "#3, all is selected");
+  q.clickItemHandler(q.choices[2], true);
+  assert.deepEqual(q.value, ["none2"], "#4");
+  assert.equal(q.isAllSelected, false, "#5, all is not selected");
+  q.clickItemHandler(q.selectAllItem, true);
+  assert.deepEqual(q.value, ["apple", "banana", "orange"], "#6");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, ["none"], "#7");
+  q.clickItemHandler(q.choices[2], true);
+  assert.deepEqual(q.value, ["none2"], "#8");
+  q.clickItemHandler(q.choices[0], true);
+  assert.deepEqual(q.value, ["apple"], "#10");
+
+  q.renderedValue = ["apple", "none2"];
+  assert.deepEqual(q.value, ["none2"], "#11");
+  q.renderedValue = ["none2", "none"];
+  assert.deepEqual(q.value, ["none"], "#12");
+});

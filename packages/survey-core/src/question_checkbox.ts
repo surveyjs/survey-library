@@ -13,6 +13,18 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 
+export class MultipleChoice extends ItemValue {
+  public get isExclusive(): boolean {
+    return this.getPropertyValue("isExclusive");
+  }
+  public set isExclusive(val: boolean) {
+    this.setPropertyValue("isExclusive", val);
+  }
+  public getType(): string {
+    return "multiplechoice";
+  }
+}
+
 /**
  * A class that describes the Checkboxes question type.
  *
@@ -25,12 +37,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected defaultSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
-    this.selectAllItemValue = new ItemValue("");
-    this.selectAllItemValue.id = "selectall";
-    this.selectAllItemText = this.createLocalizableString("selectAllText", this.selectAllItem, true, "selectAllItemText");
-    this.selectAllItem.locOwner = this;
-    this.selectAllItem.setLocText(this.selectAllItemText);
-
+    this.selectAllItemValue = this.createSelectAllItem();
     this.registerPropertyChangedHandlers(["showSelectAllItem", "selectAllText"], () => {
       this.onVisibleChoicesChanged();
     });
@@ -40,6 +47,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   public getType(): string {
     return "checkbox";
+  }
+  protected getItemValueType() {
+    return "multiplechoice";
+  }
+  protected createSelectAllItem(): ItemValue {
+    const res = this.createItemValue("");
+    res.value = "";
+    res.id = "selectall";
+    this.selectAllItemText = this.createLocalizableString("selectAllText", this.selectAllItem, true, "selectAllItemText");
+    res.locOwner = this;
+    res.setLocText(this.selectAllItemText);
+    return res;
   }
   protected onCreating() {
     super.onCreating();
@@ -151,6 +170,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       if (this.isItemSelected(noneItems[i])) return true;
     }
     return false;
+  }
+  private getNoneItems(): Array<ItemValue> {
+    const res = new Array<ItemValue>();
+    this.visibleChoices.forEach((item) => {
+      if (this.isNoneItem(item)) {
+        res.push(item);
+      }
+    });
+    return res;
   }
   /**
    * Selects all choice items, except "Other" and "None".
@@ -460,10 +488,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return -1;
   }
   protected removeNoneItemsValues(value: Array<any>, newValue: Array<any>): void {
-    const noneValues: Array<any> = [];
-    if (this.showNoneItem) noneValues.push(this.noneItem.value);
-    if (this.showRefuseItem) noneValues.push(this.refuseItem.value);
-    if (this.showDontKnowItem) noneValues.push(this.dontKnowItem.value);
+    const noneValues = this.getNoneItems().map(item => item.value);
     if (noneValues.length > 0) {
       const prevNone = this.noneIndexInArray(value, noneValues);
       const newNone = this.noneIndexInArray(newValue, noneValues);
@@ -709,6 +734,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   // EO a11y
 }
+Serializer.addClass("multiplechoice",
+  [{ name: "isExclusive:boolean", visible: false }],
+  (value: any) => new MultipleChoice(value), "itemvalue");
+
 Serializer.addClass(
   "checkbox",
   [
@@ -747,6 +776,8 @@ Serializer.addClass(
   },
   "checkboxbase"
 );
+Serializer.getProperty("checkbox", "choices").type = "multiplechoice[]";
+
 QuestionFactory.Instance.registerQuestion("checkbox", (name) => {
   var q = new QuestionCheckboxModel(name);
   q.choices = QuestionFactory.DefaultChoices;

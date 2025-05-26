@@ -32,10 +32,10 @@ export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel
   get valueArray(): number[] {
     return this.model.getRenderedValue();
   }
-  trackByRenderedValue (i: number, value: number): number {
+  trackByRenderedValue (i: number): number {
     return i;
   }
-  trackByLabelCount (i: number, value: number): number {
+  trackByLabelCount (i: number): number {
     return i;
   }
 }

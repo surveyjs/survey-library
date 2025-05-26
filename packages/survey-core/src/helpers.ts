@@ -205,10 +205,14 @@ export class Helpers {
     return value;
   }
   public static createCopy(obj: any): any {
+    return this.createCopyWithPrefix(obj, undefined);
+  }
+  public static createCopyWithPrefix(obj: any, prefix?: string): any {
     var res: any = {};
     if (!obj) return res;
     for (var key in obj) {
-      res[key] = obj[key];
+      const newKey = prefix ? prefix + key : key;
+      res[newKey] = obj[key];
     }
     return res;
   }

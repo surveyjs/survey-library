@@ -1100,6 +1100,7 @@ QUnit.test("DropdownListModel buttons", (assert) => {
     questions: [{
       type: "dropdown",
       name: "q1",
+      defaultValue: "item1",
       searchEnabled: true,
       choices: ["item1", "item2", "item3", "item4", "item5"]
     }]
@@ -1111,4 +1112,54 @@ QUnit.test("DropdownListModel buttons", (assert) => {
   assert.equal(editorButtons.actions.length, 2);
   assert.equal(editorButtons.actions[0].id, "clear");
   assert.equal(editorButtons.actions[1].id, "chevron");
+
+  const clearButton = editorButtons.actions[0];
+  const chevronButton = editorButtons.actions[1];
+
+  assert.equal(clearButton.locTitle.text, "Clear", "clearButton title #1");
+  assert.equal(clearButton.enabled, true, "clearButton enabled #1");
+  assert.equal(clearButton.visible, true, "clearButton visible #1");
+
+  assert.equal(chevronButton.locTitle.text, "Select", "chevronButton title #1");
+  assert.equal(chevronButton.enabled, true, "chevronButton enabled #1");
+  assert.equal(chevronButton.visible, true, "chevronButton visible #1");
+
+  survey.showPreview(); // preview state
+  assert.equal(clearButton.locTitle.text, "Clear", "clearButton title #2");
+  assert.equal(clearButton.enabled, false, "clearButton enabled #2");
+  assert.equal(clearButton.visible, false, "clearButton visible #2");
+
+  assert.equal(chevronButton.locTitle.text, "Select", "chevronButton title #2");
+  assert.equal(chevronButton.enabled, false, "chevronButton enabled #2");
+  assert.equal(chevronButton.visible, false, "chevronButton visible #2");
+
+  survey.cancelPreview();
+  survey.readOnly = true; // readOnly state
+  assert.equal(clearButton.locTitle.text, "Clear", "clearButton title #3");
+  assert.equal(clearButton.enabled, false, "clearButton enabled #3");
+  assert.equal(clearButton.visible, false, "clearButton visible #3");
+
+  assert.equal(chevronButton.locTitle.text, "Select", "chevronButton title #3");
+  assert.equal(chevronButton.enabled, false, "chevronButton enabled #3");
+  assert.equal(chevronButton.visible, true, "chevronButton visible #3");
+
+  survey.readOnly = false;
+  survey.locale = "de";
+  assert.equal(clearButton.locTitle.text, "Auswahl entfernen", "clearButton title #4");
+  assert.equal(clearButton.enabled, true, "clearButton enabled #4");
+  assert.equal(clearButton.visible, true, "clearButton visible #4");
+
+  assert.equal(chevronButton.locTitle.text, "Auswählen", "chevronButton title #4");
+  assert.equal(chevronButton.enabled, true, "chevronButton enabled #4");
+  assert.equal(chevronButton.visible, true, "chevronButton visible #4");
+
+  survey.locale = "";
+  survey.data = {}; // question empty
+  assert.equal(clearButton.locTitle.text, "Clear", "clearButton title #5");
+  assert.equal(clearButton.enabled, true, "clearButton enabled #5");
+  assert.equal(clearButton.visible, false, "clearButton visible #5");
+
+  assert.equal(chevronButton.locTitle.text, "Select", "chevronButton title #5");
+  assert.equal(chevronButton.enabled, true, "chevronButton enabled #5");
+  assert.equal(chevronButton.visible, true, "chevronButton visible #5");
 });

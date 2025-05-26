@@ -10,6 +10,7 @@ import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
@@ -3491,6 +3492,26 @@ QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (asser
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: with checkbox & showOtherItem, Bug#9929", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "checkbox", choices: [1, 2, 3], showOtherItem: true }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "question1" }
+    ]
+  });
+  survey.data = { question1: [2, "other"], "question1-Comment": "abc" };
+  const q = <QuestionCustomModel>survey.getQuestionByName("question1");
+  const cQ = <QuestionCheckboxModel>q.contentQuestion;
+  assert.deepEqual(cQ.value, [2, "other"], "q.value #1");
+  assert.deepEqual(cQ.comment, "abc", "q.comment #1");
+  cQ.comment = "def";
+  assert.deepEqual(survey.data, { question1: [2, "other"], "question1-Comment": "def" }, "survey.data #2");
+
+  ComponentCollection.Instance.clear();
+});
 
 QUnit.test("Composite: checkErrorsMode: `onComplete` with several elements, Bug#9361", function (assert) {
   ComponentCollection.Instance.add({
@@ -3590,5 +3611,59 @@ QUnit.test("Composite: survey set data & set comment, Bug#9747", function (asser
   const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
   assert.equal(q1.contentPanel.getQuestionByName("item3").value, "val3", "item3 value");
 
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Custom: isMobile flag, Bug#9927", function (assert) {
+  ComponentCollection.Instance.add(
+    {
+      name: "test",
+      questionJSON: { type: "text" }
+    }
+  );
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.contentQuestion.isMobile, false);
+
+  survey.setIsMobile(true);
+  assert.equal(q1.contentQuestion.isMobile, true);
+
+  survey.setIsMobile(false);
+  assert.equal(q1.contentQuestion.isMobile, false);
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite: isMobile flag, Bug#9927", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, false);
+  assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
+
+  survey.setIsMobile(true);
+  assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, true);
+  assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, true);
+
+  survey.setIsMobile(false);
+  assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, false);
+  assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
   ComponentCollection.Instance.clear();
 });

@@ -50,12 +50,15 @@
 
         <div v-if="question.showLabels" :class="question.cssClasses.labelsContainer">
           <div>
-            <div v-for="(value, i) in question.labelCount" :key="i" :class="question.getLabelCss(i)"
-            :style="{ left: question.getLabelPosition(i) + '%' }"
+            <div v-for="(label, i) in question.renderedLabels" :key="i" :class="question.getLabelCss(i)"
+            :style="{ left: label.value + '%' }"
             @pointerup="(e)=>{question.handleLabelPointerUp(e, i)}">
                 <div :class="question.cssClasses.labelTick"></div>
                 <div :class="question.cssClasses.labelText">
-                  {{question.getLabelText(i)}}
+                  <SvComponent
+                    :is="'survey-string'"
+                    :locString="label.locText"
+                  />
                 </div>
             </div>
           </div>
@@ -64,6 +67,7 @@
 </template>
 
 <script lang="ts" setup>
+import SvComponent from "@/SvComponent.vue";
 import type { QuestionSliderModel } from "survey-core";
 import { useQuestion } from "./base";
 import { onMounted, ref } from "vue";

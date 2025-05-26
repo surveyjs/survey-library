@@ -44,14 +44,14 @@
 
     </div>
   </div>
-  
+
   <div *ngIf="model.showLabels" [class]="model.cssClasses.labelsContainer">
     <div>
-      <div *ngFor="let value of labelCountArray; index as i; trackBy: trackByLabelCount;"  [class]="model.getLabelCss(i)"
-      [style]="{ left: model.getLabelPosition(i) + '%' }"
+      <div *ngFor="let label of model.renderedLabels; index as i; trackBy: trackByLabelCount;"  [class]="model.getLabelCss(i)"
+      [style]="{ left: label.value + '%' }"
       (pointerup)="model.handleLabelPointerUp($any($event), i)">
         <div [class]="model.cssClasses.labelTick"></div>
-        <div [class]="model.cssClasses.labelText">{{model.getLabelText(i)}}</div>
+        <div [class]="model.cssClasses.labelText" [model]="label.locText" sv-ng-string></div>
       </div>
     </div>
   </div>

@@ -758,3 +758,12 @@ QUnit.test("auto generated labels", (assert) => {
   assert.equal(q1.generatedLabels.length, 6, "generated labels #4");
   assert.equal((<any>q1.generatedLabels).customTag, "#1", "custom tag #4");
 });
+
+QUnit.test("formatNumber", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "range";
+  q1.max = 30;
+  q1.step = 0.1;
+  assert.equal(q1.getTooltipValue(1), 30);
+});
+

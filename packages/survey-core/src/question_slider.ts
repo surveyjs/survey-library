@@ -540,18 +540,19 @@ export class QuestionSliderModel extends Question {
   };
 
   public getTooltipValue = (tooltipNumber: number):string => {
-    const { step, getClosestToStepValue, getRenderedValue, tooltipFormat } = this;
+    const { step, getClosestToStepValue, getRenderedValue, tooltipFormat, formatNumber } = this;
     let value = getRenderedValue()[tooltipNumber];
     value = step ? getClosestToStepValue(value) : value;
+    value = formatNumber(value);
     return tooltipFormat.replace("{0}", "" + value);
   };
 
   public getLabelText = (labelNumber: number):string => {
-    const { customLabels, step, renderedMax: max, renderedMin: min, labelCount, labelFormat } = this;
+    const { customLabels, step, renderedMax: max, renderedMin: min, labelCount, labelFormat, formatNumber } = this;
     const fullRange = max - min;
     const isDecimal = step % 1 != 0;
     let labelStep = labelNumber * fullRange / (labelCount - 1);
-    let labelText = customLabels.length > 0 ? customLabels[labelNumber].text : isDecimal ? "" + (labelStep + min) : "" + Math.round(labelStep + min);
+    let labelText = customLabels.length > 0 ? customLabels[labelNumber].text : isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
     labelText = labelFormat.replace("{0}", "" + labelText);
     return labelText;
   };
@@ -691,6 +692,10 @@ export class QuestionSliderModel extends Question {
     }
     return labels;
   }
+
+  private formatNumber(number:number) {
+    return parseFloat(number.toFixed(4));
+  }
 }
 
 function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any {
@@ -821,6 +826,6 @@ Serializer.addClass(
   },
   "question",
 );
-QuestionFactory.Instance.registerQuestion("slider", (name) => {
-  return new QuestionSliderModel(name);
-});
+// QuestionFactory.Instance.registerQuestion("slider", (name) => {
+//   return new QuestionSliderModel(name);
+// });

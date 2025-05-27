@@ -1021,6 +1021,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
     super.updateElementCss(reNew);
   }
+  public setIsMobile(val: boolean): void {
+    super.setIsMobile(val);
+    if (!!this.contentQuestion) {
+      this.contentQuestion.setIsMobile(val);
+    }
+  }
   protected updateElementCssCore(cssClasses: any) {
     if (!!this.contentQuestion) {
       cssClasses = this.contentQuestion.cssClasses;
@@ -1399,5 +1405,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   public get ariaRole(): string {
     return "group";
+  }
+  public setIsMobile(val: boolean): void {
+    super.setIsMobile(val);
+    if (!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.setIsMobile(val);
+      });
+    }
   }
 }

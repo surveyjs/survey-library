@@ -22,7 +22,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   constructor(name: string) {
     super(name);
-    this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);
     this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");

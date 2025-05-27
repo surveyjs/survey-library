@@ -413,7 +413,7 @@ export interface GetTitleTagNameEvent {
    */
   element: Base;
   /**
-   * A heading used to render the title (`"h1"`-`"h6"`). You can change this parameter's value.
+   * An HTML tag used to render the title (`"div"`). You can change this parameter's value.
    */
   tagName: string;
 }

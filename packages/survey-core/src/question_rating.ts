@@ -927,7 +927,6 @@ export class QuestionRatingModel extends Question {
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
-      this.ariaExpanded = "false";
     }
   }
   protected getCompactRenderAs(): string {
@@ -940,7 +939,6 @@ export class QuestionRatingModel extends Question {
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
-    this.ariaExpanded = !!val ? "false" : undefined;
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {

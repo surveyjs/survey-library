@@ -21,7 +21,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   constructor(name: string) {
     super(name);
-    this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);

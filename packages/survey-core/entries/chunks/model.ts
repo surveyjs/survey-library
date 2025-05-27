@@ -211,6 +211,7 @@ export { QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
 export { QuestionRatingModel, RenderedRatingItem } from "../../src/question_rating";
+export { QuestionSliderModel } from "../../src/question_slider";
 export { QuestionExpressionModel } from "../../src/question_expression";
 export { QuestionTextBase, CharacterCounter } from "../../src/question_textbase";
 export { QuestionTextModel } from "../../src/question_text";

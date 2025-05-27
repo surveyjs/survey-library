@@ -41,6 +41,7 @@ export * from "../question_baseselecttests";
 export * from "../question_imagetests";
 export * from "../question_imagepickertests";
 export * from "../question_ratingtests";
+export * from "../question_slider_tests";
 export * from "../question_texttests";
 export * from "../question_customtests";
 export * from "../question_ranking_tests";

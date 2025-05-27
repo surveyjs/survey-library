@@ -1,0 +1,58 @@
+
+<div [class]="model.rootCss" #contentElement>
+  <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
+  name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1" 
+  [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" aria-hidden="true"
+  (input)="model.handleRangeOnChange($any($event))"
+  (pointerdown)="model.handleRangePointerDown($any($event), rootRef)"
+  (pointerup)="model.handleRangePointerUp($any($event), rangeInputRef)" />
+  
+  <div [class]="model.cssClasses.visualContainer" (pointerup)="model.setValueByClickOnPath($any($event), rootRef)">
+    <div [class]="model.cssClasses.visualContainerSlider">
+      <div [class]="model.cssClasses.inverseTrackLeft" [style]="{ width: model.getTrackPercentLeft() + '%' }"></div>
+      <div [class]="model.cssClasses.inverseTrackRight" [style]="{ width: model.getTrackPercentRight() + '%' }"></div>
+      <div [class]="model.cssClasses.rangeTrack" [style]="{ left: model.getTrackPercentLeft() + '%', right: model.getTrackPercentRight() + '%' }" ></div>
+
+       <ng-container *ngFor="let value of valueArray; index as i; trackBy: trackByRenderedValue;">
+        <input [class]="model.cssClasses.input" [attr.id]="'sjs-slider-input-' + i" type="range" [value]="value" 
+          [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" [disabled]="model.isDisabledAttr"
+          (input)="model.handleOnChange($any($event), i)"
+          (pointerdown)="model.handlePointerDown($any($event))"
+          (pointerup)="model.handlePointerUp($any($event))"
+          (keydown)="model.handleKeyDown($any($event))"
+          (keyup)="model.handleKeyUp($any($event))"
+          (focus)="model.handleOnFocus(i)"
+          (blur)="model.handleOnBlur()"
+          [attr.aria-required]="model.a11y_input_ariaRequired"
+          [attr.aria-label]="model.a11y_input_ariaLabel"
+          [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+          [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
+          [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+          [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
+        />
+        <div [class]="model.getThumbContainerCss(i)" [style]="{ left: model.getPercent(value) + '%' }">
+          <div *ngIf="model.tooltipVisibility !== 'never'" [class]="model.tooltipCss">
+            <div [class]="model.cssClasses.tooltipPanel">
+              <div [class]="model.cssClasses.tooltipValue">{{model.getTooltipValue(i)}}</div>
+            </div>
+          </div>
+          <div [class]="model.cssClasses.thumb">
+            <div [class]="model.cssClasses.thumbDot"></div>
+          </div>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+
+  <div *ngIf="model.showLabels" [class]="model.cssClasses.labelsContainer">
+    <div>
+      <div *ngFor="let label of model.renderedLabels; index as i; trackBy: trackByLabelCount;"  [class]="model.getLabelCss(i)"
+      [style]="{ left: label.value + '%' }"
+      (pointerup)="model.handleLabelPointerUp($any($event), i)">
+        <div [class]="model.cssClasses.labelTick"></div>
+        <div [class]="model.cssClasses.labelText" [model]="label.locText" sv-ng-string></div>
+      </div>
+    </div>
+  </div>
+</div>

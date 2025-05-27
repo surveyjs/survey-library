@@ -156,7 +156,7 @@ export class QuestionSliderModel extends Question {
   public dragOrClickHelper: DragOrClickHelper;
 
   public getRenderedValue = ():number[] => {
-    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, sliderType } = this;
+    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, renderedMinRangeLength, sliderType } = this;
     let result;
 
     if (sliderType === "single") {
@@ -175,7 +175,8 @@ export class QuestionSliderModel extends Question {
       const fullRange = max - min;
       this.isIndeterminate = true;
       if (Math.abs(fullRange) > renderedMaxRangeLength) {
-        const range = (fullRange - renderedMaxRangeLength) / 2;
+        // const range = (fullRange - renderedMaxRangeLength) / 2;
+        const range = (fullRange - renderedMinRangeLength) / 2;
         return [(min + range), (max - range)];
       }
       return [min, max]; // TODO support several values 3 and more
@@ -820,6 +821,6 @@ Serializer.addClass(
   },
   "question",
 );
-// QuestionFactory.Instance.registerQuestion("slider", (name) => {
-//   return new QuestionSliderModel(name);
-// });
+QuestionFactory.Instance.registerQuestion("slider", (name) => {
+  return new QuestionSliderModel(name);
+});

@@ -457,6 +457,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
         type: "slider",
         sliderType: "range",
         name: "q1",
+        minRangeLength: 20,
         maxRangeLength: 100,
         min: -100,
         max: 100
@@ -466,7 +467,7 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
   let renderedValue = q1.getRenderedValue();
-  assert.deepEqual(renderedValue, [-50, 50]);
+  assert.deepEqual(renderedValue, [-10, 10]);
 
   q1.min = -100;
   q1.max = -40;
@@ -479,6 +480,11 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
   q1.maxRangeLength = 20;
   renderedValue = q1.getRenderedValue();
   assert.deepEqual(renderedValue, [40, 60]);
+
+  q1.step = 10;
+  q1.minRangeLength = 20;
+  q1.maxRangeLength = 50;
+  assert.deepEqual(q1.getRenderedValue(), [40, 60]);
 });
 
 QUnit.test("autoGenerate", (assert) => {

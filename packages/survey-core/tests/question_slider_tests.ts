@@ -767,3 +767,35 @@ QUnit.test("formatNumber", (assert) => {
   assert.equal(q1.getTooltipValue(1), 30);
 });
 
+QUnit.test("setNewValue", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.sliderType = "single";
+  q1.max = 100;
+  q1.value = 110;
+  assert.equal(q1.getRenderedValue(), 100);
+  assert.equal(q1.value, 100);
+});
+
+QUnit.test("check valueName", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        type: "slider",
+        sliderType: "single",
+        name: "q1",
+        valueName: "q2",
+      },
+      {
+        type: "text",
+        name: "q2"
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  let q2 = <QuestionSliderModel>survey.getQuestionByName("q2");
+  q2.value = 110;
+  assert.deepEqual(q1.value, 100, "slider value respect max");
+  q2.value = -100;
+  assert.deepEqual(q1.value, 0, "slider value respect min");
+});

@@ -581,6 +581,11 @@ export class QuestionSliderModel extends Question {
     }
   }
 
+  public updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    newValue = this.ensureValueRespectMinMax(newValue);
+    super.updateValueFromSurvey(newValue, clearData);
+  }
+
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     super.runConditionCore(values, properties);
 
@@ -640,19 +645,18 @@ export class QuestionSliderModel extends Question {
   }
 
   protected setNewValue(newValue: any): void {
-    if (!Array.isArray(newValue)) {
-      if (newValue < this.min) newValue = this.min;
-      if (newValue > this.max) newValue = this.max;
-    } else {
-      newValue.forEach((el, i) => {
-        if (el < this.min) newValue[i] = this.min;
-        if (el > this.max) newValue[i] = this.max;
-      });
-    }
-
+    newValue = this.ensureValueRespectMinMax(newValue);
     super.setNewValue(newValue);
     if (this.isIndeterminate) {
       this.isIndeterminate = false;
+    }
+  }
+
+  protected setDefaultValue() {
+    super.setDefaultValue();
+    const val = this.defaultValue;
+    if (this.sliderType === "single" && Array.isArray(val)) {
+      this.setSliderValue(val);
     }
   }
 
@@ -673,14 +677,6 @@ export class QuestionSliderModel extends Question {
     return actions;
   }
 
-  protected setDefaultValue() {
-    super.setDefaultValue();
-    const val = this.defaultValue;
-    if (this.sliderType === "single" && Array.isArray(val)) {
-      this.setSliderValue(val);
-    }
-  }
-
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
@@ -695,6 +691,19 @@ export class QuestionSliderModel extends Question {
 
   private formatNumber(number:number) {
     return parseFloat(number.toFixed(4));
+  }
+
+  private ensureValueRespectMinMax(value: number[] | number):number[] | number {
+    if (!Array.isArray(value)) {
+      if (value < this.min) value = this.min;
+      if (value > this.max) value = this.max;
+    } else {
+      value.forEach((el, i) => {
+        if (el < this.min) value[i] = this.min;
+        if (el > this.max) value[i] = this.max;
+      });
+    }
+    return value;
   }
 }
 
@@ -826,6 +835,6 @@ Serializer.addClass(
   },
   "question",
 );
-// QuestionFactory.Instance.registerQuestion("slider", (name) => {
-//   return new QuestionSliderModel(name);
-// });
+QuestionFactory.Instance.registerQuestion("slider", (name) => {
+  return new QuestionSliderModel(name);
+});

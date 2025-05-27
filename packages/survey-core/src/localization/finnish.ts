@@ -1,7 +1,7 @@
 import { setupLocale } from "survey-core";
 
 export var finnishSurveyStrings = {
-    pagePrevText: "Edellinen",
+  pagePrevText: "Edellinen",
   pageNextText: "Seuraava",
   completeText: "Valmis",
   previewText: "Esikatselu",

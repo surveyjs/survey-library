@@ -44,7 +44,6 @@ export var finnishSurveyStrings = {
   invalidExpression: "Lausekkeen: {0} pitäisi palauttaa 'true'.",
   urlRequestError: "Pyyntö palautti virheen {0}. {1}",
   urlGetChoicesError: "Pyyntö palautti tyhjän tiedoston tai 'path'-asetus on väärä",
-  
   exceedMaxSize: "Tiedoston koko ei saa olla suurempi kuin {0}.",
   noUploadFilesHandler: "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle.",
   otherRequiredError: "Tarkenna vastaustasi tekstikenttään.",

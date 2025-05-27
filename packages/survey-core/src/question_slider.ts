@@ -820,6 +820,6 @@ Serializer.addClass(
   },
   "question",
 );
-QuestionFactory.Instance.registerQuestion("slider", (name) => {
-  return new QuestionSliderModel(name);
-});
+// QuestionFactory.Instance.registerQuestion("slider", (name) => {
+//   return new QuestionSliderModel(name);
+// });

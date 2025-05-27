@@ -496,8 +496,8 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
   );
 
   let allowDragDrop = false;
-  survey.onDragDropAllow.add((_, o) => {
-    o.allow = allowDragDrop;
+  survey.onMatrixRowDragOver.add((_, o) => {
+    o.allow = allowDragDrop && o.fromMatrix == question1 && o.toMatrix == question2;
   });
 
   const ddHelper = new DragDropMatrixRows(survey);

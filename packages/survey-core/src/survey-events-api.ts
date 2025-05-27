@@ -979,11 +979,11 @@ export interface DragDropAllowEvent {
   /**
    * A survey element being dragged.
    */
-  draggedElement: IElement | MatrixDynamicRowModel;
+  draggedElement: IElement;
   /**
    * A survey element from which `draggedElement` is being dragged. This parameter is `null` if `draggedElement` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
    */
-  fromElement: IPanel | IElement;
+  fromElement: IPanel;
   /**
    * A survey element to which `draggedElement` is being dragged.
    */
@@ -991,11 +991,11 @@ export interface DragDropAllowEvent {
   /**
    * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
    */
-  insertBefore: IElement | MatrixDynamicRowModel;
+  insertBefore: IElement;
   /**
    * A survey element after which `draggedElement` will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if `draggedElement` will be placed above all other elements within the container.
    */
-  insertAfter: IElement | MatrixDynamicRowModel;
+  insertAfter: IElement;
   /**
    * A parent container (page or panel) within which `draggedElement` will be placed.
    */
@@ -1013,6 +1013,11 @@ export interface DragDropAllowEvent {
    * @deprecated Use `options.toElement` instead.
    */
   source: IElement;
+}
+export interface MatrixRowDragOverEvent {
+  fromMatrix: QuestionMatrixDynamicModel;
+  toMatrix: QuestionMatrixDynamicModel;
+  allow: boolean;
 }
 export interface ScrollingElementToTopEvent {
   /**

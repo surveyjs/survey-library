@@ -3,7 +3,7 @@ import { DomDocumentHelper } from "../global_variables_utils";
 import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
-import { DragDropAllowEvent } from "src/survey-events-api";
+import { DragDropAllowEvent, MatrixRowDragOverEvent } from "src/survey-events-api";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   private draggedRenderedRow;
   private initialDraggedElementIndex: number;
@@ -132,15 +132,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
     const bottomOffset = this.isBottom ? 1 : 0;
     const toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
-    const options: DragDropAllowEvent = {
+    const options: MatrixRowDragOverEvent = {
       allow: dropTargetMatrix == this.parentElement,
-      draggedElement: this.draggedRenderedRow.row,
-      fromElement: this.parentElement,
-      toElement: dropTargetMatrix,
-      beforeElement: dropTargetMatrix.rows[toIndex],
-      afterElement: dropTargetMatrix.rows[toIndex],
+      fromMatrix: this.parentElement,
+      toMatrix: dropTargetMatrix,
     } as any;
-    if (!this.survey.dragAndDropAllow(options)) return;
+    this.survey.onMatrixRowDragOver.fire(this.survey, options);
+    if (!options.allow) return;
 
     this.removeGhost();
     this.lastDropTargetParentElement = dropTargetMatrix;

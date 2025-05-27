@@ -72,7 +72,8 @@ import {
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
   LoadChoicesFromServerEvent,
   ProcessTextValueEvent,
-  CreateCustomChoiceItemEvent
+  CreateCustomChoiceItemEvent,
+  MatrixRowDragOverEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -853,6 +854,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isDesignMode
    */
   public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
+  public onMatrixRowDragOver: EventBase<SurveyModel, MatrixRowDragOverEvent> = this.addEvent<SurveyModel, MatrixRowDragOverEvent>();
   /**
    * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */

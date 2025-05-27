@@ -252,6 +252,17 @@ export class QuestionSelectBase extends Question {
   public get isNoneSelected(): boolean {
     return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
   }
+  public isCommentShowing(item: ItemValue): boolean {
+    return item && item.hasComment && this.isItemSelected(item);
+  }
+  public setCommentValue(item: ItemValue, newValue: string): void {
+    if (this.isCommentShowing(item)) {
+      this.otherValue = newValue;
+    }
+  }
+  public getCommentValue(item: ItemValue): string {
+    return this.isCommentShowing(item) ? this.otherValue : "";
+  }
   /**
    * Specifies whether to display the "None" choice item.
    *
@@ -1509,6 +1520,7 @@ export class QuestionSelectBase extends Question {
   }
   public getStoreOthersAsComment(): boolean {
     if (this.isSettingDefaultValue) return false;
+    if (this.checkHasChoicesComments()) return true;
     if (this.showCommentArea) return false;
     return (
       this.storeOthersAsComment === true ||
@@ -1516,6 +1528,13 @@ export class QuestionSelectBase extends Question {
         (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
       (this.hasChoicesUrl && !this.choicesFromUrl)
     );
+  }
+  private checkHasChoicesComments(): boolean {
+    const choices = this.choices;
+    for (let i = 0; i < choices.length; i++) {
+      if (choices[i].hasComment) return true;
+    }
+    return false;
   }
   onSurveyLoad(): void {
     this.runChoicesByUrl();

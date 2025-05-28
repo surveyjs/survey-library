@@ -2419,7 +2419,6 @@ export class Question extends SurveyElement<Question>
       this.setDefaultValue();
     }
   }
-  private get hasDefaultValue() { return !!this.defaultValueExpression || !this.isValueEmpty(this.defaultValue); }
   protected isValueExpression(val: any): boolean {
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
   }

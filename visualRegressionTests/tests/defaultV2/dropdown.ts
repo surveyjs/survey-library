@@ -522,7 +522,7 @@ frameworks.forEach(framework => {
   //       await resetFocusToBody();
   //       await takeElementScreenshot("dropdown-rtl-question-answered.png", questionRoot, t, comparer);
 
-  //       await t.click(".sd-dropdown_clean-button");
+  //       await t.click(".sd-editor-clean-button");
   //       await resetFocusToBody();
   //       await takeElementScreenshot("dropdown-rtl-question.png", questionRoot, t, comparer);
 

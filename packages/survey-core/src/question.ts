@@ -164,8 +164,7 @@ export class Question extends SurveyElement<Question>
     this.createLocalizableString("defaultDisplayValue", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
       this.startSetValueOnExpression();
-      this.clearValue();
-      this.updateValueWithDefaults();
+      this.updateValueWithDefaultsOrClear();
       this.finishSetValueOnExpression();
     });
     const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
@@ -2412,6 +2411,15 @@ export class Question extends SurveyElement<Question>
       (val) => func(val)
     );
   }
+  protected updateValueWithDefaultsOrClear(): void {
+    if (this.isDesignMode || this.isLoadingFromJson) return;
+    if (this.isDefaultValueEmpty()) {
+      this.clearValue();
+    } else {
+      this.setDefaultValue();
+    }
+  }
+  private get hasDefaultValue() { return !!this.defaultValueExpression || !this.isValueEmpty(this.defaultValue); }
   protected isValueExpression(val: any): boolean {
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
   }

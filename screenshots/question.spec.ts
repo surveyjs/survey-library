@@ -335,8 +335,10 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, qRoot, "responsiveness-question-with-error.png");
 
       await page.setViewportSize({ width: 1920, height: 1080 });
+      await page.waitForTimeout(500);
       await page.fill(".sd-input", "some-text");
       await page.click(".sd-navigation__complete-btn");
+      await resetFocusToBody(page);
       await compareScreenshot(page, qRoot, "question-with-long-error.png");
     });
 
@@ -825,6 +827,7 @@ frameworks.forEach(framework => {
           }]
       });
 
+      await page.waitForTimeout(500);
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await compareScreenshot(page, page.locator(".sd-question"), "question-matrixdynamic-remaining-character-counter.png");
@@ -834,10 +837,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
         questions: [{ name: "name", type: "text", indent: 1, }]
       });
-      await page.keyboard.press("Tab");
       await compareScreenshot(page, ".sd-question", "question-with-indent.png");
     });
 
@@ -845,10 +846,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
         questionStartIndex: "1.1.1",
         questions: [{ name: "name", type: "text", }] });
-      await page.keyboard.press("Tab");
       await compareScreenshot(page, ".sd-question", "question-with-big-number.png");
     });
 

@@ -338,13 +338,13 @@ QUnit.test("check item value type", (assert) => {
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   const q3 = <QuestionSelectBase>survey.getQuestionByName("q3");
-  assert.equal(q1.choices[0].getType(), "itemvalue", "load dropdown");
+  assert.equal(q1.choices[0].getType(), "choiceitem", "load dropdown");
   assert.equal(q1.choices[0].value, "Item 1", "load dropdown, value");
   assert.equal(q2.choices[0].getType(), "imageitemvalue", "load imagepicker");
   assert.equal(q2.choices[0].value, "Item 1", "load imagepicker value");
   assert.equal(q3.choices[0].getType(), "buttongroupitemvalue", "load buttongroup");
   assert.equal(q3.choices[0].value, "Item 1", "load buttongroup value");
-  assert.equal(q1.createItemValue(1).getType(), "itemvalue", "create dropdown item");
+  assert.equal(q1.createItemValue(1).getType(), "choiceitem", "create dropdown item");
   assert.equal(q1.createItemValue(1).value, 1, "create dropdown, value");
   assert.equal(q2.createItemValue(1).getType(), "imageitemvalue", "create imagepicker item");
   assert.equal(q2.createItemValue(1).value, 1, "create imagepicker, value");

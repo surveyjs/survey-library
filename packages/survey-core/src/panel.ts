@@ -748,7 +748,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Returns a survey element with a specified `name`. This method can find survey elements within nested elements.
+   * Returns a survey element with a specified `name`. This method can find survey elements within nested panels.
    * @param name An element name.
    */
   public getElementByName(name: string): IElement {
@@ -1724,6 +1724,18 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!row) {
       row.updateVisible();
     }
+  }
+  public get ariaTitleId(): string {
+    return this.id + "_ariaTitle";
+  }
+  public get ariaLabelledBy(): string {
+    return this.hasTitle ? this.ariaTitleId : null;
+  }
+  public get ariaLabel(): string {
+    return this.hasTitle ? null : (this.title || this.name || null);
+  }
+  public get ariaRole(): string {
+    return "group";
   }
   public get processedTitle() {
     return this.getRenderedTitle(this.locTitle.textOrHtml);

@@ -69,6 +69,7 @@
           :question="cell.question"
           :item="cell.item"
           :hideLabel="true"
+          :ariaLabel= "getCellAriaLabel()"
         ></SvComponent>
         <SvComponent
           :is="'survey-checkbox-item'"
@@ -77,6 +78,7 @@
           :question="cell.question"
           :item="cell.item"
           :hideLabel="true"
+          :ariaLabel= "getCellAriaLabel()"
         ></SvComponent>
       </SvComponent>
       <SvComponent
@@ -126,6 +128,9 @@ const getCellStyle = () => {
   if (!!props.cell.width || !!props.cell.minWidth)
     return { width: props.cell.width, minWidth: props.cell.minWidth };
   return null;
+};
+const getCellAriaLabel = ():string => {
+  return props.cell.question.parentQuestion.getCellAriaLabel(props.cell.row.locText.renderedHtml, props.cell.column.locTitle.renderedHtml);
 };
 const onVisibilityChanged = () => {
   if (!props.cell.hasQuestion || !props.question || !props.question.survey)

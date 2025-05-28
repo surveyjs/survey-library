@@ -186,7 +186,7 @@ export class DropdownListModel extends Base {
     if (!isVisible) {
       this.onHidePopup();
     }
-    this.question.ariaExpanded = isVisible ? "true" : "false";
+    this.ariaExpanded = isVisible ? "true" : "false";
     this.question.processPopupVisiblilityChanged(this.popupModel, isVisible);
   }
 
@@ -406,6 +406,7 @@ export class DropdownListModel extends Base {
 
   @property({}) showInputFieldComponent: boolean;
   @property() ariaActivedescendant: string;
+  @property() ariaExpanded : "true" | "false";
 
   private applyInputString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
@@ -512,6 +513,7 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
+    this.ariaExpanded = "false";
     this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.questionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
@@ -559,7 +561,7 @@ export class DropdownListModel extends Base {
   public get ariaQuestionLabelledby(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaLabelledBy; }
   public get ariaQuestionDescribedby(): string | undefined { return this.filterStringEnabled ? undefined : this.question.a11y_input_ariaDescribedBy; }
   public get ariaQuestionControls(): string | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.listElementId; }
-  public get ariaQuestionExpanded(): "true" | "false" | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.question.a11y_input_ariaExpanded; }
+  public get ariaQuestionExpanded(): "true" | "false" | undefined { return this.filterStringEnabled || !this.popupEnabled ? undefined : this.ariaExpanded; }
   public get ariaQuestionActivedescendant(): string | undefined { return this.filterStringEnabled ? undefined : this.ariaActivedescendant; }
 
   public get ariaInputRequired(): "true" | "false" { return this.filterStringEnabled ? this.question.a11y_input_ariaRequired : undefined; }
@@ -570,7 +572,7 @@ export class DropdownListModel extends Base {
   public get ariaInputLabelledby(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaLabelledBy : undefined; }
   public get ariaInputDescribedby(): string { return this.filterStringEnabled ? this.question.a11y_input_ariaDescribedBy : undefined; }
   public get ariaInputControls(): string { return this.filterStringEnabled && this.popupEnabled ? this.listElementId : undefined; }
-  public get ariaInputExpanded(): "true" | "false" { return this.filterStringEnabled && this.popupEnabled ? this.question.a11y_input_ariaExpanded : undefined; }
+  public get ariaInputExpanded(): "true" | "false" { return this.filterStringEnabled && this.popupEnabled ? this.ariaExpanded : undefined; }
   public get ariaInputActivedescendant(): string { return this.filterStringEnabled ? this.ariaActivedescendant : undefined; }
 
   public setSearchEnabled(newValue: boolean): void {

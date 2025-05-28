@@ -33,50 +33,50 @@ frameworks.forEach((framework) => {
     test("check questionTitlePattern", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
-
-      await expect(page.locator("h5").nth(1)).toHaveText("# 2. q1");
+      const titleLocator = page.locator("div[id$=ariaTitle][id^=sq]");
+      await expect(titleLocator.nth(1)).toHaveText("# 2. q1");
       await expect(page.locator("td").first()).toHaveText("item1 (*)");
 
       await page.locator("label").filter({ hasText: /^1$/ }).locator("span").first().click();
-      await expect(page.locator("h5").nth(1)).toHaveText("# 2. q1 (*)");
+      await expect(titleLocator.nth(1)).toHaveText("# 2. q1 (*)");
 
       await page.evaluate(() => {
         window["survey"].questionTitlePattern = "numRequireTitle";
       });
-      await expect(page.locator("h5").nth(1)).toHaveText("# 2. (*) q1");
+      await expect(titleLocator.nth(1)).toHaveText("# 2. (*) q1");
       await expect(page.locator("td").first()).toHaveText("(*) item1");
 
       await page.evaluate(() => {
         window["survey"].questionTitlePattern = "requireNumTitle";
       });
-      await expect(page.locator("h5").nth(1)).toHaveText("(*) # 2. q1");
+      await expect(titleLocator.nth(1)).toHaveText("(*) # 2. q1");
       await expect(page.locator("td").first()).toHaveText("(*) item1");
 
       await page.evaluate(() => {
         window["survey"].questionTitlePattern = "numTitle";
       });
-      await expect(page.locator("h5").nth(1)).toHaveText("# 2. q1");
+      await expect(titleLocator.nth(1)).toHaveText("# 2. q1");
       await expect(page.locator("td").first()).toHaveText("item1");
     });
 
     test("check questionStartIndex", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
-
+      const titleLocator = page.locator("div[id$=ariaTitle][id^=sq]");
       await page.evaluate(() => {
         window["survey"].questionStartIndex = "1.";
       });
-      await expect(page.locator("h5").nth(1)).toHaveText("2. q1");
+      await expect(titleLocator.nth(1)).toHaveText("2. q1");
 
       await page.evaluate(() => {
         window["survey"].questionStartIndex = "# (1)";
       });
-      await expect(page.locator("h5").nth(1)).toHaveText("# (2) q1");
+      await expect(titleLocator.nth(1)).toHaveText("# (2) q1");
 
       await page.evaluate(() => {
         window["survey"].questionStartIndex = "# (a)";
       });
-      await expect(page.locator("h5").nth(1)).toHaveText("# (b) q1");
+      await expect(titleLocator.nth(1)).toHaveText("# (b) q1");
     });
 
     test("Delete questions with title location equals to left", async ({ page }) => {
@@ -101,15 +101,15 @@ frameworks.forEach((framework) => {
         ]
       };
       await initSurvey(page, framework, json2);
-
+      const titleLocator = page.locator("div[id$=ariaTitle][id^=sq]");
       await page.evaluate(() => {
         window["survey"].getQuestionByName("q1").delete();
         window["survey"].getQuestionByName("q2").delete();
       });
 
-      await expect(page.locator("h5").locator("span", { hasText: "q1" })).toHaveCount(0);
-      await expect(page.locator("h5").locator("span", { hasText: "q2" })).toHaveCount(0);
-      await expect(page.locator("h5").locator("span", { hasText: "q3" })).toHaveCount(1);
+      await expect(titleLocator.locator("span", { hasText: "q1" })).toHaveCount(0);
+      await expect(titleLocator.locator("span", { hasText: "q2" })).toHaveCount(0);
+      await expect(titleLocator.locator("span", { hasText: "q3" })).toHaveCount(1);
     });
   });
 });

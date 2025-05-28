@@ -15983,10 +15983,10 @@ QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", as
     ]
   });
   setOldTheme(survey);
-  assert.equal(survey.getQuestionByName("q1").titleTagName, "h5");
-  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "h4");
-  assert.equal(survey.pages[0].titleTagName, "h4");
-  assert.equal(survey.titleTagName, "h3");
+  assert.equal(survey.getQuestionByName("q1").titleTagName, "div");
+  assert.equal((<PanelModel>survey.getPanelByName("p1")).titleTagName, "div");
+  assert.equal(survey.pages[0].titleTagName, "div");
+  assert.equal(survey.titleTagName, "div");
   assert.equal(survey.cssTitle, survey.css.title, "survey css");
   assert.equal(survey.pages[0].cssTitle, "sv_page_title", "page css");
   assert.ok(survey.getQuestionByName("q1").getTitleOwner());
@@ -21093,15 +21093,15 @@ QUnit.test("getContainerContent - show advanced header in content top container 
   assert.equal(survey.questionsOnPageMode, "standard");
   assert.equal(survey.showProgressBar, false);
   assert.equal(survey.progressBarLocation, "auto");
-  assert.deepEqual(getContainerContent("header"), [], "");
-  assert.deepEqual(getContainerContent("center"), [{
+  assert.deepEqual(getContainerContent("header"), [], "header");
+  assert.deepEqual(getContainerContent("center"), [], "center");
+  assert.deepEqual(getContainerContent("footer"), [], "footer");
+  assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-header",
     "container": "header",
     "id": "advanced-header",
     "index": -100
-  }], "header in center");
-  assert.deepEqual(getContainerContent("footer"), [], "footer");
-  assert.deepEqual(getContainerContent("contentTop"), [], "center top");
+  }], "header in center top");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
     "id": "buttons-navigation"
@@ -22107,6 +22107,66 @@ QUnit.test("survey.onPartialSend for regular survey, Bug#9737", function (assert
   survey.performNext();
   assert.equal(counter, 3, "onPartialSend is raised");
 });
+QUnit.test("Move into another page by code in questionPerPage mode, Bug#9917", function(assert) {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "questionPerPage",
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      { name: "p3", elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  assert.equal(survey.currentPage.name, "p1", "current page #1");
+  assert.equal(survey.currentSingleElement.name, "q1", "current question #1");
+  survey.nextPage();
+  assert.equal(survey.currentPage.name, "p2", "current page #2");
+  assert.equal(survey.currentSingleElement.name, "q2", "current question #2");
+  survey.currentPageNo = 2;
+  assert.equal(survey.currentPage.name, "p3", "current page #3");
+  assert.equal(survey.currentSingleElement.name, "q3", "current question #3");
+  survey.currentPageNo = 0;
+  assert.equal(survey.currentPage.name, "p1", "current page #4");
+  assert.equal(survey.currentSingleElement.name, "q1", "current question #4");
+});
+QUnit.test("survey.currentElementName", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1_1" }, { type: "text", name: "q1_2" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2_1" }, { type: "text", name: "q2_2" }] },
+      { name: "p3", elements: [{ type: "text", name: "q3_1" }, { type: "text", name: "q3_2" }] }
+    ]
+  });
+  assert.equal(survey.currentElementName, "p1", "current element name #1");
+  assert.equal(survey.currentElement.name, "p1", "current element #1");
+  survey.currentElementName = "p3";
+  assert.equal(survey.currentElementName, "p3", "current element name #2");
+  assert.equal(survey.currentElement.name, "p3", "current element #2");
+  survey.currentElementName = "q2_1";
+  assert.equal(survey.currentElementName, "p2", "current element name #3");
+  assert.equal(survey.currentElement.name, "p2", "current element #3");
+  survey.currentElementName = "nothing";
+  assert.equal(survey.currentElementName, "p2", "current element name #3_2");
+  assert.equal(survey.currentElement.name, "p2", "current element #3_2");
+  survey.questionsOnPageMode = "questionPerPage";
+  assert.equal(survey.currentElementName, "q1_1", "current element name #4");
+  assert.equal(survey.currentElement.name, "q1_1", "current element #4");
+  survey.currentElementName = "q3_2";
+  assert.equal(survey.currentElementName, "q3_2", "current element name #5");
+  assert.equal(survey.currentElement.name, "q3_2", "current element #5");
+  survey.currentElementName = "p1";
+  assert.equal(survey.currentElementName, "q1_1", "current element name #6");
+  assert.equal(survey.currentElement.name, "q1_1", "current element #6");
+  survey.questionsOnPageMode = "inputPerPage";
+  survey.currentElementName = "q2_1";
+  assert.equal(survey.currentElementName, "q2_1", "current element name #7");
+  assert.equal(survey.currentElement.name, "q2_1", "current element #7");
+  survey.currentElementName = "p3";
+  assert.equal(survey.currentElementName, "q3_1", "current element name #8");
+  assert.equal(survey.currentElement.name, "q3_1", "current element #8");
+  survey.currentElementName = "nothing";
+  assert.equal(survey.currentElementName, "q3_1", "current element name #9");
+  assert.equal(survey.currentElement.name, "q3_1", "current element #9");
+});
 QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (assert) {
   const oldFunc = Helpers.randomizeArray;
   Helpers.randomizeArray = HelpTest.randomizeArray;
@@ -22180,4 +22240,61 @@ QUnit.test("survey.getAllQuestions, get nested questions & creating nested quest
   const questions = survey.getAllQuestions(true, false, true);
   assert.equal(questions.length, 3, "3 questions in the survey");
   assert.equal(questions[2].name, "q3", "the last question is nested");
+});
+
+QUnit.test("getContainerContent - TOC + title + progress above", function (assert) {
+  const json = {
+    "title": "Some title text",
+    "pages": [
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "question2",
+          },
+        ]
+      },
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+          }
+        ]
+      },
+    ],
+    "showProgressBar": true,
+    "progressBarLocation": "aboveheader",
+    "progressBarType": "questions",
+    "showTOC": true,
+    "headerView": "advanced"
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [], "header is empty");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-questions",
+    "id": "progress-questions",
+    "index": -150
+  }], "progress + toc in center");
+  assert.deepEqual(getContainerContent("footer"), [], "footer is empty");
+  assert.deepEqual(getContainerContent("contentTop"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "header in content top");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "nav buttons in content bottom");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-navigation-toc",
+    "id": "toc-navigation"
+  }], "show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "right is empty");
 });

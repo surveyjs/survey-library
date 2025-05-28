@@ -21,7 +21,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   constructor(name: string) {
     super(name);
-    this.ariaExpanded = "false";
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);
@@ -192,7 +191,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete", "");
+    return this.getPropertyValue("autocomplete");
   }
   public set autocomplete(val: string) {
     this.setPropertyValue("autocomplete", val);

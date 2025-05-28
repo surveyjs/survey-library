@@ -606,9 +606,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       }
     }
   }
-  public runTriggers(name: string, value: any): void {
-    if (!name) return;
-    this.questions.forEach(q => q.runTriggers(name, value));
+  public runTriggers(name: string, value: any, keys?: any): void {
+    if (!name && !keys) return;
+    this.questions.forEach(q => q.runTriggers(name, value, keys));
   }
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
@@ -1882,12 +1882,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
           this.data.getFilteredValues(),
           this.data.getFilteredProperties()
         );
+        if (this.isValueChangedWithoutRows) {
+          this.isValueChangedWithoutRows = false;
+          this.runTriggersOnNewRows();
+        }
       }
       if (!!this.generatedVisibleRows) {
         this.updateValueOnRowsGeneration(this.generatedVisibleRows);
         this.updateIsAnswered();
       }
     }
+  }
+  private runTriggersOnNewRows(): void {
+    const val = this.value;
+    this.generatedVisibleRows.forEach((row) => {
+      const rowValue = this.getRowValueCore(row, val);
+      if (!Helpers.isValueEmpty(rowValue)) {
+        const triggeredValue = Helpers.createCopyWithPrefix(rowValue, MatrixDropdownRowModelBase.RowVariableName + ".");
+        row.runTriggers("", undefined, triggeredValue);
+      }
+    });
   }
   private getVisibleFromGenerated(rows: Array<MatrixDropdownRowModelBase>): Array<MatrixDropdownRowModelBase> {
     const res: Array<MatrixDropdownRowModelBase> = [];
@@ -2468,14 +2482,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       ? null
       : newValue;
   }
-  private isDoingonAnyValueChanged = false;
+  private isDoingonAnyValueChanged: boolean;
+  private isValueChangedWithoutRows: boolean;
   onAnyValueChanged(name: string, questionName: string): void {
-    if (
-      this.isUpdateLocked ||
-      this.isDoingonAnyValueChanged ||
-      !this.generatedVisibleRows
-    )
+    if (this.isUpdateLocked || this.isDoingonAnyValueChanged) return;
+    if (!this.generatedVisibleRows) {
+      if (name === this.getValueName()) {
+        this.isValueChangedWithoutRows = true;
+      }
       return;
+    }
     this.isDoingonAnyValueChanged = true;
     var rows = this.generatedVisibleRows;
     for (var i = 0; i < rows.length; i++) {

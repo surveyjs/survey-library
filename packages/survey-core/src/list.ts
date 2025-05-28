@@ -295,7 +295,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     };
   };
 
-  public get a11yInputAriaLabel(): string {
+  public get a11ya11y_input_ariaLabel(): string {
     return this.listAriaLabel;
   }
   public get filterStringPlaceholder(): string {

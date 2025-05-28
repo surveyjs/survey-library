@@ -881,6 +881,9 @@ export class QuestionMultipleTextModel extends Question
   public getItemTitleCss(): string {
     return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
   }
+  public get ariaRole(): string {
+    return "group";
+  }
 }
 
 export class MutlipleTextRow extends Base {

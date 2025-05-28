@@ -102,7 +102,7 @@ frameworks.forEach((framework) => {
       await expect(page1).toBeVisible();
       await expect(page2).toBeVisible();
       await page2.click();
-      await expect(page.locator("h5.sd-question__title").filter({ hasText: "q3" })).toBeVisible();
+      await expect(page.locator("div[id$=ariaTitle][id^=sq]").filter({ hasText: "q3" })).toBeVisible();
     });
   });
 });

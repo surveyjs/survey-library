@@ -3574,7 +3574,11 @@ export class SurveyModel extends SurveyElementCore
    * survey.currentPage = survey.getPageByName("my-page-name");
    * ```
    *
-   * Alternatively, you can change the current page if you set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
+   * Alternative ways to change the current page are listed below:
+   *
+   * - Set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
+   * - Assign a required page name to the [`currentElementName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentElementName) property.
+   * - Assign a required page to the [`currentElement`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentElement) property.
    *
    * The `currentPage` property does not return the start page even if it is current. Use the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage) property instead if your survey contains a start page.
    */
@@ -3589,8 +3593,13 @@ export class SurveyModel extends SurveyElementCore
     var vPages = this.visiblePages;
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
+    const curEl = this.currentSingleElement;
+    if (!this.isShowingPreview && !!curEl && newPage !== (<any>curEl).page) {
+      this.currentSingleElement = newPage.getFirstVisibleElement();
+      return;
+    }
     var oldValue = this.currentPage;
-    if (!this.isShowingPreview && !this.currentSingleElement && !this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !curEl && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();
@@ -3600,6 +3609,64 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isShowingPreview) {
       this.currentPageChanged(newPage, oldValue);
     }
+  }
+  /**
+   * Specifies the current page, panel, or question (depends on the [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) value) using its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   *
+   * The following table illustrates the dependency between `questionsOnPageMode` values and the types of survey elements that the `currentElementName` property can specify:
+   *
+   * | `questionsOnPageMode` | Survey element |
+   * | --------------------- | -------------- |
+   * | `"standard"` or `"singlePage"` | Page |
+   * | `"questionPerPage"` | Question or Panel |
+   * | `"inputPerPage"` | Question |
+   * @see currentElement
+   */
+  public get currentElementName(): string {
+    return this.currentElement?.name || "";
+  }
+  public set currentElementName(val: string) {
+    if (!!val) {
+      this.currentElement = this.getElementByName(val);
+    }
+  }
+  /**
+   * Gets or sets the current page, panel, or question (depends on the [`questionsOnPageMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode) value).
+   *
+   * The following table illustrates the dependency between `questionsOnPageMode` values and the types of survey elements that the `currentElement` property can contain:
+   *
+   * | `questionsOnPageMode` | Survey element |
+   * | --------------------- | -------------- |
+   * | `"standard"` or `"singlePage"` | Page |
+   * | `"questionPerPage"` | Question or Panel |
+   * | `"inputPerPage"` | Question |
+   */
+  public get currentElement(): ISurveyElement {
+    return this.currentSingleElement || this.currentPage;
+  }
+  public set currentElement(val: ISurveyElement) {
+    if (val) {
+      if (val.isPage) {
+        this.currentPage = <PageModel>val;
+      } else {
+        const page = (<any>val).page;
+        if (!!page && !this.isSingleVisibleQuestion) {
+          this.currentPage = page;
+        } else {
+          this.currentSingleElement = <IElement>val;
+        }
+      }
+    }
+  }
+  /**
+   * Returns a page, panel, or question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   * @param name A survey element name.
+   * @returns A survey element with the specified name.
+   * @see currentElementName
+   */
+  public getElementByName(name: string): ISurveyElement {
+    if (!name) return null;
+    return this.getPageByName(name) || this.getPanelByName(name) || this.getQuestionByName(name);
   }
   public tryNavigateToPage(page: PageModel/*, serverValidationRes?: (res: boolean)=> void*/): boolean {
     if (!this.performValidationOnPageChanging(page)) return false;
@@ -6038,9 +6105,8 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
-   * @param name A question name
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
-   * @returns A question with a specified name.
+   * @param name A question name.
+   * @returns A question with the specified name.
    * @see getAllQuestions
    * @see getQuestionByValueName
    */
@@ -6068,7 +6134,6 @@ export class SurveyModel extends SurveyElementCore
    *
    * > Since `valueName` does not have to be unique, multiple questions can have the same `valueName` value. In this case, the `getQuestionByValueName()` method returns the first such question. If you need to get all questions with the same `valueName`, call the `getQuestionsByValueName()` method.
    * @param valueName A question's `valueName` property value.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A question with a specified `valueName`.
    * @see getAllQuestions
    * @see getQuestionByName
@@ -6083,7 +6148,6 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
    * @param valueName A question's `valueName` property value.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns An array of questions with a specified `valueName`.
    * @see getAllQuestions
    * @see getQuestionByName
@@ -6140,6 +6204,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a page with a specified name.
    * @param name A page [name](https://surveyjs.io/form-library/documentation/api-reference/page-model#name).
+   * @returns A page with the specified name.
    */
   public getPageByName(name: string): PageModel {
     for (var i: number = 0; i < this.pages.length; i++) {
@@ -6219,8 +6284,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
    * @param name A panel name.
-   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
-   * @returns A panel with a specified name.
+   * @returns A panel with the specified name.
    * @see getAllPanels
    */
   public getPanelByName(
@@ -8137,7 +8201,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Focuses a question with a specified name. Switches the current page if needed.
    * @param name A question name.
-   * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
+   * @returns `false` if the survey does not contain a question with the specified name or this question is hidden; otherwise, `true`.
    * @see focusFirstQuestion
    * @see autoFocusFirstQuestion
    */
@@ -8302,18 +8366,29 @@ export class SurveyModel extends SurveyElementCore
           if (isStrCiEqual(this.progressBarLocation, "belowHeader")) {
             isBelowHeader = true;
           }
-          if (container === "header" && !isBelowHeader) {
-            layoutElement.index = -150;
-            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+          if (this.showTOC && !(advHeader && advHeader.hasBackground) && this.isShowProgressBarOnTop && !this.isStartPageActive) {
+            if (container === "center") {
+              if (!isBelowHeader) {
+                layoutElement.index = -150;
+              } else {
+                delete layoutElement.index;
+              }
               containerLayoutElements.push(layoutElement);
             }
-          }
-          if (container === "center" && isBelowHeader) {
-            if (!!layoutElement.index) {
-              delete layoutElement.index;
+          } else {
+            if (container === "header" && !isBelowHeader) {
+              layoutElement.index = -150;
+              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
-            if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
-              containerLayoutElements.push(layoutElement);
+            if (container === "center" && isBelowHeader) {
+              if (!!layoutElement.index) {
+                delete layoutElement.index;
+              }
+              if (this.isShowProgressBarOnTop && !this.isStartPageActive) {
+                containerLayoutElements.push(layoutElement);
+              }
             }
           }
           if (container === "footer") {
@@ -8348,7 +8423,7 @@ export class SurveyModel extends SurveyElementCore
         if ((this.state === "running" || this.state === "starting" || (this.showHeaderOnCompletePage === true && this.state === "completed"))) {
           const advHeader = layoutElement && layoutElement.data as Cover;
           if (this.showTOC && !(advHeader && advHeader.hasBackground)) {
-            if (container === "center") {
+            if (container === "contentTop") {
               containerLayoutElements.push(layoutElement);
             }
           } else {

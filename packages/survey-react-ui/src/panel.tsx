@@ -73,7 +73,12 @@ export class SurveyPanel extends SurveyPanelBase {
   protected renderContent(style: any, rows: React.JSX.Element[], className: string): React.JSX.Element {
     const bottom: React.JSX.Element | null = this.renderBottom();
     return (
-      <div style={style} className={className} id={this.panel.contentId}>
+      <div
+        style={style} className={className}
+        id={this.panel.contentId}
+        role={this.panel.ariaRole}
+        aria-labelledby={this.panel.ariaLabelledBy}
+        aria-label={this.panel.ariaLabel}>
         {rows}
         {bottom}
       </div>

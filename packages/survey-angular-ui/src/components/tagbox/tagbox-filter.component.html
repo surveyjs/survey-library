@@ -1,38 +1,24 @@
 <ng-template #template>
   <div [class]="question.cssClasses.hint">
     <div *ngIf="model.showHintPrefix" [class]="question.cssClasses.hintPrefix">
-        <span>{{ model.hintStringPrefix }}</span>
+      <span>{{ model.hintStringPrefix }}</span>
     </div>
     <div [class]="question.cssClasses.hintSuffixWrapper">
-        <div *ngIf="model.showHintString" [class]="question.cssClasses.hintSuffix">
-            <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
-            <span>{{ model.hintStringSuffix }}</span>
-        </div>
-    <input
-      type="text"
-      autocomplete="off"
-      [(ngModel)]="model.inputStringRendered"
-      [attr.id]="question.getInputId()"
-      [class]="question.cssClasses.filterStringInput"
-      [attr.inputmode]="model.inputMode"
-      [attr.readonly]="model.filterReadOnly ? true : null"
-      [attr.disabled]="question.isDisabledAttr ? true : null"
-      [attr.size]="!model.inputStringRendered ? 1 : null"
-      [attr.role]="model.ariaInputRole"
-      [attr.aria-required]="model.ariaInputRequired"
-      [attr.aria-invalid]="model.ariaInputInvalid"
-      [attr.aria-errormessage]="model.ariaInputErrorMessage"
-      [attr.aria-expanded]="model.ariaInputExpanded"
-      [attr.aria-label]="model.ariaInputLabel"
-      [attr.aria-labelledby]="model.ariaInputLabelledby"
-      [attr.aria-describedby]="model.ariaInputDescribedby"
-      [attr.aria-controls]="model.ariaInputControls"
-      [attr.aria-activedescendant]="model.ariaInputActivedescendant"
-      [attr.placeholder]="model.filterStringPlaceholder"
-      (keydown)="model.inputKeyHandler($event)"
-      (blur)="question.onBlur($event)"
-      (focus)="question.onFocus($event)"
-    />
+      <div *ngIf="model.showHintString" [class]="question.cssClasses.hintSuffix">
+        <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
+        <span>{{ model.hintStringSuffix }}</span>
+      </div>
+      <input type="text" autocomplete="off" [(ngModel)]="model.inputStringRendered" [attr.id]="question.getInputId()"
+        [class]="question.cssClasses.filterStringInput" [attr.inputmode]="model.inputMode"
+        [attr.readonly]="model.filterReadOnly ? true : null" [attr.disabled]="question.isDisabledAttr ? true : null"
+        [attr.size]="!model.inputStringRendered ? 1 : null" [attr.role]="model.ariaInputRole"
+        [attr.aria-required]="model.ariaInputRequired" [attr.aria-invalid]="model.ariaInputInvalid"
+        [attr.aria-errormessage]="model.ariaInputErrorMessage" [attr.aria-expanded]="model.ariaInputExpanded"
+        [attr.aria-label]="model.ariaInputLabel" [attr.aria-labelledby]="model.ariaInputLabelledby"
+        [attr.aria-describedby]="model.ariaInputDescribedby" [attr.aria-controls]="model.ariaInputControls"
+        [attr.aria-activedescendant]="model.ariaInputActivedescendant"
+        [attr.placeholder]="model.filterStringPlaceholder" (keydown)="model.inputKeyHandler($event)"
+        (blur)="question.onBlur($event)" (focus)="question.onFocus($event)" />
     </div>
   </div>
 </ng-template>

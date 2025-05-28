@@ -256,7 +256,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
   public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete", null);
+    return this.getPropertyValue("autocomplete");
   }
   public set autocomplete(val: string) {
     this.setPropertyValue("autocomplete", val);
@@ -671,7 +671,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
   }
   public readOnlyBlocker = (event: any) => {
-    if (this.isReadOnlyAttr) {
+    if (this.isReadOnlyAttr && ["color", "range"].indexOf(this.inputType) > -1) {
       event.preventDefault();
       return true;
     }

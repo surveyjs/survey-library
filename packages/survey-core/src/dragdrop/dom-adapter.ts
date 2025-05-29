@@ -228,7 +228,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     return requestAnimationFrame(callback);
   }
 
-  protected scrollByDrag(scrollableParentNode: HTMLElement, clientY: number, clientX: number) {
+  protected scrollByDrag(scrollableParentNode: Element, clientY: number, clientX: number) {
     const startScrollBoundary = 100;
 
     let top: number;

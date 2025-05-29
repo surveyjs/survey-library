@@ -274,6 +274,6 @@ export class ButtonGroupItemModel {
     };
   }
   public onChange() {
-    this.question.renderedValue = this.item.value;
+    this.question.selectItem(this.item);
   }
 }

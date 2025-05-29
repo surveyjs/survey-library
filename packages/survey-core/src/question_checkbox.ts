@@ -196,7 +196,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.renderedValue = val;
   }
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
-    if (this.isReadOnlyAttr) return;
+    this.selectItem(item, checked);
+  }
+  public selectItem(item: ItemValue, checked?: boolean): void {
+    if (this.isReadOnlyAttr || !item) return;
     if (item === this.selectAllItem) {
       if (checked === true || checked === false) {
         this.isAllSelected = checked;
@@ -219,6 +222,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           }
         }
         this.renderedValue = newValue;
+      }
+      if (checked) {
+        this.onItemSelected(item);
       }
     }
   }

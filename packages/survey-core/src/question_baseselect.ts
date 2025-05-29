@@ -151,7 +151,10 @@ export class QuestionSelectBase extends Question {
     this.choicesFromQuestion = "";
   }
   public get otherId(): string {
-    return this.id + "_other";
+    return this.getItemCommentId(this.otherItem);
+  }
+  public getItemCommentId(item: ItemValue): string {
+    return this.id + "_" + item.value;
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];
@@ -257,11 +260,17 @@ export class QuestionSelectBase extends Question {
   }
   public setCommentValue(item: ItemValue, newValue: string): void {
     if (this.isCommentShowing(item)) {
-      this.otherValue = newValue;
+      this.setCommentValueCore(item, newValue);
     }
   }
   public getCommentValue(item: ItemValue): string {
     return this.isCommentShowing(item) ? this.otherValue : "";
+  }
+  protected setCommentValueCore(item: ItemValue, newValue: string): void {
+    this.otherValue = newValue;
+  }
+  protected getCommentValueCore(item: ItemValue): string {
+    return this.otherValue;
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -443,7 +452,6 @@ export class QuestionSelectBase extends Question {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
-    this.prevOtherValue = undefined;
     const prevComment = this.comment;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
@@ -647,7 +655,6 @@ export class QuestionSelectBase extends Question {
   }
   private onUpdateCommentOnAutoOtherMode(newValue: string): void {
     if (!this.autoOtherMode) return;
-    this.prevOtherValue = undefined;
     const isSelected = this.isOtherSelected;
     if (!isSelected && !!newValue || isSelected && !newValue) {
       this.selectOtherValueFromComment(!!newValue);
@@ -681,12 +688,7 @@ export class QuestionSelectBase extends Question {
   }
   public clearValue(keepComment?: boolean) {
     super.clearValue(keepComment);
-    this.prevOtherValue = undefined;
     this.selectedItemValues = undefined;
-  }
-  updateCommentFromSurvey(newValue: any): any {
-    super.updateCommentFromSurvey(newValue);
-    this.prevOtherValue = undefined;
   }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
@@ -697,6 +699,25 @@ export class QuestionSelectBase extends Question {
     var val = this.rendredValueToData(val);
     if (!this.isTwoValueEquals(val, this.value)) {
       this.value = val;
+    }
+  }
+  public selectItem(item: ItemValue): void {
+    if (this.isReadOnlyAttr || !item) return;
+    const prevSelectedItem = this.getSingleSelectedItem();
+    this.renderedValue = item.value;
+    if (!!prevSelectedItem && prevSelectedItem !== this.getSingleSelectedItem()) {
+      this.onItemDeselected(prevSelectedItem);
+    }
+    this.onItemSelected(item);
+  }
+  protected onItemSelected(item: ItemValue): void {
+    if (item.hasComment) {
+      this.focusOtherComment(item);
+    }
+  }
+  protected onItemDeselected(item: ItemValue): void {
+    if (item.hasComment) {
+      this.setCommentValueCore(item, "");
     }
   }
   private makeCommentEmpty: boolean;
@@ -710,16 +731,7 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     this.updateChoicesDependedQuestions();
     if (this.hasComment || !updateComment) return;
-    var isOtherSel = this.isOtherSelected;
-    if (isOtherSel && !!this.prevOtherValue) {
-      var oldOtherValue = this.prevOtherValue;
-      this.prevOtherValue = undefined;
-      this.otherValue = oldOtherValue;
-    }
-    if (!isOtherSel && !!this.otherValue) {
-      if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
-        this.prevOtherValue = this.otherValue;
-      }
+    if (!this.isOtherSelected && !!this.otherValue) {
       this.makeCommentEmpty = true;
       this.otherValueCore = "";
       this.setPropertyValue("comment", "");
@@ -2167,16 +2179,8 @@ export class QuestionSelectBase extends Question {
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }
-  private focusOtherComment() {
-    SurveyElement.FocusElement(this.otherId, false, this.survey?.rootElement);
-  }
-  private prevIsOtherSelected: boolean = false;
-  protected onValueChanged(): void {
-    super.onValueChanged();
-    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected && !this.isSettingDefaultValue) {
-      this.focusOtherComment();
-    }
-    this.prevIsOtherSelected = this.isOtherSelected;
+  private focusOtherComment(item: ItemValue) {
+    SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement);
   }
   protected getDefaultItemComponent(): string {
     return "";

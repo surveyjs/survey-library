@@ -132,7 +132,7 @@ frameworks.forEach(framework => {
       await page.locator(".sv-tagbox__item").first().hover();
       await compareScreenshot(page, ".sd-question", "tagbox-rtl-question-answered.png");
 
-      await page.locator(".sd-tagbox_clean-button-svg").click();
+      await page.locator(".sd-editor-clean-button").click();
       await compareScreenshot(page, ".sd-question", "tagbox-rtl-question.png");
 
       await page.evaluate(() => {
@@ -166,12 +166,12 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sd-list__item span").filter({ hasText: "item1", visible: true }).first().click();
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup-selected.png");
 
       await page.locator("span").filter({ hasText: "Cancel" }).click();
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item1");
       await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-popup.png");
@@ -195,17 +195,17 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item1");
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item");
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-big.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item3");
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-small.png");
     });
@@ -225,7 +225,7 @@ frameworks.forEach(framework => {
             "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
           }]
         });
-      await page.locator(".sd-dropdown_chevron-button").click();
+      await page.locator(".sd-editor-chevron-button").click();
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-long-items-overlay-tablet-popup.png");
     });
 
@@ -328,7 +328,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      await page.locator(".sd-dropdown_chevron-button").first().click();
+      await page.locator(".sd-editor-chevron-button").first().click();
       await compareScreenshot(page, ".sd-body", "tagbox-question-popup-direction-bottom.png");
 
       const item7 = getVisibleListItemByText(page, "item7");
@@ -337,7 +337,7 @@ frameworks.forEach(framework => {
       await item8.click();
       await compareScreenshot(page, ".sd-body", "tagbox-question-popup-direction-bottom-and-resize-input.png");
 
-      await page.locator(".sd-dropdown_chevron-button").nth(1).click();
+      await page.locator(".sd-editor-chevron-button").nth(1).click();
       await compareScreenshot(page, ".sd-body", "tagbox-question-popup-direction-top.png");
 
       await item7.click();

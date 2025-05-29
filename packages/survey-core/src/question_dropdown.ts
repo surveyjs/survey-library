@@ -22,7 +22,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   constructor(name: string) {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
-    this.createLocalizableString("clearCaption", this, false, true);
     this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
@@ -74,16 +73,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
-  }
-
-  public get clearCaption(): string {
-    return this.getLocalizableStringText("clearCaption");
-  }
-  public set clearCaption(value: string) {
-    this.setLocalizableStringText("clearCaption", value);
-  }
-  get locClearCaption(): LocalizableString {
-    return this.getLocalizableString("clearCaption");
   }
 
   public getType(): string {

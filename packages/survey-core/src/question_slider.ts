@@ -584,6 +584,9 @@ export class QuestionSliderModel extends Question {
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {
     newValue = this.ensureValueRespectMinMax(newValue);
     super.updateValueFromSurvey(newValue, clearData);
+    if (this.isIndeterminate) {
+      this.isIndeterminate = false;
+    }
   }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {

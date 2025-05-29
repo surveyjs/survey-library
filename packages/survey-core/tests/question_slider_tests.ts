@@ -774,6 +774,7 @@ QUnit.test("setNewValue", (assert) => {
   q1.value = 110;
   assert.equal(q1.getRenderedValue(), 100);
   assert.equal(q1.value, 100);
+  assert.equal(q1.isIndeterminate, false);
 });
 
 QUnit.test("check valueName", (assert) => {
@@ -794,8 +795,11 @@ QUnit.test("check valueName", (assert) => {
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
   let q2 = <QuestionSliderModel>survey.getQuestionByName("q2");
+  assert.deepEqual(q1.getRenderedValue(), [0], "indeterminate state");
+  assert.equal(q1.isIndeterminate, true);
   q2.value = 110;
   assert.deepEqual(q1.value, 100, "slider value respect max");
   q2.value = -100;
   assert.deepEqual(q1.value, 0, "slider value respect min");
+  assert.equal(q1.isIndeterminate, false);
 });

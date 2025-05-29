@@ -701,8 +701,10 @@ frameworks.forEach(framework => {
               { "name": "text1", "maxLength": 25 },
               { "name": "text2", "maxLength": 25 }
             ]
-          }]
+          }
+        ]
       });
+      await page.waitForTimeout(500);
 
       await compareScreenshot(page, page.locator(".sd-text__content"), "question-text-remaining-character-counter-mobile-view-with-focus.png");
       await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter-mobile-view-without-focus.png");

@@ -8059,3 +8059,41 @@ QUnit.test("getFirstErrorInputElementId doesn't work correctly for panel dynamic
   q1.value = "1";
   assert.equal(checkFunc(), q2.inputId, "check first panel #2");
 });
+QUnit.test("Using resetValueIf, visibleIf & default value for a question in dynamic panel may leads to infitive loop, Bug#9956", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rPanel",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "paneldynamic",
+            name: "dPanel",
+            templateElements: [
+              { type: "text", name: "q1", defaultValue: 100, resetValueIf: "{panel.q2} = 200 || {panel.q3} != 300" },
+              { type: "text", name: "q2", defaultValue: 200, resetValueIf: "{panel.q1} = 100 || {panel.q4} != 10" },
+              { type: "text", name: "q3", defaultValueExpression: "{rPanel[0].dPanel[0].q1} + {panel.q2} + {panel.q4}" },
+              { type: "text", name: "q4" }
+            ]
+          }]
+      }]
+  });
+  const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
+  const dPanel = <QuestionPanelDynamicModel>rPanel.panels[0].getQuestionByName("dPanel");
+  dPanel.addPanel();
+  const panel = dPanel.panels[0];
+  assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #1");
+  assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #1");
+  assert.equal(panel.getQuestionByName("q3").value, 300, "q3 value, #1");
+  panel.getQuestionByName("q4").value = 300;
+  assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #2");
+  assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #2");
+  assert.equal(panel.getQuestionByName("q3").value, 600, "q3 value, #2");
+  panel.getQuestionByName("q1").value = 1;
+  panel.getQuestionByName("q2").value = 2;
+  panel.getQuestionByName("q4").value = 400;
+  assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #3");
+  assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #3");
+  assert.equal(panel.getQuestionByName("q3").value, 700, "q3 value, #3");
+});

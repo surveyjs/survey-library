@@ -21,9 +21,7 @@ export class CheckboxItem extends ChoiceItem {
   public set isExclusive(val: boolean) {
     this.setPropertyValue("isExclusive", val);
   }
-  public getType(): string {
-    return "checkboxitem";
-  }
+  protected getBaseType(): string { return "checkboxitem"; }
 }
 
 /**

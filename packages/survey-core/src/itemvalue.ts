@@ -190,7 +190,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   private visibleConditionRunner: ConditionRunner;
   private enableConditionRunner: ConditionRunner;
 
-  constructor(value: any, text: string = null, protected typeName = "itemvalue") {
+  constructor(value: any, text?: string, protected typeName?: string) {
     super();
     if (text)this.locText.text = text;
     if (!!value && typeof value === "object") {
@@ -198,7 +198,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     } else {
       this.setValue(value, true);
     }
-    if (this.getType() != "itemvalue") {
+    if (this.getType() != this.getBaseType()) {
       CustomPropertiesCollection.createProperties(this);
     }
     this.onCreating();
@@ -206,8 +206,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
 
   public onCreating(): any { }
   public getType(): string {
-    return !!this.typeName ? this.typeName : "itemvalue";
+    return this.typeName || this.getBaseType();
   }
+  protected getBaseType(): string { return "itemvalue"; }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.locOwner && !!(<any>this.locOwner)["getSurvey"]
       ? (<any>this.locOwner).getSurvey()
@@ -332,7 +333,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var res = {};
     var properties = Serializer.getProperties(this.getType());
     if (!properties || properties.length == 0) {
-      properties = Serializer.getProperties("itemvalue");
+      properties = Serializer.getProperties(this.getBaseType());
     }
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {

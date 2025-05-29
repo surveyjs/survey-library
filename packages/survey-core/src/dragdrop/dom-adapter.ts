@@ -26,7 +26,8 @@ export interface IDragDropDOMAdapter {
   draggedElementShortcut: HTMLElement;
   rootContainer: HTMLElement;
   documentOrShadowRoot: Document | ShadowRoot;
-  rootElement?: HTMLElement;
+  rootElement?: HTMLElement | ShadowRoot;
+  viewRootElement?: Element;
 }
 
 export class DragDropDOMAdapter implements IDragDropDOMAdapter {
@@ -46,14 +47,18 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   constructor(private dd: IDragDropEngine, private longTap: boolean = true, private fitToContainer:boolean = false) {}
 
   public get documentOrShadowRoot(): Document | ShadowRoot {
-    return settings.environment.root;
+    const rootNode = this.rootElement.getRootNode();
+    return rootNode instanceof Document || rootNode instanceof ShadowRoot ? rootNode : undefined;
   }
-  public get rootElement():any {
+  public get rootElement(): HTMLElement | ShadowRoot {
     if (isShadowDOM(settings.environment.root)) {
-      return this.rootContainer || settings.environment.root.host;
+      return this.rootContainer || settings.environment.root;
     } else {
       return this.rootContainer || settings.environment.root.documentElement || document.body;
     }
+  }
+  public get viewRootElement(): Element {
+    return isShadowDOM(this.rootElement) ? this.rootElement.host : this.rootElement;
   }
   private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
     pointerMoveEvent.preventDefault();
@@ -130,11 +135,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.stopPropagation();
   };
   private moveShortcutElement(event: PointerEvent) {
-    let rootElementX = this.rootElement.getBoundingClientRect().x;
-    let rootElementY = this.rootElement.getBoundingClientRect().y;
+    let rootElementX = this.viewRootElement.getBoundingClientRect().x;
+    let rootElementY = this.viewRootElement.getBoundingClientRect().y;
 
-    let rootElementScrollLeft = this.rootElement.scrollLeft;
-    let rootElementScrollTop = this.rootElement.scrollTop;
+    let rootElementScrollLeft = this.viewRootElement.scrollLeft;
+    let rootElementScrollTop = this.viewRootElement.scrollTop;
 
     this.doScroll(event.clientY, event.clientX);
 
@@ -223,7 +228,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     return requestAnimationFrame(callback);
   }
 
-  protected scrollByDrag(scrollableParentNode: HTMLElement, clientY: number, clientX: number) {
+  protected scrollByDrag(scrollableParentNode: Element, clientY: number, clientX: number) {
     const startScrollBoundary = 100;
 
     let top: number;

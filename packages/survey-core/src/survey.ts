@@ -5898,27 +5898,29 @@ export class SurveyModel extends SurveyElementCore
     this.onScrollToTop.fire(this, options);
     if (!options.cancel && options.allow) {
       const elementPage = this.getPageByElement(element as IElement);
+      const { rootElement } = settings.environment;
+      const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
+      const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
-        const { rootElement } = settings.environment;
-        const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
         if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(element as IElement, () => {
           this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            activateLazyRenderingChecks(elementPage.id);
+            const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
+            activateLazyRenderingChecks(pageRootElement);
             onScolledCallback && onScolledCallback();
           });
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
-          const elementToScroll = this.rootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+          const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {
-          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         }
       }
     }

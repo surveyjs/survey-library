@@ -1015,6 +1015,7 @@ export interface DragDropAllowEvent {
   source: IElement;
 }
 export interface MatrixRowDragOverEvent {
+  row: MatrixDynamicRowModel;
   fromMatrix: QuestionMatrixDynamicModel;
   toMatrix: QuestionMatrixDynamicModel;
   allow: boolean;

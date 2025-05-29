@@ -36,7 +36,9 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       this.lastDropTargetParentElement = this.parentElement;
     }
 
-    const matrices = this.survey.getAllQuestions().filter(q => q instanceof QuestionMatrixDynamicModel);
+    const matrices = this.survey.onMatrixRowDragOver.isEmpty ?
+      [this.parentElement] :
+      this.survey.getAllQuestions().filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
     this.matrixRowMap = {};
     matrices.forEach(matrix => {
       matrix.visibleRows.forEach(row => {
@@ -134,6 +136,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
     const options: MatrixRowDragOverEvent = {
       allow: dropTargetMatrix == this.parentElement,
+      row: this.dropTarget,
       fromMatrix: this.parentElement,
       toMatrix: dropTargetMatrix,
     } as any;

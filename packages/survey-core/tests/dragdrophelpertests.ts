@@ -618,3 +618,71 @@ QUnit.test("getChoices", function (assert) {
     questionRanking.unRankingChoices
   );
 });
+
+QUnit.test("DragDropMatrixRows matrix row drag and drop", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix1",
+        allowRowReorder: true,
+        columns: [{ name: "col1" }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix2",
+        allowRowReorder: false,
+        columns: [{ name: "col1" }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix3",
+        allowRowReorder: true,
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+
+  const ddHelper = new DragDropMatrixRows(survey);
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix2");
+  const matrix3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix3");
+
+  // Test when no onMatrixRowDragOver event is set
+  ddHelper["parentElement"] = matrix1;
+  ddHelper.draggedElement = matrix1.visibleRows[0];
+  ddHelper["onStartDrag"]();
+
+  // Verify matrixRowMap contains only matrix1 rows
+  const matrixRowMap = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
+  assert.equal(Object.keys(matrixRowMap).length, matrix1.visibleRows.length, "Only matrix1 rows should be in matrixRowMap");
+
+  for (const key in matrixRowMap) {
+    const { matrix } = matrixRowMap[key];
+    assert.equal(matrix, matrix1, "All rows should belong to matrix1");
+  }
+
+  // Test when onMatrixRowDragOver event is set
+  survey.onMatrixRowDragOver.add((sender, options) => {
+    options.allow = true;
+  });
+
+  ddHelper.clear();
+  ddHelper["parentElement"] = matrix1;
+  ddHelper.draggedElement = matrix1.visibleRows[0];
+  ddHelper["onStartDrag"]();
+
+  // Verify matrixRowMap contains rows from both matrix1 and matrix3
+  const matrixRowMap2 = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
+  const expectedRowCount = matrix1.visibleRows.length + matrix3.visibleRows.length;
+  assert.equal(Object.keys(matrixRowMap2).length, expectedRowCount, "matrixRowMap should contain rows from both matrix1 and matrix3");
+
+  const matricesInMap = new Set<QuestionMatrixDynamicModel>();
+  for (const key in matrixRowMap2) {
+    matricesInMap.add(matrixRowMap2[key].matrix);
+  }
+
+  assert.ok(matricesInMap.has(matrix1), "matrix1 should be in matrixRowMap");
+  assert.ok(matricesInMap.has(matrix3), "matrix3 should be in matrixRowMap");
+  assert.notOk(matricesInMap.has(matrix2), "matrix2 should not be in matrixRowMap");
+});

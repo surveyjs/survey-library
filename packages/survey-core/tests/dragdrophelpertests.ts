@@ -423,13 +423,15 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
 
   ddHelper["parentElement"] = question;
   ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
   ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
   assert.equal(ddHelper["fromIndex"], 1);
   assert.ok(question.renderedTable.rows[3].isGhostRow);
 
   ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = true;
   ddHelper["afterDragOver"](<any>undefined);
-  assert.equal(ddHelper["toIndex"], 2);
+  assert.equal(ddHelper["toIndex"], 3);
   assert.strictEqual(question.renderedTable.rows[4].row, dropRow);
   assert.ok(question.renderedTable.rows[5].isGhostRow);
   assert.strictEqual(question.renderedTable.rows[5].row, draggedRow);
@@ -444,11 +446,13 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
 
   ddHelper["parentElement"] = question;
   ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
   ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
   assert.equal(ddHelper["fromIndex"], 2);
   assert.ok(question.renderedTable.rows[5].isGhostRow);
 
   ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = false;
   ddHelper["afterDragOver"](<any>undefined);
   assert.equal(ddHelper["toIndex"], 0);
   assert.strictEqual(question.renderedTable.rows[2].row, dropRow);
@@ -459,6 +463,79 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   ddHelper.clear();
   assert.strictEqual(question.renderedTable.rows[1].row, question.visibleRows[0]);
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
+});
+
+QUnit.test("rows: check matrixdynamic d&d between different matrices", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q1",
+        columns: ["Col1"],
+        defaultValue: [{ Col1: "item1" }, { Col1: "item2" }, { Col1: "item3" }],
+        rowCount: 3,
+        choices: ["item1", "item2", "item3"],
+      },
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q2",
+        columns: ["Col1"],
+        defaultValue: [{ Col1: "item4" }, { Col1: "item5" }, { Col1: "item6" }],
+        rowCount: 3,
+        choices: ["item4", "item5", "item6"],
+      }
+    ]
+  });
+  const question1: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q1")
+  );
+  const question2: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q2")
+  );
+
+  let allowDragDrop = false;
+  survey.onMatrixRowDragOver.add((_, o) => {
+    o.allow = allowDragDrop && o.fromMatrix == question1 && o.toMatrix == question2;
+  });
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  // Drag row from first matrix to second
+  let draggedRow = question1.visibleRows[1];
+  let dropRow = question2.visibleRows[1];
+
+  ddHelper["parentElement"] = question1;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper.dropTarget = dropRow;
+  ddHelper["onStartDrag"]();
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 1);
+  assert.ok(question1.renderedTable.rows[3].isGhostRow);
+
+  ddHelper.dropTarget = dropRow;
+  assert.equal(ddHelper["toIndex"], null);
+  assert.ok(question1.renderedTable.rows[3].isGhostRow);
+  assert.strictEqual(question2.renderedTable.rows.length, 6);
+
+  allowDragDrop = true;
+  ddHelper.isBottom = true;
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 2);
+  assert.strictEqual(question2.renderedTable.rows[3].row, dropRow);
+  assert.strictEqual(question2.renderedTable.rows.length, 7);
+  assert.ok(question2.renderedTable.rows[4].isGhostRow);
+  assert.strictEqual(question2.renderedTable.rows[4].row, draggedRow);
+
+  ddHelper["doDrop"]();
+  ddHelper.clear();
+
+  // Verify row was moved correctly
+  assert.equal(question1.visibleRows.length, 2, "First matrix has two rows left");
+  assert.equal(question2.visibleRows.length, 4, "Second matrix has four rows");
+  assert.deepEqual(question1.value, [{ "Col1": "item1" }, { "Col1": "item3" }], "Dragged row is gone from first matrix");
+  assert.deepEqual(question2.value, [{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }], "Dragged row is now in second matrix");
 });
 
 QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
@@ -540,4 +617,72 @@ QUnit.test("getChoices", function (assert) {
     ddHelper["getChoices"](),
     questionRanking.unRankingChoices
   );
+});
+
+QUnit.test("DragDropMatrixRows matrix row drag and drop", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix1",
+        allowRowReorder: true,
+        columns: [{ name: "col1" }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix2",
+        allowRowReorder: false,
+        columns: [{ name: "col1" }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix3",
+        allowRowReorder: true,
+        columns: [{ name: "col1" }]
+      }
+    ]
+  });
+
+  const ddHelper = new DragDropMatrixRows(survey);
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix2");
+  const matrix3 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix3");
+
+  // Test when no onMatrixRowDragOver event is set
+  ddHelper["parentElement"] = matrix1;
+  ddHelper.draggedElement = matrix1.visibleRows[0];
+  ddHelper["onStartDrag"]();
+
+  // Verify matrixRowMap contains only matrix1 rows
+  const matrixRowMap = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
+  assert.equal(Object.keys(matrixRowMap).length, matrix1.visibleRows.length, "Only matrix1 rows should be in matrixRowMap");
+
+  for (const key in matrixRowMap) {
+    const { matrix } = matrixRowMap[key];
+    assert.equal(matrix, matrix1, "All rows should belong to matrix1");
+  }
+
+  // Test when onMatrixRowDragOver event is set
+  survey.onMatrixRowDragOver.add((sender, options) => {
+    options.allow = true;
+  });
+
+  ddHelper.clear();
+  ddHelper["parentElement"] = matrix1;
+  ddHelper.draggedElement = matrix1.visibleRows[0];
+  ddHelper["onStartDrag"]();
+
+  // Verify matrixRowMap contains rows from both matrix1 and matrix3
+  const matrixRowMap2 = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
+  const expectedRowCount = matrix1.visibleRows.length + matrix3.visibleRows.length;
+  assert.equal(Object.keys(matrixRowMap2).length, expectedRowCount, "matrixRowMap should contain rows from both matrix1 and matrix3");
+
+  const matricesInMap = new Set<QuestionMatrixDynamicModel>();
+  for (const key in matrixRowMap2) {
+    matricesInMap.add(matrixRowMap2[key].matrix);
+  }
+
+  assert.ok(matricesInMap.has(matrix1), "matrix1 should be in matrixRowMap");
+  assert.ok(matricesInMap.has(matrix3), "matrix3 should be in matrixRowMap");
+  assert.notOk(matricesInMap.has(matrix2), "matrix2 should not be in matrixRowMap");
 });

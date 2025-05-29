@@ -562,16 +562,11 @@ export class QuestionSliderModel extends Question {
 
   public getLabelPosition = (labelNumber: number):number => {
     const { renderedMax: max, renderedMin: min, labelCount, customLabels } = this;
-    let count = labelCount;
-    if (customLabels.length > 0) {
-      return customLabels[labelNumber].value;
-    } else {
-      count = labelCount - 1;
-      if (count === 0) return 0;
-      const fullRange = max - min;
-      const labelStep = labelNumber * fullRange / count;
-      return labelStep / fullRange * 100;
-    }
+    const count = labelCount - 1;
+    if (count === 0) return 0;
+    const fullRange = max - min;
+    const labelStep = labelNumber * fullRange / count;
+    return labelStep / fullRange * 100;
   };
 
   public endLoadingFromJson() {
@@ -641,7 +636,7 @@ export class QuestionSliderModel extends Question {
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
-          this.setPropertyValue("customLabels", this.calcGeneratedLabels());
+          this.setPropertyValue("customLabels", this.calcInitialCustomLabels());
         }
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
@@ -691,6 +686,21 @@ export class QuestionSliderModel extends Question {
     const labels:ItemValue[] = [];
     for (let i = 0; i < this.labelCount; i++) {
       labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
+    }
+    return labels;
+  }
+
+  private calcInitialCustomLabels() : Array<ItemValue> {
+    const { labelCount, min, max, step, getLabelText } = this;
+    const labels:ItemValue[] = [];
+    const fullRange = max - min;
+    const count = labelCount - 1;
+
+    for (let i = 0; i < labelCount; i++) {
+      let lValue;
+      if (count === 0) lValue = 0;
+      lValue = min + i * fullRange / count;
+      labels.push(new ItemValue(lValue, getLabelText(i)));
     }
     return labels;
   }

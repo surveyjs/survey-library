@@ -708,9 +708,6 @@ QUnit.test("getLabelPosition", (assert) => {
   assert.equal(q1.labelCount, 6);
   assert.deepEqual(q1.getLabelPosition(0), 0);
   assert.deepEqual(q1.getLabelPosition(1), 20);
-  q1.customLabels = [new ItemValue(50, "middle")];
-  assert.equal(q1.labelCount, 1);
-  assert.deepEqual(q1.getLabelPosition(0), 50);
 });
 
 QUnit.test("setSliderValue", (assert) => {
@@ -811,4 +808,12 @@ QUnit.test("check if customLabels produces correct renderedLabels", (assert) => 
   q1.customLabels = [new ItemValue(500, "middle")];
   assert.deepEqual(q1.renderedLabels[0].text, "middle", "text is correct");
   assert.deepEqual(q1.renderedLabels[0].value, 50, "value (percentage) is correct");
+});
+
+QUnit.test("check if customLabels correct when min and max are set", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.min = 50;
+  q1.max = 150;
+  q1.autoGenerate = false;
+  assert.deepEqual(q1.customLabels.map(l=>l.value), [50, 70, 90, 110, 130, 150], "custom label values are correct");
 });

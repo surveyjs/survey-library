@@ -144,7 +144,10 @@ export class QuestionSliderModel extends Question {
   public get renderedLabels(): Array<ItemValue> {
     const generatedLabels = this.generatedLabels; // need this const due to observability reasons
     const customLabels = this.customLabels; // need this const due to observability reasons
-    return this.autoGenerate ? generatedLabels : customLabels;
+    if (this.autoGenerate) return generatedLabels;
+    return customLabels.map((label: ItemValue)=> {
+      return new ItemValue(this.getPercent(label.value), label.text);
+    });
   }
 
   public isIndeterminate = false;

@@ -803,3 +803,12 @@ QUnit.test("check valueName", (assert) => {
   assert.deepEqual(q1.value, 0, "slider value respect min");
   assert.equal(q1.isIndeterminate, false);
 });
+
+QUnit.test("check if customLabels produces correct renderedLabels", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.max = 1000;
+  q1.autoGenerate = false;
+  q1.customLabels = [new ItemValue(500, "middle")];
+  assert.deepEqual(q1.renderedLabels[0].text, "middle", "text is correct");
+  assert.deepEqual(q1.renderedLabels[0].value, 50, "value (percentage) is correct");
+});

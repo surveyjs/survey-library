@@ -628,7 +628,7 @@ export class QuestionSliderModel extends Question {
     //     }
     //   }
     // );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate"],
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
       () => {
         this.resetPropertyValue("generatedLabels");
       }

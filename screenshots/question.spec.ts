@@ -678,7 +678,6 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 350, height: 900 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
@@ -705,6 +704,7 @@ frameworks.forEach(framework => {
         ]
       });
       await page.waitForTimeout(500);
+      await page.keyboard.press("Tab");
 
       await compareScreenshot(page, page.locator(".sd-text__content"), "question-text-remaining-character-counter-mobile-view-with-focus.png");
       await compareScreenshot(page, page.locator(".sd-multipletext__content"), "question-multipletext-remaining-character-counter-mobile-view-without-focus.png");

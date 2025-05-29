@@ -18,7 +18,7 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
 export class ChoiceItem extends ItemValue {
-  public getType(): string { return "choiceitem"; }
+  protected getBaseType(): string { return "choiceitem"; }
   public get hasComment(): boolean {
     return this.getPropertyValue("hasComment");
   }

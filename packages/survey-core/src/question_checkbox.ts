@@ -1,6 +1,7 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
+  ChoiceItem,
   QuestionCheckboxBase,
   QuestionSelectBase,
 } from "./question_baseselect";
@@ -13,7 +14,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 
-export class CheckboxItem extends ItemValue {
+export class CheckboxItem extends ChoiceItem {
   public get isExclusive(): boolean {
     return this.getPropertyValue("isExclusive");
   }
@@ -193,7 +194,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.renderedValue = val;
   }
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
-    if (this.isReadOnlyAttr) return;
+    this.selectItem(item, checked);
+  }
+  public selectItem(item: ItemValue, checked?: boolean): void {
+    if (this.isReadOnlyAttr || !item) return;
     if (item === this.selectAllItem) {
       if (checked === true || checked === false) {
         this.isAllSelected = checked;
@@ -216,6 +220,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           }
         }
         this.renderedValue = newValue;
+      }
+      if (checked) {
+        this.onItemSelected(item);
       }
     }
   }
@@ -734,7 +741,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 }
 Serializer.addClass("checkboxitem",
   [{ name: "isExclusive:boolean", visible: false }],
-  (value: any) => new CheckboxItem(value), "itemvalue");
+  (value: any) => new CheckboxItem(value), "choiceitem");
 
 Serializer.addClass(
   "checkbox",

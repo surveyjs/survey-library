@@ -103,6 +103,7 @@ export { SurveyQuestionPanelDynamicNextButton } from "../src/components/paneldyn
 export { SurveyQuestionPanelDynamicProgressText } from "../src/components/paneldynamic-actions/paneldynamic-progress-text";
 export { SurveyNavigationButton } from "../src/components/survey-actions/survey-nav-button";
 export { QuestionErrorComponent } from "../src/components/question-error";
+export { SliderLabelItem } from "../src/components/slider/slider-label-item";
 
 export { MatrixRow } from "../src/components/matrix/row";
 export { Skeleton } from "../src/components/skeleton";

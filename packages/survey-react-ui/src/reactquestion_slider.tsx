@@ -3,6 +3,7 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { Base, QuestionSliderModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElement } from "react";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -124,19 +125,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getLabels() {
     const labels = [];
-    const { renderedLabels, cssClasses, handleLabelPointerUp, getLabelCss } = this.question;
+    const { renderedLabels, cssClasses } = this.question;
 
     for (let i = 0; i < renderedLabels.length; i++) {
-      const value = renderedLabels[i].value;
-      const text = renderedLabels[i].locText;
-      const label = <div key={i} className={getLabelCss(i)}
-        style={{ left: value + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
-        <div className={cssClasses.labelTick}></div>
-        <div className={cssClasses.labelText}>
-          {this.renderLocString(text)}
-        </div>
-      </div>;
-
+      const label = ReactElementFactory.Instance.createElement("sv-slider-label-item", { index: i, item: renderedLabels[i], question: this.question });
       labels.push(label);
     }
     return <div className={cssClasses.labelsContainer}>

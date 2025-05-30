@@ -144,7 +144,10 @@ export class QuestionSliderModel extends Question {
   public get renderedLabels(): Array<ItemValue> {
     const generatedLabels = this.generatedLabels; // need this const due to observability reasons
     const customLabels = this.customLabels; // need this const due to observability reasons
-    return this.autoGenerate ? generatedLabels : customLabels;
+    if (this.autoGenerate) return generatedLabels;
+    return customLabels.map((label: ItemValue)=> {
+      return new ItemValue(this.getPercent(label.value), label.text);
+    });
   }
 
   public isIndeterminate = false;
@@ -559,16 +562,11 @@ export class QuestionSliderModel extends Question {
 
   public getLabelPosition = (labelNumber: number):number => {
     const { renderedMax: max, renderedMin: min, labelCount, customLabels } = this;
-    let count = labelCount;
-    if (customLabels.length > 0) {
-      return customLabels[labelNumber].value;
-    } else {
-      count = labelCount - 1;
-      if (count === 0) return 0;
-      const fullRange = max - min;
-      const labelStep = labelNumber * fullRange / count;
-      return labelStep / fullRange * 100;
-    }
+    const count = labelCount - 1;
+    if (count === 0) return 0;
+    const fullRange = max - min;
+    const labelStep = labelNumber * fullRange / count;
+    return labelStep / fullRange * 100;
   };
 
   public endLoadingFromJson() {
@@ -578,6 +576,14 @@ export class QuestionSliderModel extends Question {
     }
     if (!this.isDesignMode && this.sliderType === "range") {
       this.createNewArray("value");
+    }
+  }
+
+  public updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    newValue = this.ensureValueRespectMinMax(newValue);
+    super.updateValueFromSurvey(newValue, clearData);
+    if (this.isIndeterminate) {
+      this.isIndeterminate = false;
     }
   }
 
@@ -622,7 +628,7 @@ export class QuestionSliderModel extends Question {
     //     }
     //   }
     // );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate"],
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
       () => {
         this.resetPropertyValue("generatedLabels");
       }
@@ -630,7 +636,7 @@ export class QuestionSliderModel extends Question {
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
-          this.setPropertyValue("customLabels", this.calcGeneratedLabels());
+          this.setPropertyValue("customLabels", this.calcInitialCustomLabels());
         }
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
@@ -640,19 +646,18 @@ export class QuestionSliderModel extends Question {
   }
 
   protected setNewValue(newValue: any): void {
-    if (!Array.isArray(newValue)) {
-      if (newValue < this.min) newValue = this.min;
-      if (newValue > this.max) newValue = this.max;
-    } else {
-      newValue.forEach((el, i) => {
-        if (el < this.min) newValue[i] = this.min;
-        if (el > this.max) newValue[i] = this.max;
-      });
-    }
-
+    newValue = this.ensureValueRespectMinMax(newValue);
     super.setNewValue(newValue);
     if (this.isIndeterminate) {
       this.isIndeterminate = false;
+    }
+  }
+
+  protected setDefaultValue() {
+    super.setDefaultValue();
+    const val = this.defaultValue;
+    if (this.sliderType === "single" && Array.isArray(val)) {
+      this.setSliderValue(val);
     }
   }
 
@@ -673,14 +678,6 @@ export class QuestionSliderModel extends Question {
     return actions;
   }
 
-  protected setDefaultValue() {
-    super.setDefaultValue();
-    const val = this.defaultValue;
-    if (this.sliderType === "single" && Array.isArray(val)) {
-      this.setSliderValue(val);
-    }
-  }
-
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
@@ -693,8 +690,36 @@ export class QuestionSliderModel extends Question {
     return labels;
   }
 
+  private calcInitialCustomLabels() : Array<ItemValue> {
+    const { labelCount, min, max, step, getLabelText } = this;
+    const labels:ItemValue[] = [];
+    const fullRange = max - min;
+    const count = labelCount - 1;
+
+    for (let i = 0; i < labelCount; i++) {
+      let lValue;
+      if (count === 0) lValue = 0;
+      lValue = min + i * fullRange / count;
+      labels.push(new ItemValue(lValue, getLabelText(i)));
+    }
+    return labels;
+  }
+
   private formatNumber(number:number) {
     return parseFloat(number.toFixed(4));
+  }
+
+  private ensureValueRespectMinMax(value: number[] | number):number[] | number {
+    if (!Array.isArray(value)) {
+      if (value < this.min) value = this.min;
+      if (value > this.max) value = this.max;
+    } else {
+      value.forEach((el, i) => {
+        if (el < this.min) value[i] = this.min;
+        if (el > this.max) value[i] = this.max;
+      });
+    }
+    return value;
   }
 }
 
@@ -826,6 +851,6 @@ Serializer.addClass(
   },
   "question",
 );
-// QuestionFactory.Instance.registerQuestion("slider", (name) => {
-//   return new QuestionSliderModel(name);
-// });
+QuestionFactory.Instance.registerQuestion("slider", (name) => {
+  return new QuestionSliderModel(name);
+});

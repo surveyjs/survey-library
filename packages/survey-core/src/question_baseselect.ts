@@ -1506,11 +1506,12 @@ export class QuestionSelectBase extends Question {
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (!this.hasOther || !this.isOtherSelected || this.otherValue
-      || isOnValueChanged && !this.prevOtherErrorValue) return;
-    const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
-    otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
-    errors.push(otherEmptyError);
+    if (this.isOtherSelected && !this.otherValue && (!isOnValueChanged || this.prevOtherErrorValue)) {
+    //if (this.isOtherSelected && !this.otherValue && !isOnValueChanged) {
+      const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
+      otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
+      errors.push(otherEmptyError);
+    }
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.isRunningChoices = true;

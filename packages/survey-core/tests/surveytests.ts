@@ -13460,35 +13460,32 @@ QUnit.test(
     assert.equal(q2.errors.length, 0, "q2 has no errors");
   }
 );
-QUnit.test(
-  "Update question errors on other text change if survey.checkErrorsMode property is 'onValueChanged'. Bug#1854",
-  function (assert) {
-    var survey = new SurveyModel({
-      checkErrorsMode: "onValueChanged",
-      elements: [
-        {
-          type: "dropdown",
-          name: "q1",
-          choices: [1, 2],
-          hasOther: true,
-        },
-      ],
-    });
-    var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
-    q1.value = q1.otherItem.value;
-    assert.equal(q1.errors.length, 0, "There is no error yet");
-    q1.comment = "some value1";
-    assert.equal(q1.errors.length, 0, "There is no error - there is a value");
-    q1.comment = "";
-    assert.equal(q1.errors.length, 1, "There is an error right now");
-    q1.comment = "some value2";
-    assert.equal(q1.errors.length, 0, "There is no error again");
-    q1.value = 1;
-    q1.value = q1.otherItem.value;
-    assert.equal(q1.comment, "", "Comment is empty");
-    assert.equal(q1.errors.length, 0, "There is no error - comment was cleaned");
-  }
-);
+QUnit.test("Update question errors on other text change if survey.checkErrorsMode property is 'onValueChanged'. Bug#1854", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [1, 2],
+        hasOther: true,
+      },
+    ],
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  q1.value = q1.otherItem.value;
+  assert.equal(q1.errors.length, 0, "There is no error yet, #1");
+  q1.comment = "some value1";
+  assert.equal(q1.errors.length, 0, "There is no error - there is a value, #2");
+  q1.comment = "";
+  assert.equal(q1.errors.length, 1, "There is an error right now, #3");
+  q1.comment = "some value2";
+  assert.equal(q1.errors.length, 0, "There is no error again, #4");
+  q1.value = 1;
+  q1.value = q1.otherItem.value;
+  assert.equal(q1.comment, "", "Comment is empty");
+  assert.equal(q1.errors.length, 0, "There is no error - comment was cleaned, #5");
+});
 QUnit.test(
   "Update question errors on other text change if question has error already. Bug #1854",
   function (assert) {

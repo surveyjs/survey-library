@@ -16,7 +16,7 @@ import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
-import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 
@@ -115,8 +115,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.dragOrClickHelper.onPointerDown(pointerDownEvent);
   }
 
-  public startDragMatrixRow = (event: PointerEvent, currentTarget: HTMLElement): void => {
-    this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, <HTMLElement>event.target);
+  public startDragMatrixRow = (event: PointerEvent, targets: ITargets): void => {
+    this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, targets.target);
   };
 
   public getType(): string {

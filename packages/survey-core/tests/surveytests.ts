@@ -21941,8 +21941,8 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
     log += `->${el.id}`;
     doneCallback();
   }) as any;
-  SurveyElement.ScrollElementToTop = ((elId, _, __, doneCallback) => {
-    (SurveyElement as any).ScrollElementToViewCore({ id: elId }, null, null, null, doneCallback);
+  SurveyElement.ScrollElementToTop = ((el, _, __, doneCallback) => {
+    (SurveyElement as any).ScrollElementToViewCore(el, null, null, null, doneCallback);
   }) as any;
   const survey = new SurveyModel({
     "elements": [
@@ -21962,9 +21962,12 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
   const panelDynamic = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
   const rootElement = document.createElement("div");
   const rootWrapper = document.createElement("div");
+  const textElement = document.createElement("div");
+  textElement.id = "text_question_id";
   rootWrapper.id = "root-wrapper";
   rootWrapper.className = survey.css.rootWrapper;
   rootElement.appendChild(rootWrapper);
+  rootWrapper.appendChild(textElement);
   survey.rootElement = rootElement;
   const quesiton = panelDynamic.panels[0].questions[0];
   survey.scrollElementToTop(quesiton, quesiton, null as any, "text_question_id", false, null, null, () => {
@@ -21973,6 +21976,7 @@ QUnit.test("#9110 check focus question inside paneldynamic works correctly", fun
   assert.equal(log, "->text_question_id->focused text question");
   SurveyElement.ScrollElementToViewCore = oldScrollElementToViewCore;
   SurveyElement.ScrollElementToTop = oldScrollElementToTop;
+  rootElement.remove();
 });
 QUnit.test("Show warning on loadig JSON created in higher version of Creator", function (assert) {
   const oldVersion = settings.version;

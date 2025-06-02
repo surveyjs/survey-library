@@ -10,7 +10,7 @@ import { QuestionSelectBase } from "./question_baseselect";
 import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
-import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
+import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
@@ -413,7 +413,7 @@ export interface GetTitleTagNameEvent {
    */
   element: Base;
   /**
-   * A heading used to render the title (`"h1"`-`"h6"`). You can change this parameter's value.
+   * An HTML tag used to render the title (`"div"`). You can change this parameter's value.
    */
   tagName: string;
 }
@@ -1013,6 +1013,12 @@ export interface DragDropAllowEvent {
    * @deprecated Use `options.toElement` instead.
    */
   source: IElement;
+}
+export interface MatrixRowDragOverEvent {
+  row: MatrixDynamicRowModel;
+  fromMatrix: QuestionMatrixDynamicModel;
+  toMatrix: QuestionMatrixDynamicModel;
+  allow: boolean;
 }
 export interface ScrollingElementToTopEvent {
   /**

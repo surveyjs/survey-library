@@ -7979,7 +7979,7 @@ QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
       { name: "q5", type: "rating", displayMode: "dropdown", isRequired: true }
     ]
   });
-  const event: any = { target: {}, stopPropagation: () => {} };
+  const event: any = { target: { closest: () => { return null; } }, stopPropagation: () => {} };
   survey.getAllQuestions().forEach(q => {
     q.onFocus(event);
     q.onBlur(event);

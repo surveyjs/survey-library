@@ -34,22 +34,7 @@
           :question="question"
         ></SvComponent>
       </div>
-      <div
-        :class="question.cssClasses.cleanButton"
-        v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
-        v-show="question.showClearButton"
-        @click="clear"
-        aria-hidden="true"
-      >
-        <SvComponent
-          :is="'sv-svg-icon'"
-          :class="question.cssClasses.cleanButtonSvg"
-          :iconName="question.cssClasses.cleanButtonIconId"
-          :title="question.clearCaption"
-          size="auto"
-        >
-        </SvComponent>
-      </div>
+      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>
     <SvComponent
       :is="'sv-popup'"
@@ -69,25 +54,14 @@
       :tabindex="question.isDisabledAttr ? undefined : 0"
       :class="question.getControlClass()"
     >
-      <SvComponent
-        :is="'survey-string'"
-        v-if="question.locReadOnlyText"
-        :locString="question.locReadOnlyText"
-      />
-    </div>
-    <div
-      :class="question.cssClasses.chevronButton"
-      v-on:pointerdown="chevronPointerDown"
-      v-if="question.cssClasses.chevronButtonIconId"
-      aria-hidden="true"
-    >
-      <SvComponent
-        :is="'sv-svg-icon'"
-        :class="question.cssClasses.chevronButtonSvg"
-        :iconName="question.cssClasses.chevronButtonIconId"
-        size="auto"
-      >
-      </SvComponent>
+      <div :class="question.cssClasses.controlValue">
+        <SvComponent
+          :is="'survey-string'"
+          v-if="question.locReadOnlyText"
+          :locString="question.locReadOnlyText"
+        />
+      </div>
+      <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>
   </div>
 </template>
@@ -108,12 +82,6 @@ const model = computed(() => {
 });
 const click = (event: any) => {
   model.value?.onClick(event);
-};
-const chevronPointerDown = (event: any) => {
-  model.value?.chevronPointerDown(event);
-};
-const clear = (event: any) => {
-  model.value?.onClear(event);
 };
 const keyhandler = (event: any) => {
   model.value?.keyHandler(event);

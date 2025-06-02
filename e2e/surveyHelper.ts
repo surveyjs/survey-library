@@ -50,6 +50,11 @@ export class Survey {
     await btn.waitFor({ state: "visible" });
     await btn.click();
   }
+  public async showPreview(): Promise<void> {
+    await this.page.evaluate(() => {
+      return window["survey"].showPreview();
+    });
+  }
   private async checkButtonVisibility(btnValue: string, isVisible: boolean): Promise<void> {
     const l = this.getNavigatorButton(btnValue);
     if (isVisible) {

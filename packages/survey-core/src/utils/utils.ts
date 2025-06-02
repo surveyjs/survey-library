@@ -287,6 +287,7 @@ const renamedIcons: any = {
   "radiogroup": "toolbox-radiogroup-24x24",
   "ranking": "toolbox-ranking-24x24",
   "rating": "toolbox-rating-24x24",
+  "slider": "toolbox-slider-24x24",
   "redo": "redo-24x24",
   "remove_16x16": "remove-16x16",
   "required": "required-16x16",

@@ -9,7 +9,7 @@ const questionValueInput = Selector(".sd-dropdown__value input");
 const questionValueText = Selector(".sd-dropdown__value .sv-string-viewer");
 const questionValueHint = Selector(".sd-dropdown__hint-suffix");
 
-const clearButton = Selector(".sd-dropdown_clean-button");
+const clearButton = Selector(".sd-editor-clean-button");
 
 const questionOffsetTopConst = 176;
 const singleListItemHeight = 56;

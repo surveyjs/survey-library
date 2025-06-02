@@ -88,16 +88,14 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   protected createPopup(): void {
     super.createPopup();
     this.popupModel.onFooterActionsCreated.add((_, opt) => {
-      if (this.shouldResetAfterCancel) {
-        opt.actions.push(<IAction>{
-          id: "sv-dropdown-done-button",
-          title: this.doneButtonCaption,
-          innerCss: "sv-popup__button--done",
-          needSpace: true,
-          action: () => { this.popupModel.isVisible = false; },
-          enabled: <boolean>(<any>new ComputedUpdater(() => !this.isTwoValueEquals(this.question.renderedValue, this.previousValue)))
-        });
-      }
+      opt.actions.push(<IAction>{
+        id: "sv-dropdown-done-button",
+        title: this.doneButtonCaption,
+        innerCss: "sv-popup__button--done",
+        needSpace: true,
+        action: () => { this.popupModel.isVisible = false; },
+        enabled: <boolean>(<any>new ComputedUpdater(() => !this.isTwoValueEquals(this.question.renderedValue, this.previousValue)))
+      });
     });
     this.popupModel.onVisibilityChanged.add((_, opt: { isVisible: boolean }) => {
       if (this.shouldResetAfterCancel && opt.isVisible) {

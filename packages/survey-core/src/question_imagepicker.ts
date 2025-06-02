@@ -1,15 +1,14 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionCheckboxBase, QuestionSelectBase } from "./question_baseselect";
+import { QuestionCheckboxBase, ChoiceItem } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Helpers } from "./helpers";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { settings } from "./settings";
 import { classesToSelector } from "./utils/utils";
 import { DomDocumentHelper } from "./global_variables_utils";
 
-export class ImageItemValue extends ItemValue implements ILocalizableOwner {
+export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
 
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
   @property({ defaultValue: false }) private imageNotLoaded: boolean;

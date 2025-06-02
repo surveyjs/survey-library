@@ -224,7 +224,6 @@ export class QuestionSelectBase extends Question {
     return this.otherValueCore;
   }
   public set otherValue(val: string) {
-    this.updatePrevOtherErrorValue(val);
     if (!this.showCommentArea) {
       this.comment = val;
     } else {
@@ -639,12 +638,12 @@ export class QuestionSelectBase extends Question {
   }
   private isSettingComment: boolean = false;
   protected setQuestionComment(newValue: string): void {
-    this.updatePrevOtherErrorValue(newValue);
     if (this.showCommentArea) {
       super.setQuestionComment(newValue);
       return;
     }
     this.onUpdateCommentOnAutoOtherMode(newValue);
+    this.updatePrevOtherErrorValue(newValue);
     if (this.getStoreOthersAsComment())
       super.setQuestionComment(newValue);
     else {
@@ -1108,7 +1107,7 @@ export class QuestionSelectBase extends Question {
    * @see choices
    * @see enabledChoices
    */
-  public get visibleChoices(): Array<ItemValue> {
+  public get visibleChoices(): Array<ChoiceItem> {
     return this.getPropertyValue("visibleChoices");
   }
   /**
@@ -1506,12 +1505,19 @@ export class QuestionSelectBase extends Question {
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (this.isOtherSelected && !this.otherValue && (!isOnValueChanged || this.prevOtherErrorValue)) {
-    //if (this.isOtherSelected && !this.otherValue && !isOnValueChanged) {
+    if (this.hasEmptyComments() && (!isOnValueChanged || this.prevOtherErrorValue)) {
       const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
       otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
       errors.push(otherEmptyError);
     }
+  }
+  private hasEmptyComments(): boolean {
+    const choices = this.visibleChoices;
+    for (let i = 0; i < choices.length; i++) {
+      const choice = choices[i];
+      if (this.isCommentShowing(choice) && !this.getCommentValue(choices[i])) return true;
+    }
+    return false;
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.isRunningChoices = true;

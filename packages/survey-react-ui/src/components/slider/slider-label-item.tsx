@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Base, ItemValue, QuestionSliderModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
-import { ReactSurveyElement } from "../../reactquestion_element";
+import { ReactSurveyElement, SurveyElementBase } from "../../reactquestion_element";
 
-export class SliderLabelItem extends ReactSurveyElement {
+export class SliderLabelItem extends SurveyElementBase<any, any> {
   protected getStateElement(): Base {
     return this.item;
   }
@@ -16,16 +16,19 @@ export class SliderLabelItem extends ReactSurveyElement {
   protected get question(): QuestionSliderModel {
     return this.props.question;
   }
+  componentDidUpdate(prevProps: any, prevState: any) {
+    super.componentDidUpdate(prevProps, prevState);
+  }
 
   protected renderElement(): React.JSX.Element {
-    const { cssClasses, handleLabelPointerUp, getLabelCss } = this.question;
-    const { value, locText: text } = this.item;
+    const { cssClasses, handleLabelPointerUp, getLabelCss, getPercent } = this.question;
+    const { value, locText } = this.item;
     const index = this.index;
     return <div key={index} className={getLabelCss(index)}
-      style={{ left: value + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, index); } }>
+      style={{ left: getPercent(value) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, index); } }>
       <div className={cssClasses.labelTick}></div>
       <div className={cssClasses.labelText}>
-        {this.renderLocString(text)}
+        {this.renderLocString(locText)}
       </div>
     </div>;
   }

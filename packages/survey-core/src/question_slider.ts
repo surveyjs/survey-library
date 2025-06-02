@@ -145,9 +145,7 @@ export class QuestionSliderModel extends Question {
     const generatedLabels = this.generatedLabels; // need this const due to observability reasons
     const customLabels = this.customLabels; // need this const due to observability reasons
     if (this.autoGenerate) return generatedLabels;
-    return customLabels.map((label: ItemValue)=> {
-      return new ItemValue(this.getPercent(label.value), label.text);
-    });
+    return customLabels;
   }
 
   public isIndeterminate = false;
@@ -566,7 +564,7 @@ export class QuestionSliderModel extends Question {
     if (count === 0) return 0;
     const fullRange = max - min;
     const labelStep = labelNumber * fullRange / count;
-    return labelStep / fullRange * 100;
+    return labelStep;
   };
 
   public endLoadingFromJson() {

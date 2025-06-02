@@ -128,7 +128,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const { renderedLabels, cssClasses } = this.question;
 
     for (let i = 0; i < renderedLabels.length; i++) {
-      const label = ReactElementFactory.Instance.createElement("sv-slider-label-item", { index: i, item: renderedLabels[i], question: this.question });
+      const label = ReactElementFactory.Instance.createElement("sv-slider-label-item", { index: i, item: renderedLabels[i], question: this.question, key: renderedLabels[i].id });
       labels.push(label);
     }
     return <div className={cssClasses.labelsContainer}>

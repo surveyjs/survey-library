@@ -14,10 +14,7 @@
       :id="question.inputId + '_' + row.name + '_' + columnIndex"
       :aria-required="question.a11y_input_ariaRequired"
       :aria-label="
-        question.getCellAriaLabel(
-          row.locText.renderedHtml,
-          column.locText.renderedHtml
-        )
+        question.getCellAriaLabel(row, column)
       "
       :aria-invalid="question.a11y_input_ariaInvalid"
       :aria-errormessage="question.a11y_input_ariaErrormessage"

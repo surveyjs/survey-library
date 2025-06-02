@@ -1435,7 +1435,8 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      activateLazyRenderingChecks(page.id);
+      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(`#${page.id}`);
+      activateLazyRenderingChecks(htmlElement);
     }
   }
   /**

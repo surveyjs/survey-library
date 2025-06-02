@@ -1,25 +1,29 @@
-import { QuestionMatrixBaseModel } from "../src/martixBase";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 export * from "../src/localization/german";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Survey_MatrixBase");
 
 QUnit.test("check getCellAriaLabel method", (assert) => {
-  const matrix = new QuestionMatrixBaseModel("q1");
   const rowTitle = "RowTitle";
   const columnTitle = "ColumnTitle";
-  matrix.rows = [{ value: "row1", text: rowTitle }];
-  matrix.columns = [{ value: "col1", text: columnTitle }];
-  const survey = new SurveyModel();
-  survey.addNewPage("page");
-  survey.pages[0].addElement(matrix);
-  const row = matrix.visibleRows[0];
-  const column = matrix.visibleColumns[0];
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: columnTitle }],
+        rows: [rowTitle]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
 
+  let row = matrix.visibleRows[0];
+  let column = matrix.visibleColumns[0];
   assert.equal(matrix.getCellAriaLabel(row, column), "row RowTitle, column ColumnTitle", "en");
-
   survey.locale = "de";
   assert.equal(matrix.getCellAriaLabel(row, column), "zeile RowTitle, spalte ColumnTitle", "de");
-
-  assert.equal(matrix.getCellAriaLabel({ locText: {} }, {}), "zeile RowTitle, spalte ColumnTitle", "de");
+  assert.equal(matrix.getCellAriaLabel({ locText: null }, {}), "zeile , spalte ", "check if locText is null");
 });

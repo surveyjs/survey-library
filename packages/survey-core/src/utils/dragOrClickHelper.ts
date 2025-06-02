@@ -13,7 +13,7 @@ export class DragOrClickHelper<T = any> {
   private currentY: any;
   private itemModel: any;
 
-  constructor(private dragHandler: (event: PointerEvent, targets: ITargets, item?: T) => void, public preventOnTouch = true) { }
+  constructor(public dragHandler: (event: PointerEvent, targets: ITargets, item?: T) => void, public preventOnTouch = true) { }
 
   public onPointerDown(pointerDownEvent: PointerEvent, itemModel?: T) {
     this.targets = { currentTarget: pointerDownEvent.currentTarget as HTMLElement, target: pointerDownEvent.target as HTMLElement };

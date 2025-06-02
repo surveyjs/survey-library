@@ -399,7 +399,7 @@ export class QuestionSliderModel extends Question {
     let percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
     if (isRtl) percent = 100 - percent;
 
-    let newValue = Math.round(percent / 100 * (max - min) + min);
+    let newValue = percent / 100 * (max - min) + min;
     this.setValueByClick(newValue, event.target as HTMLInputElement);
   };
 

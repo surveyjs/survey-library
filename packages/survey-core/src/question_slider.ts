@@ -631,6 +631,7 @@ export class QuestionSliderModel extends Question {
     this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
       () => {
         this.resetPropertyValue("generatedLabels");
+        //TODO support labelFormat for customLabels
       }
     );
     this.registerSychProperties(["autoGenerate"],

@@ -1,9 +1,12 @@
 import * as React from "react";
-import { ItemValue, QuestionSliderModel } from "survey-core";
+import { Base, ItemValue, QuestionSliderModel } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { ReactSurveyElement } from "../../reactquestion_element";
 
 export class SliderLabelItem extends ReactSurveyElement {
+  protected getStateElement(): Base {
+    return this.item;
+  }
   protected get index(): number {
     return this.props.index;
   }

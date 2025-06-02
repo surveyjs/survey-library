@@ -1,11 +1,10 @@
 import { IsTouch } from "./devices";
-import { ItemValue } from "../itemvalue";
 
 export interface ITargets {
   target: HTMLElement; currentTarget: HTMLElement;
 }
 
-export class DragOrClickHelper {
+export class DragOrClickHelper<T = any> {
   private pointerDownEvent:any;
   private targets: ITargets;
   private startX: any;
@@ -14,9 +13,9 @@ export class DragOrClickHelper {
   private currentY: any;
   private itemModel: any;
 
-  constructor(private dragHandler: (event: PointerEvent, targets: ITargets, item: ItemValue) => void) { }
+  constructor(private dragHandler: (event: PointerEvent, targets: ITargets, item?: T) => void) { }
 
-  public onPointerDown(pointerDownEvent: PointerEvent, itemModel?: any) {
+  public onPointerDown(pointerDownEvent: PointerEvent, itemModel?: T) {
     this.targets = { currentTarget: pointerDownEvent.currentTarget as HTMLElement, target: pointerDownEvent.target as HTMLElement };
     if (IsTouch) {
       this.dragHandler(pointerDownEvent, this.targets, itemModel); //TODO handle inside in the library's drag drop core, need refactoring

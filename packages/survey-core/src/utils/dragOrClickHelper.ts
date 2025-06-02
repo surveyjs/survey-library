@@ -1,28 +1,32 @@
 import { IsTouch } from "./devices";
-import { DomDocumentHelper } from "../global_variables_utils";
+import { ItemValue } from "../itemvalue";
+
+export interface ITargets {
+  target: HTMLElement; currentTarget: HTMLElement;
+}
 
 export class DragOrClickHelper {
   private pointerDownEvent:any;
-  private currentTarget: any;
+  private targets: ITargets;
   private startX: any;
   private startY: any;
   private currentX: any;
   private currentY: any;
   private itemModel: any;
 
-  constructor(private dragHandler: any) { }
+  constructor(private dragHandler: (event: PointerEvent, targets: ITargets, item: ItemValue) => void) { }
 
-  public onPointerDown(pointerDownEvent: any, itemModel?: any) {
+  public onPointerDown(pointerDownEvent: PointerEvent, itemModel?: any) {
+    this.targets = { currentTarget: pointerDownEvent.currentTarget as HTMLElement, target: pointerDownEvent.target as HTMLElement };
     if (IsTouch) {
-      this.dragHandler(pointerDownEvent, pointerDownEvent.currentTarget, itemModel); //TODO handle inside in the library's drag drop core, need refactoring
+      this.dragHandler(pointerDownEvent, this.targets, itemModel); //TODO handle inside in the library's drag drop core, need refactoring
       return;
     }
     this.pointerDownEvent = pointerDownEvent;
-    this.currentTarget = pointerDownEvent.currentTarget;
     this.startX = pointerDownEvent.pageX;
     this.startY = pointerDownEvent.pageY;
-    DomDocumentHelper.addEventListener("pointermove", this.tryToStartDrag);
-    this.currentTarget.addEventListener("pointerup", this.onPointerUp);
+    this.targets.currentTarget.getRootNode().addEventListener("pointermove", this.tryToStartDrag);
+    this.targets.currentTarget.addEventListener("pointerup", this.onPointerUp);
     this.itemModel = itemModel;
   }
 
@@ -37,7 +41,7 @@ export class DragOrClickHelper {
 
     this.clearListeners();
 
-    this.dragHandler(this.pointerDownEvent, this.currentTarget, this.itemModel);
+    this.dragHandler(this.pointerDownEvent, this.targets, this.itemModel);
     return true;
   };
 
@@ -50,7 +54,7 @@ export class DragOrClickHelper {
   }
   private clearListeners() {
     if (!this.pointerDownEvent) return;
-    DomDocumentHelper.removeEventListener("pointermove", this.tryToStartDrag);
-    this.currentTarget.removeEventListener("pointerup", this.onPointerUp);
+    this.targets.currentTarget.getRootNode().removeEventListener("pointermove", this.tryToStartDrag);
+    this.targets.currentTarget.removeEventListener("pointerup", this.onPointerUp);
   }
 }

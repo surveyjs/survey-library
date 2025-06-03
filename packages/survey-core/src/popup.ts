@@ -150,6 +150,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     switch(menuType) {
       case "dropdown": {
         newDisplayMode = "popup";
+        newOverlayDisplayMode = "auto";
         break;
       }
       case "popup": {

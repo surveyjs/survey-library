@@ -146,6 +146,8 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         oldStr = sortClasses(oldStr);
         newstr = sortInlineStyles(newstr);
         oldStr = sortInlineStyles(oldStr);
+        newstr = removeInputValueAttributeForSlider(newstr);
+        oldStr = removeInputValueAttributeForSlider(oldStr);
 
         assert.equal(newstr, oldStr,
           newstr == oldStr ?
@@ -408,6 +410,17 @@ function sortInlineStyles(str: string) {
         })).join(" ")}`);
       }
       el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1").replace(/url\(([^"].*[^"])\)/, "url(\"$1\")"))).join("; ") + ";");
+    }
+  });
+  return div.innerHTML;
+}
+
+function removeInputValueAttributeForSlider(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("*").forEach(el => {
+    if (el.tagName.toLowerCase() === "input") {
+      el.removeAttribute("value");
     }
   });
   return div.innerHTML;

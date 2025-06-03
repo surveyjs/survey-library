@@ -72,7 +72,8 @@ import {
   GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent, IsAnswerCorrectEvent,
   LoadChoicesFromServerEvent,
   ProcessTextValueEvent,
-  CreateCustomChoiceItemEvent
+  CreateCustomChoiceItemEvent,
+  MatrixRowDragOverEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -853,6 +854,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isDesignMode
    */
   public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
+  public onMatrixRowDragOver: EventBase<SurveyModel, MatrixRowDragOverEvent> = this.addEvent<SurveyModel, MatrixRowDragOverEvent>();
   /**
    * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */
@@ -1433,7 +1435,8 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
     if (!!page) {
-      activateLazyRenderingChecks(page.id);
+      const htmlElement = (this.rootElement || this.creator?.rootElement)?.querySelector(`#${page.id}`);
+      activateLazyRenderingChecks(htmlElement);
     }
   }
   /**
@@ -5896,27 +5899,30 @@ export class SurveyModel extends SurveyElementCore
     this.onScrollToTop.fire(this, options);
     if (!options.cancel && options.allow) {
       const elementPage = this.getPageByElement(element as IElement);
+      const { rootElement } = settings.environment;
+      const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
-        const { rootElement } = settings.environment;
-        const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
         if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(element as IElement, () => {
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
-          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, () => {
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
             this.releaseLazyRendering();
-            activateLazyRenderingChecks(elementPage.id);
+            const pageRootElement = surveyRootElement.querySelector(`#${elementPage.id}`);
+            activateLazyRenderingChecks(pageRootElement);
             onScolledCallback && onScolledCallback();
           });
         }, elementsToRenderBefore);
       } else {
         if (element.isPage && !this.isSinglePage && !this.isDesignMode && this.rootElement) {
-          const elementToScroll = this.rootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
+          const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {
-          SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         }
       }
     }

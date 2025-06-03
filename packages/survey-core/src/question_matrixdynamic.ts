@@ -16,7 +16,7 @@ import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
-import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 
@@ -115,8 +115,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.dragOrClickHelper.onPointerDown(pointerDownEvent);
   }
 
-  public startDragMatrixRow = (event: PointerEvent, currentTarget: HTMLElement): void => {
-    this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, <HTMLElement>event.target);
+  public startDragMatrixRow = (event: PointerEvent, targets: ITargets): void => {
+    this.dragDropMatrixRows.startDrag(event, this.draggedRow, this, targets.target);
   };
 
   public getType(): string {
@@ -218,7 +218,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const movableRow = value[fromIndex];
     value.splice(fromIndex, 1);
     value.splice(toIndex, 0, movableRow);
-
+    this.value = value;
+  }
+  public addRowByIndex(rowData: any, toIndex: number):void {
+    const value = this.createNewValue();
+    if (!Array.isArray(value) && toIndex >= value.length) return;
+    value.splice(toIndex, 0, rowData);
+    this.rowCount++;
+    this.value = value;
+  }
+  public removeRowByIndex(fromIndex: number):void {
+    const value = this.createNewValue();
+    if (!Array.isArray(value) && fromIndex >= value.length) return;
+    value.splice(fromIndex, 1);
+    this.rowCount--;
     this.value = value;
   }
   public clearOnDrop(): void {

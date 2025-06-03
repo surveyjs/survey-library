@@ -279,10 +279,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
 
   //a11y
-  public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
-    const row = (this.getLocalizationString("matrix_row") || "row").toLocaleLowerCase();
-    const column = (this.getLocalizationString("matrix_column") || "column").toLocaleLowerCase();
-    return `${row} ${rowTitle}, ${column} ${columnTitle}`;
+  public getCellAriaLabel(row:any, column:any, directRowTitle?: string):string {
+    let rowTitle:string = row.locText && row.locText.renderedHtml ? row.locText.renderedHtml : "";
+    if (directRowTitle) rowTitle = directRowTitle;
+    const columnTitle:string = column.locTitle && column.locTitle.renderedHtml ? column.locTitle.renderedHtml : "";
+    const rowString:string = (this.getLocalizationString("matrix_row") || "row").toLocaleLowerCase();
+    const columnString:string = (this.getLocalizationString("matrix_column") || "column").toLocaleLowerCase();
+    return `${rowString} ${rowTitle}, ${columnString} ${columnTitle}`;
   }
 
   public get isNewA11yStructure(): boolean {

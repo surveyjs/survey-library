@@ -13,8 +13,9 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  padding-inline-end: calcSize(6); //padding-right
+  padding-inline-end: calcSize(0.5); //padding-right
   padding-inline-start: calcSize(2); //padding-left
+  padding-block: calcSize(0.5);
 
   opacity: 1;
   display: flex;
@@ -24,6 +25,12 @@
 
 .sd-dropdown[disabled] {
   pointer-events: none;
+}
+
+select.sd-dropdown {
+  padding-inline-start: calcSize(2); //padding-left
+  padding-inline-end: calcSize(0.5); //padding-right
+  padding-block: calcSize(1.5);
 }
 
 .sd-dropdown--empty:not(.sd-input--disabled),
@@ -58,15 +65,61 @@
   font-size: $font-editorfont-size;
 
   position: relative;
+  // display: flex;
+  margin-block: calcSize(1);
+  margin-inline: 0;
+  // flex-direction: column;
+  // align-items: flex-start;
+  // flex: 1 0 0;
 }
 
-.sd-dropdown_clean-button {
+.sd-dropdown-action-bar {
+  overflow: unset;
+  gap: multiply(0.25, $font-editorfont-size);
+  margin-inline-start: calcSize(1);
+}
+
+.sd-editor-button-item {
+  @include mixins.hideButtonStyles;
+
   display: flex;
+  padding: calcSize(1);
   justify-content: center;
   align-items: center;
-  padding: 0 calcSize(1);
-  margin: auto 0;
+  align-self: stretch;
+  border-radius: multiply(0.125, $font-editorfont-size);
   cursor: pointer;
+
+  &:hover {
+    background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
+    transition: background $transition-duration;
+  }
+}
+
+.sd-input--readonly .sd-editor-button-item:hover,
+.sd-input--readonly .sd-editor-button-item:focus {
+  background: transparent;
+}
+
+.sd-editor-button-item--pressed {
+  opacity: var(--lbr-editor-button-icon-opacity-pressed, 0.5);
+  background: var(--lbr-editor-button-background-color-hovered, var(--sjs-general-backcolor-dim-dark, #f3f3f3));
+  transition-property: opacity, background-color;
+  transition-duration: $transition-duration;
+}
+
+.sv-editor-button-item__icon {
+  width: multiply(1.5, $font-editorfont-size);
+  height: multiply(1.5, $font-editorfont-size);
+
+  use {
+    pointer-events: none;
+  }
+}
+
+.sd-question--readonly .sd-editor-button-item {
+  opacity: var(--lbr-editor-button-icon-opacity-disabled, 0.25);
+  cursor: default;
 }
 
 .sd-dropdown_chevron-button {
@@ -83,14 +136,17 @@
   cursor: pointer;
 }
 
-.sd-dropdown_chevron-button-svg,
-.sd-dropdown_clean-button-svg {
+.sd-dropdown_chevron-button-svg {
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
 
   use {
     pointer-events: none;
   }
+}
+
+.sd-question--readonly .sd-dropdown_chevron-button use {
+  opacity: 0.24;
 }
 
 .sd-input.sd-dropdown:focus-within {
@@ -129,12 +185,6 @@
   color: $font-editorfont-placeholdercolor;
 }
 
-.sd-dropdown--empty {
-  & > * {
-    min-height: multiply(1.5, $font-editorfont-size);
-  }
-}
-
 .sd-dropdown__filter-string-input::placeholder {
   color: $foreground;
   width: 100%;
@@ -148,6 +198,8 @@
 
 .sd-dropdown__hint-prefix {
   color: $font-editorfont-placeholdercolor;
+  display: flex;
+  align-items: center;
 
   span {
     white-space: pre;
@@ -166,24 +218,12 @@
 .sd-dropdown.sd-input--disabled,
 .sd-dropdown.sd-input--readonly,
 .sd-dropdown.sd-input--preview {
-  * {
-    width: 100%;
-    display: block;
-  }
-
   .sv-string-viewer {
+    width: 100%;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-}
-
-.sd-question--readonly .sd-dropdown_chevron-button use {
-  opacity: 0.24;
-}
-
-.sd-question--preview .sd-dropdown_chevron-button {
-  display: none;
 }
 
 .sv-dropdown-popup {

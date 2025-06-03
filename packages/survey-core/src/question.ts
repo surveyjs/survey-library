@@ -164,8 +164,7 @@ export class Question extends SurveyElement<Question>
     this.createLocalizableString("defaultDisplayValue", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
       this.startSetValueOnExpression();
-      this.clearValue();
-      this.updateValueWithDefaults();
+      this.updateValueWithDefaultsOrClear();
       this.finishSetValueOnExpression();
     });
     const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
@@ -1998,6 +1997,7 @@ export class Question extends SurveyElement<Question>
    * | Radio Button Group | `string` \| `number` |
    * | Ranking | <code>Array&lt;string &#124; number&gt;</code> |
    * | Rating Scale | `number` \| `string` |
+   * | Slider | <code>Array&lt;string &#124; number&gt;</code> |
    * | Signature | `string` (base64-encoded image) |
    * | Single-Line Input | `string` \| `number` \| `Date` |
    * | Single-Select Matrix | `object` |
@@ -2410,6 +2410,14 @@ export class Question extends SurveyElement<Question>
       this.getUnbindValue(this.defaultValue),
       (val) => func(val)
     );
+  }
+  protected updateValueWithDefaultsOrClear(): void {
+    if (this.isDesignMode || this.isLoadingFromJson) return;
+    if (this.isDefaultValueEmpty()) {
+      this.clearValue();
+    } else {
+      this.setDefaultValue();
+    }
   }
   protected isValueExpression(val: any): boolean {
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
@@ -3227,6 +3235,18 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
+
+  private _syncPropertiesChanging: boolean = false;
+  protected registerSychProperties(names: Array<string>, func: any) {
+    this.registerFunctionOnPropertiesValueChanged(names,
+      () => {
+        if (!this._syncPropertiesChanging) {
+          this._syncPropertiesChanging = true;
+          func();
+          this._syncPropertiesChanging = false;
+        }
+      });
+  }
 }
 function makeNameValid(str: string): string {
   if (!str) return str;

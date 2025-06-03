@@ -130,7 +130,7 @@ const getCellStyle = () => {
   return null;
 };
 const getCellAriaLabel = ():string => {
-  return props.cell.question.parentQuestion.getCellAriaLabel(props.cell.row.locText.renderedHtml, props.cell.column.locTitle.renderedHtml);
+  return props.cell.question.parentQuestion.getCellAriaLabel(props.cell.row, props.cell.column);
 };
 const onVisibilityChanged = () => {
   if (!props.cell.hasQuestion || !props.question || !props.question.survey)

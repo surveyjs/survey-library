@@ -144,27 +144,34 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   }
 
   public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
-    if (this.displayMode !== menuType) {
+    let newDisplayMode;
+    let newOverlayDisplayMode;
+
+    switch(menuType) {
+      case "dropdown": {
+        newDisplayMode = "popup";
+        break;
+      }
+      case "popup": {
+        newDisplayMode = "overlay";
+        newOverlayDisplayMode = "tablet-dropdown-overlay";
+        break;
+      }
+      case "overlay": {
+        newDisplayMode = "overlay";
+        newOverlayDisplayMode = "dropdown-overlay";
+        break;
+      }
+    }
+
+    if (this.displayMode !== newDisplayMode) {
       const isDropdown = menuType === "dropdown";
       this.setWidthByTarget = isDropdown;
       this.isFocusedContent = !isDropdown;
     }
-    switch(menuType) {
-      case "dropdown": {
-        this.displayMode = "popup";
-        break;
-      }
-      case "popup": {
-        this.displayMode = "overlay";
-        this.overlayDisplayMode = "tablet-dropdown-overlay";
-        break;
-      }
-      case "overlay": {
-        this.displayMode = "overlay";
-        this.overlayDisplayMode = "dropdown-overlay";
-        break;
-      }
-    }
+
+    this.displayMode = newDisplayMode;
+    this.overlayDisplayMode = newOverlayDisplayMode;
   }
   public onHiding(): void {
     this.refreshInnerModel();

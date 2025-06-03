@@ -1,5 +1,5 @@
 import * as React from "react";
-import { QuestionTagboxModel, DropdownListModel, DropdownMultiSelectListModel } from "survey-core";
+import { QuestionTagboxModel, DropdownMultiSelectListModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdownBase } from "./dropdown-base";
 import { SurveyQuestionTagboxItem } from "./tagbox-item";
@@ -21,8 +21,8 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
     return renderedItem;
   }
 
-  protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
-    const dropdownMultiSelectListModel = dropdownListModel as DropdownMultiSelectListModel;
+  protected renderInput(): React.JSX.Element {
+    const dropdownListModel = this.dropdownListModel as DropdownMultiSelectListModel;
     const items = this.question.selectedChoices.map((choice, index) => { return this.renderItem("item" + index, choice); });
     return (
       <div
@@ -49,9 +49,9 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
-          <TagboxFilterString model={dropdownMultiSelectListModel} question={this.question}></TagboxFilterString>
+          <TagboxFilterString model={dropdownListModel} question={this.question}></TagboxFilterString>
         </div>
-        {this.createClearButton()}
+        {this.renderEditorButtons()}
       </div>);
   }
 
@@ -65,14 +65,6 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         {comment}
       </div>
     );
-  }
-
-  protected renderReadOnlyElement(): React.JSX.Element | null {
-    if (this.question.locReadOnlyText) {
-      return this.renderLocString(this.question.locReadOnlyText);
-    } else {
-      return null;
-    }
   }
 }
 

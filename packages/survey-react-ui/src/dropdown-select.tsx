@@ -3,6 +3,7 @@ import { RendererFactory, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyQuestionDropdown } from "./reactquestion_dropdown";
 import { SurveyQuestionOptionItem } from "./dropdown-item";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
   constructor(props: any) {
@@ -42,6 +43,22 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
       <div className={cssClasses.selectWrapper}>
         {selectElement}
         {this.createChevronButton()}
+      </div>
+    );
+  }
+
+  createChevronButton(): React.JSX.Element | null {
+    if (!this.question.cssClasses.chevronButtonIconId) return null;
+
+    return (
+      <div className={this.question.cssClasses.chevronButton}
+        aria-hidden="true"
+        onPointerDown={this.chevronPointerDown}>
+        <SvgIcon
+          className={this.question.cssClasses.chevronButtonSvg}
+          iconName={this.question.cssClasses.chevronButtonIconId}
+          size={"auto"}
+        ></SvgIcon>
       </div>
     );
   }

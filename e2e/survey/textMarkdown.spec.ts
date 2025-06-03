@@ -29,9 +29,11 @@ const json = {
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+    });
 
     test("Check Text Markdown on checkbox", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
         window["survey"].onTextMarkdown.add((_, options) => {
@@ -41,6 +43,7 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
+      await page.waitForTimeout(500);
 
       await page.locator(".markdownclass", { hasText: "*item 2*" }).click();
       await page.locator("input[value=Complete]").click();
@@ -50,7 +53,6 @@ frameworks.forEach((framework) => {
     });
 
     test("Check Text Markdown on dropdown", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
         window["survey"].onTextMarkdown.add((_, options) => {
@@ -60,6 +62,7 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
+      await page.waitForTimeout(500);
 
       const questionValueText = page.locator(".sd-dropdown__value .sv-string-viewer");
       const questionDropdownSelect = page.locator(".sd-dropdown");
@@ -81,7 +84,6 @@ frameworks.forEach((framework) => {
     });
 
     test("Check link inside description is clickable", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
       const json2 = {
         elements: [
           {
@@ -99,6 +101,7 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json2);
+      await page.waitForTimeout(500);
 
       await page.locator(".test-link").click();
       expect(page.url()).toContain("/test");

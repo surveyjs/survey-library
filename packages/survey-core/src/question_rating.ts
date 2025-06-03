@@ -136,17 +136,6 @@ export class QuestionRatingModel extends Question {
     this.updateRateCount();
     this.setIconsToRateValues();
   }
-  private _syncPropertiesChanging: boolean = false;
-  private registerSychProperties(names: Array<string>, func: any) {
-    this.registerFunctionOnPropertiesValueChanged(names,
-      () => {
-        if (!this._syncPropertiesChanging) {
-          this._syncPropertiesChanging = true;
-          func();
-          this._syncPropertiesChanging = false;
-        }
-      });
-  }
   private useRateValues() {
     return !!this.rateValues.length && !this.autoGenerate;
   }
@@ -927,7 +916,6 @@ export class QuestionRatingModel extends Question {
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
-      this.ariaExpanded = "false";
     }
   }
   protected getCompactRenderAs(): string {
@@ -940,7 +928,6 @@ export class QuestionRatingModel extends Question {
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
-    this.ariaExpanded = !!val ? "false" : undefined;
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {

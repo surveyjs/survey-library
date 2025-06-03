@@ -444,7 +444,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });
-      const tagboxDropdownButton = page.locator(".sd-dropdown_chevron-button").first();
+      const tagboxDropdownButton = page.locator(".sd-editor-chevron-button").first();
       await tagboxDropdownButton.scrollIntoViewIfNeeded();
       await tagboxDropdownButton.click();
       await compareScreenshot(page, ".sv-popup__container .sv-popup__content", "survey-theme-mobile-popup-input-size.png");

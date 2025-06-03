@@ -2553,3 +2553,37 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
 
   _setIsTouch(false);
 });
+QUnit.test("tagbox vs selectAll and isExclusive", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "tagbox",
+        name: "q1",
+        choices: ["apple", "banana", { value: "none2", isExclusive: true }, "orange"],
+        showNoneItem: true,
+        showSelectAllItem: true
+      }
+    ]
+  });
+  const q = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  const listModel: MultiSelectListModel = q.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  listModel.onItemClick(<any>q.selectAllItem);
+  assert.deepEqual(q.value, ["apple", "banana", "orange"], "#1");
+  assert.equal(q.isAllSelected, true, "#3, all is selected");
+  listModel.onItemClick(q.choices[2]);
+  assert.deepEqual(q.value, ["none2"], "#4");
+  assert.equal(q.isAllSelected, false, "#5, all is not selected");
+  listModel.onItemClick(<any>q.selectAllItem);
+  assert.deepEqual(q.value, ["apple", "banana", "orange"], "#6");
+  listModel.onItemClick(<any>q.noneItem);
+  assert.deepEqual(q.value, ["none"], "#7");
+  listModel.onItemClick(q.choices[2]);
+  assert.deepEqual(q.value, ["none2"], "#8");
+  listModel.onItemClick(q.choices[0]);
+  assert.deepEqual(q.value, ["apple"], "#10");
+
+  q.renderedValue = ["apple", "none2"];
+  assert.deepEqual(q.value, ["none2"], "#11");
+  q.renderedValue = ["none2", "none"];
+  assert.deepEqual(q.value, ["none"], "#12");
+});

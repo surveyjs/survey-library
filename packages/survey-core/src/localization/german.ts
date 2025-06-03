@@ -87,6 +87,7 @@ export var germanSurveyStrings = {
   timerLimitPage: "Sie waren {0} von {1} auf dieser Seite.",
   timerLimitSurvey: "Sie haben insgesamt {0} von {1} gebraucht.",
   clearCaption: "Auswahl entfernen",
+  selectCaption: "Auswählen",
   signaturePlaceHolder: "Hier unterschreiben",
   signaturePlaceHolderReadOnly: "Keine Unterschrift",
   chooseFileCaption: "Datei auswählen",

@@ -2007,3 +2007,25 @@ QUnit.test("detail panel & nested question wasRendered", function (assert) {
   assert.equal(row.detailPanel.wasRendered, true, "panel was rendered");
   assert.equal(question.wasRendered, true, "panel question was rendered");
 });
+QUnit.test("Value expressions not working for member with the same name as root name. Bug#9967", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdropdown",
+        "name": "same_name",
+        "cellType": "text",
+        "columns": [{ "name": "value" }],
+        "rows": ["same_name"]
+      },
+      {
+        "type": "expression",
+        "name": "exp",
+        "expression": "{same_name.same_name.value}"
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("same_name");
+  const row = matrix.visibleRows[0];
+  row.getQuestionByName("value").value = "test";
+  assert.equal(survey.getQuestionByName("exp").value, "test", "Expression works with the same name as root name");
+});

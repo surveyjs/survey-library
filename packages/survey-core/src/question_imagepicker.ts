@@ -14,17 +14,12 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
   @property({ defaultValue: false }) private imageNotLoaded: boolean;
 
-  constructor(
-    value: any,
-    text: string = null,
-    protected typeName = "imageitemvalue"
+  constructor(value: any, text?: string, protected typeName?: string
   ) {
     super(value, text, typeName);
     this.createLocalizableString("imageLink", this, false);
   }
-  public getType(): string {
-    return !!this.typeName ? this.typeName : "itemvalue";
-  }
+  protected getBaseType(): string { return "imageitemvalue"; }
   /**
    * The image or video link property.
    */
@@ -527,29 +522,17 @@ Serializer.addClass(
     { name: "minImageHeight:responsiveImageSize", default: 133, minValue: 0 },
     { name: "maxImageWidth:responsiveImageSize", default: 3000, minValue: 0 },
     { name: "maxImageHeight:responsiveImageSize", default: 3000, minValue: 0 },
-
+    "showLabel:boolean",
+    { name: "colCount:number", default: 0, choices: [0, 1, 2, 3, 4, 5] },
+    "multiSelect:boolean"
   ],
   function () {
     return new QuestionImagePickerModel("");
   },
   "checkboxbase"
 );
-Serializer.addProperty("imagepicker", {
-  name: "showLabel:boolean",
-  default: false,
-});
-Serializer.addProperty("imagepicker", {
-  name: "colCount:number",
-  default: 0,
-  choices: [0, 1, 2, 3, 4, 5],
-});
-Serializer.addProperty("imagepicker", {
-  name: "multiSelect:boolean",
-  default: false,
-});
-Serializer.addProperty("imagepicker", {
-  name: "choices:imageitemvalue[]",
-});
+
+Serializer.getProperty("imagepicker", "choices").type = "imageitemvalue[]";
 
 QuestionFactory.Instance.registerQuestion("imagepicker", (name) => {
   var q = new QuestionImagePickerModel(name);

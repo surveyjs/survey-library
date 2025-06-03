@@ -129,7 +129,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
-    this.ariaExpanded = !!val ? "false" : undefined;
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
@@ -172,7 +171,6 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   protected onBeforeSetCompactRenderer(): void {
     if (!this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
-      this.ariaExpanded = "false";
     }
   }
   public dispose(): void {

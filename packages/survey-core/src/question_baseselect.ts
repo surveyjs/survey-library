@@ -29,7 +29,7 @@ export class QuestionSelectBase extends Question {
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
   private prevOtherValue: string;
-  private otherItemValue: ItemValue = new ItemValue("other");
+  private otherItemValue: ItemValue;
   private choicesFromUrl: Array<ItemValue>;
   private cachedValueForUrlRequests: any;
   private isChoicesLoaded: boolean;
@@ -48,9 +48,10 @@ export class QuestionSelectBase extends Question {
 
   constructor(name: string) {
     super(name);
-    this.noneItemValue = this.createDefaultItem(settings.noneItemValue, "noneText", "noneItemText");
-    this.refuseItemValue = this.createDefaultItem(settings.refuseItemValue, "refuseText", "refuseItemText");
-    this.dontKnowItemValue = this.createDefaultItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
+    this.otherItemValue = this.createItemValue("other");
+    this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
+    this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
+    this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
     this.registerPropertyChangedHandlers(["choices"], () => {
       if (!this.filterItems()) {
@@ -357,8 +358,9 @@ export class QuestionSelectBase extends Question {
   get locDontKnowText(): LocalizableString {
     return this.getLocalizableString("dontKnowText");
   }
-  private createDefaultItem(defaultValue: any, name: string, locName: string): ItemValue {
-    const item = new ItemValue(defaultValue);
+  private createNoneItem(defaultValue: any, name: string, locName: string): ItemValue {
+    const item = this.createItemValue(defaultValue);
+    item.isExclusive = true;
     const locStr = this.createLocalizableString(name, item, true, locName);
     item.locOwner = this;
     item.setLocText(locStr);
@@ -1416,10 +1418,7 @@ export class QuestionSelectBase extends Question {
       item === this.newItemValue;
   }
   public isNoneItem(item: ItemValue): boolean {
-    return this.getNoneItems().indexOf(item) > -1;
-  }
-  protected getNoneItems(): Array<ItemValue> {
-    return [this.noneItem, this.refuseItem, this.dontKnowItem];
+    return item.isExclusive === true;
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;

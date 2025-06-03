@@ -117,12 +117,9 @@ function isElementVisible(
   return maxTop <= minBottom;
 }
 
-function findScrollableParent(element: HTMLElement): HTMLElement {
-  const { root }: ISurveyEnvironment = settings.environment;
+function findScrollableParent(element: Element): Element {
   if (!element) {
-    return isShadowDOM(root)
-      ? root.host as HTMLElement
-      : root.documentElement;
+    return DomDocumentHelper.isAvailable() ? DomDocumentHelper.getDocument().documentElement : undefined;
   }
   if (
     element.scrollHeight > element.clientHeight &&
@@ -139,17 +136,18 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
   ) {
     return element;
   }
-
+  if (!element.parentElement) {
+    const rootNode = element.getRootNode();
+    if (rootNode instanceof Document || rootNode instanceof ShadowRoot) {
+      return isShadowDOM(rootNode) ? rootNode.host : rootNode.documentElement;
+    }
+  }
   return findScrollableParent(element.parentElement);
 }
 
-function activateLazyRenderingChecks(id: string): void {
-  const environment: ISurveyEnvironment = settings.environment;
-  if (!environment) return;
-  const { root } = environment;
-  const el = root.getElementById(id);
-  if (!el) return;
-  const scrollableEl = findScrollableParent(el);
+function activateLazyRenderingChecks(element: Element): void {
+  if (!element) return;
+  const scrollableEl = findScrollableParent(element);
   if (!!scrollableEl) {
     setTimeout(() => scrollableEl.dispatchEvent(new CustomEvent("scroll")), 10);
   }
@@ -289,6 +287,7 @@ const renamedIcons: any = {
   "radiogroup": "toolbox-radiogroup-24x24",
   "ranking": "toolbox-ranking-24x24",
   "rating": "toolbox-rating-24x24",
+  "slider": "toolbox-slider-24x24",
   "redo": "redo-24x24",
   "remove_16x16": "remove-16x16",
   "required": "required-16x16",

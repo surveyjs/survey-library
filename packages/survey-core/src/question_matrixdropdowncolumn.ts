@@ -27,7 +27,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getCellType(): string;
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
-  getCellAriaLabel(rowTitle: string, columnTitle: string): string;
+  getCellAriaLabel(row: any, column: any, directRowTitle?: string): string;
 }
 
 function onUpdateSelectBaseCellQuestion(

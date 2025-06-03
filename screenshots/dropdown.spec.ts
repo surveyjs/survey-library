@@ -442,7 +442,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
-
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-question", "dropdown-question-disabled-long-text.png");
     });
 

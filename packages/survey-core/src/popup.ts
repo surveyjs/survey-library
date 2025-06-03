@@ -143,13 +143,14 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
     }
   }
 
-  public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): void {
+  public updateDisplayMode(menuType: "dropdown" | "popup" | "overlay"): boolean {
     let newDisplayMode;
     let newOverlayDisplayMode;
 
     switch(menuType) {
       case "dropdown": {
         newDisplayMode = "popup";
+        newOverlayDisplayMode = "auto";
         break;
       }
       case "popup": {
@@ -170,8 +171,13 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
       this.isFocusedContent = !isDropdown;
     }
 
-    this.displayMode = newDisplayMode;
-    this.overlayDisplayMode = newOverlayDisplayMode;
+    if (this.displayMode !== newDisplayMode || this.overlayDisplayMode !== newOverlayDisplayMode) {
+      this.displayMode = newDisplayMode;
+      this.overlayDisplayMode = newOverlayDisplayMode;
+      return true;
+    } else {
+      return false;
+    }
   }
   public onHiding(): void {
     this.refreshInnerModel();

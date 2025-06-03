@@ -810,10 +810,11 @@ QUnit.test("check if customLabels produces correct renderedLabels", (assert) => 
   assert.deepEqual(q1.renderedLabels[0].value, 500, "value is correct");
 });
 
-QUnit.test("check if customLabels correct when min and max are set", (assert) => {
+QUnit.test("check if generated and custom labels correct when min and max are set", (assert) => {
   let q1 = new QuestionSliderModel("q1");
   q1.min = 50;
   q1.max = 150;
+  assert.deepEqual(q1.generatedLabels.map(l=>l.value), [50, 70, 90, 110, 130, 150], "generated label values are correct");
   q1.autoGenerate = false;
   assert.deepEqual(q1.customLabels.map(l=>l.value), [50, 70, 90, 110, 130, 150], "custom label values are correct");
 });

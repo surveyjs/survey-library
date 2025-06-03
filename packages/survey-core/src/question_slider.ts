@@ -15,8 +15,8 @@ interface ISliderLabelItemOwner extends ILocalizableOwner{
   getTextByItem(item: ItemValue, text: string):string;
 }
 export class SliderLabelItemValue extends ItemValue {
-  public getType(): string {
-    return !!this.typeName ? this.typeName : "sliderlabel";
+  protected getBaseType(): string {
+    return "sliderlabel";
   }
   protected onGetText(text:string):string {
     const owner:ISliderLabelItemOwner = this.locOwner as any;
@@ -577,11 +577,11 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public getLabelPosition = (labelNumber: number):number => {
-    const { renderedMax: max, renderedMin: min, labelCount, customLabels } = this;
+    const { max, min, labelCount, customLabels } = this;
     const count = labelCount - 1;
     if (count === 0) return 0;
     const fullRange = max - min;
-    const labelStep = labelNumber * fullRange / count;
+    const labelStep = min + labelNumber * fullRange / count;
     return labelStep;
   };
 
@@ -713,21 +713,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     res.locOwner = this;
     return res;
   }
-
-  // private calcInitialCustomLabels() : Array<ItemValue> {
-  //   const { labelCount, min, max, step, getLabelText } = this;
-  //   const labels:ItemValue[] = [];
-  //   const fullRange = max - min;
-  //   const count = labelCount - 1;
-
-  //   for (let i = 0; i < labelCount; i++) {
-  //     let lValue;
-  //     if (count === 0) lValue = 0;
-  //     lValue = min + i * fullRange / count;
-  //     labels.push(new ItemValue(lValue, getLabelText(i)));
-  //   }
-  //   return labels;
-  // }
 
   private formatNumber(number:number) {
     return parseFloat(number.toFixed(4));

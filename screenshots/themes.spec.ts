@@ -422,28 +422,29 @@ frameworks.forEach(framework => {
     });
 
     test("Mobile mode: input font-size less 16px", async ({ page }) => {
-      await page.setViewportSize({ width: 400, height: 2000 });
       await page.evaluate(() => {
         window["Survey"]._setIsTouch(true);
         (window as any).Survey.ListModel.MINELEMENTCOUNT = 2;
       });
+      await page.setViewportSize({ width: 400, height: 2000 });
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
         window["survey"].onOpenDropdownMenu.add((sender, options) => {
           if (options.menuType === "popup") options.menuType = "overlay";
         });
         window["survey"].fromJSON(json);
-        (window as any).survey.applyTheme({
+        window["survey"].applyTheme({
           "cssVariables": {
             "--sjs-font-editorfont-size": "12px",
             "--sjs-font-size": "20px"
           }
         });
       }, jsonWithInputs);
-
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-mobile-input-size.png");
 
       await page.setViewportSize({ width: 400, height: 1000 });
+      await page.waitForTimeout(500);
       const tagboxDropdownButton = page.locator(".sd-editor-chevron-button").first();
       await tagboxDropdownButton.scrollIntoViewIfNeeded();
       await tagboxDropdownButton.click();

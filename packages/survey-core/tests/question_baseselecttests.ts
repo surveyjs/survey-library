@@ -1195,10 +1195,10 @@ QUnit.test("selectbase and otherValue/comment", (assert) => {
 
   question.showCommentArea = true;
   question.value = "other";
-  question.otherValue = " ";
-  assert.equal(" ", question.otherValue, "other value, #22");
+  question.otherValue = "a";
+  assert.equal("a", question.otherValue, "other value, #22");
   assert.equal(question.selectedItem.value, "other", "selectedItem #6");
-  assert.equal("other", question.value, "question value, #23");
+  assert.equal("a", question.value, "question value, #23");
   assert.equal("", question.comment, "comment, #24");
 });
 QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
@@ -1209,9 +1209,9 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   q1.renderedValue = "other";
-  q1.otherValue = " ";
-  assert.equal("other", q1.value, "q1 value, #1");
-  assert.equal(" ", q1.otherValue, "q1 otherValue, #2");
+  q1.otherValue = "a";
+  assert.equal("a", q1.value, "q1 value, #1");
+  assert.equal("a", q1.otherValue, "q1 otherValue, #2");
   q1.otherValue = "item2";
   assert.equal("other", q1.value, "q1 value, #3");
   assert.equal("item2", q1.otherValue, "q1 otherValue, #4");
@@ -1219,9 +1219,9 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   assert.equal("item22", q1.value, "q1 value, #5");
   assert.equal("item22", q1.otherValue, "q1 otherValue, #6");
   q2.renderedValue = ["other"];
-  q2.otherValue = " ";
-  assert.deepEqual(["other"], q2.value, "q2 value, #1");
-  assert.equal(" ", q2.otherValue, "q2 otherValue, #2");
+  q2.otherValue = "a";
+  assert.deepEqual(["a"], q2.value, "q2 value, #1");
+  assert.equal("a", q2.otherValue, "q2 otherValue, #2");
   q2.otherValue = "item3";
   assert.deepEqual(["other"], q2.value, "q2 value, #3");
   assert.equal("item3", q2.otherValue, "q2 otherValue, #4");

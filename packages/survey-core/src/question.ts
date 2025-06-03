@@ -2394,9 +2394,12 @@ export class Question extends SurveyElement<Question>
   protected setDefaultValue(): void {
     this.setDefaultValueCore((val: any): void => {
       if (!this.isTwoValueEquals(this.value, val)) {
-        this.value = val;
+        this.setDefaultIntoValue(val);
       }
     });
+  }
+  protected setDefaultIntoValue(val: any): void {
+    this.value = val;
   }
   private setDefaultValueCore(func: (val: any) => void): void {
     this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
@@ -2495,7 +2498,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     if (this.comment == newValue) return;
-    this.setQuestionComment(newValue);
+    this.setNewComment(newValue);
   }
 
   public getCommentAreaCss(isOther: boolean = false): string {
@@ -2508,9 +2511,6 @@ export class Question extends SurveyElement<Question>
 
   protected getQuestionComment(): string {
     return this.questionComment;
-  }
-  protected setQuestionComment(newValue: string): void {
-    this.setNewComment(newValue);
   }
   /**
    * Returns `true` if the question value is an empty string, array, or object or if it equals `undefined` or `null`.

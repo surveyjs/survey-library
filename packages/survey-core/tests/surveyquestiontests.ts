@@ -1180,12 +1180,12 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.deepEqual(survey.data, {}, "There is no data in survey");
 
   question.value = ["A"];
-  question.comment = "test";
+  question.otherValue = "test";
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, { q: ["A"] }, "'A' is set");
 
-  question.comment = "";
+  question.otherValue = "";
   question.value = ["A", question.otherItem.value];
   assert.equal(
     question.isOtherSelected,

@@ -219,15 +219,29 @@ export class QuestionSelectBase extends Question {
       this.prevOtherErrorValue = oldVal;
     }
   }
+  private isSettingComment: boolean;
   public get otherValue(): string {
-    if (!this.showCommentArea) return this.comment;
+    if (this.getStoreOthersAsComment()) return this.getQuestionComment();
     return this.otherValueCore;
   }
   public set otherValue(val: string) {
-    if (!this.showCommentArea) {
-      this.comment = val;
-    } else {
-      this.setOtherValueInternally(val);
+    if (!!val && val.toString().trim() === "") {
+      val = "";
+    }
+    if (!this.isSettingComment && this.otherValue !== val) {
+      this.onUpdateCommentOnAutoOtherMode(val);
+      this.updatePrevOtherErrorValue(val);
+      this.isSettingComment = true;
+      if (this.getStoreOthersAsComment())
+        this.setNewComment(val);
+      else {
+        this.otherValueCore = val;
+        if (this.isOtherSelected && !this.isRenderedValueSetting) {
+          this.value = this.getValueOnSettingOther(val);
+        }
+      }
+      this.isSettingComment = false;
+      this.updateChoicesDependedQuestions();
     }
   }
   protected get otherValueCore(): string {
@@ -445,6 +459,14 @@ export class QuestionSelectBase extends Question {
   protected isTextValue(): boolean {
     return true; //for comments and others
   }
+  /*  protected setDefaultIntoValue(val: any): void {
+    if (!this.isValueEmpty(val) && this.getStoreOthersAsComment() && this.hasUnknownValue(val)) {
+
+    } else {
+      super.setDefaultIntoValue(val);
+    }
+  }
+  */
   private isSettingDefaultValue: boolean = false;
   protected setDefaultValue(): void {
     this.isSettingDefaultValue =
@@ -636,36 +658,11 @@ export class QuestionSelectBase extends Question {
     }
     this.value = val ? this.otherItem.value : undefined;
   }
-  private isSettingComment: boolean = false;
-  protected setQuestionComment(newValue: string): void {
-    if (this.showCommentArea) {
-      super.setQuestionComment(newValue);
-      return;
-    }
-    this.onUpdateCommentOnAutoOtherMode(newValue);
-    this.updatePrevOtherErrorValue(newValue);
-    if (this.getStoreOthersAsComment())
-      super.setQuestionComment(newValue);
-    else {
-      this.setOtherValueInternally(newValue);
-    }
-    this.updateChoicesDependedQuestions();
-  }
   private onUpdateCommentOnAutoOtherMode(newValue: string): void {
     if (!this.autoOtherMode) return;
     const isSelected = this.isOtherSelected;
     if (!isSelected && !!newValue || isSelected && !newValue) {
       this.selectOtherValueFromComment(!!newValue);
-    }
-  }
-  private setOtherValueInternally(newValue: string): void {
-    if (!this.isSettingComment && newValue != this.otherValueCore) {
-      this.isSettingComment = true;
-      this.otherValueCore = newValue;
-      if (this.isOtherSelected && !this.isRenderedValueSetting) {
-        this.value = this.getValueOnSettingOther(newValue);
-      }
-      this.isSettingComment = false;
     }
   }
   private getValueOnSettingOther(otherValue: string): any {

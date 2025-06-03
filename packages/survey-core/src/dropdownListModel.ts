@@ -239,7 +239,7 @@ export class DropdownListModel extends Base {
       const dropdownMenuOptions = this.getDropdownMenuOptions();
       this.question.processOpenDropdownMenu(dropdownMenuOptions);
       this._popupModel.updateDisplayMode(dropdownMenuOptions.menuType);
-      this.listModel.setSearchEnabled(this.inputAvailable && dropdownMenuOptions.menuType !== "dropdown");
+      this.listModel.setSearchEnabled(this.inputAvailable || dropdownMenuOptions.menuType !== "dropdown");
 
       if (!!this.question.onOpenedCallBack) {
         this.question.onOpenedCallBack();

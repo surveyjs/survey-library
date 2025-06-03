@@ -19197,8 +19197,16 @@ QUnit.test("Search disabled after change popup displayMode", function (assert) {
   popup.show();
   assert.equal(popup.displayMode, "popup", "#1.1");
   assert.equal(popup.setWidthByTarget, true, "#2.1");
-  assert.equal(list.showFilter, false, "#3.1");
-  assert.equal(list.searchEnabled, false, "#4.1");
+  assert.equal(list.showFilter, true, "#3.1");
+  assert.equal(list.searchEnabled, true, "#4.1");
+
+  popup.hide();
+  question.searchEnabled = false;
+  popup.show();
+  assert.equal(popup.displayMode, "popup", "#1.2");
+  assert.equal(popup.setWidthByTarget, true, "#2.2");
+  assert.equal(list.showFilter, false, "#3.2");
+  assert.equal(list.searchEnabled, false, "#4.2");
 
   _setIsTouch(false);
 });

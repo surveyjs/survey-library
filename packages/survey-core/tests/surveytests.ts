@@ -19117,17 +19117,17 @@ QUnit.test("Check onOpenDropdownMenu events", function (assert) {
   const popup = question.dropdownListModel.popupModel;
   survey.onOpenDropdownMenu.add((_, options) => {
     assert.equal(options.question, question);
-    assert.equal(options.menuType, "dropdown");
+    assert.equal(options.menuType, "dropdown", "options.menuType");
 
     options.menuType = "overlay";
   });
 
-  assert.equal(popup.displayMode, "popup");
-  assert.equal(popup.overlayDisplayMode, "auto");
+  assert.equal(popup.displayMode, "popup", "displayMode #0");
+  assert.equal(popup.overlayDisplayMode, "auto", "overlayDisplayMode #0");
 
   popup.toggleVisibility();
-  assert.equal(popup.displayMode, "overlay");
-  assert.equal(popup.overlayDisplayMode, "dropdown-overlay");
+  assert.equal(popup.displayMode, "overlay", "displayMode #1");
+  assert.equal(popup.overlayDisplayMode, "dropdown-overlay", "overlayDisplayMode #1");
 });
 
 QUnit.test("Search disabled & onOpenDropdownMenu events", function (assert) {

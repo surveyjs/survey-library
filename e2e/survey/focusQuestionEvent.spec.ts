@@ -286,7 +286,6 @@ frameworks.forEach((framework) => {
 
     test("survey.validateVisitedEmptyFields #8640", async ({ page }) => {
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
         checkErrorsMode: "onValueChanged",
         validateVisitedEmptyFields: true,
         elements: [
@@ -298,6 +297,7 @@ frameworks.forEach((framework) => {
         ]
       });
 
+      await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");

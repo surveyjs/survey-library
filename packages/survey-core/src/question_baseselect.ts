@@ -2184,7 +2184,9 @@ export class QuestionSelectBase extends Question {
     return !this.isDisabledAttr && item.isEnabled;
   }
   private focusOtherComment(item: ItemValue) {
-    SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement);
+    if (!this.autoOtherMode) {
+      SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement);
+    }
   }
   protected getDefaultItemComponent(): string {
     return "";

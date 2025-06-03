@@ -2900,5 +2900,11 @@ QUnit.test("Focus element on selecting hasComment element", (assert) => {
   q2.selectItem(q2.choices[2]);
   assert.deepEqual(els, ["other", "1", "3"], "q2.focus #4");
 
+  els.length = 0;
+  q1.autoOtherMode = true;
+  q2.autoOtherMode = true;
+  q1.selectItem(q1.otherItem, true);
+  q2.selectItem(q2.otherItem);
+  assert.deepEqual(els, [], "autoOtherMode, focus is not called");
   SurveyElement.FocusElement = oldFunc;
 });

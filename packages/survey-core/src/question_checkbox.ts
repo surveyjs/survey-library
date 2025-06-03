@@ -430,16 +430,33 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
-  protected setDefaultValue() {
-    super.setDefaultValue();
-    const val = this.defaultValue;
-    if (Array.isArray(val)) {
+  protected setDefaultUnknownValue(val : any): void {
+    if (!Array.isArray(val)) {
+      super.setDefaultUnknownValue(val);
+      return;
+    }
+    if (!this.hasActiveChoices) {
       for (var i = 0; i < val.length; i++) {
         const rVal = this.getRealValue(val[i]);
-        if (this.canClearValueAnUnknown(rVal)) {
-          this.addIntoInvisibleOldValues(rVal);
+        this.addIntoInvisibleOldValues(rVal);
+      }
+      this.value = val;
+    } else {
+      const newVal = [];
+      let otherVal = "";
+      for (var i = 0; i < val.length; i++) {
+        const rVal = this.getRealValue(val[i]);
+        if (!this.hasUnknownValue(rVal)) {
+          newVal.push(rVal);
+        } else {
+          if (!otherVal) {
+            otherVal = rVal;
+            newVal.push(this.otherItem.value);
+          }
         }
       }
+      this.renderedValue = newVal;
+      this.otherValue = otherVal;
     }
   }
   private addIntoInvisibleOldValues(val: any) {

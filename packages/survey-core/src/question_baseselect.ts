@@ -459,26 +459,16 @@ export class QuestionSelectBase extends Question {
   protected isTextValue(): boolean {
     return true; //for comments and others
   }
-  /*  protected setDefaultIntoValue(val: any): void {
-    if (!this.isValueEmpty(val) && this.getStoreOthersAsComment() && this.hasUnknownValue(val)) {
-
+  protected setDefaultIntoValue(val: any): void {
+    if (!this.isValueEmpty(val) && this.showOtherItem && this.hasUnknownValue(val, true)) {
+      this.setDefaultUnknownValue(val);
     } else {
       super.setDefaultIntoValue(val);
     }
   }
-  */
-  private isSettingDefaultValue: boolean = false;
-  protected setDefaultValue(): void {
-    this.isSettingDefaultValue =
-      !this.isValueEmpty(this.defaultValue) &&
-      this.hasUnknownValue(this.defaultValue);
-    const prevComment = this.comment;
-    super.setDefaultValue();
-    this.isSettingDefaultValue = false;
-    if (this.comment && this.getStoreOthersAsComment() && prevComment !== this.comment) {
-      this.setValueCore(this.setOtherValueIntoValue(this.value));
-      this.setCommentIntoData(this.comment);
-    }
+  protected setDefaultUnknownValue(val : any): void {
+    this.renderedValue = this.setOtherValueIntoValue(val);
+    this.otherValue = val;
   }
   protected getIsMultipleValue(): boolean {
     return false;
@@ -1532,7 +1522,6 @@ export class QuestionSelectBase extends Question {
     }
   }
   public getStoreOthersAsComment(): boolean {
-    if (this.isSettingDefaultValue) return false;
     if (this.checkHasChoicesComments()) return true;
     if (this.showCommentArea) return false;
     return (

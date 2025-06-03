@@ -145,55 +145,42 @@ export class ProcessValue {
       res.value = 0;
       res.hasValue = true;
     }
-    var nonNestedObj = this.getNonNestedObject(curValue, text, false);
-    if (!nonNestedObj) return res;
-    res.path = nonNestedObj.path;
-    res.value = !!nonNestedObj.text
-      ? this.getObjectValue(nonNestedObj.value, nonNestedObj.text)
-      : nonNestedObj.value;
+    var obj = this.getNonNestedObject(curValue, text, false);
+    if (!obj) return res;
+    res.path = obj.path;
+    res.value = !!obj.text ? this.getObjectValue(obj.value, obj.text) : obj.value;
     res.hasValue = !Helpers.isValueEmpty(res.value);
     return res;
   }
   private getNonNestedObject(obj: any, text: string, createPath: boolean): any {
-    const checkedKeys = new Array<string>();
-    let len = 0;
-    let res = this.getNonNestedObjectCore(obj, text, createPath, checkedKeys);
-    while(!res && len < checkedKeys.length) {
-      len = checkedKeys.length;
-      res = this.getNonNestedObjectCore(obj, text, createPath, checkedKeys);
-    }
-    return res;
-  }
-  private getNonNestedObjectCore(obj: any, text: string, createPath: boolean, checkedKeys: Array<string>): any {
-    var curName = this.getFirstPropertyName(text, obj, createPath, checkedKeys);
-    if(!!curName) {
-      checkedKeys.push(curName);
-    }
-    var path = !!curName ? [curName] : null;
-    while (text != curName && !!obj) {
-      var isArray = text[0] == "[";
+    let curName = this.getFirstPropertyName(text, obj, createPath);
+    let curObj = obj;
+    const path = !!curName ? [curName] : null;
+    let curText = text;
+    while(curText != curName && !!curObj) {
+      var isArray = curText[0] == "[";
       if (!isArray) {
-        if (!curName && text == this.getFirstName(text))
+        if (!curName && curText === this.getFirstName(curText))
           return { value: obj, text: text, path: path };
-        obj = this.getObjectValue(obj, curName);
-        if (Helpers.isValueEmpty(obj) && !createPath) return null;
-        text = text.substring(curName.length);
+        curObj = this.getObjectValue(curObj, curName);
+        if (Helpers.isValueEmpty(curObj) && !createPath) return null;
+        curText = curText.substring(curName.length);
       } else {
-        var objInArray = this.getObjInArray(obj, text);
+        var objInArray = this.getObjInArray(curObj, curText);
         if (!objInArray) return null;
-        obj = objInArray.value;
-        text = objInArray.text;
+        curObj = objInArray.value;
+        curText = objInArray.text;
         path.push(objInArray.index);
       }
-      if (!!text && text[0] == ".") {
-        text = text.substring(1);
+      if (!!curText && curText[0] == ".") {
+        curText = curText.substring(1);
       }
-      curName = this.getFirstPropertyName(text, obj, createPath, checkedKeys);
+      curName = this.getFirstPropertyName(curText, curObj, createPath);
       if (!!curName) {
         path.push(curName);
       }
     }
-    return { value: obj, text: text, path: path };
+    return { value: curObj, text: curText, path: path };
   }
   private getObjInArray(curValue: any, text: string): any {
     if (!Array.isArray(curValue)) return null;
@@ -208,15 +195,15 @@ export class ProcessValue {
     if (index < 0 || index >= curValue.length) return null;
     return { value: curValue[index], text: text, index: index };
   }
-  private getFirstPropertyName(name: string, obj: any, createProp: boolean = false, checkedKeys: Array<string> = undefined): string {
-    if (!name) return name;
+  private getFirstPropertyName(name: string, obj: any, createProp: boolean = false): string {
+    if (!name) return "";
     if (!obj) obj = {};
     if (obj.hasOwnProperty(name)) return name;
-    var nameInLow = name.toLowerCase();
-    var A = nameInLow[0];
-    var a = A.toUpperCase();
+    let nameInLow = name.toLowerCase();
+    const A = nameInLow[0];
+    const a = A.toUpperCase();
+    let keyWithDot = "";
     for (var key in obj) {
-      if(Array.isArray(checkedKeys) && checkedKeys.indexOf(key) > -1) continue;
       var first = key[0];
       if (first === a || first === A) {
         var keyName = key.toLowerCase();
@@ -224,11 +211,16 @@ export class ProcessValue {
         if (nameInLow.length <= keyName.length) continue;
         var ch = nameInLow[keyName.length];
         if (ch != "." && ch != "[") continue;
-        if (keyName == nameInLow.substring(0, keyName.length)) return key;
+        if (keyName == nameInLow.substring(0, keyName.length)) {
+          if (keyWithDot.length < key.length) {
+            keyWithDot = key;
+          }
+        }
       }
     }
+    if (keyWithDot) return keyWithDot;
     if (createProp && name[0] !== "[") {
-      var ind = name.indexOf(".");
+      const ind = name.indexOf(".");
       if (ind > -1) {
         name = name.substring(0, ind);
         obj[name] = {};

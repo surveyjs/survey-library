@@ -1,4 +1,4 @@
-import { ILocalizableOwner } from "entries";
+import { ILocalizableOwner, LocalizableString } from "entries";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
@@ -133,10 +133,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .toString();
   }
 
-  public getLabelCss = (labelNumber: number): string => {
+  public getLabelCss = (locText: LocalizableString): string => {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
-      .append(this.cssClasses.labelLongMod, this.getLabelText(labelNumber).length > 10)
+      .append(this.cssClasses.labelLongMod, locText.renderedHtml.length > 10)
       .toString();
   };
 
@@ -547,9 +547,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.focusedThumb = null;
   };
 
-  public handleLabelPointerUp = (event: PointerEvent, labelNumber: number) => {
-    const labelText = this.getLabelText(labelNumber);
-    const newValue = +labelText;
+  public handleLabelPointerUp = (event: PointerEvent, newValue: number) => {
     const inputNode = <HTMLInputElement>event.target;
     if (isNaN(newValue)) return;
     this.setValueByClick(newValue, inputNode);

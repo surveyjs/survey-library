@@ -24,8 +24,8 @@ export class SliderLabelItem extends SurveyElementBase<any, any> {
     const { cssClasses, handleLabelPointerUp, getLabelCss, getPercent } = this.question;
     const { value, locText } = this.item;
     const index = this.index;
-    return <div key={index} className={getLabelCss(index)}
-      style={{ left: getPercent(value) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, index); } }>
+    return <div key={index} className={getLabelCss(locText)}
+      style={{ left: getPercent(value) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, value); } }>
       <div className={cssClasses.labelTick}></div>
       <div className={cssClasses.labelText}>
         {this.renderLocString(locText)}

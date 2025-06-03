@@ -230,9 +230,12 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       this.propertyValueChanged("text", oldValue, newValue);
     };
     res.onGetTextCallback = (txt) => {
-      return txt || this.getValueText();
+      return this.onGetText(txt);
     };
     return res;
+  }
+  protected onGetText(text:string):string {
+    return text || this.getValueText();
   }
   private getValueText(): string {
     const val = this.value;

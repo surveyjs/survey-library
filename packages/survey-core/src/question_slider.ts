@@ -1,3 +1,4 @@
+import { ILocalizableOwner } from "entries";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
@@ -10,13 +11,26 @@ import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 
+interface ISliderLabelItemOwner extends ILocalizableOwner{
+  getTextByItem(item: ItemValue, text: string):string;
+}
+export class SliderLabelItemValue extends ItemValue {
+  public getType(): string {
+    return !!this.typeName ? this.typeName : "sliderlabel";
+  }
+  protected onGetText(text:string):string {
+    const owner:ISliderLabelItemOwner = this.locOwner as any;
+    if (!owner) return super.onGetText(text);
+    return owner.getTextByItem(this, text);
+  }
+}
+
 /**
  * A class that describes the Range Slider question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
-
-export class QuestionSliderModel extends Question {
+export class QuestionSliderModel extends Question implements ISliderLabelItemOwner {
   @property({ defaultValue: "single" }) sliderType: "range" | "single";
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
@@ -61,6 +75,9 @@ export class QuestionSliderModel extends Question {
   public set customLabels(val: ItemValue[]) {
     this.setPropertyValue("customLabels", val);
   }
+  protected getItemValueType():string {
+    return "sliderlabel";
+  }
   public get generatedLabels(): ItemValue[] {
     return this.getPropertyValue("generatedLabels", undefined, () => this.calcGeneratedLabels());
   }
@@ -82,9 +99,7 @@ export class QuestionSliderModel extends Question {
 
   constructor(name: string) {
     super(name);
-    if (!this.isDesignMode) {
-      this.createItemValues("customLabels");
-    }
+    this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
   }
@@ -548,14 +563,17 @@ export class QuestionSliderModel extends Question {
     return tooltipFormat.replace("{0}", "" + value);
   };
 
+  public getTextByItem(item: ItemValue, text: string): string {
+    const res = text || this.getLabelText(this.renderedLabels.indexOf(item));
+    return this.labelFormat.replace("{0}", "" + res);
+  }
+
   public getLabelText = (labelNumber: number):string => {
-    const { customLabels, step, renderedMax: max, renderedMin: min, labelCount, labelFormat, formatNumber } = this;
+    const { step, renderedMax: max, renderedMin: min, labelCount, formatNumber } = this;
     const fullRange = max - min;
     const isDecimal = step % 1 != 0;
     let labelStep = labelNumber * fullRange / (labelCount - 1);
-    let labelText = customLabels.length > 0 ? customLabels[labelNumber].text : isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
-    labelText = labelFormat.replace("{0}", "" + labelText);
-    return labelText;
+    return isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
   };
 
   public getLabelPosition = (labelNumber: number):number => {
@@ -629,13 +647,14 @@ export class QuestionSliderModel extends Question {
     this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
       () => {
         this.resetPropertyValue("generatedLabels");
+        this.locStrsChanged();
         //TODO support labelFormat for customLabels
       }
     );
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
-          this.setPropertyValue("customLabels", this.calcInitialCustomLabels());
+          this.setPropertyValue("customLabels", this.calcGeneratedLabels());
         }
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
@@ -681,28 +700,34 @@ export class QuestionSliderModel extends Question {
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
 
-  private calcGeneratedLabels() : Array<ItemValue> {
-    const labels:ItemValue[] = [];
+  private calcGeneratedLabels() : Array<SliderLabelItemValue> {
+    const labels:SliderLabelItemValue[] = [];
     for (let i = 0; i < this.labelCount; i++) {
-      labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
+      labels.push(this.createLabelItem(this.getLabelPosition(i)));
     }
     return labels;
   }
 
-  private calcInitialCustomLabels() : Array<ItemValue> {
-    const { labelCount, min, max, step, getLabelText } = this;
-    const labels:ItemValue[] = [];
-    const fullRange = max - min;
-    const count = labelCount - 1;
-
-    for (let i = 0; i < labelCount; i++) {
-      let lValue;
-      if (count === 0) lValue = 0;
-      lValue = min + i * fullRange / count;
-      labels.push(new ItemValue(lValue, getLabelText(i)));
-    }
-    return labels;
+  protected createLabelItem(value: number) {
+    const res = new SliderLabelItemValue(value);
+    res.locOwner = this;
+    return res;
   }
+
+  // private calcInitialCustomLabels() : Array<ItemValue> {
+  //   const { labelCount, min, max, step, getLabelText } = this;
+  //   const labels:ItemValue[] = [];
+  //   const fullRange = max - min;
+  //   const count = labelCount - 1;
+
+  //   for (let i = 0; i < labelCount; i++) {
+  //     let lValue;
+  //     if (count === 0) lValue = 0;
+  //     lValue = min + i * fullRange / count;
+  //     labels.push(new ItemValue(lValue, getLabelText(i)));
+  //   }
+  //   return labels;
+  // }
 
   private formatNumber(number:number) {
     return parseFloat(number.toFixed(4));
@@ -727,6 +752,13 @@ function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any
   if (min >= max) return isMax ? min + step : max - step;
   return val;
 }
+
+Serializer.addClass(
+  "sliderlabel",
+  [],
+  (value: any) => new SliderLabelItemValue(value),
+  "itemvalue"
+);
 
 Serializer.addClass(
   "slider",
@@ -790,7 +822,7 @@ Serializer.addClass(
       }
     },
     {
-      name: "customLabels:itemvalue[]",
+      name: "customLabels:sliderlabel[]",
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
       },

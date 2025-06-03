@@ -3483,7 +3483,7 @@ QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (asser
   const q2 = q.contentPanel.getQuestionByName("q2");
   q1.value = "test1";
   q2.value = "other";
-  q2.comment = "abc";
+  q2.otherValue = "abc";
   assert.deepEqual(q.value, { q1: "test1", q2: "other", "q2-Comment": "abc" }, "q.value #1");
   survey.data = {};
   assert.ok(q.isEmpty(), "q.value #2");
@@ -3507,7 +3507,7 @@ QUnit.test("Single: with checkbox & showOtherItem, Bug#9929", function (assert) 
   const cQ = <QuestionCheckboxModel>q.contentQuestion;
   assert.deepEqual(cQ.value, [2, "other"], "q.value #1");
   assert.deepEqual(cQ.comment, "abc", "q.comment #1");
-  cQ.comment = "def";
+  cQ.otherValue = "def";
   assert.deepEqual(survey.data, { question1: [2, "other"], "question1-Comment": "def" }, "survey.data #2");
 
   ComponentCollection.Instance.clear();

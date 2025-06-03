@@ -716,7 +716,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", functi
   const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   question.value = "other";
   assert.equal(survey.currentPageNo, 0, "Stay on the first page");
-  question.comment = "123";
+  question.otherValue = "123";
   assert.equal(survey.currentPageNo, 0, "Still stay on the page");
   question.onMouseDown();
   question.value = 2;
@@ -754,7 +754,7 @@ QUnit.test(
     var question = survey.getQuestionByName("q1");
     question.value = "other";
     assert.equal(survey.currentPageNo, 0, "Stay on the first page");
-    question.comment = "123";
+    question.otherValue = "123";
     assert.equal(survey.currentPageNo, 0, "Still stay on the first page");
   }
 );
@@ -857,13 +857,13 @@ QUnit.test("Validators for other values - dropdown, Bug #722", function (
   question.validators.push(new RegexValidator("[0-9]+"));
   assert.equal(question.hasErrors(), false, "There is no error, 1 is fine");
   question.value = question.otherItem.value;
-  question.comment = "aaa";
+  question.otherValue = "aaa";
   assert.equal(
     question.hasErrors(),
     true,
     "The comment doesn't math the regex"
   );
-  question.comment = "222";
+  question.otherValue = "222";
   assert.equal(question.hasErrors(), false, "The comment math the regex");
 });
 QUnit.test("Validators for other values - checkbox, Bug #722", function (
@@ -873,14 +873,14 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function (
   question.choices = ["1", "2", "3", "4", "5"];
   question.hasOther = true;
   question.value = ["1", "2", question.otherItem.value];
-  question.comment = "33";
+  question.otherValue = "33";
   assert.equal(question.isOtherSelected, true, "Other is selected");
   question.validators.push(new RegexValidator("[0-9]+"));
   question.validators.push(new AnswerCountValidator(2, 3));
   assert.equal(question.hasErrors(), false, "validation pass correctly");
-  question.comment = "aaa";
+  question.otherValue = "aaa";
   assert.equal(question.hasErrors(), true, "'aaa' is not a number");
-  question.comment = "11";
+  question.otherValue = "11";
   assert.equal(question.hasErrors(), false, "it is fine again");
   question.value = [question.otherItem.value];
   assert.equal(
@@ -961,7 +961,7 @@ QUnit.test("Show errors if others value is selected, but not entered", function 
   assert.equal(radio.hasErrors(), false, "There is no error by default");
   radio.value = radio.otherItem.value;
   assert.equal(radio.hasErrors(), true, "The other comment should be entered");
-  radio.comment = "Many";
+  radio.otherValue = "Many";
   assert.equal(radio.hasErrors(), false, "We have entered the comment");
 });
 
@@ -1001,12 +1001,12 @@ QUnit.test(
     singleSelection.choices = ["one"];
     singleSelection.hasOther = true;
     singleSelection.value = singleSelection.otherItem.value;
-    singleSelection.comment = "Comment1 is here";
+    singleSelection.otherValue = "Comment1 is here";
 
     multipleSelection.choices = ["one"];
     multipleSelection.hasOther = true;
     multipleSelection.value = [multipleSelection.otherItem.value];
-    multipleSelection.comment = "Comment2 is here";
+    multipleSelection.otherValue = "Comment2 is here";
 
     assert.equal(
       survey.getComment("q1"),
@@ -1120,12 +1120,12 @@ QUnit.test("SelectBase store others value not in comment", function (assert) {
   assert.deepEqual(survey.data, {}, "There is no data in survey");
 
   question.value = "A";
-  question.comment = "test";
+  question.otherValue = "test";
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, { q: "A" }, "'A' is set");
 
-  question.comment = null;
+  question.otherValue = "";
   question.value = question.otherItem.value;
   assert.equal(
     question.isOtherSelected,
@@ -1139,7 +1139,7 @@ QUnit.test("SelectBase store others value not in comment", function (assert) {
     "Other Item is set"
   );
 
-  question.comment = "commentTest";
+  question.otherValue = "commentTest";
   assert.equal(
     question.isOtherSelected,
     true,
@@ -1185,7 +1185,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.equal(question.isItemSelected(question.otherItem), false, "Others is not selected, isItemSelected");
   assert.deepEqual(survey.data, { q: ["A"] }, "'A' is set");
 
-  question.comment = null;
+  question.comment = "";
   question.value = ["A", question.otherItem.value];
   assert.equal(
     question.isOtherSelected,
@@ -1199,7 +1199,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
     "Other Item is set"
   );
 
-  question.comment = "commentTest";
+  question.otherValue = "commentTest";
   assert.equal(
     question.isOtherSelected,
     true,
@@ -1274,7 +1274,7 @@ QUnit.test(
     assert.equal(question.isOtherSelected, false, "Others is not selected");
     assert.deepEqual(survey.data, {}, "There is no data in survey");
 
-    question.comment = null;
+    question.otherValue = "";
     question.value = ["A", question.otherItem.value];
     assert.equal(
       question.isOtherSelected,
@@ -1286,7 +1286,7 @@ QUnit.test(
       { q: ["A", question.otherItem.value] },
       "Other Item is set"
     );
-    question.comment = "commentTest";
+    question.otherValue = "commentTest";
     assert.equal(
       question.isOtherSelected,
       true,
@@ -1412,7 +1412,7 @@ QUnit.test("radiogroup.renderedValue - storeOthersAsComment = false;", function 
     "other",
     "survey has correct value, question.rendredValue"
   );
-  question.comment = "Some value";
+  question.otherValue = "Some value";
   assert.equal(
     question.value,
     "Some value",
@@ -1490,7 +1490,7 @@ QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function (
     ["B", "other"],
     "survey has correct value, question.rendredValue"
   );
-  question.comment = "Some value";
+  question.otherValue = "Some value";
   assert.deepEqual(
     question.renderedValue,
     ["B", "other"],
@@ -2890,7 +2890,7 @@ QUnit.test("space in others does not work correctly , bug #1214", function (
   q.value = q.otherItem.value;
   assert.equal(q.isOtherSelected, true, "other is selected");
   assert.equal(q.hasErrors(), true, "other is not entered");
-  q.comment = " ";
+  q.otherValue = " ";
   assert.equal(q.isOtherSelected, true, "other is still selected");
   assert.equal(
     q.hasErrors(),
@@ -3567,7 +3567,7 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     q.value = "other";
-    q.comment = "Other text";
+    q.otherValue = "Other text";
     assert.deepEqual(
       survey.data,
       { q1: "other", "q1-Comment": "Other text" },
@@ -3577,7 +3577,7 @@ QUnit.test(
     survey.clear();
     q.storeOthersAsComment = false;
     q.value = "other";
-    q.comment = "Other text2";
+    q.otherValue = "Other text2";
     assert.deepEqual(
       survey.data,
       { q1: "Other text2" },
@@ -3588,7 +3588,7 @@ QUnit.test(
     survey.storeOthersAsComment = false;
     q.storeOthersAsComment = "default";
     q.value = "other";
-    q.comment = "Other text3";
+    q.otherValue = "Other text3";
     assert.deepEqual(
       survey.data,
       { q1: "Other text3" },
@@ -3599,7 +3599,7 @@ QUnit.test(
     survey.storeOthersAsComment = true;
     q.storeOthersAsComment = "default";
     q.value = "other";
-    q.comment = "Other text4";
+    q.otherValue = "Other text4";
     assert.deepEqual(
       survey.data,
       { q1: "other", "q1-Comment": "Other text4" },
@@ -5290,7 +5290,7 @@ QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
 
   q1.value = [2, 3, "other"];
   assert.equal(q2.visibleChoices.length, 2, "2, 3 other is empty");
-  q1.comment = "someText";
+  q1.otherValue = "someText";
   assert.equal(q2.visibleChoices.length, 3, "2, 3 and other");
   assert.equal(q2.visibleChoices[2].value, "other", "other value");
   assert.equal(q2.visibleChoices[2].text, "someText", "other text");

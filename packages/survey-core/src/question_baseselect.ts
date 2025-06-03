@@ -1604,8 +1604,6 @@ export class QuestionSelectBase extends Question {
       if (event.target) {
         this.otherValue = event.target.value;
       }
-    } else {
-      this.updateCommentElements();
     }
   }
   public onOtherValueChange(event: any): void {

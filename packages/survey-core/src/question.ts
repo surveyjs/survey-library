@@ -1339,15 +1339,11 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get isContainer(): boolean { return false; }
-  protected updateCommentElements(): void {
-  }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
       if (event.target) {
         this.comment = event.target.value;
       }
-    } else {
-      this.updateCommentElements();
     }
   }
   public onCommentChange(event: any): void {
@@ -1375,7 +1371,6 @@ export class Question extends SurveyElement<Question>
         let el = root.getElementById(id);
         if (el)this.commentElements.push(el);
       });
-      this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
   }
@@ -2501,7 +2496,6 @@ export class Question extends SurveyElement<Question>
     }
     if (this.comment == newValue) return;
     this.setQuestionComment(newValue);
-    this.updateCommentElements();
   }
 
   public getCommentAreaCss(isOther: boolean = false): string {

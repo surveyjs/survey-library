@@ -4,6 +4,7 @@ import { MatrixDropdownRowModelBase } from "../question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel, MatrixDynamicRowModel } from "../question_matrixdynamic";
 import { DragDropCore } from "./core";
 import { DragDropAllowEvent, MatrixRowDragOverEvent } from "src/survey-events-api";
+import { Question } from "src/question";
 export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel> {
   private draggedRenderedRow;
   private initialDraggedElementIndex: number;
@@ -25,6 +26,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   private matrixRowMap = {};
+
   protected onStartDrag(): void {
     this.patchUserSelect();
     const renderedRows = this.parentElement.renderedTable.rows;
@@ -36,9 +38,27 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       this.lastDropTargetParentElement = this.parentElement;
     }
 
-    const matrices = this.survey.onMatrixRowDragOver.isEmpty ?
-      [this.parentElement] :
-      this.survey.getAllQuestions().filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
+    const matrices = [];
+    function fillMatricies(questions: Question[]) {
+      const ms = questions.filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
+      ms.forEach((m: QuestionMatrixDynamicModel) => {
+        matrices.push(m);
+        if (m.detailPanelMode !== "none") {
+          m.visibleRows.forEach(r => {
+            if (r.isDetailPanelShowing) {
+              fillMatricies(r.questions);
+            }
+          });
+        }
+      });
+    }
+
+    if (this.survey.onMatrixRowDragOver.isEmpty) {
+      matrices.push(this.parentElement);
+    } else {
+      fillMatricies(this.survey.getAllQuestions());
+    }
+
     this.matrixRowMap = {};
     matrices.forEach(matrix => {
       matrix.visibleRows.forEach(row => {

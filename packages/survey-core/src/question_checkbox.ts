@@ -740,8 +740,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   // EO a11y
 }
 Serializer.addClass("checkboxitem",
-  [{ name: "isExclusive:boolean", visible: false }],
-  (value: any) => new CheckboxItem(value), "choiceitem");
+  [{ name: "isExclusive:boolean", locationInTable: "detail" }],
+  (value: any) => new CheckboxItem(value), "itemvalue");
 
 Serializer.addClass(
   "checkbox",

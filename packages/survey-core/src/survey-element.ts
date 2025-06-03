@@ -198,7 +198,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  private static IsNeedScrollIntoView(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean) {
+  private static IsNeedScrollIntoView(el: Element, checkLeft: boolean, scrollIfVisible?: boolean) {
     const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     let needScroll = elTop < 0;
     let elLeft: number = -1;
@@ -216,7 +216,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return needScroll;
   }
-  public static ScrollIntoView(el: HTMLElement, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
+  public static ScrollIntoView(el: Element, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): void {
     el.scrollIntoView(scrollIntoViewOptions);
     if (typeof doneCallback === "function") {
       let lastPos: number = null;
@@ -237,13 +237,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       DomWindowHelper.requestAnimationFrame(checkPos);
     }
   }
-  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
-    const { root } = settings.environment;
-    if (!elementId || typeof root === "undefined") return false;
-    const el = root.getElementById(elementId);
-    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
+  public static ScrollElementToTop(element: Element, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
+    return SurveyElement.ScrollElementToViewCore(element, false, scrollIfVisible, scrollIntoViewOptions, doneCallback);
   }
-  public static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
+  public static ScrollElementToViewCore(el: Element, checkLeft: boolean, scrollIfVisible?: boolean, scrollIntoViewOptions?: ScrollIntoViewOptions, doneCallback?: () => void): boolean {
     if (!el || !el.scrollIntoView) {
       doneCallback && doneCallback();
       return false;

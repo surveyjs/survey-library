@@ -538,6 +538,71 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
   assert.deepEqual(question2.value, [{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }], "Dragged row is now in second matrix");
 });
 
+QUnit.test("rows: check matrixdynamic d&d between different matrices in detail panels", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q1",
+        columns: ["Col1"],
+        defaultValue: [{ Col1: "item1" }, { Col1: "item2" }],
+        rowCount: 1,
+        choices: ["item1"],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            type: "matrixdynamic",
+            allowRowsDragAndDrop: true,
+            name: "q1_detail",
+            columns: ["Col1"],
+            defaultValue: [{ Col1: "detail1" }, { Col1: "detail2" }],
+            rowCount: 2,
+            choices: ["detail1", "detail2"]
+          }
+        ]
+      }
+    ]
+  });
+
+  const q = survey.getQuestionByName("q1");
+  q.visibleRows[0].showDetailPanel();
+  q.visibleRows[1].showDetailPanel();
+
+  const question1Detail: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    q.visibleRows[0].detailPanel.getQuestionByName("q1_detail")
+  );
+  const question2Detail: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    q.visibleRows[1].detailPanel.getQuestionByName("q1_detail")
+  );
+
+  let allowDragDrop = false;
+  survey.onMatrixRowDragOver.add((_, o) => {
+    o.allow = allowDragDrop;
+  });
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  let draggedRow = question1Detail.visibleRows[0];
+  let dropRow = question2Detail.visibleRows[1];
+
+  ddHelper["parentElement"] = question1Detail;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper.dropTarget = dropRow;
+  ddHelper["onStartDrag"]();
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+
+  const matrixRowMap = ddHelper["matrixRowMap"] as { [key: string]: { row: any, matrix: QuestionMatrixDynamicModel } };
+  const expectedRowCount = q.visibleRows.length + question1Detail.visibleRows.length + question2Detail.visibleRows.length;
+  assert.equal(Object.keys(matrixRowMap).length, expectedRowCount, "matrixRowMap should contain rows from detail matrices");
+
+  const row1id = question1Detail.visibleRows[0].id;
+  const row2id = question2Detail.visibleRows[1].id;
+
+  assert.ok(matrixRowMap[row1id].matrix == question1Detail, "question1Detail should be in matrixRowMap");
+  assert.ok(matrixRowMap[row2id].matrix == question2Detail, "question2Detail should be in matrixRowMap");
+});
+
 QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
   const json = {
     questions: [

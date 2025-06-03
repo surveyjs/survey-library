@@ -1,40 +1,30 @@
 import { Serializer, property } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { ItemValue } from "./itemvalue";
-import { QuestionCheckboxBase } from "./question_baseselect";
+import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
 import { classesToSelector, updateListCssValues } from "./utils/utils";
 
-export class ButtonGroupItemValue extends ItemValue {
-  constructor(
-    value: any,
-    text: string = null,
-    protected typeName = "buttongroupitemvalue"
-  ) {
-    super(value, text, typeName);
+export class ButtonGroupItemValue extends ChoiceItem {
+  protected getBaseType(): string {
+    return "buttongroupitemvalue";
   }
   /*
     Item icon property
   */
-  @property()
-    iconName: string;
+  @property() iconName: string;
   /*
     By default icon size is 24.
     Use this property to change item icon size.
   */
-  @property()
-    iconSize: number;
+  @property() iconSize: number;
   /**
    * By default item caption is visible.
    * Set it 'false' to hide item caption.
    */
-  @property()
-    showCaption: boolean;
-  public getType(): string {
-    return !!this.typeName ? this.typeName : "buttongroupitemvalue";
-  }
+  @property() showCaption: boolean;
 }
 
 /**
@@ -203,7 +193,7 @@ Serializer.addClass(
     { name: "iconSize:number" },
   ],
   (value: any) => new ButtonGroupItemValue(value),
-  "itemvalue"
+  "choiceitem"
 );
 
 // QuestionFactory.Instance.registerQuestion("buttongroup", name => {

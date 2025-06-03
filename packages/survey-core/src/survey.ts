@@ -5901,13 +5901,13 @@ export class SurveyModel extends SurveyElementCore
       const elementPage = this.getPageByElement(element as IElement);
       const { rootElement } = settings.environment;
       const surveyRootElement = this.rootElement || passedRootElement || rootElement as any;
-      const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
       if (this.isLazyRendering && !!elementPage) {
         let elementsToRenderBefore = 1;
         if (!!this.skeletonHeight && !!surveyRootElement && typeof surveyRootElement.getBoundingClientRect === "function") {
           elementsToRenderBefore = surveyRootElement.getBoundingClientRect().height / this.skeletonHeight - 1;
         }
         elementPage.forceRenderElement(element as IElement, () => {
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           this.suspendLazyRendering();
           SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
             this.releaseLazyRendering();
@@ -5921,6 +5921,7 @@ export class SurveyModel extends SurveyElementCore
           const elementToScroll = surveyRootElement.querySelector(classesToSelector(this.css.rootWrapper)) as HTMLElement;
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {
+          const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
           SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         }
       }

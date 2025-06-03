@@ -118,7 +118,7 @@ export var slovakSurveyStrings = {
   createCustomItem: "Vytvoriť položku \"{0}\"..."
 };
 
-setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "slovak", englishName: "Slovak" });
+setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "Slovenčina", englishName: "Slovak" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

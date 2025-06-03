@@ -123,38 +123,35 @@ QUnit.test("Question process any property", function (assert) {
 });
 
 QUnit.test("ProcessValue setValue function", function (assert) {
-  var processor = new ProcessValue();
-  var data = { a: [{}], b: { c: 2 } };
+  const processor = new ProcessValue();
+  const data = { a: [{}], b: { c: 2 } };
   processor.setValue(data, "name", 1);
-  assert.deepEqual(
-    data,
+  assert.deepEqual(data,
     { a: [{}], b: { c: 2 }, name: 1 },
     "set the simple value correctly"
   );
   processor.setValue(data, "a[0].name", 1);
-  assert.deepEqual(
-    data,
+  assert.deepEqual(data,
     { a: [{ name: 1 }], b: { c: 2 }, name: 1 },
     "set the array value correctly"
   );
   processor.setValue(data, "b.c", 5);
-  assert.deepEqual(
-    data,
+  assert.deepEqual(data,
     { a: [{ name: 1 }], b: { c: 5 }, name: 1 },
     "set the nested object value correctly"
   );
 });
 
 QUnit.test("ProcessValue setValue function - create path", function (assert) {
-  var processor = new ProcessValue();
-  var data: any = { a: {}, b: 1 };
+  const processor = new ProcessValue();
+  let data: any = { a: {}, b: 1 };
   processor.setValue(data, "a.b", 1);
   assert.deepEqual(data, { a: { b: 1 }, b: 1 }, "set the object inside");
   processor.setValue(data, "c.a.b", 2);
-  processor.setValue(data, "a[0].name", 1);
+  processor.setValue(data, "d[0].name", 1);
   assert.deepEqual(
     data,
-    { a: { b: 1 }, "a[0]": { "name": 1 }, b: 1, c: { a: { b: 2 } } },
+    { a: { b: 1 }, b: 1, c: { a: { b: 2 } }, "d[0]": { "name": 1 } },
     "create new object"
   );
   data = { a: { Item1: { c1: 0 }, Item3: { c1: 1 } } };
@@ -164,6 +161,14 @@ QUnit.test("ProcessValue setValue function - create path", function (assert) {
   assert.deepEqual(data, {
     a: { Item1: { c1: 1 }, Item2: { c1: 2 }, Item3: { c1: 3 } },
   });
+});
+QUnit.test("ProcessValue setValue vs array function - create path", function (assert) {
+  const processor = new ProcessValue();
+  let data: any = { "a": 1 };
+  processor.setValue(data, "b", 2);
+  processor.setValue(data, "c[0]", { name: 3 });
+  assert.equal(processor.getValue("c[0].name", data), 3, "get value #1");
+  assert.deepEqual(data, { a: 1, b: 2, "c[0]": { name: 3 } }, "data #1");
 });
 
 QUnit.test("ProcessValue setValue function for arrays", function (assert) {

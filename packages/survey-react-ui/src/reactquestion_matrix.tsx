@@ -251,7 +251,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       checked={isChecked}
       onChange={this.handleOnChange}
       aria-required={this.question.a11y_input_ariaRequired}
-      aria-label={this.question.getCellAriaLabel(this.row.locText.renderedHtml, this.column.locText.renderedHtml)}
+      aria-label={this.question.getCellAriaLabel(this.row, this.column)}
       aria-invalid={this.question.a11y_input_ariaInvalid}
       aria-errormessage={this.question.a11y_input_ariaErrormessage}
     />);

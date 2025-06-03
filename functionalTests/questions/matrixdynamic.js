@@ -279,7 +279,7 @@ frameworks.forEach((framework) => {
   );
   test("bindings rowCount", async (t) => {
     const questionDropdownSelect = Selector(".sd-dropdown");
-    const clearButton = Selector(".sd-dropdown_clean-button");
+    const clearButton = Selector(".sd-editor-clean-button");
     await t.resizeWindow(1920, 1080);
     await t
       .expect(matrixRowSelector.count).eql(0)

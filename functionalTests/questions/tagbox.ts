@@ -474,7 +474,7 @@ frameworks.forEach((framework) => {
       .pressKey("esc")
       .expect(selectedItems.count).eql(1)
 
-      .click(".sd-tagbox_clean-button")
+      .click(".sd-editor-clean-button")
       .expect(selectedItems.count).eql(0);
   });
 

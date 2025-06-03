@@ -91,7 +91,7 @@ export class MatrixDropdownCell {
       if (!survey || survey.isSingleVisibleInput) return this.questionValue.title;
       const rowTitle = row.getAccessbilityText();
       if (!rowTitle) return this.questionValue.title;
-      return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
+      return this.column.colOwner.getCellAriaLabel(row, this.column, rowTitle);
     };
   }
   public locStrsChanged(): void {

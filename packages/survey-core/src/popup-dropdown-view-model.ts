@@ -265,7 +265,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this._isPositionSetValue = true;
   }
   private get shouldCreateResizeCallback(): boolean {
-    return !!DomWindowHelper.getVisualViewport() && this.isOverlay && IsTouch;
+    return !!DomWindowHelper.getVisualViewport() && this.isOverlay;
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {

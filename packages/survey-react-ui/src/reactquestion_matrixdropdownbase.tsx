@@ -450,6 +450,6 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     );
   }
   private getCellAriaLabel(): string {
-    return this.question.parentQuestion.getCellAriaLabel(this.cell.row.locText.renderedHtml, this.cell.column.locTitle.renderedHtml);
+    return this.question.parentQuestion.getCellAriaLabel(this.cell.row, this.cell.column);
   }
 }

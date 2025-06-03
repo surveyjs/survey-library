@@ -43,7 +43,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "buttongroup-question-answered.png");
     });
 
-    test("Check brand info banner", async ({ page }) => {
+    test("Buttongroup renderas", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 1000 });
 
       const json = {

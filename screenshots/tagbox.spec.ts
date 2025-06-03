@@ -141,11 +141,11 @@ frameworks.forEach(framework => {
     });
 
     test("Check overlay popup in tagbox question", async ({ page }) => {
-      await page.setViewportSize({ width: 500, height: 700 });
-
       await page.evaluate(() => {
         window["Survey"]._setIsTouch(true);
       });
+      await page.setViewportSize({ width: 500, height: 700 });
+
       const json = {
         showQuestionNumbers: "off",
         questions: [
@@ -165,6 +165,7 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
+      await page.waitForTimeout(500);
 
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sd-list__item span").filter({ hasText: "item1", visible: true }).first().click();
@@ -178,11 +179,11 @@ frameworks.forEach(framework => {
     });
 
     test("Check overlay popup (table mode) in tagbox question", async ({ page }) => {
-      await page.setViewportSize({ width: 600, height: 900 });
-
       await page.evaluate(() => {
         window["Survey"]._setIsTouch(true);
       });
+      await page.setViewportSize({ width: 600, height: 900 });
+
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         questions: [
@@ -195,6 +196,8 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await page.waitForTimeout(500);
+
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item1");
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
@@ -211,20 +214,20 @@ frameworks.forEach(framework => {
     });
 
     test("Check overlay popup (table mode) in tagbox question with long items", async ({ page }) => {
-      await page.setViewportSize({ width: 900, height: 900 });
-
       await page.evaluate(() => {
         window["Survey"]._setIsTouch(true);
       });
-      await initSurvey(page, framework,
-        {
-          showQuestionNumbers: "on",
-          "elements": [{
-            "type": "tagbox",
-            "name": "q1",
-            "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
-          }]
-        });
+      await page.setViewportSize({ width: 900, height: 900 });
+
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        "elements": [{
+          "type": "tagbox",
+          "name": "q1",
+          "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
+        }]
+      });
+      await page.waitForTimeout(500);
       await page.locator(".sd-editor-chevron-button").click();
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-long-items-overlay-tablet-popup.png");
     });

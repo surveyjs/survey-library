@@ -1,4 +1,3 @@
-import { ILocalizableOwner, LocalizableString } from "entries";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
@@ -6,6 +5,7 @@ import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property, propertyArray, Serializer } from "./jsonobject";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";

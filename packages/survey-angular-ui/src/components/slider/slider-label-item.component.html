@@ -1,0 +1,8 @@
+<ng-template #template>
+    <div [class]="model.getLabelCss(item.locText)"
+      [style]="{ left: model.getPercent(item.value) + '%' }"
+      (pointerup)="model.handleLabelPointerUp($any($event), item.value)">
+        <div [class]="model.cssClasses.labelTick"></div>
+        <div [class]="model.cssClasses.labelText" [model]="item.locText" sv-ng-string></div>
+    </div>
+</ng-template>

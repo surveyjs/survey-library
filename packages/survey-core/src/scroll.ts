@@ -1,4 +1,5 @@
 
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 export class ScrollViewModel {
   private _containerElementValue: HTMLElement;
   private _scrollbarElement: HTMLElement;
@@ -15,7 +16,7 @@ export class ScrollViewModel {
     this._scrollbarElement = element?.querySelector(".sv-scroll__scrollbar");
     this._scrollbarSizerElement = element?.querySelector(".sv-scroll__scrollbar-sizer");
     this._containerBodyElement = element?.querySelector(".sv-scroll__container");
-    if (!element) return;
+    if (!element || !DomWindowHelper.isAvailable()) return;
     this._containerBodyResizeObserver = new ResizeObserver(entries => {
       for (let entry of entries) {
         const height = entry.contentBoxSize

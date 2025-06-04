@@ -1058,7 +1058,7 @@ QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
     elements: [{ type: "newquestion", name: "q1" }],
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  const el: HTMLElement = <any>({ a: 5 });
+  const el: HTMLElement = <any>({ a: 5, querySelector: () => {} });
   q.afterRender(el);
   assert.equal(
     afterRenderQuestion.name,
@@ -1070,7 +1070,7 @@ QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
     5,
     "onAfterRender, htmlElement parameter is correct"
   );
-  q.contentQuestion.afterRender(<any>7);
+  q.contentQuestion.afterRender({ b: 7, querySelector: () => {} } as any);
   assert.equal(
     afterRenderContentElementQuestion.name,
     "q1",
@@ -1082,7 +1082,7 @@ QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
     "afterRenderContentElement, element parameter is correct"
   );
   assert.equal(
-    afterRenderContentElementHtml,
+    (afterRenderContentElementHtml as any).b,
     7,
     "afterRenderContentElement, htmlElement parameter is correct"
   );

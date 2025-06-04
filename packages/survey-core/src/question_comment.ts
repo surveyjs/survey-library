@@ -135,8 +135,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     return "comment";
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
-    const { root } = settings.environment;
-    this.element = root.getElementById(this.inputId) || el;
+    this.element = el?.querySelector(`#${this.inputId}`) || el;
     super.afterRenderQuestionElement(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {

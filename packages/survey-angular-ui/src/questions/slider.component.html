@@ -47,7 +47,7 @@
 
   <div *ngIf="model.showLabels" [class]="model.cssClasses.labelsContainer">
     <div>
-      <ng-template *ngFor="let label of model.renderedLabels; index as i; trackBy: trackByLabelCount;" [component]="{ name: 'sv-slider-label-item', data: {model: model, item: label, index: i }}"></ng-template>
+      <ng-template *ngFor="let label of model.renderedLabels; index as i; trackBy: trackByLabelCount;" [component]="{ name: 'sv-slider-label-item', data: {model: model, item: label }}"></ng-template>
     </div>
   </div>
 </div>

@@ -11,7 +11,6 @@ import { AngularComponentFactory } from "../../component-factory";
 export class SliderLabelItemComponent extends BaseAngular {
   @Input() model!: QuestionSliderModel;
   @Input() item!: ItemValue;
-  @Input() index!: number;
 
   // onClick(event: any): void {
   //   this.model.setValueFromClick(event.target.value);

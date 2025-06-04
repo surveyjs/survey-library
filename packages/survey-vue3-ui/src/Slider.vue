@@ -51,11 +51,10 @@
         <div v-if="question.showLabels" :class="question.cssClasses.labelsContainer">
           <div>
             <SvComponent
-              v-for="(label, i) in question.renderedLabels"
+              v-for="(label) in question.renderedLabels"
               :key="label.id"
               :is="'sv-slider-label-item'"
               :item="label"
-              :index="i"
               :question="question"
             />
           </div>

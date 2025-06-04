@@ -860,11 +860,10 @@ export class Question extends SurveyElement<Question>
     }
   }
   public onSetAsSingleInput(): void {
-    if (this.singleInputSummary) {
-      this.resetSingleInputSummary();
-      this.resetPropertyValue("singleInputQuestion");
-      this.resetPropertyValue("singleInputLocTitle");
-    }
+    this.onFirstRendering();
+    this.resetSingleInputSummary();
+    this.resetPropertyValue("singleInputQuestion");
+    this.resetPropertyValue("singleInputLocTitle");
   }
   public nextSingleInput(): boolean {
     return this.nextPrevSingleInput(1);

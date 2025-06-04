@@ -1884,3 +1884,23 @@ QUnit.test("singleInput show initial record, #1", assert => {
   assert.equal(!!panel.singleInputSummary, false, "panel.singleInputSummary, #5");
   assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, #5");
 });
+QUnit.test("singleInput show panel with data as summary page vs several pages, Bug#9984", assert => {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          { type: "paneldynamic", name: "panel", templateElements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  survey.data = { panel: [{ q2: "a", q3: "b" }] };
+  const panel = survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #2");
+});

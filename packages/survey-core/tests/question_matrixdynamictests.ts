@@ -5036,11 +5036,11 @@ QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
   assert.equal(cell.isRadio, false, "it is not radio");
   const commentCell = matrix.renderedTable.rows[1].cells[5];
   assert.equal(commentCell.isOtherChoice, false, "it is not other choice index");
-  cell.question.comment = "comment1";
+  cell.question.otherValue = "comment1";
   assert.deepEqual(matrix.value, { row1: { col1: ["other"], "col1-Comment": "comment1" } }, "Matrix value col1-comment is set");
-  cell.question.comment = "comment2";
+  cell.question.otherValue = "comment2";
   assert.deepEqual(matrix.value, { row1: { col1: ["other"], "col1-Comment": "comment2" } }, "Matrix value col1-comment is set, #2");
-  cell.question.comment = "";
+  cell.question.otherValue = "";
   assert.notOk(matrix.value, "Reset comment value");
 });
 QUnit.test("showInMultipleColumns and showNoneItem property", function (assert) {
@@ -6276,7 +6276,7 @@ QUnit.test(
       "Cell question was created correctly"
     );
     cellQuestion.value = cellQuestion.otherItem.value;
-    cellQuestion.comment = "My Comment";
+    cellQuestion.otherValue = "My Comment";
     assert.deepEqual(
       question.value,
       [{ col1: "other", "col1-Comment": "My Comment" }],
@@ -6344,7 +6344,7 @@ QUnit.test(
       "Cell question was created correctly"
     );
     cellQuestion.value = [1, cellQuestion.otherItem.value];
-    cellQuestion.comment = "My Comment";
+    cellQuestion.otherValue = "My Comment";
     assert.deepEqual(cellQuestion.value, [1, "other"], "question.value #1");
     assert.deepEqual(
       question.value,
@@ -6416,7 +6416,7 @@ QUnit.test(
       "Cell question was created correctly"
     );
     cellQuestion.value = [1, cellQuestion.otherItem.value];
-    cellQuestion.comment = "My Comment";
+    cellQuestion.otherValue = "My Comment";
     assert.deepEqual(
       question.value,
       [{ col1: [1, "My Comment"] }],

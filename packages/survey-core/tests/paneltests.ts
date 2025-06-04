@@ -455,7 +455,7 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function (assert) {
     "survey.currentPage.getValue() is correct"
   );
   const question = <QuestionCheckboxModel>survey.getQuestionByName("spread");
-  question.comment = "";
+  question.otherValue = "";
   question.value = "butter";
   assert.deepEqual(
     survey.data,
@@ -469,7 +469,7 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function (assert) {
   );
   survey.storeOthersAsComment = false;
   question.value = "other";
-  question.comment = "Jam";
+  question.otherValue = "Jam";
   assert.deepEqual(
     survey.data,
     { spread: "Jam" },

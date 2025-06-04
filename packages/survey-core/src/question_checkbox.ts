@@ -1,6 +1,7 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
+  ChoiceItem,
   QuestionCheckboxBase,
   QuestionSelectBase,
 } from "./question_baseselect";
@@ -13,7 +14,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 
-export class CheckboxItem extends ItemValue {
+export class CheckboxItem extends ChoiceItem {
   public get isExclusive(): boolean {
     return this.getPropertyValue("isExclusive");
   }
@@ -193,7 +194,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.renderedValue = val;
   }
   public clickItemHandler(item: ItemValue, checked?: boolean): void {
-    if (this.isReadOnlyAttr) return;
+    this.selectItem(item, checked);
+  }
+  public selectItem(item: ItemValue, checked?: boolean): void {
+    if (this.isReadOnlyAttr || !item) return;
     if (item === this.selectAllItem) {
       if (checked === true || checked === false) {
         this.isAllSelected = checked;
@@ -216,6 +220,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
           }
         }
         this.renderedValue = newValue;
+      }
+      if (checked) {
+        this.onItemSelected(item);
       }
     }
   }
@@ -423,16 +430,33 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
-  protected setDefaultValue() {
-    super.setDefaultValue();
-    const val = this.defaultValue;
-    if (Array.isArray(val)) {
+  protected setDefaultUnknownValue(val : any): void {
+    if (!Array.isArray(val)) {
+      super.setDefaultUnknownValue(val);
+      return;
+    }
+    if (!this.hasActiveChoices) {
       for (var i = 0; i < val.length; i++) {
         const rVal = this.getRealValue(val[i]);
-        if (this.canClearValueAnUnknown(rVal)) {
-          this.addIntoInvisibleOldValues(rVal);
+        this.addIntoInvisibleOldValues(rVal);
+      }
+      this.value = val;
+    } else {
+      const newVal = [];
+      let otherVal = "";
+      for (var i = 0; i < val.length; i++) {
+        const rVal = this.getRealValue(val[i]);
+        if (!this.hasUnknownValue(rVal)) {
+          newVal.push(rVal);
+        } else {
+          if (!otherVal) {
+            otherVal = rVal;
+            newVal.push(this.otherItem.value);
+          }
         }
       }
+      this.renderedValue = newVal;
+      this.otherValue = otherVal;
     }
   }
   private addIntoInvisibleOldValues(val: any) {
@@ -734,7 +758,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 }
 Serializer.addClass("checkboxitem",
   [{ name: "isExclusive:boolean", locationInTable: "detail" }],
-  (value: any) => new CheckboxItem(value), "itemvalue");
+  (value: any) => new CheckboxItem(value), "choiceitem");
 
 Serializer.addClass(
   "checkbox",

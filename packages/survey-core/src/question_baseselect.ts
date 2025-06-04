@@ -1410,8 +1410,8 @@ export class QuestionSelectBase extends Question {
         res.push(this.copyChoiceItem(choices[i]));
       }
     }
-    if (this.choicesFromQuestionMode === "selected" && !this.showOtherItem && question.isOtherSelected && !!question.comment) {
-      res.push(this.createItemValue(question.otherItem.value, question.comment));
+    if (this.choicesFromQuestionMode === "selected" && !this.showOtherItem && question.isOtherSelected && !!question.otherValue) {
+      res.push(this.createItemValue(question.otherItem.value, question.otherValue));
     }
     return res;
   }
@@ -1862,9 +1862,6 @@ export class QuestionSelectBase extends Question {
     super.clearUnusedValues();
     if (!this.isOtherSelected) {
       this.otherValue = "";
-    }
-    if (!this.showCommentArea && (!this.getStoreOthersAsComment() && !this.isOtherSelected)) {
-      this.comment = "";
     }
   }
   getColumnClass(): string {

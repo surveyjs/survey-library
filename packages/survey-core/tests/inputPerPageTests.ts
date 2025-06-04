@@ -1796,6 +1796,126 @@ QUnit.test("checkbox vs matrixdynamic", assert => {
   assert.equal(matrix.singleInputQuestion.isEmpty(), true, "matrix.singleInputQuestion.isEmpty(), #3");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Library survey-creator", "matrix.singleInputLocTitle.textOrHtml, #3");
 });
+QUnit.test("checkbox vs matrixdynamic vs an invisible calculated column, Bug#9963", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "products",
+        choices: [{ value: "form-library", text: "Form Library" }, "survey-creator", "dashboard", "pdf-generator"],
+        valuePropertyName: "product_id"
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        valueName: "products",
+        columns: [
+          {
+            name: "product_id",
+            cellType: "dropdown",
+            visible: false,
+            choicesFromQuestion: "products"
+          },
+          {
+            name: "nps",
+            cellType: "rating"
+          },
+          {
+            name: "valued-features",
+            cellType: "comment"
+          }
+        ],
+        rowCount: 0,
+        singleInputTitleTemplate: "Library {row.product_id}",
+        allowAddRows: false,
+        allowRemoveRows: false
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("products");
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  checkbox.renderedValue = ["form-library"];
+  survey.performNext();
+  assert.equal(matrix.visibleRows.length, 1, "matrix.visibleRows.length, #1");
+  assert.equal(survey.currentSingleQuestion.name, "matrix", "currentSingleQuestion is matrix, #1");
+  assert.equal(matrix.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #1");
+  assert.equal(matrix.singleInputLocTitle.textOrHtml, "Library Form Library", "matrix.singleInputLocTitle.textOrHtml, #1");
+  matrix.singleInputQuestion.value = 3;
+  survey.performNext();
+  assert.equal(matrix.singleInputQuestion.name, "valued-features", "singleInputQuestion is nps, #2");
+  survey.performPrevious();
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "products", "currentSingleQuestion is matrix, #3");
+  checkbox.renderedValue = [];
+  survey.performNext();
+  assert.equal(matrix.visibleRows.length, 0, "matrix.visibleRows.length, #4");
+  assert.equal(survey.currentSingleQuestion.name, "matrix", "currentSingleQuestion is matrix, #4");
+  assert.equal(matrix.singleInputQuestion.name, "matrix", "singleInputQuestion is matrix, #4");
+  assert.equal(matrix.singleInputSummary?.items.length, 0, "matrix.singleInputSummary, #4");
+  assert.equal(survey.isShowNextButton, false, "Next button is not visible, #4");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible, #4");
+});
+QUnit.test("checkbox vs paneldynamic vs an invisible calculated question, Bug#9963", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "products",
+        choices: [{ value: "form-library", text: "Form Library" }, "survey-creator", "dashboard", "pdf-generator"],
+        valuePropertyName: "product_id"
+      },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        valueName: "products",
+        templateElements: [
+          {
+            name: "product_id",
+            type: "dropdown",
+            visible: false,
+            choicesFromQuestion: "products"
+          },
+          {
+            name: "nps",
+            type: "rating"
+          },
+          {
+            name: "valued-features",
+            type: "comment"
+          }
+        ],
+        panelCount: 0,
+        templateTitle: "Library {panel.product_id}",
+        allowAddPanel: false,
+        allowRemovePanel: false
+      }
+    ],
+    questionsOnPageMode: "inputPerPage",
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("products");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  checkbox.renderedValue = ["form-library"];
+  survey.performNext();
+  assert.equal(panel.panels.length, 1, "panel.panels.length, #1");
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is matrix, #1");
+  assert.equal(panel.singleInputQuestion.name, "nps", "singleInputQuestion is nps, #1");
+  assert.equal(panel.singleInputLocTitle.textOrHtml, "Library Form Library", "matrix.singleInputLocTitle.textOrHtml, #1");
+  panel.singleInputQuestion.value = 3;
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "valued-features", "singleInputQuestion is nps, #2");
+  survey.performPrevious();
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "products", "currentSingleQuestion is matrix, #3");
+  checkbox.renderedValue = [];
+  assert.equal(panel.panels.length, 0, "matrix.visibleRows.length, #4");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #4");
+  assert.equal(panel.singleInputQuestion.name, "panel", "singleInputQuestion is panel, #4");
+  assert.equal(panel.singleInputSummary?.items.length, 0, "panel.singleInputSummary, #4");
+  assert.equal(survey.isShowNextButton, false, "Next button is not visible, #4");
+  assert.equal(survey.isCompleteButtonVisible, true, "Complete button is visible, #4");
+});
 QUnit.test("matrixdropdown & locRenderingTitle, Bug#9829", assert => {
   const survey = new SurveyModel({
     elements: [

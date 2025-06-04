@@ -2879,7 +2879,12 @@ export class Question extends SurveyElement<Question>
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
     this.isChangingViaDefaultValue = viaDefaultVal;
-    this.setQuestionValue(this.valueFromData(newValue));
+    newValue = this.valueFromData(newValue);
+    const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
+    this.setQuestionValue(newValue);
+    if (!isEqual) {
+      this.resetSingleInput();
+    }
     this.isChangingViaDefaultValue = false;
   }
   updateCommentFromSurvey(newValue: any): any {

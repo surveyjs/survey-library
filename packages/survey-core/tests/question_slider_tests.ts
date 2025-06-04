@@ -842,3 +842,31 @@ QUnit.test("check labelFormat for custom labels", (assert) => {
   q1.labelFormat = "{0} $";
   assert.deepEqual(q1.customLabels.map(l=>l.locText.textOrHtml), ["50 $", "60 $", "70 $", "80 $", "90 $", "100 $"], "labelFormat");
 });
+QUnit.test("labelFormat", (assert) => {
+  let json:any = {
+    elements: [
+      {
+        "type": "slider",
+        "sliderType": "single",
+        "name": "q1",
+        "customLabels": [
+          {
+            "value": 0,
+            "text": "begin"
+          },
+          {
+            "value": 50,
+            "text": "50"
+          },
+          100
+        ],
+        "labelFormat": "{0}%"
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderedLabels[0].locText.renderedHtml, "begin");
+  assert.equal(q1.renderedLabels[1].locText.renderedHtml, "50");
+  assert.equal(q1.renderedLabels[2].locText.renderedHtml, "100%");
+});

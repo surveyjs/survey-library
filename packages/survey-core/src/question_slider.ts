@@ -562,7 +562,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public getTextByItem(item: ItemValue, text: string): string {
-    const res = text || this.getLabelText(this.renderedLabels.indexOf(item));
+    if (text) return text;
+    const res = this.getLabelText(this.renderedLabels.indexOf(item));
     return this.labelFormat.replace("{0}", "" + res);
   }
 

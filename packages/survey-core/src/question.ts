@@ -860,10 +860,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   public onSetAsSingleInput(): void {
+    const needReset = !this.wasRendered || this.singleInputSummary;
     this.onFirstRendering();
-    this.resetSingleInputSummary();
-    this.resetPropertyValue("singleInputQuestion");
-    this.resetPropertyValue("singleInputLocTitle");
+    if (needReset) {
+      this.resetSingleInputSummary();
+      this.resetPropertyValue("singleInputQuestion");
+      this.resetPropertyValue("singleInputLocTitle");
+    }
   }
   public nextSingleInput(): boolean {
     return this.nextPrevSingleInput(1);

@@ -1884,3 +1884,16 @@ QUnit.test("singleInput show initial record, #1", assert => {
   assert.equal(!!panel.singleInputSummary, false, "panel.singleInputSummary, #5");
   assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, #5");
 });
+QUnit.test("A summary view appears empty even though survey.data receives a valid response, Bug#9983", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", templateElements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  survey.data = { panel: [{ q2: "a", q3: "b" }, { q2: "c", q3: "d" }] };
+  const panel = survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputSummary?.items.length, 2, "panel.singleInputSummary, #2");
+});

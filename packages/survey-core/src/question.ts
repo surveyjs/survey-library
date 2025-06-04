@@ -2876,6 +2876,7 @@ export class Question extends SurveyElement<Question>
     }
     this.updateDependedQuestions();
     this.updateIsAnswered();
+    this.resetSingleInputSummary();
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
     this.isChangingViaDefaultValue = viaDefaultVal;

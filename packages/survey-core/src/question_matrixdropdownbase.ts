@@ -24,6 +24,7 @@ import { ConditionRunner } from "./conditions";
 export interface IMatrixDropdownData {
   value: any;
   getFilteredData(): any;
+  getSharedQuestionFromArray(name: string, rowIndex: number): Question;
   onRowChanged(
     row: MatrixDropdownRowModelBase,
     columnName: string,
@@ -196,12 +197,15 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
 }
 
 class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
+  private parentTextProcessor: ITextProcessor;
+  private sharedQuestions: any = {};
   constructor(
+    private data: IMatrixDropdownData,
     protected row: MatrixDropdownRowModelBase,
     protected variableName: string,
-    private parentTextProcessor: ITextProcessor
   ) {
     super(variableName);
+    this.parentTextProcessor = data?.getParentTextProcessor();
   }
   protected getParentTextProcessor(): ITextProcessor { return this.parentTextProcessor; }
   protected get survey(): ISurvey {
@@ -211,7 +215,19 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
     return this.row.getAllValues();
   }
   protected getQuestionByName(name: string): Question {
-    return this.row.getQuestionByName(name);
+    let res = this.row.getQuestionByName(name);
+    if (!!res) return res;
+    const index = this.row.rowIndex - 1;
+    res = index > -1 ? this.data.getSharedQuestionFromArray(name, index) : undefined;
+    const qName = !!res ? res.name : name;
+    this.sharedQuestions[qName] = name;
+    return res;
+  }
+  protected getQuestionDisplayText(question: Question): string {
+    const name = this.sharedQuestions[question.name];
+    if (!name) return super.getQuestionDisplayText(question);
+    const val = this.row.getValue(name);
+    return question.getDisplayValue(true, val);
   }
   protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
     if (textValue.name == MatrixDropdownRowModelBase.IndexVariableName) {
@@ -260,10 +276,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
     this.subscribeToChanges(value);
-    this.textPreProcessor = new MatrixDropdownRowTextProcessor(
-      this,
-      MatrixDropdownRowModelBase.RowVariableName, !!data ? data.getParentTextProcessor() : null
-    );
+    this.textPreProcessor = new MatrixDropdownRowTextProcessor(data, this, MatrixDropdownRowModelBase.RowVariableName);
     this.showHideDetailPanelClick = () => {
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
@@ -2576,6 +2589,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.survey.matrixCellValueChanging(this, options);
     }
     return options.value;
+  }
+  getSharedQuestionFromArray(name: string, rowIndex: number): Question {
+    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromArray(this.valueName, name, rowIndex)) : null;
   }
   onRowChanged(row: MatrixDropdownRowModelBase, columnName: string, newRowValue: any, isDeletingValue: boolean): void {
     var rowObj = !!columnName ? this.getRowObj(row) : null;

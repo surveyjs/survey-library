@@ -72,7 +72,7 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
   protected getQuestionByName(name: string): Question {
     var res = super.getQuestionByName(name);
     if (!!res) return res;
-    var index = this.panelIndex;
+    const index = this.panelIndex;
     res = index > -1 ? this.data.getSharedQuestionFromArray(name, index) : undefined;
     const qName = !!res ? res.name : name;
     this.sharedQuestions[qName] = name;
@@ -1922,19 +1922,8 @@ export class QuestionPanelDynamicModel extends Question
       return false;
     return !!panel.getQuestionByName(key.substring(0, key.indexOf(postPrefix)));
   }
-  public getSharedQuestionFromArray(
-    name: string,
-    panelIndex: number
-  ): Question {
-    return !!this.survey && !!this.valueName
-      ? <Question>(
-        this.survey.getQuestionByValueNameFromArray(
-          this.valueName,
-          name,
-          panelIndex
-        )
-      )
-      : null;
+  public getSharedQuestionFromArray(name: string, panelIndex: number): Question {
+    return !!this.survey && !!this.valueName ? <Question>(this.survey.getQuestionByValueNameFromArray(this.valueName, name, panelIndex)) : null;
   }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     const contextQ = !!context?.isValidator ? context.errorOwner : context;

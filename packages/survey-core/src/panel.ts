@@ -785,6 +785,13 @@ export class PanelModelBase extends SurveyElement<Question>
     this.collectValues(data, 0);
     return Helpers.getUnbindValue(data);
   }
+  public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
+    const questions = visibleOnly ? this.visibleQuestions : this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].isEmpty()) return true;
+    }
+    return false;
+  }
   collectValues(data: any, level: number): boolean {
     let elements = this.elements;
     if (level === 0) {

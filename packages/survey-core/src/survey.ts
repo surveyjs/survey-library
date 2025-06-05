@@ -5485,6 +5485,7 @@ export class SurveyModel extends SurveyElementCore
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   afterRenderSurvey(htmlElement: any) {
+    if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
     if (Array.isArray(htmlElement)) {
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);

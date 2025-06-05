@@ -1,6 +1,6 @@
 <template>
   <textarea
-    ref="contentElement"
+    :ref="(el)=>getRef(el as HTMLTextAreaElement)"
     :readonly="model.isReadOnlyAttr"
     :disabled="model.isDisabledAttr"
     :value="value"
@@ -49,10 +49,14 @@
 import type { TextAreaModel } from "survey-core";
 import { computed, onMounted, onUpdated, onUnmounted, ref } from "vue";
 
-const props = defineProps<{ model: TextAreaModel }>();
+const props = defineProps<{ model: TextAreaModel, getRef?: (element: HTMLElement) => void }>();
 const contentElement = ref<HTMLTextAreaElement>(
   null as any as HTMLTextAreaElement
 );
+const getRef = function (element: HTMLTextAreaElement) {
+  contentElement.value = element;
+  if (props.getRef) props.getRef(element);
+};
 const value = computed(() => props.model.getTextValue() || "");
 
 onMounted(() => {

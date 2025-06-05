@@ -8,8 +8,10 @@ import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from "@angular/co
 export class SvgBundleComponent implements OnInit, OnDestroy {
   @ViewChild("svgContainer", { static: true }) svgContainer!: ElementRef<SVGElement>;
   private onIconsChanged = () => {
-    if (!!this.svgContainer?.nativeElement) {
-      this.svgContainer.nativeElement.innerHTML = SvgRegistry.iconsRenderedHtml();
+    if (typeof document !== "undefined") {
+      if (!!this.svgContainer?.nativeElement) {
+        this.svgContainer.nativeElement.innerHTML = SvgRegistry.iconsRenderedHtml();
+      }
     }
   };
   ngOnInit(): void {
@@ -19,5 +21,4 @@ export class SvgBundleComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     SvgRegistry.onIconsChanged.remove(this.onIconsChanged);
   }
-
 }

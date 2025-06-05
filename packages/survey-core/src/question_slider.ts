@@ -571,7 +571,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     const { step, renderedMax: max, renderedMin: min, labelCount, formatNumber } = this;
     const fullRange = max - min;
     const isDecimal = step % 1 != 0;
-    let labelStep = labelNumber * fullRange / (labelCount - 1);
+    const count = labelCount - 1;
+    let labelStep = count === 0 ? 0 : labelNumber * fullRange / count;
     return isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
   };
 

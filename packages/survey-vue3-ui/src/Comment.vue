@@ -15,7 +15,7 @@
   </div>
   <SvComponent
     :is="'sv-text-area'"
-    ref="root"
+    :get-ref="getRef"
     v-else-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
     :model="question.textAreaModel"
   ></SvComponent>
@@ -29,6 +29,9 @@ import { useQuestion } from "./base";
 import { ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionCommentModel }>();
-const root = ref(null);
+const root = ref<HTMLElement>();
+function getRef(el: HTMLElement) {
+  root.value = el;
+}
 useQuestion(props, root);
 </script>

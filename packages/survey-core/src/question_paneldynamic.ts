@@ -1238,7 +1238,7 @@ export class QuestionPanelDynamicModel extends Question
     if ((!question || question === this) && panels.length > 0) {
       for (let i = 0; i < panels.length; i ++) {
         const panel = panels[i];
-        if (this.isValueEmpty(panel.getValue()) || panel.hasErrors(false, false)) {
+        if (!panel.hasValueAnyQuestion(true) || panel.hasErrors(false, false)) {
           this.fillSingleInputQuestionsByPanel(res, panel);
         }
       }

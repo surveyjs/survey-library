@@ -631,6 +631,13 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return true;
   }
+  public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
+    const questions = visibleOnly ? this.visibleQuestions : this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].isEmpty()) return true;
+    }
+    return false;
+  }
   public getQuestionByColumn(column: MatrixDropdownColumn): Question {
     var cell = this.getCellByColumn(column);
     return !!cell ? cell.question : null;

@@ -22302,3 +22302,41 @@ QUnit.test("getContainerContent - TOC + title + progress above", function (asser
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "right is empty");
 });
+QUnit.test("Warn in console if the expression has invalid function in a question, #981", function (assert) {
+  const prev = ConsoleWarnings.warn;
+  const reportTexts = new Array<string>();
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1", defaultValueExpression: "invalFunc1({q2})" },
+          { type: "text", name: "q2" }
+        ],
+      },
+    ],
+    triggers: [
+      { type: "setvalue", setToName: "q1", expression: "invalFunc2({q2})", setValue: 5 }
+    ]
+  });
+
+  ConsoleWarnings.warn = (text: string) => {
+    reportTexts.push(text);
+  };
+  survey.setValue("q2", "test");
+  assert.deepEqual(reportTexts, ["Unknown function name: 'invalFunc1'. It is used in the question: 'q1'.",
+    "Unknown function name: 'invalFunc2'."], "show warnings with the quesiton info");
+  ConsoleWarnings.warn = prev;
+});
+QUnit.test("Warn in console if the expression is invalide in a question, #981", function (assert) {
+  const prev = ConsoleWarnings.warn;
+  let reportText = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValueExpression: "{a} ++" }]
+  });
+
+  assert.equal(reportText, "Invalid expression: '{a} ++'. It is used in the question: 'q1'.", "show warnings with the quesiton info");
+  ConsoleWarnings.warn = prev;
+});

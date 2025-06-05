@@ -1735,7 +1735,7 @@ QUnit.test("Warn in console if the expression is invalid", function(assert) {
   const runner = new ExpressionRunner("{a} ++");
   assert.notOk(reportText);
   runner.run({ a: 1 });
-  assert.equal(reportText, "Invalid expression: {a} ++");
+  assert.equal(reportText, "Invalid expression: '{a} ++'.");
 
   reportText = "";
   runner.expression = "{a} + 1";
@@ -1745,7 +1745,7 @@ QUnit.test("Warn in console if the expression is invalid", function(assert) {
   runner.expression = "tooday()";
   assert.notOk(reportText);
   runner.run({});
-  assert.equal(reportText, "Unknown function name: tooday");
+  assert.equal(reportText, "Unknown function name: 'tooday'.");
 
   reportText = "";
   runner.expression = "today";

@@ -226,7 +226,7 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
   protected getQuestionDisplayText(question: Question): string {
     const name = this.sharedQuestions[question.name];
     if (!name) return super.getQuestionDisplayText(question);
-    const val = this.row.getValue(name);
+    const val = this.row.getAllValues()[name];
     return question.getDisplayValue(true, val);
   }
   protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {

@@ -2016,7 +2016,7 @@ QUnit.test("A summary view appears empty even though survey.data receives a vali
   assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
   assert.equal(panel.singleInputQuestion.name, "panel", "currentSingleQuestion is panel, #2");
   assert.equal(panel.singleInputSummary?.items.length, 2, "panel.singleInputSummary, #2");
-});  
+});
 QUnit.test("singleInput show panel with data as summary page vs several pages, Bug#9984", assert => {
   const survey = new SurveyModel({
     pages: [

@@ -1,7 +1,7 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { settings } from "./settings";
 import { ConsoleWarnings } from "./console-warnings";
-import { ConditionRunner } from "./conditions";
+import { ConditionRunner, ExpressionExecutor } from "./conditions";
 
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
@@ -37,15 +37,10 @@ export class FunctionFactory {
     }
     return result.sort();
   }
-  public run(
-    name: string,
-    params: any[],
-    properties: HashTable<any> = null,
-    originalParams: any[]
-  ): any {
-    var func = this.functionHash[name];
+  public run(name: string, params: any[], properties: HashTable<any> = null, originalParams: any[]): any {
+    const func = this.functionHash[name];
     if (!func) {
-      ConsoleWarnings.warn("Unknown function name: " + name);
+      ConsoleWarnings.warn(this.getUnknownFunctionErrorText(name, properties));
       return null;
     }
     let classRunner = {
@@ -58,6 +53,9 @@ export class FunctionFactory {
       }
     }
     return classRunner.func(params, originalParams);
+  }
+  private getUnknownFunctionErrorText(name: string, properties: HashTable<any>): string {
+    return "Unknown function name: '" + name + "'." + ExpressionExecutor.getQuestionErrorText(properties);
   }
 }
 

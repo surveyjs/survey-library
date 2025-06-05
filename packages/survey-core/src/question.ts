@@ -860,7 +860,9 @@ export class Question extends SurveyElement<Question>
     }
   }
   public onSetAsSingleInput(): void {
-    if (this.singleInputSummary) {
+    const needReset = !this.wasRendered || this.singleInputSummary;
+    this.onFirstRendering();
+    if (needReset) {
       this.resetSingleInputSummary();
       this.resetPropertyValue("singleInputQuestion");
       this.resetPropertyValue("singleInputLocTitle");

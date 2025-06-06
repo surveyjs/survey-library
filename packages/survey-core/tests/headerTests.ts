@@ -477,3 +477,23 @@ QUnit.test("calcGridRow with single row content", function(assert) {
   assert.equal(bottomCell?.style.gridRow, 1, "Bottom row should be first visible row");
 });
 
+QUnit.test("CoverCell.calcGridRow with renderedHeight", function(assert) {
+  const survey = getSurveyWithLogoTitleAndDescription();
+  const cover = new Cover();
+  cover.survey = survey;
+
+  cover.logoPositionY = "bottom";
+  cover.titlePositionY = "bottom";
+  cover.descriptionPositionY = "bottom";
+
+  const bottomLeftCell = cover.cells[6];
+  // Test case 1: When renderedHeight is set
+  cover.height = 100; // This will set renderedHeight
+  assert.equal(bottomLeftCell.style.gridRow, 3, "#1 gridRow");
+  assert.equal(bottomLeftCell.style.gridColumn, 1, "#1 gridColumn");
+
+  // Test case 2: When renderedHeight is not set
+  cover.height = 0; // This will unset renderedHeight
+  assert.equal(bottomLeftCell.style.gridRow, 1, "#2 gridRow");
+  assert.equal(bottomLeftCell.style.gridColumn, 1, "#2 gridColumn");
+});

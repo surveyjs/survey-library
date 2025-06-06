@@ -27,6 +27,8 @@ export class CoverCell {
   }
   private calcGridRow(): number {
     const rowNumber = this.calcRow(this.positionY);
+    if (!!this.cover.renderedHeight) return rowNumber;
+
     const visibleRows = this.cover.getVisibleRows();
     const visibleRowIndex = visibleRows.indexOf(rowNumber);
     if (visibleRowIndex === -1) return 0;

@@ -144,7 +144,7 @@ QUnit.test("singleInput and navigation buttons visibilty", assert => {
   assert.equal(survey.isCompleteButtonVisible, true, "complete buttton, #0");
   panel.singleInputSummary.items[0].btnEdit.action();
   assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion, #1");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #1");
   assert.equal(survey.isShowNextButton, true, "next buttton, #1");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #1");
   survey.performNext();
@@ -173,7 +173,7 @@ QUnit.test("singleInput and navigation buttons visibilty", assert => {
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #6");
   survey.performPrevious();
   assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion, #7");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #7");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #7");
   assert.equal(survey.isShowNextButton, true, "next buttton, #7");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #7");
 });
@@ -328,7 +328,7 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(addBtn.visible, false, "addBtn visible #2");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #2");
   assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #2");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #2");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #2");
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
   panel1.singleInputRemoveItem();
   assert.equal(panel1.panelCount, 0, "panelCount #3");
@@ -706,7 +706,7 @@ QUnit.test("singleInput and matrix dynamic & navigation buttons visibilty & show
   matrix1.addRow();
   assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #2");
   assert.equal(addBtn.visible, false, "addBtn visible #2");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #2");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #2");
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #2");
   matrix1.singleInputQuestion.value = "a";
@@ -726,7 +726,7 @@ QUnit.test("singleInput and matrix dynamic & navigation buttons visibilty & show
   matrix1.addRow();
   assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #5");
   assert.equal(addBtn.visible, false, "addBtn visible #5");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #5");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #5");
   assert.equal(survey.isShowNextButton, true, "next buttton, #5");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #5");
 });
@@ -750,13 +750,13 @@ QUnit.test("singleInput and matrix dynamic & navigation buttons visibilty & visi
   assert.equal(matrix1.singleInputQuestion.name, "matrix1", "singleInputQuestion.name, #0");
   matrix1.addRow();
   const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #1");
   assert.equal(survey.isShowNextButton, true, "next buttton, #1");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #1");
   assert.equal(matrix1.singleInputQuestion.name, "col1", "singleInputQuestion.name, #1");
   assert.equal(addBtn.visible, false, "addBtn visible #1, row is empty");
   matrix1.singleInputQuestion.value = "a";
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #2");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #2");
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
   assert.equal(survey.isCompleteButtonVisible, false, "complete buttton, #2");
   assert.equal(addBtn.visible, false, "addBtn visible #2");
@@ -909,7 +909,7 @@ QUnit.test("singleInput & singleInputSummary for dynamic matrix", assert => {
   matrix.singleInputSummary.items[0].btnEdit.action();
   assert.equal(matrix.singleInputQuestion.name, "col1", "singleInputQuestion.name, #6");
   assert.equal(matrix.singleInputLocTitle.textOrHtml, "Row 1", "singleInputLocTitle, #6");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, true, "next buttton, #6");
 });
 QUnit.test("singleInput & singleInputSummary for dynamic panel", assert => {
@@ -951,7 +951,7 @@ QUnit.test("singleInput & singleInputSummary for dynamic panel", assert => {
   panel.singleInputSummary.items[0].btnEdit.action();
   assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion.name, #6");
   assert.equal(panel.singleInputLocTitle.textOrHtml, "Panel 1", "singleInputLocTitle, #6");
-  assert.equal(survey.isShowPrevButton, false, "prev buttton, #6");
+  assert.equal(survey.isShowPrevButton, true, "prev buttton, #6");
   assert.equal(survey.isShowNextButton, true, "next buttton, #6");
 });
 QUnit.test("singleInput & singleInputSummary for nested dynamic panel", assert => {
@@ -2253,7 +2253,13 @@ QUnit.test("singleInput navigattion & errors for nested matrix #4, Bug#9982", as
         templateTitle: "Department: {panel.department}",
         panelCount: 1,
         addPanelText: "Add Department"
-      }],
+      },
+      {
+        type: "text",
+        name: "q1",
+        title: "Some question after departments"
+      }
+    ],
     questionsOnPageMode: "inputPerPage"
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("departments");

@@ -1015,28 +1015,25 @@ export class Question extends SurveyElement<Question>
   }
   private getSingleInputQuestions(): Array<Question> {
     if (!this.supportNestedSingleInput()) return [];
-    const singleInputQuestion = this.getPropertyValue("singleInputQuestion");
-    if (singleInputQuestion === this) return [this];
-    const res = this.getSingleInputQuestionsCore(singleInputQuestion);
+    const question = this.getPropertyValue("singleInputQuestion");
+    if (question === this) return [this];
+    const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
     res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
-    if (this.isSingleInputSummaryShown && res.length > 1 && res[res.length - 1] === this) {
-      res.unshift(this);
-    }
     return res;
   }
-  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     return this.getNestedQuestions(true, false);
   }
   protected onSingleInputQuestionAdded(question: Question): void {}
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
-  protected getSingleInputQuestionsForDynamic(question?: Question): Array<Question> {
+  protected getSingleInputQuestionsForDynamic(question: Question, arr: Array<Question>): Array<Question> {
     const res = new Array<Question>();
-    if (question) {
-      this.setSingleInputQuestionCore(question);
+    if (!!question && question !== this && arr.indexOf(question) < 0) {
+      this.fillSingleInputQuestionsInContainer(res, question);
     }
-    const q = this.getPropertyValue("singleInputQuestion");
-    if (!!q && q !== this) {
-      this.fillSingleInputQuestionsInContainer(res, q);
+    arr.forEach(q => res.push(q));
+    if (this.isSingleInputSummaryShown && res.length > 0) {
+      res.unshift(this);
     }
     res.push(this);
     return res;

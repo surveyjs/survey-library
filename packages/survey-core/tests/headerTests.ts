@@ -194,7 +194,7 @@ QUnit.test("grid cells - defaults", function (assert) {
   assert.equal(cover.cells[6].css, "sv-header__cell sv-header__cell--left sv-header__cell--bottom", "bottom left cell css");
   assert.deepEqual(cover.cells[6].style, {
     "gridColumn": 1,
-    "gridRow": 3,
+    "gridRow": 2,
     "width": undefined
   }, "bottom left cell style");
   assert.deepEqual(cover.cells[6].contentStyle, {
@@ -225,7 +225,7 @@ QUnit.test("grid cells - all elements center+middle", function (assert) {
   assert.equal(cover.cells[4].css, "sv-header__cell sv-header__cell--center sv-header__cell--middle", "middle center cell css");
   assert.deepEqual(cover.cells[4].style, {
     "gridColumn": 2,
-    "gridRow": 2,
+    "gridRow": 1,
     "width": undefined
   }, "middle center cell style");
   assert.deepEqual(cover.cells[4].contentStyle, {
@@ -311,4 +311,189 @@ QUnit.test("grid cells - calculate cell maxWidth", function (assert) {
   assert.equal(cover.cells[2].contentStyle["maxWidth"], undefined, "logo #3");
   assert.equal(cover.cells[3].contentStyle["maxWidth"], "300%", "title #3");
   assert.equal(cover.cells[7].contentStyle["maxWidth"], undefined, "description #3");
+});
+
+QUnit.test("cover visibleRows calculation", function (assert) {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  assert.deepEqual(cover.getVisibleRows(), [1, 3], "default: logo top, title bottom, description bottom");
+
+  cover.logoPositionY = "top";
+  cover.titlePositionY = "top";
+  cover.descriptionPositionY = "top";
+  assert.deepEqual(cover.getVisibleRows(), [1], "all elements in top");
+
+  cover.logoPositionY = "middle";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionY = "middle";
+  assert.deepEqual(cover.getVisibleRows(), [2], "all elements in middle");
+
+  cover.logoPositionY = "bottom";
+  cover.titlePositionY = "bottom";
+  cover.descriptionPositionY = "bottom";
+  assert.deepEqual(cover.getVisibleRows(), [3], "all elements in bottom");
+
+  cover.logoPositionY = "top";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionY = "bottom";
+  assert.deepEqual(cover.getVisibleRows(), [1, 2, 3], "elements in different positions");
+
+  cover.logoPositionY = "top";
+  cover.titlePositionY = "top";
+  cover.descriptionPositionY = "bottom";
+  assert.deepEqual(cover.getVisibleRows(), [1, 3], "two elements in top, one in bottom");
+
+  cover.survey = new SurveyModel({});
+  assert.deepEqual(cover.getVisibleRows(), [1, 2, 3], "empty survey");
+
+  cover.survey.title = "Title";
+  assert.deepEqual(cover.getVisibleRows(), [1], "survey with title only");
+});
+
+QUnit.test("should calculate correct grid positions based on logo, title and description positions", (assert) => {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  cover.logoPositionX = "left";
+  cover.logoPositionY = "top";
+  cover.titlePositionX = "center";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionX = "right";
+  cover.descriptionPositionY = "bottom";
+
+  const topLeftCell = cover.cells[0];
+  const middleCenterCell = cover.cells[4];
+  const bottomRightCell = cover.cells[8];
+
+  assert.deepEqual(topLeftCell.style, {
+    gridRow: 1,
+    gridColumn: 1,
+    width: undefined,
+  });
+
+  assert.deepEqual(middleCenterCell.style, {
+    gridRow: 2,
+    gridColumn: 2,
+    width: undefined,
+  });
+
+  assert.deepEqual(bottomRightCell.style, {
+    gridRow: 3,
+    gridColumn: 3,
+    width: undefined,
+  });
+});
+
+QUnit.test("should handle empty rows correctly", (assert) => {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  cover.logoPositionX = "left";
+  cover.logoPositionY = "top";
+  cover.titlePositionX = "center";
+  cover.titlePositionY = "top";
+  cover.descriptionPositionX = "right";
+  cover.descriptionPositionY = "top";
+
+  const middleLeftCell = cover.cells[3];
+  const bottomCenterCell = cover.cells[7];
+
+  assert.deepEqual(middleLeftCell.style, {
+    gridRow: 0,
+    gridColumn: 0,
+    width: undefined,
+    display: "none"
+  });
+
+  assert.deepEqual(bottomCenterCell.style, {
+    gridRow: 0,
+    gridColumn: 0,
+    width: undefined,
+    display: "none"
+  });
+});
+
+QUnit.test("calcGridRow with different positions", function(assert) {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  // Test with all elements in different positions
+  cover.logoPositionY = "top";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionY = "bottom";
+
+  // Test top cell
+  const topCell = cover.cells.find(cell => cell["positionY"] === "top");
+  assert.equal(topCell?.style.gridRow, 1, "Top cell should be in row 1");
+  assert.equal(topCell?.style.gridColumn, 1, "Top cell should be in column 1");
+
+  // Test middle cell
+  const middleCell = cover.cells.find(cell => cell["positionY"] === "middle");
+  assert.equal(middleCell?.style.gridRow, 2, "Middle cell should be in row 2");
+  assert.equal(middleCell?.style.gridColumn, 1, "Middle cell should be in column 1");
+
+  // Test bottom cell
+  const bottomCell = cover.cells.find(cell => cell["positionY"] === "bottom");
+  assert.equal(bottomCell?.style.gridRow, 3, "Bottom cell should be in row 3");
+  assert.equal(bottomCell?.style.gridColumn, 1, "Bottom cell should be in column 1");
+});
+
+QUnit.test("calcGridRow with empty rows", function(assert) {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  // Set all elements to middle row
+  cover.logoPositionY = "middle";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionY = "middle";
+
+  // Test cells in different rows
+  const topCell = cover.cells.find(cell => cell["positionY"] === "top");
+  const middleCell = cover.cells.find(cell => cell["positionY"] === "middle");
+  const bottomCell = cover.cells.find(cell => cell["positionY"] === "bottom");
+
+  assert.equal(topCell?.style.gridRow, 0, "Empty top row should be hidden");
+  assert.equal(middleCell?.style.gridRow, 1, "Middle row should be first visible row");
+  assert.equal(bottomCell?.style.gridRow, 0, "Empty bottom row should be hidden");
+});
+
+QUnit.test("calcGridRow with single row content", function(assert) {
+  const cover = new Cover();
+  cover.survey = getSurveyWithLogoTitleAndDescription();
+
+  // Set all elements to bottom row
+  cover.logoPositionY = "bottom";
+  cover.titlePositionY = "bottom";
+  cover.descriptionPositionY = "bottom";
+
+  // Test cells in different rows
+  const topCell = cover.cells.find(cell => cell["positionY"] === "top");
+  const middleCell = cover.cells.find(cell => cell["positionY"] === "middle");
+  const bottomCell = cover.cells.find(cell => cell["positionY"] === "bottom");
+
+  assert.equal(topCell?.style.gridRow, 0, "Empty top row should be hidden");
+  assert.equal(middleCell?.style.gridRow, 0, "Empty middle row should be hidden");
+  assert.equal(bottomCell?.style.gridRow, 1, "Bottom row should be first visible row");
+});
+
+QUnit.test("CoverCell.calcGridRow with renderedHeight", function(assert) {
+  const survey = getSurveyWithLogoTitleAndDescription();
+  const cover = new Cover();
+  cover.survey = survey;
+
+  cover.logoPositionY = "bottom";
+  cover.titlePositionY = "bottom";
+  cover.descriptionPositionY = "bottom";
+
+  const bottomLeftCell = cover.cells[6];
+  // Test case 1: When renderedHeight is set
+  cover.height = 100; // This will set renderedHeight
+  assert.equal(bottomLeftCell.style.gridRow, 3, "#1 gridRow");
+  assert.equal(bottomLeftCell.style.gridColumn, 1, "#1 gridColumn");
+
+  // Test case 2: When renderedHeight is not set
+  cover.height = 0; // This will unset renderedHeight
+  assert.equal(bottomLeftCell.style.gridRow, 1, "#2 gridRow");
+  assert.equal(bottomLeftCell.style.gridColumn, 1, "#2 gridColumn");
 });

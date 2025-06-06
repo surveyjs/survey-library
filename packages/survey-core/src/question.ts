@@ -972,21 +972,27 @@ export class Question extends SurveyElement<Question>
     }
     for (let i = qs.length - 1; i >= 0; i--) {
       const q = qs[i];
-      const title = q == summaryQ ? q.locTitle : q.singleInputLocTitle;
-      const action = new Action({ id: "single-action" + q.id, locTitle: title,
-        css: this.cssClasses.breadcrumbsItem,
-        innerCss: this.cssClasses.breadcrumbsItemButton,
-        action: () => {
-          if (q == summaryQ) {
-            q.setSingleInputQuestion(q);
-          } else {
+      if (q !== summaryQ) {
+        //const title = q == summaryQ ? q.locTitle : q.singleInputLocTitle;
+        const title = q.singleInputLocTitle;
+        const action = new Action({ id: "single-action" + q.id, locTitle: title,
+          css: this.cssClasses.breadcrumbsItem,
+          innerCss: this.cssClasses.breadcrumbsItemButton,
+          action: () => {
             q.singleInputMoveToFirst();
+            /*
+            if (q == summaryQ) {
+              q.setSingleInputQuestion(q);
+            } else {
+              q.singleInputMoveToFirst();
+            }
+            */
           }
-        }
-      });
+        });
 
-      action.cssClasses = {};
-      res.push(action);
+        action.cssClasses = {};
+        res.push(action);
+      }
     }
     return res;
   }

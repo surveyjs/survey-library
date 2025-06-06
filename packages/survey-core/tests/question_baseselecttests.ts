@@ -2688,3 +2688,19 @@ QUnit.test("checkbox vs selectAll and isExclusive", (assert) => {
   q.renderedValue = ["none2", "none"];
   assert.deepEqual(q.value, ["none"], "#12");
 });
+QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", { value: "none2", isExclusive: true }, "orange"],
+        showNoneItem: true,
+        showSelectAllItem: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.dataChoices.length, 4, "dataChoices length");
+  assert.equal(q.dataChoices[2].value, "none2", "none2 is here");
+});

@@ -951,14 +951,12 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
-    rec = !!rec
-      ? rec
-      : {
-        fireCallback: fireCallback,
-        focusOnFirstError: focusFirstError,
-        firstErrorQuestion: <any>null,
-        result: false,
-      };
+    rec = rec || {
+      fireCallback: fireCallback,
+      focusOnFirstError: focusFirstError,
+      firstErrorQuestion: <any>null,
+      result: false,
+    };
     if (rec.result !== true) rec.result = false;
     this.hasErrorsCore(rec);
     return !rec.result;

@@ -733,8 +733,9 @@ export class Question extends SurveyElement<Question>
     }
     const questions = this.getSingleInputQuestions();
     if (Array.isArray(questions) && questions.length > 0) {
-      questions[0].onFirstRendering();
-      return questions[0];
+      const q = questions[0];
+      this.onBeforeSetSingleInputQuestion(q);
+      return q;
     }
     return undefined;
   }
@@ -798,8 +799,10 @@ export class Question extends SurveyElement<Question>
       this.onSingleInputChanged();
     }
   }
-  private onSingleInputChanged(): void {
-    this.resetSingleInputSummary();
+  private onSingleInputChanged(resetSummary: boolean = true): void {
+    if (resetSummary) {
+      this.resetSingleInputSummary();
+    }
     this.singleInputLocTitle?.strChanged();
     this.resetPropertyValue("singleInputLocTitle");
     this.calcSingleInputActions();
@@ -812,9 +815,20 @@ export class Question extends SurveyElement<Question>
   public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
     const q = this.currentSingleInputQuestion;
     if (!q) return true;
-    return q.validate(fireCallback, rec);
+    rec = rec || {
+      fireCallback: fireCallback,
+      focusOnFirstError: fireCallback,
+      firstErrorQuestion: <any>null,
+      result: false,
+    };
+    const res = q.validate(fireCallback, rec);
+    if (!res && rec.focusOnFirstError && !!rec.firstErrorQuestion) {
+      rec.firstErrorQuestion.focus(true);
+    }
+    return res;
   }
   public getSingleInputElementPos(): number {
+    if (this.singleInputQuestion === this) return 0;
     const pQ = this.currentSingleInputParentQuestion;
     if (pQ !== this) {
       let res = pQ.getSingleInputElementPos();
@@ -859,7 +873,9 @@ export class Question extends SurveyElement<Question>
       this.resetSingleInput();
     }
   }
+  private isSingleInputSummaryShown: boolean;
   public onSetAsSingleInput(): void {
+    this.isSingleInputSummaryShown = false;
     const needReset = !this.wasRendered || this.singleInputSummary;
     this.onFirstRendering();
     if (needReset) {
@@ -941,7 +957,7 @@ export class Question extends SurveyElement<Question>
   private getSingleQuestionActions(): Array<Action> {
     const res = new Array<Action>();
     const p = this.currentSingleInputParentQuestion;
-    if (!p) return res;
+    if (!p || p === this) return res;
     const pSQs = p.getSingleInputQuestions();
     const qs = new Array<Question>();
     let summaryQ = undefined;
@@ -956,21 +972,27 @@ export class Question extends SurveyElement<Question>
     }
     for (let i = qs.length - 1; i >= 0; i--) {
       const q = qs[i];
-      const title = q == summaryQ ? q.locTitle : q.singleInputLocTitle;
-      const action = new Action({ id: "single-action" + q.id, locTitle: title,
-        css: this.cssClasses.breadcrumbsItem,
-        innerCss: this.cssClasses.breadcrumbsItemButton,
-        action: () => {
-          if (q == summaryQ) {
-            q.setSingleInputQuestion(q);
-          } else {
+      if (q !== summaryQ) {
+        //const title = q == summaryQ ? q.locTitle : q.singleInputLocTitle;
+        const title = q.singleInputLocTitle;
+        const action = new Action({ id: "single-action" + q.id, locTitle: title,
+          css: this.cssClasses.breadcrumbsItem,
+          innerCss: this.cssClasses.breadcrumbsItemButton,
+          action: () => {
             q.singleInputMoveToFirst();
+            /*
+            if (q == summaryQ) {
+              q.setSingleInputQuestion(q);
+            } else {
+              q.singleInputMoveToFirst();
+            }
+            */
           }
-        }
-      });
+        });
 
-      action.cssClasses = {};
-      res.push(action);
+        action.cssClasses = {};
+        res.push(action);
+      }
     }
     return res;
   }
@@ -993,23 +1015,25 @@ export class Question extends SurveyElement<Question>
   }
   private getSingleInputQuestions(): Array<Question> {
     if (!this.supportNestedSingleInput()) return [];
-    const res = this.getSingleInputQuestionsCore(this.getPropertyValue("singleInputQuestion"));
+    const question = this.getPropertyValue("singleInputQuestion");
+    if (question === this) return [this];
+    const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
     res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
     return res;
   }
-  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     return this.getNestedQuestions(true, false);
   }
   protected onSingleInputQuestionAdded(question: Question): void {}
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {}
-  protected getSingleInputQuestionsForDynamic(question?: Question): Array<Question> {
+  protected getSingleInputQuestionsForDynamic(question: Question, arr: Array<Question>): Array<Question> {
     const res = new Array<Question>();
-    if (question) {
-      this.setSingleInputQuestionCore(question);
+    if (!!question && question !== this && arr.indexOf(question) < 0) {
+      this.fillSingleInputQuestionsInContainer(res, question);
     }
-    const q = this.getPropertyValue("singleInputQuestion");
-    if (!!q && q !== this) {
-      this.fillSingleInputQuestionsInContainer(res, q);
+    arr.forEach(q => res.push(q));
+    if (this.isSingleInputSummaryShown && res.length > 0) {
+      res.unshift(this);
     }
     res.push(this);
     return res;
@@ -1018,13 +1042,19 @@ export class Question extends SurveyElement<Question>
   protected singleInputAddItemCore(): void {}
   protected singleInputRemoveItemCore(question: Question): void {}
   private setSingleInputQuestionCore(question: Question): void {
-    question.onFirstRendering();
+    this.onBeforeSetSingleInputQuestion(question);
     this.setPropertyValue("singleInputQuestion", question);
   }
-  protected setSingleInputQuestion(question: Question): void {
+  private onBeforeSetSingleInputQuestion(question: Question): void {
+    question.onFirstRendering();
+    if (question === this) {
+      this.isSingleInputSummaryShown = true;
+    }
+  }
+  protected setSingleInputQuestion(question: Question, onPrev?: boolean): void {
     if (this.singleInputQuestion !== question) {
       this.setSingleInputQuestionCore(question);
-      this.onSingleInputChanged();
+      this.onSingleInputChanged(!onPrev || question !== this);
     }
   }
   private nextPrevSingleInput(skip: number): boolean {
@@ -1045,7 +1075,7 @@ export class Question extends SurveyElement<Question>
     }
     index += skip;
     if (index < 0 || index >= questions.length) return false;
-    this.setSingleInputQuestion(questions[index]);
+    this.setSingleInputQuestion(questions[index], skip < 0);
     return true;
   }
   /**

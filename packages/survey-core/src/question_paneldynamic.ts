@@ -1231,11 +1231,11 @@ export class QuestionPanelDynamicModel extends Question
     super.resetSingleInput();
     this.locTemplateTitle.onGetTextCallback = null;
   }
-  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     this.onFirstRendering();
     const res = new Array<Question>();
     const panels = this.visiblePanels;
-    if ((!question || question === this) && panels.length > 0) {
+    if (checkDynamic) {
       for (let i = 0; i < panels.length; i ++) {
         const panel = panels[i];
         if (!panel.hasValueAnyQuestion(true) || panel.hasErrors(false, false)) {
@@ -1243,7 +1243,7 @@ export class QuestionPanelDynamicModel extends Question
         }
       }
     }
-    return this.getSingleInputQuestionsForDynamic(res.length > 0 ? res[0] : null);
+    return this.getSingleInputQuestionsForDynamic(question, res);
   }
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
     const panel = this.getPanelByQuestion(innerQuestion);

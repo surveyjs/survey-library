@@ -5923,7 +5923,12 @@ export class SurveyModel extends SurveyElementCore
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          this.suspendLazyRendering();
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(htmlElement);
+            onScolledCallback && onScolledCallback();
+          });
         }
       }
     }

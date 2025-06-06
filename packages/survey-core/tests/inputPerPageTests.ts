@@ -2037,3 +2037,163 @@ QUnit.test("singleInput show panel with data as summary page vs several pages, B
   assert.equal(panel.singleInputQuestion.name, "panel", "currentSingleQuestion is panel, #2");
   assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #2");
 });
+QUnit.test("singleInput comback to summary from edit #1, Bug#9982", assert => {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          { type: "paneldynamic", name: "panel", templateElements: [{ type: "text", name: "q2" }, { type: "text", name: "q3", isRequired: true }] }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  survey.data = { panel: [{ q2: "a" }] };
+  const panel = survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputQuestion.name, "q2", "currentSingleQuestion is panel, #2");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #1");
+  survey.performNext();
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "q3", "currentSingleQuestion is panel, #3");
+  panel.singleInputQuestion.value = "b";
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #4");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #4");
+  panel.singleInputSummary.items[0].btnEdit.action();
+  assert.equal(panel.singleInputQuestion.name, "q2", "currentSingleQuestion is panel, #5");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is q1, #6");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #6");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #7");
+});
+QUnit.test("singleInput comback to summary from edit #2, Bug#9982", assert => {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          { type: "paneldynamic", name: "panel", templateElements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  survey.data = { panel: [{ q2: "a", q3: "b" }] };
+  const panel = survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #2");
+  panel.singleInputSummary.items[0].btnEdit.action();
+  assert.equal(panel.singleInputQuestion.name, "q2", "currentSingleQuestion is panel, #3");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is q1, #4");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #4");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #5");
+});
+QUnit.test("singleInput comback to summary from edit vs required questions #3, Bug#9982", assert => {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          { type: "paneldynamic", name: "panel", templateElements: [
+            { type: "text", name: "q2", isRequired: true },
+            { type: "text", name: "q3", isRequired: true }] }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #1");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputQuestion.name, "panel", "currentSingleQuestion is panel, #2");
+  assert.equal(panel.singleInputSummary?.items.length, 0, "panel.singleInputSummary, #2");
+  panel.addPanel();
+  assert.equal(panel.singleInputQuestion.name, "q2", "currentSingleQuestion is panel, #3");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is q1, #4");
+  assert.equal(panel.singleInputSummary?.items.length, 1, "panel.singleInputSummary, #4");
+  survey.performPrevious();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion is q1, #5");
+});
+QUnit.test("singleInput navigattion & errors for nested matrix #4, Bug#9982", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "departments",
+        title: "Departments List",
+        noEntriesText: "Add new department",
+        templateElements: [
+          {
+            type: "text",
+            name: "department",
+            title: "Department name",
+            defaultDisplayValue: "[not set]",
+            isRequired: true
+          },
+          {
+            type: "matrixdynamic",
+            name: "employees",
+            noRowsText: "Add employees to the department",
+            title: "Employees",
+            columns: [
+              {
+                name: "employee-name",
+                title: "Name",
+                cellType: "text",
+                isRequired: true,
+                defaultDisplayValue: "[not set]"
+              },
+              {
+                name: "employment-date",
+                title: "Employment date",
+                cellType: "text",
+                inputType: "date",
+                isRequired: true
+              }
+            ],
+            singleInputTitleTemplate: "Employee: {row.employee-name}",
+            rowCount: 0,
+            addRowText: "Add Employee",
+            removeRowText: "Remove Employee"
+          }
+        ],
+        templateTitle: "Department: {panel.department}",
+        panelCount: 1,
+        addPanelText: "Add Department"
+      }],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("departments");
+  assert.equal(survey.currentSingleQuestion.name, "departments", "currentSingleQuestion is departments, #1");
+  assert.equal(panel.singleInputQuestion.name, "department", "singleInputQuestion is department, #1");
+  panel.singleInputQuestion.value = "HR";
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "departments", "currentSingleQuestion is department, #2");
+  assert.equal(panel.singleInputQuestion.name, "employees", "singleInputQuestion is department, #2");
+  const matrix = <QuestionMatrixDynamicModel>panel.singleInputQuestion;
+  assert.equal(matrix.singleInputQuestion.name, "employees", "singleInputQuestion is employee-name, #2");
+  assert.equal(matrix.singleInputSummary?.items.length, 0, "matrix.singleInputSummary, #2");
+  matrix.addRow();
+  assert.equal(matrix.singleInputQuestion.name, "employee-name", "singleInputQuestion is employee-name, #3");
+  survey.performPrevious();
+  assert.equal(matrix.singleInputQuestion.name, "employees", "currentSingleQuestion is departments, #4");
+  assert.equal(matrix.singleInputSummary?.items.length, 1, "matrix.singleInputSummary, #4");
+  assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, #4");
+  assert.equal(survey.isShowNextButton, true, "isCompleteButtonVisible, #4");
+  survey.performNext();
+  assert.equal(matrix.singleInputQuestion.name, "employee-name", "singleInputQuestion is employee-name, #5");
+  assert.equal(matrix.singleInputQuestion.errors.length, 1, "singleInputQuestion show errors, #5");
+});

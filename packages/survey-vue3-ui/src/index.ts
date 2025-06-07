@@ -49,6 +49,7 @@ import MultipletextItem from "./MultipletextItem.vue";
 import Breadcrumbs from "./components/breadcrumbs/Breadcrumbs.vue";
 import SingleInputSummary from "./components/SingleInputSummary.vue";
 import Slider from "./Slider.vue";
+import SliderLabelItem from "./components/slider/SliderLabelItem.vue";
 
 import Matrix from "./Matrix.vue";
 import MatrixRow from "./MatrixRow.vue";
@@ -224,6 +225,7 @@ function registerComponents(
   registerComponent("sv-breadcrumbs", Breadcrumbs);
   registerComponent("sv-single-input-summary", SingleInputSummary);
   registerComponent("survey-slider", Slider);
+  registerComponent("sv-slider-label-item", SliderLabelItem);
 
   registerComponent("survey-matrix", Matrix);
   registerComponent("survey-matrix-row", MatrixRow);

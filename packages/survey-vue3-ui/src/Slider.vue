@@ -50,17 +50,13 @@
 
         <div v-if="question.showLabels" :class="question.cssClasses.labelsContainer">
           <div>
-            <div v-for="(label, i) in question.renderedLabels" :key="i" :class="question.getLabelCss(i)"
-            :style="{ left: label.value + '%' }"
-            @pointerup="(e)=>{question.handleLabelPointerUp(e, i)}">
-                <div :class="question.cssClasses.labelTick"></div>
-                <div :class="question.cssClasses.labelText">
-                  <SvComponent
-                    :is="'survey-string'"
-                    :locString="label.locText"
-                  />
-                </div>
-            </div>
+            <SvComponent
+              v-for="(label) in question.renderedLabels"
+              :key="label.id"
+              :is="'sv-slider-label-item'"
+              :item="label"
+              :question="question"
+            />
           </div>
         </div>
     </div>

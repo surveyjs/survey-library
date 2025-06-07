@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { QuestionAngular } from "../question";
-import { QuestionSliderModel } from "survey-core";
+import { ItemValue, QuestionSliderModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -35,8 +35,8 @@ export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel
   trackByRenderedValue (i: number): number {
     return i;
   }
-  trackByLabelCount (i: number): number {
-    return i;
+  trackByLabelCount (i: number, label: ItemValue): string {
+    return label.id;
   }
 }
 

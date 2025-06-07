@@ -5,18 +5,32 @@ import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property, propertyArray, Serializer } from "./jsonobject";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Question } from "./question";
 import { QuestionFactory } from "./questionfactory";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
+
+interface ISliderLabelItemOwner extends ILocalizableOwner{
+  getTextByItem(item: ItemValue, text: string):string;
+}
+export class SliderLabelItemValue extends ItemValue {
+  protected getBaseType(): string {
+    return "sliderlabel";
+  }
+  protected onGetText(text:string):string {
+    const owner:ISliderLabelItemOwner = this.locOwner as any;
+    if (!owner) return super.onGetText(text);
+    return owner.getTextByItem(this, text);
+  }
+}
 
 /**
  * A class that describes the Range Slider question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
  */
-
-export class QuestionSliderModel extends Question {
+export class QuestionSliderModel extends Question implements ISliderLabelItemOwner {
   @property({ defaultValue: "single" }) sliderType: "range" | "single";
   @property({ defaultValue: 100 }) max: number;
   @property({ defaultValue: 0 }) min: number;
@@ -61,6 +75,9 @@ export class QuestionSliderModel extends Question {
   public set customLabels(val: ItemValue[]) {
     this.setPropertyValue("customLabels", val);
   }
+  protected getItemValueType():string {
+    return "sliderlabel";
+  }
   public get generatedLabels(): ItemValue[] {
     return this.getPropertyValue("generatedLabels", undefined, () => this.calcGeneratedLabels());
   }
@@ -82,9 +99,7 @@ export class QuestionSliderModel extends Question {
 
   constructor(name: string) {
     super(name);
-    if (!this.isDesignMode) {
-      this.createItemValues("customLabels");
-    }
+    this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
   }
@@ -118,10 +133,10 @@ export class QuestionSliderModel extends Question {
       .toString();
   }
 
-  public getLabelCss = (labelNumber: number): string => {
+  public getLabelCss = (locText: LocalizableString): string => {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
-      .append(this.cssClasses.labelLongMod, this.getLabelText(labelNumber).length > 10)
+      .append(this.cssClasses.labelLongMod, locText.renderedHtml.length > 10)
       .toString();
   };
 
@@ -144,7 +159,8 @@ export class QuestionSliderModel extends Question {
   public get renderedLabels(): Array<ItemValue> {
     const generatedLabels = this.generatedLabels; // need this const due to observability reasons
     const customLabels = this.customLabels; // need this const due to observability reasons
-    return this.autoGenerate ? generatedLabels : customLabels;
+    if (this.autoGenerate) return generatedLabels;
+    return customLabels;
   }
 
   public isIndeterminate = false;
@@ -398,7 +414,7 @@ export class QuestionSliderModel extends Question {
     let percent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
     if (isRtl) percent = 100 - percent;
 
-    let newValue = Math.round(percent / 100 * (max - min) + min);
+    let newValue = percent / 100 * (max - min) + min;
     this.setValueByClick(newValue, event.target as HTMLInputElement);
   };
 
@@ -531,9 +547,7 @@ export class QuestionSliderModel extends Question {
     this.focusedThumb = null;
   };
 
-  public handleLabelPointerUp = (event: PointerEvent, labelNumber: number) => {
-    const labelText = this.getLabelText(labelNumber);
-    const newValue = +labelText;
+  public handleLabelPointerUp = (event: PointerEvent, newValue: number) => {
     const inputNode = <HTMLInputElement>event.target;
     if (isNaN(newValue)) return;
     this.setValueByClick(newValue, inputNode);
@@ -547,28 +561,28 @@ export class QuestionSliderModel extends Question {
     return tooltipFormat.replace("{0}", "" + value);
   };
 
+  public getTextByItem(item: ItemValue, text: string): string {
+    if (text) return text;
+    const res = this.getLabelText(this.renderedLabels.indexOf(item));
+    return this.labelFormat.replace("{0}", "" + res);
+  }
+
   public getLabelText = (labelNumber: number):string => {
-    const { customLabels, step, renderedMax: max, renderedMin: min, labelCount, labelFormat, formatNumber } = this;
+    const { step, renderedMax: max, renderedMin: min, labelCount, formatNumber } = this;
     const fullRange = max - min;
     const isDecimal = step % 1 != 0;
-    let labelStep = labelNumber * fullRange / (labelCount - 1);
-    let labelText = customLabels.length > 0 ? customLabels[labelNumber].text : isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
-    labelText = labelFormat.replace("{0}", "" + labelText);
-    return labelText;
+    const count = labelCount - 1;
+    let labelStep = count === 0 ? 0 : labelNumber * fullRange / count;
+    return isDecimal ? "" + formatNumber(labelStep + min) : "" + Math.round(labelStep + min);
   };
 
   public getLabelPosition = (labelNumber: number):number => {
-    const { renderedMax: max, renderedMin: min, labelCount, customLabels } = this;
-    let count = labelCount;
-    if (customLabels.length > 0) {
-      return customLabels[labelNumber].value;
-    } else {
-      count = labelCount - 1;
-      if (count === 0) return 0;
-      const fullRange = max - min;
-      const labelStep = labelNumber * fullRange / count;
-      return labelStep / fullRange * 100;
-    }
+    const { max, min, labelCount, customLabels } = this;
+    const count = labelCount - 1;
+    if (count === 0) return 0;
+    const fullRange = max - min;
+    const labelStep = min + labelNumber * fullRange / count;
+    return labelStep;
   };
 
   public endLoadingFromJson() {
@@ -578,6 +592,14 @@ export class QuestionSliderModel extends Question {
     }
     if (!this.isDesignMode && this.sliderType === "range") {
       this.createNewArray("value");
+    }
+  }
+
+  public updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    newValue = this.ensureValueRespectMinMax(newValue);
+    super.updateValueFromSurvey(newValue, clearData);
+    if (this.isIndeterminate) {
+      this.isIndeterminate = false;
     }
   }
 
@@ -622,9 +644,11 @@ export class QuestionSliderModel extends Question {
     //     }
     //   }
     // );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate"],
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
       () => {
         this.resetPropertyValue("generatedLabels");
+        this.locStrsChanged();
+        //TODO support labelFormat for customLabels
       }
     );
     this.registerSychProperties(["autoGenerate"],
@@ -640,19 +664,18 @@ export class QuestionSliderModel extends Question {
   }
 
   protected setNewValue(newValue: any): void {
-    if (!Array.isArray(newValue)) {
-      if (newValue < this.min) newValue = this.min;
-      if (newValue > this.max) newValue = this.max;
-    } else {
-      newValue.forEach((el, i) => {
-        if (el < this.min) newValue[i] = this.min;
-        if (el > this.max) newValue[i] = this.max;
-      });
-    }
-
+    newValue = this.ensureValueRespectMinMax(newValue);
     super.setNewValue(newValue);
     if (this.isIndeterminate) {
       this.isIndeterminate = false;
+    }
+  }
+
+  protected setDefaultValue() {
+    super.setDefaultValue();
+    const val = this.defaultValue;
+    if (this.sliderType === "single" && Array.isArray(val)) {
+      this.setSliderValue(val);
     }
   }
 
@@ -673,28 +696,39 @@ export class QuestionSliderModel extends Question {
     return actions;
   }
 
-  protected setDefaultValue() {
-    super.setDefaultValue();
-    const val = this.defaultValue;
-    if (this.sliderType === "single" && Array.isArray(val)) {
-      this.setSliderValue(val);
-    }
-  }
-
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
 
-  private calcGeneratedLabels() : Array<ItemValue> {
-    const labels:ItemValue[] = [];
+  private calcGeneratedLabels() : Array<SliderLabelItemValue> {
+    const labels:SliderLabelItemValue[] = [];
     for (let i = 0; i < this.labelCount; i++) {
-      labels.push(new ItemValue(this.getLabelPosition(i), this.getLabelText(i)));
+      labels.push(this.createLabelItem(this.getLabelPosition(i)));
     }
     return labels;
   }
 
+  protected createLabelItem(value: number) {
+    const res = new SliderLabelItemValue(value);
+    res.locOwner = this;
+    return res;
+  }
+
   private formatNumber(number:number) {
     return parseFloat(number.toFixed(4));
+  }
+
+  private ensureValueRespectMinMax(value: number[] | number):number[] | number {
+    if (!Array.isArray(value)) {
+      if (value < this.min) value = this.min;
+      if (value > this.max) value = this.max;
+    } else {
+      value.forEach((el, i) => {
+        if (el < this.min) value[i] = this.min;
+        if (el > this.max) value[i] = this.max;
+      });
+    }
+    return value;
   }
 }
 
@@ -703,6 +737,13 @@ function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any
   if (min >= max) return isMax ? min + step : max - step;
   return val;
 }
+
+Serializer.addClass(
+  "sliderlabel",
+  [],
+  (value: any) => new SliderLabelItemValue(value),
+  "itemvalue"
+);
 
 Serializer.addClass(
   "slider",
@@ -766,7 +807,7 @@ Serializer.addClass(
       }
     },
     {
-      name: "customLabels:itemvalue[]",
+      name: "customLabels:sliderlabel[]",
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
       },
@@ -826,6 +867,6 @@ Serializer.addClass(
   },
   "question",
 );
-// QuestionFactory.Instance.registerQuestion("slider", (name) => {
-//   return new QuestionSliderModel(name);
-// });
+QuestionFactory.Instance.registerQuestion("slider", (name) => {
+  return new QuestionSliderModel(name);
+});

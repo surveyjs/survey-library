@@ -9,6 +9,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { Serializer } from "../src/jsonobject";
+import { template } from "lodash";
 
 export default QUnit.module("Input Per Page Tests");
 
@@ -2282,4 +2283,73 @@ QUnit.test("singleInput navigattion & errors for nested matrix #4, Bug#9982", as
   survey.performNext();
   assert.equal(matrix.singleInputQuestion.name, "employee-name", "singleInputQuestion is employee-name, #5");
   assert.equal(matrix.singleInputQuestion.errors.length, 1, "singleInputQuestion show errors, #5");
+});
+//TODO re-think this test. We need to include summaries into brasdscrum navigation
+QUnit.skip("singleInput bradscrum navigation for 3 level dynamic panels", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "topLevel",
+        templateTitle: "Top Level Panel {panelIndex}",
+        templateElements: [
+          {
+            type: "paneldynamic",
+            name: "middleLevel",
+            templateTitle: "Middle Level Panel {panelIndex}",
+            templateElements: [
+              {
+                type: "paneldynamic",
+                name: "bottomLevel",
+                templateTitle: "Bottom Level Panel {panelIndex}",
+                templateElements: [
+                  {
+                    type: "text",
+                    name: "q1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        defaultValue: [
+          { middleLevel: [{ bottomLevel: [{ q1: "aa" }] }, [{ bottomLevel: [{ q1: "ab" }] }]] },
+          { middleLevel: [{ bottomLevel: [{ q1: "ba" }] }, { bottomLevel: [{ q1: "bb" }] }] }
+        ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const topPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("topLevel");
+  topPanel.value =
+  assert.equal(survey.currentSingleQuestion.name, "topLevel", "currentSingleQuestion is topLevel, #1");
+  assert.equal(topPanel.singleInputQuestion.name, "topLevel", "currentSingleQuestion is middleLevel, #1");
+  assert.equal(topPanel.singleInputSummary?.items.length, 2, "topPanel.singleInputSummary, #1");
+  topPanel.singleInputSummary.items[1].btnEdit.action();
+  assert.equal(topPanel.singleInputQuestion.name, "middleLevel", "currentSingleQuestion is middleLevel, #2");
+  let middlePanel = <QuestionPanelDynamicModel>topPanel.singleInputQuestion;
+  assert.equal(middlePanel.singleInputSummary?.items.length, 2, "middlePanel.singleInputSummary, #2");
+  assert.equal(topPanel.singleInputActions.actions.length, 1, "topPanel singleInputActions length, #2");
+  middlePanel.singleInputSummary.items[0].btnEdit.action();
+  assert.equal(middlePanel.singleInputQuestion.name, "bottomLevel", "currentSingleQuestion is bottomLevel, #3");
+  let bottomPanel = <QuestionPanelDynamicModel>middlePanel.singleInputQuestion;
+  assert.equal(bottomPanel.singleInputSummary?.items.length, 1, "bottomPanel.singleInputSummary, #3");
+  let actions = topPanel.singleInputActions.actions;
+  assert.equal(actions.length, 2, "topPanel singleInputActions length, #3");
+  assert.equal(actions[0].title, "Panel 2", "actions[0] title, #3");
+  assert.equal(actions[1].title, "Panel 1", "actions[1] title, #3");
+  actions[1].action();
+  assert.equal(topPanel.singleInputQuestion.name, "middleLevel", "currentSingleQuestion is middleLevel, #4");
+  middlePanel = <QuestionPanelDynamicModel>topPanel.singleInputQuestion;
+  assert.equal(middlePanel.singleInputSummary?.items.length, 2, "middlePanel.singleInputSummary, #4");
+  assert.equal(topPanel.singleInputActions.actions.length, 1, "topPanel singleInputActions length, #4");
+
+  middlePanel.singleInputSummary.items[1].btnEdit.action();
+  bottomPanel = <QuestionPanelDynamicModel>middlePanel.singleInputQuestion;
+  assert.equal(bottomPanel.singleInputSummary?.items.length, 1, "bottomPanel.singleInputSummary, #3");
+  actions = topPanel.singleInputActions.actions;
+  assert.equal(actions.length, 2, "topPanel singleInputActions length, #3");
+  assert.equal(actions[0].title, "Panel 2", "actions[0] title, #3");
+  assert.equal(actions[1].title, "Panel 2", "actions[1] title, #3");
+  actions[0].action();
 });

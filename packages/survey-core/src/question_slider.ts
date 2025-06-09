@@ -41,12 +41,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   @property({ defaultValue: "{0}" }) tooltipFormat: string;
   @property({ defaultValue: "{0}" }) labelFormat: string;
   @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | /*"always" |*/ "never";
-  get tooltipVisibilityPG(): boolean {
-    return this.tooltipVisibility === "auto";
-  }
-  set tooltipVisibilityPG(newValue: boolean) {
-    this.tooltipVisibility = newValue ? "auto" : "never";
-  }
   public get step(): number {
     // if (this.segmentCount) {
     //   return (this.renderedMax - this.renderedMin) / this.segmentCount;
@@ -75,12 +69,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public set customLabels(val: ItemValue[]) {
     this.setPropertyValue("customLabels", val);
   }
-  protected getItemValueType():string {
-    return "sliderlabel";
-  }
-  public get generatedLabels(): ItemValue[] {
-    return this.getPropertyValue("generatedLabels", undefined, () => this.calcGeneratedLabels());
-  }
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
   public get allowSwap(): boolean {
@@ -102,6 +90,24 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
+  }
+  @property({ defaultValue: null }) focusedThumb: number | null;
+  @property({ defaultValue: null }) animatedThumb: boolean | null;
+  public dragOrClickHelper: DragOrClickHelper;
+  public get generatedLabels(): ItemValue[] {
+    return this.getPropertyValue("generatedLabels", undefined, () => this.calcGeneratedLabels());
+  }
+  get tooltipVisibilityPG(): boolean {
+    return this.tooltipVisibility === "auto";
+  }
+  set tooltipVisibilityPG(newValue: boolean) {
+    this.tooltipVisibility = newValue ? "auto" : "never";
+  }
+  public get renderedValue(): number[] {
+    return this.getPropertyValue("renderedValue", undefined, () => this.calcRenderedValue());
+  }
+  public set renderedValue(val: number[]) {
+    this.setPropertyValue("renderedValue", val);
   }
 
   public getType(): string {
@@ -167,9 +173,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public get isNegativeScale():boolean {
     return this.renderedMin < 0;
   }
-  @property({ defaultValue: null }) focusedThumb: number | null;
-  @property({ defaultValue: null }) animatedThumb: boolean | null;
-  public dragOrClickHelper: DragOrClickHelper;
 
   public getRenderedValue = ():number[] => {
     const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, renderedMinRangeLength, sliderType } = this;
@@ -202,35 +205,33 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public getTrackPercentLeft = ():number => {
-    const { getRenderedValue, sliderType, renderedMin: min } = this;
-    const value = getRenderedValue();
+    const { renderedValue, sliderType, renderedMin: min } = this;
     let result;
     if (sliderType === "single") {
-      if (value[0] > 0) {
+      if (renderedValue[0] > 0) {
         result = this.getPercent(Math.max(0, min));
       } else {
-        result = this.getPercent(value[0]);
+        result = this.getPercent(renderedValue[0]);
       }
     } else {
-      result = this.getPercent(Math.min(...value));
+      result = this.getPercent(Math.min(...renderedValue));
     }
 
     return result;
   };
 
   public getTrackPercentRight = ():number => {
-    const { getRenderedValue, sliderType, renderedMax: max } = this;
-    const value = getRenderedValue();
+    const { renderedValue, sliderType, renderedMax: max } = this;
     let result;
 
     if (sliderType === "single") {
-      if (value[0] > 0) {
-        result = this.getPercent(value[0]);
+      if (renderedValue[0] > 0) {
+        result = this.getPercent(renderedValue[0]);
       } else {
         result = this.getPercent(Math.min(0, max));
       }
     } else {
-      result = this.getPercent(Math.max(...value));
+      result = this.getPercent(Math.max(...renderedValue));
     }
 
     return 100 - result;
@@ -299,24 +300,22 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleRangeOnChange = (event: InputEvent): void => {
     if (!this.isRangeMoving) return;
-    const { renderedMax: max, renderedMin: min, getRenderedValue } = this;
+    const { renderedMax: max, renderedMin: min, renderedValue } = this;
     const inputNode = <HTMLInputElement>event.target;
     const diff = this.oldInputValue - +inputNode.value;
     this.oldInputValue = +inputNode.value;
 
-    const renderedValue = getRenderedValue();
     let borderArrived = false;
     for (let i = 0; i < renderedValue.length; i++) {
       const newVal = renderedValue[i] - diff;
       if (newVal <= max && newVal >= min) {
-        renderedValue[i] -= diff;
+        renderedValue.splice(i, 1, newVal);
       } else {
         borderArrived = true;
       }
     }
 
     if (borderArrived) { borderArrived = false; return; }
-    this.setSliderValue(renderedValue);
   };
 
   public prepareInputRangeForMoving = (event: PointerEvent, rootNode: HTMLElement): void => {
@@ -352,7 +351,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public handleRangePointerUp = (event: PointerEvent, rootNode: HTMLElement) => {
-    const { step, getRenderedValue, getClosestToStepValue } = this;
+    const { step, renderedValue, getClosestToStepValue } = this;
     const inputNode = <HTMLInputElement>event.target;
 
     if (this.isRangeMoving) {
@@ -362,7 +361,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         // const input = this.rangeInputRef.current as HTMLInputElement; //TODO
         inputNode.step = "" + step;
 
-        const renderedValue:number[] = getRenderedValue();
         for (let i = 0; i < renderedValue.length; i++) {
           renderedValue[i] = getClosestToStepValue(renderedValue[i]);
         }
@@ -396,14 +394,14 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public setSliderValue = (newValue: number | number[]) => { // TODO move to setNewValue
     if (!this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle) {
+      let result;
       if (this.sliderType === "single") {
-        this.value = Array.isArray(newValue) ? newValue[0] : newValue;
-        return;
+        result = Array.isArray(newValue) ? newValue[0] : newValue;
+      } else if (this.sliderType === "range") {
+        result = newValue;
       }
-      if (this.sliderType === "range") {
-        this.value = newValue;
-        return;
-      }
+      this.value = result;
+      this.resetPropertyValue("renderedValue");
     }
   };
 
@@ -466,8 +464,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
     if (this.oldValue === null) return; // Firefox raise one more OnChange after PointerUp and break the value
-    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, setSliderValue } = this;
-    const renderedValue:number[] = getRenderedValue();
+    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, setSliderValue, renderedValue } = this;
     const inputNode = <HTMLInputElement>event.target;
 
     let newValue: number = +inputNode.value;
@@ -480,8 +477,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     }
 
     renderedValue.splice(inputNumber, 1, newValue);
-
-    setSliderValue(renderedValue);
   };
 
   public handlePointerDown = (e: PointerEvent)=> {
@@ -500,8 +495,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handlePointerUp = (event:PointerEvent) => {
     event.stopPropagation();
-    const { step, focusedThumb, getRenderedValue, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
-    let renderedValue:number[] = getRenderedValue();
+    const { step, focusedThumb, renderedValue, allowSwap, renderedMinRangeLength, getClosestToStepValue, refreshInputRange, setSliderValue } = this;
     const focusedThumbValue = renderedValue[focusedThumb];
     const inputNode = <HTMLInputElement>event.target;
 
@@ -519,7 +513,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (allowSwap) {
       for (let i = 0; i < renderedValue.length - 1; i++) {
         if (Math.abs(renderedValue[i] - renderedValue[i + 1]) < renderedMinRangeLength) {
-          renderedValue = <number[]>this.oldValue;
+          this.setPropertyValue("renderedValue", <number[]>this.oldValue);
           break;
         }
       }
@@ -554,8 +548,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public getTooltipValue = (tooltipNumber: number):string => {
-    const { step, getClosestToStepValue, getRenderedValue, tooltipFormat, formatNumber } = this;
-    let value = getRenderedValue()[tooltipNumber];
+    const { step, getClosestToStepValue, renderedValue, tooltipFormat, formatNumber } = this;
+    let value = renderedValue[tooltipNumber];
     value = step ? getClosestToStepValue(value) : value;
     value = formatNumber(value);
     return tooltipFormat.replace("{0}", "" + value);
@@ -648,7 +642,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       () => {
         this.resetPropertyValue("generatedLabels");
         this.locStrsChanged();
-        //TODO support labelFormat for customLabels
       }
     );
     this.registerSychProperties(["autoGenerate"],
@@ -661,6 +654,11 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         }
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step"],
+      () => {
+        this.resetPropertyValue("renderedValue");
+      }
+    );
   }
 
   protected setNewValue(newValue: any): void {
@@ -669,6 +667,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (this.isIndeterminate) {
       this.isIndeterminate = false;
     }
+    this.resetPropertyValue("renderedValue");
   }
 
   protected setDefaultValue() {
@@ -677,6 +676,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (this.sliderType === "single" && Array.isArray(val)) {
       this.setSliderValue(val);
     }
+    this.resetPropertyValue("renderedValue");
   }
 
   protected getDefaultTitleActions(): Array<Action> {
@@ -696,9 +696,49 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     return actions;
   }
 
+  protected getItemValueType():string {
+    return "sliderlabel";
+  }
+
+  protected createLabelItem(value: number) {
+    const res = new SliderLabelItemValue(value);
+    res.locOwner = this;
+    return res;
+  }
+
   private isRangeMoving = false;
   private oldInputValue: number | null = null;
   private oldValue: number | number[] | null = null;
+
+  private calcRenderedValue = ():number[] => {
+    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, renderedMinRangeLength, sliderType } = this;
+    let result;
+
+    if (sliderType === "single") {
+      result = this.value;
+      if (typeof result === "undefined" || result.length === 0) {
+        this.isIndeterminate = true;
+        return this.isNegativeScale ? [Math.min(max, 0)] : [min];
+      } else {
+        return Array.isArray(result) ? [result[0]] : [result];
+      }
+    }
+
+    result = Array.isArray(this.value) ? this.value.slice() : [];
+
+    if (result.length === 0) {
+      const fullRange = max - min;
+      this.isIndeterminate = true;
+      if (Math.abs(fullRange) > renderedMaxRangeLength) {
+        // const range = (fullRange - renderedMaxRangeLength) / 2;
+        const range = (fullRange - renderedMinRangeLength) / 2;
+        return [(min + range), (max - range)];
+      }
+      return [min, max]; // TODO support several values 3 and more
+    }
+
+    return result;
+  };
 
   private calcGeneratedLabels() : Array<SliderLabelItemValue> {
     const labels:SliderLabelItemValue[] = [];
@@ -706,12 +746,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       labels.push(this.createLabelItem(this.getLabelPosition(i)));
     }
     return labels;
-  }
-
-  protected createLabelItem(value: number) {
-    const res = new SliderLabelItemValue(value);
-    res.locOwner = this;
-    return res;
   }
 
   private formatNumber(number:number) {

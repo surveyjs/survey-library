@@ -523,8 +523,8 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   q1.sliderType = "single";
   q1.value = 75;
 
-  assert.deepEqual(q1.getTrackPercentLeft(), 0);
-  assert.deepEqual(q1.getTrackPercentRight(), 25);
+  assert.deepEqual(q1.getTrackPercentLeft(), 0, "percent left is correct when single default value");
+  assert.deepEqual(q1.getTrackPercentRight(), 25, "percent right is correct when single default value");
 
   q1.min = 50;
   assert.deepEqual(q1.getTrackPercentLeft(), 0);
@@ -536,8 +536,8 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   assert.deepEqual(q1.getTrackPercentRight(), 25);
 
   q1.value = -50;
-  assert.deepEqual(q1.getTrackPercentLeft(), 25);
-  assert.deepEqual(q1.getTrackPercentRight(), 50);
+  assert.deepEqual(q1.getTrackPercentLeft(), 25, "percent left is correct when single value is negative");
+  assert.deepEqual(q1.getTrackPercentRight(), 50, "percent right is correct when single value is negative");
 
   q1.value = -75;
   q1.max = -50;

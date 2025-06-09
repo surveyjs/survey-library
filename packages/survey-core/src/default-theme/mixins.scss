@@ -93,6 +93,7 @@
 }
 
 @mixin articleHtml {
+  @include articleDefaultFont;
   color: $font-pagetitle-color;
   h1 {
     @include articleXXLargeFont;
@@ -142,7 +143,9 @@
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
 
-    box-shadow: $shadow-small, 0 0 0 0px $primary;
+    box-shadow:
+      $shadow-small,
+      0 0 0 0px $primary;
     transition: box-shadow $transition-duration;
 
     &:hover {
@@ -150,7 +153,9 @@
     }
 
     &:focus {
-      box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
+      box-shadow:
+        $shadow-small-reset,
+        0 0 0 2px $primary;
     }
 
     span {

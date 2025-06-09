@@ -1303,10 +1303,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.fireCallback(this.columnsChangedCallback);
   }
   //For internal use
-  public resetRenderedTable(): void {
-    if (this.lockResetRenderedTable || this.isUpdateLocked) return;
-    this.renderedTableValue = null;
-    this.fireCallback(this.onRenderedTableResetCallback);
+  public resetRenderedTable(columnVisibilityChanged?: boolean): void {
+    if (!this.renderedTableValue) return;
+    if (this.lockResetRenderedTable || this.isUpdateLocked) {
+      if (columnVisibilityChanged) {
+        this.renderedTableValue.requireReset();
+      }
+    } else {
+      this.renderedTableValue = null;
+      this.fireCallback(this.onRenderedTableResetCallback);
+    }
   }
   protected clearGeneratedRows(): void {
     this.clearVisibleRows();
@@ -1644,7 +1650,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       hasChanged = this.isColumnVisibilityChanged(column, isCellsVisibilty) || hasChanged;
     }
     if (hasChanged) {
-      this.resetRenderedTable();
+      this.resetRenderedTable(true);
     }
   }
   private checkColumnsRenderedRequired(): void {

@@ -335,12 +335,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get hasRemoveRows(): boolean {
     return this.hasRemoveRowsValue;
   }
+  private isRequireResetValue: boolean;
   public isRequireReset(): boolean {
-    return (
-      this.hasRemoveRows != this.matrix.canRemoveRows ||
-      !this.matrix.isColumnLayoutHorizontal
-    );
+    return this.isRequireResetValue || this.hasRemoveRows != this.matrix.canRemoveRows || !this.matrix.isColumnLayoutHorizontal;
   }
+  public requireReset(): void {
+    this.isRequireResetValue = true;
+  }
+
   public get headerRow(): QuestionMatrixDropdownRenderedRow {
     return this.headerRowValue;
   }

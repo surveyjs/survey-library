@@ -214,6 +214,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await page.waitForLoadState("networkidle");
       await page.evaluate(() => {
         (window as any).survey.applyTheme({
           "cssVariables": {
@@ -222,7 +223,7 @@ frameworks.forEach(framework => {
           }
         });
       });
-      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sd-root-modern", "survey-theme-questiontitle-font-color-for-items.png");
 
       await page.click(".sd-dropdown");

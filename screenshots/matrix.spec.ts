@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
 
-const title = "Matrixdynamic Screenshot";
+const title = "Matrix Screenshot";
 
 frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {

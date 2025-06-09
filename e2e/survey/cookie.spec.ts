@@ -49,11 +49,11 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);
 
-      await expect(page.locator(".sd-body h3").getByText("You have already completed this survey.")).toBeVisible();
+      await expect(page.locator(".sd-body").getByText("You have already completed this survey.")).toBeVisible();
       await deleteCookie(page);
       await firstElement.hover();
 
-      await expect(page.locator(".sd-body h3").getByText("You have already completed this survey.")).not.toBeVisible();
+      await expect(page.locator(".sd-body").getByText("You have already completed this survey.")).not.toBeVisible();
     });
   });
 });

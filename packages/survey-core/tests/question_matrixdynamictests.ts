@@ -10599,3 +10599,61 @@ QUnit.test("A matrix row validation works incorrectly when using valueName, Bug#
   assert.equal(matrix2.visibleRows[0].getQuestionByColumnName("column2").value, 1, "column2 value is correct");
   assert.equal(matrix2.validate(), true, "matrix2 is valid");
 });
+QUnit.test("The Set Value trigger doesn't work on subsequent runs, Bug#10017", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "toggleMatrix",
+        title: "Do you want to add the row?",
+        isRequired: true,
+        choices: ["Yes", "No"],
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        resetValueIf: "{toggleMatrix} = 'No'",
+        columns: [
+          { name: "col1" },
+          { name: "col2" },
+        ],
+        rowCount: 0,
+        cellType: "text",
+      },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        expression: "{toggleMatrix} = 'Yes'",
+        setToName: "matrix",
+        setValue: [
+          {
+            col1: "Value 1",
+            col2: "Value 2",
+          },
+        ],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 0, "matrix visible rows #1");
+  assert.equal(matrix.isEmpty(), true, "matrix value #1");
+  survey.setValue("toggleMatrix", "Yes");
+  assert.equal(matrix.visibleRows.length, 1, "matrix visible rows #2");
+  assert.deepEqual(matrix.value, [{ col1: "Value 1", col2: "Value 2" }], "matrix value #2");
+  survey.setValue("toggleMatrix", "No");
+  assert.equal(matrix.visibleRows.length, 0, "matrix visible rows #3");
+  assert.equal(matrix.isEmpty(), true, "matrix value #3");
+  survey.setValue("toggleMatrix", "Yes");
+  assert.equal(matrix.visibleRows.length, 1, "matrix visible rows #4");
+  assert.deepEqual(matrix.value, [{ col1: "Value 1", col2: "Value 2" }], "matrix value #4");
+  survey.setValue("toggleMatrix", "No");
+  assert.equal(matrix.visibleRows.length, 0, "matrix visible rows #5");
+  assert.equal(matrix.isEmpty(), true, "matrix value #5");
+  matrix.value = [{ col1: "Value A", col2: "Value B" }, { col1: "Value C", col2: "Value D" }];
+  assert.equal(matrix.visibleRows.length, 2, "matrix visible rows #6");
+  assert.deepEqual(matrix.value, [{ col1: "Value A", col2: "Value B" }, { col1: "Value C", col2: "Value D" }], "matrix value #6");
+  survey.setValue("toggleMatrix", "Yes");
+  assert.equal(matrix.visibleRows.length, 1, "matrix visible rows #7");
+  assert.deepEqual(matrix.value, [{ col1: "Value 1", col2: "Value 2" }], "matrix value #7");
+});

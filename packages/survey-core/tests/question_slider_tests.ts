@@ -1,5 +1,5 @@
 import { ItemValue } from "../src/itemvalue";
-import { QuestionSliderModel } from "../src/question_slider";
+import { QuestionSliderModel, SliderLabelItemValue } from "../src/question_slider";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("question slider");
@@ -836,6 +836,8 @@ QUnit.test("check labelFormat for custom labels", (assert) => {
   assert.deepEqual(q1.customLabels.map(l=>l.locText.textOrHtml), ["50 %", "60 %", "70 %", "80 %", "90 %", "100 %"], "labelFormat");
   q1.labelFormat = "{0} $";
   assert.deepEqual(q1.customLabels.map(l=>l.locText.textOrHtml), ["50 $", "60 $", "70 $", "80 $", "90 $", "100 $"], "labelFormat");
+  q1.customLabels[1].value = 55;
+  assert.equal(q1.customLabels[1].locText.textOrHtml, "55 $", "custom label value is correct");
 });
 
 QUnit.test("labelFormat", (assert) => {
@@ -873,4 +875,14 @@ QUnit.test("check labelCount=1 works correctly", (assert) => {
   q1.autoGenerate = false;
   assert.equal(q1.renderedLabels[0].value, 0);
   assert.equal(q1.renderedLabels[0].text, "0");
+});
+QUnit.test("check labelCount=0 works correctly", (assert) => {
+  let item = new SliderLabelItemValue(50);
+  assert.strictEqual(item.value, 50, "value #1");
+  item = new SliderLabelItemValue("50");
+  assert.strictEqual(item.value, 50, "value #2");
+  item.value = "dfdff";
+  assert.strictEqual(item.value, 50, "value #3");
+  item = new SliderLabelItemValue("fdsdf");
+  assert.strictEqual(item.value, 0, "value #4");
 });

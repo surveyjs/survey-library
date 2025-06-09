@@ -2,7 +2,7 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
 import { DomDocumentHelper } from "./global_variables_utils";
-import { HashTable } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -12,16 +12,22 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DragOrClickHelper } from "./utils/dragOrClickHelper";
 
 interface ISliderLabelItemOwner extends ILocalizableOwner{
-  getTextByItem(item: ItemValue, text: string):string;
+  getTextByItem(item: ItemValue):string;
 }
 export class SliderLabelItemValue extends ItemValue {
   protected getBaseType(): string {
     return "sliderlabel";
   }
   protected onGetText(text:string):string {
-    const owner:ISliderLabelItemOwner = this.locOwner as any;
-    if (!owner) return super.onGetText(text);
-    return owner.getTextByItem(this, text);
+    if (!!text || !this.locOwner) return super.onGetText(text);
+    return (this.locOwner as ISliderLabelItemOwner).getTextByItem(this);
+  }
+  protected getCorrectValue(value: any) {
+    if (typeof value === "number") return value;
+    if (Helpers.isNumber(value)) {
+      return parseFloat(value.toString());
+    }
+    return this.value || 0;
   }
 }
 
@@ -523,9 +529,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     return tooltipFormat.replace("{0}", "" + value);
   };
 
-  public getTextByItem(item: ItemValue, text: string): string {
-    if (text) return text;
-    const res = this.getLabelText(this.renderedLabels.indexOf(item));
+  public getTextByItem(item: ItemValue): string {
+    const res = item.value.toString();
     return this.labelFormat.replace("{0}", "" + res);
   }
 
@@ -741,7 +746,7 @@ function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any
 
 Serializer.addClass(
   "sliderlabel",
-  [],
+  [{ name: "!value:number" }],
   (value: any) => new SliderLabelItemValue(value),
   "itemvalue"
 );

@@ -268,6 +268,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   private setValue(newValue: any, newItem: boolean): void {
     let text: string = undefined;
+    newValue = this.getCorrectValue(newValue);
     if (!Helpers.isValueEmpty(newValue)) {
       var str: string = newValue.toString();
       var index = str.indexOf(settings.itemValueSeparator);
@@ -285,6 +286,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       this.text = text;
     }
     this.id = this.value;
+  }
+  protected getCorrectValue(value: any): any {
+    return value;
   }
   public get hasText(): boolean {
     return this.pureText ? true : false;

@@ -767,18 +767,14 @@ frameworks.forEach(framework => {
             "type": "panel",
             "name": "panel",
             "isRequired": true,
-            "elements": [
-              {
-                "type": "text",
-                "name": "question2"
-              }
-            ],
-            "title": "Panel"
+            "title": "Panel",
+            "elements": [{ "type": "text", "name": "question2" }],
           }
         ]
       });
+      await page.waitForTimeout(500);
+
       const panelRoot = page.locator(".sd-panel");
-      await resetFocusToBody(page);
       await page.click("input[value='Complete']");
       await compareScreenshot(page, panelRoot, "panel-with-errors.png");
     });
@@ -792,12 +788,7 @@ frameworks.forEach(framework => {
             "type": "panel",
             "name": "panel",
             "isRequired": true,
-            "elements": [
-              {
-                "type": "text",
-                "name": "question2"
-              }
-            ],
+            "elements": [{ "type": "text", "name": "question2" }],
           }
         ]
       });
@@ -808,7 +799,6 @@ frameworks.forEach(framework => {
     });
 
     test("Check question min size inside panels in design mode", async ({ page }) => {
-      if (framework == "vue") return;
       await page.setViewportSize({ width: 370, height: 800 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
@@ -842,12 +832,15 @@ frameworks.forEach(framework => {
           }
         ]
       });
-      const panelRoot = page.locator(".sd-body");
+      await page.waitForTimeout(500);
       await page.evaluate(() => {
         (window as any).survey.setDesignMode(true);
         (window as any).survey.setIsMobile(true);
       });
+      await page.waitForTimeout(500);
       await resetFocusToBody(page);
+
+      const panelRoot = page.locator(".sd-body");
       await compareScreenshot(page, panelRoot, "responsive-question-inside-panels-in-creator.png");
     });
 
@@ -858,39 +851,20 @@ frameworks.forEach(framework => {
         showNavigationButtons: "none",
         width: "500px",
         elements: [
+          { type: "comment", name: "q1" },
+          { type: "comment", name: "q2" },
+          { type: "comment", name: "q3" },
+          { type: "comment", name: "q4" },
           {
-            type: "comment",
-            name: "q1"
-          },
-          {
-            type: "comment",
-            name: "q2"
-          },
-          {
-            type: "comment",
-            name: "q3"
-          },
-          {
-            type: "comment",
-            name: "q4"
-          },
-          {
-            type: "panel",
-            name: "panel",
-            state: "collapsed",
+            type: "panel", name: "panel", state: "collapsed",
             elements: [
-              {
-                type: "comment",
-                name: "panel_q1"
-              },
-              {
-                type: "comment",
-                name: "panel_q2"
-              }
+              { type: "comment", name: "panel_q1" },
+              { type: "comment", name: "panel_q2" }
             ]
           },
         ]
       });
+      await page.waitForTimeout(500);
       await page.evaluate(() => window.scrollBy(0, 400));
       const panelTitle = page.locator(".sd-panel__title");
       await panelTitle.click();

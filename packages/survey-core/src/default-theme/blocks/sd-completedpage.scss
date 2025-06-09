@@ -2,6 +2,7 @@
 @use "../mixins.scss" as mixins;
 
 .sd-completedpage,
+.sd-body--loading,
 .sd-completed-before-page {
   align-items: center;
   font-family: $font-family;
@@ -10,20 +11,20 @@
   text-align: center;
   height: auto;
   @include mixins.articleHtml;
+  &:not(:has(> *)) {
+    @include mixins.articleLargeFont;
+  }
 }
-
-.sd-completedpage:before,
-.sd-completedpage:after {
-  display: block;
-  width: calcSize(9);
-  margin-left: calc(50% - 4.5 * #{$base-unit});
-  content: "";
+.sd-completedpage {
+  &:has(> *) {
+    padding: calcSize(13) 0 calcSize(2) 0;
+  }
+  padding: calcSize(17) 0 calcSize(6) 0;
 }
-
-.sd-completedpage:before {
-  height: calcSize(13);
-}
-
-.sd-completedpage:after {
-  height: calcSize(2);
+.sd-body--loading,
+.sd-completed-before-page {
+  &:has(> *) {
+    padding: 0;
+  }
+  padding: calcSize(4) 0 calcSize(4) 0;
 }

@@ -11,6 +11,9 @@
   text-align: center;
   height: auto;
   @include mixins.articleHtml;
+  &:not(:has(> *)) {
+    @include mixins.articleLargeFont;
+  }
 }
 .sd-completedpage {
   &:has(> *) {

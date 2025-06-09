@@ -411,21 +411,12 @@ frameworks.forEach(framework => {
                     cellType: "dropdown",
                     isRequired: true,
                     isUnique: true,
-                    choices: [
-                      {
-                        value: "espresso",
-                        text: "Espresso",
-                      },
-                      {
-                        value: "ristretto",
-                        text: "Ristretto",
-                      },
-                      {
-                        value: "macchiato",
-                        text: "Macchiato",
-                      },
-                    ],
                     storeOthersAsComment: true,
+                    choices: [
+                      { value: "espresso", text: "Espresso", },
+                      { value: "ristretto", text: "Ristretto", },
+                      { value: "macchiato", text: "Macchiato", },
+                    ],
                   },
                   {
                     name: "price",

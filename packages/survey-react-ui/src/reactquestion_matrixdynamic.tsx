@@ -94,7 +94,7 @@ export class SurveyQuestionMatrixDynamicPlaceholder extends ReactSurveyElement {
     const matrix = this.props.question;
     const showAddButton = matrix.renderedTable.showAddRow;
     const text: React.JSX.Element = this.renderLocString(matrix.locNoRowsText);
-    const textDiv: React.JSX.Element = <div className={cssClasses.noRowsText}>{text}</div>;
+    const textDiv: React.JSX.Element = <div data-sv-drop-target-matrix-row={("placeholder-" + matrix.name)} className={cssClasses.noRowsText}>{text}</div>;
     const btn: React.JSX.Element | undefined = showAddButton ? this.renderAddRowButton(cssClasses, matrix) : undefined;
     return (
       <div className={cssClasses.noRowsSection}>

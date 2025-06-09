@@ -1918,22 +1918,3 @@ QUnit.test("Value expressions not working for member with the same name as root 
   row.getQuestionByName("value").value = "test";
   assert.equal(survey.getQuestionByName("exp").value, "test", "Expression works with the same name as root name");
 });
-QUnit.test("survey.onValidateQuestion, Bug#10011", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdynamic",
-        name: "matrix",
-        isRequired: true,
-        columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text", isRequired: true }],
-        rowCount: 3
-      }
-    ]
-  });
-  const questionNames: Array<string> = [];
-  survey.onValidateQuestion.add(function(survey, options) {
-    questionNames.push(options.question.name);
-  });
-  survey.tryComplete();
-  assert.deepEqual(questionNames, ["col1", "col2", "col1", "col2", "col1", "col2", "matrix"], "We should validate matrix and all its cells");
-});

@@ -2325,30 +2325,27 @@ export class Question extends SurveyElement<Question>
   }
   private collectErrors(qErrors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     this.onCheckForErrors(qErrors, isOnValueChanged, fireCallback);
-    if (!this.canRunValidators(isOnValueChanged)) return;
-    if (qErrors.length === 0) {
-      const errors = this.runValidators();
-      if (errors.length > 0) {
-        //validators may change the question value.
-        qErrors.length = 0;
-        for (var i = 0; i < errors.length; i++) {
-          qErrors.push(errors[i]);
-        }
+    if (qErrors.length > 0 || !this.canRunValidators(isOnValueChanged)) return;
+    var errors = this.runValidators();
+    if (errors.length > 0) {
+      //validators may change the question value.
+      qErrors.length = 0;
+      for (var i = 0; i < errors.length; i++) {
+        qErrors.push(errors[i]);
       }
     }
-    const error = this.fireSurveyValidation();
-    if (error) {
-      qErrors.push(error);
+    if (this.survey && qErrors.length == 0) {
+      var error = this.fireSurveyValidation();
+      if (error) {
+        qErrors.push(error);
+      }
     }
   }
   protected canRunValidators(isOnValueChanged: boolean): boolean {
     return true;
   }
   private fireSurveyValidation(): SurveyError {
-    if (this.validateValueCallback) {
-      const error = this.validateValueCallback();
-      if (error) return error;
-    }
+    if (this.validateValueCallback) return this.validateValueCallback();
     return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {

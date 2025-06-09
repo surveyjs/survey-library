@@ -18,6 +18,7 @@ export async function compareScreenshot(page: Page, elementSelector: string | Lo
   await page.addStyleTag({
     content: "textarea::-webkit-resizer { visibility: hidden !important; }"
   });
+  await page.waitForTimeout(10);
 
   let currentElement = elementSelector;
   if (!!currentElement && typeof currentElement == "string") {

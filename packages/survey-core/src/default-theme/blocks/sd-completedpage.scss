@@ -13,9 +13,15 @@
   @include mixins.articleHtml;
 }
 .sd-completedpage {
+  &:has(> *) {
+    padding: calcSize(13) 0 calcSize(2) 0;
+  }
   padding: calcSize(17) 0 calcSize(6) 0;
 }
 .sd-body--loading,
 .sd-completed-before-page {
+  &:has(> *) {
+    padding: 0;
+  }
   padding: calcSize(4) 0 calcSize(4) 0;
 }

@@ -146,6 +146,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .toString();
   };
 
+  public get renderedLabelCount(): number {
+    return this.labelCount < 0 ? 6 : this.labelCount;
+  }
+
   public get renderedMax(): number {
     return this.max; // TODO
   }
@@ -530,7 +534,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
 
   public getLabelText = (labelNumber: number):string => {
-    const { step, renderedMax: max, renderedMin: min, labelCount, formatNumber } = this;
+    const { step, renderedMax: max, renderedMin: min, renderedLabelCount: labelCount, formatNumber } = this;
     const fullRange = max - min;
     const isDecimal = step % 1 != 0;
     const count = labelCount - 1;
@@ -539,7 +543,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public getLabelPosition = (labelNumber: number):number => {
-    const { max, min, labelCount, customLabels } = this;
+    const { max, min, renderedLabelCount: labelCount, customLabels } = this;
     const count = labelCount - 1;
     if (count === 0) return 0;
     const fullRange = max - min;
@@ -709,7 +713,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   private calcGeneratedLabels() : Array<SliderLabelItemValue> {
     const labels:SliderLabelItemValue[] = [];
-    for (let i = 0; i < this.labelCount; i++) {
+    for (let i = 0; i < this.renderedLabelCount; i++) {
       labels.push(this.createLabelItem(this.getLabelPosition(i)));
     }
     return labels;
@@ -853,7 +857,7 @@ Serializer.addClass(
     },
     {
       name: "labelCount:number",
-      default: 6,
+      default: -1,
       visibleIf: function (obj: any) {
         return obj.autoGenerate;
       },

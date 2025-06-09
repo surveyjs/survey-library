@@ -167,7 +167,8 @@ QUnit.test("labelCount", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.labelCount, 6);
+  assert.equal(q1.labelCount, -1, "default labelCount");
+  assert.equal(q1.renderedLabelCount, 6, "default renderedLabelCount");
 
   json = {
     elements: [
@@ -177,13 +178,13 @@ QUnit.test("labelCount", (assert) => {
         name: "q1",
         min: 0,
         max: 100,
-        tickPercent: 25
+        customLabels: [{}, {}, {}]
       },
     ],
   };
   survey = new SurveyModel(json);
   q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.labelCount, 4 + 2);
+  assert.deepEqual(q1.renderedLabelCount, 3);
 });
 
 QUnit.test("customLabels", (assert) => {
@@ -501,7 +502,7 @@ QUnit.test("autoGenerate", (assert) => {
   assert.deepEqual(q1.labelCount, 1);
   q1.autoGenerate = true;
   assert.equal(q1.autoGenerate, true);
-  assert.deepEqual(q1.labelCount, 6);
+  assert.deepEqual(q1.labelCount, -1);
 });
 
 QUnit.test("getPercent", (assert) => {
@@ -699,7 +700,7 @@ QUnit.test("incorrect value shoudn't lead to js error", (assert) => {
 
 QUnit.test("getLabelPosition", (assert) => {
   let q1 = new QuestionSliderModel("q1");
-  assert.equal(q1.labelCount, 6);
+  assert.equal(q1.renderedLabelCount, 6);
   assert.deepEqual(q1.getLabelPosition(0), 0);
   assert.deepEqual(q1.getLabelPosition(1), 20);
 });

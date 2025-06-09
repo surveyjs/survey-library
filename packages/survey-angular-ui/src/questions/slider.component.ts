@@ -24,7 +24,7 @@ export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel
   }
   get labelCountArray(): number[] {
     const result:number[] = [];
-    for (let i = 0; i < this.model.labelCount; i++) {
+    for (let i = 0; i < this.model.renderedLabelCount; i++) {
       result.push(i);
     }
     return result;

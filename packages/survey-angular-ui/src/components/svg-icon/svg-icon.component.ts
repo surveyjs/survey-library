@@ -40,9 +40,11 @@ export class SvgIconComponent implements OnChanges {
     return "presentation";
   }
   ngOnChanges(): void {
-    const el = this.viewContaierRef.element.nativeElement;
-    el.innerHTML = "";
-    el.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "use"));
-    this.createSvg();
+    if (typeof document !== "undefined") {
+      const el = this.viewContaierRef.element.nativeElement;
+      el.innerHTML = "";
+      el.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "use"));
+      this.createSvg();
+    }
   }
 }

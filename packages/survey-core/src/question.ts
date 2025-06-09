@@ -21,7 +21,7 @@ import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
-import { DomWindowHelper } from "./global_variables_utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { Action } from "./actions/action";
 import { QuestionSingleInputSummary } from "./questionSingleInputSummary";
@@ -860,7 +860,9 @@ export class Question extends SurveyElement<Question>
     }
   }
   public onSetAsSingleInput(): void {
-    if (this.singleInputSummary) {
+    const needReset = !this.wasRendered || this.singleInputSummary;
+    this.onFirstRendering();
+    if (needReset) {
       this.resetSingleInputSummary();
       this.resetPropertyValue("singleInputQuestion");
       this.resetPropertyValue("singleInputLocTitle");
@@ -1371,9 +1373,8 @@ export class Question extends SurveyElement<Question>
     if (this.supportComment() || this.supportOther()) {
       this.commentElements = [];
       this.getCommentElementsId().forEach(id => {
-        const { root } = settings.environment;
-        let el = root.getElementById(id);
-        if (el)this.commentElements.push(el);
+        const commentEl = el?.querySelector(`#${id}`);
+        if (commentEl)this.commentElements.push(commentEl as HTMLElement);
       });
       this.updateCommentElements();
     }
@@ -2879,7 +2880,12 @@ export class Question extends SurveyElement<Question>
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
     this.isChangingViaDefaultValue = viaDefaultVal;
-    this.setQuestionValue(this.valueFromData(newValue));
+    newValue = this.valueFromData(newValue);
+    const isEqual = this.isTwoValueEquals(this.questionValue, this.convertToCorrectValue(newValue));
+    this.setQuestionValue(newValue);
+    if (!isEqual) {
+      this.resetSingleInput();
+    }
     this.isChangingViaDefaultValue = false;
   }
   updateCommentFromSurvey(newValue: any): any {
@@ -3062,6 +3068,7 @@ export class Question extends SurveyElement<Question>
   }
   private triggerResponsivenessCallback: (hard: boolean) => void;
   private initResponsiveness(el: HTMLElement) {
+    if (!DomDocumentHelper.isAvailable()) { return; }
     this.destroyResizeObserver();
     if (!!el && this.isDefaultRendering()) {
       const scrollableSelector = this.getObservedElementSelector();

@@ -5485,6 +5485,7 @@ export class SurveyModel extends SurveyElementCore
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   afterRenderSurvey(htmlElement: any) {
+    if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
     if (Array.isArray(htmlElement)) {
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
@@ -5922,7 +5923,12 @@ export class SurveyModel extends SurveyElementCore
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          this.suspendLazyRendering();
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(htmlElement);
+            onScolledCallback && onScolledCallback();
+          });
         }
       }
     }

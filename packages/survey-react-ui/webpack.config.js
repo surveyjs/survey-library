@@ -31,9 +31,13 @@ const buildPlatformJson = {
   "files": [
     "**/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/surveyjs/surveyjs.git"
+  },
   "main": "survey-react-ui.js",
   "module": "fesm/survey-react-ui.mjs",
-  typings: "./typings/entries/index.d.ts",
+  "typings": "./typings/entries/index.d.ts",
   "exports": {
     ".": {
       "types": "./typings/entries/index.d.ts",

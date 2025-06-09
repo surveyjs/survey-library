@@ -417,40 +417,34 @@ QUnit.test("ensureMinRangeBorders - allowSwap:false", (assert) => {
   assert.deepEqual(newValue, 31, "valid change");
 });
 
-QUnit.test("getRenderedValue", (assert) => {
+QUnit.test("renderedValue", (assert) => {
   let json:any = {
     elements: [
       {
         type: "slider",
         sliderType: "range",
         name: "q1",
-        minRangeLength: 20,
-        maxRangeLength: 50,
-        defaultValue: [25, 75]
       }
     ]
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  const renderedValue = q1.getRenderedValue();
-  renderedValue[0] = 125;
-
-  assert.deepEqual(q1.value[0], 25);
-  assert.deepEqual(q1.getRenderedValue()[0], 25);
-  assert.deepEqual(renderedValue[0], 125);
+  assert.deepEqual(q1.renderedValue, [0, 100], "renderedValue with indeterminate state");
+  q1.maxRangeLength = 20;
+  assert.deepEqual(q1.renderedValue, [40, 60], "renderedValue doesn't break maxRangeLength with indeterminate state");
 });
 
-QUnit.test("getRenderedValue: sliderType = 'single'", (assert) => {
+QUnit.test("renderedValue: sliderType = 'single'", (assert) => {
   const q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
   q1.value = [40];
-  const renderedValue = q1.getRenderedValue();
+  const renderedValue = q1.renderedValue;
   assert.equal(renderedValue[0], 40);
   renderedValue[0] = 100;
   assert.equal(q1.value, 40);
 });
 
-QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
+QUnit.test("renderedValue and maxRangeLength", (assert) => {
   let json:any = {
     elements: [
       {
@@ -466,25 +460,25 @@ QUnit.test("getRenderedValue and maxRangeLength", (assert) => {
   };
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  let renderedValue = q1.getRenderedValue();
-  assert.deepEqual(renderedValue, [-10, 10]);
+  let renderedValue = q1.renderedValue;
+  assert.deepEqual(renderedValue, [-50, 50]);
 
   q1.min = -100;
   q1.max = -40;
   q1.maxRangeLength = 20;
-  renderedValue = q1.getRenderedValue();
+  renderedValue = q1.renderedValue;
   assert.deepEqual(renderedValue, [-80, -60]);
 
   q1.max = 100;
   q1.min = 0;
   q1.maxRangeLength = 20;
-  renderedValue = q1.getRenderedValue();
+  renderedValue = q1.renderedValue;
   assert.deepEqual(renderedValue, [40, 60]);
 
   q1.step = 10;
   q1.minRangeLength = 20;
   q1.maxRangeLength = 50;
-  assert.deepEqual(q1.getRenderedValue(), [40, 60]);
+  assert.deepEqual(q1.renderedValue, [30, 80]);
 });
 
 QUnit.test("autoGenerate", (assert) => {
@@ -588,18 +582,18 @@ QUnit.test("getTrackPercentLeft and getTrackPercentRight", (assert) => {
   assert.deepEqual(q1.getTrackPercentRight(), 20);
 });
 
-QUnit.test("getRenderedValue return correct initial value with negative scale", (assert) => {
+QUnit.test("renderedValue return correct initial value with negative scale", (assert) => {
   const q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
   q1.min = -100;
   q1.max = -10;
-  assert.deepEqual(q1.getRenderedValue(), [-10]);
+  assert.deepEqual(q1.renderedValue, [-10]);
 
   q1.max = 100;
-  assert.deepEqual(q1.getRenderedValue(), [0]);
+  assert.deepEqual(q1.renderedValue, [0]);
 
   q1.min = 10;
-  assert.deepEqual(q1.getRenderedValue(), [10]);
+  assert.deepEqual(q1.renderedValue, [10]);
 });
 
 QUnit.test("getClosestToStepValue", (assert) => {
@@ -700,7 +694,7 @@ QUnit.test("incorrect value shoudn't lead to js error", (assert) => {
   let q1 = new QuestionSliderModel("q1");
   q1.sliderType = "range";
   q1.value = 10;
-  assert.deepEqual(q1.getRenderedValue(), [0, 100]);
+  assert.deepEqual(q1.renderedValue, [0, 100]);
 });
 
 QUnit.test("getLabelPosition", (assert) => {
@@ -729,7 +723,7 @@ QUnit.test("sliderType='single' but defaultValue is array", (assert) => {
   let q1 = new QuestionSliderModel("q1");
   q1.sliderType = "single";
   q1.defaultValue = [50, 60];
-  assert.equal(q1.getRenderedValue(), 50, "rendered value is ok");
+  assert.equal(q1.renderedValue, 50, "rendered value is ok");
   assert.equal(q1.value, 50, "value is ok");
 });
 
@@ -769,7 +763,7 @@ QUnit.test("setNewValue", (assert) => {
   q1.sliderType = "single";
   q1.max = 100;
   q1.value = 110;
-  assert.equal(q1.getRenderedValue(), 100);
+  assert.equal(q1.renderedValue, 100);
   assert.equal(q1.value, 100);
   assert.equal(q1.isIndeterminate, false);
 });
@@ -792,7 +786,7 @@ QUnit.test("check valueName", (assert) => {
   let survey = new SurveyModel(json);
   let q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
   let q2 = <QuestionSliderModel>survey.getQuestionByName("q2");
-  assert.deepEqual(q1.getRenderedValue(), [0], "indeterminate state");
+  assert.deepEqual(q1.renderedValue, [0], "indeterminate state");
   assert.equal(q1.isIndeterminate, true);
   q2.value = 110;
   assert.deepEqual(q1.value, 100, "slider value respect max");

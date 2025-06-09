@@ -174,36 +174,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     return this.renderedMin < 0;
   }
 
-  public getRenderedValue = ():number[] => {
-    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, renderedMinRangeLength, sliderType } = this;
-    let result;
-
-    if (sliderType === "single") {
-      result = this.value;
-      if (typeof result === "undefined" || result.length === 0) {
-        this.isIndeterminate = true;
-        return this.isNegativeScale ? [Math.min(max, 0)] : [min];
-      } else {
-        return Array.isArray(result) ? [result[0]] : [result];
-      }
-    }
-
-    result = Array.isArray(this.value) ? this.value.slice() : [];
-
-    if (result.length === 0) {
-      const fullRange = max - min;
-      this.isIndeterminate = true;
-      if (Math.abs(fullRange) > renderedMaxRangeLength) {
-        // const range = (fullRange - renderedMaxRangeLength) / 2;
-        const range = (fullRange - renderedMinRangeLength) / 2;
-        return [(min + range), (max - range)];
-      }
-      return [min, max]; // TODO support several values 3 and more
-    }
-
-    return result;
-  };
-
   public getTrackPercentLeft = ():number => {
     const { renderedValue, sliderType, renderedMin: min } = this;
     let result;
@@ -244,8 +214,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public ensureMaxRangeBorders = (newValue:number, inputNumber:number):number => {
-    const { renderedMaxRangeLength, getRenderedValue } = this;
-    const value:number[] = getRenderedValue();
+    const { renderedMaxRangeLength, renderedValue } = this;
+    const value:number[] = renderedValue.slice();
     const oldValue = value[inputNumber];
 
     let isOutOfRange = false;
@@ -263,8 +233,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public ensureMinRangeBorders = (newValue:number, inputNumber:number):number => {
-    const { renderedMinRangeLength, getRenderedValue, allowSwap, renderedMin: min, renderedMax: max } = this;
-    const value:number[] = getRenderedValue();
+    const { renderedMinRangeLength, renderedValue, allowSwap, renderedMin: min, renderedMax: max } = this;
+    const value:number[] = renderedValue.slice();
     const oldValue = value[inputNumber];
 
     let isOutOfRange = false;
@@ -377,11 +347,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public refreshInputRange = (inputNode: HTMLInputElement | null):void => {
-    const { allowDragRange, getRenderedValue, getPercent } = this;
+    const { allowDragRange, renderedValue, getPercent } = this;
     if (!allowDragRange) return;
     //if (!this.rangeInputRef.current) return;
     if (!inputNode) return;
-    const renderedValue = getRenderedValue();
     const percentLastValue = getPercent(renderedValue[renderedValue.length - 1]);
     const percentFirstValue = getPercent(renderedValue[0]);
     let percent: number = percentLastValue - percentFirstValue;
@@ -417,54 +386,54 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public setValueByClick = (newValue: number, inputNode: HTMLInputElement) => {
-    const { step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, refreshInputRange, setSliderValue } = this;
+    const { step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, renderedValue, refreshInputRange, setSliderValue } = this;
 
     this.animatedThumb = true;
 
-    const renderedValue = getRenderedValue();
+    const value = renderedValue.slice();
     let thumbIndex = 0;
 
-    for (let i = 0; i < renderedValue.length; i++) {
-      const currentMinValueDiff = Math.abs(renderedValue[thumbIndex] - newValue);
-      const newMinValueDiff = Math.abs(renderedValue[i] - newValue);
+    for (let i = 0; i < value.length; i++) {
+      const currentMinValueDiff = Math.abs(value[thumbIndex] - newValue);
+      const newMinValueDiff = Math.abs(value[i] - newValue);
       if (newMinValueDiff < currentMinValueDiff) {
         thumbIndex = i;
       }
     }
 
-    if (renderedValue.length > 1) {
+    if (value.length > 1) {
       newValue = ensureMaxRangeBorders(newValue, thumbIndex);
       newValue = ensureMinRangeBorders(newValue, thumbIndex);
     }
-    renderedValue[thumbIndex] = newValue;
+    value[thumbIndex] = newValue;
 
     if (step) {
-      const currentValue = getRenderedValue();
-      for (let i = 0; i < renderedValue.length; i++) {
+      const currentValue = renderedValue.slice();
+      for (let i = 0; i < value.length; i++) {
         const currentValueStep = currentValue[i] / step;
-        const newValueStep = renderedValue[i] / step;
+        const newValueStep = value[i] / step;
         const newValueRound = Math.round(newValueStep);
 
         if (newValueRound === currentValueStep) {
           if (newValueStep > currentValueStep) {
-            renderedValue[i] = renderedValue[i] + step;
+            value[i] = value[i] + step;
           } else if (newValueStep < currentValueStep) {
-            renderedValue[i] = renderedValue[i] - step;
+            value[i] = value[i] - step;
           }
         }
 
-        renderedValue[i] = getClosestToStepValue(renderedValue[i]);
+        value[i] = getClosestToStepValue(value[i]);
       }
     }
 
-    setSliderValue(renderedValue);
+    setSliderValue(value);
     //refreshInputRange(this.rangeInputRef.current);
     refreshInputRange(inputNode);
   };
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
     if (this.oldValue === null) return; // Firefox raise one more OnChange after PointerUp and break the value
-    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, getRenderedValue, setSliderValue, renderedValue } = this;
+    const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, renderedValue } = this;
     const inputNode = <HTMLInputElement>event.target;
 
     let newValue: number = +inputNode.value;
@@ -480,8 +449,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public handlePointerDown = (e: PointerEvent)=> {
-    const { step, getRenderedValue } = this;
-    const renderedValue = getRenderedValue();
+    const { step, renderedValue } = this;
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         const input:any = DomDocumentHelper.getDocument().getElementById(`sjs-slider-input-${i}`); //TODO
@@ -525,7 +493,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public handleKeyDown = (event: KeyboardEvent) => {
-    this.oldValue = this.getRenderedValue();
+    this.oldValue = this.renderedValue;
     this.animatedThumb = true;
   };
 
@@ -654,7 +622,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         }
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step"],
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "maxRangeLength", "minRangeLength"],
       () => {
         this.resetPropertyValue("renderedValue");
       }
@@ -711,7 +679,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   private oldValue: number | number[] | null = null;
 
   private calcRenderedValue = ():number[] => {
-    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, renderedMinRangeLength, sliderType } = this;
+    const { renderedMax: max, renderedMin: min, renderedMaxRangeLength, getClosestToStepValue, sliderType } = this;
     let result;
 
     if (sliderType === "single") {
@@ -730,9 +698,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       const fullRange = max - min;
       this.isIndeterminate = true;
       if (Math.abs(fullRange) > renderedMaxRangeLength) {
-        // const range = (fullRange - renderedMaxRangeLength) / 2;
-        const range = (fullRange - renderedMinRangeLength) / 2;
-        return [(min + range), (max - range)];
+        const range = (fullRange - renderedMaxRangeLength) / 2;
+        return [getClosestToStepValue(min + range), getClosestToStepValue(max - range)];
       }
       return [min, max]; // TODO support several values 3 and more
     }

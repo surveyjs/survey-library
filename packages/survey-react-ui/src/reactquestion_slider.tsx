@@ -3,6 +3,7 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { Base, QuestionSliderModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElement } from "react";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -49,7 +50,7 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getInputsAndThumbs() {
     const inputsAndThumbs = [];
-    const value:number[] = this.question.getRenderedValue();
+    const value:number[] = this.question.renderedValue;
 
     for (let i = 0; i < value.length; i++) {
       const thumbAndInput = <React.Fragment key={i}>
@@ -64,9 +65,9 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   private getThumb(i: number) {
     const {
       cssClasses, getThumbContainerCss, tooltipVisibility, tooltipCss,
-      getPercent, getRenderedValue, getTooltipValue
+      getPercent, renderedValue, getTooltipValue
     } = this.question;
-    const value = getRenderedValue()[i];
+    const value = renderedValue[i];
     let tooltip: ReactElement | null = null;
 
     if (tooltipVisibility !== "never") {
@@ -90,12 +91,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getInput(i:number) {
     const {
-      renderedMax: max, renderedMin: min, step, cssClasses, isDisabledAttr, getRenderedValue,
+      renderedMax: max, renderedMin: min, step, cssClasses, isDisabledAttr, renderedValue,
       handleOnChange, handlePointerDown, handlePointerUp, handleKeyDown, handleKeyUp,
       handleOnFocus, handleOnBlur
     } = this.question;
 
-    const value = getRenderedValue()[i];
+    const value = renderedValue[i];
 
     const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} type="range"
       min={min} max={max} step={step} value={value}
@@ -124,19 +125,10 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
 
   private getLabels() {
     const labels = [];
-    const { renderedLabels, cssClasses, handleLabelPointerUp, getLabelCss } = this.question;
+    const { renderedLabels, cssClasses } = this.question;
 
     for (let i = 0; i < renderedLabels.length; i++) {
-      const value = renderedLabels[i].value;
-      const text = renderedLabels[i].locText;
-      const label = <div key={i} className={getLabelCss(i)}
-        style={{ left: value + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, i); } }>
-        <div className={cssClasses.labelTick}></div>
-        <div className={cssClasses.labelText}>
-          {this.renderLocString(text)}
-        </div>
-      </div>;
-
+      const label = ReactElementFactory.Instance.createElement("sv-slider-label-item", { item: renderedLabels[i], question: this.question, key: renderedLabels[i].id });
       labels.push(label);
     }
     return <div className={cssClasses.labelsContainer}>

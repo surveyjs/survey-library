@@ -61,7 +61,6 @@ export class LocalizableString implements ILocalizableString {
   public onGetTextCallback: (str: string, nonProcessedText?: string) => string;
   public storeDefaultText: boolean;
   public serializeCallBackText: boolean;
-  public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
   public lastChangedLoc: string;
   public onSearchChanged: () => void;
@@ -155,9 +154,6 @@ export class LocalizableString implements ILocalizableString {
     }
     if (this.isValueEmpty(res) && !!this.getLocalizationName()) {
       res = this.getLocalizationStr();
-      if (!!this.onGetLocalizationTextCallback) {
-        res = this.onGetLocalizationTextCallback(res);
-      }
     }
     if (!res) res = this.defaultValue || "";
     return res;

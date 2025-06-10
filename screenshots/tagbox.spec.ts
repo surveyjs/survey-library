@@ -200,16 +200,19 @@ frameworks.forEach(framework => {
 
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item1");
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item");
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-big.png");
 
       await page.locator(".sd-root-modern").click({ position: { x: 10, y: 10 } });
       await page.locator(".sd-editor-chevron-button").click();
       await page.locator(".sv-list__input").fill("item3");
+      await page.waitForTimeout(500);
       await compareScreenshot(page, ".sv-popup.sv-multi-select-list", "tagbox-question-overlay-tablet-popup-small.png");
     });
 

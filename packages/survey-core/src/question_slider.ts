@@ -32,21 +32,114 @@ export class SliderLabelItemValue extends ItemValue {
 }
 
 /**
- * A class that describes the Range Slider question type.
+ * A class that describes the Slider question type.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/... (linkStyle))
+ * [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
+ *
+ * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
  */
 export class QuestionSliderModel extends Question implements ISliderLabelItemOwner {
+  /**
+   * Specifies whether the slider allows selecting a single value (`"single"`) or a value range (`"range"`).
+   *
+   * Possible values:
+   *
+   * - `"single"` (default)
+   * - `"range"`
+   *
+   * [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
+   *
+   * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+   */
   @property({ defaultValue: "single" }) sliderType: "range" | "single";
+  /**
+   * Defines the maximum value on the slider scale.
+   *
+   * Default value: 100
+   *
+   * [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
+   *
+   * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+   * @see maxValueExpression
+   */
   @property({ defaultValue: 100 }) max: number;
+  /**
+   * Defines the minimum value on the slider scale.
+   *
+   * Default value: 0
+   *
+   * [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
+   *
+   * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+   * @see minValueExpression
+   */
   @property({ defaultValue: 0 }) min: number;
+  /**
+   * An expression that dynamically calculates the maximum scale value. Overrides the static [`max`](#max) property if defined.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   */
   @property({ defaultValue: null }) maxValueExpression: string | null;
+  /**
+   * An expression that dynamically calculates the minimum scale value. Overrides the static [`min`](#min) property if defined.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   */
   @property({ defaultValue: null }) minValueExpression: string | null;
+  /**
+   * Specifies the maximum length between the two thumbs of a range slider. Applies only if [`sliderType`](#sliderType) is `"range"`.
+   *
+   * Default value: `null`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+   */
   @property({ defaultValue: null }) maxRangeLength: number | null;
+  /**
+   * Specifies the minimum length between the two thumbs of a range slider. Applies only if [`sliderType`](#sliderType) is `"range"`.
+   *
+   * Default value: `null`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+   */
   @property({ defaultValue: null }) minRangeLength: number | null;
+  /**
+   * A formatting string for thumb tooltips. You can use `{0}` as a placeholder for a tooltip's numeric value.
+   *
+   * Default value: `"{0}"`
+   * @see tooltipVisibility
+   */
   @property({ defaultValue: "{0}" }) tooltipFormat: string;
+  /**
+   * A formatting string for [auto-generated](#labelCount) or [custom labels](#customLabels). You can use `{0}` as a placeholder for the label's numeric value.
+   *
+   * Default value: `"{0}"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+   *
+   * > If you are using custom labels, `labelFormat` affects only those that do not define the `text` property.
+   * @see showLabels
+   * @see tooltipFormat
+   */
   @property({ defaultValue: "{0}" }) labelFormat: string;
+  /**
+   * Controls the visibility of thumb tooltips.
+   *
+   * Possible values:
+   *
+   * - `"auto"` (default) - Displays the tooltips when the thumb or selected range is hovered over or focused.
+   * - `"never"` - Hides the tooltips entirely.
+   * @see tooltipFormat
+   */
   @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | /*"always" |*/ "never";
+  /**
+   * Sets the interval between selectable scale values.
+   *
+   * Default value: 1
+   *
+   * [View Slider Demo](https://surveyjs.io/form-library/examples/single-value-slider-input/ (linkStyle))
+   *
+   * [View Range Slider Demo](https://surveyjs.io/form-library/examples/dual-range-slider-input/ (linkStyle))
+   */
   public get step(): number {
     // if (this.segmentCount) {
     //   return (this.renderedMax - this.renderedMin) / this.segmentCount;
@@ -57,7 +150,26 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.setPropertyValue("step", val);
   }
   // @property({ defaultValue: null }) segmentCount: number | null;
+  /**
+   * Specifies whether the slider displays value labels along the scale.
+   *
+   * Default value: `true`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+   * @see labelCount
+   * @see customLabels
+   * @see labelFormat
+   */
   @property({ defaultValue: true }) showLabels: boolean;
+  /**
+   * Defines how many auto-generated labels should be displayed along the slider scale. Ignored if the [`customLabels`](#customLabels) property is set.
+   *
+   * Default value: -1 (the number of labels is calculated automatically based on the [`min`](#min) and [`max`](#max) values)
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+   * @see showLabels
+   * @see labelFormat
+   */
   public get labelCount(): number {
     if (this.customLabels.length > 0) return this.customLabels.length;
     if (this.tickSize) {
@@ -69,6 +181,43 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.setPropertyValue("labelCount", val);
   }
   @property({ defaultValue: true }) autoGenerate: boolean;
+  /**
+   * Specifies custom scale labels. Overrides auto-generated labels if defined.
+   *
+   * This property accepts an array of numbers or objects with the following fields:
+   *
+   * - `value`: `number`\
+   * The scale value where the label should appear.
+   *
+   * - `text`: `string`\
+   * The label text to display.
+   *
+   * Numbers and objects can be combined in the same array. For instance, the following slider configuration specifies textual labels for extreme scale points and adds numeric labels between them.
+   *
+   * ```js
+   * const surveyJson = {
+   *   "elements": [
+   *     {
+   *       "type": "slider",
+   *       // ...
+   *       "customLabels": [
+   *         { value: 0, text: "Lowest" },
+   *         20,
+   *         40
+   *         60
+   *         80,
+   *         { value: 100, text: "Highest" },
+   *       ]
+   *     }
+   *   ]
+   * };
+   * ```
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-slider-scale-labels/ (linkStyle))
+   * @see showLabels
+   * @see labelCount
+   * @see labelFormat
+   */
   public get customLabels(): ItemValue[] {
     return this.getPropertyValue("customLabels");
   }
@@ -77,6 +226,11 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   }
   @property({ defaultValue: true }) allowDragRange: boolean;
   @property({ defaultValue: null }) tickSize: number | null;
+  /**
+   * Allows the start and end thumbs to cross over each other. If `false`, the thumbs cannot be swapped. Applies only if [`sliderType`](#sliderType) is `"range"`.
+   *
+   * Default value: `false` if [`minRangeLength`](#minRangeLength) is defined, `true` otherwise.
+   */
   public get allowSwap(): boolean {
     if (this.minRangeLength) return false;
     return this.getPropertyValue("allowSwap", true);
@@ -85,7 +239,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.setPropertyValue("allowSwap", val);
   }
   /**
-   * Specifies whether to display a button that clears the question value.
+   * Specifies whether to display a button that clears the selected slider value and resets it to `undefined`.
    *
    * Default value: `false`
    */

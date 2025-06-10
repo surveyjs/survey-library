@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild } from "@angular/core";
 import { QuestionAngular } from "../question";
-import { QuestionSliderModel } from "survey-core";
+import { ItemValue, QuestionSliderModel } from "survey-core";
 import { AngularComponentFactory } from "../component-factory";
 
 @Component({
@@ -24,19 +24,19 @@ export class SliderQuestionComponent extends QuestionAngular<QuestionSliderModel
   }
   get labelCountArray(): number[] {
     const result:number[] = [];
-    for (let i = 0; i < this.model.labelCount; i++) {
+    for (let i = 0; i < this.model.renderedLabelCount; i++) {
       result.push(i);
     }
     return result;
   }
   get valueArray(): number[] {
-    return this.model.getRenderedValue();
+    return this.model.renderedValue;
   }
   trackByRenderedValue (i: number): number {
     return i;
   }
-  trackByLabelCount (i: number): number {
-    return i;
+  trackByLabelCount (i: number, label: ItemValue): string {
+    return label.id;
   }
 }
 

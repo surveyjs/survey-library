@@ -30,6 +30,7 @@ export * from "./questions/boolean.component";
 export * from "./questions/imagepicker-item.component";
 export * from "./questions/imagepicker.component";
 export * from "./questions/slider.component";
+export * from "./components/slider/slider-label-item.component";
 export * from "./questions/button-group/button-group.component";
 export * from "./question";
 export * from "./components-container.component";

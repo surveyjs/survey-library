@@ -25,6 +25,19 @@ export class CoverCell {
   private calcJustifyContent(positionY: VerticalAlignment) {
     return positionY === "top" ? "flex-start" : (positionY === "middle" ? "center" : "flex-end");
   }
+  private calcGridRow(): number {
+    const rowNumber = this.calcRow(this.positionY);
+    if (!!this.cover.renderedHeight) return rowNumber;
+
+    const visibleRows = this.cover.getVisibleRows();
+    const visibleRowIndex = visibleRows.indexOf(rowNumber);
+    if (visibleRowIndex === -1) return 0;
+
+    const visibleRowsCount = visibleRows.length;
+    if (visibleRowsCount === 3) return rowNumber;
+    if (visibleRowsCount === 1) return 1;
+    return visibleRowIndex + 1;
+  }
 
   constructor(private cover: Cover, private positionX: HorizontalAlignment, private positionY: VerticalAlignment) {
   }
@@ -42,10 +55,12 @@ export class CoverCell {
     return result;
   }
   get style(): any {
+    const gridRow = this.calcGridRow();
     const result: any = {};
-    result["gridColumn"] = this.calcColumn(this.positionX);
-    result["gridRow"] = this.calcRow(this.positionY);
+    result["gridRow"] = gridRow;
+    result["gridColumn"] = gridRow !== 0 ? this.calcColumn(this.positionX) : 0;
     result["width"] = !!this.width ? this.width + "px" : undefined;
+    if (gridRow === 0) { result["display"] = "none"; }
     return result;
   }
   get contentStyle(): any {
@@ -231,6 +246,7 @@ export class Cover extends Base {
       backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
     };
   }
+
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     super.propertyValueChanged(name, oldValue, newValue);
     if (name === "height" || name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
@@ -242,6 +258,18 @@ export class Cover extends Base {
     if (name === "backgroundImageFit") {
       this.updateBackgroundImageClasses();
     }
+  }
+
+  public getVisibleRows(): Array<number> {
+    const result = [];
+    for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
+      const startCellIndex = rowIndex * 3;
+      if (!this.cells[startCellIndex].isEmpty || !this.cells[startCellIndex + 1].isEmpty || !this.cells[startCellIndex + 2].isEmpty) {
+        result.push(rowIndex + 1);
+      }
+    }
+
+    return result.length !== 0 ? result : [1, 2, 3];
   }
 
   // public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {

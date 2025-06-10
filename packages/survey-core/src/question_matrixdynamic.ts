@@ -258,7 +258,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set rowCount(val: number) {
     val = Helpers.getNumber(val);
-    if (val < 0 || val > settings.matrix.maxRowCount) return;
+    if (val < 0 || val > settings.matrix.maxRowCount || val === this.rowCount) return;
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
@@ -731,18 +731,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       question.titleLocation = "hidden";
     }
   }
-  protected getSingleInputQuestionsCore(question: Question): Array<Question> {
+  protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     const res = new Array<Question>();
     const rows = this.visibleRows;
-    if ((!question || question === this) && rows.length > 0) {
+    if (checkDynamic) {
       for (let i = 0; i < rows.length; i ++) {
         const row = rows[i];
-        if (row.isEmpty || row.hasErrors(false, {}, () => {})) {
+        if (!row.hasValueAnyQuestion(true) || row.hasErrors(false, {}, () => {})) {
           this.fillSingleInputQuestionsByRow(res, row);
         }
       }
     }
-    return this.getSingleInputQuestionsForDynamic(res.length > 0 ? res[0] : null);
+    return this.getSingleInputQuestionsForDynamic(question, res);
   }
   protected fillSingleInputQuestionsInContainer(res: Array<Question>, innerQuestion: Question): void {
     const row = this.getRowByQuestion(innerQuestion);

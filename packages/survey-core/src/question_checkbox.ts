@@ -397,7 +397,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const items = this.visibleChoices;
     for (let i = 0; i < items.length; i ++) {
       const item = items[i];
-      if (item.isEnabled && !this.isBuiltInChoice(item)) {
+      if (item.isEnabled && !this.isBuiltInChoice(item) && !item.isExclusive) {
         res.push(item);
       }
     }

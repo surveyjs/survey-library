@@ -64,9 +64,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     return "signaturepad";
   }
   public afterRenderQuestionElement(el: HTMLElement) {
-    if (!!el) {
-      if (!this.isDesignMode)this.initSignaturePad(el);
-      this.element = el;
+    if (DomWindowHelper.isAvailable()) {
+      if (!!el) {
+        if (!this.isDesignMode) {
+          this.initSignaturePad(el);
+        }
+        this.element = el;
+      }
     }
     super.afterRenderQuestionElement(el);
   }
@@ -137,12 +141,18 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private fromDataUrl(data: string) {
     this._loadedData = data;
     if (this.signaturePad) {
-      const devicePixelRatio = DomWindowHelper.getDevicePixelRatio();
-      const ratio = (this.dataFormat === "svg" && !!devicePixelRatio) ? devicePixelRatio : 1;
+      let ratio = 1;
+      let scale = this.scale;
+
+      if (this.dataFormat === "svg") {
+        const devicePixelRatio = DomWindowHelper.getDevicePixelRatio();
+        ratio = devicePixelRatio || 1;
+        scale = 1;
+      }
 
       const options = {
-        width: this.canvas.width * this.scale / ratio,
-        height: this.canvas.height * this.scale / ratio
+        width: this.canvas.width * scale / ratio,
+        height: this.canvas.height * scale / ratio
       };
       this.signaturePad.fromDataURL(data, options);
     }

@@ -785,6 +785,13 @@ export class PanelModelBase extends SurveyElement<Question>
     this.collectValues(data, 0);
     return Helpers.getUnbindValue(data);
   }
+  public hasValueAnyQuestion(visibleOnly?: boolean): boolean {
+    const questions = visibleOnly ? this.visibleQuestions : this.questions;
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].isEmpty()) return true;
+    }
+    return false;
+  }
   collectValues(data: any, level: number): boolean {
     let elements = this.elements;
     if (level === 0) {
@@ -944,14 +951,12 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
-    rec = !!rec
-      ? rec
-      : {
-        fireCallback: fireCallback,
-        focusOnFirstError: focusFirstError,
-        firstErrorQuestion: <any>null,
-        result: false,
-      };
+    rec = rec || {
+      fireCallback: fireCallback,
+      focusOnFirstError: focusFirstError,
+      firstErrorQuestion: <any>null,
+      result: false,
+    };
     if (rec.result !== true) rec.result = false;
     this.hasErrorsCore(rec);
     return !rec.result;

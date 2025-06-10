@@ -2908,3 +2908,19 @@ QUnit.test("Focus element on selecting hasComment element", (assert) => {
   assert.deepEqual(els, [], "autoOtherMode, focus is not called");
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", { value: "none2", isExclusive: true }, "orange"],
+        showNoneItem: true,
+        showSelectAllItem: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.dataChoices.length, 4, "dataChoices length");
+  assert.equal(q.dataChoices[2].value, "none2", "none2 is here");
+});

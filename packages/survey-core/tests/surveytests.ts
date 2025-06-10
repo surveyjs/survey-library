@@ -3506,14 +3506,6 @@ QUnit.test("pre process title, 'locale' variable", function (assert) {
   );
 });
 
-QUnit.test("Default value completedHtml, completedBeforeHtml and loadingHtml", function (assert) {
-  const survey = new SurveyModel();
-  survey.locale = "";
-  assert.ok(survey.completedHtml.indexOf("</h3>") > -1, "h3 is here, default completedHtml");
-  assert.ok(survey.completedBeforeHtml.indexOf("</h3>") > -1, "h3 is here, default completedBeforeHtml");
-  assert.ok(survey.loadingHtml.indexOf("</h3>") > -1, "h3 is here, default loadingHtml");
-});
-
 QUnit.test(
   "pre process title with variables in Capital letters, bug#1099",
   function (assert) {
@@ -22298,4 +22290,42 @@ QUnit.test("getContainerContent - TOC + title + progress above", function (asser
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "right is empty");
+});
+QUnit.test("Warn in console if the expression has invalid function in a question, #981", function (assert) {
+  const prev = ConsoleWarnings.warn;
+  const reportTexts = new Array<string>();
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1", defaultValueExpression: "invalFunc1({q2})" },
+          { type: "text", name: "q2" }
+        ],
+      },
+    ],
+    triggers: [
+      { type: "setvalue", setToName: "q1", expression: "invalFunc2({q2})", setValue: 5 }
+    ]
+  });
+
+  ConsoleWarnings.warn = (text: string) => {
+    reportTexts.push(text);
+  };
+  survey.setValue("q2", "test");
+  assert.deepEqual(reportTexts, ["Unknown function name: 'invalFunc1'. It is used in the question: 'q1'.",
+    "Unknown function name: 'invalFunc2'."], "show warnings with the quesiton info");
+  ConsoleWarnings.warn = prev;
+});
+QUnit.test("Warn in console if the expression is invalide in a question, #981", function (assert) {
+  const prev = ConsoleWarnings.warn;
+  let reportText = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValueExpression: "{a} ++" }]
+  });
+
+  assert.equal(reportText, "Invalid expression: '{a} ++'. It is used in the question: 'q1'.", "show warnings with the quesiton info");
+  ConsoleWarnings.warn = prev;
 });

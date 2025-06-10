@@ -1432,9 +1432,7 @@ export class QuestionSelectBase extends Question {
     return false;
   }
   protected isBuiltInChoice(item: ItemValue): boolean {
-    return this.isNoneItem(item) ||
-      item === this.otherItem ||
-      item === this.newItemValue;
+    return [this.otherItem, this.noneItem, this.refuseItem, this.dontKnowItem, this.newItemValue].indexOf(item) > -1;
   }
   public isNoneItem(item: ItemValue): boolean {
     return item.isExclusive === true;

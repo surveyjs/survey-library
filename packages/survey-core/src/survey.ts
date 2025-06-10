@@ -950,10 +950,9 @@ export class SurveyModel extends SurveyElementCore
     // if (DomDocumentHelper.isAvailable()) {
     //   SurveyModel.stylesManager = new StylesManager();
     // }
-    const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
-    this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
-    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");
-    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack, "loading");
+    this.createHtmlLocString("completedHtml", "completingSurvey");
+    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", "completed-before");
+    this.createHtmlLocString("loadingHtml", "loadingSurvey", "loading");
     this.createLocalizableString("emptySurveyText", this, true, "emptySurvey");
     this.createLocalizableString("logo", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
@@ -1170,9 +1169,8 @@ export class SurveyModel extends SurveyElementCore
       }
     };
   }
-  private createHtmlLocString(name: string, locName: string, func: (str: string) => string, reason?: string): void {
+  private createHtmlLocString(name: string, locName: string, reason?: string): void {
     const res = this.createLocalizableString(name, this, false, locName);
-    res.onGetLocalizationTextCallback = func;
     if (reason) {
       res.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
     }
@@ -2613,9 +2611,6 @@ export class SurveyModel extends SurveyElementCore
   }
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
-  }
-  public get defaultLoadingHtml(): string {
-    return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
   public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
@@ -5485,6 +5480,7 @@ export class SurveyModel extends SurveyElementCore
   private isSmoothScrollEnabled = false;
   private resizeObserver: ResizeObserver;
   afterRenderSurvey(htmlElement: any) {
+    if (!DomWindowHelper.isAvailable()) return;
     this.destroyResizeObserver();
     if (Array.isArray(htmlElement)) {
       htmlElement = SurveyElement.GetFirstNonTextElement(htmlElement);
@@ -5922,7 +5918,12 @@ export class SurveyModel extends SurveyElementCore
           SurveyElement.ScrollElementToViewCore(elementToScroll, false, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
         } else {
           const htmlElement = surveyRootElement?.querySelector(`#${options.elementId}`);
-          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, onScolledCallback);
+          this.suspendLazyRendering();
+          SurveyElement.ScrollElementToTop(htmlElement, scrollIfVisible, scrollIntoViewOptions, () => {
+            this.releaseLazyRendering();
+            activateLazyRenderingChecks(htmlElement);
+            onScolledCallback && onScolledCallback();
+          });
         }
       }
     }

@@ -122,6 +122,15 @@ export class ExpressionExecutorRunner {
 export class ExpressionExecutor implements IExpresionExecutor {
   public static createExpressionExecutor: (expression: string) => IExpresionExecutor =
     (expression: string) => { return new ExpressionExecutor(expression); };
+  public static getQuestionErrorText(properties: HashTable<any>): string {
+    if (!!properties) {
+      const question = properties["question"];
+      if (!!question && !!question.name) {
+        return " It is used in the question: '" + question.name + "'.";
+      }
+    }
+    return "";
+  }
   public onComplete: (res: any, id: number) => void;
   private expressionValue: string;
   private operand: Operand;
@@ -165,7 +174,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
   public run(values: HashTable<any>, properties: HashTable<any> = null, id: number): any {
     if (!this.operand) {
       if (!!this.expression) {
-        ConsoleWarnings.warn("Invalid expression: " + this.expression);
+        ConsoleWarnings.warn("Invalid expression: '" + this.expression + "'." + ExpressionExecutor.getQuestionErrorText(properties));
       }
       return null;
     }

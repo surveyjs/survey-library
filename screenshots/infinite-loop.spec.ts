@@ -103,6 +103,7 @@ frameworks.forEach((framework) => {
         "questionsOnPageMode": "inputPerPage"
       });
 
+      await page.getByTitle("Edit").last().click();
       await compareScreenshot(page, ".sd-body", "inf-loop.png");
       await compareScreenshot(page, ".sd-summary", "inf-loop-summary.png");
       await page.getByText("Panel 2").hover();

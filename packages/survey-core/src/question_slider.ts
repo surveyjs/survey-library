@@ -280,14 +280,16 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleRangeOnChange = (event: InputEvent): void => {
     if (!this.isRangeMoving) return;
-    const { renderedMax: max, renderedMin: min, renderedValue } = this;
+    const { renderedMax: max, renderedMin: min, renderedValue, ensureMaxRangeBorders, ensureMinRangeBorders } = this;
     const inputNode = <HTMLInputElement>event.target;
     const diff = this.oldInputValue - +inputNode.value;
     this.oldInputValue = +inputNode.value;
 
     let borderArrived = false;
     for (let i = 0; i < renderedValue.length; i++) {
-      const newVal = renderedValue[i] - diff;
+      let newVal = renderedValue[i] - diff;
+      newVal = ensureMaxRangeBorders(newVal, i);
+      newVal = ensureMinRangeBorders(newVal, i);
       if (newVal <= max && newVal >= min) {
         renderedValue.splice(i, 1, newVal);
       } else {

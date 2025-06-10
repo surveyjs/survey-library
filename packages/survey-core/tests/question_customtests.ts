@@ -19,6 +19,7 @@ import { StylesManager } from "@legacy/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("custom questions");
 
@@ -2179,9 +2180,9 @@ QUnit.test("Composite: merge data, Bug#5583", function (assert) {
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   assert.deepEqual(survey.data, { q1: { firstName: "Jon" } }, "Survey data is correct");
   survey.mergeData({ q1: { lastName: "Snow" } });
-  assert.deepEqual(q.value, { firstName: "Jon", lastName: "Snow" });
+  assert.deepEqual(q.value, { firstName: "Jon", lastName: "Snow" }, "merge data #1");
   survey.mergeData({ q1: { firstName: "John", lastName: "Doe" } });
-  assert.deepEqual(q.value, { firstName: "John", lastName: "Doe" });
+  assert.deepEqual(q.value, { firstName: "John", lastName: "Doe" }, "merge data #2");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: Change css rules for content question", function (assert) {
@@ -2393,7 +2394,7 @@ QUnit.test("Composite & valueToQuestion/valueFromQuestion, #6475", function (ass
       }
     ],
     valueToQuestion(val: any): any {
-      if(!val) return "";
+      if (!val || !val.item1 && !val.item2) return "";
       let res = !!val.item1 ? val.item1 : "";
       res += ",";
       res += !!val.item2 ? val.item2 : "";
@@ -3666,4 +3667,90 @@ QUnit.test("Composite: isMobile flag, Bug#9927", function (assert) {
   assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, false);
   assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
   ComponentCollection.Instance.clear();
+});
+QUnit.test("Single:Do not focus element on setting defaultValue & on setting value to survey.data, Bug#10016", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+  ComponentCollection.Instance.add({
+    name: "customcheckbox",
+    questionJSON: {
+      "type": "checkbox",
+      "choices": [
+        "Item 1",
+        "Item 2",
+        "Item 3"
+      ],
+      "showOtherItem": true
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "customcheckbox", name: "q1" }]
+  });
+
+  survey.data = { "q1-Comment": "3",
+    "q1": [
+      "Item 2",
+      "Item 3",
+      "other"
+    ],
+  };
+
+  assert.equal(counter, 0, "Do not focus element on setting value from survey.data");
+  const q1 = survey.getQuestionByName("q1");
+  const question = <QuestionCheckboxModel>q1.contentQuestion;
+  question.renderedValue = ["Item 1"];
+  question.value = ["Item 1", "other"];
+  assert.equal(counter, 1, "Focus on setting the question value");
+
+  ComponentCollection.Instance.clear();
+  SurveyElement.FocusElement = oldFunc;
+});
+QUnit.test("Composite:Do not focus element on setting defaultValue & on setting value to survey.data, Bug#10016", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+  ComponentCollection.Instance.add({
+    name: "customcheckbox",
+    elementsJSON: [{
+      "type": "checkbox",
+      "name": "check",
+      "choices": [
+        "Item 1",
+        "Item 2",
+        "Item 3"
+      ],
+      "showOtherItem": true
+    },
+    { type: "text", name: "comment" }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "customcheckbox", name: "q1" }]
+  });
+
+  survey.data = { q1: { "check-Comment": "3",
+    "check": [
+      "Item 2",
+      "Item 3",
+      "other"
+    ],
+  } };
+
+  assert.equal(counter, 0, "Do not focus element on setting value from survey.data");
+  const q1 = survey.getQuestionByName("q1");
+  const question = <QuestionCheckboxModel>(q1.contentPanel.getQuestionByName("check"));
+  assert.deepEqual(question.renderedValue, ["Item 2", "Item 3", "other"], "check question initial value");
+  assert.equal(question.comment, "3", "check question comment");
+  question.renderedValue = ["Item 1", "other"];
+  assert.equal(counter, 1, "Focus on setting the question value");
+
+  ComponentCollection.Instance.clear();
+  SurveyElement.FocusElement = oldFunc;
 });

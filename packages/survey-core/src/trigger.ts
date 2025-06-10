@@ -354,7 +354,7 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.setToName || !this.owner) return;
-    this.owner.setTriggerValue(this.setToName, this.setValue, this.isVariable);
+    this.owner.setTriggerValue(this.setToName, Helpers.getUnbindValue(this.setValue), this.isVariable);
   }
 }
 /**

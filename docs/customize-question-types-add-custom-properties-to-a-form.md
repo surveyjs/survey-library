@@ -118,7 +118,7 @@ export class MyCustomClass extends Question {
   get myItemCollectionProperty() {
     return this.getPropertyValue("myItemCollectionProperty");
   }
-  set itemCollectionProperty(val) {
+  set myItemCollectionProperty(val) {
     this.setPropertyValue("myItemCollectionProperty", val);
   }
 }

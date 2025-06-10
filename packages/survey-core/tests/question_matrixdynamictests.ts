@@ -3241,6 +3241,31 @@ QUnit.test(
   }
 );
 QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [{ name: "col1" }, { name: "col2", visibleIf: "{row.col1} empty" }],
+        cellType: "text"
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let table = matrix.renderedTable;
+  assert.equal(table.rows.length, 2, "There are 4 rows in the table");
+  assert.equal(table.rows[0].cells.length, 3, "There are 3 cells in the first row");
+  matrix.visibleRows[0].cells[0].value = "a";
+  table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells.length, 2, "There are 2 cells in the second row");
+  matrix.addRow();
+  table = matrix.renderedTable;
+  assert.equal(table.rows.length, 4, "There are 4 rows in the table after adding a row");
+  assert.equal(table.rows[0].cells.length, 3, "There are 3 cells in the first row after adding a row");
+  assert.equal(table.rows[3].cells.length, 3, "There are 3 cells in the last row after adding a row");
+});
+QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
   const json = {
     pages: [
       {
@@ -4408,7 +4433,7 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
   );
 });
 
-QUnit.test("survey.onMatrixAllowRemoveRow, show remove for new rows only, Bug#5533", function (assert) {
+QUnit.test("The Remove row button is misaligned when a column is hidden, Bug#10004", function (assert) {
   const survey = new SurveyModel({
     questions: [
       {

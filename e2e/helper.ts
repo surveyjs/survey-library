@@ -15,10 +15,6 @@ export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
 export async function compareScreenshot(page: Page, elementSelector: string | Locator | undefined, screenshotName: string, elementIndex = 0) {
-  await page.addStyleTag({
-    content: "textarea::-webkit-resizer { visibility: hidden !important; }"
-  });
-
   let currentElement = elementSelector;
   if (!!currentElement && typeof currentElement == "string") {
     currentElement = page.locator(currentElement);
@@ -79,6 +75,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     window["Survey"].settings.animationEnabled = false;
     const self: any = window;
     const model = new window["Survey"].Model(json);
+    model.allowResizeComment = false;
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
       window["SurveyResult"] = model.data;

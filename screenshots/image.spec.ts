@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
 import { imageSource } from "../visualRegressionTests/constants";
 
 const title = "Image Screenshot";

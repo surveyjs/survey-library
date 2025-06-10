@@ -572,6 +572,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (this.isIndeterminate) {
       this.isIndeterminate = false;
     }
+    this.resetPropertyValue("renderedValue");
   }
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {

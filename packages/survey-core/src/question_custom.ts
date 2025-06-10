@@ -976,14 +976,6 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.contentQuestion.onSurveyValueChanged(newValue);
     }
   }
-  updateValueFromSurvey(newValue: any, clearData = false): void {
-    const q = this.contentQuestion;
-    if (!!q && !q.isDescendantOf("nonvalue")) {
-      q.updateValueFromSurvey(this.valueFromDataCore(newValue), clearData);
-    } else {
-      super.updateValueFromSurvey(newValue, clearData);
-    }
-  }
   protected getValueCore(): any {
     if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
@@ -1184,17 +1176,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   updateValueFromSurvey(newValue: any, clearData = false): void {
     this.updateEditingObj();
-    if (!!this.contentPanel && !this.editingObjValue) {
-      newValue = this.valueFromDataCore(newValue);
-      const val = !!newValue ? newValue : {};
-      this.contentPanel.questions.forEach(q => {
-        q.updateValueFromSurvey(val[q.getValueName()], clearData);
-        q.updateCommentFromSurvey(val[q.getValueName() + settings.commentSuffix]);
-      });
-      this.updateValueCoreWithPanelValue();
-    } else {
-      super.updateValueFromSurvey(newValue, clearData);
-    }
+    super.updateValueFromSurvey(newValue, clearData);
   }
   public onSurveyLoad(): void {
     this.isSettingValOnLoading = true;

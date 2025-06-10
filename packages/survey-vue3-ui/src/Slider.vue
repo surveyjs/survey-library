@@ -13,7 +13,7 @@
             <div :class="question.cssClasses.inverseTrackRight" :style="{ width: question.getTrackPercentRight() + '%' }"></div>
             <div :class="question.cssClasses.rangeTrack" :style="{ left: question.getTrackPercentLeft() + '%', right: question.getTrackPercentRight() + '%' }" ></div>
             
-            <template v-for="(value, i) in question.getRenderedValue()" :key="i">
+            <template v-for="(value, i) in question.renderedValue" :key="i">
               <input :class="question.cssClasses.input" :id="'sjs-slider-input-' + i" type="range" :value="value" 
                 :min="question.min" :max="question.max" :step="question.step" :disabled="question.isDisabledAttr"
                 @input="(e)=>{question.handleOnChange(e as InputEvent, i)}"
@@ -50,17 +50,13 @@
 
         <div v-if="question.showLabels" :class="question.cssClasses.labelsContainer">
           <div>
-            <div v-for="(label, i) in question.renderedLabels" :key="i" :class="question.getLabelCss(i)"
-            :style="{ left: label.value + '%' }"
-            @pointerup="(e)=>{question.handleLabelPointerUp(e, i)}">
-                <div :class="question.cssClasses.labelTick"></div>
-                <div :class="question.cssClasses.labelText">
-                  <SvComponent
-                    :is="'survey-string'"
-                    :locString="label.locText"
-                  />
-                </div>
-            </div>
+            <SvComponent
+              v-for="(label) in question.renderedLabels"
+              :key="label.id"
+              :is="'sv-slider-label-item'"
+              :item="label"
+              :question="question"
+            />
           </div>
         </div>
     </div>

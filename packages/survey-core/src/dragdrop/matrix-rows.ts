@@ -64,6 +64,9 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       matrix.visibleRows.forEach(row => {
         this.matrixRowMap[row.id] = { row, matrix };
       });
+      if (matrix.visibleRows.length == 0) {
+        this.matrixRowMap[matrix.id] = { row: matrix, matrix };
+      }
     });
 
     this.fromIndex = this.parentElement.visibleRows.indexOf(this.draggedElement);
@@ -119,7 +122,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected getDropTargetByDataAttributeValue(
     dataAttributeValue: any
   ): MatrixDropdownRowModelBase {
-    return this.matrixRowMap[dataAttributeValue]?.row;
+    const mapData = this.matrixRowMap[dataAttributeValue];
+    return mapData?.row || mapData?.matrix;
   }
   public canInsertIntoThisRow(row: MatrixDynamicRowModel): boolean {
     const lockedRows = this.parentElement.lockedRowCount;
@@ -152,11 +156,12 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (!this.dropTarget) return;
     const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
+    const dropTargetRow = this.matrixRowMap[this.dropTarget.id].row;
     const bottomOffset = this.isBottom ? 1 : 0;
-    const toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
+    let toIndex = 0;
     const options: MatrixRowDragOverEvent = {
       allow: dropTargetMatrix == this.parentElement,
-      row: this.dropTarget,
+      row: dropTargetRow,
       fromMatrix: this.parentElement,
       toMatrix: dropTargetMatrix,
     } as any;
@@ -167,11 +172,16 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     this.lastDropTargetParentElement = dropTargetMatrix;
 
     const renderedRows = dropTargetMatrix.renderedTable.rows;
-    const dropTargetRenderedRowIndex = renderedRows.findIndex(r => r.row == this.dropTarget);
-
-    if (dropTargetRenderedRowIndex >= 0) {
-      renderedRows.splice(dropTargetRenderedRowIndex + bottomOffset, 0, this.draggedRenderedRow);
+    if (dropTargetMatrix.visibleRows.length > 0) {
+      const dropTargetRenderedRowIndex = renderedRows.findIndex(r => r.row == this.dropTarget);
+      if (dropTargetRenderedRowIndex >= 0) {
+        renderedRows.splice(dropTargetRenderedRowIndex + bottomOffset, 0, this.draggedRenderedRow);
+      }
+      toIndex = dropTargetMatrix.visibleRows.indexOf(this.dropTarget) + bottomOffset;
+    } else {
+      renderedRows.splice(0, 0, this.draggedRenderedRow);
     }
+
     this.toIndex = toIndex;
     this.toMatrix = dropTargetMatrix;
     this.dropIsBanned = false;

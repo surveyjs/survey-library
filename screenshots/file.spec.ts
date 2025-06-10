@@ -37,17 +37,17 @@ frameworks.forEach(framework => {
 
     test("Check file question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await page.setInputFiles(".sd-file input", "files/SingleImage.jpg");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
 
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "file-question-single-image.png");
 
-      await page.setInputFiles(".sd-file input", "files/Flamingo.png");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/Flamingo.png");
       await page.click(".sd-file input[type=file] + div label");
       await compareScreenshot(page, questionRoot, "file-question-single-file-small-image.png");
 
-      await page.setInputFiles(".sd-file input", "files/Portfolio.pdf");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/Portfolio.pdf");
       await page.click(".sd-file input[type=file] + div label");
       await compareScreenshot(page, questionRoot, "file-question-single-file.png");
 
@@ -57,7 +57,7 @@ frameworks.forEach(framework => {
         question.clear();
       });
 
-      await page.setInputFiles(".sd-file input", ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
@@ -65,7 +65,7 @@ frameworks.forEach(framework => {
       await page.hover(".sd-file .sd-file__preview-item .sd-context-btn");
       await compareScreenshot(page, questionRoot, "file-question-multiple-remove-hovered.png");
 
-      await page.setInputFiles(".sd-file input", "files/SingleImage.jpg");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
       await page.click(".sd-file #prevPage");
       await compareScreenshot(page, questionRoot, "file-question-multiple-navigator.png");
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
     test("Check file question icon size", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const questionRoot = page.locator(".sd-question");
-      await page.setInputFiles(".sd-file input", "files/Portfolio.pdf");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/Portfolio.pdf");
       await page.click(".sd-file input[type=file] + div label");
 
       await page.evaluate(() => {
@@ -99,7 +99,7 @@ frameworks.forEach(framework => {
         question.imageHeight = "100px";
       });
 
-      await page.setInputFiles(".sd-file input", "files/SingleImage.jpg");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
       const questionRoot = page.locator(".sd-question");
       await compareScreenshot(page, questionRoot, "file-question-single-small-image.png");
@@ -119,7 +119,7 @@ frameworks.forEach(framework => {
         question.clear();
       });
 
-      await page.setInputFiles(".sd-file input", ["files/Badger.png", "files/Bird.png", "files/Flamingo.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
       await compareScreenshot(page, questionRoot, "file-question-multiple-small-images.png");
 
@@ -185,7 +185,7 @@ frameworks.forEach(framework => {
         (window as any).survey.getAllQuestions()[0].setIsMobile(true);
       });
 
-      await page.setInputFiles(".sd-file input", "files/SingleImage.jpg");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
       const questionRoot = page.locator(".sd-question");
 
@@ -195,7 +195,7 @@ frameworks.forEach(framework => {
         question.clear();
       });
 
-      await page.setInputFiles(".sd-file input", ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
 
       await page.evaluate(() => {
@@ -373,7 +373,7 @@ frameworks.forEach(framework => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", false);
       });
 
-      await page.setInputFiles(".sd-file input", "files/Read Me.txt");
+      await page.setInputFiles(".sd-file input", "../../screenshots/files/Read Me.txt");
       await page.click(".sd-file input[type=file] + div label");
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");

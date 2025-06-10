@@ -631,7 +631,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         }
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "maxRangeLength", "minRangeLength"],
+    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "maxRangeLength", "minRangeLength", "sliderType"],
       () => {
         this.resetPropertyValue("renderedValue");
       }
@@ -750,7 +750,11 @@ function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any
 
 Serializer.addClass(
   "sliderlabel",
-  [{ name: "!value:number" }],
+  [
+    { name: "!value:number" },
+    { name: "visibleIf", visible: false },
+    { name: "enableIf", visible: false }
+  ],
   (value: any) => new SliderLabelItemValue(value),
   "itemvalue"
 );

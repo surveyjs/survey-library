@@ -877,6 +877,7 @@ QUnit.test("check labelCount=1 works correctly", (assert) => {
   assert.equal(q1.renderedLabels[0].value, 0);
   assert.equal(q1.renderedLabels[0].text, "0");
 });
+
 QUnit.test("check labelCount=0 works correctly", (assert) => {
   let item = new SliderLabelItemValue(50);
   assert.strictEqual(item.value, 50, "value #1");
@@ -886,4 +887,11 @@ QUnit.test("check labelCount=0 works correctly", (assert) => {
   assert.strictEqual(item.value, 50, "value #3");
   item = new SliderLabelItemValue("fdsdf");
   assert.strictEqual(item.value, 0, "value #4");
+});
+
+QUnit.test("check if renderedValue reacts to sliderType change", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  assert.deepEqual(q1.renderedValue, [0], "single renderedValue");
+  q1.sliderType = "range";
+  assert.deepEqual(q1.renderedValue, [0, 100], "range renderedValue");
 });

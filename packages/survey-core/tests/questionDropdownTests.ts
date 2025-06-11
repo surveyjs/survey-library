@@ -1974,23 +1974,14 @@ QUnit.test("Rapidly Changing Search Filter", (assert) => {
 });
 
 QUnit.test("Dropdown with Lazy Loading - A list of items display duplicate entries #9111", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
-  const done4 = assert.async();
-  const newValueDebouncedInputValue = onChoicesLazyLoadCallbackTimeOut;
-  const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
-  settings.dropdownSearchDelay = newValueDebouncedInputValue;
-
-  const json = {
+  const survey = new SurveyModel({
     questions: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }]
-  };
-  const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add((_, opt) => {
-    setTimeout(() => {
-      opt.setItems(getNumberArray(0, 5, opt.filter), 5);
-    }, onChoicesLazyLoadCallbackTimeOut);
   });
+  const doCallback = (opt: any) => {
+    opt.setItems(getNumberArray(0, 5, opt.filter), 5);
+  };
+  const opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, opt) => { opts.push(opt); });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const itemsSettings = question.dropdownListModel["itemsSettings"];
@@ -2001,33 +1992,20 @@ QUnit.test("Dropdown with Lazy Loading - A list of items display duplicate entri
   assert.equal(itemsSettings.items.length, 0, "itemsSettings.items.length #1");
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 5, "question.choices.length #2");
+  doCallback(opts[0]);
+  assert.equal(question.choices.length, 5, "question.choices.length #2");
 
-    question.dropdownListModel.filterString = "22";
-    setTimeout(() => {
-      assert.equal(question.choices.length, 5, "question.choices.length #3");
+  question.dropdownListModel.filterString = "22";
+  doCallback(opts[1]);
+  assert.equal(question.choices.length, 5, "question.choices.length #3");
 
-      question.dropdownListModel.filterString = "2";
-      setTimeout(() => {
-        assert.equal(question.choices.length, 5, "question.choices.length #4");
+  question.dropdownListModel.filterString = "2";
+  doCallback(opts[2]);
+  assert.equal(question.choices.length, 5, "question.choices.length #4");
 
-        question.dropdownListModel.filterString = "";
-        setTimeout(() => {
-          assert.equal(question.choices.length, 5, "question.choices.length #5");
-
-          settings.dropdownSearchDelay = oldValueDebouncedInputValue;
-          done4();
-        }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue + callbackTimeOutDelta);
-
-        done3();
-      }, callbackTimeOutDelta);
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue + callbackTimeOutDelta);
+  question.dropdownListModel.filterString = "";
+  doCallback(opts[3]);
+  assert.equal(question.choices.length, 5, "question.choices.length #5");
 });
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: false", function (assert) {

@@ -1361,6 +1361,12 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
 
   question.dropdownListModel.popupModel.show();
   doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.value, 55);
+
+  assert.deepEqual(survey.data, { "q1": 55 }, "before doComplete after item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete after item load");
 });
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {

@@ -66,7 +66,6 @@ Serializer.addClass(
     { name: "showNumber", visible: false },
     { name: "state", visible: false },
     { name: "titleLocation", visible: false },
-    { name: "showTitle", visible: false },
     { name: "descriptionLocation", visible: false },
     { name: "errorLocation", visible: false },
     { name: "indent", visible: false },

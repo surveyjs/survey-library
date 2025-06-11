@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { registerCustomItemComponent } from "../e2e/registerCustomComponents";
 
 const title = "Dropdown Screenshot";
 
@@ -362,8 +363,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-dropdown", "dropdown-search-spaces-suffix.png");
     });
 
-    test.skip("Check dropdown with custom component input height", async ({ page }) => {
-      // await registerCustomItemComponent(framework);
+    test("Check dropdown with custom component input height", async ({ page }) => {
+      await registerCustomItemComponent(page, framework);
       const json = {
         showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,

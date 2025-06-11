@@ -184,6 +184,9 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public get id(): string {
     return getId(this.row?.id || this.idValue.toString(), this.isErrorsRow, this.isDetailRow);
   }
+  public get dropTargetId(): string {
+    return this.row?.id;
+  }
   public get attributes() {
     if (!this.row) return {};
     return { "data-sv-drop-target-matrix-row": this.row.id };
@@ -253,7 +256,7 @@ export class QuestionMatrixDropdownRenderedEmptyRow extends QuestionMatrixDropdo
   public get attributes() {
     return {};
   }
-  public get id() {
+  public get dropTagetId() {
     return this.customId;
   }
   public get className(): string {
@@ -635,7 +638,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (rows.length == 0 && this.matrix.allowRowReorder) {
       const row = this.createEmptyRow();
       const cell = this.createTextCell(this.matrix.locNoRowsText);
-      cell.colSpans = this.headerRow.cells.length;
+      cell.colSpans = this.headerRow && this.headerRow.cells.length || 1;
       row.cells.push(cell);
       renderedRows.push(row);
     }

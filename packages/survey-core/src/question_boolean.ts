@@ -79,7 +79,7 @@ export class QuestionBooleanModel extends Question {
   }
   public get locTitle(): LocalizableString {
     const original = this.getLocalizableString("title");
-    if ((this.isLabelRendered && !this.showTitle || this.isValueEmpty(original.text)) && !this.isValueEmpty(this.locLabel.text)) return this.locLabel;
+    if ((this.isLabelRendered || this.isValueEmpty(original.text)) && !this.isValueEmpty(this.locLabel.text)) return this.locLabel;
     return original;
   }
   public get labelRenderedAriaID(): string {
@@ -91,8 +91,6 @@ export class QuestionBooleanModel extends Question {
     this.leftAnswerElement = undefined;
   }
 
-  // Obsolete
-  @property() showTitle: boolean;
   /**
    * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
    */

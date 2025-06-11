@@ -371,15 +371,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected onAfterRunItemsEnableCondition(): void {
     this.updateSelectAllItemProps();
-    if (this.maxSelectedChoices < 1) {
-      this.otherItem.setIsEnabled(true);
-      return;
-    }
-    if (this.showOtherItem) {
-      this.otherItem.setIsEnabled(
-        !this.shouldCheckMaxSelectedChoices() || this.isOtherSelected
-      );
-    }
+    const isEnabled = this.maxSelectedChoices < 1 || this.isOtherSelected || !this.shouldCheckMaxSelectedChoices();
+    this.otherItem.setIsEnabled(isEnabled);
   }
   private updateSelectAllItemProps(): void {
     if (!this.hasSelectAll) return;

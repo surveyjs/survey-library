@@ -23,6 +23,9 @@ export class QuestionNonValue extends Question {
   public getTitleLocation(): string {
     return "";
   }
+  public get showTitle(): boolean {
+    return false;
+  }
   public get hasComment(): boolean {
     return false;
   }

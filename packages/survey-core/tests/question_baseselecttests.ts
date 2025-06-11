@@ -2719,12 +2719,13 @@ function testCheckboxQuestionWithSeveralCommentChoices(q1: QuestionCheckboxModel
   assert.equal(q1.getCommentValue(q1.otherItem), "test comment, #other", "getCommentValue for otherItem, #5");
   q1.clickItemHandler(q1.otherItem, false);
   q1.clickItemHandler(q1.choices[0], false);
+  q1.clickItemHandler(q1.choices[1], false);
   assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #6");
   assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #6");
   assert.equal(q1.getCommentValue(q1.choices[2]), "test comment, #2", "getCommentValue for choices[2], #6");
   assert.equal(q1.getCommentValue(q1.otherItem), "", "getCommentValue for otherItem, #6");
 }
-QUnit.skip("checbox question and choices has comment", (assert) => {
+QUnit.test("checbox question and choices has comment", (assert) => {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -2738,7 +2739,7 @@ QUnit.skip("checbox question and choices has comment", (assert) => {
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   testCheckboxQuestionWithSeveralCommentChoices(q1, assert);
 });
-QUnit.skip("checbox question and choices has comment and storeOthersAsComment = false", (assert) => {
+QUnit.test("checbox question and choices has comment and storeOthersAsComment = false", (assert) => {
   const survey = new SurveyModel({
     storeOthersAsComment: false,
     "elements": [
@@ -2753,7 +2754,7 @@ QUnit.skip("checbox question and choices has comment and storeOthersAsComment = 
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   testCheckboxQuestionWithSeveralCommentChoices(q1, assert);
 });
-QUnit.test("Radiogroup question and choices has comment", (assert) => {
+QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: false", (assert) => {
   const survey = new SurveyModel({
     storeOthersAsComment: false,
     "elements": [

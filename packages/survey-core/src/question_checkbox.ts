@@ -243,6 +243,17 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return super.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
+  protected setCommentValueCore(item: ItemValue, newValue: string): void {
+    if (item === this.otherItem) {
+      super.setCommentValueCore(item, newValue);
+    } else {
+      this.setPropertyValue(this.getItemCommentValueId(item), newValue);
+    }
+  }
+  protected getCommentValueCore(item: ItemValue): string {
+    if (item === this.otherItem) return super.getCommentValueCore(item);
+    return this.getPropertyValue(this.getItemCommentValueId(item)) || "";
+  }
   protected convertFuncValuetoQuestionValue(val: any): any {
     if (!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {
       const res: Array<any> = [];

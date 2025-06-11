@@ -256,7 +256,7 @@ export class QuestionMatrixDropdownRenderedEmptyRow extends QuestionMatrixDropdo
   public get attributes() {
     return {};
   }
-  public get dropTagetId() {
+  public get dropTargetId() {
     return this.customId;
   }
   public get className(): string {

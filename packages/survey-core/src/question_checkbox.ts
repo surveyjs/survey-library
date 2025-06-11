@@ -375,7 +375,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.otherItem.setIsEnabled(true);
       return;
     }
-    if (this.hasOther) {
+    if (this.showOtherItem) {
       this.otherItem.setIsEnabled(
         !this.shouldCheckMaxSelectedChoices() || this.isOtherSelected
       );

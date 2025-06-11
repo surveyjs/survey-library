@@ -262,7 +262,7 @@ export class QuestionSelectBase extends Question {
    * @see showOtherItem
    */
   public get isOtherSelected(): boolean {
-    return this.hasOther && this.getHasOther(this.renderedValue);
+    return this.showOtherItem && this.getHasOther(this.renderedValue);
   }
   public get isNoneSelected(): boolean {
     return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
@@ -1189,7 +1189,7 @@ export class QuestionSelectBase extends Question {
       this.addNonChoiceItem(dict, this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
     }
     if (this.supportOther()) {
-      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.hasOther, settings.specialChoicesOrder.otherItem);
+      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.showOtherItem, settings.specialChoicesOrder.otherItem);
     }
   }
   protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
@@ -1206,7 +1206,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   public isItemInList(item: ItemValue): boolean {
-    if (item === this.otherItem) return this.hasOther;
+    if (item === this.otherItem) return this.showOtherItem;
     if (item === this.noneItem) return this.showNoneItem;
     if (item === this.refuseItem) return this.showRefuseItem;
     if (item === this.dontKnowItem) return this.showDontKnowItem;
@@ -1296,7 +1296,7 @@ export class QuestionSelectBase extends Question {
   }
   private getItemDisplayValue(item: ItemValue, val?: any): string {
     if (item === this.otherItem) {
-      if (this.hasOther && this.showCommentArea && !!val) {
+      if (this.showOtherItem && this.showCommentArea && !!val) {
         return val;
       }
       if (this.comment) {
@@ -1555,7 +1555,7 @@ export class QuestionSelectBase extends Question {
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
     if (
-      this.hasOther && this.activeChoices.length > 0 &&
+      this.showOtherItem && this.activeChoices.length > 0 &&
       !this.isRunningChoices &&
       !this.choicesByUrl.isRunning &&
       this.getStoreOthersAsComment()
@@ -1893,8 +1893,7 @@ export class QuestionSelectBase extends Question {
     const readOnlyStyles = this.getIsDisableAndReadOnlyStyles(!item.isEnabled);
     const isReadOnly = readOnlyStyles[0];
     const isDisabled = readOnlyStyles[1];
-    const isChecked = this.isItemSelected(item) ||
-      (this.isOtherSelected && this.otherItem.value === item.value);
+    const isChecked = this.isItemSelected(item);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
     options.isDisabled = isDisabled || isReadOnly;
@@ -2134,7 +2133,7 @@ export class QuestionSelectBase extends Question {
     return this.renderedValue === item.value ? "true" : "false";
   }
   public isOtherItem(item: ItemValue) {
-    return this.hasOther && item.value == this.otherItem.value;
+    return this.showOtherItem && item.value == this.otherItem.value;
   }
   public get itemSvgIcon(): string {
     if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
@@ -2320,7 +2319,7 @@ Serializer.addClass(
       serializationProperty: "locOtherPlaceholder",
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
-        return obj.hasOther;
+        return obj.showOtherItem;
       },
     },
     {
@@ -2352,7 +2351,7 @@ Serializer.addClass(
       serializationProperty: "locOtherText",
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
-        return obj.hasOther;
+        return obj.showOtherItem;
       },
     },
     {
@@ -2360,7 +2359,7 @@ Serializer.addClass(
       serializationProperty: "locOtherErrorText",
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
-        return obj.hasOther;
+        return obj.showOtherItem;
       },
     },
     {

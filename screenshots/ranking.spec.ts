@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
 const title = "Ranking Screenshot";
 
@@ -239,8 +240,8 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sv-ranking-item", "question-ranking-item-theme.png");
     });
 
-    test.skip("Ranking custom content component", async ({ page }) => {
-      // await registerCustomItemContentComponent(framework);
+    test("Ranking custom content component", async ({ page }) => {
+      await registerCustomItemContentComponent(page, framework);
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",

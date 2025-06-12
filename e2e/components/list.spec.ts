@@ -1,16 +1,16 @@
 import { frameworks, initSurvey, url, test, expect } from "../helper";
+import { registerCustomToolboxComponent } from "../registerCustomComponents";
 
 const title = "list";
 
-async function registerCustomToolboxComponent(framework: string) {
-  // Implementation would depend on your specific needs
-  // This is a placeholder that matches the original test's expectations
-}
-
 frameworks.forEach(framework => {
   test.describe(`${framework} ${title}`, () => {
-    test.skip("check custom markup in list behavior", async ({ page }) => {
+    test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
+    });
+
+    test("check custom markup in list behavior", async ({ page }) => {
+      await registerCustomToolboxComponent(page, framework);
       const json = {
         elements: [
           {
@@ -19,7 +19,6 @@ frameworks.forEach(framework => {
           }
         ]
       };
-      await registerCustomToolboxComponent(framework);
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
@@ -39,7 +38,6 @@ frameworks.forEach(framework => {
     });
 
     test("Dropdown popup styles", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
       const json = {
         elements: [
           {
@@ -83,15 +81,10 @@ frameworks.forEach(framework => {
       const emptyContainerDisplay = await popup__container.locator(".sv-list__empty-container").evaluate(el => getComputedStyle(el).display);
       expect(emptyContainerDisplay).not.toBe("none");
     });
-  });
-});
 
-["knockout", "react"].forEach(framework => {
-  if (!frameworks.includes(framework)) return;
-
-  test.describe(`${framework} ${title}`, () => {
     test("check list filter", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
+      if (framework !== "react") return;
+
       const json = {
         questions: [
           {

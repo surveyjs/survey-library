@@ -665,6 +665,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleKeyUp = (event: KeyboardEvent) => {
     this.oldValue = null;
+    this.setSliderValue(this.renderedValue);
   };
 
   public handleOnFocus = (inputNumber: number): void => {
@@ -849,7 +850,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     let result;
 
     if (sliderType === "single") {
-      result = this.value;
+      result = this.ensureValueRespectMinMax(this.value);
       if (typeof result === "undefined" || result.length === 0) {
         this.isIndeterminate = true;
         return this.isNegativeScale ? [Math.min(max, 0)] : [min];
@@ -870,7 +871,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       return [min, max]; // TODO support several values 3 and more
     }
 
-    return result;
+    return result.map(v=>this.ensureValueRespectMinMax(v));
   };
 
   private calcGeneratedLabels() : Array<SliderLabelItemValue> {

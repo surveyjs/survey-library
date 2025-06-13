@@ -583,6 +583,7 @@ export var defaultCss = {
     cell: "sd-table__cell",
     cellResponsiveTitle: "sd-table__responsive-title",
     row: "sd-table__row",
+    rowEmpty: "sd-table__row--empty",
     rowDelayedEnter: "sd-table__row--delayed-enter",
     rowEnter: "sd-table__row--enter",
     rowLeave: "sd-table__row--leave",

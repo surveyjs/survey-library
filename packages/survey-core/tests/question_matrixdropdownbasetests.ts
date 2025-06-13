@@ -2048,3 +2048,44 @@ QUnit.test("survey.onValidateQuestion, Bug#10011", function(assert) {
   survey.tryComplete();
   assert.deepEqual(questionNames, ["col1", "col2", "col1", "col2", "col1", "col2", "matrix"], "We should validate matrix and all its cells");
 });
+QUnit.test("Incorrect encoding of number mask in the error of a marix cell, Bug#10034", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "defaultValueExpression": "30001.99",
+        "maskType": "numeric"
+      },
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "q2",
+            "cellType": "text",
+            "isRequired": true,
+            "validators": [
+              {
+                "type": "expression",
+                "text": "{q1}",
+                "expression": "{q2} > {q1}"
+              }
+            ],
+            "maskType": "numeric"
+          }
+        ],
+        "rows": [
+          "row1"
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const qCell1 = row.cells[0].question;
+  qCell1.value = 1;
+  matrix.validate(true);
+  assert.equal(qCell1.errors.length, 1, "There is an error");
+  assert.equal(qCell1.errors[0].locText.calculatedText, "30,001.99", "Error calculatedText is correct");
+});

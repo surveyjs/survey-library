@@ -730,5 +730,20 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, ".sd-panel--as-page", "preview-numbered-page.png");
     });
+
+    test("Readonly and Focus", async ({ page }) => {
+      const json = {
+        elements: [
+          { type: "radiogroup", name: "q1", choices: ["Yes", "No"], defaultValue: "No" },
+        ],
+        readOnly: true
+      };
+
+      await page.goto(`${url}${framework}`);
+      await initSurvey(page, framework, json);
+
+      await page.locator("div").filter({ hasText: /^Yes$/ }).click();
+      await compareScreenshot(page, ".sd-question__content", "readonly-and-focus-unselect-item-not-focused.png");
+    });
   });
 });

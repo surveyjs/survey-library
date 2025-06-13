@@ -491,7 +491,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     const inputNode = <HTMLInputElement>event.target;
 
     if (this.isRangeMoving) {
-      this.refreshInputRange(inputNode);
+      this.refreshInputRange();
       this.isRangeMoving = false;
       if (step) {
         // const input = this.rangeInputRef.current as HTMLInputElement; //TODO
@@ -512,19 +512,21 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.setValueByClickOnPath(event, rootNode);
   };
 
-  public refreshInputRange = (inputNode: HTMLInputElement | null):void => {
+  public refreshInputRange = (inputRef?: HTMLElement):void => {
     const { allowDragRange, renderedValue, getPercent } = this;
     if (!allowDragRange) return;
     //if (!this.rangeInputRef.current) return;
-    if (!inputNode) return;
+    const input:HTMLElement = inputRef || DomDocumentHelper.getDocument().getElementById("sjs-slider-input-range-input"); //TODO
+
+    if (!input) return;
     const percentLastValue = getPercent(renderedValue[renderedValue.length - 1]);
     const percentFirstValue = getPercent(renderedValue[0]);
     let percent: number = percentLastValue - percentFirstValue;
 
     //const inputNode = this.rangeInputRef.current;
-    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", `calc(${percent}% - 20px - 20px)`); //TODO 20px is thumb width remove hardcode
-    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${percentFirstValue}% + 20px)`);
-    inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "absolute");
+    input.style.setProperty("--sjs-range-slider-range-input-thumb-width", `calc(${percent}% - 20px - 20px)`); //TODO 20px is thumb width remove hardcode
+    input.style.setProperty("--sjs-range-slider-range-input-thumb-left", `calc(${percentFirstValue}% + 20px)`);
+    input.style.setProperty("--sjs-range-slider-range-input-thumb-position", "absolute");
   };
 
   public setSliderValue = (newValue: number | number[]) => { // TODO move to setNewValue
@@ -594,7 +596,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
     setSliderValue(value);
     //refreshInputRange(this.rangeInputRef.current);
-    refreshInputRange(inputNode);
+    refreshInputRange();
   };
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
@@ -654,7 +656,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     }
 
     setSliderValue(renderedValue);
-    refreshInputRange(inputNode);
+    refreshInputRange();
     this.oldValue = null;
   };
 

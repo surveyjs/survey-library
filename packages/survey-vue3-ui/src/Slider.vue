@@ -3,6 +3,7 @@
         <input v-if="question.sliderType !== 'single' && question.allowDragRange" ref="rangeInputRef"
         name="range-input" :class="question.cssClasses.input" type="range" tabIndex="-1" 
         :min="question.min" :max="question.max" :step="question.step" aria-hidden="true"
+        id="sjs-slider-input-range-input"
         @input="(e)=>{question.handleRangeOnChange(e as InputEvent)}"
         @pointerdown="(e)=>{question.handleRangePointerDown(e, rootRef as HTMLElement)}"
         @pointerup="(e)=>{question.handleRangePointerUp(e, rootRef as HTMLElement)}" />

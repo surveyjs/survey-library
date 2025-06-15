@@ -21,10 +21,13 @@
   transition: box-shadow $transition-duration, background $transition-duration;
 }
 
-.sd-item--readonly.sd-item--readonly .sd-item__decorator {
-  background-color: $background-dark;
-  box-shadow: none;
-  transition: none;
+.sd-item--readonly.sd-item--readonly {
+  &.sd-item:not(.sd-item--checked) .sd-item__control:focus + .sd-item__decorator,
+  .sd-item__decorator {
+    background-color: $background-dark;
+    box-shadow: none;
+    transition: none;
+  }
 }
 
 .sd-item--preview.sd-item--preview .sd-item__decorator {

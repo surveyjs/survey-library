@@ -91,8 +91,6 @@ export class QuestionBooleanModel extends Question {
     this.leftAnswerElement = undefined;
   }
 
-  // Obsolete
-  @property() showTitle: boolean;
   /**
    * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
    */

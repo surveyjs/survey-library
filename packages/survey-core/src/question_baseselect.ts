@@ -34,7 +34,7 @@ export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
-  private otherTextAreaModelValue: TextAreaModel;
+  private commentAreaModelValues: HashTable<TextAreaModel>;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -120,18 +120,31 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
+    const dist = this.commentAreaModelValues;
+    if (!!dist) {
+      Object.keys(dist).forEach((key) => { dist[key].dispose(); });
+    }
   }
   public get otherTextAreaModel(): TextAreaModel {
-    if (!this.otherTextAreaModelValue) {
-      this.otherTextAreaModelValue = new TextAreaModel(this.getOtherTextAreaOptions());
-    }
-    return this.otherTextAreaModelValue;
+    return this.getCommentTextAreaModel(this.otherItem);
   }
-  private getOtherTextAreaOptions(): ITextArea {
+  public getCommentTextAreaModel(item: ItemValue): TextAreaModel {
+    const val = item?.value;
+    if (val === undefined) return null;
+    if (!this.commentAreaModelValues) {
+      this.commentAreaModelValues = {};
+    }
+    const dic = this.commentAreaModelValues;
+    if (!dic[val]) {
+      dic[val] = new TextAreaModel(this.getOtherTextAreaOptions(item));
+    }
+    return dic[val];
+  }
+  private getOtherTextAreaOptions(item: ItemValue): ITextArea {
     const options: ITextArea = {
       question: this,
-      id: () => this.otherId,
-      propertyNames: ["otherValue", "comment"],
+      id: () => this.getItemCommentId(item),
+      propertyNames: [this.getCommentPropertyValue(item)],
       className: () => this.cssClasses.other,
       placeholder: () => this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -140,9 +153,9 @@ export class QuestionSelectBase extends Question {
       autoGrow: () => this.survey && this.survey.autoGrowComment,
       ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
       ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.otherValue; },
-      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
-      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
+      getTextValue: () => { return this.getCommentValueCore(item); },
+      onTextAreaChange: (e) => { this.onOtherValueChange(item, e); },
+      onTextAreaInput: (e) => { this.onOtherValueInput(item, e); },
     };
     return options;
   }
@@ -284,8 +297,12 @@ export class QuestionSelectBase extends Question {
   protected getCommentValueCore(item: ItemValue): string {
     return this.otherValue;
   }
+  protected getCommentPropertyValue(item: ItemValue): string {
+    if (item.value === this.otherItem.value) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
+    return "other_" + this.getItemCommentValueId(item);
+  }
   protected getItemCommentValueId(item: ItemValue): string {
-    return item.value.toString().replace(/[^a-zA-Z0-9_]/g, "_");
+    return item.value.toString().replace(/[^a-zA-Z0-9_]/g, "_") || "";
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -1586,17 +1603,16 @@ export class QuestionSelectBase extends Question {
   protected setOtherValueIntoValue(newValue: any): any {
     return this.otherItem.value;
   }
-  public onOtherValueInput(event: any): void {
-    if (this.isInputTextUpdate) {
-      if (event.target) {
-        this.otherValue = event.target.value;
-      }
+  private onOtherValueInput(item: ItemValue, event: any): void {
+    if (this.isInputTextUpdate && event.target) {
+      this.setCommentValueCore(item, event.target.value);
     }
   }
-  public onOtherValueChange(event: any): void {
-    this.otherValue = event.target.value;
-    if (this.otherValue !== event.target.value) {
-      event.target.value = this.otherValue;
+  private onOtherValueChange(item: ItemValue, event: any): void {
+    this.setCommentValueCore(item, event.target.value);
+    const val = this.getCommentValueCore(item);
+    if (val !== event.target.value) {
+      event.target.value = val;
     }
   }
   private isRunningChoices: boolean = false;

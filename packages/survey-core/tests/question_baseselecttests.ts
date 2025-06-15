@@ -11,7 +11,6 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { setOldTheme } from "./oldTheme";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 
@@ -2754,6 +2753,41 @@ QUnit.test("checbox question and choices has comment and storeOthersAsComment = 
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   testCheckboxQuestionWithSeveralCommentChoices(q1, assert);
 });
+QUnit.test("checbox question and choices has comment", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [1, 2];
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
+  assert.equal(q1.comment, "", "comment is not set for choices[1], #1");
+});
+QUnit.test("checbox question and choices has comment with other value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: "other", hasComment: true }, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [1, "other"];
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
+  assert.equal(q1.comment, "test comment", "comment is set for choices[1], #1");
+  q1.comment = "test comment 2";
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment 2", "getCommentValue for choices[1], #2");
+});
+
 QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: false", (assert) => {
   const survey = new SurveyModel({
     storeOthersAsComment: false,

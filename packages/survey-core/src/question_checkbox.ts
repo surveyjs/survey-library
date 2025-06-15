@@ -244,15 +244,27 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    if (item === this.otherItem) {
+    if (this.isTheOnlyComment()) {
       super.setCommentValueCore(item, newValue);
     } else {
-      this.setPropertyValue(this.getItemCommentValueId(item), newValue);
+      if (item === this.otherItem) {
+        super.setCommentValueCore(item, newValue);
+      } else {
+        this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
+      }
     }
   }
   protected getCommentValueCore(item: ItemValue): string {
+    if (this.isTheOnlyComment()) return super.getCommentValueCore(item);
     if (item === this.otherItem) return super.getCommentValueCore(item);
-    return this.getPropertyValue(this.getItemCommentValueId(item)) || "";
+    return this.getPropertyValue(this.getCommentPropertyValue(item)) || "";
+  }
+  private isTheOnlyComment(): boolean {
+    for (let i = 0; i < this.choices.length; i++) {
+      const ch = this.choices[i];
+      if (ch.hasComment && ch.value !== this.otherItem.value) return false;
+    }
+    return true;
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     if (!!this.valuePropertyName && Array.isArray(val) && val.length > 0) {

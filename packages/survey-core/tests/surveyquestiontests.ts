@@ -7964,6 +7964,54 @@ QUnit.test("The text area value is not updated on setting the question comment/o
     textArea1.remove();
   }
 });
+QUnit.test("The text area value for multiple hasComment", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, 3, 4],
+        "showOtherItem": true
+      }
+    ]
+  });
+
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  question.value = [1, 2, "other"];
+  assert.equal(question.isCommentShowing(question.choices[1]), true, "isCommentShowing for choice with hasComment");
+  const otherOptions = question.otherTextAreaModel;
+  const item2CommentOptions = question.getCommentTextAreaModel(question.choices[1]);
+  const textArea1 = document.createElement("textarea");
+  const textArea2 = document.createElement("textarea");
+
+  try {
+    otherOptions.setElement(textArea1);
+    item2CommentOptions.setElement(textArea2);
+    assert.equal(textArea1.value, "", "textArea value #1");
+    assert.equal(otherOptions.getTextValue(), "", "otherOptions value #1");
+    assert.equal(textArea2.value, "", "item2CommnetOptions value #1");
+    assert.equal(item2CommentOptions.getTextValue(), "", "item2CommnetOptions value #1");
+    question.otherValue = "other value #1";
+    question.setCommentValue(question.choices[1], "choice value #1");
+
+    assert.equal(textArea1.value, "other value #1", "textArea1 value #2");
+    assert.equal(otherOptions.getTextValue(), "other value #1", "textArea1 value new value #2");
+    assert.equal(textArea2.value, "choice value #1", "textArea2 value #2");
+    assert.equal(item2CommentOptions.getTextValue(), "choice value #1", "item2CommnetOptions value #2");
+
+    otherOptions.onTextAreaChange({ target: { value: "other value #2" } });
+    item2CommentOptions.onTextAreaChange({ target: { value: "choice value #2" } });
+
+    assert.equal(otherOptions.getTextValue(), "other value #2", "otherOptions value #3");
+    assert.equal(item2CommentOptions.getTextValue(), "choice value #2", "item2CommnetOptions value #3");
+    assert.equal(question.otherValue, "other value #2", "question.otherValue #3");
+    assert.equal(question.getCommentValue(question.choices[1]), "choice value #2", "question.getCommentValue #3");
+
+  } finally {
+    textArea1.remove();
+    textArea2.remove();
+  }
+});
 QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
   const survey = new SurveyModel({
     validateVisitedEmptyFields: true,

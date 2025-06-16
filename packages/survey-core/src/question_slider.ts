@@ -893,9 +893,14 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       if (value < this.min) value = this.min;
       if (value > this.max) value = this.max;
     } else {
-      value.forEach((el, i) => {
+      value.forEach((el, i, array) => {
         if (el < this.min) value[i] = this.min;
         if (el > this.max) value[i] = this.max;
+        if (i === 0) {
+          if (typeof el === "undefined" || el === null) value[i] = this.min;
+        } else if (i === array.length - 1) {
+          if (typeof el === "undefined" || el === null) value[i] = this.max;
+        }
       });
     }
     return value;

@@ -1708,10 +1708,7 @@ export class PanelModelBase extends SurveyElement<Question>
   protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
-    if (
-      !!this.survey && this.survey.getQuestionClearIfInvisible("default") !== "none" &&
-      !this.isLoadingFromJson
-    ) {
+    if (!this.isLoadingFromJson) {
       const questions = this.questions;
       const isVisible = this.isVisible;
       for (var i = 0; i < questions.length; i++) {

@@ -295,22 +295,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   onItemHasCommentChanged(): void {
     this.resetPropertyValue("isTheOnlyComment");
   }
-  protected convertFuncValuetoQuestionValue(val: any): any {
-    if (!!this.getValuePropertyName() && Array.isArray(val) && val.length > 0) {
-      const res: Array<any> = [];
-      val.forEach(item => {
-        const isObj = typeof item === "object";
-        let obj: any = isObj ? item : {};
-        if (!isObj) {
-          obj[this.getValuePropertyName()] = item;
-        }
-        res.push(obj);
-      });
-      val = res;
-    }
-    return super.convertDefaultValue(val);
-
-  }
   private getRealValue(val: any): any {
     if (!val || typeof val !== "object") return val;
     const valProp = this.getValuePropertyName();
@@ -531,9 +515,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (this.isTwoValueEquals(value, newValue)) return;
     this.removeNoneItemsValues(value, newValue);
     super.setNewValue(newValue);
-  }
-  protected getIsMultipleValue(): boolean {
-    return true;
   }
   protected getCommentFromValue(newValue: any): string {
     var ind = this.getFirstUnknownIndex(newValue);
@@ -758,7 +739,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected renderedValueToDataCore(val: any): any {
     if (!val || !val.length) return val;
     const res = [];
-    const valProp = this.getValuePropertyName();
     const qVal = this.createValueCopy();
     for (var i = 0; i < val.length; i++) {
       let index = -1;
@@ -777,6 +757,20 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       } else {
         res.push(this.getValueFromReal(valItem));
       }
+    }
+    return res;
+  }
+  protected valueToData(val: any): any {
+    if (Helpers.isValueEmpty(val)) return val;
+    if (!Array.isArray(val)) {
+      val = [val];
+    }
+    const valProp = this.getValuePropertyName();
+    if (!valProp) return val;
+    const res = [];
+    for (let i = 0; i < val.length; i++) {
+      const item = val[i];
+      res.push(typeof item === "object" ? item : this.getValueFromReal(item));
     }
     return res;
   }

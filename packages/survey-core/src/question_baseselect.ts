@@ -490,15 +490,10 @@ export class QuestionSelectBase extends Question {
     this.renderedValue = this.setOtherValueIntoValue(val);
     this.otherValue = val;
   }
-  protected getIsMultipleValue(): boolean {
-    return false;
-  }
-  protected convertDefaultValue(val: any): any {
-    if (val == null || val == undefined) return val;
-    if (this.getIsMultipleValue()) {
-      if (!Array.isArray(val)) return [val];
-    } else {
-      if (Array.isArray(val) && val.length > 0) return val[0];
+  protected valueToData(val: any): any {
+    if (Helpers.isValueEmpty(val)) return val;
+    if (Array.isArray(val)) {
+      return val.length > 0 ? val[0] : undefined;
     }
     return val;
   }

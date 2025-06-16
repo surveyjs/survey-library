@@ -2814,7 +2814,23 @@ QUnit.test("checkbox vs multiple comment choices - question.value", (assert) => 
   assert.equal(q1.getCommentValue(q1.choices[2]), "choice comment3", "getCommentValue for choices[2], #3");
   assert.equal(q1.getCommentValue(q1.otherItem), "other comment2", "getCommentValue for otherItem, #3");
 });
-
+QUnit.test("checkbox vs multiple comment choices - question.value - set incorrect value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, { value: 3, hasComment: true }],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.getValuePropertyName(), "value", "getValuePropertyName");
+  q1.value = [1, 2, "other"];
+  assert.deepEqual(q1.value, [{ value: 1 }, { value: 2 }, { value: "other" }], "q1.value, #1");
+  assert.deepEqual(q1.renderedValue, [1, 2, "other"], "q1.renderedValue, #1");
+});
 QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: false", (assert) => {
   const survey = new SurveyModel({
     storeOthersAsComment: false,

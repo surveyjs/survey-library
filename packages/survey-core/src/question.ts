@@ -2203,7 +2203,7 @@ export class Question extends SurveyElement<Question>
       this.defaultValueExpression = val.substring(1);
       return;
     }
-    this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
+    this.setPropertyValue("defaultValue", this.valueToData(val));
     this.updateValueWithDefaults();
   }
   /**
@@ -2337,10 +2337,7 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("correctAnswer");
   }
   public set correctAnswer(val: any) {
-    this.setPropertyValue("correctAnswer", this.convertDefaultValue(val));
-  }
-  protected convertDefaultValue(val: any): any {
-    return val;
+    this.setPropertyValue("correctAnswer", this.valueToData(val));
   }
   /**
    * The number of quiz questions. A question counts if it is visible, has an input field, and specifies `correctAnswer`.

@@ -288,7 +288,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.showLabel = true;
     }
   }
-  protected convertDefaultValue(val: any): any {
+  protected valueToData(val: any): any {
     return val;
   }
   public get inputType() {

@@ -6,11 +6,9 @@ import { getLocaleString } from "../surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
-
   protected responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;
-
   private hideItemsGreaterN(visibleItemsCount: number) {
     const actionsToHide = this.getActionsToHide();
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount - (this.visibleActions.length - actionsToHide.length));
@@ -45,7 +43,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   constructor() {
     super();
-
     this.dotsItem = createDropdownActionModelAdvanced({
       id: "dotsItem-id" + AdaptiveActionContainer.ContainerID++,
       css: "sv-dots",
@@ -61,7 +58,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   public get hiddenItemsListModel(): ListModel {
     return this.dotsItem.data as ListModel;
   }
-
   protected onSet(): void {
     this.actions.forEach(action => action.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized));
     super.onSet();
@@ -73,9 +69,10 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   protected getRenderedActions(): Array<T> {
-    if (this.actions.length === 1 && !!this.actions[0].iconName)
-      return this.actions;
-    return this.actions.concat([<T>this.dotsItem]);
+    const actions = super.getRenderedActions();
+    if (actions.length === 1 && !!actions[0].iconName)
+      return actions;
+    return actions.concat([<T>this.dotsItem]);
   }
 
   protected getAllActions(): T[] {
@@ -142,7 +139,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   protected createResponsivityManager(container: HTMLDivElement): ResponsivityManager {
     return new ResponsivityManager(
-      container, this,
+      container, this
     );
   }
   public initResponsivityManager(container: HTMLDivElement): void {
@@ -152,7 +149,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       }
       this.responsivityManager.dispose();
     }
+    this.isVisible = this.isResponsivenessDisabled;
     this.responsivityManager = this.createResponsivityManager(container);
+    this.responsivityManager.afterInitializeCallback = () => {
+      this.isVisible = true;
+    };
   }
   public resetResponsivityManager(): void {
     if (!!this.responsivityManager) {

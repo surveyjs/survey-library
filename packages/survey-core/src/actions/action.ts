@@ -257,6 +257,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() css?: string;
   minDimension: number;
   maxDimension: number;
+  public visibilityChangedCallback: () => void;
 
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
@@ -423,6 +424,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private raiseUpdate(isResetInitialized: boolean = false) {
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
+  private raiseOnVisibilityChanged() {
+    this.visibilityChangedCallback && this.visibilityChangedCallback();
+  }
   constructor(innerItemData: IAction) {
     super();
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
@@ -473,6 +477,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() id: string;
   @property({
     defaultValue: true, onSet: (_, target: Action) => {
+      target.raiseOnVisibilityChanged();
       target.raiseUpdate();
     }
   }) private _visible: boolean;

@@ -37,6 +37,8 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }
+  @property() isVisible: boolean = true;
+  @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({
     onSet: (_: any, target: ActionContainer<Action>) => {
       target.onSet();
@@ -50,9 +52,8 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   })
     actions: Array<T>;
   private cssClassesValue: any;
-
   protected getRenderedActions(): Array<T> {
-    return this.actions;
+    return this.visibleActions;
   }
 
   public updateCallback: (isResetInitialized: boolean) => void;
@@ -69,22 +70,36 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     });
   }
   protected raiseUpdate(isResetInitialized: boolean) {
+    this.updateVisibleActions();
     this.isEmpty = !this.actions.some((action) => action.visible);
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
-
+  protected updateVisibleActions() {
+    this.visibleActions = this.actions.filter((action) => action.visible !== false);
+  }
+  @property()
   protected onSet() {
-    this.actions.forEach((item) => { this.setActionCssClasses(item); });
+    this.actions.forEach((item) => {
+      this.setActionCssClasses(item);
+      item.visibilityChangedCallback = () => {
+        this.updateVisibleActions();
+      };
+    });
+    this.updateVisibleActions();
     this.raiseUpdate(true);
   }
   protected onPush(item: T) {
     this.setActionCssClasses(item);
+    item.visibilityChangedCallback = () => {
+      this.updateVisibleActions();
+    };
     item.owner = this;
     this.raiseUpdate(true);
   }
 
   protected onRemove(item: T) {
     item.owner = null;
+    item.visibilityChangedCallback = undefined;
     this.raiseUpdate(true);
   }
 
@@ -96,12 +111,18 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return (this.actions || []).length > 0;
   }
 
+  public get hasVisibleActions(): boolean {
+    return (this.visibleActions || []).length > 0;
+  }
+
   public get renderedActions(): Array<T> {
     return this.getRenderedActions();
   }
-
-  get visibleActions(): Array<T> {
-    return this.actions.filter((action) => action.visible !== false);
+  public getRootStyle() {
+    if (!this.isVisible) {
+      return { opacity: 0 };
+    }
+    return undefined;
   }
   public getRootCss(): string {
     const sizeModeClass = this.sizeMode === "small" ? this.cssClasses.smallSizeMode : this.cssClasses.defaultSizeMode;

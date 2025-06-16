@@ -80,16 +80,19 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `useLocalTimeZone`: `boolean`\
-   * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear()`, `setHours()`, etc.). Default value: `true`.
-   *
    * - `defaultLocaleName`: `string`\
    * A property key that stores a translation for the default locale. Default value: `"default"`.
    *
    * - `storeDuplicatedTranslations`: `boolean`\
    * Specifies whether surveys should store translation strings that equal the translation strings in the default locale. Default value: `false`.
+   *
+   * - `useLocalTimeZone`: `boolean`\
+   * Obsolete. Use the [`storeUtcDates`](https://surveyjs.io/form-library/documentation/api-reference/settings#storeUtcDates) setting instead.
    */
   localization: {
+    /**
+     * @deprecated Use the [`storeUtcDates`](https://surveyjs.io/form-library/documentation/api-reference/settings#storeUtcDates) property instead.
+     */
     useLocalTimeZone: true,
     storeDuplicatedTranslations: false,
     defaultLocaleName: "default"

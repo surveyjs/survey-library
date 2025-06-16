@@ -1116,6 +1116,12 @@ export class Question extends SurveyElement<Question>
       this.notifySurveyVisibilityChanged();
     }
   }
+  get showTitle(): boolean {
+    return this.getTitleLocation() !== "hidden";
+  }
+  set showTitle(newValue: boolean) {
+    this.titleLocation = newValue ? "default" : "hidden";
+  }
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
@@ -3259,7 +3265,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    if (this.hasTitle && !this.parentQuestion && this.hasDescription) {
+    if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -3346,6 +3352,11 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "top", "bottom", "left", "hidden"],
     layout: "row",
+  },
+  {
+    name: "showTitle:boolean",
+    isSerializable: false,
+    dependsOn: "titleLocation"
   },
   {
     name: "description:text",

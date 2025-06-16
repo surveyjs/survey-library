@@ -7977,7 +7977,8 @@ QUnit.test("The text area value for multiple hasComment", function (assert) {
   });
 
   const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
-  question.value = [1, 2, "other"];
+  question.value = [{ value: 1 }, { value: 2 }, { value: "other" }];
+  assert.deepEqual(question.renderedValue, [1, 2, "other"], "question.renderedValue");
   assert.equal(question.isCommentShowing(question.choices[1]), true, "isCommentShowing for choice with hasComment");
   const otherOptions = question.otherTextAreaModel;
   const item2CommentOptions = question.getCommentTextAreaModel(question.choices[1]);

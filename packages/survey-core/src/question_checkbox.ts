@@ -243,29 +243,44 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected hasUnknownValueItem(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
-    const propName = this.getValuePropertyName();
-    if (!!propName && typeof val === "object" && val[propName] !== undefined) {
-      val = val[propName];
-    }
-    return super.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
+    return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    if (this.isTheOnlyComment()) {
+    if (this.isTheOnlyComment) {
       super.setCommentValueCore(item, newValue);
     } else {
       if (item === this.otherItem) {
         super.setCommentValueCore(item, newValue);
       } else {
         this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
+        const index = this.getItemValIndexByItemValue(item.value);
+        if (index > -1) {
+          const val = this.createValueCopy();
+          val[index][this.commentPropertyValue] = newValue;
+          this.value = val;
+        }
       }
     }
   }
   protected getCommentValueCore(item: ItemValue): string {
-    if (this.isTheOnlyComment()) return super.getCommentValueCore(item);
+    if (this.isTheOnlyComment) return super.getCommentValueCore(item);
     if (item === this.otherItem) return super.getCommentValueCore(item);
-    return this.getPropertyValue(this.getCommentPropertyValue(item)) || "";
+    return this.getPropertyValue(this.getCommentPropertyValue(item), this.getCommentValueByItem(item)) || "";
   }
-  private isTheOnlyComment(): boolean {
+  private getCommentValueByItem(item: ItemValue): string {
+    const index = this.getItemValIndexByItemValue(item.value);
+    return index > -1 ? this.value[index][this.commentPropertyValue] : undefined;
+  }
+  private getItemValIndexByItemValue(itemValue: any): number {
+    const val = this.value;
+    if (!Array.isArray(val)) return -1;
+    for (let i = 0; i < val.length; i++) {
+      const rValue = this.getRealValue(val[i]);
+      if (Helpers.isTwoValueEquals(rValue, itemValue)) return i;
+    }
+    return -1;
+  }
+  private get isTheOnlyComment(): boolean {
     for (let i = 0; i < this.choices.length; i++) {
       const ch = this.choices[i];
       if (ch.hasComment && ch.value !== this.otherItem.value) return false;
@@ -289,9 +304,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
 
   }
   private getRealValue(val: any): any {
-    if (!val) return val;
+    if (!val || typeof val !== "object") return val;
     const valProp = this.getValuePropertyName();
     return !valProp ? val : val[valProp];
+  }
+  private getValueFromReal(val: any): any {
+    const valProp = this.getValuePropertyName();
+    if (!!valProp) {
+      const res: any = {};
+      res[valProp] = val;
+      return res;
+    }
+    return val;
   }
   public get isValueArray(): boolean { return true; }
   /**
@@ -705,15 +729,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     val = this.convertValueFromObject(val);
     return super.rendredValueFromData(val);
   }
+  /*
   protected rendredValueToData(val: any): any {
     val = super.rendredValueToData(val);
     return this.convertValueToObject(val);
   }
+  */
   protected convertValueFromObject(val: any): any {
     const valProp = this.getValuePropertyName();
     if (!valProp) return val;
     return Helpers.convertArrayObjectToValue(val, valProp);
   }
+  //TODO: remove this method in the future
   protected convertValueToObject(val: any): any {
     const valProp = this.getValuePropertyName();
     if (!valProp) return val;
@@ -739,16 +766,28 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected rendredValueToDataCore(val: any): any {
     if (!val || !val.length) return val;
+    const res = [];
+    const valProp = this.getValuePropertyName();
+    const qVal = this.createValueCopy();
     for (var i = 0; i < val.length; i++) {
-      if (val[i] == this.otherItem.value) {
-        if (this.needConvertRenderedOtherToDataValue()) {
-          var newVal = val.slice();
-          newVal[i] = this.otherValue;
-          return newVal;
+      let index = -1;
+      let valItem = val[i];
+      if (valItem === this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
+        index = this.getFirstUnknownIndex(qVal);
+        valItem = this.otherValue;
+        if (index > -1) {
+          qVal[index] = this.getValueFromReal(this.otherValue);
         }
+      } else {
+        index = this.getItemValIndexByItemValue(valItem);
+      }
+      if (index > -1) {
+        res.push(qVal[index]);
+      } else {
+        res.push(this.getValueFromReal(valItem));
       }
     }
-    return val;
+    return res;
   }
   protected selectOtherValueFromComment(val: boolean): void {
     var newVal = [];

@@ -73,7 +73,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "a11y: aria-describedbby: empty description",
+  "a11y: aria-describedbby: empty and hidden description",
   function(assert) {
     var json = {
       questions: [
@@ -82,11 +82,21 @@ QUnit.test(
           title: "Title",
           name: "q1"
         },
+        {
+          type: "text",
+          title: "Title",
+          description: "Description",
+          name: "q2"
+        },
       ],
     };
     var survey = new SurveyModel(json);
-    var question = survey.getQuestionByName("q1");
-    assert.equal(question.a11y_input_ariaDescribedBy, null, "aria-describedbby is null");
+    var question1 = survey.getQuestionByName("q1");
+    assert.equal(question1.a11y_input_ariaDescribedBy, null, "aria-describedby is null");
+    var question2 = survey.getQuestionByName("q2");
+    assert.equal(question2.a11y_input_ariaDescribedBy, question2.id + "_ariaDescription", "aria-describedby is not empty");
+    question2.descriptionLocation = "hidden";
+    assert.equal(question2.a11y_input_ariaDescribedBy, null, "aria-describedby is null");
   }
 );
 

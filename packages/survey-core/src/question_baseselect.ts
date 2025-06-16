@@ -639,7 +639,7 @@ export class QuestionSelectBase extends Question {
     return val === item.value;
   }
   get validatedValue(): any {
-    return this.rendredValueToDataCore(this.value);
+    return this.renderedValueToDataCore(this.value);
   }
   protected createRestful(): ChoicesRestful {
     return new ChoicesRestful();
@@ -773,14 +773,14 @@ export class QuestionSelectBase extends Question {
   }
   protected rendredValueToData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
-    return this.rendredValueToDataCore(val);
+    return this.renderedValueToDataCore(val);
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!this.hasUnknownValue(val, true, false)) return this.valueFromData(val);
     this.otherValue = val;
     return this.otherItem.value;
   }
-  protected rendredValueToDataCore(val: any): any {
+  protected renderedValueToDataCore(val: any): any {
     if (val == this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
       val = this.otherValue;
     }

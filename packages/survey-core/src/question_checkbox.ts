@@ -22,6 +22,12 @@ export class CheckboxItem extends ChoiceItem {
     this.setPropertyValue("isExclusive", val);
   }
   protected getBaseType(): string { return "checkboxitem"; }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "hasComment" && this.locOwner) {
+      (<any>this.locOwner).onItemHasCommentChanged();
+    }
+  }
 }
 
 /**
@@ -280,12 +286,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return -1;
   }
-  private get isTheOnlyComment(): boolean {
+  public get isTheOnlyComment(): boolean {
+    return this.getPropertyValue("isTheOnlyComment", undefined, () => this.calcIsTheOnlyComment());
+  }
+  private calcIsTheOnlyComment(): boolean {
     for (let i = 0; i < this.choices.length; i++) {
       const ch = this.choices[i];
       if (ch.hasComment && ch.value !== this.otherItem.value) return false;
     }
     return true;
+  }
+  onItemHasCommentChanged(): void {
+    this.resetPropertyValue("isTheOnlyComment");
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     if (!!this.getValuePropertyName() && Array.isArray(val) && val.length > 0) {
@@ -728,7 +740,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     val = this.convertValueFromObject(val);
     return super.rendredValueFromData(val);
   }
-  protected convertValueFromObject(val: any): any {
+  private convertValueFromObject(val: any): any {
     const valProp = this.getValuePropertyName();
     if (!valProp) return val;
     return Helpers.convertArrayObjectToValue(val, valProp);
@@ -747,7 +759,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return val;
   }
-  protected rendredValueToDataCore(val: any): any {
+  protected renderedValueToDataCore(val: any): any {
     if (!val || !val.length) return val;
     const res = [];
     const valProp = this.getValuePropertyName();

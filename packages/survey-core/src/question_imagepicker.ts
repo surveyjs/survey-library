@@ -209,7 +209,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected renderedValueFromDataCore(val: any): any {
     return this.convertValToArrayForMultSelect(val);
   }
-  protected rendredValueToDataCore(val: any): any {
+  protected renderedValueToDataCore(val: any): any {
     return this.convertValToArrayForMultSelect(val);
   }
   /**

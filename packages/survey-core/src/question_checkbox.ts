@@ -574,8 +574,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         }
       } else {
         if (newNone.index > -1 && newValue.length > 1) {
-          const itemVal = this.convertValueToObject([newNone.val])[0];
-          newValue.splice(0, newValue.length, itemVal);
+          newValue.splice(0, newValue.length, this.getValueFromReal(newNone.val));
         }
       }
     }
@@ -729,26 +728,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     val = this.convertValueFromObject(val);
     return super.rendredValueFromData(val);
   }
-  /*
-  protected rendredValueToData(val: any): any {
-    val = super.rendredValueToData(val);
-    return this.convertValueToObject(val);
-  }
-  */
   protected convertValueFromObject(val: any): any {
     const valProp = this.getValuePropertyName();
     if (!valProp) return val;
     return Helpers.convertArrayObjectToValue(val, valProp);
-  }
-  //TODO: remove this method in the future
-  protected convertValueToObject(val: any): any {
-    const valProp = this.getValuePropertyName();
-    if (!valProp) return val;
-    let dest = undefined;
-    if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) {
-      dest = this.data.getValue(this.getValueName());
-    }
-    return Helpers.convertArrayValueToObject(val, valProp, dest);
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];

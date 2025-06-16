@@ -209,12 +209,12 @@ export interface CurrentPageChangedEvent {
    * The current question.\
    * This parameter has a value only in [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
    */
-  oldCurrentQuestion?: Question;
+  oldCurrentQuestion?: Question | PanelModel;
   /**
    * A question that used to be current.\
    * This parameter has a value only in [question-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
    */
-  newCurrentQuestion?: Question;
+  newCurrentQuestion?: Question | PanelModel;
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**

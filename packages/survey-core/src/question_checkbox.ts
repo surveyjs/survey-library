@@ -252,19 +252,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    if (this.isTheOnlyComment) {
+    if (this.isTheOnlyComment || item === this.otherItem) {
       super.setCommentValueCore(item, newValue);
     } else {
-      if (item === this.otherItem) {
-        super.setCommentValueCore(item, newValue);
-      } else {
-        this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
-        const index = this.getItemValIndexByItemValue(item.value);
-        if (index > -1) {
-          const val = this.createValueCopy();
-          val[index][this.commentPropertyValue] = newValue;
-          this.value = val;
-        }
+      this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
+      const index = this.getItemValIndexByItemValue(item.value);
+      if (index > -1) {
+        const val = this.createValueCopy();
+        val[index][this.commentPropertyValue] = newValue;
+        this.value = val;
       }
     }
   }

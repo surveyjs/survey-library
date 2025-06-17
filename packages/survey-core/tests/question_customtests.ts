@@ -3761,3 +3761,28 @@ QUnit.test("Composite: Do not focus element on setting defaultValue & on setting
   ComponentCollection.Instance.clear();
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("Composite: contentAriaHidden", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  assert.strictEqual(q1.contentAriaHidden, null);
+  survey.setDesignMode(true);
+  assert.strictEqual(q1.contentAriaHidden, true);
+  survey.setDesignMode(false);
+  assert.strictEqual(q1.contentAriaHidden, null);
+  ComponentCollection.Instance.clear();
+});

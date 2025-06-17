@@ -10682,3 +10682,26 @@ QUnit.test("The Set Value trigger doesn't work on subsequent runs, Bug#10017", f
   assert.equal(matrix.visibleRows.length, 1, "matrix visible rows #7");
   assert.deepEqual(matrix.value, [{ col1: "Value 1", col2: "Value 2" }], "matrix value #7");
 });
+QUnit.test("The Set Value trigger doesn't work on subsequent runs, Bug#10017", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          { name: "col1" },
+          { name: "col2" },
+        ],
+        rowCount: 0,
+        cellType: "text",
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.ok(matrix.renderedTable.showAddRow);
+  assert.ok(matrix.renderedTable.showAddRowOnBottom);
+  survey.setDesignMode(true);
+  matrix.resetRenderedTable();
+  assert.notOk(matrix.renderedTable.showAddRow);
+  assert.notOk(matrix.renderedTable.showAddRowOnBottom);
+});

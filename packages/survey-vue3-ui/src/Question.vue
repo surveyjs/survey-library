@@ -53,6 +53,7 @@
     >
       <div
         :class="getContentClass(element) || undefined"
+        :aria-hidden="element.contentAriaHidden"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
       >

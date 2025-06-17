@@ -57,7 +57,10 @@ frameworks.forEach(framework => {
         question.clear();
       });
 
-      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Bird.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Read Me.txt"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
@@ -119,7 +122,9 @@ frameworks.forEach(framework => {
         question.clear();
       });
 
-      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Flamingo.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Bird.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
       await compareScreenshot(page, questionRoot, "file-question-multiple-small-images.png");
 
@@ -195,7 +200,10 @@ frameworks.forEach(framework => {
         question.clear();
       });
 
-      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Bird.png"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Read Me.txt"]);
+      await page.setInputFiles(".sd-file input", ["../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
 
       await page.evaluate(() => {

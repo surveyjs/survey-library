@@ -328,20 +328,21 @@ const onChoicesLazyLoadCallbackTimeOut = 5;
 const callbackTimeOutDelta = 1;
 
 const callback = (_, opt) => {
-  const total = opt.filter == "888" ? 17 : 70;
   setTimeout(() => {
-    if (opt.skip + opt.take < total) {
-      opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
-    } else {
-      opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
-    }
+    doneCallback(opt);
   }, onChoicesLazyLoadCallbackTimeOut);
 };
 
+const doneCallback = (opt) => {
+  const total = opt.filter == "888" ? 17 : 70;
+  if (opt.skip + opt.take < total) {
+    opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
+  } else {
+    opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
+  }
+};
+
 QUnit.test("lazy loading: several loading", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -351,41 +352,33 @@ QUnit.test("lazy loading: several loading", assert => {
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 30);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[29].value, 30);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 30);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[29].value, 30);
 
-    question.dropdownListModel["updateQuestionChoices"]();
-    setTimeout(() => {
-      assert.equal(question.choices.length, 60);
-      assert.equal(question.choices[0].value, 1);
-      assert.equal(question.choices[59].value, 60);
+  question.dropdownListModel["updateQuestionChoices"]();
+  doneCallback(opts[1]);
+  assert.equal(question.choices.length, 60);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[59].value, 60);
 
-      question.dropdownListModel["updateQuestionChoices"]();
-      setTimeout(() => {
-        assert.equal(question.choices.length, 70);
-        assert.equal(question.choices[0].value, 1);
-        assert.equal(question.choices[69].value, 70);
-
-        done3();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  question.dropdownListModel["updateQuestionChoices"]();
+  doneCallback(opts[2]);
+  assert.equal(question.choices.length, 70);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[69].value, 70);
 });
 
-QUnit.test("lazy loading + change filter string + dropdownSearchDelay ", assert => {
+QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert => {
   const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
   const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
   settings.dropdownSearchDelay = newValueDebouncedInputValue;
@@ -468,7 +461,6 @@ QUnit.test("storeOthersAsComment is false", assert => {
 });
 
 QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
-  const done = assert.async();
   const json = {
     "storeOthersAsComment": false,
     "elements": [
@@ -483,7 +475,8 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
     "showQuestionNumbers": false
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.choicesLazyLoadEnabled, true);
@@ -492,26 +485,20 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
   assert.equal(question.visibleChoices[0].value, "other");
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.visibleChoices.length, 71);
-    assert.equal(question.visibleChoices[0].value, 1);
-    assert.equal(question.visibleChoices[69].value, 70);
-    assert.equal(question.visibleChoices[70].id, "other");
-    assert.equal(question.visibleChoices[70].value, "other");
+  doneCallback(opts[0]);
+  assert.equal(question.visibleChoices.length, 71);
+  assert.equal(question.visibleChoices[0].value, 1);
+  assert.equal(question.visibleChoices[69].value, 70);
+  assert.equal(question.visibleChoices[70].id, "other");
+  assert.equal(question.visibleChoices[70].value, "other");
 
-    question.renderedValue = ["other"];
-    assert.deepEqual(question.value, ["other"], "#1");
-    question.comment = "text1";
-    assert.deepEqual(question.value, ["text1"], "#2");
-    assert.deepEqual(survey.data, { q1: ["text1"] }, "#3");
-    done();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  question.renderedValue = ["other"];
+  assert.deepEqual(question.value, ["other"], "#1");
+  question.comment = "text1";
+  assert.deepEqual(question.value, ["text1"], "#2");
+  assert.deepEqual(survey.data, { q1: ["text1"] }, "#3");
 });
-
 QUnit.test("lazy loading: A value disappears when open tagbox popup again", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -521,7 +508,8 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const list: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
@@ -529,65 +517,56 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
   assert.equal(question.choices.length, 0);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 30);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[29].value, 30);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 30);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[29].value, 30);
 
-    list.onItemClick(list.renderedActions[28]);
-    assert.deepEqual(question.value, [29]);
-    assert.equal(question.selectedItems.length, 1);
-    assert.equal(question.selectedItems[0].value, 29);
+  list.onItemClick(list.renderedActions[28]);
+  assert.deepEqual(question.value, [29]);
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0].value, 29);
 
-    question.dropdownListModel["updateQuestionChoices"]();
-    setTimeout(() => {
-      assert.equal(question.choices.length, 60);
-      assert.equal(question.choices[0].value, 1);
-      assert.equal(question.choices[59].value, 60);
+  question.dropdownListModel["updateQuestionChoices"]();
+  doneCallback(opts[1]);
+  assert.equal(question.choices.length, 60);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[59].value, 60);
 
-      list.onItemClick(list.renderedActions[55]);
-      assert.deepEqual(question.value, [29, 56]);
-      assert.equal(question.selectedItems.length, 2, "selected items length 1");
-      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 1");
-      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 1");
-      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 1");
-      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 1");
+  list.onItemClick(list.renderedActions[55]);
+  assert.deepEqual(question.value, [29, 56]);
+  assert.equal(question.selectedItems.length, 2, "selected items length 1");
+  assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 1");
+  assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 1");
+  assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 1");
+  assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 1");
 
-      question.dropdownListModel.popupModel.hide();
-      assert.deepEqual(question.value, [29, 56]);
-      assert.equal(question.selectedItems.length, 2, "selected items length 2");
-      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 2");
-      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 2");
-      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 2");
-      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 2");
+  question.dropdownListModel.popupModel.hide();
+  assert.deepEqual(question.value, [29, 56]);
+  assert.equal(question.selectedItems.length, 2, "selected items length 2");
+  assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 2");
+  assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 2");
+  assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 2");
+  assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 2");
 
-      question.dropdownListModel.popupModel.show();
-      assert.deepEqual(question.value, [29, 56]);
-      assert.equal(question.selectedItems.length, 2, "selected items length 3");
-      assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 3");
-      assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 3");
-      assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 3");
-      assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 3");
+  question.dropdownListModel.popupModel.show();
+  assert.deepEqual(question.value, [29, 56]);
+  assert.equal(question.selectedItems.length, 2, "selected items length 3");
+  assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 3");
+  assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 3");
+  assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 3");
+  assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 3");
 
-      setTimeout(() => {
-        assert.deepEqual(question.value, [29, 56]);
-        assert.equal(question.selectedItems.length, 2, "selected items length 4");
-        assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 4");
-        assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 4");
-        assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 4");
-        assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 4");
-        assert.equal(question.choices.length, 30);
-        assert.equal(question.choices[0].value, 1);
-        assert.equal(question.choices[29].value, 30);
-
-        done3();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  doneCallback(opts[2]);
+  assert.deepEqual(question.value, [29, 56]);
+  assert.equal(question.selectedItems.length, 2, "selected items length 4");
+  assert.equal(question.selectedItems[0].value, 29, "selected items[0] value 29 4");
+  assert.equal(question.selectedItems[0].text, "DisplayText_29", "selected items[0] text 29 4");
+  assert.equal(question.selectedItems[1].value, 56, "selected items[1] value 56 4");
+  assert.equal(question.selectedItems[1].text, "DisplayText_56", "selected items[1] value 56 4");
+  assert.equal(question.choices.length, 30);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[29].value, 30);
 });
 
 function getObjectArray(skip = 1, count = 25): Array<{ value: any, text: string }> {
@@ -597,9 +576,7 @@ function getObjectArray(skip = 1, count = 25): Array<{ value: any, text: string 
   }
   return result;
 }
-
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
-  const done = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -614,16 +591,8 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add((sender, options) => {
-    const total = 55;
-    setTimeout(() => {
-      if (options.skip + options.take < total) {
-        options.setItems(getObjectArray(options.skip + 1, options.take), total);
-      } else {
-        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
-      }
-    }, onChoicesLazyLoadCallbackTimeOut);
-  });
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -643,22 +612,19 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_52, DisplayText_55", "display text is correct");
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[24].value, 25);
-    assert.deepEqual(question.value, [52, 55]);
-    assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
-    assert.equal(question.selectedItems[0].value, 52, "question.selectedItems[0] value");
-    assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
-    assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
-    assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
-    done();
-  }, onChoicesLazyLoadCallbackTimeOut);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[24].value, 25);
+  assert.deepEqual(question.value, [52, 55]);
+  assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
+  assert.equal(question.selectedItems[0].value, 52, "question.selectedItems[0] value");
+  assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
+  assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
+  assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
-  const done = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -668,16 +634,8 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add((sender, options) => {
-    const total = 55;
-    setTimeout(() => {
-      if (options.skip + options.take < total) {
-        options.setItems(getObjectArray(options.skip + 1, options.take), total);
-      } else {
-        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
-      }
-    }, onChoicesLazyLoadCallbackTimeOut);
-  });
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item.id)));
@@ -695,22 +653,19 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[24].value, 25);
-    assert.deepEqual(question.value, [{ id: 52 }, { id: 55 }]);
-    assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
-    assert.equal(question.selectedItems[0].value.id, 52, "question.selectedItems[0] value");
-    assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
-    assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
-    assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
-    done();
-  }, onChoicesLazyLoadCallbackTimeOut);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[24].value, 25);
+  assert.deepEqual(question.value, [{ id: 52 }, { id: 55 }]);
+  assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
+  assert.equal(question.selectedItems[0].value.id, 52, "question.selectedItems[0] value");
+  assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
+  assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
+  assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
-  const done = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -719,16 +674,8 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add((sender, options) => {
-    const total = 55;
-    setTimeout(() => {
-      if (options.skip + options.take < total) {
-        options.setItems(getObjectArray(options.skip + 1, options.take), total);
-      } else {
-        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
-      }
-    }, onChoicesLazyLoadCallbackTimeOut);
-  });
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -747,32 +694,29 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[24].value, 25);
-    assert.deepEqual(question.value, [52, 55]);
-    assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
-    assert.equal(question.selectedItems[0].value, 52, "question.selectedItems[0] value");
-    assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
-    assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
-    assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[24].value, 25);
+  assert.deepEqual(question.value, [52, 55]);
+  assert.equal(question.selectedItems.length, 2, "question.selectedItems.length");
+  assert.equal(question.selectedItems[0].value, 52, "question.selectedItems[0] value");
+  assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
+  assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
+  assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
 
-    question.renderedValue = [52, 55, 10];
-    assert.deepEqual(question.value, [52, 55, 10]);
-    assert.equal(question.selectedItems.length, 3, "question.selectedItems.length");
-    assert.equal(question.selectedItems[0].value, 52, "question.selectedItems[0] value");
-    assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
-    assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
-    assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
-    assert.equal(question.selectedItems[2].value, 10, "question.selectedItems[2] value");
-    assert.equal(question.selectedItems[2].text, "DisplayText_10", "question.selectedItems[2] text");
-    done();
-  }, onChoicesLazyLoadCallbackTimeOut);
+  question.renderedValue = [52, 55, 10];
+  assert.deepEqual(question.value, [52, 55, 10]);
+  assert.equal(question.selectedItems.length, 3, "question.selectedItems.length");
+  assert.equal(question.selectedItems[0].value, 52, "question.selectedItems[0] value");
+  assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
+  assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
+  assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
+  assert.equal(question.selectedItems[2].value, 10, "question.selectedItems[2] value");
+  assert.equal(question.selectedItems[2].text, "DisplayText_10", "question.selectedItems[2] text");
 });
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
-  const done = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -782,16 +726,8 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add((sender, options) => {
-    const total = 55;
-    setTimeout(() => {
-      if (options.skip + options.take < total) {
-        options.setItems(getObjectArray(options.skip + 1, options.take), total);
-      } else {
-        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
-      }
-    }, onChoicesLazyLoadCallbackTimeOut);
-  });
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -808,20 +744,16 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
   assert.deepEqual(question.value, [52, 55]);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.deepEqual(question.value, [52, 55]);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.deepEqual(question.value, [52, 55]);
 
-    assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete after item load");
-    survey.doComplete();
-    assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
-
-    done();
-  }, onChoicesLazyLoadCallbackTimeOut);
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "before doComplete after item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
 });
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
-  const done = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -830,16 +762,8 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add((sender, options) => {
-    const total = 55;
-    setTimeout(() => {
-      if (options.skip + options.take < total) {
-        options.setItems(getObjectArray(options.skip + 1, options.take), total);
-      } else {
-        options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
-      }
-    }, onChoicesLazyLoadCallbackTimeOut);
-  });
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -855,24 +779,18 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
   assert.deepEqual(question.value, [52, 55]);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.deepEqual(question.value, [52, 55]);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.deepEqual(question.value, [52, 55]);
 
-    question.renderedValue = [52, 55, 10];
-    assert.deepEqual(question.value, [52, 55, 10]);
-    assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "before doComplete after item load");
-    survey.doComplete();
-    assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
-
-    done();
-  }, onChoicesLazyLoadCallbackTimeOut);
+  question.renderedValue = [52, 55, 10];
+  assert.deepEqual(question.value, [52, 55, 10]);
+  assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "before doComplete after item load");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
 });
 
 QUnit.test("lazy loading + change filter string", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -881,7 +799,8 @@ QUnit.test("lazy loading + change filter string", assert => {
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const itemsSettings = question.dropdownListModel["itemsSettings"];
@@ -894,49 +813,37 @@ QUnit.test("lazy loading + change filter string", assert => {
   assert.equal(itemsSettings.items.length, 0);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[24].value, 25);
-    assert.equal(itemsSettings.skip, 25);
-    assert.equal(itemsSettings.take, 25);
-    assert.equal(itemsSettings.totalCount, 70);
-    assert.equal(itemsSettings.items.length, 25);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[24].value, 25);
+  assert.equal(itemsSettings.skip, 25);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 70);
+  assert.equal(itemsSettings.items.length, 25);
 
-    question.dropdownListModel.filterString = "2";
-    setTimeout(() => {
-      assert.equal(question.choices.length, 25);
-      assert.equal(question.choices[0].value, 2);
-      assert.equal(question.choices[24].value, 123);
-      assert.equal(itemsSettings.skip, 25);
-      assert.equal(itemsSettings.take, 25);
-      assert.equal(itemsSettings.totalCount, 70);
-      assert.equal(itemsSettings.items.length, 25);
+  question.dropdownListModel.filterString = "2";
+  doneCallback(opts[1]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 2);
+  assert.equal(question.choices[24].value, 123);
+  assert.equal(itemsSettings.skip, 25);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 70);
+  assert.equal(itemsSettings.items.length, 25);
 
-      question.dropdownListModel.filterString = "22";
-      setTimeout(() => {
-        assert.equal(question.choices.length, 25);
-        assert.equal(question.choices[0].value, 22);
-        assert.equal(question.choices[24].value, 1223);
-        assert.equal(itemsSettings.skip, 25);
-        assert.equal(itemsSettings.take, 25);
-        assert.equal(itemsSettings.totalCount, 70);
-        assert.equal(itemsSettings.items.length, 25);
-
-        done3();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  question.dropdownListModel.filterString = "22";
+  doneCallback(opts[2]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 22);
+  assert.equal(question.choices[24].value, 1223);
+  assert.equal(itemsSettings.skip, 25);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 70);
+  assert.equal(itemsSettings.items.length, 25);
 });
 
 QUnit.test("lazy loading + change listModel filter string", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -945,7 +852,8 @@ QUnit.test("lazy loading + change listModel filter string", assert => {
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const itemsSettings = question.dropdownListModel["itemsSettings"];
@@ -959,43 +867,34 @@ QUnit.test("lazy loading + change listModel filter string", assert => {
   assert.equal(itemsSettings.items.length, 0);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.equal(question.choices.length, 25);
-    assert.equal(question.choices[0].value, 1);
-    assert.equal(question.choices[24].value, 25);
-    assert.equal(itemsSettings.skip, 25);
-    assert.equal(itemsSettings.take, 25);
-    assert.equal(itemsSettings.totalCount, 70);
-    assert.equal(itemsSettings.items.length, 25);
+  doneCallback(opts[0]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 1);
+  assert.equal(question.choices[24].value, 25);
+  assert.equal(itemsSettings.skip, 25);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 70);
+  assert.equal(itemsSettings.items.length, 25);
 
-    listModel.filterString = "2";
-    setTimeout(() => {
-      assert.equal(question.choices.length, 25);
-      assert.equal(question.choices[0].value, 2);
-      assert.equal(question.choices[24].value, 123);
-      assert.equal(itemsSettings.skip, 25);
-      assert.equal(itemsSettings.take, 25);
-      assert.equal(itemsSettings.totalCount, 70);
-      assert.equal(itemsSettings.items.length, 25);
+  listModel.filterString = "2";
+  doneCallback(opts[1]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 2);
+  assert.equal(question.choices[24].value, 123);
+  assert.equal(itemsSettings.skip, 25);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 70);
+  assert.equal(itemsSettings.items.length, 25);
 
-      listModel.filterString = "22";
-      setTimeout(() => {
-        assert.equal(question.choices.length, 25);
-        assert.equal(question.choices[0].value, 22);
-        assert.equal(question.choices[24].value, 1223);
-        assert.equal(itemsSettings.skip, 25);
-        assert.equal(itemsSettings.take, 25);
-        assert.equal(itemsSettings.totalCount, 70);
-        assert.equal(itemsSettings.items.length, 25);
-
-        done3();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  listModel.filterString = "22";
+  doneCallback(opts[2]);
+  assert.equal(question.choices.length, 25);
+  assert.equal(question.choices[0].value, 22);
+  assert.equal(question.choices[24].value, 1223);
+  assert.equal(itemsSettings.skip, 25);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 70);
+  assert.equal(itemsSettings.items.length, 25);
 });
 
 QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
@@ -1382,8 +1281,6 @@ QUnit.test("question.showClearButton", assert => {
   settings.supportCreatorV2 = false;
 });
 QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear the value", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -1395,7 +1292,8 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
@@ -1404,54 +1302,46 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
   assert.equal(question.choices.length, 0);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.deepEqual(question.value, [1]);
-    assert.equal(question.choices.length, 30);
-    for (let index = 0; index < list.actions.length - 1; index++) {
-      assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before clear");
-    }
+  doneCallback(opts[0]);
+  assert.deepEqual(question.value, [1]);
+  assert.equal(question.choices.length, 30);
+  for (let index = 0; index < list.actions.length - 1; index++) {
+    assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before clear");
+  }
 
-    list.onItemClick(list.actions[1]);
-    assert.deepEqual(question.value, [1, 2]);
-    assert.ok(list.actions[0].enabled, "action 1 is enabled before clear");
-    assert.ok(list.actions[1].enabled, "action 2 is enabled before clear");
-    for (let index = 2; index < list.actions.length - 1; index++) {
-      assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before clear");
-    }
-    question.dropdownListModel.popupModel.hide();
-    question.dropdownListModel.onClear({
-      keyCode: 0,
-      preventDefault: () => { },
-      stopPropagation: () => { }
-    });
+  list.onItemClick(list.actions[1]);
+  assert.deepEqual(question.value, [1, 2]);
+  assert.ok(list.actions[0].enabled, "action 1 is enabled before clear");
+  assert.ok(list.actions[1].enabled, "action 2 is enabled before clear");
+  for (let index = 2; index < list.actions.length - 1; index++) {
+    assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before clear");
+  }
+  question.dropdownListModel.popupModel.hide();
+  question.dropdownListModel.onClear({
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  });
 
-    question.dropdownListModel.popupModel.show();
-    setTimeout(() => {
-      assert.deepEqual(question.value, [], "question value is empty");
-      list.onItemClick(list.actions[0]);
-      assert.deepEqual(question.value, [1], "question value is [1]");
+  question.dropdownListModel.popupModel.show();
+  doneCallback(opts[1]);
+  assert.deepEqual(question.value, [], "question value is empty");
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [1], "question value is [1]");
 
-      for (let index = 0; index < list.actions.length - 1; index++) {
-        assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after clear");
-      }
+  for (let index = 0; index < list.actions.length - 1; index++) {
+    assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after clear");
+  }
 
-      list.onItemClick(list.actions[1]);
-      assert.deepEqual(question.value, [1, 2], "question value is [1, 2] after clear");
-      assert.ok(list.actions[0].enabled, "action 1 is enabled after clear");
-      assert.ok(list.actions[1].enabled, "action 2 is enabled after clear");
-      for (let index = 2; index < list.actions.length - 1; index++) {
-        assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled after clear");
-      }
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  list.onItemClick(list.actions[1]);
+  assert.deepEqual(question.value, [1, 2], "question value is [1, 2] after clear");
+  assert.ok(list.actions[0].enabled, "action 1 is enabled after clear");
+  assert.ok(list.actions[1].enabled, "action 2 is enabled after clear");
+  for (let index = 2; index < list.actions.length - 1; index++) {
+    assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled after clear");
+  }
 });
 QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unselecting choices within a drop-down list", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
@@ -1463,7 +1353,8 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
@@ -1472,41 +1363,34 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
   assert.equal(question.choices.length, 0);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    assert.deepEqual(question.value, [1]);
-    assert.equal(question.choices.length, 30);
-    for (let index = 0; index < list.actions.length - 1; index++) {
-      assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before unselecting choice");
-    }
+  doneCallback(opts[0]);
+  assert.deepEqual(question.value, [1]);
+  assert.equal(question.choices.length, 30);
+  for (let index = 0; index < list.actions.length - 1; index++) {
+    assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before unselecting choice");
+  }
 
-    list.onItemClick(list.actions[1]);
-    assert.deepEqual(question.value, [1, 2]);
-    assert.ok(list.actions[0].enabled, "action 1 is enabled before unselecting choice");
-    assert.ok(list.actions[1].enabled, "action 2 is enabled before unselecting choice");
-    for (let index = 2; index < list.actions.length - 1; index++) {
-      assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before unselecting choice");
-    }
-    question.dropdownListModel.popupModel.hide;
-    question.dropdownListModel.popupModel.show();
-    setTimeout(() => {
-      assert.deepEqual(question.value, [1, 2], "question value is [1, 2]");
-      assert.ok(list.actions[0].enabled, "action 1 is enabled");
-      assert.ok(list.actions[1].enabled, "action 2 is enabled");
-      for (let index = 2; index < list.actions.length - 1; index++) {
-        assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled");
-      }
+  list.onItemClick(list.actions[1]);
+  assert.deepEqual(question.value, [1, 2]);
+  assert.ok(list.actions[0].enabled, "action 1 is enabled before unselecting choice");
+  assert.ok(list.actions[1].enabled, "action 2 is enabled before unselecting choice");
+  for (let index = 2; index < list.actions.length - 1; index++) {
+    assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before unselecting choice");
+  }
+  question.dropdownListModel.popupModel.hide;
+  question.dropdownListModel.popupModel.show();
+  assert.deepEqual(question.value, [1, 2], "question value is [1, 2]");
+  assert.ok(list.actions[0].enabled, "action 1 is enabled");
+  assert.ok(list.actions[1].enabled, "action 2 is enabled");
+  for (let index = 2; index < list.actions.length - 1; index++) {
+    assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled");
+  }
 
-      list.onItemClick(list.actions[1]);
-      assert.deepEqual(question.value, [1], "question value is [1]");
-      for (let index = 0; index < list.actions.length - 1; index++) {
-        assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after unselecting choice");
-      }
-
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  list.onItemClick(list.actions[1]);
+  assert.deepEqual(question.value, [1], "question value is [1]");
+  for (let index = 0; index < list.actions.length - 1; index++) {
+    assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after unselecting choice");
+  }
 });
 QUnit.test("Can clear tagbox value", assert => {
   const json = {
@@ -1637,20 +1521,17 @@ QUnit.test("Create tag box from json, dropdownListModel instance", (assert) => {
 });
 
 QUnit.test("Prevoiusly selected options disappear", (assert) => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
-  const done4 = assert.async();
   const json = {
     questions: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [5],
-      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadEnabled": true
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -1665,44 +1546,28 @@ QUnit.test("Prevoiusly selected options disappear", (assert) => {
   assert.equal(question.selectedChoices.length, 1);
 
   question.dropdownListModel.popupModel.show();
-  setTimeout(() => {
-    dropdownListModel.inputStringRendered = "777";
-    assert.deepEqual(question.value, [5], "question value");
-    assert.equal(question.selectedItems.length, 1);
-    assert.equal(question.selectedChoices.length, 1);
-
-    setTimeout(() => {
-      list.onItemClick(list.actions[0]);
-      assert.deepEqual(question.value, [5, 777], "question value");
-      assert.equal(question.selectedItems.length, 2);
-      assert.equal(question.selectedChoices.length, 2);
-
-      setTimeout(() => {
-        dropdownListModel.inputStringRendered = "888";
-        assert.deepEqual(question.value, [5, 777], "question value");
-        assert.equal(question.selectedItems.length, 2);
-        assert.equal(question.selectedChoices.length, 2);
-
-        setTimeout(() => {
-          assert.deepEqual(question.value, [5, 777], "question value");
-          assert.equal(question.selectedItems.length, 2);
-          assert.equal(question.selectedChoices.length, 2);
-
-          done4();
-        }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-        done3();
-      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  doneCallback(opts[0]);
+  dropdownListModel.inputStringRendered = "777";
+  assert.deepEqual(question.value, [5], "question value");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedChoices.length, 1);
+  doneCallback(opts[1]);
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [5, 777], "question value");
+  assert.equal(question.selectedItems.length, 2);
+  assert.equal(question.selectedChoices.length, 2);
+  doneCallback(opts[2]);
+  dropdownListModel.inputStringRendered = "888";
+  assert.deepEqual(question.value, [5, 777], "question value");
+  assert.equal(question.selectedItems.length, 2);
+  assert.equal(question.selectedChoices.length, 2);
+  doneCallback(opts[3]);
+  assert.deepEqual(question.value, [5, 777], "question value");
+  assert.equal(question.selectedItems.length, 2);
+  assert.equal(question.selectedChoices.length, 2);
 });
 
 QUnit.test("The new selected value is replaced with the the default value while searching #8751", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
-
   const json = {
     questions: [{
       "type": "tagbox",
@@ -1713,7 +1578,8 @@ QUnit.test("The new selected value is replaced with the the default value while 
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -1729,38 +1595,22 @@ QUnit.test("The new selected value is replaced with the the default value while 
   dropdownListModel.onClear(null);
   assert.deepEqual(question.value, [], "question value #2");
   assert.equal(question.selectedChoices.length, 0);
-
-  setTimeout(() => {
-    dropdownListModel.inputStringRendered = "999";
-    assert.deepEqual(question.value, [], "question value #3");
-    assert.equal(question.selectedChoices.length, 0);
-
-    setTimeout(() => {
-      list.onItemClick(list.actions[0]);
-      assert.deepEqual(question.value, [999], "question value #4");
-      assert.equal(question.selectedChoices.length, 1);
-      assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #1");
-
-      setTimeout(() => {
-        assert.deepEqual(question.value, [999], "question value #5");
-        assert.equal(question.selectedChoices.length, 1);
-        assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #2");
-
-        done3();
-      }, callbackTimeOutDelta);
-      done2();
-    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-    done1();
-  }, callbackTimeOutDelta);
+  dropdownListModel.inputStringRendered = "999";
+  doneCallback(opts[0]);
+  assert.deepEqual(question.value, [], "question value #3");
+  assert.equal(question.selectedChoices.length, 0);
+  doneCallback(opts[1]);
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [999], "question value #4");
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #1");
+  doneCallback(opts[2]);
+  assert.deepEqual(question.value, [999], "question value #5");
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #2");
 });
 
 QUnit.test("The new selected value is always replaced with the the first selected value while searching #8751", assert => {
-  const done1 = assert.async();
-  const done2 = assert.async();
-  const done3 = assert.async();
-  const done4 = assert.async();
-  const done5 = assert.async();
-
   const json = {
     questions: [{
       "type": "tagbox",
@@ -1770,7 +1620,8 @@ QUnit.test("The new selected value is always replaced with the the first selecte
     }]
   };
   const survey = new SurveyModel(json);
-  survey.onChoicesLazyLoad.add(callback);
+  let opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, options) => { opts.push(options); });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
       options.setItems(options.values.map(item => ("DisplayText_" + item)));
@@ -1784,42 +1635,27 @@ QUnit.test("The new selected value is always replaced with the the first selecte
   assert.equal(question.selectedChoices.length, 0);
 
   dropdownListModel.inputStringRendered = "222";
-  setTimeout(() => {
-    list.onItemClick(list.actions[0]);
-    assert.deepEqual(question.value, [222], "question value #1");
-    assert.equal(question.selectedChoices.length, 1);
-
-    setTimeout(() => {
-      dropdownListModel.onClear(null);
-      assert.deepEqual(question.value, [], "question value #2");
-      assert.equal(question.selectedChoices.length, 0);
-
-      setTimeout(() => {
-        dropdownListModel.inputStringRendered = "999";
-        assert.deepEqual(question.value, [], "question value #3");
-        assert.equal(question.selectedChoices.length, 0);
-
-        setTimeout(() => {
-          list.onItemClick(list.actions[0]);
-          assert.deepEqual(question.value, [999], "question value #4");
-          assert.equal(question.selectedChoices.length, 1);
-          assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #1");
-
-          setTimeout(() => {
-            assert.deepEqual(question.value, [999], "question value #5");
-            assert.equal(question.selectedChoices.length, 1);
-            assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #2");
-
-            done5();
-          }, callbackTimeOutDelta);
-          done4();
-        }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
-        done3();
-      }, callbackTimeOutDelta);
-      done2();
-    }, callbackTimeOutDelta);
-    done1();
-  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+  doneCallback(opts[0]);
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [222], "question value #1");
+  assert.equal(question.selectedChoices.length, 1);
+  doneCallback(opts[1]);
+  dropdownListModel.onClear(null);
+  assert.deepEqual(question.value, [], "question value #2");
+  assert.equal(question.selectedChoices.length, 0);
+  doneCallback(opts[2]);
+  dropdownListModel.inputStringRendered = "999";
+  assert.deepEqual(question.value, [], "question value #3");
+  assert.equal(question.selectedChoices.length, 0);
+  doneCallback(opts[3]);
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [999], "question value #4");
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #1");
+  doneCallback(opts[4]);
+  assert.deepEqual(question.value, [999], "question value #5");
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].value, 999, "question.selectedChoices[0] value #2");
 });
 QUnit.test("rendering actions id", assert => {
   const json = {

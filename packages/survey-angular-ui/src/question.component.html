@@ -23,7 +23,7 @@
     <ng-template
       *ngIf="!model.singleInputSummary && !singleQuestion"
       [component]="{ name: getQuestionContentWrapperComponentName(), data: getQuestionContentWrapperComponentData() }">
-      <div [class]="model.cssContent" role="presentation" [visible]="model.renderedIsExpanded">
+      <div [class]="model.cssContent" role="presentation" [visible]="model.renderedIsExpanded" [attr.aria-hidden]="model.contentAriaHidden">
         <ng-template
           [component]="{ name: getComponentName(), data: { model: model }, default: 'skeleton-question' }"></ng-template>
         <div *ngIf="model.hasComment" [class]="model.getCommentAreaCss(false)">

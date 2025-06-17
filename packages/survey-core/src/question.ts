@@ -3233,6 +3233,13 @@ export class Question extends SurveyElement<Question>
     }
   }
 
+  protected getContentAriaHidden(): boolean {
+    return null;
+  }
+  public get contentAriaHidden(): boolean {
+    return this.getContentAriaHidden();
+  }
+
   public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 

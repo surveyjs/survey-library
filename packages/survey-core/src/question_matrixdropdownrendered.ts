@@ -397,14 +397,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.updateShowTableAndAddRow();
   }
   public updateShowTableAndAddRow() {
-    var showTable =
+    const showTable =
       this.rows.length > 0 ||
       this.matrix.isDesignMode ||
       !this.matrix.getShowColumnsIfEmpty();
     this.setPropertyValue("showTable", showTable);
-    var showAddRow = this.matrix.canAddRow && showTable;
-    var showAddRowOnTop = showAddRow;
-    var showAddRowOnBottom = showAddRow;
+    const isDesignMode = this.matrix.isDesignMode;
+    const showAddRow = !isDesignMode && this.matrix.canAddRow && showTable;
+    let showAddRowOnTop = showAddRow;
+    let showAddRowOnBottom = showAddRow;
     if (showAddRowOnTop) {
       if (this.matrix.getAddRowLocation() === "default") {
         showAddRowOnTop = !this.matrix.isColumnLayoutHorizontal;
@@ -415,7 +416,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
       showAddRowOnBottom = !showAddRowOnTop;
     }
-    this.setPropertyValue("showAddRow", this.matrix.canAddRow);
+    this.setPropertyValue("showAddRow", !isDesignMode && this.matrix.canAddRow);
     this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
     this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }

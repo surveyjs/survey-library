@@ -2667,12 +2667,17 @@ QUnit.test("Radiogroup question and choices has comment", (assert) => {
   assert.equal(q1.isCommentShowing(q1.choices[0]), false, "isCommentShowing for choices[0], #1");
   assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #1");
   assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #1");
+  assert.equal(q1.choices[0].isCommentShowing, false, "isCommentShowing for choices[0], #1");
+  assert.equal(q1.choices[1].isCommentShowing, false, "isCommentShowing for choices[1], #1");
   q1.clickItemHandler(q1.otherItem);
   assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #2");
   assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #2");
+  assert.equal(q1.otherItem.isCommentShowing, true, "isCommentShowing for otherItem, #2");
   q1.clickItemHandler(q1.choices[1]);
   assert.equal(q1.isCommentShowing(q1.choices[1]), true, "isCommentShowing for choices[1], #3");
+  assert.equal(q1.choices[1].isCommentShowing, true, "isCommentShowing for choices[1], #3");
   assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #3");
+  assert.equal(q1.otherItem.isCommentShowing, false, "isCommentShowing for otherItem, #3");
   q1.setCommentValue(q1.choices[0], "test comment, #1");
   assert.equal(q1.comment, "", "comment is empty if we set comment for choices[0], #1");
   q1.setCommentValue(q1.choices[1], "test comment");

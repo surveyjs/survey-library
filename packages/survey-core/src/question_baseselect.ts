@@ -25,6 +25,12 @@ export class ChoiceItem extends ItemValue {
   public set hasComment(val: boolean) {
     this.setPropertyValue("hasComment", val);
   }
+  public get isCommentShowing(): boolean {
+    return this.getPropertyValue("isCommentShowing", false);
+  }
+  setIsCommentShowing(val: boolean) {
+    this.setPropertyValue("isCommentShowing", val);
+  }
 }
 
 /**
@@ -699,6 +705,18 @@ export class QuestionSelectBase extends Question {
     var val = this.rendredValueToData(val);
     if (!this.isTwoValueEquals(val, this.value)) {
       this.value = val;
+    }
+    this.onRendredValueChagned();
+  }
+  protected onRendredValueChagned(): void {
+    this.choices.forEach(item => this.updateItemIsCommentShowing(item));
+    if (this.showOtherItem) {
+      this.updateItemIsCommentShowing(this.otherItem);
+    }
+  }
+  private updateItemIsCommentShowing(item: ItemValue): void {
+    if (item.hasComment) {
+      item.setIsCommentShowing(this.isCommentShowing(item));
     }
   }
   public selectItem(item: ItemValue): void {

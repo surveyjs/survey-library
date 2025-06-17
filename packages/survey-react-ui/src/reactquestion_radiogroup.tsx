@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionElementBase, ReactSurveyElement } from "./reactquestion_element";
 import { QuestionRadiogroupModel, ItemValue, Base, SurveyModel } from "survey-core";
-import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
+import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
@@ -44,7 +44,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
           ? this.getColumnedBody(cssClasses)
           : this.getBody(cssClasses)}
         {this.getFooter()}
-        {this.question.isOtherSelected ? this.renderOther(cssClasses) : null}
         {clearButton}
       </fieldset>
     );
@@ -101,18 +100,6 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
   protected get textStyle(): any {
     return null;//{ display: "inline", position: "static" };
-  }
-  protected renderOther(cssClasses: any): React.JSX.Element {
-    return (
-      <div className={this.question.getCommentAreaCss(true)}>
-        <SurveyQuestionOtherValueItem
-          question={this.question}
-          otherCss={cssClasses.other}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
-      </div>
-    );
   }
   private renderItem(
     item: ItemValue,
@@ -205,8 +192,25 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       }
     }
   }
-
   protected renderElement(): React.JSX.Element {
+    return <>
+      {this.renderRadioButton()}
+      {this.renderComment()}
+    </>;
+  }
+  protected renderComment(): React.JSX.Element | null {
+    if (!this.item.isCommentShowing) return null;
+    return <div className={this.question.getCommentAreaCss(true)}>
+      <SurveyQuestionCommentValueItem
+        question={this.question}
+        item={this.item}
+        isDisplayMode={this.isDisplayMode}
+        cssClasses={this.question.cssClasses}
+        otherCss={this.question.getCommentAreaCss(false)}
+      />
+    </div>;
+  }
+  protected renderRadioButton(): React.JSX.Element {
     var itemClass = this.question.getItemClass(this.item);
     var labelClass = this.question.getLabelClass(this.item);
     var controlLabelClass = this.question.getControlLabelClass(this.item);

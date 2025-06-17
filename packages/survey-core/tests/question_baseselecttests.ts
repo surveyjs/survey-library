@@ -2695,6 +2695,25 @@ QUnit.test("Radiogroup question and choices has comment", (assert) => {
   assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #5");
   assert.equal(q1.getCommentValue(q1.otherItem), "test comment 3", "getCommentValue for otherItem, #5");
 });
+QUnit.test("Radiogroup question, choices has comment and defaultValue", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, 3],
+        "showOtherItem": true,
+        defaultValue: "other",
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.value, "other", "q1.value is 'other'");
+  assert.equal(q1.isOtherSelected, true, "q1.isOtherSelected is true");
+  assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #1");
+  assert.equal(q1.otherItem.isCommentShowing, true, "isCommentShowing for otherItem, #1");
+  assert.equal(q1.renderedValue, "other", "q1.renderedValue is 'other'");
+});
 function testCheckboxQuestionWithSeveralCommentChoices(q1: QuestionCheckboxModel, assert): void {
   assert.equal(q1.choices[0].hasComment, false, "choices[0].hasComment");
   assert.equal(q1.choices[1].hasComment, true, "choices[1].hasComment");

@@ -700,11 +700,15 @@ export class QuestionSelectBase extends Question {
     return this.getPropertyValue("renderedValue", null);
   }
   public set renderedValue(val: any) {
-    if (this.isReadOnlyAttr) return;
+    this.setRenderedValue(val, true);
+  }
+  private setRenderedValue(val: any, changeValue: boolean): void {
     this.setPropertyValue("renderedValue", val);
-    var val = this.rendredValueToData(val);
-    if (!this.isTwoValueEquals(val, this.value)) {
-      this.value = val;
+    if (changeValue && !this.isReadOnlyAttr) {
+      val = this.rendredValueToData(val);
+      if (!this.isTwoValueEquals(val, this.value)) {
+        this.value = val;
+      }
     }
     this.onRendredValueChagned();
   }
@@ -745,7 +749,7 @@ export class QuestionSelectBase extends Question {
       this.isTwoValueEquals(this.value, newValue)
     )
       return;
-    this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
+    this.setRenderedValue(this.rendredValueFromData(newValue), false);
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateChoicesDependedQuestions();
     if (this.hasComment || !updateComment) return;

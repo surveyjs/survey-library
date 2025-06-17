@@ -624,8 +624,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         input.step = 0.1;
       }
     }
-    const value = this.value;
-    this.oldValue = Array.isArray(value) ? value.slice() : value;
+    this.oldValue = this.renderedValue;
     this.animatedThumb = false;
   };
 
@@ -853,7 +852,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
     if (sliderType === "single") {
       result = this.ensureValueRespectMinMax(this.value);
-      if (typeof result === "undefined" || result.length === 0) {
+      if (typeof result === "undefined" || result === null || result.length === 0) {
         this.isIndeterminate = true;
         return this.isNegativeScale ? [Math.min(max, 0)] : [min];
       } else {

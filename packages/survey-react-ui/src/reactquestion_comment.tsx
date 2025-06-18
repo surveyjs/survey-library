@@ -69,6 +69,11 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   }
 }
 
+export class SurveyQuestionCommentValueItem extends SurveyQuestionCommentItem {
+  protected getTextAreaModel(): TextAreaModel {
+    return this.props.question.getCommentTextAreaModel(this.props.item);
+  }
+}
 ReactQuestionFactory.Instance.registerQuestion("comment", (props) => {
   return React.createElement(SurveyQuestionComment, props);
 });

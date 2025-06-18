@@ -17,6 +17,22 @@ import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
+export class ChoiceItem extends ItemValue {
+  protected getBaseType(): string { return "choiceitem"; }
+  public get hasComment(): boolean {
+    return this.getPropertyValue("hasComment");
+  }
+  public set hasComment(val: boolean) {
+    this.setPropertyValue("hasComment", val);
+  }
+  public get isCommentShowing(): boolean {
+    return this.getPropertyValue("isCommentShowing", false);
+  }
+  setIsCommentShowing(val: boolean) {
+    this.setPropertyValue("isCommentShowing", val);
+  }
+}
+
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
@@ -24,11 +40,10 @@ export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
-  private otherTextAreaModelValue: TextAreaModel;
+  private commentAreaModelValues: HashTable<TextAreaModel>;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
-  private prevOtherValue: string;
   private otherItemValue: ItemValue;
   private choicesFromUrl: Array<ItemValue>;
   private cachedValueForUrlRequests: any;
@@ -49,6 +64,7 @@ export class QuestionSelectBase extends Question {
   constructor(name: string) {
     super(name);
     this.otherItemValue = this.createItemValue("other");
+    this.otherItem.hasComment = true;
     this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
@@ -110,18 +126,31 @@ export class QuestionSelectBase extends Question {
     if (!!q) {
       q.removeDependedQuestion(this);
     }
+    const dist = this.commentAreaModelValues;
+    if (!!dist) {
+      Object.keys(dist).forEach((key) => { dist[key].dispose(); });
+    }
   }
   public get otherTextAreaModel(): TextAreaModel {
-    if (!this.otherTextAreaModelValue) {
-      this.otherTextAreaModelValue = new TextAreaModel(this.getOtherTextAreaOptions());
-    }
-    return this.otherTextAreaModelValue;
+    return this.getCommentTextAreaModel(this.otherItem);
   }
-  private getOtherTextAreaOptions(): ITextArea {
+  public getCommentTextAreaModel(item: ItemValue): TextAreaModel {
+    const val = item?.value;
+    if (val === undefined) return null;
+    if (!this.commentAreaModelValues) {
+      this.commentAreaModelValues = {};
+    }
+    const dic = this.commentAreaModelValues;
+    if (!dic[val]) {
+      dic[val] = new TextAreaModel(this.getOtherTextAreaOptions(item));
+    }
+    return dic[val];
+  }
+  private getOtherTextAreaOptions(item: ItemValue): ITextArea {
     const options: ITextArea = {
       question: this,
-      id: () => this.otherId,
-      propertyNames: ["otherValue", "comment"],
+      id: () => this.getItemCommentId(item),
+      propertyNames: [this.getCommentPropertyValue(item)],
       className: () => this.cssClasses.other,
       placeholder: () => this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
@@ -130,9 +159,9 @@ export class QuestionSelectBase extends Question {
       autoGrow: () => this.survey && this.survey.autoGrowComment,
       ariaRequired: () => this.ariaRequired || this.a11y_input_ariaRequired,
       ariaLabel: () => this.ariaLabel || this.a11y_input_ariaLabel,
-      getTextValue: () => { return this.otherValue; },
-      onTextAreaChange: (e) => { this.onOtherValueChange(e); },
-      onTextAreaInput: (e) => { this.onOtherValueInput(e); },
+      getTextValue: () => { return this.getCommentValueCore(item); },
+      onTextAreaChange: (e) => { this.onOtherValueChange(item, e); },
+      onTextAreaInput: (e) => { this.onOtherValueInput(item, e); },
     };
     return options;
   }
@@ -140,13 +169,16 @@ export class QuestionSelectBase extends Question {
     this.choicesFromQuestion = "";
   }
   public get otherId(): string {
-    return this.id + "_other";
+    return this.getItemCommentId(this.otherItem);
+  }
+  public getItemCommentId(item: ItemValue): string {
+    return this.id + "_" + this.getItemCommentValueId(item);
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];
   }
   protected getItemValueType(): string {
-    return "itemvalue";
+    return "choiceitem";
   }
   public createItemValue(value: any, text?: string): ItemValue {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), { value: value });
@@ -206,16 +238,29 @@ export class QuestionSelectBase extends Question {
       this.prevOtherErrorValue = oldVal;
     }
   }
+  private isSettingComment: boolean;
   public get otherValue(): string {
-    if (!this.showCommentArea) return this.comment;
+    if (this.getStoreOthersAsComment()) return this.getQuestionComment();
     return this.otherValueCore;
   }
   public set otherValue(val: string) {
-    this.updatePrevOtherErrorValue(val);
-    if (!this.showCommentArea) {
-      this.comment = val;
-    } else {
-      this.setOtherValueInternally(val);
+    if (!!val && val.toString().trim() === "") {
+      val = "";
+    }
+    if (!this.isSettingComment && this.otherValue !== val) {
+      this.onUpdateCommentOnAutoOtherMode(val);
+      this.updatePrevOtherErrorValue(val);
+      this.isSettingComment = true;
+      if (this.getStoreOthersAsComment())
+        this.setNewComment(val);
+      else {
+        this.otherValueCore = val;
+        if (this.isOtherSelected && !this.isRenderedValueSetting) {
+          this.value = this.getValueOnSettingOther(val);
+        }
+      }
+      this.isSettingComment = false;
+      this.updateChoicesDependedQuestions();
     }
   }
   protected get otherValueCore(): string {
@@ -236,10 +281,34 @@ export class QuestionSelectBase extends Question {
    * @see showOtherItem
    */
   public get isOtherSelected(): boolean {
-    return this.hasOther && this.getHasOther(this.renderedValue);
+    return this.showOtherItem && this.getHasOther(this.renderedValue);
   }
   public get isNoneSelected(): boolean {
     return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
+  }
+  public isCommentShowing(item: ItemValue): boolean {
+    return item && item.hasComment && this.isItemSelected(item);
+  }
+  public setCommentValue(item: ItemValue, newValue: string): void {
+    if (this.isCommentShowing(item)) {
+      this.setCommentValueCore(item, newValue);
+    }
+  }
+  public getCommentValue(item: ItemValue): string {
+    return this.isCommentShowing(item) ? this.getCommentValueCore(item) : "";
+  }
+  protected setCommentValueCore(item: ItemValue, newValue: string): void {
+    this.otherValue = newValue;
+  }
+  protected getCommentValueCore(item: ItemValue): string {
+    return this.otherValue;
+  }
+  protected getCommentPropertyValue(item: ItemValue): string {
+    if (item.value === this.otherItem.value) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
+    return "other_" + this.getItemCommentValueId(item);
+  }
+  protected getItemCommentValueId(item: ItemValue): string {
+    return item.value.toString().replace(/[^a-zA-Z0-9_]/g, "_") || "";
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -416,29 +485,21 @@ export class QuestionSelectBase extends Question {
   protected isTextValue(): boolean {
     return true; //for comments and others
   }
-  private isSettingDefaultValue: boolean = false;
-  protected setDefaultValue(): void {
-    this.isSettingDefaultValue =
-      !this.isValueEmpty(this.defaultValue) &&
-      this.hasUnknownValue(this.defaultValue);
-    this.prevOtherValue = undefined;
-    const prevComment = this.comment;
-    super.setDefaultValue();
-    this.isSettingDefaultValue = false;
-    if (this.comment && this.getStoreOthersAsComment() && prevComment !== this.comment) {
-      this.setValueCore(this.setOtherValueIntoValue(this.value));
-      this.setCommentIntoData(this.comment);
+  protected setDefaultIntoValue(val: any): void {
+    if (!this.isValueEmpty(val) && this.showOtherItem && this.hasUnknownValue(val, true)) {
+      this.setDefaultUnknownValue(val);
+    } else {
+      super.setDefaultIntoValue(val);
     }
   }
-  protected getIsMultipleValue(): boolean {
-    return false;
+  protected setDefaultUnknownValue(val : any): void {
+    this.renderedValue = this.setOtherValueIntoValue(val);
+    this.otherValue = val;
   }
-  protected convertDefaultValue(val: any): any {
-    if (val == null || val == undefined) return val;
-    if (this.getIsMultipleValue()) {
-      if (!Array.isArray(val)) return [val];
-    } else {
-      if (Array.isArray(val) && val.length > 0) return val[0];
+  protected valueToData(val: any): any {
+    if (Helpers.isValueEmpty(val)) return val;
+    if (Array.isArray(val)) {
+      return val.length > 0 ? val[0] : undefined;
     }
     return val;
   }
@@ -579,7 +640,7 @@ export class QuestionSelectBase extends Question {
     return val === item.value;
   }
   get validatedValue(): any {
-    return this.rendredValueToDataCore(this.value);
+    return this.renderedValueToDataCore(this.value);
   }
   protected createRestful(): ChoicesRestful {
     return new ChoicesRestful();
@@ -608,37 +669,11 @@ export class QuestionSelectBase extends Question {
     }
     this.value = val ? this.otherItem.value : undefined;
   }
-  private isSettingComment: boolean = false;
-  protected setQuestionComment(newValue: string): void {
-    this.updatePrevOtherErrorValue(newValue);
-    if (this.showCommentArea) {
-      super.setQuestionComment(newValue);
-      return;
-    }
-    this.onUpdateCommentOnAutoOtherMode(newValue);
-    if (this.getStoreOthersAsComment())
-      super.setQuestionComment(newValue);
-    else {
-      this.setOtherValueInternally(newValue);
-    }
-    this.updateChoicesDependedQuestions();
-  }
   private onUpdateCommentOnAutoOtherMode(newValue: string): void {
     if (!this.autoOtherMode) return;
-    this.prevOtherValue = undefined;
     const isSelected = this.isOtherSelected;
     if (!isSelected && !!newValue || isSelected && !newValue) {
       this.selectOtherValueFromComment(!!newValue);
-    }
-  }
-  private setOtherValueInternally(newValue: string): void {
-    if (!this.isSettingComment && newValue != this.otherValueCore) {
-      this.isSettingComment = true;
-      this.otherValueCore = newValue;
-      if (this.isOtherSelected && !this.isRenderedValueSetting) {
-        this.value = this.getValueOnSettingOther(newValue);
-      }
-      this.isSettingComment = false;
     }
   }
   private getValueOnSettingOther(otherValue: string): any {
@@ -659,22 +694,52 @@ export class QuestionSelectBase extends Question {
   }
   public clearValue(keepComment?: boolean) {
     super.clearValue(keepComment);
-    this.prevOtherValue = undefined;
     this.selectedItemValues = undefined;
-  }
-  updateCommentFromSurvey(newValue: any): any {
-    super.updateCommentFromSurvey(newValue);
-    this.prevOtherValue = undefined;
   }
   public get renderedValue(): any {
     return this.getPropertyValue("renderedValue", null);
   }
   public set renderedValue(val: any) {
-    if (this.isReadOnlyAttr) return;
+    this.setRenderedValue(val, true);
+  }
+  private setRenderedValue(val: any, changeValue: boolean): void {
     this.setPropertyValue("renderedValue", val);
-    var val = this.rendredValueToData(val);
-    if (!this.isTwoValueEquals(val, this.value)) {
-      this.value = val;
+    if (changeValue && !this.isReadOnlyAttr) {
+      val = this.rendredValueToData(val);
+      if (!this.isTwoValueEquals(val, this.value)) {
+        this.value = val;
+      }
+    }
+    this.onRendredValueChagned();
+  }
+  protected onRendredValueChagned(): void {
+    this.choices.forEach(item => this.updateItemIsCommentShowing(item));
+    if (this.showOtherItem) {
+      this.updateItemIsCommentShowing(this.otherItem);
+    }
+  }
+  private updateItemIsCommentShowing(item: ItemValue): void {
+    if (item.hasComment) {
+      item.setIsCommentShowing(this.isCommentShowing(item));
+    }
+  }
+  public selectItem(item: ItemValue): void {
+    if (this.isReadOnlyAttr || !item) return;
+    const prevSelectedItem = this.getSingleSelectedItem();
+    this.renderedValue = item.value;
+    if (!!prevSelectedItem && prevSelectedItem !== this.getSingleSelectedItem()) {
+      this.onItemDeselected(prevSelectedItem);
+    }
+    this.onItemSelected(item);
+  }
+  protected onItemSelected(item: ItemValue): void {
+    if (item.hasComment) {
+      this.focusOtherComment(item);
+    }
+  }
+  protected onItemDeselected(item: ItemValue): void {
+    if (item.hasComment) {
+      this.setCommentValueCore(item, "");
     }
   }
   private makeCommentEmpty: boolean;
@@ -684,20 +749,11 @@ export class QuestionSelectBase extends Question {
       this.isTwoValueEquals(this.value, newValue)
     )
       return;
+    this.setRenderedValue(this.rendredValueFromData(newValue), false);
     super.setQuestionValue(newValue, updateIsAnswered);
-    this.setPropertyValue("renderedValue", this.rendredValueFromData(newValue));
     this.updateChoicesDependedQuestions();
     if (this.hasComment || !updateComment) return;
-    var isOtherSel = this.isOtherSelected;
-    if (isOtherSel && !!this.prevOtherValue) {
-      var oldOtherValue = this.prevOtherValue;
-      this.prevOtherValue = undefined;
-      this.otherValue = oldOtherValue;
-    }
-    if (!isOtherSel && !!this.otherValue) {
-      if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
-        this.prevOtherValue = this.otherValue;
-      }
+    if (!this.isOtherSelected && !!this.otherValue) {
       this.makeCommentEmpty = true;
       this.otherValueCore = "";
       this.setPropertyValue("comment", "");
@@ -734,14 +790,14 @@ export class QuestionSelectBase extends Question {
   }
   protected rendredValueToData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
-    return this.rendredValueToDataCore(val);
+    return this.renderedValueToDataCore(val);
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!this.hasUnknownValue(val, true, false)) return this.valueFromData(val);
     this.otherValue = val;
     return this.otherItem.value;
   }
-  protected rendredValueToDataCore(val: any): any {
+  protected renderedValueToDataCore(val: any): any {
     if (val == this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
       val = this.otherValue;
     }
@@ -1075,7 +1131,7 @@ export class QuestionSelectBase extends Question {
    * @see choices
    * @see enabledChoices
    */
-  public get visibleChoices(): Array<ItemValue> {
+  public get visibleChoices(): Array<ChoiceItem> {
     return this.getPropertyValue("visibleChoices");
   }
   /**
@@ -1170,7 +1226,7 @@ export class QuestionSelectBase extends Question {
       this.addNonChoiceItem(dict, this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
     }
     if (this.supportOther()) {
-      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.hasOther, settings.specialChoicesOrder.otherItem);
+      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.showOtherItem, settings.specialChoicesOrder.otherItem);
     }
   }
   protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
@@ -1187,7 +1243,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   public isItemInList(item: ItemValue): boolean {
-    if (item === this.otherItem) return this.hasOther;
+    if (item === this.otherItem) return this.showOtherItem;
     if (item === this.noneItem) return this.showNoneItem;
     if (item === this.refuseItem) return this.showRefuseItem;
     if (item === this.dontKnowItem) return this.showDontKnowItem;
@@ -1277,7 +1333,7 @@ export class QuestionSelectBase extends Question {
   }
   private getItemDisplayValue(item: ItemValue, val?: any): string {
     if (item === this.otherItem) {
-      if (this.hasOther && this.showCommentArea && !!val) {
+      if (this.showOtherItem && this.showCommentArea && !!val) {
         return val;
       }
       if (this.comment) {
@@ -1391,8 +1447,8 @@ export class QuestionSelectBase extends Question {
         res.push(this.copyChoiceItem(choices[i]));
       }
     }
-    if (this.choicesFromQuestionMode === "selected" && !this.showOtherItem && question.isOtherSelected && !!question.comment) {
-      res.push(this.createItemValue(question.otherItem.value, question.comment));
+    if (this.choicesFromQuestionMode === "selected" && !this.showOtherItem && question.isOtherSelected && !!question.otherValue) {
+      res.push(this.createItemValue(question.otherItem.value, question.otherValue));
     }
     return res;
   }
@@ -1471,11 +1527,19 @@ export class QuestionSelectBase extends Question {
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (!this.hasOther || !this.isOtherSelected || this.otherValue
-      || isOnValueChanged && !this.prevOtherErrorValue) return;
-    const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
-    otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
-    errors.push(otherEmptyError);
+    if (this.hasEmptyComments() && (!isOnValueChanged || this.prevOtherErrorValue)) {
+      const otherEmptyError = new OtherEmptyError(this.otherErrorText, this);
+      otherEmptyError.onUpdateErrorTextCallback = err => { err.text = this.otherErrorText; };
+      errors.push(otherEmptyError);
+    }
+  }
+  private hasEmptyComments(): boolean {
+    const choices = this.visibleChoices;
+    for (let i = 0; i < choices.length; i++) {
+      const choice = choices[i];
+      if (this.isCommentShowing(choice) && !this.getCommentValue(choices[i])) return true;
+    }
+    return false;
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     this.isRunningChoices = true;
@@ -1493,7 +1557,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   public getStoreOthersAsComment(): boolean {
-    if (this.isSettingDefaultValue) return false;
+    if (this.checkHasChoicesComments()) return true;
     if (this.showCommentArea) return false;
     return (
       this.storeOthersAsComment === true ||
@@ -1501,6 +1565,13 @@ export class QuestionSelectBase extends Question {
         (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
       (this.hasChoicesUrl && !this.choicesFromUrl)
     );
+  }
+  private checkHasChoicesComments(): boolean {
+    const choices = this.choices;
+    for (let i = 0; i < choices.length; i++) {
+      if (choices[i].hasComment) return true;
+    }
+    return false;
   }
   onSurveyLoad(): void {
     this.runChoicesByUrl();
@@ -1521,7 +1592,7 @@ export class QuestionSelectBase extends Question {
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
     if (
-      this.hasOther && this.activeChoices.length > 0 &&
+      this.showOtherItem && this.activeChoices.length > 0 &&
       !this.isRunningChoices &&
       !this.choicesByUrl.isRunning &&
       this.getStoreOthersAsComment()
@@ -1549,19 +1620,16 @@ export class QuestionSelectBase extends Question {
   protected setOtherValueIntoValue(newValue: any): any {
     return this.otherItem.value;
   }
-  public onOtherValueInput(event: any): void {
-    if (this.isInputTextUpdate) {
-      if (event.target) {
-        this.otherValue = event.target.value;
-      }
-    } else {
-      this.updateCommentElements();
+  private onOtherValueInput(item: ItemValue, event: any): void {
+    if (this.isInputTextUpdate && event.target) {
+      this.setCommentValueCore(item, event.target.value);
     }
   }
-  public onOtherValueChange(event: any): void {
-    this.otherValue = event.target.value;
-    if (this.otherValue !== event.target.value) {
-      event.target.value = this.otherValue;
+  private onOtherValueChange(item: ItemValue, event: any): void {
+    this.setCommentValueCore(item, event.target.value);
+    const val = this.getCommentValueCore(item);
+    if (val !== event.target.value) {
+      event.target.value = val;
     }
   }
   private isRunningChoices: boolean = false;
@@ -1829,9 +1897,6 @@ export class QuestionSelectBase extends Question {
     if (!this.isOtherSelected) {
       this.otherValue = "";
     }
-    if (!this.showCommentArea && (!this.getStoreOthersAsComment() && !this.isOtherSelected)) {
-      this.comment = "";
-    }
   }
   getColumnClass(): string {
     return new CssClassBuilder()
@@ -1864,8 +1929,7 @@ export class QuestionSelectBase extends Question {
     const readOnlyStyles = this.getIsDisableAndReadOnlyStyles(!item.isEnabled);
     const isReadOnly = readOnlyStyles[0];
     const isDisabled = readOnlyStyles[1];
-    const isChecked = this.isItemSelected(item) ||
-      (this.isOtherSelected && this.otherItem.value === item.value);
+    const isChecked = this.isItemSelected(item);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
     const isNone = item === this.noneItem;
     options.isDisabled = isDisabled || isReadOnly;
@@ -2105,7 +2169,7 @@ export class QuestionSelectBase extends Question {
     return this.renderedValue === item.value ? "true" : "false";
   }
   public isOtherItem(item: ItemValue) {
-    return this.hasOther && item.value == this.otherItem.value;
+    return this.showOtherItem && item.value == this.otherItem.value;
   }
   public get itemSvgIcon(): string {
     if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
@@ -2135,16 +2199,10 @@ export class QuestionSelectBase extends Question {
   public getItemEnabled(item: ItemValue): boolean {
     return !this.isDisabledAttr && item.isEnabled;
   }
-  private focusOtherComment() {
-    SurveyElement.FocusElement(this.otherId, false, this.survey?.rootElement);
-  }
-  private prevIsOtherSelected: boolean = false;
-  protected onValueChanged(): void {
-    super.onValueChanged();
-    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected && !this.isSettingDefaultValue) {
-      this.focusOtherComment();
+  private focusOtherComment(item: ItemValue) {
+    if (!this.autoOtherMode) {
+      SurveyElement.FocusElement(this.getItemCommentId(item), false, this.survey?.rootElement);
     }
-    this.prevIsOtherSelected = this.isOtherSelected;
   }
   protected getDefaultItemComponent(): string {
     return "";
@@ -2210,13 +2268,20 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
   }
   return obj.carryForwardQuestionType === mode;
 }
+
+Serializer.addClass("choiceitem",
+  [{ name: "hasComment:boolean", visible: false }],
+  (value) => new ChoiceItem(value),
+  "itemvalue"
+);
+
 Serializer.addClass(
   "selectbase",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     "choicesFromQuestion:question_carryforward",
     {
-      name: "choices:itemvalue[]", uniqueProperty: "value",
+      name: "choices:choiceitem[]", uniqueProperty: "value",
       baseValue: function () {
         return getLocaleString("choices_Item");
       },
@@ -2290,7 +2355,7 @@ Serializer.addClass(
       serializationProperty: "locOtherPlaceholder",
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
-        return obj.hasOther;
+        return obj.showOtherItem;
       },
     },
     {
@@ -2322,7 +2387,7 @@ Serializer.addClass(
       serializationProperty: "locOtherText",
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
-        return obj.hasOther;
+        return obj.showOtherItem;
       },
     },
     {
@@ -2330,7 +2395,7 @@ Serializer.addClass(
       serializationProperty: "locOtherErrorText",
       dependsOn: "showOtherItem",
       visibleIf: function (obj: any) {
-        return obj.hasOther;
+        return obj.showOtherItem;
       },
     },
     {

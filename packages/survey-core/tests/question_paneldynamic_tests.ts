@@ -3028,9 +3028,9 @@ QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert
   const question = <QuestionPanelDynamicModel>(rootPanel.panels[0].getQuestionByName("question"));
   const panel1 = question.addPanel();
   panel1.getQuestionByName("q1").value = "other";
-  panel1.getQuestionByName("q1").comment = "comment1";
+  panel1.getQuestionByName("q1").otherValue = "comment1";
   panel1.getQuestionByName("q2").value = "other";
-  panel1.getQuestionByName("q2").comment = "comment2";
+  panel1.getQuestionByName("q2").otherValue = "comment2";
   let counter = 0;
   survey.onDynamicPanelItemValueChanged.add((sender, options) => {
     counter ++;
@@ -7158,7 +7158,7 @@ QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
   const panel = dynamicPanel.panels[0];
   const question = panel.getQuestionByName("q1");
   question.value = "other";
-  question.comment = "comment1";
+  question.otherValue = "comment1";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment1" }], "panel.value #1");
   question.value = 1;
   assert.equal(question.value, 1, "question value is changed");
@@ -7166,7 +7166,7 @@ QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
   assert.deepEqual(dynamicPanel.value, [{ q1: 1 }], "panel.value #2");
   question.value = "other";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other" }], "panel.value #3");
-  question.comment = "comment2";
+  question.otherValue = "comment2";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
 });
 QUnit.test("panel dynamic & getQuestionFromArray with non-build panels, #7693", function (assert) {
@@ -7952,7 +7952,7 @@ QUnit.test("Test displayValue() function in dynamic panel, Bug#9635", function (
   const q2 = panel.panels[0].getQuestionByName("q2");
   q1.value = ["item1", "other"];
   assert.equal(q2.value, "item1, Other (describe)", "Other as other display value");
-  q1.comment = "other comment";
+  q1.otherValue = "other comment";
   assert.equal(q2.value, "item1, other comment", "Other is comment value");
   assert.deepEqual(panel.value, [{ q1: ["item1", "other"], "q1-Comment": "other comment", q2: "item1, other comment" }], "value is set correctly");
 });

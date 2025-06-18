@@ -174,7 +174,7 @@ QUnit.test("Ranking: Carry Forward and hasOther", function(assert) {
 
   q1.value = [2, 3, "other"];
   assert.equal(q2.visibleChoices.length, 2, "2, 3 other is empty");
-  q1.comment = "someText";
+  q1.otherValue = "someText";
   assert.equal(q2.visibleChoices.length, 3, "2, 3 and other");
   assert.equal(q2.visibleChoices[2].value, "other", "other value");
   assert.equal(q2.visibleChoices[2].text, "someText", "other text");

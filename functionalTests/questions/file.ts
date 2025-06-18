@@ -17,8 +17,9 @@ frameworks.forEach(framework => {
   );
 
   test("choose file actions readOnly are reactive", async t => {
-    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt")
-      .expect(Selector("button[title='Clear']").hasAttribute("disabled")).notOk();
+    await t.click(".sd-file input[type=file] + div label");
+    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
+    await t.expect(Selector("button[title='Clear']").hasAttribute("disabled")).notOk();
     await ClientFunction(() => {
       (window as any).survey.getAllQuestions()[0].readOnly = true;
     })();

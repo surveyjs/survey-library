@@ -385,3 +385,41 @@ QUnit.test("Action subitems show timeout - we should wait other popup to hide", 
   actionBar.mouseOverHandler(action1);
   assert.equal(delayCalled, 30);
 });
+
+QUnit.test("Check rendered actions", function (assert) {
+  const actionBar = new ActionContainer();
+  actionBar.setItems([
+    { id: "test1", title: "test1" },
+    { id: "test2", title: "test2", visible: false },
+    { id: "test2", title: "test3" }
+  ]);
+  assert.equal(actionBar.renderedActions.length, 2);
+  assert.equal(actionBar.renderedActions[0].title, "test1");
+  assert.equal(actionBar.renderedActions[1].title, "test3");
+
+  actionBar.actions[0].visible = false;
+
+  assert.equal(actionBar.renderedActions.length, 1);
+  assert.equal(actionBar.renderedActions[0].title, "test3");
+
+  actionBar.actions[1].visible = true;
+
+  assert.equal(actionBar.renderedActions.length, 2);
+  assert.equal(actionBar.renderedActions[0].title, "test2");
+  assert.equal(actionBar.renderedActions[1].title, "test3");
+});
+
+QUnit.test("Check getRootStyle method", function (assert) {
+  const actionBar = new AdaptiveActionContainer();
+  actionBar.setItems([
+    { id: "test1", title: "test1" },
+    { id: "test2", title: "test2", visible: false },
+    { id: "test2", title: "test3" }
+  ]);
+  const container = document.createElement("div");
+  actionBar.initResponsivityManager(container);
+  assert.strictEqual(actionBar.getRootStyle()?.opacity, 0);
+  actionBar["responsivityManager"].afterInitializeCallback && actionBar["responsivityManager"].afterInitializeCallback();
+  assert.strictEqual(actionBar.getRootStyle()?.opacity, undefined);
+
+});

@@ -654,17 +654,16 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .expect(clearButton.exists).ok()
-      .expect(clearButton.visible).notOk()
+      .expect(clearButton.exists).notOk()
 
       .click(questionDropdownSelect)
       .click(Selector(".sv-list__item span").withText("Ford").filterVisible())
 
+      .expect(clearButton.exists).ok()
       .expect(clearButton.visible).ok()
 
       .click(clearButton)
-      .expect(clearButton.exists).ok()
-      .expect(clearButton.visible).notOk();
+      .expect(clearButton.exists).notOk();
   });
 
   test("Check dropdown item template", async (t) => {

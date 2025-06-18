@@ -296,6 +296,28 @@ export class Question extends SurveyElement<Question>
   protected onAsyncRunningChanged(): void {
     this.updateIsReady();
   }
+  protected ensureQuestionIsReady(): void {
+    const _displayValue = this.displayValue;
+  }
+  public waitForQuestionIsReady(callback?: () => void): Promise<void> {
+    return new Promise((resolve: any) => {
+      this.ensureQuestionIsReady();
+      if (this.isReady) {
+        resolve();
+        if (!!callback) callback();
+      } else {
+        const readyCallback: (sender: Question, options: any) => void =
+                (_, options: any) => {
+                  if (options.isReady) {
+                    this.onReadyChanged.remove(readyCallback);
+                    resolve();
+                    if (!!callback) callback();
+                  }
+                };
+        this.onReadyChanged.add(readyCallback);
+      }
+    });
+  }
   protected updateIsReady(): void {
     let res = this.getIsQuestionReady();
     if (res) {

@@ -19,6 +19,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   private dropdownListModelValue: DropdownMultiSelectListModel;
   private itemDisplayNameMap: { [key: string]: string} = {};
   private deselectAllItemText: LocalizableString;
+  private isChoicesLoading: boolean;
 
   constructor(name: string) {
     super(name);
@@ -242,6 +243,23 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     (this.selectedItemValues as Array<ItemValue> || []).forEach(func);
     this.visibleChoices.forEach(func);
   }
+
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.isChoicesLoading;
+  }
+
+  protected ensureQuestionIsReady(): void {
+    super.ensureQuestionIsReady();
+    if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
+      this.dropdownListModel.loadQuestionChoices();
+    }
+  }
+
+  public setIsChoicesLoading(value: boolean) {
+    this.isChoicesLoading = value;
+    this.updateIsReady();
+  }
+
   protected canAddCustomChoices(): boolean {
     return this.allowCustomChoices;
   }

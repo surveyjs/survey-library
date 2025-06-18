@@ -1502,10 +1502,10 @@ QUnit.test("Create tag box in the code, dropdownListModel instance", (assert) =>
   const question = new QuestionTagboxModel("q1");
   const page = new PageModel("page1");
   page.addQuestion(question);
-  assert.notOk(question["dropdownListModelValue"], "It is not created yet");
+  assert.notOk(!!question["dropdownListModelValue"], "It is not created yet #1");
   survey.addPage(page);
-  assert.notOk(question["dropdownListModelValue"], "It is not created yet");
-  assert.ok(question.dropdownListModel, "It is created on demand");
+  assert.notOk(!!question["dropdownListModelValue"], "It is not created yet #2");
+  assert.ok(!!question.dropdownListModel, "It is created on demand");
 });
 QUnit.test("Create tag box from json, dropdownListModel instance", (assert) => {
   const survey = new SurveyModel({
@@ -2393,4 +2393,23 @@ QUnit.test("tagbox vs selectAll and isExclusive", (assert) => {
   assert.deepEqual(q.value, ["none2"], "#11");
   q.renderedValue = ["none2", "none"];
   assert.deepEqual(q.value, ["none"], "#12");
+});
+
+QUnit.test("lazy loading + isReady", assert => {
+  const done = assert.async();
+  const survey = new SurveyModel({ questions: [{ "type": "tagbox", "name": "q1", "choicesLazyLoadEnabled": true }] });
+  survey.onChoicesLazyLoad.add((_, options) => {
+    options.setItems(getNumberArray(1, 25), 25);
+  });
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true, "#1");
+  assert.equal(question.choices.length, 0, "#1");
+  assert.equal(question.isReady, true, "#1");
+
+  question.waitForQuestionIsReady(() => {
+    assert.equal(question.choices.length, 25, "#2");
+    assert.equal(question.isReady, true, "#2");
+    done();
+  });
 });

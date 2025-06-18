@@ -439,9 +439,9 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.setValueIf = val;
   }
   /**
-   * An expression used to calculate a value for all column cells.
+   * An expression that calculates a value for all cells in this column.
    *
-   * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated cell value applies only when `setValueIf` evaluates to `true`.
+   * The `setValueExpression` is re-evaluated whenever a referenced question's value changes. If you also specify the [`setValueIf`](#setValueIf) expression, re-evaluation occurs only when it returns `true`.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
    * @see defaultValueExpression

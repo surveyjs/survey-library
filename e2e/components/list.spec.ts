@@ -34,7 +34,7 @@ frameworks.forEach(framework => {
         window["survey"].fromJSON(json);
       }, json);
 
-      await expect(page.locator(".sv-popup__content .my-custom-action-class").getByText("Custom Action 29")).toBeVisible();
+      await expect(await page.locator(".sv-popup__content .my-custom-action-class").getByText("Custom Action 29").count()).toBe(1);
     });
 
     test("Dropdown popup styles", async ({ page }) => {

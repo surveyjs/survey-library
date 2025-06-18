@@ -177,6 +177,10 @@
               "Title": "QuestionRadiogroupModel"
             },
             {
+              "Name": "questionslidermodel",
+              "Title": "QuestionSliderModel"
+            },
+            {
               "Name": "questiondropdownmodel",
               "Title": "QuestionDropdownModel"
             },

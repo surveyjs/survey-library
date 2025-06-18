@@ -113,6 +113,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       <div
         className={question.cssContent || undefined}
         style={contentStyle}
+        aria-hidden={question.contentAriaHidden}
         role="presentation"
       >
         {questionRender}

@@ -373,6 +373,24 @@ QUnit.test("Question titleLocation", function (assert) {
     "the second question has visible index 0 now"
   );
 });
+QUnit.test("Question title is successfully controlled by the showTitle property", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page 1");
+  const question1 = new QuestionTextModel("q1");
+  page.addQuestion(question1);
+  assert.equal(question1.hasTitle, true, "Question has a title by default");
+  assert.equal(question1.titleLocation, "default", "Question titleLocation is 'default' by default");
+  question1.showTitle = false;
+  assert.equal(question1.hasTitle, false, "showTitle = false hides the question title");
+  assert.equal(question1.titleLocation, "hidden", "showTitle = false sets titleLocation to 'hidden'");
+  question1.showTitle = true;
+  assert.equal(question1.hasTitle, true, "showTitle = true shows the question title");
+  assert.equal(question1.titleLocation, "default", "showTitle = true sets titleLocation to 'default'");
+  question1.titleLocation = "hidden";
+  assert.equal(question1.showTitle, false, "titleLocation = 'hidden' sets showTitle to false");
+  question1.titleLocation = "top";
+  assert.equal(question1.showTitle, true, "titleLocation different from 'hidden' sets showTitle to true");
+});
 QUnit.test("Question titleDescription", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("Page 1");
@@ -6622,6 +6640,35 @@ QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (asser
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: 2 }, "state is completed");
 });
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearInvisibleValues='none', Bug#10035", function (assert) {
+  const survey = new SurveyModel({
+    "clearInvisibleValues": "none",
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "panel",
+        "name": "panel1",
+        "visibleIf": "{q1} != 1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+            "clearIfInvisible": "onHiddenContainer"
+          }
+        ]
+      }
+    ]
+  });
+  survey.setValue("q2", "a");
+  survey.setValue("q1", 2);
+  assert.deepEqual(survey.data, { q1: 2, q2: "a" }, "q2 is visible, value is set");
+  survey.setValue("q1", 1);
+  assert.deepEqual(survey.data, { q1: 1 }, "q2 is invisible");
+});
+
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.inputType, "text");
@@ -7748,7 +7795,7 @@ QUnit.test("Test", function (assert) {
 
 QUnit.test("QuestionHtmlModel hide some properties", function (assert) {
   let html = new QuestionHtmlModel("q1");
-  ["showNumber", "state", "titleLocation", "descriptionLocation", "errorLocation", "indent", "width"].forEach(property => {
+  ["showNumber", "state", "titleLocation", "showTitle", "descriptionLocation", "errorLocation", "indent", "width"].forEach(property => {
     assert.equal(Serializer.findProperty("html", property).visible, false, property + " should be hidden");
   });
 });

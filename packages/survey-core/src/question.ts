@@ -1116,6 +1116,12 @@ export class Question extends SurveyElement<Question>
       this.notifySurveyVisibilityChanged();
     }
   }
+  get showTitle(): boolean {
+    return this.getTitleLocation() !== "hidden";
+  }
+  set showTitle(newValue: boolean) {
+    this.titleLocation = newValue ? "default" : "hidden";
+  }
   public getTitleOwner(): ITitleOwner { return this; }
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
@@ -2259,9 +2265,9 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("setValueIf", val);
   }
   /**
-   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the question value.
+   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) that calculates the question value.
    *
-   * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
+   * The `setValueExpression` is re-evaluated whenever a referenced question's value changes. If you also specify the [`setValueIf`](#setValueIf) expression, re-evaluation occurs only when it returns `true`.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see defaultValueExpression
@@ -3227,6 +3233,13 @@ export class Question extends SurveyElement<Question>
     }
   }
 
+  protected getContentAriaHidden(): boolean {
+    return null;
+  }
+  public get contentAriaHidden(): boolean {
+    return this.getContentAriaHidden();
+  }
+
   public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
@@ -3259,7 +3272,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    if (this.hasTitle && !this.parentQuestion && this.hasDescription) {
+    if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
       return this.ariaDescriptionId;
     } else {
       return null;
@@ -3346,6 +3359,11 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "top", "bottom", "left", "hidden"],
     layout: "row",
+  },
+  {
+    name: "showTitle:boolean",
+    isSerializable: false,
+    dependsOn: "titleLocation"
   },
   {
     name: "description:text",

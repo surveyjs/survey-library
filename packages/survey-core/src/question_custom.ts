@@ -774,6 +774,9 @@ export abstract class QuestionCustomModelBase extends Question
   getQuestionErrorLocation(): string {
     return this.getErrorLocation();
   }
+  protected getContentAriaHidden(): boolean {
+    return this.isDesignMode || super.getContentAriaHidden();
+  }
   protected getContentDisplayValueCore(keyAsText: boolean, value: any, question: Question): any {
     if (!question) return super.getDisplayValueCore(keyAsText, value);
     return this.customQuestion.getDisplayValue(keyAsText, value, question);

@@ -895,3 +895,41 @@ QUnit.test("check if renderedValue reacts to sliderType change", (assert) => {
   q1.sliderType = "range";
   assert.deepEqual(q1.renderedValue, [0, 100], "range renderedValue");
 });
+
+QUnit.test("setValueExpression", (assert) => {
+  let json:any = {
+    "elements": [
+      {
+        "type": "slider",
+        "name": "slider",
+        "setValueExpression": "[{qMin}, {qMax}]",
+        "sliderType": "range"
+      },
+      {
+        "type": "text",
+        "name": "qMin",
+        "setValueExpression": "{slider[0]}",
+      },
+      {
+        "type": "text",
+        "name": "qMax",
+        "setValueExpression": "{slider[1]}"
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let slider = <QuestionSliderModel>survey.getQuestionByName("slider");
+  let qMin = <QuestionSliderModel>survey.getQuestionByName("qMin");
+  let qMax = <QuestionSliderModel>survey.getQuestionByName("qMax");
+
+  assert.deepEqual(slider.renderedValue, [0, 100], "initial renderedValue");
+  assert.deepEqual(slider.value, [], "initial value");
+
+  qMin.value = 20;
+  assert.deepEqual(slider.renderedValue, [20, 100], "set min renderedValue");
+  assert.deepEqual(slider.value, [20, 100], "set min value");
+
+  qMax.value = 40;
+  assert.deepEqual(slider.renderedValue, [20, 40], "set max renderedValue");
+  assert.deepEqual(slider.value, [20, 40], "set max value");
+});

@@ -23,7 +23,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     }
     return this.textAreaModelValue;
   }
-  private getTextAreaOptions(): ITextArea {
+  protected getTextAreaOptions(): ITextArea {
     const _this = this;
     const updateQuestionValue = (newValue: any) => {
       if (!Helpers.isTwoValueEquals(_this.value, newValue, false, true, false)) {

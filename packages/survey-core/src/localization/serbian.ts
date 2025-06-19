@@ -118,7 +118,7 @@ export var serbianStrings = {
   createCustomItem: "Kreiraj \"{0}\" stavku..."
 };
 
-setupLocale({ localeCode: "rs", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });
+setupLocale({ localeCode: "sr", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

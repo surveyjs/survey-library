@@ -635,7 +635,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
     var rows = this.matrix.visibleRows;
     var renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
-    if (rows.length == 0 && this.matrix.allowRowReorder) {
+    if (rows.length == 0 && this.matrix.allowRowReorder && this.matrix.allowRowDragIn) {
       const row = this.createEmptyRow();
       const cell = this.createTextCell(this.matrix.locNoRowsText);
       cell.colSpans = this.headerRow && this.headerRow.cells.length || 1;

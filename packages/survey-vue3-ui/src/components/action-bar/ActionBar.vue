@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="model.hasActions"
+    v-if="model.hasVisibleActions"
     ref="root"
     :style="model.getRootStyle()"
     :class="model.getRootCss()"

@@ -3,12 +3,14 @@ import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer } from "./container";
 import { getLocaleString } from "../surveyStrings";
+import { property } from "../jsonobject";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
   protected responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;
+  @property() private isInitialized: boolean = false;
   private hideItemsGreaterN(visibleItemsCount: number) {
     const actionsToHide = this.getActionsToHide();
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount - (this.visibleActions.length - actionsToHide.length));
@@ -149,16 +151,23 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       }
       this.responsivityManager.dispose();
     }
-    this.isVisible = this.isResponsivenessDisabled;
+    this.isInitialized = false;
     this.responsivityManager = this.createResponsivityManager(container);
     this.responsivityManager.afterInitializeCallback = () => {
-      this.isVisible = true;
+      this.isInitialized = true;
     };
   }
   public resetResponsivityManager(): void {
     if (!!this.responsivityManager) {
       this.responsivityManager.dispose();
       this.responsivityManager = undefined;
+    }
+  }
+  public getRootStyle() {
+    if (!this.isInitialized && !this.isResponsivenessDisabled) {
+      return { opacity: 0 };
+    } else {
+      return undefined;
     }
   }
   public setActionsMode(mode: actionModeType): void {

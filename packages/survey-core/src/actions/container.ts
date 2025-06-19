@@ -37,7 +37,6 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }
-  @property() isVisible: boolean = true;
   @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({
     onSet: (_: any, target: ActionContainer<Action>) => {
@@ -119,9 +118,6 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return this.getRenderedActions();
   }
   public getRootStyle() {
-    if (!this.isVisible) {
-      return { opacity: 0 };
-    }
     return undefined;
   }
   public getRootCss(): string {

@@ -25,6 +25,9 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
   protected override onModelChanged() {
     super.onModelChanged();
     this.previousModel?.resetResponsivityManager();
+  }
+  public override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
     if (!!this.model.hasVisibleActions && !!this.container && !!this.container.nativeElement) {
       this.model.initResponsivityManager(this.container.nativeElement);
     }

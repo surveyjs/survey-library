@@ -458,7 +458,7 @@ frameworks.forEach((framework) => {
           opt.titleActions = [
             {
               title: "Action",
-              visible: false,
+              mode: "popup",
               action: () => {
                 opt.question.state = "expanded";
               },

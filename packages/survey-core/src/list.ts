@@ -128,7 +128,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.updateIsEmpty();
   }
   private updateIsEmpty(): void {
-    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
+    this.isEmpty = !this.renderedActions.some(action => this.isItemVisible(action));
   }
   private scrollToItem(classes: string, ms = 0): void {
     setTimeout(() => {

@@ -25,16 +25,16 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
   items.push(<IAction>{ id: "test8", title: "test8", visible: false });
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
 
-  assert.equal(list.renderedActions.length, 8);
+  assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
   assert.ok(list.showFilter);
 
   list.filterString = "test";
-  assert.equal(list.renderedActions.length, 8);
+  assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
 
   list.filterString = "1";
-  assert.equal(list.renderedActions.length, 8);
+  assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 1);
 
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
@@ -113,13 +113,13 @@ QUnit.test("ListModel custom onFilter", assert => {
   assert.ok(list.showFilter, "initial list.filterableListItems");
 
   list.filterString = "test";
-  assert.equal(list.renderedActions.length, 7, "items filterString = test");
+  assert.equal(list.renderedActions.length, 1, "items filterString = test");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filterString = test");
   assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filterString = test");
   assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = test");
 
   list.filterString = "1";
-  assert.equal(list.renderedActions.length, 7, "items filterString = 1");
+  assert.equal(list.renderedActions.length, 1, "items filterString = 1");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filterString = 1");
   assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filterString = 1");
   assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = 1");
@@ -172,12 +172,12 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
 
   list.filterString = "1 ";
   assert.equal(list.isEmpty, true, "#6");
-  assert.equal(list.renderedActions.length, 7, "#7");
+  assert.equal(list.renderedActions.length, 0, "#7");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 0, "#8");
 
   list.filterString = "1";
   assert.equal(list.isEmpty, false, "#9");
-  assert.equal(list.renderedActions.length, 7, "#10");
+  assert.equal(list.renderedActions.length, 1, "#10");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "#11");
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });

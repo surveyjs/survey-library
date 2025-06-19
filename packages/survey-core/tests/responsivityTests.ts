@@ -43,13 +43,13 @@ QUnit.test("ActionContainer: renderedActions & visibleActions", assert => {
   const actionContainer: ActionContainer = new ActionContainer();
   actionContainer.actions = actions;
   assert.equal(actionContainer.visibleActions.length, 2, "actionContainer visibleActions");
-  assert.equal(actionContainer.renderedActions.length, 3, "actionContainer renderedActions");
+  assert.equal(actionContainer.renderedActions.length, 2, "actionContainer renderedActions");
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
   assert.equal(adaptiveContainer.visibleActions.length, 2, "adaptiveContainer visibleActions");
-  assert.equal(adaptiveContainer.renderedActions.length, 4, "adaptiveContainer renderedActions");
-  assert.equal(adaptiveContainer.renderedActions[3].id.indexOf("dotsItem-id"), 0, "dotsItem-id exists");
+  assert.equal(adaptiveContainer.renderedActions.length, 3, "adaptiveContainer renderedActions");
+  assert.equal(adaptiveContainer.renderedActions[2].id.indexOf("dotsItem-id"), 0, "dotsItem-id exists");
 });
 
 QUnit.test("ActionContainer: renderedActions & visibleActions if only one element", assert => {
@@ -89,52 +89,57 @@ QUnit.test("Fit items", function (assert) {
   model.actions.push(item3);
   assert.equal(model.actions.length, 3);
   assert.equal(model.visibleActions.length, 2);
-  assert.equal(model.renderedActions.length, 4);
+  assert.equal(model.renderedActions.length, 3);
 
   model.fit({ availableSpace: 300 });
-  assert.equal(model.renderedActions.length, 4, "dimension 300");
+  assert.equal(model.renderedActions.length, 3, "dimension 300");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions[3].isVisible, false, "dots hidden");
+  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
+  assert.equal(model.actions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
   assert.equal(item1.mode, "large", "dimension 300");
   assert.equal(item2.mode, "large", "dimension 300");
 
   model.fit({ availableSpace: 200 });
-  assert.equal(model.renderedActions.length, 4, "dimension 200");
+  assert.equal(model.renderedActions.length, 3, "dimension 200");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions[3].isVisible, false, "dots hidden");
+  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
+  assert.equal(model.actions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
   assert.equal(item1.mode, "large", "dimension 200");
   assert.equal(item2.mode, "small", "dimension 200");
 
   model.fit({ availableSpace: 100 });
-  assert.equal(model.renderedActions.length, 4, "dimension 100");
+  assert.equal(model.renderedActions.length, 3, "dimension 100");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions[3].isVisible, false, "dots hidden");
+  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
+  assert.equal(model.actions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
   assert.equal(item1.mode, "large", "dimension 100");
   assert.equal(item2.mode, "small", "dimension 100");
 
   model.fit({ availableSpace: 50 });
-  assert.equal(model.renderedActions.length, 4, "dimension 50");
+  assert.equal(model.renderedActions.length, 3, "dimension 50");
   assert.equal(model.renderedActions[0].isVisible, false, "hidden 1");
   assert.equal(model.renderedActions[1].isVisible, false, "hidden 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions[3].isVisible, true, "dots visible");
-  assert.equal(model.renderedActions[3].iconName, "icon-more", "dimension 50");
+  assert.equal(model.renderedActions[2].isVisible, true, "dots visible");
+  assert.equal(model.renderedActions[2].iconName, "icon-more", "dimension 50");
+  assert.equal(model.actions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
   assert.equal(item1.mode, "popup", "dimension 50");
   assert.equal(item2.mode, "popup", "dimension 50");
 
   item2.disableShrink = true;
   model.fit({ availableSpace: 248 });
-  assert.equal(model.renderedActions.length, 4, "dimension 100");
+  assert.equal(model.renderedActions.length, 3, "dimension 100");
   assert.equal(model.renderedActions[0].isVisible, true, "visible 1");
   assert.equal(model.renderedActions[1].isVisible, true, "visible 2");
-  assert.equal(model.renderedActions[2].isVisible, false, "invisible 3");
-  assert.equal(model.renderedActions[3].isVisible, false, "dots hidden");
+  assert.equal(model.renderedActions[2].isVisible, false, "dots hidden");
+  assert.equal(model.actions[2].isVisible, false, "invisible 3");
+  assert.equal(model.renderedActions.indexOf(model.actions[2]), -1, "visible = false action is not in rendered actions");
   assert.equal(item1.mode, "small", "dimension 248");
   assert.equal(item2.mode, "large", "dimension 248 unshrinkable");
 
@@ -273,7 +278,6 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model);
-
   const updateActions = () => {
     model.renderedActions.forEach(action => {
       action.updateModeCallback = (mode, callback) => {
@@ -291,6 +295,7 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   };
   assert.notOk(manager["isInitialized"], "before start");
   updateActions();
+  manager["process"]();
   const newAction = new Action({ id: "first" });
   assert.equal(newAction.minDimension, undefined);
   assert.equal(newAction.maxDimension, undefined);

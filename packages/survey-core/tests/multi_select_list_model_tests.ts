@@ -136,7 +136,7 @@ QUnit.test("isEmpty & hideSelectedItems", function (assert) {
   assert.equal(multiSelectList.selectedItems.length, 0, "selectedItems count 1");
   assert.notOk(multiSelectList.isEmpty, "isEmpty 1");
 
-  multiSelectList.setSelectedItems(multiSelectList.renderedActions);
+  multiSelectList.setSelectedItems(multiSelectList.renderedActions.concat([]));
 
   assert.equal(multiSelectList.selectedItems.length, 2, "selectedItems count 2");
   assert.ok(multiSelectList.isEmpty, "isEmpty 2");

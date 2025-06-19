@@ -337,6 +337,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set allowRowsDragAndDrop(val: boolean) {
     this.allowRowReorder = val;
   }
+  public get allowRowDragIn() {
+    return !(this.survey as any)?.onMatrixRowDragOver?.isEmpty;
+  }
   public get isRowsDragAndDrop(): boolean {
     return this.allowRowReorder && !this.isReadOnly;
   }

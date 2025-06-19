@@ -13,7 +13,6 @@ import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
-import { has } from "lodash";
 
 export default QUnit.module("baseselect");
 
@@ -2793,6 +2792,34 @@ QUnit.test("checbox question and choices has comment vs renderedValue", (assert)
   q1.setCommentValue(q1.choices[1], "test comment");
   assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
   assert.notOk(q1.comment, "comment is not set for choices[1], #1");
+});
+QUnit.test("checbox question and choices has comment: clear comment on unselecting choice", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, 3],
+        "showOtherItem": true,
+        "showNoneItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = [1, 2];
+  const textArea1 = q1.getCommentTextAreaModel(q1.choices[1]);
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
+  assert.equal(q1.getPropertyValue("other_2"), "test comment", "comment property value, #1");
+  q1.renderedValue = [1];
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #2");
+  assert.equal(q1.getPropertyValue("other_2"), "", "comment property value, #2");
+  assert.equal(textArea1.getTextValue(), "", "No value in text area");
+  q1.renderedValue = [1, 2];
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #3");
+  q1.clickItemHandler(q1.noneItem, true);
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #4");
 });
 QUnit.test("checbox question and choices has comment with other value", (assert) => {
   const survey = new SurveyModel({

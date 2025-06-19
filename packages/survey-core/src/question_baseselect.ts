@@ -308,7 +308,8 @@ export class QuestionSelectBase extends Question {
     return "other_" + this.getItemCommentValueId(item);
   }
   protected getItemCommentValueId(item: ItemValue): string {
-    return item.value.toString().replace(/[^a-zA-Z0-9_]/g, "_") || "";
+    const val = item.value || "";
+    return val.toString().replace(/[^a-zA-Z0-9_]/g, "_") || "";
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -720,7 +721,11 @@ export class QuestionSelectBase extends Question {
   }
   private updateItemIsCommentShowing(item: ItemValue): void {
     if (item.hasComment) {
-      item.setIsCommentShowing(this.isCommentShowing(item));
+      const isShowing = this.isCommentShowing(item);
+      item.setIsCommentShowing(isShowing);
+      if (!isShowing) {
+        //this.setCommentValueCore(item, "");
+      }
     }
   }
   public selectItem(item: ItemValue): void {

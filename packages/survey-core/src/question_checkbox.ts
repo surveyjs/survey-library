@@ -252,7 +252,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    if (this.isTheOnlyComment || item === this.otherItem) {
+    if (item === this.otherItem) {
       super.setCommentValueCore(item, newValue);
     } else {
       this.setPropertyValue(this.getCommentPropertyValue(item), newValue);

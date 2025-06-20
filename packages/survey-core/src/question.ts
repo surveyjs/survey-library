@@ -2864,6 +2864,7 @@ export class Question extends SurveyElement<Question>
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   get requireStrictCompare(): boolean { return false; }
+  getExpressionValue(val: any): any { return val; }
   private getDataLocNotification(): any {
     return this.isInputTextUpdate ? "text" : false;
   }

@@ -30,7 +30,7 @@
         ></SvComponent>
         <SvComponent
           :is="'sv-tagbox-filter'"
-          v-if="!question.isInputReadOnly"
+          v-if="model.needRenderInput"
           :model="model"
           :question="question"
         ></SvComponent>

@@ -95,7 +95,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected renderInput(): React.JSX.Element {
     const dropdownListModel = this.dropdownListModel;
     let valueElement: React.JSX.Element | null = this.renderValueElement();
-    const filterString = this.question.isInputReadOnly ? null : this.renderFilterInput();
 
     return (<div
       id={this.question.inputId}
@@ -131,7 +130,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
             <span>{dropdownListModel.hintStringSuffix}</span>
           </div>) : null}
         {valueElement}
-        {filterString}
+        {dropdownListModel.needRenderInput ? this.renderFilterInput() : null}
       </div>
       {this.renderEditorButtons()}
     </div>);

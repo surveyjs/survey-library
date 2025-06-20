@@ -23,7 +23,7 @@
                     [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
             </ng-container>
             <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
-            <input #inputElement *ngIf="!model.isInputReadOnly" type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered"
+            <input #inputElement *ngIf="dropdownModel.needRenderInput" type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered"
                 [class]="model.cssClasses.filterStringInput" [attr.id]="model.getInputId()"
                 [attr.inputmode]="dropdownModel.inputMode" [attr.tabindex]="dropdownModel.noTabIndex ? null : -1"
                 [attr.disabled]="model.isDisabledAttr ? true : null" [attr.role]="dropdownModel.ariaInputRole"

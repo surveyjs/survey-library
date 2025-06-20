@@ -47,7 +47,7 @@
         >
         </SvComponent>
         <input
-          v-if="!question.isInputReadOnly"
+          v-if="model.needRenderInput"
           type="text"
           ref="inputElement"
           v-bind:class="question.cssClasses.filterStringInput"

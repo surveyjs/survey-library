@@ -30,15 +30,10 @@
         ></SvComponent>
         <SvComponent
           :is="'sv-tagbox-filter'"
-          v-if="!question.isInputReadOnly"
+          v-if="model.needRenderInput"
           :model="model"
           :question="question"
         ></SvComponent>
-        <SvComponent
-          :is="'survey-string'"
-          v-if="question.isInputReadOnly && selectedChoices.length == 0 && question.locReadOnlyText"
-          :locString="question.locReadOnlyText"
-        />
       </div>
       <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>

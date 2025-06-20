@@ -12,6 +12,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
+  public get needRenderInput(): boolean {
+    return !this.question.isInputReadOnly || !!this.filterStringPlaceholder;
+  }
+
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.syncFilterStringPlaceholder();

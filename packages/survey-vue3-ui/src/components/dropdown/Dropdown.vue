@@ -47,7 +47,7 @@
         >
         </SvComponent>
         <input
-          v-if="!question.isInputReadOnly"
+          v-if="model.needRenderInput"
           type="text"
           ref="inputElement"
           v-bind:class="question.cssClasses.filterStringInput"
@@ -71,11 +71,6 @@
           @input="inputChange"
           @blur="blur"
           @focus="focus"
-        />
-        <SvComponent
-          :is="'survey-string'"
-          v-if="question.isInputReadOnly && !showSelectedItemLocText && question.locReadOnlyText"
-          :locString="question.locReadOnlyText"
         />
       </div>
       <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />

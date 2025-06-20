@@ -437,6 +437,10 @@ export class DropdownListModel extends Base {
     return !this.focused || this._markdownMode || !this.searchEnabled;
   }
 
+  public get needRenderInput(): boolean {
+    return !this.question.isInputReadOnly || !!this.placeholderRendered;
+  }
+
   public updateCustomItemValue(): void {
     if (this.customValue) {
       this.customItemValue.text = this.getLocalizationFormatString("createCustomItem", this.customValue);

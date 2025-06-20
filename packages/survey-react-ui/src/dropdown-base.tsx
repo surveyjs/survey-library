@@ -130,17 +130,13 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
             <span>{dropdownListModel.hintStringSuffix}</span>
           </div>) : null}
         {valueElement}
-        {this.renderFilterInput()}
+        {dropdownListModel.needRenderInput ? this.renderFilterInput() : null}
       </div>
       {this.renderEditorButtons()}
     </div>);
   }
 
   protected renderFilterInput(): React.JSX.Element {
-    if (this.question.isInputReadOnly) {
-      return !this.question.showSelectedItemLocText ? this.renderLocString(this.question.locReadOnlyText) : null;
-    }
-
     const { root } = settings.environment;
     const dropdownListModel = this.dropdownListModel;
     const onInputChange = (e: any) => {

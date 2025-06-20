@@ -111,7 +111,7 @@ export class ProcessValue {
   private getValueCore(text: string, values: any): any {
     const question = this.getQuestionDirectly(text);
     if (question) {
-      return { hasValue: true, value: question.value, onProcessValue: (val) => question.getExpressionValue(val), path: [text], sctrictCompare: question.requireStrictCompare };
+      return { hasValue: true, value: question.value, onProcessValue: (val: any): any => question.getExpressionValue(val), path: [text], sctrictCompare: question.requireStrictCompare };
     }
     const res = this.getValueFromValues(text, values);
     if (!!text && !res.hasValue) {

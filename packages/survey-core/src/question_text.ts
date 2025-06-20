@@ -343,7 +343,11 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.value = value;
   }
-
+  getExpressionValue(val: any): any {
+    if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
+      return this.maskInstance.getUnmaskedValue(val);
+    return val;
+  }
   protected convertToCorrectValue(val: any): any {
     if (val !== undefined && val !== null && typeof val !== "string" && !this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue) {
       return this.maskInstance.getMaskedValue(val);

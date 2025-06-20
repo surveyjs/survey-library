@@ -7,7 +7,6 @@ export class ConditionsParserError {
 
 export class ConditionsParser {
   private conditionError: ConditionsParserError;
-  private static parserCache: { [index: string]: Operand } = {};
 
   private patchExpression(text: string) {
     return text
@@ -24,15 +23,8 @@ export class ConditionsParser {
 
   public parseExpression(text: string): Operand {
     try {
-      var result = ConditionsParser.parserCache[text];
-      if (result === undefined) {
-        result = parse(this.patchExpression(text));
-        if (!result.hasAsyncFunction()) {
-          ConditionsParser.parserCache[text] = result;
-        }
-      }
-      return result;
-    } catch (e) {
+      return parse(this.patchExpression(text));
+    } catch(e) {
       if (e instanceof SyntaxError) {
         this.conditionError = new ConditionsParserError(
           e.location.start.offset,

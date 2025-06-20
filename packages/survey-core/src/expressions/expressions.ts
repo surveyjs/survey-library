@@ -351,9 +351,12 @@ export class Variable extends Const {
   public evaluate(processValue?: ProcessValue): any {
     this.valueInfo.name = this.variableName;
     processValue.getValueInfo(this.valueInfo);
-    return this.valueInfo.hasValue
-      ? this.getCorrectValue(this.valueInfo.value)
-      : null;
+    if (!this.valueInfo.hasValue) return null;
+    let val = this.valueInfo.value;
+    if (this.valueInfo.onProcessValue) {
+      val = this.valueInfo.onProcessValue(val);
+    }
+    return this.getCorrectValue(val);
   }
   public setVariables(variables: Array<string>) {
     variables.push(this.variableName);

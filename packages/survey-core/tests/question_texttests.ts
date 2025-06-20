@@ -7,6 +7,8 @@ import { InputMaskPattern } from "../src/mask/mask_pattern";
 import { FunctionFactory } from "../src/functionsfactory";
 export * from "../src/localization/german";
 
+export default QUnit.module("question text tests");
+
 QUnit.test("check text disabled class", function (assert) {
   var json = {
     questions: [
@@ -617,16 +619,60 @@ QUnit.test("Expression vs saveMaskedValue, #10056", function (assert) {
       {
         "type": "expression",
         "name": "q2",
-        "expression": "{q1} + 2"
+        "expression": "{q1} + 22"
       }
     ]
   });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
-  assert.equal(q2.value, 2, "q2.value #1");
+  assert.equal(q2.value, 22, "q2.value #1");
   q1.inputValue = "1000";
   assert.equal(q1.value, "1.000", "q1.value #2");
-  assert.equal(q2.value, 1002, "q2.value #2");
+  assert.equal(q2.value, 1022, "q2.value #2");
   q1.value = "1.000,4";
-  assert.equal(q2.value, 1002.4, "q2.value #3");
+  assert.equal(q2.value, 1022.4, "q2.value #3");
+});
+QUnit.test("Expression vs saveMaskedValue in different surves, #10056", function (assert) {
+  const survey1 = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+      },
+      {
+        "type": "expression",
+        "name": "q2",
+        "expression": "{q1} + 12"
+      }
+    ]
+  });
+  const survey2 = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "maskType": "numeric",
+        "maskSettings": {
+          "saveMaskedValue": true,
+          "decimalSeparator": ",",
+          "thousandsSeparator": "."
+        }
+      },
+      {
+        "type": "expression",
+        "name": "q2",
+        "expression": "{q1} + 12"
+      }
+    ]
+  });
+  let q1 = survey1.getQuestionByName("q1");
+  let q2 = survey1.getQuestionByName("q2");
+  assert.equal(q2.value, 12, "survey1 q2.value #1");
+  q1.value = 1000;
+  assert.equal(q2.value, 1012, "survey1 q2.value #2");
+  q1 = survey2.getQuestionByName("q1");
+  q2 = survey2.getQuestionByName("q2");
+  assert.equal(q2.value, 12, "survey2 q2.value #1");
+  q1.inputValue = "1000";
+  assert.equal(q2.value, 1012, "survey2 q2.value #2");
 });

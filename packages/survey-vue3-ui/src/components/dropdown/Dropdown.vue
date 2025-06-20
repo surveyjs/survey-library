@@ -72,11 +72,6 @@
           @blur="blur"
           @focus="focus"
         />
-        <SvComponent
-          :is="'survey-string'"
-          v-if="question.isInputReadOnly && !showSelectedItemLocText && question.locReadOnlyText"
-          :locString="question.locReadOnlyText"
-        />
       </div>
       <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>

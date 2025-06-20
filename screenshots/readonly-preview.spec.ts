@@ -70,6 +70,10 @@ frameworks.forEach(framework => {
       });
 
       await compareScreenshot(page, ".sd-question__content", "readonly-comment.png");
+
+      await page.keyboard.press("Tab");
+      await compareScreenshot(page, ".sd-question__content", "readonly-comment-with-focus.png");
+
       await page.evaluate(() => {
         (window as any).survey.showPreview();
       });

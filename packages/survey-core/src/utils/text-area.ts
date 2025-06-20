@@ -87,6 +87,9 @@ export class TextAreaModel {
   public onTextAreaFocus(event: any): void {
     if (!!this.options.onTextAreaFocus)
       this.options.onTextAreaFocus(event);
+    if (this.isReadOnlyAttr) {
+      event?.target?.select();
+    }
   }
   get question(): Question {
     return this.options.question as Question;

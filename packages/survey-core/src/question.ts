@@ -637,14 +637,18 @@ export class Question extends SurveyElement<Question>
       secondRunner = undefined;
     }
     const run1 = this.canExecuteTriggerByKeysCore(keys, runner);
-    if(run1 === "var") return true;
-    if(!secondRunner) return run1 === "func";
+    if (run1 === "var") return true;
+    if (!secondRunner) return run1 === "func" || run1 === "const";
     const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
     return run2 !== "";
   }
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
+    if (!runner.expression) return "";
     const vars = runner.getVariables();
-    if((!vars || vars.length === 0) && runner.hasFunction()) return "func";
+    if ((!Array.isArray(vars) || vars.length === 0)) {
+      if (runner.hasFunction()) return "func";
+      return "const";
+    }
     return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public runTriggers(name: string, value: any, keys?: any): void {

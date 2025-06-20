@@ -154,6 +154,26 @@ registerMarkupTests(
       snapshot: "dropdown-readonly-with-value"
     },
     {
+      name: "Test Dropdown question markup disabled without value",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      initSurvey: (survey) => survey.setDesignMode(true),
+      snapshot: "dropdown-disabled-without-value"
+    },
+    {
       name: "Test Dropdown question markup disabled with value",
       json: {
         questions: [

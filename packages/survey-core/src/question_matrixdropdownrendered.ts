@@ -184,6 +184,9 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public get id(): string {
     return getId(this.row?.id || this.idValue.toString(), this.isErrorsRow, this.isDetailRow);
   }
+  public get dropTargetId(): string {
+    return this.row?.id;
+  }
   public get attributes() {
     if (!this.row) return {};
     return { "data-sv-drop-target-matrix-row": this.row.id };
@@ -241,6 +244,26 @@ export class QuestionMatrixDropdownRenderedErrorRow extends QuestionMatrixDropdo
       }
     });
     callback();
+  }
+}
+
+export class QuestionMatrixDropdownRenderedEmptyRow extends QuestionMatrixDropdownRenderedRow {
+  public isErrorsRow: boolean = false;
+
+  constructor(cssClasses: any, private customId: string) {
+    super(cssClasses);
+  }
+  public get attributes() {
+    return {};
+  }
+  public get dropTargetId() {
+    return this.customId;
+  }
+  public get className(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.row)
+      .append(this.cssClasses.rowEmpty)
+      .toString();
   }
 }
 
@@ -374,14 +397,15 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.updateShowTableAndAddRow();
   }
   public updateShowTableAndAddRow() {
-    var showTable =
+    const showTable =
       this.rows.length > 0 ||
       this.matrix.isDesignMode ||
       !this.matrix.getShowColumnsIfEmpty();
     this.setPropertyValue("showTable", showTable);
-    var showAddRow = this.matrix.canAddRow && showTable;
-    var showAddRowOnTop = showAddRow;
-    var showAddRowOnBottom = showAddRow;
+    const isDesignMode = this.matrix.isDesignMode;
+    const showAddRow = !isDesignMode && this.matrix.canAddRow && showTable;
+    let showAddRowOnTop = showAddRow;
+    let showAddRowOnBottom = showAddRow;
     if (showAddRowOnTop) {
       if (this.matrix.getAddRowLocation() === "default") {
         showAddRowOnTop = !this.matrix.isColumnLayoutHorizontal;
@@ -392,7 +416,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
       showAddRowOnBottom = !showAddRowOnTop;
     }
-    this.setPropertyValue("showAddRow", this.matrix.canAddRow);
+    this.setPropertyValue("showAddRow", !isDesignMode && this.matrix.canAddRow);
     this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
     this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }
@@ -502,6 +526,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected createErrorRenderedRow(cssClasses: any): QuestionMatrixDropdownRenderedErrorRow {
     return new QuestionMatrixDropdownRenderedErrorRow(cssClasses);
   }
+  protected createEmptyRenderedRow(cssClasses: any): QuestionMatrixDropdownRenderedEmptyRow {
+    return new QuestionMatrixDropdownRenderedEmptyRow(cssClasses, this.matrix.id);
+  }
   protected buildHeader() {
     var colHeaders =
       this.matrix.isColumnLayoutHorizontal && this.matrix.showHeader;
@@ -609,6 +636,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private buildHorizontalRows(): Array<QuestionMatrixDropdownRenderedRow> {
     var rows = this.matrix.visibleRows;
     var renderedRows: Array<QuestionMatrixDropdownRenderedRow> = [];
+    if (rows.length == 0 && this.matrix.allowRowReorder && this.matrix.allowRowDragIn) {
+      const row = this.createEmptyRow();
+      const cell = this.createTextCell(this.matrix.locNoRowsText);
+      cell.colSpans = this.headerRow && this.headerRow.cells.length || 1;
+      row.cells.push(cell);
+      renderedRows.push(row);
+    }
     for (var i = 0; i < rows.length; i++) {
       this.addHorizontalRow(
         renderedRows,
@@ -806,6 +840,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     res.onAfterCreated();
+    return res;
+  }
+  private createEmptyRow(): QuestionMatrixDropdownRenderedRow {
+    const res = this.createEmptyRenderedRow(this.cssClasses);
     return res;
   }
   private createHorizontalRow(row: MatrixDropdownRowModelBase): QuestionMatrixDropdownRenderedRow {

@@ -601,3 +601,32 @@ QUnit.test("Support mask in displayValue, #9268", function (assert) {
   assert.equal(q1.value, "1 234 567,3", "Have the same value");
   assert.equal(q1.inputValue, "1 234 567,3", "Have the same input value");
 });
+QUnit.test("Expression vs saveMaskedValue, #10056", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "maskType": "numeric",
+        "maskSettings": {
+          "saveMaskedValue": true,
+          "decimalSeparator": ",",
+          "thousandsSeparator": "."
+        }
+      },
+      {
+        "type": "expression",
+        "name": "q2",
+        "expression": "{q1} + 2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.value, 2, "q2.value #1");
+  q1.inputValue = "1000";
+  assert.equal(q1.value, "1.000", "q1.value #2");
+  assert.equal(q2.value, 1002, "q2.value #2");
+  q1.value = "1.000,4";
+  assert.equal(q2.value, 1002.4, "q2.value #3");
+});

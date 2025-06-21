@@ -173,11 +173,13 @@ export class UnaryOperand extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return (
-      OperandMaker.operatorToString(this.operatorName) +
-      " " +
-      this.expression.toString(func)
-    );
+    const opName = OperandMaker.operatorToString(this.operator);
+    const exp = this.expression.toString(func);
+    return this.isRigtOperator ? exp + " " + opName : opName + " " + exp;
+  }
+  private get isRigtOperator(): boolean {
+    const st = this.operatorName.toLowerCase();
+    return st === "notempty" || st === "empty";
   }
   protected isContentEqual(op: Operand): boolean {
     const uOp = <UnaryOperand>op;

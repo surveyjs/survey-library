@@ -296,6 +296,28 @@ export class Question extends SurveyElement<Question>
   protected onAsyncRunningChanged(): void {
     this.updateIsReady();
   }
+  protected ensureQuestionIsReady(): void {
+    const _displayValue = this.displayValue;
+  }
+  public waitForQuestionIsReady(callback?: () => void): Promise<void> {
+    return new Promise((resolve: any) => {
+      this.ensureQuestionIsReady();
+      if (this.isReady) {
+        resolve();
+        if (!!callback) callback();
+      } else {
+        const readyCallback: (sender: Question, options: any) => void =
+                (_, options: any) => {
+                  if (options.isReady) {
+                    this.onReadyChanged.remove(readyCallback);
+                    resolve();
+                    if (!!callback) callback();
+                  }
+                };
+        this.onReadyChanged.add(readyCallback);
+      }
+    });
+  }
   protected updateIsReady(): void {
     let res = this.getIsQuestionReady();
     if (res) {
@@ -669,13 +691,17 @@ export class Question extends SurveyElement<Question>
     }
     const run1 = this.canExecuteTriggerByKeysCore(keys, runner);
     if (run1 === "var") return true;
-    if (!secondRunner) return run1 === "func";
+    if (!secondRunner) return run1 === "func" || run1 === "const";
     const run2 = this.canExecuteTriggerByKeysCore(keys, secondRunner);
     return run2 !== "";
   }
   private canExecuteTriggerByKeysCore(keys: any, runner: ExpressionRunner): string {
+    if (!runner.expression) return "";
     const vars = runner.getVariables();
-    if ((!vars || vars.length === 0) && runner.hasFunction()) return "func";
+    if ((!Array.isArray(vars) || vars.length === 0)) {
+      if (runner.hasFunction()) return "func";
+      return "const";
+    }
     return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public runTriggers(name: string, value: any, keys?: any): void {
@@ -2265,9 +2291,9 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("setValueIf", val);
   }
   /**
-   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) used to calculate the question value.
+   * An [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) that calculates the question value.
    *
-   * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
+   * The `setValueExpression` is re-evaluated whenever a referenced question's value changes. If you also specify the [`setValueIf`](#setValueIf) expression, re-evaluation occurs only when it returns `true`.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/set-question-value-dynamically/ (linkStyle))
    * @see defaultValueExpression
@@ -2838,6 +2864,7 @@ export class Question extends SurveyElement<Question>
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   get requireStrictCompare(): boolean { return false; }
+  getExpressionValue(val: any): any { return val; }
   private getDataLocNotification(): any {
     return this.isInputTextUpdate ? "text" : false;
   }

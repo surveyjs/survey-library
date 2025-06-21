@@ -18,6 +18,7 @@ import { updateListCssValues } from "./utils/utils";
 export class QuestionDropdownModel extends QuestionSelectBase {
   dropdownListModelValue: DropdownListModel;
   lastSelectedItemValue: ItemValue = null;
+  private isChoicesLoading: boolean;
 
   constructor(name: string) {
     super(name);
@@ -376,6 +377,22 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   protected canAddCustomChoices(): boolean {
     return this.allowCustomChoices;
+  }
+
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.isChoicesLoading;
+  }
+
+  protected ensureQuestionIsReady(): void {
+    super.ensureQuestionIsReady();
+    if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
+      this.dropdownListModel.loadQuestionChoices();
+    }
+  }
+
+  public setIsChoicesLoading(value: boolean) {
+    this.isChoicesLoading = value;
+    this.updateIsReady();
   }
 
   protected getFirstInputElementId(): string {

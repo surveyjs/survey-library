@@ -2880,7 +2880,7 @@ QUnit.test("single component: inheritBaseProps: array<string> #2 + check propert
   assert.equal(prop.isVisible("form", q1), true, "it is visible");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("single component: inheritBaseProps: true", function (assert) {
+QUnit.test("single component: inheritBaseProps: true, Issue#10060", function (assert) {
   ComponentCollection.Instance.add({
     name: "customdropdown",
     inheritBaseProps: true,
@@ -2896,13 +2896,19 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
     ]
   });
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const props = Serializer.getDynamicPropertiesByObj(q1);
+  const propChoices = props.find((prop) => prop.name === "choices");
+  assert.ok(propChoices, "propChoices is here");
+  assert.equal(propChoices?.visible, false, "propChoices.visible is false");
+  assert.equal(propChoices?.isSerializable, false, "propChoices.isSerializable is false");
+
   assert.equal(Serializer.getObjPropertyValue(q1, "name"), "q1", "getObjPropertyValue is correct, #name");
   assert.equal(Serializer.getObjPropertyValue(q1, "title"), "my title", "getObjPropertyValue is correct, #title");
   assert.equal(Serializer.getObjPropertyValue(q1, "showOtherItem"), true, "getObjPropertyValue is correct, #showOtherItem");
   const content = <QuestionDropdownModel>q1.contentQuestion;
   assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
   assert.equal(content.choices.length, 3, "content.choices");
-  assert.notOk(q1.choices, "q1.choices");
+  assert.ok(q1.choices, "q1.choices");
   assert.equal(q1.allowClear, false, "q1.allowClear #1");
   assert.equal(content.allowClear, false, "content.allowClear #1");
   q1.allowClear = true;

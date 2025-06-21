@@ -103,6 +103,10 @@
       "Title": "Customize Questions",
       "Items": [
         {
+          "Name": "customize-question-types-question-customization-options",
+          "Title": "Question Customization Options"
+        },
+        {
           "Name": "customize-question-types-add-custom-properties-to-a-form",
           "Title": "Add Custom Properties"
         },

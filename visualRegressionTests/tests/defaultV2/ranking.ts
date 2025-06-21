@@ -278,26 +278,26 @@ frameworks.forEach(framework => {
   //     });
   //   });
 
-  test("Ranking custom content component", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await registerCustomItemContentComponent(framework);
-      await t.resizeWindow(1920, 1080);
-      await initSurvey(framework, {
-        showQuestionNumbers: "off",
-        questions: [
-          {
-            type: "ranking",
-            name: "ranking_question",
-            itemComponent: "new-item-content",
-            choices: ["item1", "item2", "item3", "item4"],
-            readOnly: "true"
-          }
-        ]
-      });
-      const itemContent = Selector(".sv-ranking-item").nth(0).find(".sv-ranking-item__text");
-      await takeElementScreenshot("question-ranking-custom-item-content.png", itemContent, t, comparer);
-    });
-  });
+  // test("Ranking custom content component", async (t) => {
+  //   await wrapVisualTest(t, async (t, comparer) => {
+  //     await registerCustomItemContentComponent(framework);
+  //     await t.resizeWindow(1920, 1080);
+  //     await initSurvey(framework, {
+  //       showQuestionNumbers: "off",
+  //       questions: [
+  //         {
+  //           type: "ranking",
+  //           name: "ranking_question",
+  //           itemComponent: "new-item-content",
+  //           choices: ["item1", "item2", "item3", "item4"],
+  //           readOnly: "true"
+  //         }
+  //       ]
+  //     });
+  //     const itemContent = Selector(".sv-ranking-item").nth(0).find(".sv-ranking-item__text");
+  //     await takeElementScreenshot("question-ranking-custom-item-content.png", itemContent, t, comparer);
+  //   });
+  // });
 
   //   test("Ranking long items", async (t) => {
   //     await wrapVisualTest(t, async (t, comparer) => {

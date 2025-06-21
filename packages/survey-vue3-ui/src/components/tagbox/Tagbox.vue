@@ -30,6 +30,7 @@
         ></SvComponent>
         <SvComponent
           :is="'sv-tagbox-filter'"
+          v-if="model.needRenderInput"
           :model="model"
           :question="question"
         ></SvComponent>
@@ -38,11 +39,11 @@
     </div>
     <SvComponent
       :is="'sv-popup'"
-      v-if="!question.isReadOnly"
+      v-if="!question.isInputReadOnly"
       :model="model.popupModel"
     ></SvComponent>
     <div
-      v-else
+      v-if="question.isReadOnly"
       :id="question.inputId"
       :role="model?.ariaQuestionRole"
       :aria-label="model?.ariaQuestionLabel"

@@ -1491,7 +1491,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.resetTableAndRows();
   }
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
+    this.updateDefaultRowValue(column);
     this.resetTableAndRows();
+  }
+  private updateDefaultRowValue(column: MatrixDropdownColumn): void {
+    let val = this.defaultRowValue;
+    if (!!val) {
+      if (column.cellType === "file" && val[column.name]) {
+        delete val[column.name];
+        if (Object.keys(val).length === 0) {
+          val = undefined;
+        }
+        this.defaultRowValue = val;
+      }
+    }
   }
   private resetTableAndRows(): void {
     this.clearGeneratedRows();

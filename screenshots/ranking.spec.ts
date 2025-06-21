@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { test } from "@playwright/test";
+import { frameworks, url, initSurvey, compareScreenshot, doDrag } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
 const title = "Ranking Screenshot";
@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-ranking-select-to-rank-narrow-small.png");
     });
 
-    test.skip("Shortcut position due container layout", async ({ page }) => {
+    test("Shortcut position due container layout", async ({ page }, testInfo) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
@@ -144,19 +144,17 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        document.getElementById("surveyElement").style.margin = "50px";
-        const question = window["survey"].getAllQuestions()[0];
-        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
-        question.dragDropRankingChoices.domAdapter.drop = () => { };
-        question.dragDropRankingChoices.domAdapter.clear = () => { };
+        document.getElementById("surveyElement")!.style.margin = "50px";
       });
 
-      const item1 = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      await item1.dragTo(page.locator(".sd-question"));
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+      const target = page.locator(".sd-question");
+      await doDrag({ page, element, target });
+
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png");
     });
 
-    test.skip("Shortcut position due container layout (relative)", async ({ page }) => {
+    test("Shortcut position due container layout (relative)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
@@ -171,20 +169,17 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        document.getElementById("surveyElement").style.position = "relative";
-        document.getElementById("surveyElement").style.margin = "100px";
-        const question = window["survey"].getAllQuestions()[0];
-        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
-        question.dragDropRankingChoices.domAdapter.drop = () => { };
-        question.dragDropRankingChoices.domAdapter.clear = () => { };
+        document.getElementById("surveyElement")!.style.position = "relative";
+        document.getElementById("surveyElement")!.style.margin = "100px";
       });
 
-      const item1 = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      await item1.dragTo(page.locator(".sd-question"));
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+      const target = page.locator(".sd-question");
+      await doDrag({ page, element, target });
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png");
     });
 
-    test.skip("Shortcut position due container layout (scroll)", async ({ page }) => {
+    test("Shortcut position due container layout (scroll)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
@@ -199,20 +194,22 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        document.getElementById("surveyElement").style.height = "300px";
+        document.getElementById("surveyElement")!.style.height = "300px";
         const surveyContainer = document.querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
         if (surveyContainer) {
           surveyContainer.scrollTop = 50;
         }
         const question = window["survey"].getAllQuestions()[0];
-        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
-        question.dragDropRankingChoices.domAdapter.drop = () => { };
-        question.dragDropRankingChoices.domAdapter.clear = () => { };
         question.dragDropRankingChoices.domAdapter.doScroll = () => { };
       });
 
-      const item1 = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      await item1.dragTo(item1, { targetPosition: { x: -1, y: 0 } });
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+      const target = element;
+      await element.hover({ force: true });
+      await page.mouse.down();
+      const { x, y } = await <any>target.boundingBox();
+      await page.mouse.move(x - 1, y, { steps: 20 });
+
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png");
     });
 

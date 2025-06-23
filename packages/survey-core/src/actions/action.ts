@@ -257,8 +257,8 @@ export abstract class BaseAction extends Base implements IAction {
   @property() css?: string;
   minDimension: number;
   maxDimension: number;
-  public addVisibilityChangedCallback(callback: () => void) {}
-  public removeVisibilityChangedCallback(callback: () => void) {}
+  public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
+  public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
@@ -425,10 +425,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
   private visibityChangedEvent = new EventBase();
-  public addVisibilityChangedCallback(callback: () => void): void {
+  public addVisibilityChangedCallback(callback: (action: Action) => void): void {
     this.visibityChangedEvent.add(callback);
   }
-  public removeVisibilityChangedCallback(callback: () => void): void {
+  public removeVisibilityChangedCallback(callback: (action: Action) => void): void {
     this.visibityChangedEvent.remove(callback);
   }
   private raiseOnVisibilityChanged() {

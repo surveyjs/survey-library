@@ -94,7 +94,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     return (<div className={this.question.cssClasses.footer}>
       <hr className={this.question.cssClasses.separator} />
       {range}
-      {this.question.footerToolbar.visibleActions.length ? (<div className={this.question.cssClasses.footerButtonsContainer}>
+      {this.question.footerToolbar.hasVisibleActions ? (<div className={this.question.cssClasses.footerButtonsContainer}>
         <SurveyActionBar model={this.question.footerToolbar}></SurveyActionBar>
       </div>) : null}
     </div>);

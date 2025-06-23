@@ -34,7 +34,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
 
   componentDidMount() {
     super.componentDidMount();
-    if (!this.model.hasVisibleActions) return;
+    if (!this.model.hasActions) return;
     const container: HTMLDivElement | null = this.rootRef.current;
     if (!!container) {
       this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });

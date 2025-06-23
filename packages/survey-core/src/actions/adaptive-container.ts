@@ -28,7 +28,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   private getActionsToHide() {
     return this.visibleActions.filter(action => !action.disableHide);
   }
-
   private updateItemMode(availableSpace: number, maxItemsSize: number) {
     const items = this.visibleActions;
     for (let index = items.length - 1; index >= 0; index--) {
@@ -88,6 +87,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   protected getActionMinDimension(action: Action): number {
     return action.disableShrink ? action.maxDimension : action.minDimension;
+  }
+  protected onActionVisibilityChanged(action: T): void {
+    action.needUpdateMaxDimension = true;
+    action.needUpdateMinDimension = true;
+    super.onActionVisibilityChanged(action);
   }
 
   private getVisibleItemsCount(options: { availableSpace: number, gap?: number }): number {

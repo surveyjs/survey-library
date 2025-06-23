@@ -70,16 +70,18 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   protected raiseUpdate(isResetInitialized: boolean) {
     this.updateVisibleActions();
-    this.isEmpty = !this.actions.some((action) => action.visible);
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
   protected updateVisibleActions() {
     this.visibleActions = this.actions.filter((action) => action.visible !== false);
+    this.isEmpty = this.visibleActions.length <= 0;
   }
-  private onActionVisibilityChangedCallback: () => void = () => {
+  protected onActionVisibilityChanged(action: T) {
     this.updateVisibleActions();
+  }
+  private onActionVisibilityChangedCallback: (action: T) => void = (action: T) => {
+    this.onActionVisibilityChanged(action);
   };
-  @property()
   protected onSet() {
     this.actions.forEach((item) => {
       this.setActionCssClasses(item);
@@ -110,7 +112,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
 
   public get hasVisibleActions(): boolean {
-    return (this.visibleActions || []).length > 0;
+    return !this.isEmpty;
   }
 
   public get renderedActions(): Array<T> {

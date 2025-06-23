@@ -295,7 +295,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   public getCommentValue(item: ItemValue): string {
-    return this.isCommentShowing(item) ? this.getCommentValueCore(item) : "";
+    return this.isCommentShowing(item) ? this.getCommentValueCore(item) || "" : "";
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
     this.otherValue = newValue;
@@ -714,20 +714,20 @@ export class QuestionSelectBase extends Question {
         this.value = val;
       }
     }
-    this.onRendredValueChagned();
+    this.onRenderedValueChagned(changeValue);
   }
-  protected onRendredValueChagned(): void {
-    this.choices.forEach(item => this.updateItemIsCommentShowing(item));
+  protected onRenderedValueChagned(updateComment: boolean): void {
+    this.choices.forEach(item => this.updateItemIsCommentShowing(item, updateComment));
     if (this.showOtherItem) {
-      this.updateItemIsCommentShowing(this.otherItem);
+      this.updateItemIsCommentShowing(this.otherItem, updateComment);
     }
   }
-  private updateItemIsCommentShowing(item: ItemValue): void {
+  private updateItemIsCommentShowing(item: ItemValue, updateComment: boolean): void {
     if (item.hasComment) {
       const isShowing = this.isCommentShowing(item);
       item.setIsCommentShowing(isShowing);
-      if (!isShowing) {
-        //this.setCommentValueCore(item, "");
+      if (updateComment && !isShowing) {
+        this.setCommentValueCore(item, undefined);
       }
     }
   }

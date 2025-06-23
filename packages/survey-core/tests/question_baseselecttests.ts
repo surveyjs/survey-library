@@ -2813,7 +2813,7 @@ QUnit.test("checbox question and choices has comment: clear comment on unselecti
   assert.equal(q1.getPropertyValue("other_2"), "test comment", "comment property value, #1");
   q1.renderedValue = [1];
   assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #2");
-  assert.equal(q1.getPropertyValue("other_2"), "", "comment property value, #2");
+  assert.equal(q1.getPropertyValue("other_2"), undefined, "comment property value, #2");
   assert.equal(textArea1.getTextValue(), "", "No value in text area");
   q1.renderedValue = [1, 2];
   q1.setCommentValue(q1.choices[1], "test comment");

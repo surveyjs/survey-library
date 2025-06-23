@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Helpers, Question, DropdownListModel, settings, QuestionDropdownModel } from "survey-core";
+import { Helpers, Question, DropdownListModel, settings, ItemValue } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
+import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { SurveyQuestionUncontrolledElement } from "./reactquestion_element";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 
@@ -170,15 +170,16 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     ></input>;
   }
 
-  protected renderOther(cssClasses: any): React.JSX.Element {
+  protected renderOther(item: ItemValue, cssClasses: any): React.JSX.Element {
+    if (!item || !item.isCommentShowing) return null;
     return (
       <div className={this.question.getCommentAreaCss(true)}>
-        <SurveyQuestionOtherValueItem
+        <SurveyQuestionCommentValueItem
           question={this.question}
-          otherCss={cssClasses.other}
-          cssClasses={cssClasses}
+          item={item}
           isDisplayMode={this.isDisplayMode}
-          isOther={true}
+          cssClasses={this.question.cssClasses}
+          otherCss={this.question.getCommentAreaCss(false)}
         />
       </div>
     );

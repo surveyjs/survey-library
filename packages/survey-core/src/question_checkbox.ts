@@ -251,6 +251,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
   }
+  protected getCommentValueCore(item: ItemValue): string {
+    if (this.isOtherItemByValue(item)) return super.getCommentValueCore(item);
+    return this.getPropertyValue(this.getCommentPropertyValue(item), this.getCommentValueByItem(item)) || "";
+  }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
     if (this.isOtherItemByValue(item)) {
       super.setCommentValueCore(item, newValue);
@@ -263,11 +267,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         this.value = val;
       }
     }
-  }
-  protected getCommentValueCore(item: ItemValue): string {
-    if (this.isTheOnlyComment) return super.getCommentValueCore(item);
-    if (this.isOtherItemByValue(item)) return super.getCommentValueCore(item);
-    return this.getPropertyValue(this.getCommentPropertyValue(item), this.getCommentValueByItem(item)) || "";
   }
   private getCommentValueByItem(item: ItemValue): string {
     const index = this.getItemValIndexByItemValue(item.value);

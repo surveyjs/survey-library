@@ -35,8 +35,9 @@ export class ChoiceItem extends ItemValue {
     this.setPropertyValue("isCommentShowing", val);
   }
   public get supportComment(): boolean {
-    const func = (<any>this.locOwner)?.supportMultipleComments;
-    return !func || func();
+    const owner: any = this.locOwner;
+    if (!owner || !owner.supportMultipleComment) return false;
+    return owner.supportMultipleComment(this);
   }
   protected onLocOwnerChanged() : void {
     if (this.hasComment && !this.supportComment) {
@@ -108,7 +109,6 @@ export class QuestionSelectBase extends Question {
     var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
     this.createLocalizableString("otherPlaceholder", this, false, true);
-    this.otherItemValue.locOwner = this;
     this.otherItemValue.setLocText(locOtherText);
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
       return this.createItemValue(value);
@@ -298,7 +298,7 @@ export class QuestionSelectBase extends Question {
   public get isNoneSelected(): boolean {
     return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
   }
-  public supportMultipleComments(): boolean { return true; }
+  public supportMultipleComment(item: ItemValue): boolean { return true; }
   public isCommentShowing(item: ItemValue): boolean {
     return item && item.hasComment && this.isItemSelected(item);
   }
@@ -448,7 +448,6 @@ export class QuestionSelectBase extends Question {
     const item = this.createItemValue(defaultValue);
     item.isExclusive = true;
     const locStr = this.createLocalizableString(name, item, true, locName);
-    item.locOwner = this;
     item.setLocText(locStr);
     return item;
   }
@@ -739,7 +738,7 @@ export class QuestionSelectBase extends Question {
     if (item.hasComment) {
       const isShowing = this.isCommentShowing(item);
       item.setIsCommentShowing(isShowing);
-      if (updateComment && !isShowing) {
+      if (!isShowing && updateComment) {
         this.setCommentValueCore(item, undefined);
       }
     }

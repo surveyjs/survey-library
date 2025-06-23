@@ -2421,4 +2421,15 @@ QUnit.test("Tagbox doesn't support hasComment functionality", assert => {
   assert.equal(question.choices[0].hasComment, false, "#1");
   question.choices[0].hasComment = true;
   assert.equal(question.choices[0].hasComment, false, "#2");
+  assert.equal(question.otherItem.hasComment, true, "#3");
+});
+QUnit.test("Tagbox otherItem works correctly", assert => {
+  const survey = new SurveyModel(
+    { questions: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.otherItem.isCommentShowing, false, "#1");
+  question.renderedValue = [1, "other"];
+  assert.equal(question.otherItem.isCommentShowing, true, "#2");
+  question.renderedValue = [2];
+  assert.equal(question.otherItem.isCommentShowing, false, "#3");
 });

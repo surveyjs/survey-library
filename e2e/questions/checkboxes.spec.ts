@@ -553,6 +553,46 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1.row1.col1).toEqual(["a", "b"]);
     });
+    //TODO move to the dropdown.spec.ts
+    test("multiple comment support in dropdown", async ({ page }) => {
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "q1",
+            "choices": [{ "value": "a", "hasComment": true }, "b", { "value": "c", "hasComment": true }],
+            "showOtherItem": true
+          }
+        ]
+      });
+      const commentArea = page.locator(".sd-question__comment-area");
+      expect(await commentArea.count()).toEqual(0);
+      const questionDropdownSelect = page.locator(".sd-dropdown");
+      await questionDropdownSelect.first().click();
+      await page.getByText("a", { exact: true }).click();
+      expect(await commentArea.count()).toEqual(1);
+      await page.keyboard.type("Comment for a");
+      await page.keyboard.press("Tab");
+      expect(await getData(page)).toEqual({ "q1": "a", "q1-Comment": "Comment for a" });
+      await questionDropdownSelect.first().click();
+      await page.getByText("b", { exact: true }).click();
+      expect(await commentArea.count()).toEqual(0);
+      expect(await getData(page)).toEqual({ "q1": "b" });
+      await questionDropdownSelect.first().click();
+      await page.getByText("c", { exact: true }).click();
+      expect(await commentArea.count()).toEqual(1);
+      await page.keyboard.type("Comment for c");
+      await page.keyboard.press("Tab");
+      expect(await getData(page)).toEqual({ "q1": "c", "q1-Comment": "Comment for c" });
+      await questionDropdownSelect.first().click();
+      await page.getByText("Other").click();
+      await page.keyboard.press("Tab");
+      expect(await commentArea.count()).toEqual(1);
+      expect(await getData(page)).toEqual({ "q1": "other" });
+      await page.keyboard.type("Comment for d");
+      await page.keyboard.press("Tab");
+      expect(await getData(page)).toEqual({ "q1": "other", "q1-Comment": "Comment for d" });
+    });
     //TODO move to the radiogroup.spec.ts
     test("multiple comment support in radiogroup", async ({ page }) => {
       await initSurvey(page, framework, {

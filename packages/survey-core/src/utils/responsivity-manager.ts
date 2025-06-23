@@ -1,7 +1,6 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
-import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
-import { classesToSelector, isContainerVisible } from "./utils";
+import { isContainerVisible } from "./utils";
 import { debounce } from "./taskmanager";
 
 interface IDimensions {
@@ -20,7 +19,7 @@ export class ResponsivityManager {
     this.process();
   });
   constructor(
-    public container: HTMLDivElement, private model: AdaptiveActionContainer) {
+    public container: HTMLDivElement, private model: AdaptiveActionContainer, public afterInitializeCallback?: () => void) {
     this.model.updateCallback =
     (isResetInitialized: boolean) => {
       if (isResetInitialized) {
@@ -29,19 +28,12 @@ export class ResponsivityManager {
       this.debouncedProcess.run();
     };
     if (typeof ResizeObserver !== "undefined") {
-      let skipCallbackInResizeObserver = true;
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        if (skipCallbackInResizeObserver) { skipCallbackInResizeObserver = false; return; }
         DomWindowHelper.requestAnimationFrame((): void | undefined => {
           this.process();
         });
       });
       this.resizeObserver.observe(this.container.parentElement);
-      if (this.shouldProcessResponsiveness()) {
-        this.process();
-      } else {
-        skipCallbackInResizeObserver = false;
-      }
     }
   }
 
@@ -110,7 +102,10 @@ export class ResponsivityManager {
         if (this.shouldProcessResponsiveness()) {
           this.model.fit({ availableSpace: this.getAvailableSpace(), gap: this.getGap() });
         }
-        this.isInitialized = true;
+        if (!this.isInitialized) {
+          this.isInitialized = true;
+          this.afterInitializeCallback && this.afterInitializeCallback();
+        }
       });
     }
   }

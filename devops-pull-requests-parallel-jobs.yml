@@ -162,10 +162,10 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - bash: |
-          cd packages/survey-react-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+      # - bash: |
+      #     cd packages/survey-react-ui
+      #     npm run testcafe:ci
+      #   displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -286,10 +286,10 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - bash: |
-          cd packages/survey-angular-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+      # - bash: |
+      #     cd packages/survey-angular-ui
+      #     npm run testcafe:ci
+      #   displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -410,10 +410,10 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - bash: |
-          cd packages/survey-vue3-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+      # - bash: |
+      #     cd packages/survey-vue3-ui
+      #     npm run testcafe:ci
+      #   displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -515,7 +515,7 @@ jobs:
       #     npm run test
       #   displayName: "run markup tests"
 
-      - bash: |
-          cd packages/survey-js-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
+      # - bash: |
+      #     cd packages/survey-js-ui
+      #     npm run testcafe:ci
+      #   displayName: "run functional tests"

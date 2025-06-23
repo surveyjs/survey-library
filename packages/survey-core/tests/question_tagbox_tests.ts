@@ -2413,3 +2413,12 @@ QUnit.test("lazy loading + isReady", assert => {
     done();
   });
 });
+QUnit.test("Tagbox doesn't support hasComment functionality", assert => {
+  const survey = new SurveyModel(
+    { questions: [{ "type": "tagbox", "name": "q1", "choices": [{ value: 1, hasComment: true }] }] });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 1, "#1");
+  assert.equal(question.choices[0].hasComment, false, "#1");
+  question.choices[0].hasComment = true;
+  assert.equal(question.choices[0].hasComment, false, "#2");
+});

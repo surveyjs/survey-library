@@ -157,6 +157,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public getType(): string {
     return "tagbox";
   }
+  public supportMultipleComments(): boolean { return false; }
   public get a11yInputAriaRole(): string | null {
     return "combobox";
   }

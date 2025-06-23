@@ -23,6 +23,9 @@ export class ChoiceItem extends ItemValue {
     return this.getPropertyValue("hasComment");
   }
   public set hasComment(val: boolean) {
+    if (val && !this.supportComment) {
+      val = false;
+    }
     this.setPropertyValue("hasComment", val);
   }
   public get isCommentShowing(): boolean {
@@ -30,6 +33,15 @@ export class ChoiceItem extends ItemValue {
   }
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
+  }
+  public get supportComment(): boolean {
+    const func = (<any>this.locOwner)?.supportMultipleComments;
+    return !func || func();
+  }
+  protected onLocOwnerChanged() : void {
+    if (this.hasComment && !this.supportComment) {
+      this.hasComment = false;
+    }
   }
 }
 
@@ -286,22 +298,23 @@ export class QuestionSelectBase extends Question {
   public get isNoneSelected(): boolean {
     return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
   }
+  public supportMultipleComments(): boolean { return true; }
   public isCommentShowing(item: ItemValue): boolean {
     return item && item.hasComment && this.isItemSelected(item);
+  }
+  public getCommentValue(item: ItemValue): string {
+    return this.isCommentShowing(item) ? this.getCommentValueCore(item) || "" : "";
   }
   public setCommentValue(item: ItemValue, newValue: string): void {
     if (this.isCommentShowing(item)) {
       this.setCommentValueCore(item, newValue);
     }
   }
-  public getCommentValue(item: ItemValue): string {
-    return this.isCommentShowing(item) ? this.getCommentValueCore(item) || "" : "";
+  protected getCommentValueCore(item: ItemValue): string {
+    return this.otherValue;
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
     this.otherValue = newValue;
-  }
-  protected getCommentValueCore(item: ItemValue): string {
-    return this.otherValue;
   }
   protected isOtherItemByValue(item: ItemValue): boolean {
     return item.value === this.otherItem.value;
@@ -2278,7 +2291,7 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 }
 
 Serializer.addClass("choiceitem",
-  [{ name: "hasComment:boolean", visible: false }],
+  [{ name: "hasComment:boolean", visibleIf: (obj: any): boolean => { return obj.supportComment; } }],
   (value) => new ChoiceItem(value),
   "itemvalue"
 );

@@ -76,29 +76,28 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected updateVisibleActions() {
     this.visibleActions = this.actions.filter((action) => action.visible !== false);
   }
+  private onActionVisibilityChangedCallback: () => void = () => {
+    this.updateVisibleActions();
+  };
   @property()
   protected onSet() {
     this.actions.forEach((item) => {
       this.setActionCssClasses(item);
-      item.visibilityChangedCallback = () => {
-        this.updateVisibleActions();
-      };
+      item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     });
     this.updateVisibleActions();
     this.raiseUpdate(true);
   }
   protected onPush(item: T) {
     this.setActionCssClasses(item);
-    item.visibilityChangedCallback = () => {
-      this.updateVisibleActions();
-    };
+    item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     item.owner = this;
     this.raiseUpdate(true);
   }
 
   protected onRemove(item: T) {
     item.owner = null;
-    item.visibilityChangedCallback = undefined;
+    item.removeVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     this.raiseUpdate(true);
   }
 

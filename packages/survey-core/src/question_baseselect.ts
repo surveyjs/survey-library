@@ -303,8 +303,11 @@ export class QuestionSelectBase extends Question {
   protected getCommentValueCore(item: ItemValue): string {
     return this.otherValue;
   }
+  protected isOtherItemByValue(item: ItemValue): boolean {
+    return item.value === this.otherItem.value;
+  }
   protected getCommentPropertyValue(item: ItemValue): string {
-    if (item.value === this.otherItem.value) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
+    if (this.isOtherItemByValue(item)) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
     return "other_" + this.getItemCommentValueId(item);
   }
   protected getItemCommentValueId(item: ItemValue): string {

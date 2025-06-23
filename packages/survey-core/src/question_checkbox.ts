@@ -252,7 +252,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
   }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
-    if (item === this.otherItem) {
+    if (this.isOtherItemByValue(item)) {
       super.setCommentValueCore(item, newValue);
     } else {
       this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
@@ -266,7 +266,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected getCommentValueCore(item: ItemValue): string {
     if (this.isTheOnlyComment) return super.getCommentValueCore(item);
-    if (item === this.otherItem) return super.getCommentValueCore(item);
+    if (this.isOtherItemByValue(item)) return super.getCommentValueCore(item);
     return this.getPropertyValue(this.getCommentPropertyValue(item), this.getCommentValueByItem(item)) || "";
   }
   private getCommentValueByItem(item: ItemValue): string {

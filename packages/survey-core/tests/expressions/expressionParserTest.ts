@@ -4,9 +4,7 @@ import { ConditionsParser } from "../../src/conditionsParser";
 import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   Const,
-  Variable,
   BinaryOperand,
-  UnaryOperand,
   Operand,
 } from "../../src/expressions/expressions";
 
@@ -761,7 +759,29 @@ QUnit.test("ExpressionRunner: countInArray with conditional logic & strings", fu
   var values = { a: [{ val1: 1, val2: "item2" }, { val1: 2, val2: "item1" }, { val1: 3, val2: "item3" }] };
   assert.equal(runner.run(values), 4, "1 + 3");
 });
-
+QUnit.test("ExpressionRunner: sumInArray with conditional logic & strings & for object value", function(assert) {
+  var runner = new ExpressionRunner("sumInArray({a}, 'val1', {val2} <> 'item1')");
+  var values = { a: { row1: { val1: 1, val2: "item2" }, row2: { val1: 2, val2: "item1" }, row3: { val1: 3, val2: "item3" } } };
+  assert.equal(runner.run(values), 4, "1 + 3");
+});
+QUnit.test("ExpressionRunner: countInArray with conditional logic & strings & for object value, #1", function(assert) {
+  var runner = new ExpressionRunner("countInArray({a}, 'val1', {val2} <> 'item1')");
+  var values = { a: { row1: { val1: 1, val2: "item2" }, row2: { val1: 2, val2: "item1" }, row3: { val1: 3, val2: "item3" } } };
+  assert.equal(runner.run(values), 2, "1 & 3");
+});
+QUnit.test("ExpressionRunner: countInArray with conditional logic & strings & for object value, #2", function(assert) {
+  var runner = new ExpressionRunner("countInArray({question1}, 'c1', {c1} notempty)");
+  var values = { "question1": { "Row 1": { "c1": 3 }, "Row 2": { "c1": 2 } } };
+  assert.equal(runner.run(values), 2, "1 & 2");
+});
+QUnit.test("ExpressionRunner: UnaryOperand, Bug#10068", function(assert) {
+  const operandNotEmpty = parse("{a} notempty");
+  assert.equal(operandNotEmpty.getType(), "unary", "Operand is unary, #1");
+  assert.equal(operandNotEmpty.toString(), "{a} notempty", "Operand expression is correct, #1");
+  const operandEmpty = parse("{a} empty");
+  assert.equal(operandEmpty.getType(), "unary", "Operand is unary, #2");
+  assert.equal(operandEmpty.toString(), "{a} empty", "Operand expression is correct, #2");
+});
 QUnit.test("ExpressionRunner: countInArray", function(assert) {
   var runner = new ExpressionRunner("countInArray({a}, 'val1')");
   var values = { a: [{ val1: 10 }, { val2: 10 }, { val1: 20 }] };

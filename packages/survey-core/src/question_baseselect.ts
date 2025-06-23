@@ -2291,7 +2291,7 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 }
 
 Serializer.addClass("choiceitem",
-  [{ name: "hasComment:boolean", visibleIf: (obj: any): boolean => { return obj.supportComment; } }],
+  [{ name: "hasComment:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } }],
   (value) => new ChoiceItem(value),
   "itemvalue"
 );

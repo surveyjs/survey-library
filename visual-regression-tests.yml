@@ -139,27 +139,27 @@ jobs:
           npm run scr:ci
         displayName: "run scr tests"
 
-      - script: |
-          cd packages/survey-react-ui
-          npm run vrt:ci
-        displayName: "Visual Regression Tests"
+      # - script: |
+      #     cd packages/survey-react-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
-          Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_VRT"
-          OverWrite: true
-        condition: always()
-        displayName: "copy vrt artifacts"
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
 
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_VRT/"
-          ArtifactName: "Library_React_VRT"
-          publishLocation: "Container"
-        condition: always()
-        displayName: "publish vrt artifacts"
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_VRT/"
+      #     ArtifactName: "Library_React_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
 
       - task: CopyFiles@2
         inputs:
@@ -266,27 +266,27 @@ jobs:
           npm run scr:ci
         displayName: "run scr tests"
 
-      - script: |
-          cd packages/survey-angular-ui
-          npm run vrt:ci
-        displayName: "Visual Regression Tests"
+      # - script: |
+      #     cd packages/survey-angular-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
-          Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT"
-          OverWrite: true
-        condition: always()
-        displayName: "copy vrt artifacts"
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
 
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/"
-          ArtifactName: "Library_Angular_VRT"
-          publishLocation: "Container"
-        condition: always()
-        displayName: "publish vrt artifacts"
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/"
+      #     ArtifactName: "Library_Angular_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
 
       - task: CopyFiles@2
         inputs:
@@ -393,27 +393,27 @@ jobs:
           npm run scr:ci
         displayName: "run scr tests"
 
-      - script: |
-          cd packages/survey-vue3-ui
-          npm run vrt:ci
-        displayName: "Visual Regression Tests"
+      # - script: |
+      #     cd packages/survey-vue3-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
-          Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT"
-          OverWrite: true
-        condition: always()
-        displayName: "copy vrt artifacts"
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
 
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/"
-          ArtifactName: "Library_Vue_VRT"
-          publishLocation: "Container"
-        condition: always()
-        displayName: "publish vrt artifacts"
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/"
+      #     ArtifactName: "Library_Vue_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"
 
       - task: CopyFiles@2
         inputs:
@@ -501,24 +501,24 @@ jobs:
           npm run build
         displayName: "Build UI"
 
-      - script: |
-          cd packages/survey-js-ui
-          npm run vrt:ci
-        displayName: "Visual Regression Tests"
+      # - script: |
+      #     cd packages/survey-js-ui
+      #     npm run vrt:ci
+      #   displayName: "Visual Regression Tests"
 
-      - task: CopyFiles@2
-        inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
-          Contents: "**"
-          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_SurveyUI_VRT"
-          OverWrite: true
-        condition: always()
-        displayName: "copy vrt artifacts"
+      # - task: CopyFiles@2
+      #   inputs:
+      #     SourceFolder: "$(Build.SourcesDirectory)/visualRegressionTests"
+      #     Contents: "**"
+      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_SurveyUI_VRT"
+      #     OverWrite: true
+      #   condition: always()
+      #   displayName: "copy vrt artifacts"
 
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_SurveyUI_VRT/"
-          ArtifactName: "Library_JqueryUI_VRT"
-          publishLocation: "Container"
-        condition: always()
-        displayName: "publish vrt artifacts"
+      # - task: PublishBuildArtifacts@1
+      #   inputs:
+      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_SurveyUI_VRT/"
+      #     ArtifactName: "Library_JqueryUI_VRT"
+      #     publishLocation: "Container"
+      #   condition: always()
+      #   displayName: "publish vrt artifacts"

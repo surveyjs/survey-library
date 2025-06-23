@@ -671,6 +671,7 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question");
       await questionRoot.click();
       await page.waitForTimeout(500);
+      await page.keyboard.press("Tab");
       await compareScreenshot(page, questionRoot, "question-comment-ajust-height.png");
     });
 

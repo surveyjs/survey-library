@@ -8,6 +8,7 @@ import "../src/localization/finnish";
 import "../src/localization/german";
 import "../src/localization/swedish";
 import "../src/localization/czech";
+import "../src/localization/serbian";
 import "../src/localization/ukrainian";
 import "../src/localization/portuguese";
 import "../src/localization/portuguese-br";
@@ -221,6 +222,19 @@ QUnit.test(
     surveyLocalization.defaultLocale = "cz";
     assert.equal(surveyLocalization.defaultLocale, "cs", "sz => sc, default");
     assert.equal(surveyLocalization.getString("pagePrevText"), "Předchozí", "Set locale correctly");
+    surveyLocalization.defaultLocale = oldDl;
+    surveyLocalization.currentLocale = oldCl;
+  }
+);
+QUnit.test("Seribian locale is 'sr', but support the old/incorrect one 'rs', Bug #10053",
+  function(assert) {
+    var oldDl = surveyLocalization.defaultLocale;
+    var oldCl = surveyLocalization.currentLocale;
+    surveyLocalization.currentLocale = "rs";
+    assert.equal(surveyLocalization.currentLocale, "sr", "rs => sr, current");
+    surveyLocalization.defaultLocale = "rs";
+    assert.equal(surveyLocalization.defaultLocale, "sr", "rs => sr, default");
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Nazad", "Set locale correctly");
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }

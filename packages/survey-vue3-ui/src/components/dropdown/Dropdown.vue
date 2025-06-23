@@ -47,6 +47,7 @@
         >
         </SvComponent>
         <input
+          v-if="model.needRenderInput"
           type="text"
           ref="inputElement"
           v-bind:class="question.cssClasses.filterStringInput"
@@ -76,11 +77,11 @@
     </div>
     <SvComponent
       :is="'sv-popup'"
-      v-if="!question.isReadOnly"
+      v-if="!question.isInputReadOnly"
       :model="model.popupModel"
     ></SvComponent>
     <div
-      v-else
+      v-if="question.isReadOnly"
       :id="question.inputId"
       :role="model?.ariaQuestionRole"
       :aria-label="model?.ariaQuestionLabel"

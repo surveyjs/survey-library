@@ -6640,6 +6640,35 @@ QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (asser
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: 2 }, "state is completed");
 });
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearInvisibleValues='none', Bug#10035", function (assert) {
+  const survey = new SurveyModel({
+    "clearInvisibleValues": "none",
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "panel",
+        "name": "panel1",
+        "visibleIf": "{q1} != 1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+            "clearIfInvisible": "onHiddenContainer"
+          }
+        ]
+      }
+    ]
+  });
+  survey.setValue("q2", "a");
+  survey.setValue("q1", 2);
+  assert.deepEqual(survey.data, { q1: 2, q2: "a" }, "q2 is visible, value is set");
+  survey.setValue("q1", 1);
+  assert.deepEqual(survey.data, { q1: 1 }, "q2 is invisible");
+});
+
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.inputType, "text");
@@ -7605,7 +7634,9 @@ QUnit.test("question.setValueIf is function, setValueExpression has one field, B
   FunctionFactory.Instance.unregister("func1");
 });
 QUnit.test("question.setValueIf is function, setValueExpression has two field, Bug#9549", function (assert) {
+  let counter = 0;
   FunctionFactory.Instance.register("func1", (params: any) => {
+    counter ++;
     return true;
   });
   const survey = new SurveyModel({
@@ -7622,17 +7653,65 @@ QUnit.test("question.setValueIf is function, setValueExpression has two field, B
   q2.value = "abc";
   q1.value = 2;
   assert.equal(q2.value, 2 + 0, "value is set, #1");
+  assert.equal(counter, 1, "func1 is called time #1");
   q2.value = "edf";
   q3.value = 4;
-  assert.equal(q2.value, 2 + 4, "value is set, #3");
+  assert.equal(q2.value, 2 + 4, "value is set, #2");
+  assert.equal(counter, 2, "func1 is called time #2");
   q2.value = "edf";
   q4.value = 4;
+  assert.equal(counter, 2, "func1 is called time #3");
   assert.equal(q2.value, "edf", "value is not set, #3");
   q1.value = 5;
   assert.equal(q2.value, 5 + 4, "value is set, #4");
+  assert.equal(counter, 3, "func1 is called time #4");
   FunctionFactory.Instance.unregister("func1");
 });
+QUnit.test("question.setValueIf call it on any value change if there is func without params, Bug#10063", function (assert) {
+  FunctionFactory.Instance.register("func1", (params: any) => {
+    return true;
+  });
+  FunctionFactory.Instance.register("func2", (params: any) => {
+    return 75;
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text" },
+      { "name": "q3", "type": "text" },
+      { "name": "q4", "type": "text", "setValueIf": "func1()", "setValueExpression": "{q1} + {q3}" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q1.value = 1;
+  assert.equal(q4.value, 1, "q4.value, #1");
+  q4.value = "abc";
+  q2.value = 1;
+  assert.equal(q4.value, "abc", "q4.value, #2");
+  q3.value = 2;
+  assert.equal(q4.value, 1 + 2, "q4.value, #3");
 
+  q4.setValueExpression = "func2()";
+  q1.value = 2;
+  assert.equal(q4.value, 75, "q4.value, #4");
+  q4.value = "abc";
+  assert.equal(q4.value, "abc", "q4.value, #5");
+  q2.value = 3;
+  assert.equal(q4.value, 75, "q4.value, #6");
+
+  q4.setValueExpression = "55";
+  q1.value = 3;
+  assert.equal(q4.value, 55, "q4.value, #7");
+  q4.value = "abc";
+  assert.equal(q4.value, "abc", "q4.value, #8");
+  q2.value = 6;
+  assert.equal(q4.value, 55, "q4.value, #9");
+
+  FunctionFactory.Instance.unregister("func1");
+  FunctionFactory.Instance.unregister("func2");
+});
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1 = new Array<(res: any) => void>();
   var returnResult2 = new Array<(res: any) => void>();

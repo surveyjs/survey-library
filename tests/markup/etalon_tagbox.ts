@@ -115,6 +115,26 @@ registerMarkupTests(
       },
       snapshot: "tagbox-readonly-with-value"
     }, {
+      name: "Test Tagbox question markup disabled without value",
+      json: {
+        questions: [
+          {
+            "type": "tagbox",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      removeIds: true,
+      initSurvey: (survey) => survey.setDesignMode(true),
+      snapshot: "tagbox-disabled-without-value"
+    }, {
       name: "Test Tagbox question markup disabled with value",
       json: {
         questions: [
@@ -122,7 +142,7 @@ registerMarkupTests(
             "type": "tagbox",
             "name": "name",
             "title": "Question title",
-            defaultValue: "item1",
+            defaultValue: ["item1"],
             "choices": [
               "item1",
               "item2",

@@ -279,7 +279,7 @@ The SurveyJS expression engine is built upon the <a href="https://github.com/peg
 | `empty` | Returns `true` if the value is `undefined` or `null`. | `"{q1} empty"` | 
 | `notempty` | Returns `true` if the value is different from `undefined` and `null`. | `"{q1} notempty"` | 
 | <code>&#124;&#124;</code> / `or` | Combines two or more conditions and returns `true` if *any* of them is `true`. | `"{q1} empty or {q2} empty"` |
-| `&&"` / `and`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
+| `&&` / `and`  | Combines two or more conditions and returns `true` if *all* of them are `true`. | `"{q1} empty and {q2} empty"` |
 | `!` / `negate` | Returns `true` if the condition returns `false`, and vice versa. | `!{q1}` |
 | `<=` / `lessorequal`  | Compares two values and returns `true` if the first is less or equal to the second. | `"{q1} <= 10"` |
 | `>=` / `greaterorequal`  | Compares two values and returns `true` if the first is greater or equal to the second. | `"{q1} >= 10"` |

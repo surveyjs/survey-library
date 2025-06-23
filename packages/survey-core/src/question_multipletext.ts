@@ -884,6 +884,12 @@ export class QuestionMultipleTextModel extends Question
   public get ariaRole(): string {
     return "group";
   }
+  public get ariaRequired() {
+    return null;
+  }
+  public get ariaInvalid() {
+    return null;
+  }
 }
 
 export class MutlipleTextRow extends Base {

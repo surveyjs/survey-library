@@ -714,6 +714,32 @@ QUnit.test("check smileys styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_readonly");
 });
 
+QUnit.test("check styles on event", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  setOldTheme(survey);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.item = "sv_q_item";
+  q1.cssClasses.itemFixedSize = "";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item");
+
+  survey.onUpdateChoiceItemCss.add((sender, options) => {
+    if (options.item.value == 2) {
+      options.css = options.css + " custom";
+    }
+  });
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item custom");
+});
+
 QUnit.test("rating smileys max item count", (assert) => {
   var json = {
     questions: [

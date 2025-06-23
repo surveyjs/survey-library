@@ -1,9 +1,7 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
-import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
-import { classesToSelector, isContainerVisible } from "./utils";
+import { isContainerVisible } from "./utils";
 import { debounce } from "./taskmanager";
-import { property } from "entries";
 
 interface IDimensions {
   scroll: number;

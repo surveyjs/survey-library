@@ -21,7 +21,6 @@
     "@vue/eslint-config-typescript": "^11.0.0",
     "axe-core": "^4.8.2",
     "axe-playwright": "^2.1.0",
-    "axe-testcafe": "^3.0.0",
     "concurrently": "^7",
     "cross-env": "^7.0.3",
     "devextreme-screenshot-comparer": "^2.0.11",
@@ -34,13 +33,7 @@
     "husky": "^9.1.7",
     "node-uuid": "1.4.7",
     "playwright": "1.52.0",
-    "puppeteer": "22.13.1",
-    "testcafe": "3.3.0"
-  },
-  "overrides": {
-    "axe-testcafe": {
-      "axe-core": "^4.8.2"
-    }
+    "puppeteer": "22.13.1"
   },
   "husky": {
     "hooks": {

@@ -59,6 +59,12 @@ frameworks.forEach(framework => {
 
       await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
+
+      await page.evaluate(() => {
+        const order = ["Badger.png", "Bird.png", "Read Me.txt", "Flamingo.png"];
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
+      });
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
       await page.hover(".sd-file .sd-file__preview-item");
@@ -121,6 +127,11 @@ frameworks.forEach(framework => {
 
       await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
+      await page.evaluate(() => {
+        const order = ["Badger.png", "Bird.png", "Flamingo.png"];
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
+      });
       await compareScreenshot(page, questionRoot, "file-question-multiple-small-images.png");
 
       await page.evaluate(() => {
@@ -197,6 +208,12 @@ frameworks.forEach(framework => {
 
       await page.setInputFiles(".sd-file input", ["../../screenshots/files/Badger.png", "../../screenshots/files/Bird.png", "../../screenshots/files/Read Me.txt", "../../screenshots/files/Flamingo.png"]);
       await page.click(".sd-file input[type=file] + div label");
+
+      await page.evaluate(() => {
+        const order = ["Badger.png", "Bird.png", "Read Me.txt", "Flamingo.png"];
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
+      });
 
       await page.evaluate(() => {
         const question = (window as any).survey.getQuestionByName("file_question");

@@ -67,8 +67,9 @@ export class DropdownListModel extends Base {
     this.listModel.isAllDataLoaded = this.choicesLazyLoadEnabled && this.itemsSettings.items.length == this.itemsSettings.totalCount;
     this.question.choices = this.itemsSettings.items;
   }
-  private loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
+  private _loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
     const _filterString = this.filterString;
+    this.setIsChoicesLoading(true);
     this.question.survey.loadQuestionChoices({
       question: this.question,
       filter: this.filterString,
@@ -81,10 +82,18 @@ export class DropdownListModel extends Base {
           callbackAfterItemsLoaded();
         }
         this.processCustomValue(_filterString);
+        this.setIsChoicesLoading(false);
       }
     });
     this.itemsSettings.skip += this.itemsSettings.take;
   }
+
+  private setIsChoicesLoading(newValue: boolean) {
+    if (!!this.question.setIsChoicesLoading) {
+      this.question.setIsChoicesLoading(newValue);
+    }
+  }
+
   private processCustomValue(newValue?: string) {
     if (!this.allowCustomChoices) return;
 
@@ -105,10 +114,10 @@ export class DropdownListModel extends Base {
       this.resetTimer();
       if (!!this.filterString && settings.dropdownSearchDelay > 0) {
         this.timer = setTimeout(() => {
-          this.loadQuestionChoices(callbackAfterItemsLoaded);
+          this._loadQuestionChoices(callbackAfterItemsLoaded);
         }, settings.dropdownSearchDelay);
       } else {
-        this.loadQuestionChoices(callbackAfterItemsLoaded);
+        this._loadQuestionChoices(callbackAfterItemsLoaded);
       }
     }
   }
@@ -418,8 +427,18 @@ export class DropdownListModel extends Base {
     return !!this.itemsSettings.totalCount && this.itemsSettings.items.length == this.itemsSettings.totalCount;
   }
 
+  public loadQuestionChoices(callbackAfterItemsLoaded?: () => void) {
+    if (this.isAllDataLoaded) return;
+
+    this._loadQuestionChoices(callbackAfterItemsLoaded);
+  }
+
   public get canShowSelectedItem(): boolean {
     return !this.focused || this._markdownMode || !this.searchEnabled;
+  }
+
+  public get needRenderInput(): boolean {
+    return !this.question.isInputReadOnly || !!this.placeholderRendered;
   }
 
   public updateCustomItemValue(): void {

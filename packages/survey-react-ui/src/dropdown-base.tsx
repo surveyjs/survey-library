@@ -72,7 +72,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     } else {
       selectElement = <>
         {this.renderInput()}
-        <Popup model={dropdownListModel.popupModel}></Popup>
+        {this.question.isInputReadOnly ? null : <Popup model={dropdownListModel.popupModel}></Popup>}
       </>;
     }
 
@@ -95,13 +95,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected renderInput(): React.JSX.Element {
     const dropdownListModel = this.dropdownListModel;
     let valueElement: React.JSX.Element | null = this.renderValueElement();
-    const { root } = settings.environment;
 
-    const onInputChange = (e: any) => {
-      if (e.target === root.activeElement) {
-        dropdownListModel.inputStringRendered = e.target.value;
-      }
-    };
     return (<div
       id={this.question.inputId}
       className={this.question.getControlClass()}
@@ -136,32 +130,44 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
             <span>{dropdownListModel.hintStringSuffix}</span>
           </div>) : null}
         {valueElement}
-        <input type="text" autoComplete="off"
-          id={this.question.getInputId()}
-          ref={(element) => (this.inputElement = element)}
-          className={this.question.cssClasses.filterStringInput}
-          role={dropdownListModel.ariaInputRole}
-          aria-required={dropdownListModel.ariaInputRequired}
-          aria-invalid={dropdownListModel.ariaInputInvalid}
-          aria-errormessage={dropdownListModel.ariaInputErrorMessage}
-          aria-expanded={dropdownListModel.ariaInputExpanded}
-          aria-label={dropdownListModel.ariaInputLabel}
-          aria-labelledby={dropdownListModel.ariaInputLabelledby}
-          aria-describedby={dropdownListModel.ariaInputDescribedby}
-          aria-controls={dropdownListModel.ariaInputControls}
-          aria-activedescendant={dropdownListModel.ariaInputActivedescendant}
-          placeholder={dropdownListModel.placeholderRendered}
-          readOnly={dropdownListModel.filterReadOnly ? true : undefined}
-          tabIndex={dropdownListModel.noTabIndex ? undefined : -1}
-          disabled={this.question.isDisabledAttr}
-          inputMode={dropdownListModel.inputMode}
-          onChange={(e) => { onInputChange(e); }}
-          onBlur={this.blur}
-          onFocus={this.focus}
-        ></input>
+        {dropdownListModel.needRenderInput ? this.renderFilterInput() : null}
       </div>
       {this.renderEditorButtons()}
     </div>);
+  }
+
+  protected renderFilterInput(): React.JSX.Element {
+    const { root } = settings.environment;
+    const dropdownListModel = this.dropdownListModel;
+    const onInputChange = (e: any) => {
+      if (e.target === root.activeElement) {
+        dropdownListModel.inputStringRendered = e.target.value;
+      }
+    };
+
+    return <input type="text" autoComplete="off"
+      id={this.question.getInputId()}
+      ref={(element) => (this.inputElement = element)}
+      className={this.question.cssClasses.filterStringInput}
+      role={dropdownListModel.ariaInputRole}
+      aria-required={dropdownListModel.ariaInputRequired}
+      aria-invalid={dropdownListModel.ariaInputInvalid}
+      aria-errormessage={dropdownListModel.ariaInputErrorMessage}
+      aria-expanded={dropdownListModel.ariaInputExpanded}
+      aria-label={dropdownListModel.ariaInputLabel}
+      aria-labelledby={dropdownListModel.ariaInputLabelledby}
+      aria-describedby={dropdownListModel.ariaInputDescribedby}
+      aria-controls={dropdownListModel.ariaInputControls}
+      aria-activedescendant={dropdownListModel.ariaInputActivedescendant}
+      placeholder={dropdownListModel.placeholderRendered}
+      readOnly={dropdownListModel.filterReadOnly ? true : undefined}
+      tabIndex={dropdownListModel.noTabIndex ? undefined : -1}
+      disabled={this.question.isDisabledAttr}
+      inputMode={dropdownListModel.inputMode}
+      onChange={(e) => { onInputChange(e); }}
+      onBlur={this.blur}
+      onFocus={this.focus}
+    ></input>;
   }
 
   protected renderOther(cssClasses: any): React.JSX.Element {

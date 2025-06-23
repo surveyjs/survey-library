@@ -24,6 +24,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
   protected renderInput(): React.JSX.Element {
     const dropdownListModel = this.dropdownListModel as DropdownMultiSelectListModel;
     const items = this.question.selectedChoices.map((choice, index) => { return this.renderItem("item" + index, choice); });
+
     return (
       <div
         id={this.question.inputId}
@@ -49,7 +50,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       >
         <div className={this.question.cssClasses.controlValue}>
           {items}
-          <TagboxFilterString model={dropdownListModel} question={this.question}></TagboxFilterString>
+          {dropdownListModel.needRenderInput ? <TagboxFilterString model={dropdownListModel} question={this.question}></TagboxFilterString> : null}
         </div>
         {this.renderEditorButtons()}
       </div>);

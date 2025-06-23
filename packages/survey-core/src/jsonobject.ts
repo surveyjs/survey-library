@@ -1250,7 +1250,7 @@ export class JsonMetadata {
     const dType = !!dynamicType ? dynamicType : obj.getDynamicType();
     return this.getDynamicPropertiesByTypes(obj.getType(), dType);
   }
-  public getDynamicPropertiesByTypes(objType: string, dynamicType: string, invalidNames?: Array<string>): Array<JsonObjectProperty> {
+  public getDynamicPropertiesByTypes(objType: string, dynamicType: string, nonSerialableProps?: Array<string>): Array<JsonObjectProperty> {
     if (!dynamicType) return [];
     const cacheType = dynamicType + "-" + objType;
     if (this.dynamicPropsCache[cacheType]) return this.dynamicPropsCache[cacheType];
@@ -1262,10 +1262,14 @@ export class JsonMetadata {
       hash[props[i].name] = props[i];
     }
     const res = [];
-    if (!invalidNames) invalidNames = [];
+    if (!nonSerialableProps) nonSerialableProps = [];
     for (let i = 0; i < dynamicProps.length; i++) {
       const dProp = dynamicProps[i];
-      if (invalidNames.indexOf(dProp.name) < 0 && this.canAddDybamicProp(dProp, hash[dProp.name])) {
+      if (this.canAddDybamicProp(dProp, hash[dProp.name])) {
+        if (nonSerialableProps.indexOf(dProp.name) > -1) {
+          dProp.visible = false;
+          dProp.isSerializable = false;
+        }
         res.push(dProp);
       }
     }

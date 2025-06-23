@@ -839,7 +839,9 @@ export class QuestionRatingModel extends Question {
       item.locText.calculatedText.length <= 2 &&
       Number.isInteger(Number(item.locText.calculatedText));
 
-    return new CssClassBuilder()
+    const options: any = { item: item, css: "" };
+
+    options.css = new CssClassBuilder()
       .append(itemClass)
       .append(itemSelectedClass, isSelected)
       .append(itemDisabledClass, this.isDisabledStyle)
@@ -854,6 +856,12 @@ export class QuestionRatingModel extends Question {
       .append(itemSmallClass, this.itemSmallMode)
       .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
+
+    if (!!this.survey) {
+      this.survey.updateChoiceItemCss(this, options);
+    }
+
+    return options.css;
   }
   //methods for mobile view
   public getControlClass(): string {

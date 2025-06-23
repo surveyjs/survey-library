@@ -2089,3 +2089,29 @@ QUnit.test("Incorrect encoding of number mask in the error of a marix cell, Bug#
   assert.equal(qCell1.errors.length, 1, "There is an error");
   assert.equal(qCell1.errors[0].locText.calculatedText, "30,001.99", "Error calculatedText is correct");
 });
+QUnit.test("Update rowValue on changing cellType, Bug#10038", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "defaultRowValue": { col1: 1, col2: 2 },
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.columns[0].cellType = "file";
+  assert.deepEqual(matrix.defaultRowValue, { col2: 2 }, "defaultRowValue, #1");
+  matrix.columns[1].cellType = "file";
+  assert.equal(matrix.defaultRowValue, undefined, "defaultRowValue, #2");
+});

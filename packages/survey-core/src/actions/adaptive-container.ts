@@ -71,7 +71,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   protected getRenderedActions(): Array<T> {
     const actions = super.getRenderedActions();
-    if (actions.length === 1 && !!actions[0].iconName)
+    if (actions.length == 0 || (actions.length === 1 && !!actions[0].iconName))
       return actions;
     return actions.concat([<T>this.dotsItem]);
   }

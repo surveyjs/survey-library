@@ -410,6 +410,26 @@ QUnit.test("Check rendered actions", function (assert) {
   assert.equal(actionBar.renderedActions[1].title, "test3");
 });
 
+QUnit.test("Check rendered actions for adaptive container", function (assert) {
+  const actionBar = new AdaptiveActionContainer();
+  assert.equal(actionBar.renderedActions.length, 0);
+
+  actionBar.setItems([{ id: "test1", title: "test1" }]);
+  assert.equal(actionBar.renderedActions.length, 2);
+  assert.equal(actionBar.renderedActions[0].id, "test1");
+  assert.ok(actionBar.renderedActions[1].id == actionBar.dotsItem.id);
+
+  actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }]);
+  assert.equal(actionBar.renderedActions.length, 1);
+  assert.equal(actionBar.renderedActions[0].id, "test1");
+
+  actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }, { id: "test2", title: "test2" }]);
+  assert.equal(actionBar.renderedActions.length, 3);
+  assert.equal(actionBar.renderedActions[0].id, "test1");
+  assert.equal(actionBar.renderedActions[1].id, "test2");
+  assert.ok(actionBar.renderedActions[2] == actionBar.dotsItem);
+});
+
 QUnit.test("Check getRootStyle method", function (assert) {
   const actionBar = new AdaptiveActionContainer();
   actionBar.setItems([
@@ -422,5 +442,4 @@ QUnit.test("Check getRootStyle method", function (assert) {
   assert.strictEqual(actionBar.getRootStyle()?.opacity, 0);
   actionBar["responsivityManager"].afterInitializeCallback && actionBar["responsivityManager"].afterInitializeCallback();
   assert.strictEqual(actionBar.getRootStyle()?.opacity, undefined);
-
 });

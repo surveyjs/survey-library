@@ -753,7 +753,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   private fillSingleInputQuestionsByRow(res: Array<Question>, row: MatrixDropdownRowModelBase): void {
     if (row) {
-      row.questions.forEach(q => q.addNestedQuestion(res, true, false));
+      row.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
     }
   }
 

@@ -1728,6 +1728,27 @@ QUnit.test("matrixDynamic.getNestedQuestions", function (assert) {
   assert.equal(survey.getAllQuestions(true, false, true).length, 1 + 3, "Include nested + 3 visible cells");
   assert.equal(survey.getAllQuestions(true, true, true).length, 1 + 3, "Include nested + 3 visible cells, ignore design-time");
 });
+QUnit.test("survey.getAllQuestions(true, false, true) for dynamic panel vs nested matrix dynamic, Bug#10080", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic", name: "panel", templateElements: [
+          {
+            type: "matrixdynamic", name: "matrix",
+            columns: [{ name: "col1", cellType: "text" }, { cellType: "text", name: "col2" }]
+          }]
+      }
+    ]
+  });
+  survey.data = {
+    panel: [{ matrix: [{ col1: "a", col2: "b" }] }]
+  };
+  const names = new Array<string>();
+  survey.getAllQuestions(true, false, true).forEach((q) => {
+    names.push(q.name);
+  });
+  assert.deepEqual(names, ["panel", "matrix", "col1", "col2"], "panel + matrix + 2 columns");
+});
 QUnit.test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition=0", function (assert) {
   settings.matrixMaxRowCountInCondition = 0;
   var objs = [];

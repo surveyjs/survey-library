@@ -2236,17 +2236,17 @@ export class Question extends SurveyElement<Question>
    * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
    * @returns An array of nested questions.
    */
-  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
+  public getNestedQuestions(visibleOnly: boolean = false, includeItSelf: boolean = false): Array<Question> {
     const res: Array<Question> = [];
-    this.collectNestedQuestions(res, visibleOnly);
-    if (res.length === 1 && res[0] === this) return [];
+    this.collectNestedQuestions(res, visibleOnly, includeItSelf);
+    if (!includeItSelf && res.length === 1 && res[0] === this) return [];
     return res;
   }
-  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false): void {
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false, includeItSelf: boolean = false): void {
     if (visibleOnly && !this.isVisible) return;
-    this.collectNestedQuestionsCore(questions, visibleOnly);
+    this.collectNestedQuestionsCore(questions, visibleOnly, includeItSelf);
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeItSelf: boolean): void {
     questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {

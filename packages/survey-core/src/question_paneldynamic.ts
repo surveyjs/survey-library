@@ -1792,11 +1792,14 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeItSelf: boolean): void {
+    if (includeItSelf) {
+      questions.push(this);
+    }
     const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
     if (!Array.isArray(panels)) return;
     panels.forEach(panel => {
-      panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+      panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly, includeItSelf));
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {

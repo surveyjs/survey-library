@@ -1338,8 +1338,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeItSelf: boolean): void {
     if (!this.contentPanel) return;
+    if (includeItSelf) {
+      questions.push(this);
+    }
     this.contentPanel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
   }
   protected convertDataValue(name: string, newValue: any): any {

@@ -21963,6 +21963,8 @@ QUnit.test("survey.getAllQuestions, get nested questions & creating nested quest
   assert.equal(survey.getAllQuestions().length, 2, "2 root questions in the survey");
   const questions = survey.getAllQuestions(true, false, true);
   assert.equal(questions.length, 3, "3 questions in the survey");
+  assert.equal(questions[0].name, "q1", "the first question");
+  assert.equal(questions[0].name, "q1", "the second question");
   assert.equal(questions[2].name, "q3", "the last question is nested");
 });
 QUnit.test("Skip trigger test and navigate back & questionPerPage, Bug#9886", function (assert) {

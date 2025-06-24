@@ -69,10 +69,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     });
   }
   protected raiseUpdate(isResetInitialized: boolean) {
+    if (this.isUpdating) return;
     this.updateVisibleActions();
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
   protected updateVisibleActions() {
+    if (this.isUpdating) return;
     this.visibleActions = this.actions.filter((action) => action.visible !== false);
     this.isEmpty = this.visibleActions.length <= 0;
   }
@@ -83,12 +85,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.onActionVisibilityChanged(action);
   };
   protected onSet() {
+    this.beginUpdates();
     this.actions.forEach((item) => {
       this.setActionCssClasses(item);
       item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     });
-    this.updateVisibleActions();
-    this.raiseUpdate(true);
+    this.endUpdates();
   }
   protected onPush(item: T) {
     this.setActionCssClasses(item);
@@ -158,7 +160,22 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions = items;
     return res;
   }
+  private blockUpdates: number = 0;
+  public beginUpdates(): void {
+    this.blockUpdates ++;
+  }
+  public endUpdates(): void {
+    this.blockUpdates --;
+    if (this.blockUpdates < 0) {
+      this.blockUpdates = 0;
+    }
+    if (this.blockUpdates === 0) {
+      this.raiseUpdate(true);
+    }
+  }
+  private get isUpdating() { return this.blockUpdates > 0; }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
+    this.beginUpdates();
     const newActions: Array<T> = [];
     items.forEach(item => {
       if (!sortByVisibleIndex || this.isActionVisible(item)) {
@@ -169,6 +186,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       this.sortItems(newActions);
     }
     this.actions = newActions;
+    this.endUpdates();
   }
   private sortItems(items: Array<IAction>): void {
     if (this.hasSetVisibleIndex(items)) {

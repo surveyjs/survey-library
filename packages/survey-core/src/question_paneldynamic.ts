@@ -1251,7 +1251,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private fillSingleInputQuestionsByPanel(res: Array<Question>, panel: PanelModel): void {
     if (panel) {
-      panel.questions.forEach(q => q.addNestedQuestion(res, true, false));
+      panel.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
     }
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
@@ -1964,11 +1964,14 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
+    if (includeItSelf) {
+      questions.push(this);
+    }
     const panels = visibleOnly ? this.visiblePanelsCore : this.panelsCore;
     if (!Array.isArray(panels)) return;
     panels.forEach(panel => {
-      panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
+      panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {

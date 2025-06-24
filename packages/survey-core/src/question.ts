@@ -2644,22 +2644,22 @@ export class Question extends SurveyElement<Question>
    * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
    * @returns An array of nested questions.
    */
-  public getNestedQuestions(visibleOnly: boolean = false, includeNested: boolean = true): Array<Question> {
+  public getNestedQuestions(visibleOnly: boolean = false, includeNested: boolean = true, includeItSelf: boolean = false): Array<Question> {
     const res: Array<Question> = [];
-    this.collectNestedQuestions(res, visibleOnly, includeNested);
-    if (res.length === 1 && res[0] === this) return [];
+    this.collectNestedQuestions(res, visibleOnly, includeNested, includeItSelf);
+    if (!includeItSelf && res.length === 1 && res[0] === this) return [];
     return res;
   }
-  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false, includeNested: boolean = true): void {
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false, includeNested: boolean = true, includeItSelf: boolean = false): void {
     if (visibleOnly && !this.isVisible) return;
-    this.collectNestedQuestionsCore(questions, visibleOnly, includeNested);
+    this.collectNestedQuestionsCore(questions, visibleOnly, includeNested, includeItSelf);
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean): void {
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
     questions.push(this);
   }
-  addNestedQuestion(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean): void {
+  addNestedQuestion(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf?: boolean): void {
     if (includeNested) {
-      this.collectNestedQuestions(questions, visibleOnly);
+      this.collectNestedQuestions(questions, visibleOnly, includeNested, includeItSelf);
     } else {
       if (!visibleOnly || this.isVisible) {
         questions.push(this);

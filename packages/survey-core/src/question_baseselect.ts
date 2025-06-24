@@ -184,7 +184,7 @@ export class QuestionSelectBase extends Question {
     return this.getItemCommentId(this.otherItem);
   }
   public getItemCommentId(item: ItemValue): string {
-    return this.id + "_" + this.getItemCommentValueId(item);
+    return this.id + "_" + item.normalizedId;
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];
@@ -321,11 +321,7 @@ export class QuestionSelectBase extends Question {
   }
   protected getCommentPropertyValue(item: ItemValue): string {
     if (this.isOtherItemByValue(item)) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
-    return "other_" + this.getItemCommentValueId(item);
-  }
-  protected getItemCommentValueId(item: ItemValue): string {
-    const val = item.value || "";
-    return val.toString().replace(/[^a-zA-Z0-9_]/g, "_") || "";
+    return "other_" + item.normalizedId;
   }
   /**
    * Specifies whether to display the "None" choice item.

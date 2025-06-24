@@ -92,6 +92,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * Returns the selected choice item. If no item is selected, returns `null`.
    */
   public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+  protected isOtherValueUnused(): boolean {
+    return !this.selectedItem?.hasComment;
+  }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
     if (!!selectedItemByValue) {
       this.lastSelectedItemValue = selectedItemByValue;

@@ -2694,6 +2694,30 @@ QUnit.test("Radiogroup question and choices has comment", (assert) => {
   assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #5");
   assert.equal(q1.getCommentValue(q1.otherItem), "test comment 3", "getCommentValue for otherItem, #5");
 });
+QUnit.test("Radiogroup/dropdown questions and choices has comment: do not remove comment on complete", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true }, 3]
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": [1, { value: 2, hasComment: true }, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  q1.clickItemHandler(q1.choices[1]);
+  q1.setCommentValue(q1.choices[1], "test comment1");
+  q2.renderedValue = 2;
+  q2.setCommentValue(q1.choices[1], "test comment2");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: 2, "q1-Comment": "test comment1", q2: 2, "q2-Comment": "test comment2" }, "survey.data after complete");
+});
 QUnit.test("Radiogroup question, choices has comment and defaultValue", (assert) => {
   const survey = new SurveyModel({
     "elements": [

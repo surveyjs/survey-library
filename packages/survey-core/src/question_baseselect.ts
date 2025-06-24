@@ -1910,9 +1910,12 @@ export class QuestionSelectBase extends Question {
   }
   clearUnusedValues() {
     super.clearUnusedValues();
-    if (!this.isOtherSelected) {
+    if (this.isOtherValueUnused()) {
       this.otherValue = "";
     }
+  }
+  protected isOtherValueUnused(): boolean {
+    return !this.isOtherSelected;
   }
   getColumnClass(): string {
     return new CssClassBuilder()

@@ -71,6 +71,9 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public clickItemHandler(item: ItemValue): void {
     this.selectItem(item);
   }
+  protected isOtherValueUnused(): boolean {
+    return !this.selectedItem?.hasComment;
+  }
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];
     if (!this.isDesignMode) {

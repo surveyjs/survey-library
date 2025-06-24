@@ -59,7 +59,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   @property({}) containerCss: string;
   public sizeMode: "default" | "small" = "default";
   public locOwner: ILocalizableOwner;
-  @property({ defaultValue: false }) isEmpty: boolean;
+  @property({ defaultValue: true }) isEmpty: boolean;
 
   public locStrsChanged(): void {
     super.locStrsChanged();

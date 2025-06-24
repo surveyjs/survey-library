@@ -85,11 +85,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.onActionVisibilityChanged(action);
   };
   protected onSet() {
+    this.beginUpdates();
     this.actions.forEach((item) => {
       this.setActionCssClasses(item);
       item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     });
-    this.raiseUpdate(true);
+    this.endUpdates();
   }
   protected onPush(item: T) {
     this.setActionCssClasses(item);

@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+
 const title = "Popup Screenshot";
 
 const json = {
@@ -297,10 +298,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sv-popup.sv-single-select-list .sv-popup__container", "popup-into-modal-popup.png");
     });
 
-    test("Popup search width", async ({ browser }) => {
-      const context = await browser.newContext();
-      const page = await context.newPage();
-      await page.goto(`${url}${framework}`);
+    test("Popup search width", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
@@ -322,7 +320,6 @@ frameworks.forEach(framework => {
 
       await page.click(".sv-dots__item");
       await compareScreenshot(page, ".sv-popup .sv-popup__container", "popup-search-width.png");
-      context.close();
     });
 
     test("Popup with subitems", async ({ page }) => {

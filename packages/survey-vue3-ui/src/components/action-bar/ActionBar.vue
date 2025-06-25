@@ -2,6 +2,7 @@
   <div
     v-if="model.hasActions"
     ref="root"
+    :style="model.getRootStyle()"
     :class="model.getRootCss()"
     @click="onClick"
   >
@@ -18,7 +19,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { ActionContainer } from "survey-core";
 import { useBase, useComputedArray } from "@/base";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUpdated, ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -38,17 +39,22 @@ const onClick = (event: MouseEvent) => {
   }
 };
 
-useBase(() => props.model);
+useBase(() => props.model, undefined, (value) => {
+  value.resetResponsivityManager();
+});
 
 const renderedActions = useComputedArray(() => {
   return props.model.renderedActions;
 });
+function initResponsivityManager() {
+  if (!props.model.hasVisibleActions) return;
+  props.model.initResponsivityManager(root.value);
+} 
+onUpdated(() => {
+  initResponsivityManager();
+})
 
 onMounted(() => {
-  if (!props.model.hasActions) return;
-  props.model.initResponsivityManager(root.value);
-});
-onUnmounted(() => {
-  props.model.resetResponsivityManager();
+  initResponsivityManager();
 });
 </script>

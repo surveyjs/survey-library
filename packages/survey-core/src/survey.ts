@@ -6259,8 +6259,7 @@ export class SurveyModel extends SurveyElementCore
   private getNestedQuestionsByQuestionArray(res: Array<Question>, visibleOnly: boolean): Array<Question> {
     const res2: Array<Question> = [];
     res.forEach(q => {
-      res2.push(q);
-      q.getNestedQuestions(visibleOnly).forEach(nQ => res2.push(nQ));
+      q.getNestedQuestions(visibleOnly, true, true).forEach(nQ => res2.push(nQ));
     });
     return res2;
   }

@@ -34,7 +34,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
 
   componentDidMount() {
     super.componentDidMount();
-    if (!this.model.hasActions) return;
+    if (!this.model.hasVisibleActions) return;
     const container: HTMLDivElement | null = this.rootRef.current;
     if (!!container) {
       this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });
@@ -49,7 +49,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     if (prevProps.model != this.props.model) {
       prevProps.model.resetResponsivityManager();
     }
-    if (!!this.model.hasActions) {
+    if (!!this.model.hasVisibleActions) {
       const container: HTMLDivElement | null = this.rootRef.current;
       if (!!container) {
         this.model.initResponsivityManager(container, (callback) => { setTimeout(callback, 100); });
@@ -67,6 +67,7 @@ export class SurveyActionBar extends SurveyElementBase<IActionBarProps, any> {
     return (
       <div
         ref={this.rootRef}
+        style={this.model.getRootStyle()}
         className={this.model.getRootCss()}
         onClick={this.handleClick ? function (event) {
           event.stopPropagation();

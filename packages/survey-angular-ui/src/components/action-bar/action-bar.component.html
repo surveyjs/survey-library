@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div *ngIf="model.hasActions" [class]="model.getRootCss()" (click)="onClick($event)" #container>
+  <div *ngIf="model.hasActions" [class]="model.getRootCss()" (click)="onClick($event)" #container [style]="model.getRootStyle()">
     <ng-container *ngFor="let action of model.renderedActions; trackBy: trackActionBy">
       <sv-ng-action [model]="action"></sv-ng-action>
     </ng-container>

@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
-import { Base, ComputedUpdater } from "../base";
+import { Base, ComputedUpdater, EventBase } from "../base";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
@@ -257,7 +257,8 @@ export abstract class BaseAction extends Base implements IAction {
   @property() css?: string;
   minDimension: number;
   maxDimension: number;
-
+  public addVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
+  public removeVisibilityChangedCallback(callback: (action: BaseAction) => void) {}
   public get renderedId(): number { return this.rendredIdValue; }
   public get owner(): ILocalizableOwner { return this.ownerValue; }
   public set owner(val: ILocalizableOwner) {
@@ -423,6 +424,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private raiseUpdate(isResetInitialized: boolean = false) {
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
+  private visibityChangedEvent = new EventBase();
+  public addVisibilityChangedCallback(callback: (action: Action) => void): void {
+    this.visibityChangedEvent.add(callback);
+  }
+  public removeVisibilityChangedCallback(callback: (action: Action) => void): void {
+    this.visibityChangedEvent.remove(callback);
+  }
+  private raiseOnVisibilityChanged() {
+    this.visibityChangedEvent.fire(this, {});
+  }
   constructor(innerItemData: IAction) {
     super();
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
@@ -473,6 +484,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   @property() id: string;
   @property({
     defaultValue: true, onSet: (_, target: Action) => {
+      target.raiseOnVisibilityChanged();
       target.raiseUpdate();
     }
   }) private _visible: boolean;

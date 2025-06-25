@@ -37,6 +37,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   public getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }
+  @propertyArray({}) visibleActions: Array<T> = [];
   @propertyArray({
     onSet: (_: any, target: ActionContainer<Action>) => {
       target.onSet();
@@ -50,16 +51,15 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   })
     actions: Array<T>;
   private cssClassesValue: any;
-
   protected getRenderedActions(): Array<T> {
-    return this.actions;
+    return this.visibleActions;
   }
 
   public updateCallback: (isResetInitialized: boolean) => void;
   @property({}) containerCss: string;
   public sizeMode: "default" | "small" = "default";
   public locOwner: ILocalizableOwner;
-  @property({ defaultValue: false }) isEmpty: boolean;
+  @property({ defaultValue: true }) isEmpty: boolean;
 
   public locStrsChanged(): void {
     super.locStrsChanged();
@@ -69,22 +69,39 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     });
   }
   protected raiseUpdate(isResetInitialized: boolean) {
-    this.isEmpty = !this.actions.some((action) => action.visible);
+    if (this.isUpdating) return;
+    this.updateVisibleActions();
     this.updateCallback && this.updateCallback(isResetInitialized);
   }
-
+  protected updateVisibleActions() {
+    if (this.isUpdating) return;
+    this.visibleActions = this.actions.filter((action) => action.visible !== false);
+    this.isEmpty = this.visibleActions.length <= 0;
+  }
+  protected onActionVisibilityChanged(action: T) {
+    this.updateVisibleActions();
+  }
+  private onActionVisibilityChangedCallback: (action: T) => void = (action: T) => {
+    this.onActionVisibilityChanged(action);
+  };
   protected onSet() {
-    this.actions.forEach((item) => { this.setActionCssClasses(item); });
-    this.raiseUpdate(true);
+    this.beginUpdates();
+    this.actions.forEach((item) => {
+      this.setActionCssClasses(item);
+      item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
+    });
+    this.endUpdates();
   }
   protected onPush(item: T) {
     this.setActionCssClasses(item);
+    item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     item.owner = this;
     this.raiseUpdate(true);
   }
 
   protected onRemove(item: T) {
     item.owner = null;
+    item.removeVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
     this.raiseUpdate(true);
   }
 
@@ -96,12 +113,15 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return (this.actions || []).length > 0;
   }
 
+  public get hasVisibleActions(): boolean {
+    return !this.isEmpty;
+  }
+
   public get renderedActions(): Array<T> {
     return this.getRenderedActions();
   }
-
-  get visibleActions(): Array<T> {
-    return this.actions.filter((action) => action.visible !== false);
+  public getRootStyle() {
+    return undefined;
   }
   public getRootCss(): string {
     const sizeModeClass = this.sizeMode === "small" ? this.cssClasses.smallSizeMode : this.cssClasses.defaultSizeMode;
@@ -140,7 +160,22 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions = items;
     return res;
   }
+  private blockUpdates: number = 0;
+  public beginUpdates(): void {
+    this.blockUpdates ++;
+  }
+  public endUpdates(): void {
+    this.blockUpdates --;
+    if (this.blockUpdates < 0) {
+      this.blockUpdates = 0;
+    }
+    if (this.blockUpdates === 0) {
+      this.raiseUpdate(true);
+    }
+  }
+  private get isUpdating() { return this.blockUpdates > 0; }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
+    this.beginUpdates();
     const newActions: Array<T> = [];
     items.forEach(item => {
       if (!sortByVisibleIndex || this.isActionVisible(item)) {
@@ -151,6 +186,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       this.sortItems(newActions);
     }
     this.actions = newActions;
+    this.endUpdates();
   }
   private sortItems(items: Array<IAction>): void {
     if (this.hasSetVisibleIndex(items)) {

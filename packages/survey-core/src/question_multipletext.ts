@@ -554,8 +554,11 @@ export class QuestionMultipleTextModel extends Question
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
-    this.items.forEach(item => item.editor.addNestedQuestion(questions, visibleOnly, includeNested));
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
+    if (includeItSelf) {
+      questions.push(this);
+    }
+    this.items.forEach(item => item.editor.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator);
@@ -883,6 +886,12 @@ export class QuestionMultipleTextModel extends Question
   }
   public get ariaRole(): string {
     return "group";
+  }
+  public get ariaRequired() {
+    return null;
+  }
+  public get ariaInvalid() {
+    return null;
   }
 }
 

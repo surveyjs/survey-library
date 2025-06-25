@@ -25,7 +25,10 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
   protected override onModelChanged() {
     super.onModelChanged();
     this.previousModel?.resetResponsivityManager();
-    if (!!this.model.hasActions && !!this.container && !!this.container.nativeElement) {
+  }
+  public override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
+    if (!!this.model.hasVisibleActions && this.container?.nativeElement) {
       this.model.initResponsivityManager(this.container.nativeElement);
     }
   }
@@ -36,7 +39,7 @@ export class ActionBarComponent extends BaseAngular<ActionContainer> {
     }
   }
   ngAfterViewInit() {
-    if (!!this.model.hasActions) {
+    if (!!this.model.hasVisibleActions && this.container?.nativeElement) {
       this.model.initResponsivityManager(this.container.nativeElement);
     }
   }

@@ -2169,19 +2169,22 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected getIsReadyNestedQuestions(): Array<Question> {
     if (!this.generatedVisibleRows) return [];
     const res = new Array<Question>();
-    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true);
+    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false, true, false);
     if (!!this.generatedTotalRow) {
-      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true);
+      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false, true, false);
     }
     return res;
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
-    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested);
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
+    if (includeItSelf) {
+      questions.push(this);
+    }
+    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly, includeNested, includeItSelf);
   }
-  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
+  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
     if (!Array.isArray(rows)) return;
     rows.forEach(row => {
-      row.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
+      row.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
     });
   }
   protected getConditionObjectRowName(index: number): string {

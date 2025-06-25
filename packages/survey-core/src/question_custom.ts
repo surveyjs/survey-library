@@ -1341,9 +1341,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean, includeNested: boolean): void {
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
     if (!this.contentPanel) return;
-    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested));
+    if (includeItSelf) {
+      questions.push(this);
+    }
+    this.contentPanel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
   }
   protected convertDataValue(name: string, newValue: any): any {
     var val = !!this.contentPanel && !this.isEditingSurveyElement ?

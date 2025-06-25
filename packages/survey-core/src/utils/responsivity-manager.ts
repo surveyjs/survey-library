@@ -22,10 +22,12 @@ export class ResponsivityManager {
     public container: HTMLDivElement, private model: AdaptiveActionContainer, public afterInitializeCallback?: () => void) {
     this.model.updateCallback =
     (isResetInitialized: boolean) => {
-      if (isResetInitialized) {
-        this.isInitialized = false;
+      if (!this.model.isResponsivenessDisabled) {
+        if (isResetInitialized) {
+          this.isInitialized = false;
+        }
+        this.debouncedProcess.run();
       }
-      this.debouncedProcess.run();
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {

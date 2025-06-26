@@ -8,6 +8,7 @@ import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
+import { defaultActionBarCss } from "./actions/container";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
@@ -44,12 +45,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
-
-    this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
-      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
-        item: "sd-action sv-menu-popup__button"
-      });
-    };
+    this.footerToolbar.setCssClasses({
+      root: defaultActionBarCss.root,
+      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
+      smallSizeMode: defaultActionBarCss.smallSizeMode,
+      item: "sd-action sv-menu-popup__button"
+    }, false);
 
     this.footerToolbar.containerCss = "sv-menu-footer-action-bar";
     let footerActions = [

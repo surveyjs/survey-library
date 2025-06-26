@@ -43,7 +43,7 @@ export class MultiSelectListModel<T extends BaseAction = Action> extends ListMod
   };
   public updateState(): void {
     this.updateItemState();
-    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
+    this.raiseUpdate({ needUpdateIsEmpty: true });
   }
 
   public setSelectedItems(newItems: Array<IAction>): void {

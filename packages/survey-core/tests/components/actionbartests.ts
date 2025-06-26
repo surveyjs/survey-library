@@ -61,6 +61,7 @@ QUnit.test("AdaptiveActionContainer.css",
   (assert) => {
     const model: AdaptiveActionContainer = new AdaptiveActionContainer();
     model.addAction({ id: "1" });
+    model.flushUpdates();
     assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode");
     model.containerCss = "footer";
     assert.equal(model.getRootCss(), "sv-action-bar sv-action-bar--default-size-mode footer");
@@ -87,10 +88,12 @@ QUnit.test("Check hideItemsGreaterN with minVisibleItemsCount", (assert) => {
     return model;
   };
   let model = createTestModel();
+  model.flushUpdates();
   model["hideItemsGreaterN"](0);
   assert.equal(model.actions[0].mode, "popup");
   assert.equal(model.actions[1].mode, "popup");
   model = createTestModel();
+  model.flushUpdates();
   model.minVisibleItemsCount = 1;
   model["hideItemsGreaterN"](0);
   assert.equal(model.actions[0].mode, "large");
@@ -252,6 +255,9 @@ QUnit.test("Dispose dots item and all it content", (assert) => {
     { id: "first", },
     { id: "second" },
   ]);
+
+  model.flushUpdates();
+
   model["hideItemsGreaterN"](0);
   assert.equal(model.actions[0].mode, "popup");
   assert.equal(model.actions[1].mode, "popup");
@@ -394,17 +400,18 @@ QUnit.test("Check rendered actions", function (assert) {
     { id: "test2", title: "test2", visible: false },
     { id: "test2", title: "test3" }
   ]);
+  actionBar.flushUpdates();
   assert.equal(actionBar.renderedActions.length, 2);
   assert.equal(actionBar.renderedActions[0].title, "test1");
   assert.equal(actionBar.renderedActions[1].title, "test3");
 
   actionBar.actions[0].visible = false;
-
+  actionBar.flushUpdates();
   assert.equal(actionBar.renderedActions.length, 1);
   assert.equal(actionBar.renderedActions[0].title, "test3");
 
   actionBar.actions[1].visible = true;
-
+  actionBar.flushUpdates();
   assert.equal(actionBar.renderedActions.length, 2);
   assert.equal(actionBar.renderedActions[0].title, "test2");
   assert.equal(actionBar.renderedActions[1].title, "test3");
@@ -415,15 +422,18 @@ QUnit.test("Check rendered actions for adaptive container", function (assert) {
   assert.equal(actionBar.renderedActions.length, 0);
 
   actionBar.setItems([{ id: "test1", title: "test1" }]);
+  actionBar.flushUpdates();
   assert.equal(actionBar.renderedActions.length, 2);
   assert.equal(actionBar.renderedActions[0].id, "test1");
   assert.ok(actionBar.renderedActions[1].id == actionBar.dotsItem.id);
 
   actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }]);
+  actionBar.flushUpdates();
   assert.equal(actionBar.renderedActions.length, 1);
   assert.equal(actionBar.renderedActions[0].id, "test1");
 
   actionBar.setItems([{ id: "test1", title: "test1", iconName: "icon" }, { id: "test2", title: "test2" }]);
+  actionBar.flushUpdates();
   assert.equal(actionBar.renderedActions.length, 3);
   assert.equal(actionBar.renderedActions[0].id, "test1");
   assert.equal(actionBar.renderedActions[1].id, "test2");

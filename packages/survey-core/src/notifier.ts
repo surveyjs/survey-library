@@ -2,7 +2,7 @@ import { Base } from "./base";
 import { settings } from "./settings";
 import { property } from "./jsonobject";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { ActionContainer } from "./actions/container";
+import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { IAction } from "./actions/action";
 
 interface INotifierCssClasses {
@@ -29,16 +29,18 @@ export class Notifier extends Base {
   constructor(private cssClasses: INotifierCssClasses) {
     super();
     this.actionBar = new ActionContainer();
-    this.actionBar.updateCallback = (isResetInitialized: boolean) => {
-      this.actionBar.actions.forEach(action => action.cssClasses = {});
-    };
+    this.actionBar.setCssClasses({
+      root: defaultActionBarCss.root,
+      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
+      smallSizeMode: defaultActionBarCss.smallSizeMode,
+    }, false);
     this.css = this.cssClasses.root;
   }
 
   getCssClass(type: string): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
-      .append(this.cssClasses.rootWithButtons, this.actionBar.visibleActions.length > 0)
+      .append(this.cssClasses.rootWithButtons, this.actionBar.getVisibleActions().length > 0)
       .append(this.cssClasses.info, type !== "error" && type !== "success")
       .append(this.cssClasses.error, type === "error")
       .append(this.cssClasses.success, type === "success")

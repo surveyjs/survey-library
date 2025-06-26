@@ -1,9 +1,17 @@
 import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
-import { ActionContainer } from "./container";
+import { ActionContainer, ContainerUpdateOptions } from "./container";
 import { getLocaleString } from "../surveyStrings";
 import { property } from "../jsonobject";
+
+export enum UpdateResponsivenessMode {
+  None = 0,
+  Light = 1,
+  Hard = 3
+}
+
+export type AdaptiveContainerUpdateOptions = { updateResponsivenessMode: UpdateResponsivenessMode } & ContainerUpdateOptions;
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
@@ -39,13 +47,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       }
     }
   }
-
-  private static ContainerID = 1;
-
   constructor() {
     super();
+
     this.dotsItem = createDropdownActionModelAdvanced({
-      id: "dotsItem-id" + AdaptiveActionContainer.ContainerID++,
+      id: "dotsItem-id" + this.id++,
       css: "sv-dots",
       innerCss: "sv-dots__item",
       iconName: "icon-more",
@@ -60,13 +66,29 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     return this.dotsItem.data as ListModel;
   }
   protected onSet(): void {
-    this.actions.forEach(action => action.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized));
     super.onSet();
+    this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
   }
 
-  protected onPush(item: T): void {
-    item.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized);
-    super.onPush(item);
+  protected onPush(action: T): void {
+    super.onPush(action);
+    this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  }
+  protected onRemove(action: T): void {
+    super.onRemove(action);
+    this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  }
+
+  protected onActionPropertyChanged(action: T, options: { name: string, newValue: any, oldValue: any }): void {
+    super.onActionPropertyChanged(action, options);
+    if (options.name == "_visible" || options.name == "_title") {
+      action.needUpdateMaxDimension = action.visible;
+      action.needUpdateMinDimension = action.visible;
+      this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
+    }
+    if (options.name == "disableHide" && options.newValue && action.mode == "popup") {
+      this.raiseUpdate({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
+    }
   }
 
   protected getRenderedActions(): Array<T> {
@@ -82,11 +104,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
 
   protected getActionMinDimension(action: Action): number {
     return action.disableShrink ? action.maxDimension : action.minDimension;
-  }
-  protected onActionVisibilityChanged(action: T): void {
-    action.needUpdateMaxDimension = true;
-    action.needUpdateMinDimension = true;
-    super.onActionVisibilityChanged(action);
   }
 
   private getVisibleItemsCount(options: { availableSpace: number, gap?: number }): number {
@@ -142,6 +159,20 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     return new ResponsivityManager(
       container, this
     );
+  }
+  protected mergeUpdateOptions(nextOptions: AdaptiveContainerUpdateOptions, prevOptions: AdaptiveContainerUpdateOptions): AdaptiveContainerUpdateOptions {
+    const options = super.mergeUpdateOptions(nextOptions, prevOptions) as AdaptiveContainerUpdateOptions;
+    options.updateResponsivenessMode = options.updateResponsivenessMode | prevOptions.updateResponsivenessMode;
+    return options;
+  }
+  protected raiseUpdate(options?: AdaptiveContainerUpdateOptions): void {
+    super.raiseUpdate(options);
+  }
+  protected update(options: AdaptiveContainerUpdateOptions): void {
+    super.update(options);
+    if (options.updateResponsivenessMode) {
+      this.responsivityManager?.update(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
+    }
   }
   public initResponsivityManager(container: HTMLDivElement): void {
     if (!!this.responsivityManager) {

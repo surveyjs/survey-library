@@ -100,8 +100,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.lastSelectedItemValue = selectedItemByValue;
     }
   }
-  public get isShowingChoiceComment() {
-    return (<any>this.selectItem)?.isCommentShowing;
+  public get isShowingChoiceComment(): boolean {
+    return (<any>this.selectedItem)?.hasComment;
   }
   supportAutoAdvance(): boolean {
     return !this.isOtherSelected;

@@ -1,6 +1,3 @@
-<ng-container>
 <input type="checkbox" [name]="question.name+model.id" [id]="question.getItemId(model)" [class]="question.cssClasses.itemControl" [required]="question.hasRequiredError()"
   [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [checked]="question.isItemSelected(model)" [value]="model.value" (change)="onChange($event)" [attr.aria-label]="ariaLabel"/>
-<div *ngIf="model.isCommentShowing" [class]="model.getCommentAreaCss(true)" [question]="question" [item]="model" sv-ng-comment-choice></div>
-</ng-container>
 <ng-content></ng-content>

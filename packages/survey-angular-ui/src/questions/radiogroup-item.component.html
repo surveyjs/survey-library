@@ -1,7 +1,4 @@
-<ng-container>
 <input type="radio" [name]="question.questionName" [attr.name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-errormessage]="question.ariaErrormessage" [class]="question.cssClasses.itemControl"
   [disabled]="!question.getItemEnabled(model)" [readonly]="question.isReadOnlyAttr" [(ngModel)]="question.renderedValue" [attr.value]="model.value" [value]="model.value" [attr.aria-label]="ariaLabel"
 />
-<div *ngIf="model.isCommentShowing" [class]="model.getCommentAreaCss(true)" [question]="question" [item]="model" sv-ng-comment-choice></div>
-</ng-container>
 <ng-content></ng-content>

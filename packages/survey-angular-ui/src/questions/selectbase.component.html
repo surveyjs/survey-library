@@ -37,7 +37,6 @@
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>
     </ng-container>
   </ng-container>
-  <div *ngIf="model.isShowingChoiceComment" [class]="model.getCommentAreaCss(true)" [question]="model" [item]="model.selectedItem" sv-ng-comment-choice></div>
   <div *ngIf="model.showClearButtonInContent">
     <input
       type="button"

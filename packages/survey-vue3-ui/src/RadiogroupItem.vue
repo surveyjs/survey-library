@@ -7,7 +7,12 @@
         :value="item.value"
         :id="question.getItemId(item)"
         :aria-errormessage="question.ariaErrormessage"
-        v-model="renderedValue"
+        :checked="question.isItemSelected(item)"
+        @input="
+          (e) => {
+            change();
+          }
+        "
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
         :class="question.cssClasses.itemControl"
@@ -38,7 +43,6 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
-import { computed, ref } from "vue";
 import { useSelectBaseItem } from "./selectbase-item";
 const root = ref<HTMLElement>();
 defineOptions({ inheritAttrs: false });
@@ -56,13 +60,9 @@ const getControlLabelClass = (item: any) => {
   return props.question.getControlLabelClass(item);
 };
 
-const renderedValue = computed({
-  get: () => props.question.renderedValue,
-  set: (val) => {
-    const question = props.question;
-    question.clickItemHandler(props.item);
-  },
-});
+const change = () => {
+  props.question.clickItemHandler(props.item);
+};
 
 useSelectBaseItem(
   () => props.item,

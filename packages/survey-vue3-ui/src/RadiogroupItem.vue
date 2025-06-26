@@ -60,7 +60,7 @@ const renderedValue = computed({
   get: () => props.question.renderedValue,
   set: (val) => {
     const question = props.question;
-    question.renderedValue = val;
+    question.clickItemHandler(props.item);
   },
 });
 

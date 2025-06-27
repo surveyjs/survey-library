@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TestDefault from "../components/test/TestDefault.vue";
-import TestCustomWidget from "../components/test/TestCustomWidget.vue";
 import Example from '../components/example/Example.vue';
 
 const router = createRouter({
@@ -8,7 +7,7 @@ const router = createRouter({
   routes: [
     { path: "/", component: Example },
     { path: "/examples_test/default/vue3", component: TestDefault },
-    { path: "/examples_test/customWidget/vue3", component: TestCustomWidget },
+    { path: '/examples_test/customWidget/vue3', component: () => import('../components/test/TestCustomWidget.vue') },
   ]
 })
 

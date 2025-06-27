@@ -10,7 +10,10 @@ export class RadiogroupItemComponent {
   @Input() ariaLabel?: string;
   constructor() {
   }
-  onChange(event: any) {
+  public get renderedValue(): any {
+    return this.question.renderedValue;
+  }
+  public set renderedValue(val: any) {
     this.question.clickItemHandler(this.model);
   }
 }

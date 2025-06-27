@@ -43,6 +43,7 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
+import { ref } from "vue";
 import { useSelectBaseItem } from "./selectbase-item";
 const root = ref<HTMLElement>();
 defineOptions({ inheritAttrs: false });

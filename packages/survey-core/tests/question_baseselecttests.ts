@@ -3061,6 +3061,44 @@ QUnit.test("Focus element on selecting hasComment element", (assert) => {
   assert.deepEqual(els, [], "autoOtherMode, focus is not called");
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("Radiogroup/dropdown hasComment supportAutoAdvance", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true }],
+        "showOtherItem": true
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true }],
+        "showOtherItem": true
+      },
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), true, "q1 supportAutoAdvance, #1");
+  assert.equal(q2.supportAutoAdvance(), true, "q2 supportAutoAdvance, #1");
+  q1.value = 1;
+  q2.value = 1;
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), false, "q1 supportAutoAdvance, #2");
+  assert.equal(q2.supportAutoAdvance(), false, "q2 supportAutoAdvance, #2");
+  q1.value = 2;
+  q2.value = 2;
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), true, "q1 supportAutoAdvance, #3");
+  assert.equal(q2.supportAutoAdvance(), true, "q2 supportAutoAdvance, #3");
+  q1.value = "other";
+  q2.value = "other";
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), false, "q1 supportAutoAdvance, #4");
+  assert.equal(q2.supportAutoAdvance(), false, "q2 supportAutoAdvance, #4");
+});
 QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
   const survey = new SurveyModel({
     elements: [

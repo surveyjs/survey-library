@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionSelectBase } from "./question_baseselect";
+import { ChoiceItem, QuestionSelectBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { ItemValue } from "./itemvalue";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -91,7 +91,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.
    */
-  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+  public get selectedItem(): ChoiceItem { return <ChoiceItem>this.getSingleSelectedItem(); }
   protected isOtherValueUnused(): boolean {
     return !this.selectedItem?.hasComment;
   }
@@ -101,10 +101,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
   public get isShowingChoiceComment(): boolean {
-    return (<any>this.selectedItem)?.hasComment;
+    return this.selectedItem?.hasComment;
   }
   supportAutoAdvance(): boolean {
-    return !this.isOtherSelected;
+    return !this.isShowingChoiceComment;
   }
   private minMaxChoices = <Array<ItemValue>>[];
   protected getChoices(): Array<ItemValue> {

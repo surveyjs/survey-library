@@ -15,6 +15,7 @@ frameworks.forEach((framework) => {
             "type": "dropdown",
             "name": "q1",
             "choices": [{ "value": "a", "hasComment": true }, "b", { "value": "c", "hasComment": true }],
+            "searchEnabled": false,
             "showOtherItem": true
           }
         ]
@@ -22,34 +23,33 @@ frameworks.forEach((framework) => {
       const commentArea = page.locator(".sd-question__comment-area");
       expect(await commentArea.count()).toEqual(0);
       const questionDropdownSelect = page.locator(".sd-dropdown");
+      const itemsSelector = page.locator(".sd-list__item");
       await questionDropdownSelect.first().click();
-      await page.getByText("a", { exact: true }).click();
+      await itemsSelector.nth(0).click();
       expect(await commentArea.count()).toEqual(1);
       await page.keyboard.type("Comment for a");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "a", "q1-Comment": "Comment for a" });
       await questionDropdownSelect.first().click();
-      await page.getByText("b", { exact: true }).click();
+      await itemsSelector.nth(1).click();
       expect(await commentArea.count()).toEqual(0);
       expect(await getData(page)).toEqual({ "q1": "b" });
       await questionDropdownSelect.first().click();
-      await page.getByText("c", { exact: true }).click();
+      await itemsSelector.nth(2).click();
       expect(await commentArea.count()).toEqual(1);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "c", "q1-Comment": "Comment for c" });
       await questionDropdownSelect.first().click();
-      await page.getByText("Other").click();
-      await page.keyboard.press("Tab");
+      await itemsSelector.nth(3).click();
       expect(await commentArea.count()).toEqual(1);
       expect(await getData(page)).toEqual({ "q1": "other" });
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "other", "q1-Comment": "Comment for d" });
       await questionDropdownSelect.first().click();
-      await page.getByText("c", { exact: true }).click();
+      await itemsSelector.nth(2).click();
       expect(await commentArea.count()).toEqual(1);
-      await page.keyboard.press("Tab");
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
 

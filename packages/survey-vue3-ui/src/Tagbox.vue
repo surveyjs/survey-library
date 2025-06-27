@@ -5,6 +5,7 @@
       :is="'survey-other-choice'"
       v-if="question.isOtherSelected"
       :question="question"
+      :item="question.otherItem"
     />
   </div>
 </template>

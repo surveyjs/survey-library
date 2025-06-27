@@ -67,11 +67,6 @@
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
     </template>
-    <SvComponent
-      :is="'survey-other-choice'"
-      v-if="question.renderedValue && question.isOtherSelected"
-      :question="question"
-    />
     <div v-if="question.showClearButtonInContent">
       <input
         type="button"

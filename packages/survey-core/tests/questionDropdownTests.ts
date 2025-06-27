@@ -940,7 +940,7 @@ QUnit.test("storeOthersAsComment is false", assert => {
 
   question.renderedValue = "other";
   assert.deepEqual(question.value, "other", "#1");
-  question.comment = "text1";
+  question.otherValue = "text1";
   assert.deepEqual(question.value, "text1", "#2");
   assert.deepEqual(survey.data, { q1: "text1" }, "#3");
 });
@@ -979,7 +979,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
 
   question.renderedValue = "other";
   assert.deepEqual(question.value, "other", "#1");
-  question.comment = "text1";
+  question.otherValue = "text1";
   assert.deepEqual(question.value, "text1", "#2");
   assert.deepEqual(survey.data, { q1: "text1" }, "#3");
 });

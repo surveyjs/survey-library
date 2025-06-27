@@ -21,4 +21,5 @@
       </span>
     </ng-template>
   </div>
+  <div *ngIf="model.isCommentShowing" [class]="question.getCommentAreaCss(true)" [question]="question" [item]="model" sv-ng-comment-choice></div>
 </ng-template>

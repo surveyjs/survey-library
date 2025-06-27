@@ -345,11 +345,11 @@ export class DropdownListModel extends Base {
     if (this.allowCustomChoices && item.id === this.customItemValue.id) {
       const newChoice = this.createCustomItem();
       if (!!newChoice) {
-        this.question.value = newChoice.id;
+        this.question.selectItem(newChoice);
         this.hintString = "";
       }
     } else {
-      this.question.value = item.id;
+      this.question.selectItem(item);
       if (this.searchEnabled)this.applyInputString(item as ItemValue);
     }
   }

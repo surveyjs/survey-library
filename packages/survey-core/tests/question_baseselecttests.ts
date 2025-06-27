@@ -3061,19 +3061,97 @@ QUnit.test("Focus element on selecting hasComment element", (assert) => {
   assert.deepEqual(els, [], "autoOtherMode, focus is not called");
   SurveyElement.FocusElement = oldFunc;
 });
+QUnit.test("Radiogroup/dropdown hasComment validation", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "showOtherItem": true
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "showOtherItem": true
+      },
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  assert.equal(q1.validate(), true, "q1 validation, #1");
+  assert.equal(q2.validate(), true, "q1 validation, #1");
+  q1.value = 1;
+  q2.value = 1;
+  assert.equal(q1.validate(), false, "q1 validation, #2");
+  assert.equal(q2.validate(), false, "q2 validation, #2");
+  q1.otherValue = "test comment";
+  q2.otherValue = "test comment";
+  assert.equal(q1.validate(), true, "q1 validation, #3");
+  assert.equal(q2.validate(), true, "q2 validation, #3");
+  q1.value = 2;
+  q2.value = 2;
+  assert.equal(q1.validate(), true, "q1 validation, #4");
+  assert.equal(q2.validate(), true, "q2 validation, #4");
+  q1.value = 3;
+  q2.value = 3;
+  assert.equal(q1.validate(), true, "q1 validation, #5");
+  assert.equal(q2.validate(), true, "q2 validation, #5");
+  q1.otherValue = "test comment";
+  q2.otherValue = "test comment";
+  assert.equal(q1.validate(), true, "q1 validation, #6");
+  assert.equal(q2.validate(), true, "q2 validation, #6");
+  q1.renderedValue = "other";
+  q2.renderedValue = "other";
+  assert.equal(q1.validate(), false, "q1 validation, #7");
+  assert.equal(q2.validate(), false, "q2 validation, #7");
+  q1.otherValue = "test comment";
+  q2.otherValue = "test comment";
+  assert.equal(q1.validate(), true, "q1 validation, #8");
+  assert.equal(q2.validate(), true, "q2 validation, #8");
+});
+QUnit.test("Checkbox hasComment validation", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.validate(), true, "q1 validation, #1");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(q1.validate(), false, "q1 validation, #2");
+  q1.setCommentValue(q1.choices[0], "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #3");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1.validate(), true, "q1 validation, #4");
+  q1.clickItemHandler(q1.choices[2], true);
+  assert.equal(q1.validate(), true, "q1 validation, #5");
+  q1.setCommentValue(q1.choices[2], "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #6");
+  q1.clickItemHandler(q1.otherItem, true);
+  assert.equal(q1.validate(), false, "q1 validation, #7");
+  q1.setCommentValue(q1.otherItem, "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #8");
+});
 QUnit.test("Radiogroup/dropdown hasComment supportAutoAdvance", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true }],
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
         "showOtherItem": true
       },
       {
         "type": "dropdown",
         "name": "q2",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true }],
+        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
         "showOtherItem": true
       },
     ]

@@ -28,6 +28,12 @@ export class ChoiceItem extends ItemValue {
     }
     this.setPropertyValue("hasComment", val);
   }
+  public get isCommentRequired(): boolean {
+    return this.getPropertyValue("isCommentRequired");
+  }
+  public set isCommentRequired(val: boolean) {
+    this.setPropertyValue("isCommentRequired", val);
+  }
   public get isCommentShowing(): boolean {
     return this.getPropertyValue("isCommentShowing", false);
   }
@@ -1553,7 +1559,7 @@ export class QuestionSelectBase extends Question {
     const choices = this.visibleChoices;
     for (let i = 0; i < choices.length; i++) {
       const choice = choices[i];
-      if (this.isCommentShowing(choice) && !this.getCommentValue(choices[i])) return true;
+      if (choice.isCommentRequired && this.isCommentShowing(choice) && !this.getCommentValue(choices[i])) return true;
     }
     return false;
   }
@@ -2289,7 +2295,9 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 }
 
 Serializer.addClass("choiceitem",
-  [{ name: "hasComment:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } }],
+  [{ name: "hasComment:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
+    { name: "isCommentRequired:boolean", default: true, locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.hasComment; } },
+  ],
   (value) => new ChoiceItem(value),
   "itemvalue"
 );

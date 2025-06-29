@@ -98,7 +98,7 @@ export class DropdownListModel extends Base {
     if (!this.allowCustomChoices) return;
 
     const value = newValue || this.filterString;
-    const item = this.listModel.visibleActions.filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
+    const item = this.listModel.getVisibleActions().filter(action => Helpers.isTwoValueEquals(action.text, value, false, false))[0];
     if (!!item) {
       this.customValue = undefined;
     } else {

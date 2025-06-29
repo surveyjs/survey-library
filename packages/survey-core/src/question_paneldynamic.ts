@@ -2680,6 +2680,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     return this.tabbedMenuValue;
   }
+  @property({ defaultValue: false }) _showFooterToolbar: boolean;
+
+  get showFooterToolbar() {
+    return this.footerToolbar && this._showFooterToolbar;
+  }
 
   private footerToolbarValue: ActionContainer;
   public get footerToolbar(): ActionContainer {
@@ -2764,6 +2769,8 @@ export class QuestionPanelDynamicModel extends Question
     };
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);
+    this.footerToolbar.flushUpdates();
+    this._showFooterToolbar = new ComputedUpdater<boolean>(() => this.footerToolbarValue?.hasVisibleActions) as any as boolean;
   }
   private createTabByPanel(panel: PanelModel, visPanelIndex: number) {
     if (!this.isRenderModeTab) return;
@@ -2810,14 +2817,10 @@ export class QuestionPanelDynamicModel extends Question
     if (!this.isRenderModeTab) return;
     if (this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
     const panel = this.visiblePanelsCore[this.currentIndex];
-    this.tabbedMenu.renderedActions.forEach(action => {
+    this.tabbedMenu.actions.forEach(action => {
       const isActive = action.panelId === panel.id;
       action.pressed = isActive;
       action.disableHide = isActive;
-      //should raise update if dimensions are not changed but action is active now
-      if (action.mode === "popup" && action.disableHide) {
-        action["raiseUpdate"]();
-      }
     });
   }
   private updateTabToolbar() {

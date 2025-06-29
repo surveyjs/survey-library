@@ -28,6 +28,7 @@ onMounted(() => {
       callback(mode, root.value);
     });
   };
+  item.afterRender();
 });
 onUnmounted(() => {
   const item = props.item;

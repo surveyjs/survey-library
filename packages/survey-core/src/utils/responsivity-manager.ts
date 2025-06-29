@@ -1,8 +1,6 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { isContainerVisible } from "./utils";
-import { debounce } from "./taskmanager";
-
 interface IDimensions {
   scroll: number;
   offset: number;
@@ -15,20 +13,8 @@ export class ResponsivityManager {
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
     return DomDocumentHelper.getComputedStyle(elt);
   };
-  private debouncedProcess = debounce(() => {
-    this.process();
-  });
   constructor(
     public container: HTMLDivElement, private model: AdaptiveActionContainer, public afterInitializeCallback?: () => void) {
-    this.model.updateCallback =
-    (isResetInitialized: boolean) => {
-      if (!this.model.isResponsivenessDisabled) {
-        if (isResetInitialized) {
-          this.isInitialized = false;
-        }
-        this.debouncedProcess.run();
-      }
-    };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
         DomWindowHelper.requestAnimationFrame((): void | undefined => {
@@ -112,9 +98,16 @@ export class ResponsivityManager {
     }
   }
   private isDisposed: boolean = false;
+  public update(forceUpdate: boolean) {
+    if (!this.model.isResponsivenessDisabled) {
+      if (forceUpdate) {
+        this.isInitialized = false;
+      }
+      this.process();
+    }
+  }
   public dispose(): void {
     this.isDisposed = true;
-    this.model.updateCallback = undefined;
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
     }

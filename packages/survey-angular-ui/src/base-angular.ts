@@ -123,8 +123,8 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         if (!this.isDestroyed) {
           this.setIsRendering(true);
           this.detectChanges();
+          this.afterUpdate();
         }
-        this.afterUpdate();
       });
     }
   }

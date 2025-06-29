@@ -11,7 +11,7 @@ export enum UpdateResponsivenessMode {
   Hard = 3
 }
 
-export type AdaptiveContainerUpdateOptions = { updateResponsivenessMode: UpdateResponsivenessMode } & ContainerUpdateOptions;
+export type AdaptiveContainerUpdateOptions = { updateResponsivenessMode?: UpdateResponsivenessMode } & ContainerUpdateOptions;
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;

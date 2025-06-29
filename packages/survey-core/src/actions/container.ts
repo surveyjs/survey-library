@@ -83,8 +83,8 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   protected mergeUpdateOptions(nextOptions: ContainerUpdateOptions, prevOptions: ContainerUpdateOptions): ContainerUpdateOptions {
     const options = Object.assign({}, nextOptions);
-    options.needUpdateActions = options.needUpdateActions || prevOptions.needUpdateActions;
-    options.needUpdateIsEmpty = options.needUpdateIsEmpty || prevOptions.needUpdateIsEmpty;
+    options.needUpdateActions = !!options.needUpdateActions || !!prevOptions.needUpdateActions;
+    options.needUpdateIsEmpty = !!options.needUpdateIsEmpty || !!prevOptions.needUpdateIsEmpty;
     return options;
   }
   private raiseUpdateCallback = debounce((isResetInitialized) => {

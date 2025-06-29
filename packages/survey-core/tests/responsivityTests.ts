@@ -1,8 +1,7 @@
 import { Action } from "../src/actions/action";
-import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
+import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
-import { TestAdaptiveActionContainer } from "./helpers";
 
 export default QUnit.module("ResponsivityManager");
 
@@ -259,6 +258,15 @@ QUnit.test("Ignore space for invisible items", function (assert) {
   model.fit({ availableSpace: 50 });
   assert.equal(item1.mode, "large");
 });
+
+export class TestAdaptiveActionContainer extends AdaptiveActionContainer {
+  updateCallback: (isResetInitialized: boolean) => void;
+  protected update(options: AdaptiveContainerUpdateOptions): void {
+    if (!!options.updateResponsivenessMode) {
+      this.updateCallback && this.updateCallback(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
+    }
+  }
+}
 
 QUnit.test("Action container: updateCallback test", assert => {
   let isRaised = false;

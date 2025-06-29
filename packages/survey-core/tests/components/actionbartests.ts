@@ -1,5 +1,5 @@
 import { Action, ActionDropdownViewModel, IAction, createDropdownActionModel } from "../../src/actions/action";
-import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
+import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsivenessMode } from "../../src/actions/adaptive-container";
 import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
 import { LocalizableString } from "../../src/localizablestring";
 import { PopupModel } from "../../src/popup";
@@ -9,6 +9,7 @@ import { PageModel } from "../../src/page";
 import { ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
 import { surveyLocalization } from "../../src/surveyStrings";
+import { ResponsivityManager } from "../../src/utils/responsivity-manager";
 
 QUnit.test("Check that items are wrapped after set", (assert) => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -452,4 +453,127 @@ QUnit.test("Check getRootStyle method", function (assert) {
   assert.strictEqual(actionBar.getRootStyle()?.opacity, 0);
   actionBar["responsivityManager"].afterInitializeCallback && actionBar["responsivityManager"].afterInitializeCallback();
   assert.strictEqual(actionBar.getRootStyle()?.opacity, undefined);
+});
+
+QUnit.test("Check actions container update merge options", (assert) => {
+  const container = new AdaptiveActionContainer();
+  let newOptions = container["mergeUpdateOptions"]({}, { });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+
+  newOptions = container["mergeUpdateOptions"]({ needUpdateActions: false }, { needUpdateActions: false });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  newOptions = container["mergeUpdateOptions"]({ needUpdateActions: true }, { needUpdateActions: false });
+  assert.deepEqual(newOptions, { "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  newOptions = container["mergeUpdateOptions"]({ needUpdateActions: true }, { needUpdateActions: true });
+  assert.deepEqual(newOptions, { "needUpdateActions": true, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+
+  newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: false }, { needUpdateIsEmpty: false });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: true }, { needUpdateIsEmpty: false });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  newOptions = container["mergeUpdateOptions"]({ needUpdateIsEmpty: true }, { needUpdateIsEmpty: true });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": true, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+
+  newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.None }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.None });
+  newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
+  newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light }, { updateResponsivenessMode: UpdateResponsivenessMode.Light });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Light });
+  newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.None });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.Light });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+  newOptions = container["mergeUpdateOptions"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard }, { updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  assert.deepEqual(newOptions, { "needUpdateActions": false, "needUpdateIsEmpty": false, "updateResponsivenessMode": UpdateResponsivenessMode.Hard });
+});
+class TestAdaptiveActionContainer extends AdaptiveActionContainer {
+  callback: (options: AdaptiveContainerUpdateOptions) => void;
+  update(options: AdaptiveContainerUpdateOptions) {
+    this.callback && this.callback(options);
+  }
+}
+QUnit.test("Check actions container update called only once", (assert) => {
+  const done = assert.async();
+  const container = new TestAdaptiveActionContainer();
+  const results:Array<AdaptiveContainerUpdateOptions> = [];
+  container.callback = (options) => {
+    results.push(options);
+  };
+  container["raiseUpdate"]({ needUpdateActions: true });
+  container["raiseUpdate"]({ needUpdateIsEmpty: true });
+  container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  assert.deepEqual(results, []);
+  queueMicrotask(() => {
+    assert.deepEqual(results, [{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
+    done();
+  });
+});
+
+QUnit.test("Check actions container flushUpdates", (assert) => {
+  const container = new TestAdaptiveActionContainer();
+  const results:Array<AdaptiveContainerUpdateOptions> = [];
+  container.callback = (options) => {
+    results.push(options);
+  };
+  container["raiseUpdate"]({ needUpdateActions: true });
+  container["raiseUpdate"]({ needUpdateIsEmpty: true });
+  container["raiseUpdate"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  container.flushUpdates();
+  assert.deepEqual(results, [{ needUpdateActions: true, needUpdateIsEmpty: true, updateResponsivenessMode: UpdateResponsivenessMode.Hard }]);
+});
+
+class TestResponsivityManager extends ResponsivityManager {
+  callback: (forceUpdate: boolean) => void;
+  update(forceUpdate: boolean) {
+    this.callback && this.callback(forceUpdate);
+  }
+}
+class Test2AdaptiveActionContainer extends AdaptiveActionContainer {
+  protected createResponsivityManager(container: HTMLDivElement): ResponsivityManager {
+    return new TestResponsivityManager(container, this);
+  }
+  public initResponsivityManager(container: HTMLDivElement, callback?: (forceUpdate: boolean) => void) {
+    super.initResponsivityManager(container);
+    (this.responsivityManager as TestResponsivityManager).callback = callback as (forceUpdate: boolean) => void;
+  }
+}
+
+QUnit.test("Check actions container update method", (assert) => {
+  const container = new Test2AdaptiveActionContainer();
+  container.actions.push(new Action({ id: "test" }));
+  let responsivityLog = "";
+  container.initResponsivityManager(document.createElement("div"), (forceUpdate: boolean) => responsivityLog += `->called:${forceUpdate}`);
+
+  assert.equal(container.visibleActions.length, 0);
+  assert.equal(container.isEmpty, true);
+  assert.equal(responsivityLog, "");
+
+  container["update"]({ needUpdateActions: true });
+  assert.equal(container.visibleActions.length, 1);
+  assert.equal(container.visibleActions[0].id, "test");
+  assert.equal(container.isEmpty, true);
+  assert.equal(responsivityLog, "");
+
+  container["update"]({ needUpdateIsEmpty: true });
+  assert.equal(container.visibleActions.length, 1);
+  assert.equal(container.visibleActions[0].id, "test");
+  assert.equal(container.isEmpty, false);
+  assert.equal(responsivityLog, "");
+
+  container.setItems([]);
+  container["update"]({ needUpdateIsEmpty: true });
+  assert.equal(container.visibleActions.length, 1);
+  assert.equal(container.visibleActions[0].id, "test");
+  assert.equal(container.isEmpty, false);
+  assert.equal(responsivityLog, "");
+
+  container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.None });
+  assert.equal(responsivityLog, "");
+  container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.Light });
+  assert.equal(responsivityLog, "->called:false");
+  responsivityLog = "";
+  container["update"]({ updateResponsivenessMode: UpdateResponsivenessMode.Hard });
+  assert.equal(responsivityLog, "->called:true");
+
 });

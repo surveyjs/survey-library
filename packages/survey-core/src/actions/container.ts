@@ -132,9 +132,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       this.raiseUpdate({ needUpdateActions: true, needUpdateIsEmpty: true });
     }
   }
-  protected onActionPropertyChangedCallback = (action: T, options: { name: string, newValue: any, oldValue: any }) => {
-    this.onActionPropertyChanged(action, options);
-  };
+  protected onActionPropertyChangedCallback = this.onActionPropertyChanged.bind(this);
   protected patchAction(action: T) {
     this.setActionCssClasses(action);
     action.owner = this;

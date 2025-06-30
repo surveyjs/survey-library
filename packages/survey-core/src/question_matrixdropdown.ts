@@ -199,6 +199,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.generatedVisibleRows.forEach(row => {
       const rowVal = val[row.rowName];
       if (row.isVisible && !Helpers.isValueEmpty(rowVal)) {
+        row.mergeRowValues(rowVal);
         res[row.rowName] = rowVal;
       }
     });

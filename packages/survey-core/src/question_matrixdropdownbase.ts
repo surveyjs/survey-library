@@ -310,23 +310,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   protected isItemVisible(): boolean { return true; }
   public get value(): any {
-    var result: any = {};
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
-      if (!question.isEmpty()) {
-        result[question.getValueName()] = question.value;
-      }
-      if (
-        !!question.comment &&
-        !!this.getSurvey() &&
-        this.getSurvey().storeOthersAsComment
-      ) {
-        result[question.getValueName() + Base.commentSuffix] =
-          question.comment;
-      }
-    }
-    return result;
+    return this.getValueCore(false);
   }
   public set value(value: any) {
     this.isSettingValue = true;
@@ -347,6 +331,26 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       question.onSurveyValueChanged(val);
     }
     this.isSettingValue = false;
+  }
+  private getValueCore(isExpression: boolean): any {
+    var result: any = {};
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      var question = questions[i];
+      if (!question.isEmpty()) {
+        const val = question.value;
+        result[question.getValueName()] = isExpression ? question.getExpressionValue(val) : val;
+      }
+      if (
+        !!question.comment &&
+        !!this.getSurvey() &&
+        this.getSurvey().storeOthersAsComment
+      ) {
+        result[question.getValueName() + Base.commentSuffix] =
+          question.comment;
+      }
+    }
+    return result;
   }
   public get locText(): LocalizableString {
     return null;
@@ -420,7 +424,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.isCreatingDetailPanel = false;
   }
   getAllValues(): any {
-    const res = this.value;
+    return this.getAllValuesCore(false);
+  }
+  private getAllValuesCore(isExpression: boolean): any {
+    const res = this.getValueCore(isExpression);
     if (this.data) {
       const rowVal = this.getDataRowValue();
       if (rowVal) {
@@ -441,7 +448,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
         res[key] = values[key];
       }
     }
-    res.row = this.getAllValues();
+    res.row = this.getAllValuesCore(true);
     this.applyRowVariablesToValues(res, this.rowIndex);
     return res;
   }
@@ -465,7 +472,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.applyRowVariablesToValues(values, rowIndex);
     const newProps = Helpers.createCopy(properties);
     newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
-    const rowValues = rowIndex > 0 ? this.getDataRowValue() : this.value;
+    const rowValues = rowIndex > 0 ? this.getDataRowValue() : this.getValueCore(true);
     if (!!rowsVisibleIf) {
       values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
       this.setRowsVisibleIfValues(values);
@@ -475,7 +482,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     for (var i = 0; i < this.cells.length; i++) {
       if (i > 0) {
-        mergeValues(this.value, rowValues);
+        this.mergeRowValues(rowValues);
       }
       values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
       this.cells[i].runCondition(values, newProps);
@@ -486,6 +493,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (this.isRowHasEnabledCondition()) {
       this.onQuestionReadOnlyChanged();
     }
+  }
+  public mergeRowValues(values: any): void {
+    if (!values) return;
+    mergeValues(this.getValueCore(true), values);
   }
   public updateElementVisibility(): void {
     this.cells.forEach(cell => cell.question.updateElementVisibility());
@@ -2591,7 +2602,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return false;
   }
   getFilteredData(): any {
-    if (this.isEmpty() || !this.generatedVisibleRows || !this.hasInvisibleRows) return this.value;
+    if (this.isEmpty() || !this.generatedVisibleRows) return this.value;
     return this.getFilteredDataCore();
   }
   protected getFilteredDataCore(): any { return this.value; }

@@ -1036,6 +1036,7 @@ QUnit.test("rendering actions id", assert => {
   const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
   question.id = "el1";
   const listModel = question.popupModel.contentComponentData.model as ListModel;
+  listModel.flushUpdates();
   const actions = listModel.renderedActions;
   assert.equal(actions.length, 2, "two actions");
   assert.equal((<IAction>actions[0]).elementId, "el1i_listItem1", "elementId, action1");
@@ -2020,6 +2021,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testExistValue = "item2";
   const testCustomValue = "item10";
+  listModel.flushUpdates();
 
   assert.equal(dropdownListModel.allowCustomChoices, false, "#1 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, "", "#1 inputStringRendered");
@@ -2028,6 +2030,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions.length, 4, "#1 listModel.actions");
 
   dropdownListModel.inputStringRendered = testCustomValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, false, "#2 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
@@ -2038,6 +2041,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
   question.allowCustomChoices = true;
   dropdownListModel.inputStringRendered = testCustomValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#3 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testCustomValue, "#3 customValue");
   assert.equal(dropdownListModel.popupModel.isVisible, true, "#3 popupModel.isVisible");
@@ -2049,6 +2053,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.focusedItem.id, "newCustomItem", "#3 focusedItem");
 
   dropdownListModel.inputStringRendered = testExistValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#4 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#4 customValue");
   assert.equal(dropdownListModel.popupModel.isVisible, true, "#4 popupModel.isVisible");
@@ -2060,6 +2065,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.focusedItem.id, "item2", "#4 focusedItem");
 
   dropdownListModel.inputStringRendered = testExistValue + "test";
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#5 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testExistValue + "test", "#5 customValue");
   assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
@@ -2071,6 +2077,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.focusedItem.id, "newCustomItem", "#5 focusedItem");
 
   dropdownListModel.popupModel.hide();
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#6 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#6 customValue");
   assert.equal(dropdownListModel.popupModel.isVisible, false, "#6 popupModel.isVisible");
@@ -2163,6 +2170,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testExistValue = "item2";
   const testCustomValue = "item10";
+  listModel.flushUpdates();
 
   assert.equal(dropdownListModel.allowCustomChoices, false, "#1 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, "", "#1 inputStringRendered");
@@ -2171,6 +2179,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions.length, 4, "#1 listModel.actions");
 
   dropdownListModel.inputStringRendered = testCustomValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, false, "#2 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, testCustomValue, "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
@@ -2179,6 +2188,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
   question.allowCustomChoices = true;
   dropdownListModel.inputStringRendered = testCustomValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#3 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testCustomValue, "#3 customValue");
   assert.equal(listModel.isEmpty, false, "#3 listModel is not empty");
@@ -2188,6 +2198,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions[4].visible, true, "#3 custom item visible");
 
   dropdownListModel.inputStringRendered = testExistValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#4 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#4 customValue");
   assert.equal(listModel.isEmpty, false, "#4 listModel is not empty");
@@ -2197,6 +2208,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions[4].visible, false, "#4 custom item invisible");
 
   dropdownListModel.inputStringRendered = testExistValue + "test";
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#5 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testExistValue + "test", "#5 customValue");
   assert.equal(listModel.isEmpty, false, "#5 listModel is not empty");
@@ -2207,6 +2219,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
 
   dropdownListModel.popupModel.hide();
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#6 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#6 customValue");
   assert.equal(listModel.isEmpty, false, "#6 listModel is not empty");
@@ -2318,6 +2331,7 @@ QUnit.test("allowCustomChoices: Option to create item not available if item exis
   const dropdownListModel = question.dropdownListModel;
   const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testExistValue = "item2";
+  listModel.flushUpdates();
 
   dropdownListModel.inputStringRendered = testExistValue.toUpperCase();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#1 allowCustomChoices");
@@ -2399,6 +2413,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
   dropdownListModel.popupModel.show();
   doCallback(opts[0]);
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, false, "#1 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, "", "#1 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#1 customValue");
@@ -2407,6 +2422,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
   dropdownListModel.inputStringRendered = testCustomValue1;
   doCallback(opts[1]);
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, false, "#2 allowCustomChoices");
   assert.equal(dropdownListModel.inputStringRendered, testCustomValue1, "#2 inputStringRendered");
   assert.equal(dropdownListModel.customValue, undefined, "#2 customValue");
@@ -2416,6 +2432,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   question.allowCustomChoices = true;
   dropdownListModel.inputStringRendered = testCustomValue2;
   doCallback(opts[2]);
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#3 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testCustomValue2, "#3 customValue");
   assert.equal(listModel.isEmpty, false, "#3 listModel is not empty");
@@ -2426,6 +2443,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
   dropdownListModel.inputStringRendered = testExistValue;
   doCallback(opts[3]);
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#4 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, undefined, "#4 customValue");
   assert.equal(listModel.isEmpty, false, "#4 listModel is not empty");
@@ -2436,6 +2454,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
   dropdownListModel.inputStringRendered = testExistValue + "test";
   doCallback(opts[4]);
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.allowCustomChoices, true, "#5 allowCustomChoices");
   assert.equal(dropdownListModel.customValue, testExistValue + "test", "#5 customValue");
   assert.equal(listModel.isEmpty, false, "#5 listModel is not empty");
@@ -2543,6 +2562,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
   const testExistValue = "item2";
   const testCustomValue = "item10";
+  listModel.flushUpdates();
 
   assert.equal(dropdownListModel.customValue, undefined, "#1 customValue");
   assert.equal(listModel.searchEnabled, true, "#1 listModel searchEnabled");
@@ -2550,6 +2570,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions.length, 4, "#1 listModel.actions");
 
   listModel.filterString = testCustomValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.customValue, testCustomValue, "#3 customValue");
   assert.equal(listModel.isEmpty, false, "#3 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#3 listModel.actions");
@@ -2558,6 +2579,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions[4].visible, true, "#3 custom item visible");
 
   listModel.filterString = testExistValue;
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.customValue, undefined, "#4 customValue");
   assert.equal(listModel.isEmpty, false, "#4 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#4 listModel.actions");
@@ -2566,6 +2588,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(listModel.actions[4].visible, false, "#4 custom item invisible");
 
   listModel.filterString = testExistValue + "test";
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.customValue, testExistValue + "test", "#5 customValue");
   assert.equal(listModel.isEmpty, false, "#5 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#5 listModel.actions");
@@ -2575,6 +2598,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   assert.equal(dropdownListModel.popupModel.isVisible, true, "#5 popupModel.isVisible");
 
   dropdownListModel.popupModel.hide();
+  listModel.flushUpdates();
   assert.equal(dropdownListModel.customValue, undefined, "#6 customValue");
   assert.equal(listModel.isEmpty, false, "#6 listModel is not empty");
   assert.equal(listModel.actions.length, 5, "#6 listModel.actions");

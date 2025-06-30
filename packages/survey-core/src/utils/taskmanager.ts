@@ -58,10 +58,14 @@ export class TaskManger {
   }
 }
 
-export function debounce<T extends (...args: any) => void>(func: T): { run: T, cancel: () => void } {
+export function debounce<T extends (...args: any[]) => void>(func: T): { run: T, cancel: () => void, getLastArguments: () => any[], flushSync: () => void } {
   let isSheduled = false;
   let isCanceled = false;
   let funcArgs: any;
+  const cancelCallback = () => {
+    isCanceled = true;
+    funcArgs = undefined;
+  };
   return { run: ((...args: any) => {
     isCanceled = false;
     funcArgs = args;
@@ -71,11 +75,19 @@ export function debounce<T extends (...args: any) => void>(func: T): { run: T, c
         if (!isCanceled) {
           func.apply(this, funcArgs);
         }
+        funcArgs = undefined;
         isCanceled = false;
         isSheduled = false;
       });
     }
-  }) as T, cancel: () => {
-    isCanceled = true;
-  } };
+  }) as T,
+  cancel: cancelCallback,
+  getLastArguments: () => funcArgs,
+  flushSync: () => {
+    if (!isCanceled && isSheduled) {
+      func.apply(this, funcArgs);
+      cancelCallback();
+    }
+  }
+  };
 }

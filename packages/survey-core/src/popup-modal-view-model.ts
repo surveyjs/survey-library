@@ -2,7 +2,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IAction } from "./actions/action";
-import { preventDefaults } from "./utils/utils";
+import { defaultActionBarCss } from "./actions/container";
 
 export class PopupModalViewModel extends PopupBaseViewModel {
   protected getStyleClass(): CssClassBuilder {
@@ -16,12 +16,12 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   }
   protected createFooterActionBar(): void {
     super.createFooterActionBar();
-
-    this.footerToolbar.updateCallback = (isResetInitialized: boolean) => {
-      this.footerToolbarValue.actions.forEach(action => action.cssClasses = {
-        item: "sv-popup__body-footer-item sv-popup__button sv-modal-popup__button sd-btn sd-btn--small"
-      });
-    };
+    this.footerToolbar.setCssClasses({
+      root: defaultActionBarCss.root,
+      defaultSizeMode: defaultActionBarCss.defaultSizeMode,
+      smallSizeMode: defaultActionBarCss.smallSizeMode,
+      item: "sv-popup__body-footer-item sv-popup__button sv-modal-popup__button sd-btn sd-btn--small"
+    }, false);
 
     this.footerToolbar.containerCss = "sv-modal-footer-action-bar";
     let footerActions = [

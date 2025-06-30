@@ -472,6 +472,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.titleToolbarValue.locOwner = this;
       this.titleToolbarValue.containerCss = (this.isPanel ? this.cssClasses.panel.titleBar : this.cssClasses.titleBar) || "sv-action-title-bar";
       this.titleToolbarValue.setItems(this.getTitleActions());
+      this.titleToolbarValue.flushUpdates();
     }
     return this.titleToolbarValue;
   }

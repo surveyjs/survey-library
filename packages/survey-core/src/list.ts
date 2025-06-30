@@ -119,16 +119,16 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return actions;
   }
   public get visibleItems(): Array<T> {
-    return this.visibleActions.filter(item => this.isItemVisible(item));
+    return this.actions.filter(item => this.isItemVisible(item));
   }
   private onFilterStringChanged(text: string) {
     if (!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
-    this.updateIsEmpty();
+    this.raiseUpdate({ needUpdateIsEmpty: true });
   }
-  private updateIsEmpty(): void {
-    this.isEmpty = !this.renderedActions.some(action => this.isItemVisible(action));
+  protected getIsEmpty(): boolean {
+    return !this.renderedActions.some(action => this.isItemVisible(action));
   }
   private scrollToItem(classes: string, ms = 0): void {
     setTimeout(() => {
@@ -189,7 +189,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   private updateActionsIds(): void {
     if (this.elementId) {
-      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
+      this.actions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
     }
   }
   public setSearchEnabled(newValue: boolean): void {
@@ -348,7 +348,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (this.filterString !== "") {
       this.filterString = "";
     } else {
-      this.updateIsEmpty();
+      this.raiseUpdate({ needUpdateIsEmpty: true });
     }
     this.resetFocusedItem();
   }

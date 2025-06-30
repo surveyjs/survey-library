@@ -11,6 +11,7 @@ QUnit.test("ListModel less than or equal to MINELEMENTCOUNT", function (assert) 
   ListModel.MINELEMENTCOUNT = 5;
   const items = createIActionArray(4);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
 
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
@@ -24,12 +25,13 @@ QUnit.test("ListModel greater MINELEMENTCOUNT", function (assert) {
   const items = createIActionArray(7);
   items.push(<IAction>{ id: "test8", title: "test8", visible: false });
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
-
+  list.flushUpdates();
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
   assert.ok(list.showFilter);
 
   list.filterString = "test";
+
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 7);
 
@@ -44,12 +46,13 @@ QUnit.test("ListModel reassign items", function (assert) {
   ListModel.MINELEMENTCOUNT = 5;
   const items = createIActionArray(4);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
-
+  list.flushUpdates();
   assert.equal(list.renderedActions.length, 4);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 4);
   assert.notOk(list.showFilter);
 
   list.setItems(createIActionArray(7));
+  list.flushUpdates();
 
   assert.equal(list.renderedActions.length, 7);
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7);
@@ -103,22 +106,25 @@ QUnit.test("ListModel custom onFilter", assert => {
   ];
   const myObject = new MyObject(items);
   const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
   list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0);
 
   list.setItems(myObject.myItems);
-
+  list.flushUpdates();
   assert.equal(list.renderedActions.length, 7, "initial list.renderedActions");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7, "initial list.renderedActions.filter(item => item.visible)");
   assert.ok(list.showFilter, "initial list.filterableListItems");
 
   list.filterString = "test";
+  list.flushUpdates();
   assert.equal(list.renderedActions.length, 1, "items filterString = test");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filterString = test");
   assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filterString = test");
   assert.equal(list.renderedActions.filter(item => item.visible)[0].title, "test1", "filterString = test");
 
   list.filterString = "1";
+  list.flushUpdates();
   assert.equal(list.renderedActions.length, 1, "items filterString = 1");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "items.filter(item => item.visible) filterString = 1");
   assert.equal(myObject.myItems.filter(item => item.visible).length, 1, "myObject.myItems visible filterString = 1");
@@ -138,13 +144,16 @@ QUnit.test("ListModel: refresh & isEmpty", assert => {
   ];
   const myObject = new MyObject(items);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
   assert.equal(list.isEmpty, false, "#1");
   list.actions[0].setVisible(false);
   list.actions[1].setVisible(false);
   list.refresh();
+  list.flushUpdates();
   assert.equal(list.isEmpty, true, "#2");
   list.actions[1].setVisible(true);
   list.refresh();
+  list.flushUpdates();
   assert.equal(list.isEmpty, false, "#3");
 });
 
@@ -161,21 +170,25 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
   ];
   const myObject = new MyObject2(items);
   const list = new ListModel({ items: [], onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
   list.setOnFilterStringChangedCallback((text: string) => { myObject.myOnFilter(text); });
   assert.equal(list.renderedActions.length, 0, "#1");
   assert.equal(list.isEmpty, true, "#2");
 
   list.setItems(myObject.myItems);
+  list.flushUpdates();
   assert.equal(list.isEmpty, false, "#3");
   assert.equal(list.renderedActions.length, 7, "#4");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 7, "#5");
 
   list.filterString = "1 ";
+  list.flushUpdates();
   assert.equal(list.isEmpty, true, "#6");
   assert.equal(list.renderedActions.length, 0, "#7");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 0, "#8");
 
   list.filterString = "1";
+  list.flushUpdates();
   assert.equal(list.isEmpty, false, "#9");
   assert.equal(list.renderedActions.length, 1, "#10");
   assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "#11");
@@ -185,12 +198,14 @@ QUnit.test("ListModel custom onFilter: item is not found when a search string co
 QUnit.test("ListModel shows placeholder if there are no visible elements", function (assert) {
   const items = createIActionArray(12);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
 
   assert.equal(list.renderedActions.length, 12);
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12);
   assert.notOk(list.isEmpty, "!isEmpty");
 
   list.filterString = "item";
+  list.flushUpdates();
   assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0);
   assert.ok(list.isEmpty, "isEmpty");
 });
@@ -198,6 +213,7 @@ QUnit.test("ListModel shows placeholder if there are no visible elements", funct
 QUnit.test("ListModel focus item", function (assert) {
   const items = createIActionArray(12);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
 
   assert.equal(list.renderedActions.length, 12);
   assert.equal(list.focusedItem, undefined);
@@ -387,6 +403,7 @@ QUnit.test("getItemClass test", (assert) => {
 QUnit.test("getListClass test", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
   assert.equal(list.getListClass(), "sv-list");
 
   list.filterString = "test";
@@ -411,6 +428,7 @@ QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", 
   items.push(<IAction>{ id: "test1", title: "brouillé" });
   items.push(<IAction>{ id: "test1", title: "lle" });
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
   list.filterString = "le";
   let filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
   assert.equal(filteredActions.length, 1, "one item by default");
@@ -434,6 +452,7 @@ QUnit.test("ListModel search in subitems", function (assert) {
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
   (items[2] as Action).setSubItems({ items: subitems });
   const list = new ListModel(items, () => { }, true);
+  list.flushUpdates();
   let filteredActions;
   filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
   assert.equal(filteredActions.length, 7);
@@ -469,6 +488,9 @@ QUnit.test("ListModel search in subitems with icons", function (assert) {
   const subitems = [new Action({ id: "test28", title: "test28" }), new Action({ id: "test29", title: "test29" })];
   (items[2] as Action).setSubItems({ items: subitems });
   const list = new ListModel(items, () => { }, true);
+
+  list.flushUpdates();
+
   let filteredActions;
   filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
   assert.equal(filteredActions.length, 7);

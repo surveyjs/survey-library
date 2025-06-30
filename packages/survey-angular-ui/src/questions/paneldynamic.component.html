@@ -33,7 +33,7 @@
       role="progressbar" [attr.aria-label]="model.progressBarAriaLabel"
       ></div>
     </div>
-    <div *ngIf="model.footerToolbar.hasVisibleActions" [class]="model.cssClasses.footerButtonsContainer">
+    <div *ngIf="model.showFooterToolbar" [class]="model.cssClasses.footerButtonsContainer">
       <sv-ng-action-bar [model]="model.footerToolbar"></sv-ng-action-bar>
     </div>
   </div>

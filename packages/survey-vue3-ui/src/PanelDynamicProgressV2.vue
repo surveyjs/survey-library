@@ -14,7 +14,7 @@
     </div>
     <div
       :class="question.cssClasses.footerButtonsContainer"
-      v-if="question.footerToolbar.hasVisibleActions"
+      v-if="question.showFooterToolbar"
     >
       <SvComponent :is="'sv-action-bar'" :model="question.footerToolbar" />
     </div>

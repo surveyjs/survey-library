@@ -201,6 +201,7 @@ export async function doDrag({ page, element, target }: { page: Page, element: L
   await page.mouse.down();
   const { x, y, width, height } = await <any>target.boundingBox();
   await page.mouse.move(x + width / 2, y + height / 2, { steps: 20 });
+  await page.mouse.move(x + width / 2, y + height / 2, { steps: 20 });
 }
 
 export async function doDragDrop({ page, element, target }: { page: Page, element: Locator, target: Locator }):Promise<void> {

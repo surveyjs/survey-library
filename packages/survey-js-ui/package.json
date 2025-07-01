@@ -24,8 +24,7 @@
     "e2e:ci": "cross-env env=survey-js-ui playwright test --project e2e",
     "scr": "cross-env env=survey-js-ui playwright test --project vrt --ui",
     "scr:ci": "cross-env env=survey-js-ui playwright test --project vrt",
-    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
-    "a": "cache-reset"
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "devDependencies": {
     "@rollup/plugin-alias": "^5.1.1",

@@ -9010,6 +9010,41 @@ QUnit.test("Doesn't update value correctly for nested matrix with expressions, b
   assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "event options.value");
   assert.deepEqual(survey.data, { matrix: [{ col1: 10, col2: 20 }] }, "survey.data");
 });
+QUnit.test("Matrix calls survey.onValueChanged before making expression calculation, Bug#10094", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [
+          {
+            name: "a",
+          },
+          {
+            name: "b",
+          },
+          {
+            name: "c",
+            cellType: "expression",
+            expression: "{row.a} + {row.b}",
+          },
+        ],
+        cellType: "text",
+        rowCount: 1,
+      }
+    ]
+  });
+  let questionValue;
+  survey.onValueChanged.add((sender, options) => {
+    questionValue = options.value;
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.getQuestionByName("a").value = 10;
+  assert.deepEqual(questionValue, [{ a: 10, c: 10 }], "onValueChanged options.value after setting a");
+  row.getQuestionByName("b").value = 20;
+  assert.deepEqual(questionValue, [{ a: 10, b: 20, c: 30 }], "onValueChanged options.value after setting b");
+});
 QUnit.test("Do not run total expressions if matrix is read-only, bug#5644", function (assert) {
   const survey = new SurveyModel({
     elements: [

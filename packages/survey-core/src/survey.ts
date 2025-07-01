@@ -6909,6 +6909,7 @@ export class SurveyModel extends SurveyElementCore
     if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }
+  private nofifyQuesitonHash: any = {};
   private updateOnSetValue(
     name: string,
     newValue: any,
@@ -6920,12 +6921,16 @@ export class SurveyModel extends SurveyElementCore
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
     questionName = questionName || name;
+    this.nofifyQuesitonHash[name] = true;
     this.checkTriggersAndRunConditions(name, newValue, oldValue);
-    if (allowNotifyValueChanged) {
-      this.notifyQuestionOnValueChanged(name, newValue, questionName);
-    }
-    if (locNotification !== "text") {
-      this.tryGoNextPageAutomatic(name);
+    if (this.nofifyQuesitonHash[name]) {
+      if (allowNotifyValueChanged) {
+        this.notifyQuestionOnValueChanged(name, newValue, questionName);
+      }
+      if (locNotification !== "text") {
+        this.tryGoNextPageAutomatic(name);
+      }
+      delete this.nofifyQuesitonHash[name];
     }
   }
   private isValueEqual(name: string, newValue: any): boolean {

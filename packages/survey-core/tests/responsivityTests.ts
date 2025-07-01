@@ -30,8 +30,12 @@ class SimpleContainer {
   };
 }
 class ResizeObserver {
+  constructor(private callback: () => void) {}
   observe() { }
   disconnect() { }
+  run() {
+    this.callback && this.callback();
+  }
 }
 window.ResizeObserver = <any>ResizeObserver;
 
@@ -305,6 +309,8 @@ QUnit.test("Action container: updateCallback test", assert => {
 QUnit.test("ResponsivityManager process test", function (assert) {
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = ((cb) => { cb(); }) as any;
   model.initResponsivityManager(<any>container);
   const manager: ResponsivityManager = model["responsivityManager"];
   const updateActions = () => {
@@ -317,26 +323,38 @@ QUnit.test("ResponsivityManager process test", function (assert) {
       };
       action.afterRender();
     });
-    model.flushUpdates();
   };
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
   assert.notOk(manager["isInitialized"], "before start");
-  updateActions();
-  manager["process"]();
-  const newAction = new Action({ id: "first" });
+  assert.notOk(manager["isResizeObserverStarted"]);
+  let newAction = new Action({ id: "first" });
   assert.equal(newAction.minDimension, undefined);
   assert.equal(newAction.maxDimension, undefined);
-  assert.ok(manager["isInitialized"], "before push");
-
   model.actions.push(newAction);
   model.flushUpdates();
-  assert.notOk(manager["isInitialized"], "after push");
   updateActions();
-  assert.ok(manager["isInitialized"], "after process");
+  assert.notOk(manager["isInitialized"], "process is not called after push when ResizeObserver has not started");
+  assert.notOk(manager["isResizeObserverStarted"]);
+  assert.equal(newAction.minDimension, undefined);
+  assert.equal(newAction.maxDimension, undefined);
+  (manager["resizeObserver"] as any).run();
+  assert.ok(manager["isInitialized"], "resize observer is started");
+  assert.ok(manager["isResizeObserverStarted"]);
   assert.equal(newAction.minDimension, 20);
   assert.equal(newAction.maxDimension, 100);
+  newAction = new Action({ id: "second" });
+  model.actions.push(newAction);
+  model.flushUpdates();
+  assert.notOk(manager["isInitialized"], "isInitialized should be reset before when item is being pushed");
+  assert.equal(newAction.minDimension, undefined);
+  assert.equal(newAction.maxDimension, undefined);
+  updateActions();
+  assert.ok(manager["isInitialized"], "process is called after push when ResizeObserver has already started");
+  assert.equal(newAction.minDimension, 20);
+  assert.equal(newAction.maxDimension, 100);
+  window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
 QUnit.test(

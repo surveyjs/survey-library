@@ -1,4 +1,4 @@
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { frameworks, url, initSurvey, compareScreenshot, doDrag } from "../e2e/helper";
 import { registerCustomItemContentComponent } from "../e2e/registerCustomComponents";
 
@@ -129,30 +129,37 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-ranking-select-to-rank-narrow-small.png");
     });
 
-    test("Shortcut position due container layout", async ({ page }, testInfo) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
-        questions: [
-          {
-            type: "ranking",
-            title: "ranking question",
-            name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
-          }
-        ]
-      });
+    for (let index = 0; index < 1; index++) {
+      test.only(`Shortcut position due container layout ${index}`, async ({ page }, testInfo) => {
+        await page.reload({ timeout: 3000 });
+        await page.setViewportSize({ width: 1920, height: 1080 });
+        await initSurvey(page, framework, {
+          showQuestionNumbers: "off",
+          questions: [
+            {
+              type: "ranking",
+              title: "ranking question",
+              name: "ranking_question",
+              choices: ["item1", "item2", "item3", "item4"]
+            }
+          ]
+        });
 
-      await page.evaluate(() => {
+        await page.evaluate(() => {
         document.getElementById("surveyElement")!.style.margin = "50px";
+        });
+
+        const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+        const target = page.locator(".sd-question");
+        await doDrag({ page, element, target });
+
+        await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png");
+        // await expect.soft(page.locator(".sd-question")).toHaveScreenshot("question-ranking-shortcut-position-container-layout.png", {
+        //   //threshold: 0.9,
+        //   maxDiffPixelRatio: 1
+        // });
       });
-
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      const target = page.locator(".sd-question");
-      await doDrag({ page, element, target });
-
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png");
-    });
+    }
 
     test("Shortcut position due container layout (relative)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });

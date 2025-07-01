@@ -138,7 +138,7 @@ frameworks.forEach(framework => {
             type: "ranking",
             title: "ranking question",
             name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
+            choices: ["."]
           }
         ]
       });
@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
         document.getElementById("surveyElement")!.style.margin = "50px";
       });
 
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
 
@@ -163,7 +163,7 @@ frameworks.forEach(framework => {
             type: "ranking",
             title: "ranking question",
             name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
+            choices: ["."]
           }
         ]
       });
@@ -173,7 +173,7 @@ frameworks.forEach(framework => {
         document.getElementById("surveyElement")!.style.margin = "100px";
       });
 
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = page.locator(".sd-question");
       await doDrag({ page, element, target });
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png");
@@ -188,7 +188,7 @@ frameworks.forEach(framework => {
             type: "ranking",
             title: "ranking question",
             name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
+            choices: ["."]
           }
         ]
       });
@@ -203,7 +203,7 @@ frameworks.forEach(framework => {
         question.dragDropRankingChoices.domAdapter.doScroll = () => { };
       });
 
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
       const target = element;
       await element.hover({ force: true });
       await page.mouse.down();

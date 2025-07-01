@@ -2433,6 +2433,7 @@ export class PanelModel extends PanelModelBase implements IElement {
         this.footerToolbarValue.containerCss = footerCss;
       }
       this.footerToolbarValue.setItems(actions);
+      this.footerToolbarValue.flushUpdates();
     }
     return this.footerToolbarValue;
   }

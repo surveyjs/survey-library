@@ -20,7 +20,7 @@ import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
-import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
+import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -5932,6 +5932,12 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
 });
 
 QUnit.test("renderMode: tab check disableHide property", function (assert) {
+  const oldUpdate = AdaptiveActionContainer.prototype["update"];
+  AdaptiveActionContainer.prototype["update"] = function (options) {
+    if (!!options.updateResponsivenessMode) {
+      this.updateCallback && this.updateCallback(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
+    }
+  };
   const survey = new SurveyModel({
     elements: [
       {
@@ -5964,24 +5970,28 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
   assert.equal(panelTabToolbar.actions[2].disableHide, true);
 
   let log = "";
-  panelTabToolbar.updateCallback = () => {
+  (panelTabToolbar as any).updateCallback = () => {
     log += "->raised";
   };
   panelTabToolbar.actions[1].mode = "popup";
   assert.equal(log, "");
   panel.currentIndex = 1;
+  panelTabToolbar.flushUpdates();
   assert.ok(panelTabToolbar.actions[1].disableHide);
   assert.equal(log, "->raised");
   panel.currentIndex = 0;
+  panelTabToolbar.flushUpdates();
   assert.notOk(panelTabToolbar.actions[1].disableHide);
   assert.ok(panelTabToolbar.actions[0].disableHide);
   assert.equal(log, "->raised");
   panelTabToolbar.actions[2].mode = "popup";
   panel.currentIndex = 2;
+  panelTabToolbar.flushUpdates();
   assert.notOk(panelTabToolbar.actions[0].disableHide);
   assert.notOk(panelTabToolbar.actions[1].disableHide);
   assert.ok(panelTabToolbar.actions[2].disableHide);
   assert.equal(log, "->raised->raised");
+  AdaptiveActionContainer.prototype["update"] = oldUpdate;
 });
 
 QUnit.test("renderMode: tab check hasTabbedMenu property", function (assert) {
@@ -6571,10 +6581,12 @@ QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) 
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const tabbedMenu = panel.tabbedMenu as AdaptiveActionContainer;
+  tabbedMenu.flushUpdates();
   assert.equal(tabbedMenu.visibleActions.length, 4, "There are 4 visible tabs");
   panel.panels[1].getQuestionByName("q1").value = "a";
   assert.equal(panel.currentIndex, 0, "Current Index 0");
   const panelId = panel.panels[2].id;
+  tabbedMenu.flushUpdates();
   assert.equal(tabbedMenu.visibleActions.length, 3, "There are 3 visible tabs");
   tabbedMenu.visibleActions[1].action();
   assert.equal(panel.currentIndex, 1, "Current Index 1");

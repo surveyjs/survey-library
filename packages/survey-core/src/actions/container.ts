@@ -4,6 +4,7 @@ import { IAction, Action, BaseAction } from "./action";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { ILocalizableOwner, LocalizableString } from ".././localizablestring";
 import { mergeValues } from "../utils/utils";
+import { debounce } from "../utils/taskmanager";
 
 export type ActionBarCssClasses = { [index: string]: string };
 
@@ -21,7 +22,12 @@ export let defaultActionBarCss: ActionBarCssClasses = {
   itemTitleWithIcon: "sv-action-bar-item__title--with-icon",
 };
 
+export type ContainerUpdateOptions = { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }
+
 export class ActionContainer<T extends BaseAction = Action> extends Base implements ILocalizableOwner {
+  private static ContainerID = 1;
+  protected id = ActionContainer.ContainerID++;
+
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item) : undefined;
   }
@@ -55,12 +61,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return this.visibleActions;
   }
 
-  public updateCallback: (isResetInitialized: boolean) => void;
   @property({}) containerCss: string;
   public sizeMode: "default" | "small" = "default";
   public locOwner: ILocalizableOwner;
   @property({ defaultValue: true }) isEmpty: boolean;
-
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.actions.forEach(item => {
@@ -68,41 +72,75 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       item.locStrsChanged();
     });
   }
-  protected raiseUpdate(isResetInitialized: boolean) {
-    if (this.isUpdating) return;
-    this.updateVisibleActions();
-    this.updateCallback && this.updateCallback(isResetInitialized);
+
+  public flushUpdates() {
+    this.raiseUpdateCallback.flushSync();
+  }
+  protected raiseUpdate(options?: { needUpdateActions?: boolean, needUpdateIsEmpty?: boolean }) {
+    const lastArguments = this.raiseUpdateCallback.getLastArguments();
+    const lastOptions = ((lastArguments && lastArguments[0]) ?? {}) as ContainerUpdateOptions;
+    this.raiseUpdateCallback.run(this.mergeUpdateOptions(options, lastOptions));
+  }
+  protected mergeUpdateOptions(nextOptions: ContainerUpdateOptions, prevOptions: ContainerUpdateOptions): ContainerUpdateOptions {
+    const options = Object.assign({}, nextOptions);
+    options.needUpdateActions = !!options.needUpdateActions || !!prevOptions.needUpdateActions;
+    options.needUpdateIsEmpty = !!options.needUpdateIsEmpty || !!prevOptions.needUpdateIsEmpty;
+    return options;
+  }
+  private raiseUpdateCallback = debounce((isResetInitialized) => {
+    this.update(isResetInitialized);
+  });
+  protected update(options?: ContainerUpdateOptions) {
+    if (options?.needUpdateActions) {
+      this.updateVisibleActions();
+    }
+    if (options?.needUpdateIsEmpty) {
+      this.updateIsEmpty();
+    }
   }
   protected updateVisibleActions() {
-    if (this.isUpdating) return;
-    this.visibleActions = this.actions.filter((action) => action.visible !== false);
-    this.isEmpty = this.visibleActions.length <= 0;
+    this.visibleActions = this.getVisibleActions();
   }
-  protected onActionVisibilityChanged(action: T) {
-    this.updateVisibleActions();
+  private updateIsEmpty() {
+    this.isEmpty = this.getIsEmpty();
   }
-  private onActionVisibilityChangedCallback: (action: T) => void = (action: T) => {
-    this.onActionVisibilityChanged(action);
-  };
-  protected onSet() {
-    this.beginUpdates();
-    this.actions.forEach((item) => {
-      this.setActionCssClasses(item);
-      item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
-    });
-    this.endUpdates();
-  }
-  protected onPush(item: T) {
-    this.setActionCssClasses(item);
-    item.addVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
-    item.owner = this;
-    this.raiseUpdate(true);
+  protected getIsEmpty(): boolean {
+    return this.visibleActions.length <= 0;
   }
 
-  protected onRemove(item: T) {
-    item.owner = null;
-    item.removeVisibilityChangedCallback(this.onActionVisibilityChangedCallback);
-    this.raiseUpdate(true);
+  public getVisibleActions() {
+    return this.actions.filter((action) => action.visible !== false);
+  }
+
+  protected onSet() {
+    this.actions.forEach((action) => {
+      this.patchAction(action);
+    });
+  }
+  protected onPush(action: T) {
+    this.patchAction(action);
+    this.raiseUpdate({ needUpdateActions: true, needUpdateIsEmpty: true });
+  }
+
+  protected onRemove(action: T) {
+    this.unPatchAction(action);
+    this.raiseUpdate({ needUpdateActions: true, needUpdateIsEmpty: true });
+  }
+
+  protected onActionPropertyChanged(action: T, options: { name: string, newValue: any, oldValue: any }) {
+    if (options.name == "_visible") {
+      this.raiseUpdate({ needUpdateActions: true, needUpdateIsEmpty: true });
+    }
+  }
+  protected onActionPropertyChangedCallback = this.onActionPropertyChanged.bind(this);
+  protected patchAction(action: T) {
+    this.setActionCssClasses(action);
+    action.owner = this;
+    action.onPropertyChanged.add(this.onActionPropertyChangedCallback);
+  }
+  protected unPatchAction(action: T) {
+    action.owner = null;
+    action.onPropertyChanged.remove(this.onActionPropertyChangedCallback);
   }
 
   private setActionCssClasses(item: T) {
@@ -135,13 +173,18 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   protected getAllActions() {
     return this.actions;
   }
-  public set cssClasses(val: ActionBarCssClasses) {
+  public setCssClasses(val: ActionBarCssClasses, mergeWithDefault: boolean = true) {
     this.cssClassesValue = {};
-    this.copyCssClasses(this.cssClassesValue, this.getDefaultCssClasses());
+    if (mergeWithDefault) {
+      this.copyCssClasses(this.cssClassesValue, this.getDefaultCssClasses());
+    }
     mergeValues(val, this.cssClasses);
     this.getAllActions().forEach((action: T) => {
       this.setActionCssClasses(action);
     });
+  }
+  public set cssClasses(val: ActionBarCssClasses) {
+    this.setCssClasses(val);
   }
   public get cssClasses(): ActionBarCssClasses {
     if (!this.cssClassesValue) {
@@ -160,22 +203,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions = items;
     return res;
   }
-  private blockUpdates: number = 0;
-  public beginUpdates(): void {
-    this.blockUpdates ++;
-  }
-  public endUpdates(): void {
-    this.blockUpdates --;
-    if (this.blockUpdates < 0) {
-      this.blockUpdates = 0;
-    }
-    if (this.blockUpdates === 0) {
-      this.raiseUpdate(true);
-    }
-  }
-  private get isUpdating() { return this.blockUpdates > 0; }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
-    this.beginUpdates();
     const newActions: Array<T> = [];
     items.forEach(item => {
       if (!sortByVisibleIndex || this.isActionVisible(item)) {
@@ -186,7 +214,6 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       this.sortItems(newActions);
     }
     this.actions = newActions;
-    this.endUpdates();
   }
   private sortItems(items: Array<IAction>): void {
     if (this.hasSetVisibleIndex(items)) {

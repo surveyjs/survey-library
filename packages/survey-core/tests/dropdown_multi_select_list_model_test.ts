@@ -153,6 +153,8 @@ QUnit.test("open/hide tagbox popup after start/end filtration", function (assert
   const popup = dropdownListModel.popupModel;
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
 
+  list.flushUpdates();
+
   assert.equal(popup.isVisible, false, "popup.isVisible 1");
   assert.equal(dropdownListModel.filterString, "", "filterString 1");
 

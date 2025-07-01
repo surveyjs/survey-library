@@ -196,6 +196,7 @@ QUnit.test("filterString test", function (assert) {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.flushUpdates();
 
   assert.equal(dropdownListModel.inputMode, "text");
   assert.equal(list.renderedActions.length, 28);
@@ -220,6 +221,7 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
   const dropdownListModel = question.dropdownListModel;
   const popup = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.flushUpdates();
 
   assert.equal(popup.isVisible, false, "popup.isVisible 1");
   assert.equal(dropdownListModel.filterString, "", "filterString 1");
@@ -323,6 +325,7 @@ QUnit.test("filterString and focusedItem", function (assert) {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.flushUpdates();
 
   assert.equal(dropdownListModel.inputMode, "text");
   assert.equal(list.renderedActions.length, 28);
@@ -1049,6 +1052,7 @@ QUnit.test("DropdownListModel filter options", (assert) => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.flushUpdates();
 
   dropdownListModel.filterString = "ab";
   const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
@@ -1083,6 +1087,7 @@ QUnit.test("DropdownListModel filter event", (assert) => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  list.flushUpdates();
 
   dropdownListModel.filterString = "ab";
   const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));

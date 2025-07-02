@@ -2374,7 +2374,7 @@ QUnit.test("Composite & onValueChanged", function (assert) {
     onValueChangedCounter++;
   });
   q.value = { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, border: "0 1 2 rgba(0, 0, 0, 0.15)" };
-  assert.equal(onValueChangedCounter, 1 + 1); //+ runCondition to chagne the value
+  assert.equal(onValueChangedCounter, 1);
   assert.deepEqual(survey.data, { q1: { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, cornerRadius: "4px", border: "0 1 2 rgba(0, 0, 0, 0.15)" } });
 
   ComponentCollection.Instance.clear();

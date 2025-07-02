@@ -1,6 +1,6 @@
 {
   "name": "survey-js-ui",
-  "version": "2.2.1",
+  "version": "2.2.3",
   "description": "",
   "homepage": "https://surveyjs.io/Overview/Survey-Creator",
   "author": "Devsoft Baltic OU",
@@ -20,6 +20,10 @@
     "testcafe:ci": "testcafe ../../functionalTests/ --app \"http-server --silent\" --reporter minimal --env=survey-js-ui --config-file ../../.testcaferc.js",
     "accessibility-tests": "cross-env env=survey-js-ui playwright test --project a11y --ui",
     "accessibility-tests:ci": "cross-env env=survey-js-ui playwright test --project a11y --reporter dot --quiet",
+    "e2e": "cross-env env=survey-js-ui playwright test --project e2e --ui",
+    "e2e:ci": "cross-env env=survey-js-ui playwright test --project e2e",
+    "scr": "cross-env env=survey-js-ui playwright test --project vrt --ui",
+    "scr:ci": "cross-env env=survey-js-ui playwright test --project vrt",
     "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" "
   },
   "devDependencies": {

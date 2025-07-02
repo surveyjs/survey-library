@@ -3565,4 +3565,18 @@ QUnit.test("choiceitem hasComment visibilty for different questions", function (
   const q2 = new QuestionTagboxModel("q2");
   q2.choices = [1];
   assert.equal(prop.isVisible("", q2.choices[0]), false, "hasComment is invisible choice item in tagbox question");
+QUnit.test("Could not override default value for valueName & titleName properties in choicesByUrl object, Bug#10088", function (assert) {
+  const valueProp = Serializer.findProperty("choicesbyurl", "valueName");
+  const titleProp = Serializer.findProperty("choicesbyurl", "titleName");
+  const q = new QuestionCheckboxModel("q1");
+  assert.equal(q.choicesByUrl.valueName, "", "default valueName, #1");
+  assert.equal(q.choicesByUrl.titleName, "", "default titleName, #1");
+  valueProp.defaultValue = "id";
+  titleProp.defaultValue = "name";
+  assert.equal(q.choicesByUrl.valueName, "id", "default valueName, #2");
+  assert.equal(q.choicesByUrl.titleName, "name", "default titleName, #2");
+  valueProp.defaultValue = undefined;
+  titleProp.defaultValue = undefined;
+  assert.equal(q.choicesByUrl.valueName, "", "default valueName, #3");
+  assert.equal(q.choicesByUrl.titleName, "", "default titleName, #3");
 });

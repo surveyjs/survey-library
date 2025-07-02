@@ -1,8 +1,6 @@
-import { update } from "lodash";
 import { Action } from "../src/actions/action";
-import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
+import { AdaptiveActionContainer, AdaptiveContainerUpdateOptions, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
-import { LocalizableString } from "../src/localizablestring";
 import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
@@ -32,8 +30,12 @@ class SimpleContainer {
   };
 }
 class ResizeObserver {
+  constructor(private callback: () => void) {}
   observe() { }
   disconnect() { }
+  run() {
+    this.callback && this.callback();
+  }
 }
 window.ResizeObserver = <any>ResizeObserver;
 
@@ -42,11 +44,17 @@ QUnit.test("ActionContainer: renderedActions & visibleActions", assert => {
 
   const actionContainer: ActionContainer = new ActionContainer();
   actionContainer.actions = actions;
+
+  actionContainer.flushUpdates();
+
   assert.equal(actionContainer.visibleActions.length, 2, "actionContainer visibleActions");
   assert.equal(actionContainer.renderedActions.length, 2, "actionContainer renderedActions");
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
+
+  adaptiveContainer.flushUpdates();
+
   assert.equal(adaptiveContainer.visibleActions.length, 2, "adaptiveContainer visibleActions");
   assert.equal(adaptiveContainer.renderedActions.length, 3, "adaptiveContainer renderedActions");
   assert.equal(adaptiveContainer.renderedActions[2].id.indexOf("dotsItem-id"), 0, "dotsItem-id exists");
@@ -57,11 +65,17 @@ QUnit.test("ActionContainer: renderedActions & visibleActions if only one elemen
 
   const actionContainer: ActionContainer = new ActionContainer();
   actionContainer.actions = actions;
+
+  actionContainer.flushUpdates();
+
   assert.equal(actionContainer.visibleActions.length, 1, "actionContainer visibleActions");
   assert.equal(actionContainer.renderedActions.length, 1, "actionContainer renderedActions");
 
   const adaptiveContainer: AdaptiveActionContainer = new AdaptiveActionContainer();
   adaptiveContainer.actions = actions;
+
+  adaptiveContainer.flushUpdates();
+
   assert.equal(adaptiveContainer.visibleActions.length, 1, "adaptiveContainer visibleAction without icon");
   assert.equal(adaptiveContainer.renderedActions.length, 2, "adaptiveContainer renderedActions contains the dots item");
 
@@ -87,6 +101,9 @@ QUnit.test("Fit items", function (assert) {
   item3.minDimension = 50;
   item3.maxDimension = 100;
   model.actions.push(item3);
+
+  model.flushUpdates();
+
   assert.equal(model.actions.length, 3);
   assert.equal(model.visibleActions.length, 2);
   assert.equal(model.renderedActions.length, 3);
@@ -169,6 +186,8 @@ QUnit.test("Fit items - hide items with priority", function (assert) {
   item3.title = "c";
   model.actions.push(item3);
 
+  model.flushUpdates();
+
   assert.equal(model.actions.length, 3);
   assert.equal(model.visibleActions.length, 3);
 
@@ -244,10 +263,19 @@ QUnit.test("Ignore space for invisible items", function (assert) {
   assert.equal(item1.mode, "large");
 });
 
+export class TestAdaptiveActionContainer extends AdaptiveActionContainer {
+  updateCallback: (isResetInitialized: boolean) => void;
+  protected update(options: AdaptiveContainerUpdateOptions): void {
+    if (!!options.updateResponsivenessMode) {
+      this.updateCallback && this.updateCallback(options.updateResponsivenessMode == UpdateResponsivenessMode.Hard);
+    }
+  }
+}
+
 QUnit.test("Action container: updateCallback test", assert => {
   let isRaised = false;
   let currentIsInitialized = false;
-  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const model: TestAdaptiveActionContainer = new TestAdaptiveActionContainer();
   model.updateCallback = (isResetInitialized) => {
     currentIsInitialized = isResetInitialized;
     isRaised = true;
@@ -255,21 +283,25 @@ QUnit.test("Action container: updateCallback test", assert => {
 
   assert.equal(isRaised, false);
   model.actions = [new Action({ id: "first" })];
+  model.flushUpdates();
   assert.equal(isRaised, true, "container OnSet");
   assert.equal(currentIsInitialized, true, "container OnSet");
 
   isRaised = false;
   model.actions.push(new Action({ id: "second" }));
+  model.flushUpdates();
   assert.equal(isRaised, true, "container OnPush");
   assert.equal(currentIsInitialized, true, "container OnPush");
 
   isRaised = false;
   model.actions.splice(1, 1);
+  model.flushUpdates();
   assert.equal(isRaised, true, "container OnRemove");
   assert.equal(currentIsInitialized, true, "container OnRemove");
 
   isRaised = false;
   model.actions[0].visible = !model.actions[0].visible;
+  model.flushUpdates();
   assert.equal(isRaised, true, "action visible changed");
   assert.equal(currentIsInitialized, false, "action visible changed");
 });
@@ -277,7 +309,10 @@ QUnit.test("Action container: updateCallback test", assert => {
 QUnit.test("ResponsivityManager process test", function (assert) {
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
-  const manager: ResponsivityManager = new ResponsivityManager(<any>container, <any>model);
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = ((cb) => { cb(); }) as any;
+  model.initResponsivityManager(<any>container);
+  const manager: ResponsivityManager = model["responsivityManager"];
   const updateActions = () => {
     model.renderedActions.forEach(action => {
       action.updateModeCallback = (mode, callback) => {
@@ -289,24 +324,37 @@ QUnit.test("ResponsivityManager process test", function (assert) {
       action.afterRender();
     });
   };
-  manager["debouncedProcess"] = { run: () => manager["process"](), cancel: () => {} };
   (<any>manager.getComputedStyle) = () => {
     return { boxSizing: "content-box", paddingLeft: 5, paddingRight: 5 };
   };
   assert.notOk(manager["isInitialized"], "before start");
-  updateActions();
-  manager["process"]();
-  const newAction = new Action({ id: "first" });
+  assert.notOk(manager["isResizeObserverStarted"]);
+  let newAction = new Action({ id: "first" });
   assert.equal(newAction.minDimension, undefined);
   assert.equal(newAction.maxDimension, undefined);
-  assert.ok(manager["isInitialized"], "before push");
-
   model.actions.push(newAction);
-  assert.notOk(manager["isInitialized"], "after push");
+  model.flushUpdates();
   updateActions();
-  assert.ok(manager["isInitialized"], "after process");
+  assert.notOk(manager["isInitialized"], "process is not called after push when ResizeObserver has not started");
+  assert.notOk(manager["isResizeObserverStarted"]);
+  assert.equal(newAction.minDimension, undefined);
+  assert.equal(newAction.maxDimension, undefined);
+  (manager["resizeObserver"] as any).run();
+  assert.ok(manager["isInitialized"], "resize observer is started");
+  assert.ok(manager["isResizeObserverStarted"]);
   assert.equal(newAction.minDimension, 20);
   assert.equal(newAction.maxDimension, 100);
+  newAction = new Action({ id: "second" });
+  model.actions.push(newAction);
+  model.flushUpdates();
+  assert.notOk(manager["isInitialized"], "isInitialized should be reset before when item is being pushed");
+  assert.equal(newAction.minDimension, undefined);
+  assert.equal(newAction.maxDimension, undefined);
+  updateActions();
+  assert.ok(manager["isInitialized"], "process is called after push when ResizeObserver has already started");
+  assert.equal(newAction.minDimension, 20);
+  assert.equal(newAction.maxDimension, 100);
+  window.requestAnimationFrame = oldRequestAnimationFrame;
 });
 
 QUnit.test(
@@ -342,6 +390,9 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
   (window as any).getComputedStyle = () => {
     return { boxSizing: "border-box", paddingTop: 5, paddingBottom: 5 };
   };
+
+  model.flushUpdates();
+
   model.renderedActions.forEach(action => {
     action.updateModeCallback = (mode, callback) => {
       action.mode = mode;
@@ -378,6 +429,9 @@ QUnit.test("isResponsivenessDisabled", function (assert) {
   item3.minDimension = itemSmallWidth;
   item3.maxDimension = 200;
   model.actions.push(item3);
+
+  model.flushUpdates();
+
   assert.equal(model.actions.length, 3);
   assert.equal(model.renderedActions.length, 4);
   assert.equal(model.isResponsivenessDisabled, false);
@@ -427,6 +481,8 @@ QUnit.test("check disableHide property", function (assert) {
   item3.disableHide = true;
   model.actions.push(item3);
 
+  model.flushUpdates();
+
   model.fit({ availableSpace: 50 });
   assert.notOk(item1.isVisible);
   assert.notOk(item2.isVisible);
@@ -463,6 +519,8 @@ QUnit.test("check disableHide property in case of different widths", function (a
   item3.disableHide = true;
   model.actions.push(item3);
 
+  model.flushUpdates();
+
   model.fit({ availableSpace: 125 });
   assert.notOk(item1.isVisible);
   assert.notOk(item2.isVisible);
@@ -481,7 +539,7 @@ QUnit.test("check disableHide property in case of different widths", function (a
 
 QUnit.test("check title change calls raise update", function (assert) {
   const itemSmallWidth = 48;
-  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const model: TestAdaptiveActionContainer = new TestAdaptiveActionContainer();
   let log = "";
   model.updateCallback = (isResetInitialized: boolean) => {
     log += `->called: ${isResetInitialized}`;
@@ -490,12 +548,15 @@ QUnit.test("check title change calls raise update", function (assert) {
   item1.minDimension = itemSmallWidth;
   item1.maxDimension = itemSmallWidth;
   model.actions.push(item1);
+  model.flushUpdates();
   assert.equal(log, "->called: true", "called from push");
   assert.notOk(item1.needUpdateMaxDimension, "needUpdateMaxDimension is false by default");
   item1.title = "Test";
+  model.flushUpdates();
   assert.equal(log, "->called: true->called: false", "called from title change");
   assert.ok(item1.needUpdateMaxDimension, "needUpdateMaxDimension is true when changing title");
   item1.title = "Test";
+  model.flushUpdates();
   assert.equal(log, "->called: true->called: false");
 });
 
@@ -534,6 +595,8 @@ QUnit.test("Check fit with gap", function (assert) {
   item3.minDimension = 50;
   item3.maxDimension = 100;
   model.actions.push(item3);
+
+  model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 0 });
   assert.equal(item1.mode, "large", "300 - 0 item1 large");
@@ -621,6 +684,8 @@ QUnit.test("Check fit with gap with disable hide on first action", function (ass
   item4.maxDimension = 100;
   model.actions.push(item4);
 
+  model.flushUpdates();
+
   model.fit({ availableSpace: 300, gap: 34 });
   assert.equal(item1.mode, "small", "300 - 34 item1 small");
   assert.equal(item2.mode, "small", "300 - 34 item2 small");
@@ -667,6 +732,7 @@ QUnit.test("Check fit with gap with disable hide on non-first action", function 
   item4.maxDimension = 100;
   item4.disableHide = true;
   model.actions.push(item4);
+  model.flushUpdates();
 
   model.fit({ availableSpace: 300, gap: 34 });
   assert.equal(item1.mode, "small", "300 - 34 item1 small");
@@ -704,6 +770,8 @@ QUnit.test("Check fit for two actions: action with disableHide and action with i
   item2.minDimension = 50;
   item2.maxDimension = 100;
   model.actions.push(item2);
+
+  model.flushUpdates();
 
   model.fit({ availableSpace: 300 });
   assert.equal(item1.mode, "large", "300 item1 large");

@@ -1,8 +1,6 @@
 import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { isContainerVisible } from "./utils";
-import { debounce } from "./taskmanager";
-
 interface IDimensions {
   scroll: number;
   offset: number;
@@ -11,27 +9,17 @@ interface IDimensions {
 export class ResponsivityManager {
   private resizeObserver: ResizeObserver = undefined;
   private isInitialized = false;
+  private isResizeObserverStarted: boolean = false;
 
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
     return DomDocumentHelper.getComputedStyle(elt);
   };
-  private debouncedProcess = debounce(() => {
-    this.process();
-  });
   constructor(
     public container: HTMLDivElement, private model: AdaptiveActionContainer, public afterInitializeCallback?: () => void) {
-    this.model.updateCallback =
-    (isResetInitialized: boolean) => {
-      if (!this.model.isResponsivenessDisabled) {
-        if (isResetInitialized) {
-          this.isInitialized = false;
-        }
-        this.debouncedProcess.run();
-      }
-    };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
         DomWindowHelper.requestAnimationFrame((): void | undefined => {
+          this.isResizeObserverStarted = true;
           this.process();
         });
       });
@@ -112,12 +100,21 @@ export class ResponsivityManager {
     }
   }
   private isDisposed: boolean = false;
+  public update(forceUpdate: boolean) {
+    if (!this.isResizeObserverStarted) return;
+    if (!this.model.isResponsivenessDisabled) {
+      if (forceUpdate) {
+        this.isInitialized = false;
+      }
+      this.process();
+    }
+  }
   public dispose(): void {
     this.isDisposed = true;
-    this.model.updateCallback = undefined;
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
+    this.isResizeObserverStarted = false;
     this.resizeObserver = undefined;
     this.container = undefined;
   }

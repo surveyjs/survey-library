@@ -419,21 +419,7 @@ export abstract class BaseAction extends Base implements IAction {
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
-  public updateCallback: (isResetInitialized: boolean) => void;
   public innerItem: IAction;
-  private raiseUpdate(isResetInitialized: boolean = false) {
-    this.updateCallback && this.updateCallback(isResetInitialized);
-  }
-  private visibityChangedEvent = new EventBase();
-  public addVisibilityChangedCallback(callback: (action: Action) => void): void {
-    this.visibityChangedEvent.add(callback);
-  }
-  public removeVisibilityChangedCallback(callback: (action: Action) => void): void {
-    this.visibityChangedEvent.remove(callback);
-  }
-  private raiseOnVisibilityChanged() {
-    this.visibityChangedEvent.fire(this, {});
-  }
   constructor(innerItemData: IAction) {
     super();
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
@@ -449,10 +435,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!!this.locTitleName) {
       this.locTitleChanged();
     }
-    this.registerFunctionOnPropertyValueChanged("_title", () => {
-      this.needUpdateMaxDimension = true;
-      this.raiseUpdate();
-    });
     this.locStrChangedInPopupModel();
   }
   private createLocTitle(): LocalizableString {
@@ -482,12 +464,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
 
   location?: string;
   @property() id: string;
-  @property({
-    defaultValue: true, onSet: (_, target: Action) => {
-      target.raiseOnVisibilityChanged();
-      target.raiseUpdate();
-    }
-  }) private _visible: boolean;
+  @property({ defaultValue: true }) private _visible: boolean;
   @property({
     onSet: (_, target: Action) => {
       target.locTooltipChanged();
@@ -608,7 +585,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return "sv-list-item-group";
   }
   public dispose(): void {
-    this.updateCallback = undefined;
     if (!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
     }

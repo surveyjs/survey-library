@@ -430,7 +430,7 @@ export class ChoicesRestful extends Base {
    */
 
   public get valueName(): string {
-    return this.getPropertyValue("valueName", "");
+    return this.getPropertyValue("valueName") || "";
   }
   public set valueName(val: string) {
     this.setPropertyValue("valueName", val);
@@ -444,7 +444,7 @@ export class ChoicesRestful extends Base {
    */
 
   public get titleName(): string {
-    return this.getPropertyValue("titleName", "");
+    return this.getPropertyValue("titleName") || "";
   }
   public set titleName(val: string) {
     this.setPropertyValue("titleName", val);
@@ -458,7 +458,7 @@ export class ChoicesRestful extends Base {
    * @see valueName
    */
   public get imageLinkName(): string {
-    return this.getPropertyValue("imageLinkName", "");
+    return this.getPropertyValue("imageLinkName") || "";
   }
   public set imageLinkName(val: string) {
     this.setPropertyValue("imageLinkName", val);

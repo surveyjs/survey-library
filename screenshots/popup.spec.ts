@@ -315,7 +315,8 @@ frameworks.forEach(framework => {
               }
             ]
           }
-        ]
+        ],
+        width: "730px"
       });
 
       await page.click(".sv-dots__item");

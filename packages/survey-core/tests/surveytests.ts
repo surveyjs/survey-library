@@ -16742,6 +16742,7 @@ QUnit.test("Check navigation bar css update", function (assert) {
     ]
   });
   survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
+  survey.navigationBar.flushUpdates();
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
 QUnit.test("Check survey getRootCss function - defaultCss", function (assert) {
@@ -19171,6 +19172,8 @@ QUnit.test("Search disabled after change popup displayMode", function (assert) {
   survey.onOpenDropdownMenu.add((_, options) => {
     options.menuType = menuType as any;
   });
+
+  list.flushUpdates();
 
   assert.equal(popup.displayMode, "overlay", "#1");
   assert.equal(popup.setWidthByTarget, false, "#2");

@@ -1492,6 +1492,7 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private updateRowsOnElementAdded(element: IElement): void {
+    if (!this.wasRendered && this.rows.length === 0 && this.elements.length > 1) return;
     const index = this.elements.indexOf(element);
     const targetElement = this.elements[index + 1];
     const createRowAtIndex = (index: number) => {
@@ -2433,6 +2434,7 @@ export class PanelModel extends PanelModelBase implements IElement {
         this.footerToolbarValue.containerCss = footerCss;
       }
       this.footerToolbarValue.setItems(actions);
+      this.footerToolbarValue.flushUpdates();
     }
     return this.footerToolbarValue;
   }

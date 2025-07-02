@@ -1049,6 +1049,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (let i = 0; i < rows.length && i < val.length; i ++) {
       const rowVal = val[i];
       if (rows[i].isVisible && !Helpers.isValueEmpty(rowVal)) {
+        rows[i].mergeRowValues(rowVal);
         res.push(rowVal);
       }
     }

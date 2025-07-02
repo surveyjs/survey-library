@@ -9,7 +9,7 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
     });
 
-    test.skip("Check all icons", async ({ page }) => {
+    test("Check all icons", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
 
       await initSurvey(page, framework, {

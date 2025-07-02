@@ -129,89 +129,89 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-ranking-select-to-rank-narrow-small.png");
     });
 
-    test.skip("Shortcut position due container layout", async ({ page }, testInfo) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
-        questions: [
-          {
-            type: "ranking",
-            title: "ranking question",
-            name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
-          }
-        ]
-      });
+    // test.skip("Shortcut position due container layout", async ({ page }, testInfo) => {
+    //   await page.setViewportSize({ width: 1920, height: 1080 });
+    //   await initSurvey(page, framework, {
+    //     showQuestionNumbers: "off",
+    //     questions: [
+    //       {
+    //         type: "ranking",
+    //         title: "ranking question",
+    //         name: "ranking_question",
+    //         choices: ["item1", "item2", "item3", "item4"]
+    //       }
+    //     ]
+    //   });
 
-      await page.evaluate(() => {
-        document.getElementById("surveyElement")!.style.margin = "50px";
-      });
+    //   await page.evaluate(() => {
+    //     document.getElementById("surveyElement")!.style.margin = "50px";
+    //   });
 
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      const target = page.locator(".sd-question");
-      await doDrag({ page, element, target });
+    //   const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+    //   const target = page.locator(".sd-question");
+    //   await doDrag({ page, element, target });
 
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png");
-    });
+    //   await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png");
+    // });
 
-    test.skip("Shortcut position due container layout (relative)", async ({ page }) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
-        questions: [
-          {
-            type: "ranking",
-            title: "ranking question",
-            name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
-          }
-        ]
-      });
+    // test.skip("Shortcut position due container layout (relative)", async ({ page }) => {
+    //   await page.setViewportSize({ width: 1920, height: 1080 });
+    //   await initSurvey(page, framework, {
+    //     showQuestionNumbers: "off",
+    //     questions: [
+    //       {
+    //         type: "ranking",
+    //         title: "ranking question",
+    //         name: "ranking_question",
+    //         choices: ["item1", "item2", "item3", "item4"]
+    //       }
+    //     ]
+    //   });
 
-      await page.evaluate(() => {
-        document.getElementById("surveyElement")!.style.position = "relative";
-        document.getElementById("surveyElement")!.style.margin = "100px";
-      });
+    //   await page.evaluate(() => {
+    //     document.getElementById("surveyElement")!.style.position = "relative";
+    //     document.getElementById("surveyElement")!.style.margin = "100px";
+    //   });
 
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      const target = page.locator(".sd-question");
-      await doDrag({ page, element, target });
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png");
-    });
+    //   const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+    //   const target = page.locator(".sd-question");
+    //   await doDrag({ page, element, target });
+    //   await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png");
+    // });
 
-    test.skip("Shortcut position due container layout (scroll)", async ({ page }) => {
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
-        questions: [
-          {
-            type: "ranking",
-            title: "ranking question",
-            name: "ranking_question",
-            choices: ["item1", "item2", "item3", "item4"]
-          }
-        ]
-      });
+    // test.skip("Shortcut position due container layout (scroll)", async ({ page }) => {
+    //   await page.setViewportSize({ width: 1920, height: 1080 });
+    //   await initSurvey(page, framework, {
+    //     showQuestionNumbers: "off",
+    //     questions: [
+    //       {
+    //         type: "ranking",
+    //         title: "ranking question",
+    //         name: "ranking_question",
+    //         choices: ["item1", "item2", "item3", "item4"]
+    //       }
+    //     ]
+    //   });
 
-      await page.evaluate(() => {
-        document.getElementById("surveyElement")!.style.height = "300px";
-        const surveyContainer = document.querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
-        if (surveyContainer) {
-          surveyContainer.scrollTop = 50;
-        }
-        const question = window["survey"].getAllQuestions()[0];
-        question.dragDropRankingChoices.domAdapter.doScroll = () => { };
-      });
+    //   await page.evaluate(() => {
+    //     document.getElementById("surveyElement")!.style.height = "300px";
+    //     const surveyContainer = document.querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
+    //     if (surveyContainer) {
+    //       surveyContainer.scrollTop = 50;
+    //     }
+    //     const question = window["survey"].getAllQuestions()[0];
+    //     question.dragDropRankingChoices.domAdapter.doScroll = () => { };
+    //   });
 
-      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
-      const target = element;
-      await element.hover({ force: true });
-      await page.mouse.down();
-      const { x, y } = await <any>target.boundingBox();
-      await page.mouse.move(x - 1, y, { steps: 20 });
+    //   const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "item1" });
+    //   const target = element;
+    //   await element.hover({ force: true });
+    //   await page.mouse.down();
+    //   const { x, y } = await <any>target.boundingBox();
+    //   await page.mouse.move(x - 1, y, { steps: 20 });
 
-      await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png");
-    });
+    //   await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png");
+    // });
 
     test("Ranking theming", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });

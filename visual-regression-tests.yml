@@ -501,35 +501,35 @@ jobs:
           npm run build
         displayName: "Build UI"
 
-      # - script: |
-      #     cd packages/survey-js-ui
-      #     npm run scr:ci
-      #   displayName: "run scr tests"
+      - script: |
+          cd packages/survey-js-ui
+          npm run scr:ci
+        displayName: "run scr tests"
       
-      # - task: CopyFiles@2
-      #   inputs:
-      #     SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results/"
-      #     Contents: "**"
-      #     TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
-      #     OverWrite: true
-      #   condition: always()
-      #   displayName: "copy scr artifacts"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR"
+          OverWrite: true
+        condition: always()
+        displayName: "copy scr artifacts"
 
-      # - task: PublishBuildArtifacts@1
-      #   inputs:
-      #     PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
-      #     ArtifactName: "Library_Survey-UI_SCR"
-      #     publishLocation: "Container"
-      #   condition: always()
-      #   displayName: "publish scr artifacts"
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_SCR/"
+          ArtifactName: "Library_Survey-UI_SCR"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish scr artifacts"
 
-      # - task: PublishTestResults@2
-      #   displayName: "Publish test results"
-      #   inputs:
-      #     searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
-      #     testResultsFormat: "JUnit"
-      #     testResultsFiles: "e2e-junit-results.xml"
-      #     mergeTestResults: true
-      #     failTaskOnFailedTests: true
-      #     testRunTitle: "Vue3 SCR Tests"
-      #   condition: succeededOrFailed()
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 SCR Tests"
+        condition: succeededOrFailed()

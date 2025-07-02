@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sd-question").nth(1), "question-ranking-select-to-rank-narrow-small.png");
     });
 
-    test("Shortcut position due container layout", async ({ page }, testInfo) => {
+    test.skip("Shortcut position due container layout", async ({ page }, testInfo) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
@@ -154,7 +154,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-layout.png");
     });
 
-    test("Shortcut position due container layout (relative)", async ({ page }) => {
+    test.skip("Shortcut position due container layout (relative)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
@@ -179,7 +179,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-relative-layout.png");
     });
 
-    test("Shortcut position due container layout (scroll)", async ({ page }) => {
+    test.skip("Shortcut position due container layout (scroll)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",

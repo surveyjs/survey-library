@@ -91,7 +91,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     model.onComplete.add(surveyComplete);
 
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
-    if (framework === "js-ui") {
+    if (framework === "survey-js-ui") {
       surveyElement.innerHTML = "";
       self.SurveyUI.renderSurvey(model, surveyElement);
     } else if (framework === "react") {

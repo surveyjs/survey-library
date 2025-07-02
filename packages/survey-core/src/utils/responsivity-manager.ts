@@ -9,6 +9,7 @@ interface IDimensions {
 export class ResponsivityManager {
   private resizeObserver: ResizeObserver = undefined;
   private isInitialized = false;
+  private isResizeObserverStarted: boolean = false;
 
   public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
     return DomDocumentHelper.getComputedStyle(elt);
@@ -18,6 +19,7 @@ export class ResponsivityManager {
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
         DomWindowHelper.requestAnimationFrame((): void | undefined => {
+          this.isResizeObserverStarted = true;
           this.process();
         });
       });
@@ -99,6 +101,7 @@ export class ResponsivityManager {
   }
   private isDisposed: boolean = false;
   public update(forceUpdate: boolean) {
+    if (!this.isResizeObserverStarted) return;
     if (!this.model.isResponsivenessDisabled) {
       if (forceUpdate) {
         this.isInitialized = false;
@@ -111,6 +114,7 @@ export class ResponsivityManager {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
     }
+    this.isResizeObserverStarted = false;
     this.resizeObserver = undefined;
     this.container = undefined;
   }

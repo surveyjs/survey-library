@@ -3603,3 +3603,36 @@ QUnit.test("test titleTagName of ", assert => {
     settings.titleTags = savedTitleTags;
   }
 });
+QUnit.test("Add element into non rendered page, bug#10103", assert => {
+  const survey = new SurveyModel({
+    pages: [{
+      name: "page1",
+      elements: [
+        {
+          type: "text",
+          name: "q1"
+        }
+      ]
+    },
+    {
+      name: "page2",
+      elements: [
+        {
+          type: "text",
+          name: "q2"
+        }
+      ]
+    }
+    ] });
+  assert.equal(survey.activePage.name, "page1", "active page is page1");
+  const page2 = survey.getPageByName("page2");
+  assert.equal(page2.rows.length, 0, "page2 has no rows yet");
+  page2.addElement(new QuestionTextModel("q3"), 1);
+  assert.equal(page2.rows.length, 0, "page2 still has no rows #1");
+  assert.equal(page2.elements.length, 2, "There are 2 questions");
+  page2.addElement(new QuestionTextModel("q4"), 2);
+  assert.equal(page2.rows.length, 0, "page2 still has no rows #2");
+  assert.equal(page2.elements.length, 3, "There are 3 questions");
+  survey.nextPage();
+  assert.equal(page2.rows.length, 3, "page2 has 3 rows");
+});

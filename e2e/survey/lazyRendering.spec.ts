@@ -38,7 +38,13 @@ frameworks.forEach((framework) => {
       // Check skeleton elements
       await expect(page.locator(".sv-skeleton-element")).toHaveCount(47);
       await expect(page.locator(".sv-skeleton-element").nth(46)).toHaveAttribute("id", "my_id_50");
-
+      await page.evaluate(() => {
+        const container = document.querySelector(".sv-scroll__scroller") as HTMLDivElement;
+        container.scrollTop = 1000;
+      });
+      await page.waitForTimeout(1000);
+      const count1 = await page.locator(".sv-skeleton-element").count();
+      expect(count1).toBeLessThan(44);
       // Disable lazy rendering
       await page.evaluate(() => {
         window["Survey"].settings.lazyRender.enabled = false;

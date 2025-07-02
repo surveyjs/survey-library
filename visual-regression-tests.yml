@@ -453,10 +453,6 @@ jobs:
           versionSpec: "16.x"
         displayName: "Install Node.js"
 
-      - script: |
-          npm run postinstall
-        displayName: "install playwright chrome"
-
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/"
@@ -478,6 +474,10 @@ jobs:
           verbose: false
           workingDir: $(Build.SourcesDirectory)
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
 
       - script: |
           npx puppeteer browsers install chrome

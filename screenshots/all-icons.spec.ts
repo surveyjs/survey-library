@@ -4,7 +4,6 @@ import { compareScreenshot, frameworks, initSurvey, resetFocusToBody, url } from
 const title = "All Icons Screenshot";
 
 frameworks.forEach(framework => {
-  if (framework === "survey-js-ui") return;
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
@@ -35,10 +34,15 @@ frameworks.forEach(framework => {
 
         const svgCointainer = document.getElementById("svgCointainer");
         const globalContainer = document.getElementById("sv-icon-holder-global-container");
-        let symbols;
+        let symbolsPseudoArray;
         if (!!globalContainer) {
-          symbols = globalContainer.querySelectorAll("symbol");
+          symbolsPseudoArray = globalContainer.querySelectorAll("symbol");
         }
+        let symbols:HTMLElement[] = [];
+        symbolsPseudoArray.forEach((symbol) => {
+          symbols.push(symbol);
+        });
+        symbols.sort((a, b)=>{ return a.id > b.id ? 1 : -1; });
 
         function createSvg(id) {
           const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");

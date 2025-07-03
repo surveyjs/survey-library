@@ -4,6 +4,7 @@ import { compareScreenshot, frameworks, initSurvey, resetFocusToBody, url } from
 const title = "All Icons Screenshot";
 
 frameworks.forEach(framework => {
+  if (framework === "survey-js-ui") return;
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);

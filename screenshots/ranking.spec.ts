@@ -210,7 +210,7 @@ frameworks.forEach(framework => {
       await element.hover({ force: true });
       await page.mouse.down();
       const { x, y } = await <any>target.boundingBox();
-      await page.mouse.move(x - 1, y, { steps: 20 });
+      await page.mouse.move(x - 10, y, { steps: 20 });
 
       const maxDiffPixels = 10;
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png", 0, maxDiffPixels);

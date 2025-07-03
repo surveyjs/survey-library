@@ -14,22 +14,24 @@ export const urlV2 = "http://127.0.0.1:8080/examples_test/default/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
-export async function compareScreenshot(page: Page, elementSelector: string | Locator | undefined, screenshotName: string, elementIndex = 0) {
+export async function compareScreenshot(page: Page, elementSelector: string | Locator | undefined, screenshotName: string, elementIndex = 0, maxDiffPixels?:number) {
   let currentElement = elementSelector;
   if (!!currentElement && typeof currentElement == "string") {
     currentElement = page.locator(currentElement);
   }
 
+  const options: {timeout: number, maxDiffPixels?: number} = {
+    timeout: 10000
+  };
+
+  if (maxDiffPixels) options.maxDiffPixels = maxDiffPixels;
+
   if (!!currentElement) {
     const element = (<Locator>currentElement).filter({ visible: true });
     await expect.soft(element.nth(elementIndex)).toBeVisible();
-    await expect.soft(element.nth(elementIndex)).toHaveScreenshot(screenshotName, {
-      timeout: 10000
-    });
+    await expect.soft(element.nth(elementIndex)).toHaveScreenshot(screenshotName, options);
   } else {
-    await expect.soft(page).toHaveScreenshot(screenshotName, {
-      timeout: 10000
-    });
+    await expect.soft(page).toHaveScreenshot(screenshotName, options);
   }
 }
 

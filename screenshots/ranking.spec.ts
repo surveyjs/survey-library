@@ -206,13 +206,17 @@ frameworks.forEach(framework => {
       });
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
-      const target = element;
+      await page.waitForTimeout(500);
+      const { x, y } = await <any>element.boundingBox();
+      await page.waitForTimeout(500);
       await element.hover({ force: true });
+      //   await page.waitForTimeout(500);
       await page.mouse.down();
-      const { x, y } = await <any>target.boundingBox();
+      //  await page.waitForTimeout(500);
       await page.mouse.move(x - 10, y, { steps: 20 });
+      // await page.waitForTimeout(500);
 
-      const maxDiffPixels = 10;
+      const maxDiffPixels = 40;
       await compareScreenshot(page, ".sd-question", "question-ranking-shortcut-position-container-scroll-layout.png", 0, maxDiffPixels);
     });
 

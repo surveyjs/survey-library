@@ -220,6 +220,11 @@ export class QuestionRatingModel extends Question {
   public set rateValues(val: Array<any>) {
     this.setPropertyValue("rateValues", val);
   }
+  public selectItem(item: ItemValue): void {
+    if (!this.isReadOnly && !!item) {
+      this.value = item.value;
+    }
+  }
   /**
    * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *

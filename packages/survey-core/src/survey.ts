@@ -8172,7 +8172,7 @@ export class SurveyModel extends SurveyElementCore
       const processor = new ProcessValue();
       value = processor.getValue(fromName, this.getFilteredValues());
     }
-    this.setTriggerValue(name, value, false);
+    this.setTriggerValue(name, Helpers.getUnbindValue(value), false);
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });

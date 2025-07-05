@@ -7517,6 +7517,42 @@ QUnit.test("copyvalue trigger for dropdown matrix cell", function (assert) {
     "copy value for Item2"
   );
 });
+QUnit.test("copyvalue trigger for two dynamic matrices, Bug#10107", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [{ name: "a1", cellType: "text" }],
+      },
+      { type: "boolean", name: "a" },
+      {
+        type: "matrixdynamic",
+        name: "q2",
+        columns: [{ name: "a1", cellType: "text" }],
+      },
+    ],
+    triggers: [
+      {
+        type: "copyvalue",
+        expression: "{a} = true",
+        setToName: "q2",
+        fromName: "q1",
+      }
+    ]
+  });
+  const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  q1.value = [{ a1: "val1" }, { a1: "val2" }];
+  survey.setValue("a", true);
+  assert.deepEqual(q2.value, [{ a1: "val1" }, { a1: "val2" }], "copy value to q2, #1");
+  survey.setValue("a", false);
+  q2.addRow();
+  q2.visibleRows[2].cells[0].value = "val3";
+  assert.deepEqual(q2.value, [{ a1: "val1" }, { a1: "val2" }, { a1: "val3" }], "added row");
+  survey.setValue("a", true);
+  assert.deepEqual(q2.value, [{ a1: "val1" }, { a1: "val2" }], "copy value to q2, #2");
+});
 QUnit.test(
   "MatrixDynamic, test renderedTable.showTable&showAddRowOnBottom",
   function (assert) {

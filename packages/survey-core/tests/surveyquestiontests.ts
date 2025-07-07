@@ -7873,6 +7873,7 @@ QUnit.test("question.onReadyChanged should be called for async in setValueExpres
   assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
   assert.equal(q1.isReady, true, "q1 is ready #2");
   assert.equal(counter, 1, "#2");
+  FunctionFactory.Instance.unregister("asyncFunc");
 });
 
 QUnit.test("QuestionHtmlModel hide some properties", function (assert) {

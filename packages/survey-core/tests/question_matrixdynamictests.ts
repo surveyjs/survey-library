@@ -3052,7 +3052,7 @@ QUnit.test("Test copyDefaultValueFromLastEntry property", function (assert) {
 });
 
 QUnit.test("Text preprocessing with capital questions", function (assert) {
-  var json = {
+  const survey = new SurveyModel({
     elements: [
       {
         type: "matrixdropdown",
@@ -3087,11 +3087,10 @@ QUnit.test("Text preprocessing with capital questions", function (assert) {
         ],
       },
     ],
-  };
-  var survey = new SurveyModel(json);
+  });
   survey.data = { Q11: { R11: { C11: "val11" } }, q1: { r1: { c1: "val1" } } };
-  var q11 = <QuestionMatrixDropdownModel>survey.getQuestionByName("Q11");
-  var q1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  const q11 = <QuestionMatrixDropdownModel>survey.getQuestionByName("Q11");
+  const q1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
   assert.equal(
     q1.rows[0].locText.renderedHtml,
     "val1 -- r1",
@@ -3104,39 +3103,88 @@ QUnit.test("Text preprocessing with capital questions", function (assert) {
   );
 });
 
-QUnit.test(
-  "Text preprocessing with dot in question, column and row names",
-  function (assert) {
-    var json = {
-      elements: [
-        {
-          type: "matrixdropdown",
-          name: "q.1",
-          columns: [
-            {
-              name: "c.1",
-            },
-          ],
-          cellType: "text",
-          rows: [
-            {
-              value: "r.1",
-            },
-          ],
-        },
-        {
-          type: "text",
-          name: "q1",
-          title: "{q.1.r.1.c.1}",
-        },
-      ],
-    };
-    var survey = new SurveyModel(json);
-    survey.data = { "q.1": { "r.1": { "c.1": "val1" } } };
-    var q1 = <Question>survey.getQuestionByName("q1");
-    assert.equal(q1.locTitle.renderedHtml, "val1", "work with dots fine");
-  }
-);
+QUnit.test("Text preprocessing with dot in question, column and row names", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q.1",
+        columns: [
+          {
+            name: "c.1",
+          },
+        ],
+        cellType: "text",
+        rows: [
+          {
+            value: "r.1",
+          },
+        ],
+      },
+      {
+        type: "text",
+        name: "q1",
+        title: "{q.1.r.1.c.1}",
+      },
+    ],
+  });
+  survey.data = { "q.1": { "r.1": { "c.1": "val1" } } };
+  const q1 = <Question>survey.getQuestionByName("q1");
+  assert.equal(q1.locTitle.renderedHtml, "val1", "work with dots fine");
+});
+QUnit.test("Text preprocessing with display names, column and row names", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "c1",
+            choices: [{ value: 1, text: "item1" }, { value: 2, text: "item2" }],
+          },
+        ],
+        rows: [
+          {
+            value: "a",
+          },
+        ],
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: "item: {q1.a.c1}",
+      },
+    ],
+  });
+  survey.data = { "q1": { "a": { "c1": 2 } } };
+  const q2 = <Question>survey.getQuestionByName("q2");
+  assert.equal(q2.locTitle.renderedHtml, "item: item2", "work with display values");
+});
+QUnit.test("Text preprocessing with display names & array", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "c1",
+            choices: [{ value: 1, text: "item1" }, { value: 2, text: "item2" }],
+          },
+        ]
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: "item: {q1[0].c1}",
+      },
+    ],
+  });
+  survey.data = { "q1": [{ "c1": 2 }] };
+  const q2 = <Question>survey.getQuestionByName("q2");
+  assert.equal(q2.locTitle.renderedHtml, "item: item2", "work with display values");
+});
 
 QUnit.test(
   "Shared matrix value name, Bug: Bug# https://surveyjs.answerdesk.io/ticket/details/T1322",

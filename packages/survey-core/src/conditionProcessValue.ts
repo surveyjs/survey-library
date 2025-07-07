@@ -1,5 +1,120 @@
 import { Helpers, HashTable } from "./helpers";
 
+export interface IValueGetterItem {
+  name: string;
+  index?: number;
+}
+export interface IValueGetterInfo {
+  path: Array<IValueGetterItem>;
+  context: IValueGetterContext;
+  value?: any;
+}
+export interface IValueGetterContext {
+  getValue(path: Array<IValueGetterItem>): IValueGetterInfo;
+  getDisplayValue(value: any): string;
+}
+export class ValueGetter {
+  public constructor() {
+  }
+  public getValue(name: string, context: IValueGetterContext): any {
+    const info = this.run(name, context);
+    return info?.value;
+  }
+  public getDisplayValue(name: string, context: IValueGetterContext): any {
+    const info = this.run(name, context);
+    if (!info) return "";
+    if (info.context) return info.context.getDisplayValue(info.value);
+    return info.value;
+  }
+  private run(name: string, context: IValueGetterContext): any {
+    let info: IValueGetterInfo = undefined;
+    let path = this.getPath(name);
+    while(!!context && path.length > 0) {
+      info = context.getValue(path);
+      if (!info) return null;
+      context = info.context;
+      path = info.path;
+    }
+    return info;
+  }
+  public getPath(name: string): Array<IValueGetterItem> {
+    const path: Array<IValueGetterItem> = [];
+    const names = name.split(".");
+    for (let i = 0; i < names.length; i++) {
+      path.push(this.getValueItem(names[i]));
+    }
+    return path;
+  }
+  private getValueItem(name: string): IValueGetterItem {
+    name = name.trim();
+    let index: number | undefined = undefined;
+    if (name.lastIndexOf("]") === name.length - 1) {
+      const ind = name.lastIndexOf("[");
+      if (ind > -1) {
+        const indexStr = name.substring(ind + 1, name.length - 1);
+        index = Helpers.getNumber(indexStr);
+        if (isNaN(index) || index < 0) {
+          index = undefined;
+        }
+        if (index !== undefined) {
+          name = name.substring(0, ind);
+        }
+      }
+    }
+    const res: IValueGetterItem = { name: name };
+    if (index !== undefined) {
+      res.index = index;
+    }
+    return res;
+  }
+}
+export class VariableGetterContext implements IValueGetterContext {
+  constructor(private variables: HashTable<any>) {}
+  public getValue(path: Array<IValueGetterItem>): IValueGetterInfo {
+    let index = 0;
+    let v: any = this.variables;
+    while(index < path.length) {
+      const item = path[index];
+      let vI = this.getValueByItem(v, item.name);
+      if (vI === undefined) {
+        let name = item.name;
+        while(vI === undefined && index < path.length - 1 && path[index + 1].index === undefined) {
+          index++;
+          name += "." + path[index].name;
+          vI = this.getValueByItem(v, name);
+        }
+      }
+      if (vI === undefined) return undefined;
+      v = vI;
+      if (item.index !== undefined) {
+        if (Array.isArray(v) && item.index < v.length) {
+          v = v[item.index];
+        } else return undefined;
+      }
+      index++;
+    }
+    return { path: [], context: this, value: v };
+  }
+  public getDisplayValue(value: any): string {
+    if (value === undefined) return "";
+    return value.toString();
+  }
+  private getValueByItem(obj: any, name: string): any {
+    if (!obj || !name) return undefined;
+    const nameInLow = name.toLowerCase();
+    let a = nameInLow[0];
+    let A = name[0].toLocaleUpperCase();
+    for (var key in obj) {
+      var first = key[0];
+      if (first === a || first === A) {
+        var keyName = key.toLowerCase();
+        if (keyName == nameInLow) return obj[key];
+      }
+    }
+    return undefined;
+  }
+}
+
 const surveyBuiltInVarible: string = "@survey";
 export class ProcessValue {
   public values: HashTable<any> = null;

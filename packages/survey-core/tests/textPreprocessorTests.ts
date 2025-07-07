@@ -3,7 +3,7 @@ import {
   TextPreProcessorValue,
 } from "../src/textPreProcessor";
 import { Question } from "../src/question";
-import { ProcessValue } from "../src/conditionProcessValue";
+import { ValueGetter, VariableGetterContext, ProcessValue } from "../src/conditionProcessValue";
 
 export default QUnit.module("TextPreprocessorTests");
 
@@ -277,3 +277,27 @@ QUnit.test(
     assert.equal(valueInfo.value, 0, "length is 0, Q11 is undefined");
   }
 );
+QUnit.test("ValueGetter.getPath()", function (assert) {
+  const getter = new ValueGetter();
+  assert.deepEqual(getter.getPath("a.b.c"), [{ name: "a" }, { name: "b" }, { name: "c" }], "getPath simple");
+  assert.deepEqual(getter.getPath("a[0].b.c"), [{ name: "a", index: 0 }, { name: "b" }, { name: "c" }], "getPath with array");
+  assert.deepEqual(getter.getPath("a[0].b.c[1]"), [{ name: "a", index: 0 }, { name: "b" }, { name: "c", index: 1 }], "getPath with array and index");
+  assert.deepEqual(getter.getPath("a[0].b.c[1].d"), [{ name: "a", index: 0 }, { name: "b" }, { name: "c", index: 1 }, { name: "d" }], "getPath with array and index and property");
+  assert.deepEqual(getter.getPath("a.b.c.d"), [{ name: "a" }, { name: "b" }, { name: "c" }, { name: "d" }], "getPath with several properties");
+  assert.deepEqual(getter.getPath("a.b.c[dd0].d"), [{ name: "a" }, { name: "b" }, { name: "c[dd0]" }, { name: "d" }], "getPath with array and property");
+});
+QUnit.test("VariableGetterContext.getValue()", function (assert) {
+  const getter = new ValueGetter();
+  const context = new VariableGetterContext({
+    a: 1, b: 2, c: 3, d: { e: 4, f: 5 }, g: [6, 7], KmT: { nD: 8 }, "dot.dot": { "one.two.three": 9 } });
+  assert.equal(getter.getValue("a", context), 1, "getValue a");
+  assert.equal(getter.getValue("b", context), 2, "getValue b");
+  assert.equal(getter.getValue("c", context), 3, "getValue c");
+  assert.equal(getter.getValue("d.e", context), 4, "getValue d.e");
+  assert.equal(getter.getValue("d.f", context), 5, "getValue d.f");
+  assert.equal(getter.getValue("g[0]", context), 6, "getValue g[0]");
+  assert.equal(getter.getValue("g[1]", context), 7, "getValue g[1]");
+  assert.equal(getter.getValue("g[2]", context), undefined, "getValue g[2]");
+  assert.equal(getter.getValue("kMt.Nd", context), 8, "getValue kMt.Nd");
+  assert.equal(getter.getValue("dot.dot.one.two.three", context), 9, "getValue dot.dot.one.two.three");
+});

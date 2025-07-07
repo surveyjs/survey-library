@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@types/jsdom": "^20.0.0",
+    "@types/minimatch": "5.1.2",
     "@types/node": "^16.11.68",
     "@vitejs/plugin-vue": "^3.1.2",
     "@vitejs/plugin-vue-jsx": "^2.0.1",

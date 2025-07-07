@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@types/lodash": "4.14.186",
+    "@types/minimatch": "5.1.2",
     "@types/node": "7.0.4",
     "@types/papaparse": "^5.0.4",
     "@types/qunit": "2.0.31",

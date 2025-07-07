@@ -33,6 +33,7 @@
         "@types/babel__traverse": "7.18.2",
         "@types/jest": "^26.0.24",
         "@types/lodash": "4.14.186",
+        "@types/minimatch": "5.1.2",
         "@types/node": "7.0.4",
         "@types/react": "^17.0.83",
         "@types/react-dom": "^17.0.1",

@@ -2,7 +2,9 @@
   "name": "survey-angular-ui-example",
   "version": "0.0.1",
   "peerDependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/minimatch": "5.1.2"
+  },
   "dependencies": {
     "bootstrap": "^3.3.7",
     "survey-core": "../../../build/survey-core",

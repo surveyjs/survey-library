@@ -42,6 +42,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
 import { SurveyError } from "../src/survey-error";
+import { set } from "lodash";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;
@@ -7841,6 +7842,38 @@ QUnit.test("Test", function (assert) {
   survey.data = data2;
   assert.deepEqual(survey.data, data2, "#2");
   assert.equal(counter, 0, "#2");
+});
+QUnit.test("question.onReadyChanged should be called for async in setValueExpression", function (assert) {
+  let funcRes: (res: any) => void = (res: any) => void {};
+  function asyncFunc(params: any): any {
+    funcRes = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        setValueExpression: "asyncFunc({q2})",
+      },
+      {
+        type: "text",
+        name: "q2"
+      }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setValue("q2", "test");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  let counter = 0;
+  q1.onReadyChanged.add((sender, options) => {
+    counter ++;
+  });
+  assert.equal(counter, 0, "#1");
+  funcRes(1);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #2");
+  assert.equal(counter, 1, "#2");
 });
 
 QUnit.test("QuestionHtmlModel hide some properties", function (assert) {

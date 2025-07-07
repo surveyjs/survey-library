@@ -42,7 +42,6 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { setOldTheme } from "./oldTheme";
 import { SurveyError } from "../src/survey-error";
-import { set } from "lodash";
 export default QUnit.module("Survey_Questions");
 
 settings.autoAdvanceDelay = 0;

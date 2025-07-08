@@ -102,6 +102,7 @@ export class VariableGetterContext implements IValueGetterContext {
   private getValueByItem(obj: any, name: string): any {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
+    if (Array.isArray(obj) && name === "length") return obj.length;
     let a = nameInLow[0];
     let A = name[0].toLocaleUpperCase();
     for (var key in obj) {

@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { ProcessValue } from "./conditionProcessValue";
+import { ProcessValue, ValueGetter, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -7037,8 +7037,7 @@ export class SurveyModel extends SurveyElementCore
     var res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
-      if (new ProcessValue().hasValue(name, this.variablesHash))
-        return new ProcessValue().getValue(name, this.variablesHash);
+      return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
     }
     return res;
   }

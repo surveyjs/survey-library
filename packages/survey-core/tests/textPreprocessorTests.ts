@@ -289,7 +289,8 @@ QUnit.test("ValueGetter.getPath()", function (assert) {
 QUnit.test("VariableGetterContext.getValue()", function (assert) {
   const getter = new ValueGetter();
   const context = new VariableGetterContext({
-    a: 1, b: 2, c: 3, d: { e: 4, f: 5 }, g: [6, 7], KmT: { nD: 8 }, "dot.dot": { "one.two.three": 9 } });
+    a: 1, b: 2, c: 3, d: { e: 4, f: 5 }, g: [6, 7], KmT: { nD: 8 },
+    "dot.dot": { "one.two.three": 9 }, arr: [{ state: "CA" }, { state: "TX" }] });
   assert.equal(getter.getValue("a", context), 1, "getValue a");
   assert.equal(getter.getValue("b", context), 2, "getValue b");
   assert.equal(getter.getValue("c", context), 3, "getValue c");
@@ -300,4 +301,7 @@ QUnit.test("VariableGetterContext.getValue()", function (assert) {
   assert.equal(getter.getValue("g[2]", context), undefined, "getValue g[2]");
   assert.equal(getter.getValue("kMt.Nd", context), 8, "getValue kMt.Nd");
   assert.equal(getter.getValue("dot.dot.one.two.three", context), 9, "getValue dot.dot.one.two.three");
+  assert.equal(getter.getValue("arr[0].state", context), "CA", "arr[0].state");
+  assert.equal(getter.getValue("arr[1].state", context), "TX", "arr[1].state");
+  assert.equal(getter.getValue("arr.length", context), 2, "arr.length");
 });

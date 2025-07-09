@@ -23,6 +23,26 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore } from "./conditionProcessValue";
+
+export class MultipleTextValueGetterContext extends ValueGetterContextCore {
+  constructor (protected question: QuestionMultipleTextModel) {
+    super();
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const items = this.question.items;
+    name = name.toLocaleLowerCase();
+    for (let i = 0; i < items.length; i++) {
+      const q = items[i].question;
+      const qName = q.getValueName();
+      if (qName.toLocaleLowerCase() === name) {
+        res.isFound = true;
+        res.context = q.getValueGetterContext();
+        return;
+      }
+    }
+  }
+}
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -783,6 +803,9 @@ export class QuestionMultipleTextModel extends Question
       elements.push(this.items[i].editor);
     }
     return SurveyElement.getProgressInfoByElements(elements, this.isRequired);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MultipleTextValueGetterContext(this);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;

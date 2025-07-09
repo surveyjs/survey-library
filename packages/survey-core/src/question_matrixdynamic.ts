@@ -28,7 +28,7 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
   getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
     const md = <QuestionMatrixDynamicModel>this.question;
     if (index >= 0) {
-      if (md.areRowsGenerated && index < md.visibleRows.length) {
+      if (index < md.visibleRows.length) {
         return md.visibleRows[index].getValueGetterContext()
           .getValue([{ name: MatrixDropdownRowModelBase.RowVariableName }].concat(path));
       }

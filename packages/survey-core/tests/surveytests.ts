@@ -3516,18 +3516,16 @@ QUnit.test(
   }
 );
 
-QUnit.test("pre process completedHtml nested properties and arrays", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page1");
+QUnit.test("pre process completedHtml nested properties and arrays", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page1");
 
-  var multipleText = new QuestionMultipleTextModel("mt");
+  const multipleText = new QuestionMultipleTextModel("mt");
   multipleText.addItem("t1");
   multipleText.addItem("t2");
   page.addQuestion(multipleText);
 
-  var dynamicMatrix = new QuestionMatrixDynamicModel("matrix");
+  const dynamicMatrix = new QuestionMatrixDynamicModel("matrix");
   dynamicMatrix.addColumn("col1");
   dynamicMatrix.addColumn("col2");
   dynamicMatrix.addColumn("col3");
@@ -3540,30 +3538,27 @@ QUnit.test("pre process completedHtml nested properties and arrays", function (
   assert.equal(survey.processedCompletedHtml, "Year:2017");
 });
 
-QUnit.test(
-  "pre process completedHtml nested properties and arrays + name with dot",
-  function (assert) {
-    var survey = new SurveyModel();
-    var page = survey.addNewPage("page1");
+QUnit.test("pre process completedHtml nested properties and arrays + name with dot", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page1");
 
-    var multipleText = new QuestionMultipleTextModel("m.t");
-    multipleText.addItem("t1");
-    multipleText.addItem("t2");
-    page.addQuestion(multipleText);
+  const multipleText = new QuestionMultipleTextModel("m.t");
+  multipleText.addItem("t1");
+  multipleText.addItem("t2");
+  page.addQuestion(multipleText);
 
-    var dynamicMatrix = new QuestionMatrixDynamicModel("matri.x");
-    dynamicMatrix.addColumn("col1");
-    dynamicMatrix.addColumn("col2");
-    dynamicMatrix.addColumn("col3");
-    page.addQuestion(dynamicMatrix);
+  const dynamicMatrix = new QuestionMatrixDynamicModel("matri.x");
+  dynamicMatrix.addColumn("col1");
+  dynamicMatrix.addColumn("col2");
+  dynamicMatrix.addColumn("col3");
+  page.addQuestion(dynamicMatrix);
 
-    multipleText.value = { t2: "Year" };
-    dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
+  multipleText.value = { t2: "Year" };
+  dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
 
-    survey.completedHtml = "{m.t.t2}:{matri.x[1].col2}";
-    assert.equal(survey.processedCompletedHtml, "Year:2017");
-  }
-);
+  survey.completedHtml = "{m.t.t2}:{matri.x[1].col2}";
+  assert.equal(survey.processedCompletedHtml, "Year:2017");
+});
 
 QUnit.test("question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -5644,12 +5639,10 @@ QUnit.test("Survey text preprocessing, matrix, issue #499", function (assert) {
   assert.equal(q2.locTitle.renderedHtml, "Col 1", "Matrix use text");
 });
 
-QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("Page 1");
-  var q1 = <QuestionMatrixDropdownModel>(
+QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page 1");
+  const q1 = <QuestionMatrixDropdownModel>(
     page.addNewQuestion("matrixdropdown", "q1")
   );
   q1.rows = [
@@ -5662,21 +5655,15 @@ QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
-  var q2 = <Question>page.addNewQuestion("text", "q2");
+  const q2 = <Question>page.addNewQuestion("text", "q2");
   q2.title = "{q1.row1.col1}";
   q1.value = { row1: { col1: 1 } };
-  assert.equal(
-    q2.locTitle.renderedHtml,
-    "Item 1",
-    "Dropdown Matrix Column use text"
-  );
+  assert.equal(q2.locTitle.renderedHtml, "Item 1", "Dropdown Matrix Column use text");
 });
 
-QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("Page 1");
+QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page 1");
   var q1 = <QuestionMatrixDynamicModel>(
     page.addNewQuestion("matrixdynamic", "q1")
   );
@@ -5687,14 +5674,10 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
-  var q2 = <Question>page.addNewQuestion("text", "q2");
+  const q2 = <Question>page.addNewQuestion("text", "q2");
   q2.title = "{q1[0].col1}";
   q1.value = [{ col1: 1 }, {}];
-  assert.equal(
-    q2.locTitle.renderedHtml,
-    "Item 1",
-    "Dropdown Matrix Column use text"
-  );
+  assert.equal(q2.locTitle.renderedHtml, "Item 1", "Dynamic Matrix Column use text");
 });
 QUnit.test("Survey text preprocessing with camella case, issue #913", function (
   assert

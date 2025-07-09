@@ -17,15 +17,23 @@ export interface IValueGetterContext {
 export class ValueGetter {
   public constructor() {
   }
-  public getValue(name: string, context: IValueGetterContext): any {
+  public getValueInfo(name: string, context: IValueGetterContext, isDisplay): { isFound: boolean, value: any } {
     const info = this.run(name, context);
-    return !!info && info.isFound ? info.value : undefined;
+    const res = { isFound: false, value: undefined };
+    if (!info || !info.isFound) return res;
+    res.isFound = true;
+    res.value = info.value;
+    if (isDisplay && info.context) {
+      res.value = info.context.getDisplayValue(res.value);
+    }
+    return res;
   }
-  public getDisplayValue(name: string, context: IValueGetterContext): any {
-    const info = this.run(name, context);
-    if (!info || !info.isFound) return "";
-    if (info.context) return info.context.getDisplayValue(info.value);
-    return info.value;
+  public getValue(name: string, context: IValueGetterContext, isDisplay?: boolean): any {
+    const res = this.getValueInfo(name, context, isDisplay);
+    return res.isFound ? res.value : undefined;
+  }
+  public getDisplayValue(name: string, context: IValueGetterContext): string {
+    return this.getValue(name, context, true);
   }
   private run(name: string, context: IValueGetterContext): any {
     let path = this.getPath(name);
@@ -69,13 +77,15 @@ export class ValueGetterContextCore implements IValueGetterContext {
     let pIndex = 0;
     const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
     while(pIndex < path.length) {
-      const item = path[pIndex];
+      let item = path[pIndex];
       let name = item.name;
       this.updateValueByItem(name, res);
-      while(!res.isFound && pIndex < path.length - 1 && path[pIndex + 1].index === undefined) {
+      while(!res.isFound && pIndex < path.length - 1) {
         pIndex++;
-        name += "." + path[pIndex].name;
+        item = path[pIndex];
+        name += "." + item.name;
         this.updateValueByItem(name, res);
+        if (item.index !== undefined) break;
       }
       if (!res.isFound) return undefined;
       pIndex++;

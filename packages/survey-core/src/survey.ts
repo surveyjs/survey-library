@@ -6950,76 +6950,11 @@ export class SurveyModel extends SurveyElementCore
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
     }
-    const builtInVar = this.getBuiltInVariableValue(name);
-    if (builtInVar !== undefined) {
+    const res = new ValueGetter().getValueInfo(name, this.getValueGetterContext(), textValue.returnDisplayValue);
+    if (res.isFound) {
       textValue.isExists = true;
-      textValue.value = builtInVar;
-      return;
+      textValue.value = res.value;
     }
-    if (name === "locale") {
-      textValue.isExists = true;
-      textValue.value = !!this.locale
-        ? this.locale
-        : surveyLocalization.defaultLocale;
-      return;
-    }
-    var variable = this.getVariable(name);
-    if (variable !== undefined) {
-      textValue.isExists = true;
-      textValue.value = variable;
-      return;
-    }
-    var question = this.getFirstName(name);
-    if (question) {
-      const questionUseDisplayText = (<Question>question).useDisplayValuesInDynamicTexts;
-      textValue.isExists = true;
-      const firstName = question.getValueName().toLowerCase();
-      name = firstName + name.substring(firstName.length);
-      name = name.toLocaleLowerCase();
-      var values: { [index: string]: any } = {};
-      values[firstName] = textValue.returnDisplayValue && questionUseDisplayText
-        ? question.getDisplayValue(false, undefined)
-        : question.value;
-      textValue.value = new ProcessValue().getValue(name, values);
-      return;
-    }
-    this.getProcessedValuesWithoutQuestion(textValue);
-  }
-  private getProcessedValuesWithoutQuestion(textValue: TextPreProcessorValue): void {
-    var value = this.getValue(textValue.name);
-    if (value !== undefined) {
-      textValue.isExists = true;
-      textValue.value = value;
-      return;
-    }
-    const processor = new ProcessValue();
-    const firstName = processor.getFirstName(textValue.name);
-    if (firstName === textValue.name) return;
-    const data: any = {};
-    let val = this.getValue(firstName);
-    if (Helpers.isValueEmpty(val)) {
-      val = this.getVariable(firstName);
-    }
-    if (Helpers.isValueEmpty(val)) return;
-    data[firstName] = val;
-    textValue.value = processor.getValue(textValue.name, data);
-    textValue.isExists = processor.hasValue(textValue.name, data);
-  }
-  private getFirstName(name: string): Question {
-    name = name.toLowerCase();
-    var question;
-    do {
-      question = this.getQuestionByValueName(name, true);
-      name = this.reduceFirstName(name);
-    } while(!question && !!name);
-    return question;
-  }
-  private reduceFirstName(name: string): string {
-    var pos1 = name.lastIndexOf(".");
-    var pos2 = name.lastIndexOf("[");
-    if (pos1 < 0 && pos2 < 0) return "";
-    var pos = Math.max(pos1, pos2);
-    return name.substring(0, pos);
   }
   private isClearingUnsedValues: boolean;
   private clearUnusedValues() {

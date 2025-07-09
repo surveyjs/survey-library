@@ -90,9 +90,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected processRowsOnSet(newRows: Array<any>) {
     return newRows;
   }
-  public get areRowsGenerated(): boolean {
-    return Array.isArray(this.generatedVisibleRows);
-  }
   protected getVisibleRows(): Array<TRow> {
     return [];
   }

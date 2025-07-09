@@ -9,7 +9,6 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
-import { Question } from "./question";
 import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
@@ -17,7 +16,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
     super();
   }
   public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
-    if (this.question.areRowsGenerated) {
+    if (path.length > 0) {
       const res = super.getValue(path, index);
       if (res && res.isFound) return res;
     }

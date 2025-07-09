@@ -201,16 +201,21 @@ export class MatrixRowGetterContext extends ValueGetterContextCore {
   constructor(private row: MatrixDropdownRowModelBase) {
     super();
   }
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length === 0) return undefined;
-    if (path[0].name === MatrixDropdownRowModelBase.RowVariableName) {
-      path = [].concat(path.splice(1));
-      const res = super.getValue(path);
+    const isRowPrefix = path[0].name === MatrixDropdownRowModelBase.RowVariableName;
+    if (isRowPrefix || !isRoot) {
+      if (isRowPrefix) {
+        path.shift();
+      }
+      const res = super.getValue(path, isRoot);
       if (!!res && res.isFound) return res;
-      return new VariableGetterContext(this.row.getAllValues()).getValue(path);
+      return new VariableGetterContext(this.row.getAllValues()).getValue(path, isRoot);
     }
-    const survey = this.row.getSurvey();
-    if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
+    if (isRoot) {
+      const survey = this.row.getSurvey();
+      if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
+    }
     return undefined;
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {

@@ -1061,16 +1061,20 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
     if (path.length > 0) {
-      if (path[0].name === QuestionCompositeModel.ItemVariableName) {
-        path.shift();
+      const isCompPrefix = path[0].name === QuestionCompositeModel.ItemVariableName;
+      if (isCompPrefix || !isRoot) {
+        if (isCompPrefix) {
+          path.shift();
+        }
+        const res = cq.contentPanel.getValueGetterContext().getValue(path, false, index);
+        if (res && res.isFound) return res;
+        return new VariableGetterContext(cq.value).getValue(path, isRoot);
       }
-      const res = cq.contentPanel.getValueGetterContext().getValue(path, index);
-      if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(cq.value).getValue(path);
+    return undefined;
   }
 }
 

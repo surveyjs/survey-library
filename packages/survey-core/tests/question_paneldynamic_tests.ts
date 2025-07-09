@@ -8128,11 +8128,15 @@ QUnit.test("paneldynamic.getValueGetterContext()", function (assert) {
           }]
       }]
   });
-  survey.data = { rPanel: [{ q1: 1, dPanel: [{ q2: 2 }, { q2: 2 }] }] };
+  survey.data = { rPanel: [{ q1: 1, dPanel: [{ q2: 2 }, { q2: 2 }] }], var1: "b" };
   const getter = new ValueGetter();
   const context = survey.getValueGetterContext();
   assert.equal(getter.getValue("rPanel[0].q1", context), 1, "#1");
   assert.equal(getter.getDisplayValue("rPanel[0].q1", context), "item1", "text #1");
   assert.equal(getter.getValue("rPanel[0].dPanel[1].q2", context), 2, "#2");
   assert.equal(getter.getDisplayValue("rPanel[0].dPanel[1].q2", context), "item2", "text #2");
+  const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
+  const panelContext = (<any>rPanel.panels[0].data).getValueGetterContext();
+  assert.equal(getter.getValue("panel.q1", panelContext), 1, "panel context #1");
+  assert.equal(getter.getValue("var1", panelContext), "b", "panel context #2");
 });

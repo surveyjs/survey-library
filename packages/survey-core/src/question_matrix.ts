@@ -32,7 +32,7 @@ export interface IMatrixData {
 }
 class MatrixRowValueGetterContext implements IValueGetterContext {
   constructor(private row: MatrixRowModel) {}
-  public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length !== 0) return undefined;
     return { isFound: true, value: this.row.value, context: this };
   }
@@ -283,12 +283,12 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixModel) {
     super();
   }
-  public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length > 0) {
-      const res = super.getValue(path, index);
+      const res = super.getValue(path, isRoot, index);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(path);
+    return new VariableGetterContext(this.question.value).getValue(path, isRoot);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const rows = this.question.visibleRows;

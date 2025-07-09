@@ -10822,10 +10822,16 @@ QUnit.test("matrixdynamic.getValueGetterContext()", function (assert) {
         ]
       }]
   });
+  survey.setValue("var1", "b");
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.equal(matrix.visibleRows.length, 2, "There are two rows: header and data row");
   const getter = new ValueGetter();
   const context = survey.getValueGetterContext();
   assert.equal(getter.getValue("matrix[1].col1", context), 1, "#1");
   assert.equal(getter.getDisplayValue("matrix[1].col1", context), "item1", "text #1");
+  assert.equal(matrix.visibleRows.length, 2, "There are two rows: header and data row");
+  const rowContext = matrix.visibleRows[1].getValueGetterContext();
+  assert.equal(getter.getValue("row.col1", rowContext), 1, "row #1");
+  assert.equal(getter.getDisplayValue("row.col1", rowContext), "item1", "row text #1");
+  assert.equal(getter.getValue("var1", rowContext), "b", "row #2");
+  assert.equal(getter.getValue("matrix[0].col1", rowContext), 1, "row #3");
 });

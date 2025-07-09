@@ -56,11 +56,23 @@ class TriggerExpressionInfo {
 
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question) {}
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
-    return { value: this.question.value, isFound: true, context: this };
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    const res = this.getValueCore(path, isRoot, index);
+    if (!!res && res.isFound) return res;
+    if (isRoot) return this.getSurveyValue(path, index);
+    return undefined;
   }
   getDisplayValue(value: any): string {
     return this.question.getDisplayValue(value);
+  }
+  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    if (path.length === 0) return { value: this.question.value, isFound: true, context: this };
+    return undefined;
+  }
+  protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    const survey = this.question.getSurvey();
+    if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
+    return undefined;
   }
 }
 /**

@@ -95,7 +95,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     super();
   }
 
-  getValue(path: Array<IValueGetterItem>): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean): IValueGetterInfo {
     if (path.length === 1) {
       const name = path[0].name;
       let val: any = this.survey.getBuiltInVariableValue(name);
@@ -104,11 +104,11 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       }
       if (val !== undefined) return { value: val, isFound: true };
     }
-    let res = new VariableGetterContext(this.variablesHash).getValue(path);
+    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot);
     if (!!res && res.isFound) return res;
-    res = super.getValue(path);
+    res = super.getValue(path, isRoot);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash).getValue(path);
+    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const question = this.survey.getQuestionByValueName(name.toLocaleLowerCase(), true);

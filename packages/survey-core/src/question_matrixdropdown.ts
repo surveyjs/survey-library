@@ -15,12 +15,12 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
     super();
   }
-  public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length > 0) {
-      const res = super.getValue(path, index);
+      const res = super.getValue(path, isRoot, index);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(path);
+    return new VariableGetterContext(this.question.value).getValue(path, isRoot);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const rows = this.question.visibleRows;
@@ -31,7 +31,6 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
       if (itemName.toLocaleLowerCase() === name) {
         res.isFound = true;
         res.context = row.getValueGetterContext();
-        res.contextPrefix = MatrixDropdownRowModelBase.RowVariableName;
         return;
       }
     }

@@ -19,6 +19,7 @@ import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { setOldTheme } from "./oldTheme";
+import { ValueGetter } from "../src/conditionProcessValue";
 
 export default QUnit.module("custom questions");
 
@@ -3717,8 +3718,16 @@ QUnit.test("Composite: text piping", function (assert) {
   });
   const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
   const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
-  assert.equal(q2.locTitle.textOrHtml, "item: ", "q2 title is correct before piping");
+  q2.value = "test2";
+  assert.equal(q2.locTitle.renderedHtml, "item: ", "q2 title is correct before piping");
   q1.contentPanel.getQuestionByName("item1").value = "test1";
-  assert.equal(q2.locTitle.textOrHtml, "item: test1", "q2 title is correct after piping");
+  assert.equal(q2.locTitle.renderedHtml, "item: test1", "q2 title is correct after piping");
+
+  const getter = new ValueGetter();
+  const context = q1.getValueGetterContext();
+  assert.equal(getter.getValue("q2", context), "test2", "valueGetter #1");
+  assert.equal(getter.getValue("composite.item1", context), "test1", "valueGetter #2");
+  assert.equal(getter.getValue("q1.item1", context), "test1", "valueGetter #3");
+
   ComponentCollection.Instance.clear();
 });

@@ -25,16 +25,15 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
   constructor (protected question: Question) {
     super(question);
   }
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const md = <QuestionMatrixDynamicModel>this.question;
     if (index >= 0) {
       if (index < md.visibleRows.length) {
-        return md.visibleRows[index].getValueGetterContext()
-          .getValue([{ name: MatrixDropdownRowModelBase.RowVariableName }].concat(path));
+        return md.visibleRows[index].getValueGetterContext().getValue(path, false);
       }
       const val = md.value;
       if (Array.isArray(val) && index < val.length) {
-        return new VariableGetterContext(val[index]).getValue(path);
+        return new VariableGetterContext(val[index]).getValue(path, false);
       }
     }
     return undefined;

@@ -49,16 +49,19 @@ export class PanelDynamicItemGetterContext extends ValueGetterContextCore {
   constructor(private item: QuestionPanelDynamicItem) {
     super();
   }
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length === 0) return undefined;
     const panel = this.item.panel;
-    if (path[0].name === QuestionPanelDynamicItem.ItemVariableName) {
-      path = [].concat(path.splice(1));
-      const res = panel.getValueGetterContext().getValue(path);
+    const isPanelPrefix = path[0].name === QuestionPanelDynamicItem.ItemVariableName;
+    if (isPanelPrefix || !isRoot) {
+      if (isPanelPrefix) {
+        path.shift();
+      }
+      const res = panel.getValueGetterContext().getValue(path, false);
       if (!!res && res.isFound) return res;
-      return new VariableGetterContext(this.item.getAllValues()).getValue(path);
+      return new VariableGetterContext(this.item.getAllValues()).getValue(path, false);
     }
-    if (panel.survey) return (<any>panel.survey).getValueGetterContext().getValue(path, index);
+    if (isRoot && panel.survey) return (<any>panel.survey).getValueGetterContext().getValue(path, false, index);
     return undefined;
   }
   getDisplayValue(value: any): string { return ""; }
@@ -68,17 +71,16 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const pd = <QuestionPanelDynamicModel>this.question;
     if (index >= 0) {
       if (index < pd.visiblePanels.length) {
         const item = <QuestionPanelDynamicItem>pd.visiblePanels[index].data;
-        return item.getValueGetterContext()
-          .getValue([{ name: QuestionPanelDynamicItem.ItemVariableName }].concat(path));
+        return item.getValueGetterContext().getValue(path, false);
       }
       const val = pd.value;
       if (Array.isArray(val) && index < val.length) {
-        return new VariableGetterContext(val[index]).getValue(path);
+        return new VariableGetterContext(val[index]).getValue(path, false);
       }
     }
     return undefined;

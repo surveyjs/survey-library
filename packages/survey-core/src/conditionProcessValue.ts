@@ -8,10 +8,9 @@ export interface IValueGetterInfo {
   context?: IValueGetterContext;
   isFound?: boolean;
   value?: any;
-  contextPrefix?: string;
 }
 export interface IValueGetterContext {
-  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo;
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
   getDisplayValue(value: any): string;
 }
 export class ValueGetter {
@@ -37,7 +36,7 @@ export class ValueGetter {
   }
   private run(name: string, context: IValueGetterContext): any {
     let path = this.getPath(name);
-    const info = context.getValue(path);
+    const info = context.getValue(path, true);
     return !!info && info.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
@@ -73,7 +72,7 @@ export class ValueGetter {
 }
 export class ValueGetterContextCore implements IValueGetterContext {
   constructor() {}
-  public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     let pIndex = 0;
     const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
     while(pIndex < path.length) {
@@ -90,9 +89,7 @@ export class ValueGetterContextCore implements IValueGetterContext {
       if (!res.isFound) return undefined;
       pIndex++;
       if (res.context !== this && !!res.context) {
-        const newPath = res.contextPrefix ? [{ name: res.contextPrefix }] : [];
-        res.contextPrefix = undefined;
-        return res.context.getValue(newPath.concat(path.slice(pIndex)), item.index);
+        return res.context.getValue([].concat(path.slice(pIndex)), false, item.index);
       }
       if (item.index !== undefined) {
         this.updateItemByIndex(item.index, res);

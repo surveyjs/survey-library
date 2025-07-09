@@ -64,6 +64,8 @@ function getTOCItems(survey: SurveyModel, onAction: () => void) {
         !!onAction && onAction();
         if (page.isPage) {
           return survey.tryNavigateToPage(page as PageModel);
+        } else if (page.isPanel) {
+          return tryFocusPage(survey, page as PanelModelBase);
         }
       },
       visible: <any>new ComputedUpdater(() => {

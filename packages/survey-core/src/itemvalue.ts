@@ -258,8 +258,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public set locOwner(value: ILocalizableOwner) {
     this._locOwner = value;
+    this.onLocOwnerChanged();
   }
-
+  protected onLocOwnerChanged(): void {}
   public get value(): any {
     return this.getPropertyValue("value");
   }
@@ -289,6 +290,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected getCorrectValue(value: any): any {
     return value;
+  }
+  public get normalizedId(): string {
+    const val = !Helpers.isValueEmpty(this.value) ? this.value.toString() : "";
+    return val.replace(/[^a-zA-Z0-9_]/g, "_");
   }
   public get hasText(): boolean {
     return this.pureText ? true : false;

@@ -20,7 +20,7 @@ import { SurveyPanel } from "./panel";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { MatrixRow } from "./components/matrix/row";
 import { SurveyQuestionMatrixDynamicDragDropIcon } from "./components/matrix-actions/drag-drop-icon/drag-drop-icon";
-import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
+import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactElementFactory } from "./element-factory";
 
 class SurveyQuestionMatrixTable extends SurveyElementBase<{ question: QuestionMatrixDropdownModelBase, wrapCell: (cell: QuestionMatrixDropdownRenderedCell, element: React.JSX.Element, reason: string) => React.JSX.Element, creator: ISurveyCreator }, any> {
@@ -414,7 +414,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   private renderOtherComment(): React.JSX.Element {
     const question = this.cell.question;
     const cssClasses = question.cssClasses || {};
-    return <SurveyQuestionOtherValueItem question={question} cssClasses={cssClasses} otherCss={cssClasses.other} isDisplayMode={question.isInputReadOnly} />;
+    return <SurveyQuestionCommentValueItem question={question} item={question.otherItem} cssClasses={cssClasses} otherCss={cssClasses.other} isDisplayMode={question.isInputReadOnly} />;
   }
   private renderCellCheckboxButton(): React.JSX.Element {
     var key = this.cell.question.id + "item" + this.cell.choiceIndex;

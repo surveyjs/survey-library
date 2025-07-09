@@ -85,6 +85,7 @@
         :is="'survey-other-choice'"
         v-if="cell.isOtherChoice"
         :question="cell.question"
+        :item="cell.question.otherItem"
       />
     </div>
     <template v-if="cell.hasTitle">

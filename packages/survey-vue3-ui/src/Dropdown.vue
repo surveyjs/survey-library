@@ -3,8 +3,9 @@
     <SvComponent :is="'sv-dropdown'" :question="question"></SvComponent>
     <SvComponent
       :is="'survey-other-choice'"
-      v-if="question.isOtherSelected"
+      v-if="question.isShowingChoiceComment"
       :question="question"
+      :item="question.selectedItem"
     />
   </div>
 </template>

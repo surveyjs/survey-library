@@ -32,6 +32,12 @@
       </span>
     </label>
   </div>
+  <SvComponent
+    :is="'survey-other-choice'"
+    v-if="item.isCommentShowing"
+    :question="question"
+    :item="item"
+  />
 </template>
 
 <script lang="ts" setup>

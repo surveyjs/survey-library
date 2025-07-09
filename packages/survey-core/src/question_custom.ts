@@ -1,4 +1,4 @@
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -23,6 +23,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 /**
  * An interface used to create custom question types.
@@ -1056,6 +1057,23 @@ class QuestionCompositeTextProcessor extends QuestionTextProcessor {
   }
 }
 
+export class CompositeValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
+  }
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    const cq = <QuestionCompositeModel>this.question;
+    if (path.length > 0) {
+      if (path[0].name === QuestionCompositeModel.ItemVariableName) {
+        path.shift();
+      }
+      const res = cq.contentPanel.getValueGetterContext().getValue(path, index);
+      if (res && res.isFound) return res;
+    }
+    return new VariableGetterContext(cq.value).getValue(path);
+  }
+}
+
 export class QuestionCompositeModel extends QuestionCustomModelBase {
   public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
@@ -1389,6 +1407,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
     this.settingNewValue = oldSettingNewValue;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new CompositeValueGetterContext(this);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return super.getContentDisplayValueCore(keyAsText, value, <any>this.contentPanel);

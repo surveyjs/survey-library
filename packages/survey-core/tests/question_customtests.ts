@@ -3698,3 +3698,27 @@ QUnit.test("Composite: contentAriaHidden", function (assert) {
   assert.strictEqual(q1.contentAriaHidden, null);
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: text piping", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }, { type: "text", name: "q2", title: "item: {q1.item1}" }]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q2.locTitle.textOrHtml, "item: ", "q2 title is correct before piping");
+  q1.contentPanel.getQuestionByName("item1").value = "test1";
+  assert.equal(q2.locTitle.textOrHtml, "item: test1", "q2 title is correct after piping");
+  ComponentCollection.Instance.clear();
+});

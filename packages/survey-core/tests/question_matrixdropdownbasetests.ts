@@ -12,6 +12,7 @@ import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 import { Question } from "../src/question";
+import { ValueGetter } from "../src/conditionProcessValue";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -2114,4 +2115,23 @@ QUnit.test("Update rowValue on changing cellType, Bug#10038", function(assert) {
   assert.deepEqual(matrix.defaultRowValue, { col2: 2 }, "defaultRowValue, #1");
   matrix.columns[1].cellType = "file";
   assert.equal(matrix.defaultRowValue, undefined, "defaultRowValue, #2");
+});
+QUnit.test("matrixdropdown.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { cellType: "dropdown", name: "col1", defaultValue: 1, choices: [{ value: 1, text: "item1" }] }
+        ],
+        rows: ["row1", "row2"]
+      }]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 2, "There are two rows: header and data row");
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("matrix.row2.col1", context), 1, "#1");
+  assert.equal(getter.getDisplayValue("matrix.row2.col1", context), "item1", "text #1");
 });

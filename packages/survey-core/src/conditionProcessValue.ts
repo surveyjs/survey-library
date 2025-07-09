@@ -5,12 +5,13 @@ export interface IValueGetterItem {
   index?: number;
 }
 export interface IValueGetterInfo {
-  path: Array<IValueGetterItem>;
-  context: IValueGetterContext;
+  context?: IValueGetterContext;
+  isFound?: boolean;
   value?: any;
+  contextPrefix?: string;
 }
 export interface IValueGetterContext {
-  getValue(path: Array<IValueGetterItem>): IValueGetterInfo;
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo;
   getDisplayValue(value: any): string;
 }
 export class ValueGetter {
@@ -18,24 +19,18 @@ export class ValueGetter {
   }
   public getValue(name: string, context: IValueGetterContext): any {
     const info = this.run(name, context);
-    return info?.value;
+    return !!info && info.isFound ? info.value : undefined;
   }
   public getDisplayValue(name: string, context: IValueGetterContext): any {
     const info = this.run(name, context);
-    if (!info) return "";
+    if (!info || !info.isFound) return "";
     if (info.context) return info.context.getDisplayValue(info.value);
     return info.value;
   }
   private run(name: string, context: IValueGetterContext): any {
-    let info: IValueGetterInfo = undefined;
     let path = this.getPath(name);
-    while(!!context && path.length > 0) {
-      info = context.getValue(path);
-      if (!info) return null;
-      context = info.context;
-      path = info.path;
-    }
-    return info;
+    const info = context.getValue(path);
+    return !!info && info.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
     const path: Array<IValueGetterItem> = [];
@@ -68,38 +63,65 @@ export class ValueGetter {
     return res;
   }
 }
-export class VariableGetterContext implements IValueGetterContext {
-  constructor(private variables: HashTable<any>) {}
-  public getValue(path: Array<IValueGetterItem>): IValueGetterInfo {
-    let index = 0;
-    let v: any = this.variables;
-    while(index < path.length) {
-      const item = path[index];
-      let vI = this.getValueByItem(v, item.name);
-      if (vI === undefined) {
-        let name = item.name;
-        while(vI === undefined && index < path.length - 1 && path[index + 1].index === undefined) {
-          index++;
-          name += "." + path[index].name;
-          vI = this.getValueByItem(v, name);
-        }
+export class ValueGetterContextCore implements IValueGetterContext {
+  constructor() {}
+  public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    let pIndex = 0;
+    const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
+    while(pIndex < path.length) {
+      const item = path[pIndex];
+      let name = item.name;
+      this.updateValueByItem(name, res);
+      while(!res.isFound && pIndex < path.length - 1 && path[pIndex + 1].index === undefined) {
+        pIndex++;
+        name += "." + path[pIndex].name;
+        this.updateValueByItem(name, res);
       }
-      if (vI === undefined) return undefined;
-      v = vI;
+      if (!res.isFound) return undefined;
+      pIndex++;
+      if (res.context !== this && !!res.context) {
+        const newPath = res.contextPrefix ? [{ name: res.contextPrefix }] : [];
+        res.contextPrefix = undefined;
+        return res.context.getValue(newPath.concat(path.slice(pIndex)), item.index);
+      }
       if (item.index !== undefined) {
-        if (Array.isArray(v) && item.index < v.length) {
-          v = v[item.index];
-        } else return undefined;
+        this.updateItemByIndex(item.index, res);
+        if (!res.isFound) return undefined;
       }
-      index++;
     }
-    return { path: [], context: this, value: v };
+    return res;
   }
   public getDisplayValue(value: any): string {
-    if (value === undefined) return "";
+    if (value === undefined || value === null) return "";
     return value.toString();
   }
-  private getValueByItem(obj: any, name: string): any {
+  protected getInitialvalue(): any { return undefined; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {}
+  protected updateItemByIndex(index: number, res: IValueGetterInfo): void {}
+}
+
+export class VariableGetterContext extends ValueGetterContextCore {
+  constructor(private variables: HashTable<any>) {
+    super();
+  }
+  protected getInitialvalue(): any { return this.variables; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const val = this.getValueByItemCore(res.value, name);
+    res.isFound = val !== undefined;
+    if (res.isFound) {
+      res.value = val;
+    }
+  }
+  protected updateItemByIndex(index: number, res: IValueGetterInfo): void {
+    const v = res.value;
+    if (Array.isArray(v) && index < v.length) {
+      res.value = v[index];
+      res.isFound = true;
+    } else {
+      res.isFound = false;
+    }
+  }
+  private getValueByItemCore(obj: any, name: string): any {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
     if (Array.isArray(obj) && name === "length") return obj.length;

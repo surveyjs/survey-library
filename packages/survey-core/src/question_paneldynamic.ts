@@ -17,7 +17,7 @@ import {
   QuestionTextProcessor,
 } from "./textPreProcessor";
 import { Base } from "./base";
-import { Question, IConditionObject, IQuestionPlainData } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -34,6 +34,7 @@ import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -43,6 +44,45 @@ export interface IQuestionPanelDynamicData {
   getSharedQuestionFromArray(name: string, panelIndex: number): Question;
   getSurvey(): ISurvey;
   getRootData(): ISurveyData;
+}
+export class PanelDynamicItemGetterContext extends ValueGetterContextCore {
+  constructor(private item: QuestionPanelDynamicItem) {
+    super();
+  }
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    if (path.length === 0) return undefined;
+    const panel = this.item.panel;
+    if (path[0].name === QuestionPanelDynamicItem.ItemVariableName) {
+      path = [].concat(path.splice(1));
+      const res = panel.getValueGetterContext().getValue(path);
+      if (!!res && res.isFound) return res;
+      return new VariableGetterContext(this.item.getAllValues()).getValue(path);
+    }
+    if (panel.survey) return (<any>panel.survey).getValueGetterContext().getValue(path, index);
+    return undefined;
+  }
+  getDisplayValue(value: any): string { return ""; }
+}
+
+export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
+  }
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    const pd = <QuestionPanelDynamicModel>this.question;
+    if (index >= 0) {
+      if (index < pd.visiblePanels.length) {
+        const item = <QuestionPanelDynamicItem>pd.visiblePanels[index].data;
+        return item.getValueGetterContext()
+          .getValue([{ name: QuestionPanelDynamicItem.ItemVariableName }].concat(path));
+      }
+      const val = pd.value;
+      if (Array.isArray(val) && index < val.length) {
+        return new VariableGetterContext(val[index]).getValue(path);
+      }
+    }
+    return undefined;
+  }
 }
 
 class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
@@ -158,6 +198,9 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   }
   public setSurveyImpl() {
     this.panel.setSurveyImpl(this);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new PanelDynamicItemGetterContext(this);
   }
   public getValue(name: string): any {
     var values = this.getAllValues();
@@ -2235,6 +2278,9 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     return result;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new PanelDynamicValueGetterContext(this);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.getUnbindValue(value);

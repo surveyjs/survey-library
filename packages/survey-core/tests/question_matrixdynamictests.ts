@@ -21,6 +21,7 @@ import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 import { AnimationGroup } from "../src/utils/animation";
 import { setOldTheme } from "./oldTheme";
+import { ValueGetter } from "../src/conditionProcessValue";
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
 QUnit.test("Matrixdropdown cells tests", function (assert) {
@@ -10808,4 +10809,23 @@ QUnit.test("The Set Value trigger doesn't work on subsequent runs, Bug#10017", f
   matrix.resetRenderedTable();
   assert.notOk(matrix.renderedTable.showAddRow);
   assert.notOk(matrix.renderedTable.showAddRowOnBottom);
+});
+QUnit.test("matrixdynamic.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        columns: [
+          { cellType: "dropdown", name: "col1", defaultValue: 1, choices: [{ value: 1, text: "item1" }] }
+        ]
+      }]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 2, "There are two rows: header and data row");
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("matrix[1].col1", context), 1, "#1");
+  assert.equal(getter.getDisplayValue("matrix[1].col1", context), "item1", "text #1");
 });

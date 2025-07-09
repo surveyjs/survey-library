@@ -10,6 +10,34 @@ import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
 import { Question } from "./question";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+
+export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
+  constructor (protected question: QuestionMatrixDropdownModel) {
+    super();
+  }
+  public getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    if (this.question.areRowsGenerated) {
+      const res = super.getValue(path, index);
+      if (res && res.isFound) return res;
+    }
+    return new VariableGetterContext(this.question.value).getValue(path);
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const rows = this.question.visibleRows;
+    name = name.toLocaleLowerCase();
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const itemName = row.rowName?.toString() || "";
+      if (itemName.toLocaleLowerCase() === name) {
+        res.isFound = true;
+        res.context = row.getValueGetterContext();
+        res.contextPrefix = MatrixDropdownRowModelBase.RowVariableName;
+        return;
+      }
+    }
+  }
+}
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -98,6 +126,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
   protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixDropdownValueGetterContext(this);
+  }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
     var rows = this.visibleRows;

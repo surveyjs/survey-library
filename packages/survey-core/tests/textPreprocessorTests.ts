@@ -4,6 +4,7 @@ import {
 } from "../src/textPreProcessor";
 import { Question } from "../src/question";
 import { ValueGetter, VariableGetterContext, ProcessValue } from "../src/conditionProcessValue";
+import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("TextPreprocessorTests");
 
@@ -304,4 +305,23 @@ QUnit.test("VariableGetterContext.getValue()", function (assert) {
   assert.equal(getter.getValue("arr[0].state", context), "CA", "arr[0].state");
   assert.equal(getter.getValue("arr[1].state", context), "TX", "arr[1].state");
   assert.equal(getter.getValue("arr.length", context), 2, "arr.length");
+});
+QUnit.test("survey.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: "a" },
+      { type: "dropdown", name: "q2", defaultValue: 1, choices: [{ value: 1, text: "item1" }] },
+    ]
+  });
+  survey.setValue("a", 1);
+  survey.setValue("b", 2);
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("a", context), 1, "#1");
+  assert.equal(getter.getValue("b", context), 2, "#2");
+  assert.equal(getter.getValue("locale", context), "en", "#3");
+  assert.equal(getter.getValue("pagecount", context), 1, "#4");
+  assert.equal(getter.getValue("q1", context), "a", "#5");
+  assert.equal(getter.getValue("q2", context), 1, "#6");
+  assert.equal(getter.getDisplayValue("q2", context), "item1", "#text 6");
 });

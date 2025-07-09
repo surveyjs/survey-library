@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { ProcessValue, ValueGetter, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -89,6 +89,35 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
+
+class SurveyValueGetterContext extends ValueGetterContextCore {
+  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
+    super();
+  }
+
+  getValue(path: Array<IValueGetterItem>): IValueGetterInfo {
+    if (path.length === 1) {
+      const name = path[0].name;
+      let val: any = this.survey.getBuiltInVariableValue(name);
+      if (name === "locale") {
+        val = this.survey.locale || surveyLocalization.defaultLocale;
+      }
+      if (val !== undefined) return { value: val, isFound: true };
+    }
+    let res = new VariableGetterContext(this.variablesHash).getValue(path);
+    if (!!res && res.isFound) return res;
+    res = super.getValue(path);
+    if (!!res && res.isFound) return res;
+    return new VariableGetterContext(this.valuesHash).getValue(path);
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const question = this.survey.getQuestionByValueName(name.toLocaleLowerCase(), true);
+    if (question) {
+      res.isFound = true;
+      res.context = question.getValueGetterContext();
+    }
+  }
+}
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -7595,6 +7624,9 @@ export class SurveyModel extends SurveyElementCore
     var options = { html: html, reason: reason };
     this.onProcessHtml.fire(this, options);
     return this.processText(options.html, true);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash);
   }
   processText(text: string, returnDisplayValue: boolean): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false }).text;

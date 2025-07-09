@@ -22,6 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
+import { ValueGetter } from "../src/conditionProcessValue";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -8108,4 +8109,30 @@ QUnit.test("Using resetValueIf, visibleIf & default value for a question in dyna
   assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #3");
   assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #3");
   assert.equal(panel.getQuestionByName("q3").value, 700, "q3 value, #3");
+});
+QUnit.test("paneldynamic.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rPanel",
+        panelCount: 1,
+        templateElements: [
+          { type: "dropdown", name: "q1", choices: [{ value: 1, text: "item1" }] },
+          {
+            type: "paneldynamic",
+            name: "dPanel",
+            templateElements: [
+              { type: "dropdown", name: "q2", choices: [1, { value: 2, text: "item2" }] },
+            ]
+          }]
+      }]
+  });
+  survey.data = { rPanel: [{ q1: 1, dPanel: [{ q2: 2 }, { q2: 2 }] }] };
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("rPanel[0].q1", context), 1, "#1");
+  assert.equal(getter.getDisplayValue("rPanel[0].q1", context), "item1", "text #1");
+  assert.equal(getter.getValue("rPanel[0].dPanel[1].q2", context), 2, "#2");
+  assert.equal(getter.getDisplayValue("rPanel[0].dPanel[1].q2", context), "item2", "text #2");
 });

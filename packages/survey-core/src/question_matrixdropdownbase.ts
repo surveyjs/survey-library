@@ -20,6 +20,7 @@ import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropd
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -196,6 +197,32 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
 }
 
+export class MatrixRowGetterContext extends ValueGetterContextCore {
+  constructor(private row: MatrixDropdownRowModelBase) {
+    super();
+  }
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    if (path.length === 0) return undefined;
+    if (path[0].name === MatrixDropdownRowModelBase.RowVariableName) {
+      path = [].concat(path.splice(1));
+      const res = super.getValue(path);
+      if (!!res && res.isFound) return res;
+      return new VariableGetterContext(this.row.getAllValues()).getValue(path);
+    }
+    const survey = this.row.getSurvey();
+    if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
+    return undefined;
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const qs = this.row.getQuestionsByValueName(name, true);
+    if (qs.length > 0) {
+      res.isFound = true;
+      res.context = qs[0].getValueGetterContext();
+    }
+  }
+  getDisplayValue(value: any): string { return ""; }
+}
+
 class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
   private parentTextProcessor: ITextProcessor;
   private sharedQuestions: any = {};
@@ -297,6 +324,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   public get text(): any {
     return this.rowName;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixRowGetterContext(this);
   }
   public isRowEnabled(): boolean { return true; }
   protected isRowHasEnabledCondition(): boolean { return false; }
@@ -706,16 +736,25 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
-  public getQuestionsByValueName(name: string): Array<Question> {
+  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
+    if (caseInsensitive) {
+      name = name.toLocaleLowerCase();
+    }
     let res = [];
     for (var i = 0; i < this.cells.length; i++) {
       const cell = this.cells[i];
-      if (cell.question && cell.question.getValueName() === name) {
+      const q = cell.question;
+      if (!q) continue;
+      let valueName = q.getValueName();
+      if (caseInsensitive) {
+        valueName = valueName.toLocaleLowerCase();
+      }
+      if (valueName === name) {
         res.push(cell.question);
       }
     }
     if (!!this.detailPanel) {
-      res = res.concat(this.detailPanel.getQuestionsByValueName(name));
+      res = res.concat(this.detailPanel.getQuestionsByValueName(name, caseInsensitive));
     }
     return res;
   }

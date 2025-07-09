@@ -19,7 +19,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { ProcessValue } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -54,6 +54,15 @@ class TriggerExpressionInfo {
   getSecondRunner: () => ExpressionRunner = () => undefined;
 }
 
+export class QuestionValueGetterContext implements IValueGetterContext {
+  constructor (protected question: Question) {}
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    return { value: this.question.value, isFound: true, context: this };
+  }
+  getDisplayValue(value: any): string {
+    return this.question.getDisplayValue(value);
+  }
+}
 /**
  * A base class for all questions.
  */
@@ -703,6 +712,9 @@ export class Question extends SurveyElement<Question>
       return "const";
     }
     return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new QuestionValueGetterContext(this);
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;

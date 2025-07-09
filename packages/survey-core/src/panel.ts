@@ -30,6 +30,7 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
+import { IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -286,6 +287,19 @@ export class QuestionRowModel extends Base {
   }
   public getRootElement(): HTMLElement {
     return this.rootElement;
+  }
+}
+
+export class PanelGetterContext extends ValueGetterContextCore {
+  constructor(protected panel: PanelModelBase) {
+    super();
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const question = this.panel.getQuestionByValueName(name, true);
+    if (question) {
+      res.isFound = true;
+      res.context = question.getValueGetterContext();
+    }
   }
 }
 
@@ -764,15 +778,22 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
-  public getQuestionByValueName(valueName: string): Question {
-    const res = this.getQuestionsByValueName(valueName);
+  public getQuestionByValueName(valueName: string, caseInsensitive: boolean = false): Question {
+    const res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return res.length > 0 ? res[0] : null;
   }
-  public getQuestionsByValueName(valueName: string): Array<Question> {
+  public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
     const res = [];
+    if (caseInsensitive) {
+      valueName = valueName.toLowerCase();
+    }
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() == valueName) res.push(questions[i]);
+      let name = questions[i].getValueName();
+      if (caseInsensitive) {
+        name = name.toLowerCase();
+      }
+      if (name == valueName) res.push(questions[i]);
     }
     return res;
   }
@@ -822,6 +843,9 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     return true;
+  }
+  getValueGetterContext(): IValueGetterContext {
+    return new PanelGetterContext(this);
   }
   /**
    * Returns a JSON object with display texts that correspond to question values nested in the panel/page.

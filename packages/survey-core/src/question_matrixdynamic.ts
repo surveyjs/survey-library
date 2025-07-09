@@ -1,7 +1,7 @@
 import { Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
-import { Question } from "./question";
+import { Question, QuestionValueGetterContext } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
@@ -19,6 +19,27 @@ import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownre
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+
+export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
+  }
+  getValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    const md = <QuestionMatrixDynamicModel>this.question;
+    if (index >= 0) {
+      if (md.areRowsGenerated && index < md.visibleRows.length) {
+        return md.visibleRows[index].getValueGetterContext()
+          .getValue([{ name: MatrixDropdownRowModelBase.RowVariableName }].concat(path));
+      }
+      const val = md.value;
+      if (Array.isArray(val) && index < val.length) {
+        return new VariableGetterContext(val[index]).getValue(path);
+      }
+    }
+    return undefined;
+  }
+}
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -916,6 +937,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   get locEmptyRowsText(): LocalizableString {
     return this.locNoRowsText;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixDynamicValueGetterContext(this);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value || !Array.isArray(value)) return value;

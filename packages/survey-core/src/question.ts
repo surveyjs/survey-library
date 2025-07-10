@@ -88,10 +88,6 @@ export class QuestionValueGetterContext implements IValueGetterContext {
 export class Question extends SurveyElement<Question>
   implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
-  private static TextPreprocessorValuesMap = {
-    title: "processedTitle",
-    require: "requiredMark",
-  };
   private static questionCounter = 100;
   private static getQuestionId(): string {
     return "sq_" + Question.questionCounter++;
@@ -1827,15 +1823,6 @@ export class Question extends SurveyElement<Question>
   }
   protected getFirstErrorInputElementId(): string {
     return this.getFirstInputElementId();
-  }
-  protected getProcessedTextValue(textValue: TextPreProcessorValue): void {
-    var name = textValue.name.toLocaleLowerCase();
-    textValue.isExists =
-      Object.keys(Question.TextPreprocessorValuesMap).indexOf(name) !== -1 ||
-      (<any>this)[textValue.name] !== undefined;
-    textValue.value = (<any>this)[
-      (<any>Question.TextPreprocessorValuesMap)[name] || textValue.name
-    ];
   }
   public supportComment(): boolean {
     const prop = this.getPropertyByName("showCommentArea");

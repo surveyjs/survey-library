@@ -112,17 +112,6 @@ QUnit.test(
   }
 );
 
-QUnit.test("Question process any property", function (assert) {
-  var question = new Question("q1");
-  var processor = new TextPreProcessor();
-  processor.onProcess = (val) => question["getProcessedTextValue"](val);
-  assert.equal(
-    processor.process("test1 {name} test2"),
-    "test1 q1 test2",
-    "name is the same"
-  );
-});
-
 QUnit.test("ProcessValue setValue function", function (assert) {
   const processor = new ProcessValue();
   const data = { a: [{}], b: { c: 2 } };

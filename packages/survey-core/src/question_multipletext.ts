@@ -29,6 +29,7 @@ export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {
     super();
   }
+  getRootObj(): any { return this.question.survey; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const items = this.question.items;
     name = name.toLocaleLowerCase();

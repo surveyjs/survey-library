@@ -12,12 +12,19 @@ export interface IValueGetterInfo {
 export interface IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
   getDisplayValue(value: any): string;
+  getRootObj?(): any;
 }
 export class ValueGetter {
   public constructor() {
   }
   public getValueInfo(name: string, context: IValueGetterContext, isDisplay): { isFound: boolean, value: any } {
-    const info = this.run(name, context);
+    let info = this.run(name, context);
+    if ((!info || !info.isFound) && context.getRootObj) {
+      const obj = context.getRootObj();
+      if (!!obj) {
+        info = this.run(name, obj.getValueGetterContext());
+      }
+    }
     const res = { isFound: false, value: undefined };
     if (!info || !info.isFound) return res;
     res.isFound = true;
@@ -35,6 +42,7 @@ export class ValueGetter {
     return this.getValue(name, context, true);
   }
   private run(name: string, context: IValueGetterContext): any {
+    if (!context) return undefined;
     let path = this.getPath(name);
     const info = context.getValue(path, true);
     return !!info && info.isFound ? info : undefined;

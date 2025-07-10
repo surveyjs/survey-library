@@ -22,6 +22,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
     }
     return new VariableGetterContext(this.question.value).getValue(path, isRoot);
   }
+  getRootObj(): any { return this.question.survey; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const rows = this.question.visibleRows;
     name = name.toLocaleLowerCase();

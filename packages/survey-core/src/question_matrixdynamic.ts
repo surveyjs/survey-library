@@ -19,24 +19,18 @@ import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownre
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const md = <QuestionMatrixDynamicModel>this.question;
-    if (index >= 0) {
-      if (index < md.visibleRows.length) {
-        return md.visibleRows[index].getValueGetterContext().getValue(path, false);
-      }
-      const val = md.value;
-      if (Array.isArray(val) && index < val.length) {
-        return new VariableGetterContext(val[index]).getValue(path, false);
-      }
+    if (index >= 0 && index < md.visibleRows.length) {
+      return md.visibleRows[index].getValueGetterContext().getValue(path, false);
     }
-    return undefined;
+    return super.getValue(path, isRoot, index);
   }
 }
 

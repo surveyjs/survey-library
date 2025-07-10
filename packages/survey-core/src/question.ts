@@ -19,7 +19,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -57,14 +57,21 @@ class TriggerExpressionInfo {
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    const res = this.getValueCore(path, isRoot, index);
-    if (!!res && res.isFound) return res;
-    if (isRoot) return this.getSurveyValue(path, index);
+    if (path.length === 0) return { value: this.question.value, isFound: true, context: this };
+    if (!this.question.isEmpty()) {
+      let val = this.question.value;
+      if (index >= 0) {
+        if (!Array.isArray(val || index >= val.length)) return undefined;
+        val = val[index];
+      }
+      return new VariableGetterContext(val).getValue(path, false);
+    }
     return undefined;
   }
   getDisplayValue(value: any): string {
     return this.question.getDisplayValue(value);
   }
+  getRootObj(): any { return this.question.survey; }
   protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length === 0) return { value: this.question.value, isFound: true, context: this };
     return undefined;

@@ -23,7 +23,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 
 /**
  * An interface used to create custom question types.
@@ -1061,7 +1061,7 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
     if (path.length > 0) {
       const isCompPrefix = path[0].name === QuestionCompositeModel.ItemVariableName;
@@ -1071,10 +1071,9 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
         }
         const res = cq.contentPanel.getValueGetterContext().getValue(path, false, index);
         if (res && res.isFound) return res;
-        return new VariableGetterContext(cq.value).getValue(path, isRoot);
       }
     }
-    return undefined;
+    return super.getValue(path, isRoot, index);
   }
 }
 

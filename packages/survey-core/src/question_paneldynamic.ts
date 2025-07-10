@@ -61,29 +61,23 @@ export class PanelDynamicItemGetterContext extends ValueGetterContextCore {
       if (!!res && res.isFound) return res;
       return new VariableGetterContext(this.item.getAllValues()).getValue(path, false);
     }
-    if (isRoot && panel.survey) return (<any>panel.survey).getValueGetterContext().getValue(path, false, index);
     return undefined;
   }
   getDisplayValue(value: any): string { return ""; }
+  getRootObj(): any { return this.item.getSurvey(); }
 }
 
 export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const pd = <QuestionPanelDynamicModel>this.question;
-    if (index >= 0) {
-      if (index < pd.visiblePanels.length) {
-        const item = <QuestionPanelDynamicItem>pd.visiblePanels[index].data;
-        return item.getValueGetterContext().getValue(path, false);
-      }
-      const val = pd.value;
-      if (Array.isArray(val) && index < val.length) {
-        return new VariableGetterContext(val[index]).getValue(path, false);
-      }
+    if (index >= 0 && index < pd.visiblePanels.length) {
+      const item = <QuestionPanelDynamicItem>pd.visiblePanels[index].data;
+      return item.getValueGetterContext().getValue(path, false);
     }
-    return undefined;
+    return super.getValue(path, isRoot, index);
   }
 }
 

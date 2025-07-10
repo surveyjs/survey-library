@@ -212,12 +212,9 @@ export class MatrixRowGetterContext extends ValueGetterContextCore {
       if (!!res && res.isFound) return res;
       return new VariableGetterContext(this.row.getAllValues()).getValue(path, isRoot);
     }
-    if (isRoot) {
-      const survey = this.row.getSurvey();
-      if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
-    }
     return undefined;
   }
+  getRootObj(): any { return this.row.getSurvey(); }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const qs = this.row.getQuestionsByValueName(name, true);
     if (qs.length > 0) {

@@ -852,7 +852,7 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
-          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-js-ui/test-results"
           Contents: "**"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
           OverWrite: true
@@ -870,7 +870,7 @@ jobs:
       - task: PublishTestResults@2
         displayName: "Publish test results"
         inputs:
-          searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-js-ui/test-results"
           testResultsFormat: "JUnit"
           testResultsFiles: "e2e-junit-results.xml"
           mergeTestResults: true

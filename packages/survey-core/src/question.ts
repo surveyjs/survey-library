@@ -723,7 +723,7 @@ export class Question extends SurveyElement<Question>
   private setValueExpressionRunner: ExpressionRunner;
   private ensureSetValueExpressionRunner(): void {
     if (!this.setValueExpressionRunner) {
-      this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
+      this.setValueExpressionRunner = this.createExpressionRunner(this.setValueExpression);
       this.setValueExpressionRunner.onRunComplete = (res: any): void => {
         this.runExpressionSetValue(res);
       };
@@ -755,7 +755,7 @@ export class Question extends SurveyElement<Question>
       return;
     }
     if (!info.runner) {
-      info.runner = new ExpressionRunner(expression);
+      info.runner = this.createExpressionRunner(expression);
       info.runner.onRunComplete = (res: any): void => {
         if (res === true) {
           info.doComplete();

@@ -904,9 +904,6 @@ export class QuestionRatingModel extends Question {
     return this.getLocalizableString("readOnlyText");
   }
 
-  public get a11yInputAriaRole(): string | null {
-    return this.renderAs === "dropdown" ? "combobox" : null;
-  }
   public needResponsiveWidth() {
     const rateValues = this.getPropertyValue("rateValues");
     const rateStep = this.getPropertyValue("rateStep");
@@ -976,6 +973,18 @@ export class QuestionRatingModel extends Question {
       this.dropdownListModelValue = undefined;
     }
   }
+
+  //a11y
+  public get a11yInputAriaRole(): string | null {
+    return this.renderAs === "dropdown" ? "combobox" : null;
+  }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "group";
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "rating",

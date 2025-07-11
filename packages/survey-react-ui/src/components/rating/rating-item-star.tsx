@@ -26,10 +26,7 @@ export class RatingItemStar extends RatingItemBase {
           checked={this.question.value == this.item.value}
           onClick={this.props.handleOnClick}
           onChange={() => { }}
-          aria-required={this.question.ariaRequired}
           aria-label={this.question.ariaLabel}
-          aria-invalid={this.question.ariaInvalid}
-          aria-errormessage={this.question.ariaErrormessage}
         />
         <SvgIcon
           className={"sv-star"}

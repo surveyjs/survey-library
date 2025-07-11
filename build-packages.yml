@@ -798,6 +798,7 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
+          cd $(Build.SourcesDirectory)/survey-library
           npm run postinstall
         displayName: "install playwright chrome"
 

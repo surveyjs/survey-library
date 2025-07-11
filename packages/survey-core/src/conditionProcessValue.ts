@@ -156,6 +156,7 @@ export class VariableGetterContext extends ValueGetterContextCore {
 
 const surveyBuiltInVarible: string = "@survey";
 export class ProcessValue {
+  public context: IValueGetterContext = null;
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
   public asyncValues: HashTable<any> = {};
@@ -176,14 +177,19 @@ export class ProcessValue {
     return res;
   }
   public hasValue(text: string, values: HashTable<any> = null): boolean {
+    if (!!this.context) return this.getValueInfoByContext(text).isFound;
     if (!values) values = this.values;
     var res = this.getValueCore(text, values);
     return res.hasValue;
   }
   public getValue(text: string, values: HashTable<any> = null): any {
+    if (!!this.context) return this.getValueInfoByContext(text).value;
     if (!values) values = this.values;
     var res = this.getValueCore(text, values);
     return res.onProcessValue ? res.onProcessValue(res.value) : res.value;
+  }
+  private getValueInfoByContext(text: string): any {
+    return new ValueGetter().getValueInfo(text, this.context, false);
   }
   public setValue(obj: any, text: string, value: any) {
     if (!text) return;

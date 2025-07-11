@@ -18,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -152,7 +152,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
  * A base class for all questions.
  */
 export class Question extends SurveyElement<Question>
-  implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner, IObjectValueContext {
+  implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
   private static questionCounter = 100;
   private static getQuestionId(): string {

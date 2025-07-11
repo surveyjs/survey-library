@@ -8,7 +8,7 @@ import {
   Operand,
 } from "../../src/expressions/expressions";
 
-import { ProcessValue } from "../../src/conditionProcessValue";
+import { ProcessValue, VariableGetterContext } from "../../src/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
 import { values } from "lodash";
 import { settings } from "../../src/settings";
@@ -1844,4 +1844,8 @@ QUnit.test("Operand.addOperandsToList", function(assert) {
   list = [];
   operand.addOperandsToList(list);
   assert.equal(list.length, 11, "operands in the list #1");
+});
+QUnit.test("ExpressionRunner vs context", function(assert) {
+  const runner = new ExpressionRunner("{a} + {b}");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: 1, b: 2 })), 3, "#1");
 });

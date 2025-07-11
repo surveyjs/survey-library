@@ -350,6 +350,7 @@ export class Variable extends Const {
     return this.variableName;
   }
   public evaluate(processValue?: ProcessValue): any {
+    if (!!processValue.context) return processValue.getValue(this.variableName);
     this.valueInfo.name = this.variableName;
     processValue.getValueInfo(this.valueInfo);
     if (!this.valueInfo.hasValue) return null;

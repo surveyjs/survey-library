@@ -13,6 +13,7 @@ import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, I
 import { ExpressionRunner } from "./conditions";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
@@ -182,7 +183,7 @@ export class ComputedUpdater<T = any> {
 /**
  * A base class for all SurveyJS objects.
  */
-export class Base {
+export class Base implements IObjectValueContext {
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -361,6 +362,10 @@ export class Base {
   }
   public getSurvey(isLive: boolean = false): ISurvey {
     return null;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    const survey = <IObjectValueContext><any>this.getSurvey();
+    return !!survey ? survey.getValueGetterContext() : new VariableGetterContext({});
   }
   /**
    * Returns `true` if the survey is being designed in Survey Creator.

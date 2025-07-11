@@ -125,7 +125,7 @@ export class CalculatedValue extends Base {
     if (!!calculatedValues) {
       this.runDependentExpressions(calculatedValues, values, properties);
     }
-    this.expressionRunner.run(values, properties);
+    this.expressionRunner.runContext(this.getValueGetterContext(), properties);
   }
   private runDependentExpressions(
     calculatedValues: Array<CalculatedValue>,

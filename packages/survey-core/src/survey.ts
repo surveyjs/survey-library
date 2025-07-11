@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -131,8 +131,7 @@ export class SurveyModel extends SurveyElementCore
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
-  ISurveyTimerText,
-  IObjectValueContext {
+  ISurveyTimerText {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   // public static get cssType(): string {
@@ -2559,7 +2558,7 @@ export class SurveyModel extends SurveyElementCore
     if (!expression) return null;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    const exp = new ExpressionRunner(expression);
+    const exp = this.createExpressionRunner(expression);
     let onCompleteRes: any = undefined;
     exp.onRunComplete = (res: any) => {
       onCompleteRes = res;
@@ -6928,6 +6927,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   getBuiltInVariableValue(name: string): number {
+    name = name.toLocaleLowerCase();
     if (name === "pageno") {
       var page = this.currentPage;
       return page != null ? this.visiblePages.indexOf(page) + 1 : 0;

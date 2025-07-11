@@ -1,8 +1,8 @@
 import { Helpers } from "./helpers";
 import { Question } from "./question";
 import { PanelModel } from "./panel";
-import { ISurvey, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
-import { ProcessValue } from "./conditionProcessValue";
+import { ISurvey, ISurveyImpl, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
+import { ProcessValue, ValueGetter } from "./conditionProcessValue";
 
 export class TextPreProcessorItem {
   public start: number;
@@ -108,90 +108,31 @@ export class TextPreProcessor {
     return name.trim();
   }
 }
-
-export class QuestionTextProcessor implements ITextProcessor {
+export class TextContextProcessor implements ITextProcessor {
   private textPreProcessor: TextPreProcessor;
-  constructor(protected variableName: string) {
+  constructor(private obj: any) {
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
       this.getProcessedTextValue(textValue);
     };
   }
-  public processValue(
-    name: string,
-    returnDisplayValue: boolean
-  ): TextPreProcessorValue {
-    return this.textPreProcessor.processValue(name, returnDisplayValue);
-  }
-  protected get survey(): ISurvey {
-    return null;
-  }
-  protected get panel(): PanelModel {
-    return null;
-  }
-  protected getValues(): any {
-    return !!this.panel ? this.panel.getValue() : null;
-  }
-  protected getQuestionByName(name: string): Question {
-    return !!this.panel
-      ? <Question>this.panel.getQuestionByValueName(name)
-      : null;
-  }
-  protected getParentTextProcessor(): ITextProcessor { return null; }
-  protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
-    return false;
-  }
-  protected getQuestionDisplayText(question: Question): string {
-    return question.displayValue;
-  }
-  //ITextProcessor
-  private getProcessedTextValue(textValue: TextPreProcessorValue) {
-    if (!textValue) return;
-    if (this.onCustomProcessText(textValue)) return;
-    var firstName = new ProcessValue().getFirstName(textValue.name);
-    textValue.isExists = firstName == this.variableName;
-    textValue.canProcess = textValue.isExists;
-    if (!textValue.canProcess) return;
-    //name should start with the variable name
-    textValue.name = textValue.name.replace(this.variableName + ".", "");
-    var firstName = new ProcessValue().getFirstName(textValue.name);
-    var question = this.getQuestionByName(firstName);
-    var values = {};
-    if (question) {
-      (<any>values)[firstName] = textValue.returnDisplayValue
-        ? this.getQuestionDisplayText(question)
-        : question.value;
-    } else {
-      const allValues = this.getValues();
-      if (allValues) {
-        (<any>values)[firstName] = allValues[firstName];
-      }
-    }
-    textValue.value = new ProcessValue().getValue(textValue.name, values);
-  }
   processText(text: string, returnDisplayValue: boolean): string {
-    const params = { text: text, returnDisplayValue: returnDisplayValue };
+    const params: ITextProcessorProp = { text: text, returnDisplayValue: returnDisplayValue, replaceUndefinedValues: true };
     return this.processTextEx(params).text;
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
-    const res: ITextProcessorResult = { hasAllValuesOnLastRun: true, text: params.text };
-    if (!params.runAtDesign && this.survey?.isDesignMode) return res;
-    const processors = new Array<ITextProcessor>();
-    this.addTextPreProcessor(processors, this.textPreProcessor);
-    this.addTextPreProcessor(processors, this.getParentTextProcessor());
-    this.addTextPreProcessor(processors, this.survey);
-    for (let i = 0; i < processors.length; i++) {
-      const processor = processors[i];
-      params.text = res.text;
-      params.doEncoding = params.doEncoding || false;
-      const processorRes = processor.processTextEx(params);
-      res.text = processorRes.text;
-      res.hasAllValuesOnLastRun = res.hasAllValuesOnLastRun && processorRes.hasAllValuesOnLastRun;
-    }
-    return res;
+    if (!params.runAtDesign && this.survey?.isDesignMode) return { hasAllValuesOnLastRun: true, text: params.text };
+    return this.textPreProcessor.processTextEx(params);
   }
-  private addTextPreProcessor(list: Array<ITextProcessor>, textProcessor: ITextProcessor): void {
-    if (!textProcessor || list.indexOf(textProcessor) > -1) return;
-    list.push(textProcessor);
+  private get survey(): ISurvey {
+    return this.obj.getSurvey ? this.obj.getSurvey() : null;
+  }
+  private getProcessedTextValue(textValue: TextPreProcessorValue) {
+    const name = textValue.name.toLocaleLowerCase();
+    const res = new ValueGetter().getValueInfo(name, this.obj.getValueGetterContext(), textValue.returnDisplayValue);
+    if (res.isFound) {
+      textValue.isExists = res.isFound;
+      textValue.value = res.value;
+    }
   }
 }

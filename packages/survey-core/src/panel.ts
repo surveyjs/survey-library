@@ -30,7 +30,6 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -287,19 +286,6 @@ export class QuestionRowModel extends Base {
   }
   public getRootElement(): HTMLElement {
     return this.rootElement;
-  }
-}
-
-export class PanelGetterContext extends ValueGetterContextCore {
-  constructor(protected panel: PanelModelBase) {
-    super();
-  }
-  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const question = this.panel.getQuestionByValueName(name, true);
-    if (question) {
-      res.isFound = true;
-      res.context = question.getValueGetterContext();
-    }
   }
 }
 
@@ -843,9 +829,6 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     return true;
-  }
-  getValueGetterContext(): IValueGetterContext {
-    return new PanelGetterContext(this);
   }
   /**
    * Returns a JSON object with display texts that correspond to question values nested in the panel/page.

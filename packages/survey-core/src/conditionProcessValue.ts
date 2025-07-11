@@ -17,13 +17,11 @@ export interface IValueGetterContext {
 export class ValueGetter {
   public constructor() {
   }
-  public getValueInfo(name: string, context: IValueGetterContext, isDisplay): { isFound: boolean, value: any } {
+  public getValueInfo(name: string, context: IValueGetterContext, isDisplay: boolean): { isFound: boolean, value: any } {
     let info = this.run(name, context);
     if ((!info || !info.isFound) && context.getRootObj) {
       const obj = context.getRootObj();
-      if (!!obj) {
-        info = this.run(name, obj.getValueGetterContext());
-      }
+      if (!!obj) return this.getValueInfo(name, obj.getValueGetterContext(), isDisplay);
     }
     const res = { isFound: false, value: undefined };
     if (!info || !info.isFound) return res;

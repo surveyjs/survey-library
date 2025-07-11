@@ -5,7 +5,6 @@ import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITit
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
-import { TextPreProcessorValue } from "./textPreProcessor";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
@@ -19,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -58,6 +57,14 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length === 0) return { value: this.question.value, isFound: true, context: this };
+    ///TODO "panel"
+    if (path.length > 1 && path[0].name === "panel") {
+      const panel: any = this.question.parent;
+      if (panel && panel.isPanel) {
+        path.shift();
+        return new QuestionArrayGetterContext(panel.questions).getValue(path, false, index);
+      }
+    }
     if (!this.question.isEmpty()) {
       let val = this.question.value;
       if (index >= 0) {
@@ -69,7 +76,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     return undefined;
   }
   getDisplayValue(value: any): string {
-    return this.question.getDisplayValue(value);
+    return this.question.getDisplayValue(true, value);
   }
   getRootObj(): any { return this.question.survey; }
   protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
@@ -82,6 +89,65 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     return undefined;
   }
 }
+export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
+  protected abstract getIndex(): number;
+  protected abstract getQuestionData(): Question;
+  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any): IValueGetterInfo {
+    if (typeof objValue !== "object") {
+      objValue = undefined;
+    }
+    const name = path.length === 1 ? path[0].name : "";
+    const qs = this.getQuestionsBySameValueNames();
+    for (let i = 0; i < qs.length; i++) {
+      const q = qs[i];
+      //TODO valuePropertyName
+      if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
+        return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
+      }
+      const res = q.getValueGetterContext().getValue(path, false, this.getIndex());
+      if (!!res && res.isFound) return res;
+    }
+    return undefined;
+  }
+  private getQuestionsBySameValueNames(): Array<Question> {
+    const res = new Array<Question>();
+    const q = this.getQuestionData();
+    if (!q || !q.isQuestion) return res;
+    if (q.parent && q.parent.isPanel) {
+      this.fillQuestions((<PanelModel>q.parent).getQuestionsByValueName(q.getValueName()), q, res);
+    }
+    if (res.length === 0 && !!q.survey) {
+      this.fillQuestions((<any>q.survey).getQuestionsByValueName(q.getValueName()), q, res);
+    }
+    return res;
+  }
+  private fillQuestions(qs: Array<Question>, q: Question, res: Array<Question>): void {
+    qs.forEach((question) => {
+      if (question !== q) {
+        res.push(question);
+      }
+    });
+  }
+  getDisplayValue(value: any): string { return ""; }
+  getRootObj(): any { return this.getQuestionData(); }
+}
+export class QuestionArrayGetterContext extends ValueGetterContextCore {
+  constructor(private questions: Array<Question>) {
+    super();
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const lowName = name.toLocaleLowerCase();
+    for (let i = 0; i < this.questions.length; i++) {
+      const q = this.questions[i];
+      if (q.getFilteredName().toLocaleLowerCase() === lowName) {
+        res.isFound = true;
+        res.context = q.getValueGetterContext();
+        break;
+      }
+    }
+  }
+}
+
 /**
  * A base class for all questions.
  */

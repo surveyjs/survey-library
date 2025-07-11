@@ -1,4 +1,4 @@
-import { Question, IConditionObject, QuestionValueGetterContext } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -16,7 +16,7 @@ import { PanelModel } from "./panel";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { QuestionTextProcessor } from "./textPreProcessor";
+import { TextContextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
@@ -1042,21 +1042,6 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
 }
 
-class QuestionCompositeTextProcessor extends QuestionTextProcessor {
-  constructor(
-    protected composite: QuestionCompositeModel,
-    protected variableName: string
-  ) {
-    super(variableName);
-  }
-  protected get survey(): ISurvey {
-    return this.composite.survey;
-  }
-  protected get panel(): PanelModel {
-    return this.composite.contentPanel;
-  }
-}
-
 export class CompositeValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
@@ -1069,7 +1054,7 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
         if (isCompPrefix) {
           path.shift();
         }
-        const res = cq.contentPanel.getValueGetterContext().getValue(path, false, index);
+        const res = new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index);
         if (res && res.isFound) return res;
       }
     }
@@ -1080,13 +1065,10 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
 export class QuestionCompositeModel extends QuestionCustomModelBase {
   public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
-  private textProcessing: QuestionCompositeTextProcessor;
+  private textProcessing: TextContextProcessor;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name, customQuestion);
-    this.textProcessing = new QuestionCompositeTextProcessor(
-      this,
-      QuestionCompositeModel.ItemVariableName
-    );
+    this.textProcessing = new TextContextProcessor(this);
   }
   protected createWrapper(): void {
     this.panelWrapper = this.createPanel();

@@ -1,11 +1,11 @@
 import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { Question, IConditionObject, IQuestionPlainData } from "./question";
+import { Question, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
 import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { TextPreProcessorValue, QuestionTextProcessor } from "./textPreProcessor";
+import { TextContextProcessor } from "./textPreProcessor";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -20,7 +20,7 @@ import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropd
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -197,24 +197,37 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
 }
 
-export class MatrixRowGetterContext extends ValueGetterContextCore {
+export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   constructor(private row: MatrixDropdownRowModelBase) {
     super();
   }
+  protected getIndex(): number { return this.row.rowIndex - 1; }
+  protected getQuestionData(): Question { return <Question>(<any>this.row.data); }
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length === 0) return undefined;
+    if (path.length === 1) {
+      const rowVal = this.getRowValue(path[0].name);
+      if (rowVal !== undefined) {
+        return { isFound: true, value: rowVal };
+      }
+    }
     const isRowPrefix = path[0].name === MatrixDropdownRowModelBase.RowVariableName;
     if (isRowPrefix || !isRoot) {
       if (isRowPrefix) {
         path.shift();
       }
-      const res = super.getValue(path, isRoot);
+      let res = super.getValue(path, isRoot);
       if (!!res && res.isFound) return res;
-      return new VariableGetterContext(this.row.getAllValues()).getValue(path, isRoot);
+      const allValues = this.row.getAllValues();
+      if (isRoot) {
+        res = this.getValueFromBindedQuestions(path, allValues);
+        if (!!res) return res;
+      }
+      return new VariableGetterContext(allValues).getValue(path, isRoot);
     }
     return undefined;
   }
-  getRootObj(): any { return this.row.getSurvey(); }
+  getRootObj(): any { return this.row.data || this.row.getSurvey(); }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const qs = this.row.getQuestionsByValueName(name, true);
     if (qs.length > 0) {
@@ -223,58 +236,17 @@ export class MatrixRowGetterContext extends ValueGetterContextCore {
     }
   }
   getDisplayValue(value: any): string { return ""; }
-}
-
-class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
-  private parentTextProcessor: ITextProcessor;
-  private sharedQuestions: any = {};
-  constructor(
-    private data: IMatrixDropdownData,
-    protected row: MatrixDropdownRowModelBase,
-    protected variableName: string,
-  ) {
-    super(variableName);
-    this.parentTextProcessor = data?.getParentTextProcessor();
-  }
-  protected getParentTextProcessor(): ITextProcessor { return this.parentTextProcessor; }
-  protected get survey(): ISurvey {
-    return this.row.getSurvey();
-  }
-  protected getValues(): any {
-    return this.row.getAllValues();
-  }
-  protected getQuestionByName(name: string): Question {
-    let res = this.row.getQuestionByName(name);
-    if (!!res) return res;
-    const index = this.row.rowIndex - 1;
-    res = index > -1 ? this.data.getSharedQuestionFromArray(name, index) : undefined;
-    const qName = !!res ? res.name : name;
-    this.sharedQuestions[qName] = name;
-    return res;
-  }
-  protected getQuestionDisplayText(question: Question): string {
-    const name = this.sharedQuestions[question.name];
-    if (!name) return super.getQuestionDisplayText(question);
-    const val = this.row.getAllValues()[name];
-    return question.getDisplayValue(true, val);
-  }
-  protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
-    if (textValue.name == MatrixDropdownRowModelBase.IndexVariableName) {
-      textValue.isExists = true;
-      textValue.value = this.row.rowIndex;
-      return true;
+  private getRowValue(name: string): any {
+    if (name === MatrixDropdownRowModelBase.IndexVariableName.toLocaleLowerCase()) {
+      return this.row.rowIndex;
     }
-    if ([MatrixDropdownRowModelBase.RowValueVariableName, MatrixDropdownRowModelBase.RowNameVariableName].indexOf(textValue.name) > -1) {
-      textValue.isExists = true;
-      textValue.value = this.row.rowName;
-      return true;
+    if ([MatrixDropdownRowModelBase.RowValueVariableName.toLocaleLowerCase(), MatrixDropdownRowModelBase.RowNameVariableName.toLocaleLowerCase()].indexOf(name) > -1) {
+      return this.row.rowName;
     }
-    if (textValue.name == MatrixDropdownRowModelBase.RowTitleVariableName) {
-      textValue.isExists = true;
-      textValue.value = this.row.rowTitle;
-      return true;
+    if (name == MatrixDropdownRowModelBase.RowTitleVariableName.toLocaleLowerCase()) {
+      return this.row.rowTitle;
     }
-    return false;
+    return undefined;
   }
 }
 
@@ -290,10 +262,9 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   private static getId(): string {
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
   }
-  protected data: IMatrixDropdownData;
   protected isSettingValue: boolean = false;
   private idValue: string;
-  private textPreProcessor: MatrixDropdownRowTextProcessor;
+  private textPreProcessor: TextContextProcessor;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
 
@@ -302,10 +273,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public onDetailPanelShowingChanged: () => void;
   public visibleIndex: number = -1;
 
-  constructor(data: IMatrixDropdownData, value: any) {
+  constructor(public data: IMatrixDropdownData, value: any) {
     this.data = data;
     this.subscribeToChanges(value);
-    this.textPreProcessor = new MatrixDropdownRowTextProcessor(data, this, MatrixDropdownRowModelBase.RowVariableName);
+    this.textPreProcessor = new TextContextProcessor(this);
     this.showHideDetailPanelClick = () => {
       if (this.getSurvey().isDesignMode) return true;
       this.showHideDetailPanel();
@@ -1006,6 +977,23 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
   }
 }
 
+class MatrixSingleInputLocOwner implements ILocalizableOwner {
+  constructor(private matrix: QuestionMatrixDropdownModelBase) {}
+  getLocale(): string { return this.matrix.getLocale(); }
+  getMarkdownHtml(text: string, name: string, item?: any): string {
+    return this.matrix.getMarkdownHtml(text, name, item);
+  }
+  getProcessedText(text: string): string {
+    return this.matrix.processSingleInputTitle(text);
+  }
+  getRenderer(name: string): string {
+    return this.matrix.getRenderer(name);
+  }
+  getRendererContext(locStr: LocalizableString): any {
+    return this.matrix.getRendererContext(locStr);
+  }
+}
+
 /**
  * A base class for the [`QuestionMatrixDropdownModel`](https://surveyjs.io/form-library/documentation/questionmatrixdropdownmodel) and [`QuestionMatrixDynamicModel`](https://surveyjs.io/form-library/documentation/questionmatrixdynamicmodel) classes.
  */
@@ -1064,9 +1052,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.createItemValues("choices");
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("keyDuplicationError", this, false, true);
-    this.createLocalizableString("singleInputTitleTemplate", this, true, this.getSingleInputTitleTemplate()).onGetTextCallback = (text: string) => {
-      return this.processSingleInputTitle(text);
-    };
+    this.createLocalizableString("singleInputTitleTemplate", new MatrixSingleInputLocOwner(this), true, this.getSingleInputTitleTemplate());
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
@@ -1905,12 +1891,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.locSingleInputTitleTemplate;
   }
   protected getSingleInputTitleTemplate(): string { return ""; }
-  protected processSingleInputTitle(text: string): string {
+  public processSingleInputTitle(text: string): string {
     const row = this.getRowByQuestion(this.singleInputQuestion);
-    if (row) {
-      return row.getTextProcessor().processText(text, true);
+    const textProcessor = row ? row.getTextProcessor() : this.textProcessor;
+    if (textProcessor) {
+      return textProcessor.processText(text, true);
     }
-    return "";
+    return text;
   }
   protected singleInputMoveToFirstCore(): void {
     const data: any = this.singleInputQuestion?.data;
@@ -1946,6 +1933,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.generateVisibleRowsIfNeeded();
     this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
     return this.visibleRowsArray;
+  }
+  public get allRows(): Array<MatrixDropdownRowModelBase> {
+    if (this.isGenereatingRows) return [];
+    this.generateVisibleRowsIfNeeded();
+    return this.generatedVisibleRows;
   }
   private generateVisibleRowsIfNeeded(): void {
     if (!this.isUpdateLocked && !this.generatedVisibleRows) {

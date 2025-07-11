@@ -6946,7 +6946,7 @@ export class SurveyModel extends SurveyElementCore
     return undefined;
   }
   private getProcessedTextValueCore(textValue: TextPreProcessorValue): void {
-    var name = textValue.name.toLocaleLowerCase();
+    const name = textValue.name.toLocaleLowerCase();
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
     }

@@ -27,8 +27,9 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
   }
   public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const md = <QuestionMatrixDynamicModel>this.question;
-    if (index >= 0 && index < md.visibleRows.length) {
-      return md.visibleRows[index].getValueGetterContext().getValue(path, false);
+    const rows = md.allRows;
+    if (index >= 0 && index < rows.length) {
+      return rows[index].getValueGetterContext().getValue(path, false);
     }
     return super.getValue(path, isRoot, index);
   }

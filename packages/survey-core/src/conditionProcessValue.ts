@@ -9,10 +9,13 @@ export interface IValueGetterInfo {
   isFound?: boolean;
   value?: any;
 }
+export interface IObjectValueContext {
+  getValueGetterContext(): IValueGetterContext;
+}
 export interface IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
   getDisplayValue(value: any): string;
-  getRootObj?(): any;
+  getRootObj?(): IObjectValueContext;
 }
 export class ValueGetter {
   public constructor() {

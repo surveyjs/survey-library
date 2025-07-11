@@ -2,7 +2,7 @@ import { Helpers } from "./helpers";
 import { Question } from "./question";
 import { PanelModel } from "./panel";
 import { ISurvey, ISurveyImpl, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
-import { ProcessValue, ValueGetter } from "./conditionProcessValue";
+import { IObjectValueContext, ProcessValue, ValueGetter } from "./conditionProcessValue";
 
 export class TextPreProcessorItem {
   public start: number;
@@ -110,7 +110,7 @@ export class TextPreProcessor {
 }
 export class TextContextProcessor implements ITextProcessor {
   private textPreProcessor: TextPreProcessor;
-  constructor(private obj: any) {
+  constructor(private obj: IObjectValueContext) {
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
       this.getProcessedTextValue(textValue);
@@ -125,7 +125,8 @@ export class TextContextProcessor implements ITextProcessor {
     return this.textPreProcessor.processTextEx(params);
   }
   private get survey(): ISurvey {
-    return this.obj.getSurvey ? this.obj.getSurvey() : null;
+    const obj = <any>this.obj;
+    return obj.getSurvey ? obj.getSurvey() : null;
   }
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     const name = textValue.name.toLocaleLowerCase();

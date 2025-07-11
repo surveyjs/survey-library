@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -131,7 +131,8 @@ export class SurveyModel extends SurveyElementCore
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
-  ISurveyTimerText {
+  ISurveyTimerText,
+  IObjectValueContext {
   public static readonly TemplateRendererComponentName: string =
     "sv-template-renderer";
   // public static get cssType(): string {

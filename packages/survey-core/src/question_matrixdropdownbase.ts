@@ -20,7 +20,7 @@ import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropd
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -250,7 +250,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   }
 }
 
-export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILocalizableOwner {
+export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILocalizableOwner, IObjectValueContext {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";

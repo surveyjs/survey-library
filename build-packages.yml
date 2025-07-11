@@ -798,6 +798,10 @@ jobs:
         condition: ne(variables.NPM_CACHE_RESTORED, 'true')
 
       - script: |
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
           cd $(Build.SourcesDirectory)/survey-library
           npx puppeteer browsers install chrome
         displayName: "install chrome"
@@ -839,6 +843,39 @@ jobs:
       #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
       #     npm run test
       #   displayName: "run markup tests"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/packages/survey-js-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React End-To-End Tests"
+        condition: succeededOrFailed()
 
       - script: |
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui

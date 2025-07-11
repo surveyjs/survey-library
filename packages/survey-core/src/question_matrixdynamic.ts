@@ -5,7 +5,8 @@ import { Question, QuestionValueGetterContext } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
-  IMatrixDropdownData
+  IMatrixDropdownData,
+  MatrixSingleInputLocOwner
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
@@ -799,11 +800,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const items = new Array<QuestionSingleInputSummaryItem>();
     const canRemoveRows = this.canRemoveRows;
     this.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(this, true, undefined, this.getSingleInputTitleTemplate());
+      const locText = new LocalizableString(new MatrixSingleInputLocOwner(this, row), true, undefined, this.getSingleInputTitleTemplate());
       locText.setJson(this.locSingleInputTitleTemplate.getJson());
-      locText.onGetTextCallback = (text: string): string => {
-        return row.getTextProcessor().processText(text, true);
-      };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singleInputEditRow(row); } });
       const btnRemove = canRemoveRows && this.canRemoveRow(row) ?
         new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;

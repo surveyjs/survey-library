@@ -977,14 +977,14 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
   }
 }
 
-class MatrixSingleInputLocOwner implements ILocalizableOwner {
-  constructor(private matrix: QuestionMatrixDropdownModelBase) {}
+export class MatrixSingleInputLocOwner implements ILocalizableOwner {
+  constructor(private matrix: QuestionMatrixDropdownModelBase, private row?: MatrixDropdownRowModelBase) {}
   getLocale(): string { return this.matrix.getLocale(); }
   getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.matrix.getMarkdownHtml(text, name, item);
   }
   getProcessedText(text: string): string {
-    return this.matrix.processSingleInputTitle(text);
+    return this.matrix.processSingleInputTitle(text, this.row);
   }
   getRenderer(name: string): string {
     return this.matrix.getRenderer(name);
@@ -1891,8 +1891,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.locSingleInputTitleTemplate;
   }
   protected getSingleInputTitleTemplate(): string { return ""; }
-  public processSingleInputTitle(text: string): string {
-    const row = this.getRowByQuestion(this.singleInputQuestion);
+  public processSingleInputTitle(text: string, row: MatrixDropdownRowModelBase): string {
+    if (!row) {
+      row = this.getRowByQuestion(this.singleInputQuestion);
+    }
     const textProcessor = row ? row.getTextProcessor() : this.textProcessor;
     if (textProcessor) {
       return textProcessor.processText(text, true);

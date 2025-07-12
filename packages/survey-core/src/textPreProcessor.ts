@@ -130,7 +130,7 @@ export class TextContextProcessor implements ITextProcessor {
   }
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     const name = textValue.name.toLocaleLowerCase();
-    const res = new ValueGetter().getValueInfo(name, this.obj.getValueGetterContext(), textValue.returnDisplayValue);
+    const res = new ValueGetter().getValueInfo({ name: name, context: this.obj.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
     if (res.isFound) {
       textValue.isExists = res.isFound;
       textValue.value = res.value;

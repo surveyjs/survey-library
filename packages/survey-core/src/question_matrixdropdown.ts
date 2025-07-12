@@ -9,7 +9,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
@@ -22,7 +22,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
     }
     return new VariableGetterContext(this.question.value).getValue(path, isRoot);
   }
-  getRootObj(): any { return this.question.survey; }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const rows = this.question.visibleRows;
     name = name.toLocaleLowerCase();

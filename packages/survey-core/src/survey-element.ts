@@ -25,6 +25,7 @@ import { IAnimationConsumer, AnimationBoolean, AnimationProperty } from "./utils
 import { classesToSelector, cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation } from "./utils/utils";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
+import { IObjectValueContext, IValueGetterContext } from "./conditionProcessValue";
 
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
@@ -550,6 +551,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.blockAnimations();
     this.renderedIsExpanded = !this.isCollapsed;
     this.releaseAnimations();
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    const data = <IObjectValueContext><any>this.data;
+    return !!data ? data.getValueGetterContext() : super.getValueGetterContext();
   }
   protected createTextProcessor(): ITextProcessor {
     return this.surveyImplValue.getTextProcessor();

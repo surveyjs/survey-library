@@ -772,7 +772,8 @@ export class Base implements IObjectValueContext {
       };
     }
     info.runner.expression = expression;
-    info.runner.run(values, properties);
+    //info.runner.run(values, properties);
+    info.runner.runContext(this.getValueGetterContext(), properties);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

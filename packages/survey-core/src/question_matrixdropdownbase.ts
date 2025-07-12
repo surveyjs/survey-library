@@ -227,7 +227,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     }
     return undefined;
   }
-  getRootObj(): any { return this.row.data || this.row.getSurvey(); }
+  getRootObj(): IObjectValueContext { return <any>this.row.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const qs = this.row.getQuestionsByValueName(name, true);
     if (qs.length > 0) {
@@ -235,7 +235,6 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
       res.context = qs[0].getValueGetterContext();
     }
   }
-  getDisplayValue(value: any): string { return ""; }
   private getRowValue(name: string): any {
     if (name === MatrixDropdownRowModelBase.IndexVariableName.toLocaleLowerCase()) {
       return this.row.rowIndex;

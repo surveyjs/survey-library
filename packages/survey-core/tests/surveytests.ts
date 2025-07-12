@@ -4503,14 +4503,14 @@ QUnit.test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop
   }], "nav both contentBottom");
 });
 
-QUnit.test("simple condition test", function (assert) {
-  var survey = new SurveyModel({
+QUnit.test("simple condition test", (assert) => {
+  const survey = new SurveyModel({
     pages: [
       {
         name: "page1",
         questions: [
-          { type: "checkbox", name: "q1", choices: ["yes", "no"] },
-          { type: "checkbox", name: "q2", choices: ["yes", "no"] },
+          { type: "radiogroup", name: "q1", choices: ["yes", "no"] },
+          { type: "radiogroup", name: "q2", choices: ["yes", "no"] },
         ],
       },
       {
@@ -4527,47 +4527,21 @@ QUnit.test("simple condition test", function (assert) {
       },
     ],
   });
-  var q3 = survey.getQuestionByName("q3");
-  assert.equal(
-    survey.pages[1].visible,
-    false,
-    "initially the page becomes invisible"
-  );
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(survey.pages[1].visible, false, "initially the page becomes invisible");
   assert.equal(q3.visible, false, "initially q3 becomes invisible");
   survey.setValue("q1", "yes");
   survey.setValue("q2", "no");
-  assert.equal(
-    survey.pages[1].visible,
-    true,
-    "the page becomes visible, q1 = 'yes'"
-  );
-  assert.equal(
-    q3.visible,
-    true,
-    "q3 becomes visible, q1 = 'yes' and q2 = 'no'"
-  );
+  assert.equal(survey.getQuestionByName("q1").value, "yes", "q1 = 'yes'");
+  assert.equal(survey.getQuestionByName("q2").value, "no", "q2 = 'no'");
+  assert.equal(survey.pages[1].visible, true, "the page becomes visible, q1 = 'yes'");
+  assert.equal(q3.visible, true, "q3 becomes visible, q1 = 'yes' and q2 = 'no'");
   survey.setValue("q2", "yes");
-  assert.equal(
-    survey.pages[1].visible,
-    true,
-    "the page becomes visible, q1 = 'yes'"
-  );
-  assert.equal(
-    q3.visible,
-    false,
-    "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'"
-  );
+  assert.equal(survey.pages[1].visible, true, "the page becomes visible, q1 = 'yes'");
+  assert.equal(q3.visible, false, "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'");
   survey.setValue("q1", "no");
-  assert.equal(
-    survey.pages[1].visible,
-    false,
-    "the page becomes invisible, q1 = 'no'"
-  );
-  assert.equal(
-    q3.visible,
-    false,
-    "q3becomes invisible, q1 = 'no' and q2 = 'yes'"
-  );
+  assert.equal(survey.pages[1].visible, false, "the page becomes invisible, q1 = 'no'");
+  assert.equal(q3.visible, false, "q3 becomes invisible, q1 = 'no' and q2 = 'yes'");
 });
 
 QUnit.test("simple condition test, page visibility", function (assert) {
@@ -16487,6 +16461,7 @@ QUnit.test("Run expressions on changing comments", function (assert) {
   const question2 = survey.getQuestionByName("question2");
   assert.equal(question2.isVisible, false, "Invisible by default");
   survey.setComment("question1", "abcd");
+  assert.deepEqual(survey.data, { "question1-Comment": "abcd" }, "Check comment value");
   assert.equal(question2.isVisible, true, "visible");
   survey.setComment("question1", "abc");
   assert.equal(question2.isVisible, false, "Invisible again");

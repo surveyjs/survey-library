@@ -333,7 +333,7 @@ export class Variable extends Const {
     }
   }
   public get requireStrictCompare(): boolean {
-    return this.valueInfo.sctrictCompare === true;
+    return this.valueInfo.strictCompare === true;
   }
   public getType(): string {
     return "variable";
@@ -350,7 +350,6 @@ export class Variable extends Const {
     return this.variableName;
   }
   public evaluate(processValue?: ProcessValue): any {
-    if (!!processValue.context) return processValue.getValue(this.variableName);
     this.valueInfo.name = this.variableName;
     processValue.getValueInfo(this.valueInfo);
     if (!this.valueInfo.hasValue) return null;

@@ -18,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -56,7 +56,8 @@ class TriggerExpressionInfo {
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    if (path.length === 0) return { value: this.question.value, isFound: true, context: this };
+    if (path.length === 0) return { isFound: true, context: this,
+      value: this.question.getFilteredValue(), requireStrictCompare: this.question.requireStrictCompare };
     ///TODO "panel"
     if (path.length > 1 && path[0].name === "panel") {
       const panel: any = this.question.parent;
@@ -72,17 +73,18 @@ export class QuestionValueGetterContext implements IValueGetterContext {
         val = val[index];
       }
       return new VariableGetterContext(val).getValue(path, false);
+    } else {
+      if (path.length === 1 && path[0].name === "length") {
+        return { isFound: true, value: 0 };
+      }
     }
     return undefined;
   }
-  getDisplayValue(value: any): string {
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (!isDisplayValue) return value;
     return this.question.getDisplayValue(true, value);
   }
-  getRootObj(): any { return this.question.survey; }
-  protected getValueCore(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    if (path.length === 0) return { value: this.question.value, isFound: true, context: this };
-    return undefined;
-  }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
     const survey = this.question.getSurvey();
     if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
@@ -128,7 +130,6 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       }
     });
   }
-  getDisplayValue(value: any): string { return ""; }
   getRootObj(): any { return this.getQuestionData(); }
 }
 export class QuestionArrayGetterContext extends ValueGetterContextCore {

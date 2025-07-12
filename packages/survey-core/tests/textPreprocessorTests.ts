@@ -312,5 +312,5 @@ QUnit.test("survey.getValueGetterContext()", function (assert) {
   assert.equal(getter.getValue("pagecount", context), 1, "#4");
   assert.equal(getter.getValue("q1", context), "a", "#5");
   assert.equal(getter.getValue("q2", context), 1, "#6");
-  assert.equal(getter.getDisplayValue("q2", context), "item1", "#text 6");
+  assert.equal(getter.getDisplayValue("q2", context, true), "item1", "#text 6");
 });

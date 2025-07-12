@@ -53,7 +53,7 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
     if (path.length === 1) {
       const val = this.getPanelValue(path[0].name);
       if (val !== undefined) {
-        return { isFound: true, value: val };
+        return { isFound: true, value: val, context: this };
       }
     }
     if (path.length > 1 && path[0].name === QuestionPanelDynamicItem.ParentItemVariableName) {
@@ -80,16 +80,24 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
     }
     return undefined;
   }
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    name = name.toLocaleLowerCase();
+    if ([this.indexVar, this.visIndexVar].indexOf(name) > -1 && value > -1) {
+      value ++;
+    }
+    return super.getTextValue(name, value, isDisplayValue);
+  }
+  private get indexVar() { return QuestionPanelDynamicItem.IndexVariableName.toLocaleLowerCase(); }
+  private get visIndexVar() { return QuestionPanelDynamicItem.VisibleIndexVariableName.toLocaleLowerCase(); }
+
   private getPanelValue(name: string): any {
     name = name.toLocaleLowerCase();
-    let index = -1;
-    if (name === QuestionPanelDynamicItem.IndexVariableName.toLocaleLowerCase()) {
-      index = this.panelIndex;
+    if (name === this.indexVar) {
+      return this.panelIndex;
     }
-    if (name == QuestionPanelDynamicItem.VisibleIndexVariableName.toLocaleLowerCase()) {
-      index = this.visiblePanelIndex;
+    if (name == this.visIndexVar) {
+      return this.visiblePanelIndex;
     }
-    if (index > -1) return index + 1;
     return undefined;
   }
   private get panelIndex(): number {

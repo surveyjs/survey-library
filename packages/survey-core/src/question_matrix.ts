@@ -17,7 +17,7 @@ import { IPlainDataOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions";
 import { Question } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -36,7 +36,8 @@ class MatrixRowValueGetterContext implements IValueGetterContext {
     if (path.length !== 0) return undefined;
     return { isFound: true, value: this.row.value, context: this };
   }
-  public getDisplayValue(value: any): string {
+  public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (!isDisplayValue) return value;
     return this.row.getDisplayValue(value);
   }
 }
@@ -290,7 +291,7 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
     }
     return new VariableGetterContext(this.question.value).getValue(path, isRoot);
   }
-  getRootObj(): any { return this.question.survey; }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const rows = this.question.visibleRows;
     name = name.toLocaleLowerCase();

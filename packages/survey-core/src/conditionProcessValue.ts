@@ -6,6 +6,7 @@ export interface IValueGetterItem {
 }
 export interface IValueGetterInfo {
   context?: IValueGetterContext;
+  requireStrictCompare?: boolean;
   isFound?: boolean;
   value?: any;
 }
@@ -14,33 +15,50 @@ export interface IObjectValueContext {
 }
 export interface IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
-  getDisplayValue(value: any): string;
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string;
   getRootObj?(): IObjectValueContext;
+}
+export interface IValueInfoParams {
+  name: string;
+  context: IValueGetterContext;
+  isText?: boolean;
+  isDisplayValue?: boolean;
+}
+export interface IReturnValue {
+  isFound: boolean;
+  value: any;
+  strictCompare?: boolean;
 }
 export class ValueGetter {
   public constructor() {
   }
-  public getValueInfo(name: string, context: IValueGetterContext, isDisplay: boolean): { isFound: boolean, value: any } {
-    let info = this.run(name, context);
-    if ((!info || !info.isFound) && context.getRootObj) {
-      const obj = context.getRootObj();
-      if (!!obj) return this.getValueInfo(name, obj.getValueGetterContext(), isDisplay);
+  public getValueInfo(params: IValueInfoParams): IReturnValue {
+    const name = params.name;
+    const cxt = params.context;
+    let info = this.run(params.name, cxt);
+    if ((!info || !info.isFound) && cxt && cxt.getRootObj) {
+      const obj = cxt.getRootObj();
+      if (!!obj) {
+        params.context = obj.getValueGetterContext();
+        return this.getValueInfo(params);
+      }
     }
-    const res = { isFound: false, value: undefined };
+    const res: IReturnValue = { isFound: false, value: undefined };
     if (!info || !info.isFound) return res;
     res.isFound = true;
     res.value = info.value;
-    if (isDisplay && info.context) {
-      res.value = info.context.getDisplayValue(res.value);
+    res.strictCompare = info.requireStrictCompare;
+    if (params.isText && info.context) {
+      res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
     }
     return res;
   }
-  public getValue(name: string, context: IValueGetterContext, isDisplay?: boolean): any {
-    const res = this.getValueInfo(name, context, isDisplay);
+  public getValue(name: string, context: IValueGetterContext, isText?: boolean, isDisplayValue?: boolean): any {
+    const res = this.getValueInfo({ name: name, context: context, isText: isText, isDisplayValue: isDisplayValue });
     return res.isFound ? res.value : undefined;
   }
-  public getDisplayValue(name: string, context: IValueGetterContext): string {
-    return this.getValue(name, context, true);
+  public getDisplayValue(name: string, context: IValueGetterContext, isDisplayValue: boolean = true): string {
+    return this.getValue(name, context, true, isDisplayValue);
   }
   private run(name: string, context: IValueGetterContext): any {
     if (!context) return undefined;
@@ -85,17 +103,9 @@ export class ValueGetterContextCore implements IValueGetterContext {
     let pIndex = 0;
     const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
     while(pIndex < path.length) {
-      let item = path[pIndex];
-      let name = item.name;
-      this.updateValueByItem(name, res);
-      while(!res.isFound && pIndex < path.length - 1) {
-        pIndex++;
-        item = path[pIndex];
-        name += "." + item.name;
-        this.updateValueByItem(name, res);
-        if (item.index !== undefined) break;
-      }
+      pIndex = this.checkValueByPath(path, pIndex, res);
       if (!res.isFound) return undefined;
+      const item = path[pIndex];
       pIndex++;
       if (res.context !== this && !!res.context) {
         return res.context.getValue([].concat(path.slice(pIndex)), false, item.index);
@@ -107,7 +117,41 @@ export class ValueGetterContextCore implements IValueGetterContext {
     }
     return res;
   }
-  public getDisplayValue(value: any): string {
+  protected isSearchNameRevert(): boolean { return false; }
+  private checkValueByPath(path: Array<IValueGetterItem>, pIndex: number, res: IValueGetterInfo): number {
+    const isRevert = this.isSearchNameRevert();
+    const initialIndex = pIndex;
+    const endIndex = this.getMaxIndexByPath(path, pIndex);
+    res.isFound = false;
+    if (isRevert) {
+      pIndex = endIndex;
+    }
+    while(!res.isFound && pIndex <= endIndex && pIndex >= initialIndex) {
+      const name = this.getNameByPath(path, initialIndex, pIndex + 1);
+      this.updateValueByItem(name, res);
+      if (res.isFound) break;
+      pIndex += isRevert ? -1 : 1;
+    }
+    return pIndex;
+  }
+  private getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
+    let name = "";
+    for (let i = start; i < end; i++) {
+      if (i > start) name += ".";
+      name += path[i].name;
+    }
+    return name;
+  }
+  private getMaxIndexByPath(path: Array<IValueGetterItem>, start: number): number {
+    let index = start;
+    while(index < path.length) {
+      if (path[index].index !== undefined) break;
+      index++;
+    }
+    return index < path.length ? index : path.length - 1;
+  }
+  public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (!isDisplayValue) return value;
     if (value === undefined || value === null) return "";
     return value.toString();
   }
@@ -140,7 +184,7 @@ export class VariableGetterContext extends ValueGetterContextCore {
   private getValueByItemCore(obj: any, name: string): any {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
-    if (Array.isArray(obj) && name === "length") return obj.length;
+    if ((Array.isArray(obj) || typeof obj === "string") && name === "length") return obj.length;
     let a = nameInLow[0];
     let A = name[0].toLocaleUpperCase();
     for (var key in obj) {
@@ -189,7 +233,9 @@ export class ProcessValue {
     return res.onProcessValue ? res.onProcessValue(res.value) : res.value;
   }
   private getValueInfoByContext(text: string): any {
-    return new ValueGetter().getValueInfo(text, this.context, false);
+    return new ValueGetter().getValueInfo(
+      { name: text, context: this.context, isText: false }
+    );
   }
   public setValue(obj: any, text: string, value: any) {
     if (!text) return;
@@ -202,6 +248,13 @@ export class ProcessValue {
     }
   }
   public getValueInfo(valueInfo: any) {
+    if (!!this.context) {
+      const cRes = this.getValueInfoByContext(valueInfo.name);
+      valueInfo.value = cRes.value;
+      valueInfo.hasValue = cRes.isFound;
+      valueInfo.strictCompare = cRes.strictCompare;
+      return;
+    }
     if (!!valueInfo.path) {
       valueInfo.value = this.getValueFromPath(valueInfo.path, this.values);
       valueInfo.hasValue =
@@ -221,7 +274,7 @@ export class ProcessValue {
     valueInfo.hasValue = res.hasValue;
     valueInfo.path = res.hasValue ? res.path : null;
     valueInfo.onProcessValue = res.onProcessValue;
-    valueInfo.sctrictCompare = res.sctrictCompare;
+    valueInfo.strictCompare = res.strictCompare;
   }
   public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
     for (var i = 0; i < usedNames.length; i++) {
@@ -271,7 +324,7 @@ export class ProcessValue {
   private getValueCore(text: string, values: any): any {
     const question = this.getQuestionDirectly(text);
     if (question) {
-      return { hasValue: true, value: question.value, onProcessValue: (val: any): any => question.getExpressionValue(val), path: [text], sctrictCompare: question.requireStrictCompare };
+      return { hasValue: true, value: question.value, onProcessValue: (val: any): any => question.getExpressionValue(val), path: [text], strictCompare: question.requireStrictCompare };
     }
     const res = this.getValueFromValues(text, values);
     if (!!text && !res.hasValue) {

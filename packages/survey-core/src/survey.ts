@@ -111,12 +111,20 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     return new VariableGetterContext(this.valuesHash).getValue(path, isRoot);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const question = this.survey.getQuestionByValueName(name.toLocaleLowerCase(), true);
+    name = name.toLowerCase();
+    //TODO into settings
+    const filteredNameSuffix = "-unwrapped";
+    const isFiltered = name.endsWith(filteredNameSuffix);
+    if (isFiltered) {
+      name = name.substring(0, name.length - filteredNameSuffix.length);
+    }
+    const question = this.survey.getQuestionByValueName(name, true);
     if (question) {
       res.isFound = true;
       res.context = question.getValueGetterContext();
     }
   }
+  protected isSearchNameRevert(): boolean { return true; }
 }
 
 /**
@@ -6951,7 +6959,7 @@ export class SurveyModel extends SurveyElementCore
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
     }
-    const res = new ValueGetter().getValueInfo(name, this.getValueGetterContext(), textValue.returnDisplayValue);
+    const res = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
     if (res.isFound) {
       textValue.isExists = true;
       textValue.value = res.value;

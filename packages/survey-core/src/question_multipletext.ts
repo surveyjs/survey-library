@@ -23,13 +23,13 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore } from "./conditionProcessValue";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {
     super();
   }
-  getRootObj(): any { return this.question.survey; }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const items = this.question.items;
     name = name.toLocaleLowerCase();

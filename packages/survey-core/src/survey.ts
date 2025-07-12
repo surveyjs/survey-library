@@ -2572,7 +2572,7 @@ export class SurveyModel extends SurveyElementCore
       onCompleteRes = res;
       callback && callback(res);
     };
-    return exp.run(values, properties) || onCompleteRes;
+    return exp.runContext(this.getValueGetterContext(), properties) || onCompleteRes;
   }
   private setValueOnExpressionCounter: number = 0;
   public get isSettingValueOnExpression(): boolean { return this.setValueOnExpressionCounter > 0; }
@@ -2588,9 +2588,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public runCondition(expression: string): boolean {
     if (!expression) return false;
-    var values = this.getFilteredValues();
-    var properties = this.getFilteredProperties();
-    return new ConditionRunner(expression).run(values, properties);
+    const properties = this.getFilteredProperties();
+    return new ConditionRunner(expression).runContext(this.getValueGetterContext(), properties);
   }
   /**
    * Executes [all triggers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers), except ["complete"](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).

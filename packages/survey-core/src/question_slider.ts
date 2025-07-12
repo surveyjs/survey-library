@@ -735,27 +735,21 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
     super.runConditionCore(values, properties);
-
-    if (this.maxValueExpression) {
-      let maxRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.maxValueExpression);
-
-      if (!!maxRunner && maxRunner.canRun) {
-        maxRunner.onRunComplete = (res) => {
-          this.max = res ?? this.renderedMax;
-        };
-        maxRunner.run(values, properties);
-      }
-    }
-
-    if (this.minValueExpression) {
-      let minRunner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, this.minValueExpression);
-
-      if (!!minRunner && minRunner.canRun) {
-        minRunner.onRunComplete = (res) => {
-          this.min = res ?? this.renderedMin;
-        };
-        minRunner.run(values, properties);
-      }
+    this.runMinMaxCondition(this.maxValueExpression, properties, (value: number) => {
+      this.max = value ?? this.renderedMax;
+    });
+    this.runMinMaxCondition(this.minValueExpression, properties, (value: number) => {
+      this.min = value ?? this.renderedMin;
+    });
+  }
+  private runMinMaxCondition(expression: string, properties: HashTable<any>, setter: (value: number) => void): void {
+    if (!expression) return;
+    const runner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, expression);
+    if (!!runner && runner.canRun) {
+      runner.onRunComplete = (res) => {
+        setter(res);
+      };
+      runner.runContext(this.getValueGetterContext(), properties);
     }
   }
 

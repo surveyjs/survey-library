@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { ProcessValue } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -89,6 +89,43 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
+
+class SurveyValueGetterContext extends ValueGetterContextCore {
+  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
+    super();
+  }
+
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean): IValueGetterInfo {
+    if (path.length === 1) {
+      const name = path[0].name;
+      let val: any = this.survey.getBuiltInVariableValue(name);
+      if (name === "locale") {
+        val = this.survey.locale || surveyLocalization.defaultLocale;
+      }
+      if (val !== undefined) return { value: val, isFound: true };
+    }
+    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot);
+    if (!!res && res.isFound) return res;
+    res = super.getValue(path, isRoot);
+    if (!!res && res.isFound) return res;
+    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot);
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    name = name.toLowerCase();
+    //TODO into settings
+    const filteredNameSuffix = "-unwrapped";
+    const isFiltered = name.endsWith(filteredNameSuffix);
+    if (isFiltered) {
+      name = name.substring(0, name.length - filteredNameSuffix.length);
+    }
+    const question = this.survey.getQuestionByValueName(name, true);
+    if (question) {
+      res.isFound = true;
+      res.context = question.getValueGetterContext();
+    }
+  }
+  protected isSearchNameRevert(): boolean { return true; }
+}
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -2529,7 +2566,7 @@ export class SurveyModel extends SurveyElementCore
     if (!expression) return null;
     var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    const exp = new ExpressionRunner(expression);
+    const exp = this.createExpressionRunner(expression);
     let onCompleteRes: any = undefined;
     exp.onRunComplete = (res: any) => {
       onCompleteRes = res;
@@ -6898,6 +6935,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   getBuiltInVariableValue(name: string): number {
+    name = name.toLocaleLowerCase();
     if (name === "pageno") {
       var page = this.currentPage;
       return page != null ? this.visiblePages.indexOf(page) + 1 : 0;
@@ -6917,80 +6955,15 @@ export class SurveyModel extends SurveyElementCore
     return undefined;
   }
   private getProcessedTextValueCore(textValue: TextPreProcessorValue): void {
-    var name = textValue.name.toLocaleLowerCase();
+    const name = textValue.name.toLocaleLowerCase();
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
     }
-    const builtInVar = this.getBuiltInVariableValue(name);
-    if (builtInVar !== undefined) {
+    const res = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
+    if (res.isFound) {
       textValue.isExists = true;
-      textValue.value = builtInVar;
-      return;
+      textValue.value = res.value;
     }
-    if (name === "locale") {
-      textValue.isExists = true;
-      textValue.value = !!this.locale
-        ? this.locale
-        : surveyLocalization.defaultLocale;
-      return;
-    }
-    var variable = this.getVariable(name);
-    if (variable !== undefined) {
-      textValue.isExists = true;
-      textValue.value = variable;
-      return;
-    }
-    var question = this.getFirstName(name);
-    if (question) {
-      const questionUseDisplayText = (<Question>question).useDisplayValuesInDynamicTexts;
-      textValue.isExists = true;
-      const firstName = question.getValueName().toLowerCase();
-      name = firstName + name.substring(firstName.length);
-      name = name.toLocaleLowerCase();
-      var values: { [index: string]: any } = {};
-      values[firstName] = textValue.returnDisplayValue && questionUseDisplayText
-        ? question.getDisplayValue(false, undefined)
-        : question.value;
-      textValue.value = new ProcessValue().getValue(name, values);
-      return;
-    }
-    this.getProcessedValuesWithoutQuestion(textValue);
-  }
-  private getProcessedValuesWithoutQuestion(textValue: TextPreProcessorValue): void {
-    var value = this.getValue(textValue.name);
-    if (value !== undefined) {
-      textValue.isExists = true;
-      textValue.value = value;
-      return;
-    }
-    const processor = new ProcessValue();
-    const firstName = processor.getFirstName(textValue.name);
-    if (firstName === textValue.name) return;
-    const data: any = {};
-    let val = this.getValue(firstName);
-    if (Helpers.isValueEmpty(val)) {
-      val = this.getVariable(firstName);
-    }
-    if (Helpers.isValueEmpty(val)) return;
-    data[firstName] = val;
-    textValue.value = processor.getValue(textValue.name, data);
-    textValue.isExists = processor.hasValue(textValue.name, data);
-  }
-  private getFirstName(name: string): Question {
-    name = name.toLowerCase();
-    var question;
-    do {
-      question = this.getQuestionByValueName(name, true);
-      name = this.reduceFirstName(name);
-    } while(!question && !!name);
-    return question;
-  }
-  private reduceFirstName(name: string): string {
-    var pos1 = name.lastIndexOf(".");
-    var pos2 = name.lastIndexOf("[");
-    if (pos1 < 0 && pos2 < 0) return "";
-    var pos = Math.max(pos1, pos2);
-    return name.substring(0, pos);
   }
   private isClearingUnsedValues: boolean;
   private clearUnusedValues() {
@@ -7037,8 +7010,7 @@ export class SurveyModel extends SurveyElementCore
     var res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
-      if (new ProcessValue().hasValue(name, this.variablesHash))
-        return new ProcessValue().getValue(name, this.variablesHash);
+      return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
     }
     return res;
   }
@@ -7596,6 +7568,9 @@ export class SurveyModel extends SurveyElementCore
     var options = { html: html, reason: reason };
     this.onProcessHtml.fire(this, options);
     return this.processText(options.html, true);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash);
   }
   processText(text: string, returnDisplayValue: boolean): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false }).text;

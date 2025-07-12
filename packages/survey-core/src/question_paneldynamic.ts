@@ -12,12 +12,9 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
-import {
-  TextPreProcessorValue,
-  QuestionTextProcessor,
-} from "./textPreProcessor";
+import { TextContextProcessor } from "./textPreProcessor";
 import { Base } from "./base";
-import { Question, IConditionObject, IQuestionPlainData } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -34,6 +31,7 @@ import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -44,84 +42,88 @@ export interface IQuestionPanelDynamicData {
   getSurvey(): ISurvey;
   getRootData(): ISurveyData;
 }
+export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContext {
+  constructor(private item: QuestionPanelDynamicItem) {
+    super();
+  }
+  protected getIndex(): number { return this.panelIndex; }
+  protected getQuestionData(): Question { return <Question>(<any>this.item.data); }
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    if (path.length === 0) return undefined;
+    if (path.length === 1) {
+      const val = this.getPanelValue(path[0].name);
+      if (val !== undefined) {
+        return { isFound: true, value: val, context: this };
+      }
+    }
+    if (path.length > 1 && path[0].name === QuestionPanelDynamicItem.ParentItemVariableName) {
+      const q = <Question>(<any>this.item.data);
+      if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
+        path[0].name = QuestionPanelDynamicItem.ItemVariableName;
+        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(path, true);
+      }
+    }
+    const panel = this.item.panel;
+    const isPanelPrefix = path[0].name === QuestionPanelDynamicItem.ItemVariableName;
+    if (isPanelPrefix || !isRoot) {
+      if (isPanelPrefix) {
+        path.shift();
+      }
+      const res = new QuestionArrayGetterContext(panel.questions).getValue(path, false);
+      if (!!res && res.isFound) return res;
+      const allValues = this.item.getAllValues();
+      if (isRoot) {
+        const res = this.getValueFromBindedQuestions(path, allValues);
+        if (!!res) return res;
+      }
+      return new VariableGetterContext(allValues).getValue(path, false);
+    }
+    return undefined;
+  }
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    name = name.toLocaleLowerCase();
+    if ([this.indexVar, this.visIndexVar].indexOf(name) > -1 && value > -1) {
+      value ++;
+    }
+    return super.getTextValue(name, value, isDisplayValue);
+  }
+  private get indexVar() { return QuestionPanelDynamicItem.IndexVariableName.toLocaleLowerCase(); }
+  private get visIndexVar() { return QuestionPanelDynamicItem.VisibleIndexVariableName.toLocaleLowerCase(); }
 
-class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
-  private sharedQuestions: any = {};
-  constructor(
-    private data: IQuestionPanelDynamicData,
-    protected panelItem: QuestionPanelDynamicItem,
-    protected variableName: string
-  ) {
-    super(variableName);
-  }
-  protected get survey(): ISurvey {
-    return this.panelItem.getSurvey();
-  }
-  protected get panel(): PanelModel {
-    return this.panelItem.panel;
+  private getPanelValue(name: string): any {
+    name = name.toLocaleLowerCase();
+    if (name === this.indexVar) {
+      return this.panelIndex;
+    }
+    if (name == this.visIndexVar) {
+      return this.visiblePanelIndex;
+    }
+    return undefined;
   }
   private get panelIndex(): number {
-    return !!this.data ? this.data.getItemIndex(this.panelItem) : -1;
+    return this.getPanels(false).indexOf(this.item.panel);
   }
   private get visiblePanelIndex(): number {
-    return !!this.data ? this.data.getVisibleItemIndex(this.panelItem) : -1;
+    return this.getPanels(true).indexOf(this.item.panel);
   }
-  protected getValues(): any {
-    return this.panelItem.getAllValues();
+  private getPanels(isVisible: boolean): Array<PanelModel> {
+    const data: any = this.item.data;
+    if (!data) return [];
+    return isVisible ? data.visiblePanels : data.panels;
   }
-  protected getQuestionByName(name: string): Question {
-    var res = super.getQuestionByName(name);
-    if (!!res) return res;
-    const index = this.panelIndex;
-    res = index > -1 ? this.data.getSharedQuestionFromArray(name, index) : undefined;
-    const qName = !!res ? res.name : name;
-    this.sharedQuestions[qName] = name;
-    return res;
+}
+
+export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
   }
-  protected getQuestionDisplayText(question: Question): string {
-    const name = this.sharedQuestions[question.name];
-    if (!name) return super.getQuestionDisplayText(question);
-    const val = this.panelItem.getValue(name);
-    return question.getDisplayValue(true, val);
-  }
-  protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
-    if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
-      var index = this.panelIndex;
-      if (index > -1) {
-        textValue.isExists = true;
-        textValue.value = index + 1;
-        return true;
-      }
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    const pd = <QuestionPanelDynamicModel>this.question;
+    if (index >= 0 && index < pd.panels.length) {
+      const item = <QuestionPanelDynamicItem>pd.panels[index].data;
+      return item.getValueGetterContext().getValue(path, false);
     }
-    if (textValue.name == QuestionPanelDynamicItem.VisibleIndexVariableName) {
-      var index = this.visiblePanelIndex;
-      if (index > -1) {
-        textValue.isExists = true;
-        textValue.value = index + 1;
-        return true;
-      }
-    }
-    if (
-      textValue.name.toLowerCase().indexOf(
-        QuestionPanelDynamicItem.ParentItemVariableName + "."
-      ) == 0
-    ) {
-      var q = <Question>(<any>this.data);
-      if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
-        var processor = new QuestionPanelDynamicItemTextProcessor(
-          <IQuestionPanelDynamicData>(<any>q.parentQuestion),
-          <QuestionPanelDynamicItem>(<any>q.parent).data,
-          QuestionPanelDynamicItem.ItemVariableName
-        );
-        var text = QuestionPanelDynamicItem.ItemVariableName +
-          textValue.name.substring(QuestionPanelDynamicItem.ParentItemVariableName.length);
-        var res = processor.processValue(text, textValue.returnDisplayValue);
-        textValue.isExists = res.isExists;
-        textValue.value = res.value;
-      }
-      return true;
-    }
-    return false;
+    return super.getValue(path, isRoot, index);
   }
 }
 
@@ -135,22 +137,17 @@ class PanelDynamicTabbedMenuItem extends Action {
   }
 }
 
-export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
+export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
   public static ItemVariableName = "panel";
   public static ParentItemVariableName = "parentpanel";
   public static IndexVariableName = "panelIndex";
   public static VisibleIndexVariableName = "visiblePanelIndex";
   private panelValue: PanelModel;
-  private data: IQuestionPanelDynamicData;
-  private textPreProcessor: QuestionPanelDynamicItemTextProcessor;
-  constructor(data: IQuestionPanelDynamicData, panel: PanelModel) {
+  private textPreProcessor: TextContextProcessor;
+  constructor(public data: IQuestionPanelDynamicData, panel: PanelModel) {
     this.data = data;
     this.panelValue = panel;
-    this.textPreProcessor = new QuestionPanelDynamicItemTextProcessor(
-      data,
-      this,
-      QuestionPanelDynamicItem.ItemVariableName
-    );
+    this.textPreProcessor = new TextContextProcessor(this);
     this.setSurveyImpl();
   }
   public get panel(): PanelModel {
@@ -158,6 +155,9 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   }
   public setSurveyImpl() {
     this.panel.setSurveyImpl(this);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new PanelDynamicItemGetterContext(this);
   }
   public getValue(name: string): any {
     var values = this.getAllValues();
@@ -2235,6 +2235,9 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
     return result;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new PanelDynamicValueGetterContext(this);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var values = this.getUnbindValue(value);

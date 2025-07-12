@@ -1,4 +1,4 @@
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -16,13 +16,14 @@ import { PanelModel } from "./panel";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { QuestionTextProcessor } from "./textPreProcessor";
+import { TextContextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 
 /**
  * An interface used to create custom question types.
@@ -1041,31 +1042,33 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
 }
 
-class QuestionCompositeTextProcessor extends QuestionTextProcessor {
-  constructor(
-    protected composite: QuestionCompositeModel,
-    protected variableName: string
-  ) {
-    super(variableName);
+export class CompositeValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
   }
-  protected get survey(): ISurvey {
-    return this.composite.survey;
-  }
-  protected get panel(): PanelModel {
-    return this.composite.contentPanel;
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    const cq = <QuestionCompositeModel>this.question;
+    if (path.length > 0) {
+      const isCompPrefix = path[0].name === QuestionCompositeModel.ItemVariableName;
+      if (isCompPrefix || !isRoot) {
+        if (isCompPrefix) {
+          path.shift();
+        }
+        const res = new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index);
+        if (res && res.isFound) return res;
+      }
+    }
+    return super.getValue(path, isRoot, index);
   }
 }
 
 export class QuestionCompositeModel extends QuestionCustomModelBase {
   public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
-  private textProcessing: QuestionCompositeTextProcessor;
+  private textProcessing: TextContextProcessor;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name, customQuestion);
-    this.textProcessing = new QuestionCompositeTextProcessor(
-      this,
-      QuestionCompositeModel.ItemVariableName
-    );
+    this.textProcessing = new TextContextProcessor(this);
   }
   protected createWrapper(): void {
     this.panelWrapper = this.createPanel();
@@ -1389,6 +1392,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
     this.settingNewValue = oldSettingNewValue;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new CompositeValueGetterContext(this);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return super.getContentDisplayValueCore(keyAsText, value, <any>this.contentPanel);

@@ -764,15 +764,22 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
-  public getQuestionByValueName(valueName: string): Question {
-    const res = this.getQuestionsByValueName(valueName);
+  public getQuestionByValueName(valueName: string, caseInsensitive: boolean = false): Question {
+    const res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return res.length > 0 ? res[0] : null;
   }
-  public getQuestionsByValueName(valueName: string): Array<Question> {
+  public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
     const res = [];
+    if (caseInsensitive) {
+      valueName = valueName.toLowerCase();
+    }
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() == valueName) res.push(questions[i]);
+      let name = questions[i].getValueName();
+      if (caseInsensitive) {
+        name = name.toLowerCase();
+      }
+      if (name == valueName) res.push(questions[i]);
     }
     return res;
   }

@@ -3,7 +3,8 @@ import {
   TextPreProcessorValue,
 } from "../src/textPreProcessor";
 import { Question } from "../src/question";
-import { ProcessValue } from "../src/conditionProcessValue";
+import { ValueGetter, VariableGetterContext, ProcessValue } from "../src/conditionProcessValue";
+import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("TextPreprocessorTests");
 
@@ -110,17 +111,6 @@ QUnit.test(
     assert.equal(process.getValue("b[1].c[1].d", value), 4, "c[0].d=4");
   }
 );
-
-QUnit.test("Question process any property", function (assert) {
-  var question = new Question("q1");
-  var processor = new TextPreProcessor();
-  processor.onProcess = (val) => question["getProcessedTextValue"](val);
-  assert.equal(
-    processor.process("test1 {name} test2"),
-    "test1 q1 test2",
-    "name is the same"
-  );
-});
 
 QUnit.test("ProcessValue setValue function", function (assert) {
   const processor = new ProcessValue();
@@ -277,3 +267,50 @@ QUnit.test(
     assert.equal(valueInfo.value, 0, "length is 0, Q11 is undefined");
   }
 );
+QUnit.test("ValueGetter.getPath()", function (assert) {
+  const getter = new ValueGetter();
+  assert.deepEqual(getter.getPath("a.b.c"), [{ name: "a" }, { name: "b" }, { name: "c" }], "getPath simple");
+  assert.deepEqual(getter.getPath("a[0].b.c"), [{ name: "a", index: 0 }, { name: "b" }, { name: "c" }], "getPath with array");
+  assert.deepEqual(getter.getPath("a[0].b.c[1]"), [{ name: "a", index: 0 }, { name: "b" }, { name: "c", index: 1 }], "getPath with array and index");
+  assert.deepEqual(getter.getPath("a[0].b.c[1].d"), [{ name: "a", index: 0 }, { name: "b" }, { name: "c", index: 1 }, { name: "d" }], "getPath with array and index and property");
+  assert.deepEqual(getter.getPath("a.b.c.d"), [{ name: "a" }, { name: "b" }, { name: "c" }, { name: "d" }], "getPath with several properties");
+  assert.deepEqual(getter.getPath("a.b.c[dd0].d"), [{ name: "a" }, { name: "b" }, { name: "c[dd0]" }, { name: "d" }], "getPath with array and property");
+});
+QUnit.test("VariableGetterContext.getValue()", function (assert) {
+  const getter = new ValueGetter();
+  const context = new VariableGetterContext({
+    a: 1, b: 2, c: 3, d: { e: 4, f: 5 }, g: [6, 7], KmT: { nD: 8 },
+    "dot.dot": { "one.two.three": 9 }, arr: [{ state: "CA" }, { state: "TX" }] });
+  assert.equal(getter.getValue("a", context), 1, "getValue a");
+  assert.equal(getter.getValue("b", context), 2, "getValue b");
+  assert.equal(getter.getValue("c", context), 3, "getValue c");
+  assert.equal(getter.getValue("d.e", context), 4, "getValue d.e");
+  assert.equal(getter.getValue("d.f", context), 5, "getValue d.f");
+  assert.equal(getter.getValue("g[0]", context), 6, "getValue g[0]");
+  assert.equal(getter.getValue("g[1]", context), 7, "getValue g[1]");
+  assert.equal(getter.getValue("g[2]", context), undefined, "getValue g[2]");
+  assert.equal(getter.getValue("kMt.Nd", context), 8, "getValue kMt.Nd");
+  assert.equal(getter.getValue("dot.dot.one.two.three", context), 9, "getValue dot.dot.one.two.three");
+  assert.equal(getter.getValue("arr[0].state", context), "CA", "arr[0].state");
+  assert.equal(getter.getValue("arr[1].state", context), "TX", "arr[1].state");
+  assert.equal(getter.getValue("arr.length", context), 2, "arr.length");
+});
+QUnit.test("survey.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: "a" },
+      { type: "dropdown", name: "q2", defaultValue: 1, choices: [{ value: 1, text: "item1" }] },
+    ]
+  });
+  survey.setValue("a", 1);
+  survey.setValue("b", 2);
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("a", context), 1, "#1");
+  assert.equal(getter.getValue("b", context), 2, "#2");
+  assert.equal(getter.getValue("locale", context), "en", "#3");
+  assert.equal(getter.getValue("pagecount", context), 1, "#4");
+  assert.equal(getter.getValue("q1", context), "a", "#5");
+  assert.equal(getter.getValue("q2", context), 1, "#6");
+  assert.equal(getter.getDisplayValue("q2", context, true), "item1", "#text 6");
+});

@@ -1069,6 +1069,7 @@ QUnit.test("singleInput & nested matrix dynamic in the panel dynamic", assert =>
     assert.equal(matrix.singleInputQuestion.name, "matrix1", "matrix.singleInputQuestion.name, #5" + move);
     assert.notOk(matrix.singleInputLocTitle?.textOrHtml, "matrix.input loc title #5" + move);
     assert.equal(matrix.singleInputSummary?.items.length, 1, "matrix.singleInputSummary exists, #5" + move);
+    assert.equal(matrix.singleInputSummary.items[0].locText.renderedHtml, "Row 1", "matrix.singleInputSummary items text, #5" + move);
     assert.equal(addBtn.visible, true, "addBtn visible #5" + move);
   };
   checkStep5();

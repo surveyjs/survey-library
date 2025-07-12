@@ -1,7 +1,206 @@
 import { Helpers, HashTable } from "./helpers";
 
+export interface IValueGetterItem {
+  name: string;
+  index?: number;
+}
+export interface IValueGetterInfo {
+  context?: IValueGetterContext;
+  requireStrictCompare?: boolean;
+  isFound?: boolean;
+  value?: any;
+}
+export interface IObjectValueContext {
+  getValueGetterContext(): IValueGetterContext;
+}
+export interface IValueGetterContext {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string;
+  getRootObj?(): IObjectValueContext;
+}
+export interface IValueInfoParams {
+  name: string;
+  context: IValueGetterContext;
+  isText?: boolean;
+  isDisplayValue?: boolean;
+}
+export interface IReturnValue {
+  isFound: boolean;
+  value: any;
+  strictCompare?: boolean;
+}
+export class ValueGetter {
+  public constructor() {
+  }
+  public getValueInfo(params: IValueInfoParams): IReturnValue {
+    const name = params.name;
+    const cxt = params.context;
+    let info = this.run(params.name, cxt);
+    if ((!info || !info.isFound) && cxt && cxt.getRootObj) {
+      const obj = cxt.getRootObj();
+      if (!!obj) {
+        params.context = obj.getValueGetterContext();
+        return this.getValueInfo(params);
+      }
+    }
+    const res: IReturnValue = { isFound: false, value: undefined };
+    if (!info || !info.isFound) return res;
+    res.isFound = true;
+    res.value = info.value;
+    res.strictCompare = info.requireStrictCompare;
+    if (params.isText && info.context) {
+      res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
+    }
+    return res;
+  }
+  public getValue(name: string, context: IValueGetterContext, isText?: boolean, isDisplayValue?: boolean): any {
+    const res = this.getValueInfo({ name: name, context: context, isText: isText, isDisplayValue: isDisplayValue });
+    return res.isFound ? res.value : undefined;
+  }
+  public getDisplayValue(name: string, context: IValueGetterContext, isDisplayValue: boolean = true): string {
+    return this.getValue(name, context, true, isDisplayValue);
+  }
+  private run(name: string, context: IValueGetterContext): any {
+    if (!context) return undefined;
+    let path = this.getPath(name);
+    const info = context.getValue(path, true);
+    return !!info && info.isFound ? info : undefined;
+  }
+  public getPath(name: string): Array<IValueGetterItem> {
+    const path: Array<IValueGetterItem> = [];
+    const names = name.split(".");
+    for (let i = 0; i < names.length; i++) {
+      path.push(this.getValueItem(names[i]));
+    }
+    return path;
+  }
+  private getValueItem(name: string): IValueGetterItem {
+    name = name.trim();
+    let index: number | undefined = undefined;
+    if (name.lastIndexOf("]") === name.length - 1) {
+      const ind = name.lastIndexOf("[");
+      if (ind > -1) {
+        const indexStr = name.substring(ind + 1, name.length - 1);
+        index = Helpers.getNumber(indexStr);
+        if (isNaN(index) || index < 0) {
+          index = undefined;
+        }
+        if (index !== undefined) {
+          name = name.substring(0, ind);
+        }
+      }
+    }
+    const res: IValueGetterItem = { name: name };
+    if (index !== undefined) {
+      res.index = index;
+    }
+    return res;
+  }
+}
+export class ValueGetterContextCore implements IValueGetterContext {
+  constructor() {}
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    let pIndex = 0;
+    const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
+    while(pIndex < path.length) {
+      pIndex = this.checkValueByPath(path, pIndex, res);
+      if (!res.isFound) return undefined;
+      const item = path[pIndex];
+      pIndex++;
+      if (res.context !== this && !!res.context) {
+        return res.context.getValue([].concat(path.slice(pIndex)), false, item.index);
+      }
+      if (item.index !== undefined) {
+        this.updateItemByIndex(item.index, res);
+        if (!res.isFound) return undefined;
+      }
+    }
+    return res;
+  }
+  protected isSearchNameRevert(): boolean { return false; }
+  private checkValueByPath(path: Array<IValueGetterItem>, pIndex: number, res: IValueGetterInfo): number {
+    const isRevert = this.isSearchNameRevert();
+    const initialIndex = pIndex;
+    const endIndex = this.getMaxIndexByPath(path, pIndex);
+    res.isFound = false;
+    if (isRevert) {
+      pIndex = endIndex;
+    }
+    while(!res.isFound && pIndex <= endIndex && pIndex >= initialIndex) {
+      const name = this.getNameByPath(path, initialIndex, pIndex + 1);
+      this.updateValueByItem(name, res);
+      if (res.isFound) break;
+      pIndex += isRevert ? -1 : 1;
+    }
+    return pIndex;
+  }
+  private getNameByPath(path: Array<IValueGetterItem>, start: number, end: number): string {
+    let name = "";
+    for (let i = start; i < end; i++) {
+      if (i > start) name += ".";
+      name += path[i].name;
+    }
+    return name;
+  }
+  private getMaxIndexByPath(path: Array<IValueGetterItem>, start: number): number {
+    let index = start;
+    while(index < path.length) {
+      if (path[index].index !== undefined) break;
+      index++;
+    }
+    return index < path.length ? index : path.length - 1;
+  }
+  public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (!isDisplayValue) return value;
+    if (value === undefined || value === null) return "";
+    return value.toString();
+  }
+  protected getInitialvalue(): any { return undefined; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {}
+  protected updateItemByIndex(index: number, res: IValueGetterInfo): void {}
+}
+
+export class VariableGetterContext extends ValueGetterContextCore {
+  constructor(private variables: HashTable<any>) {
+    super();
+  }
+  protected getInitialvalue(): any { return this.variables; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const val = this.getValueByItemCore(res.value, name);
+    res.isFound = val !== undefined;
+    if (res.isFound) {
+      res.value = val;
+    }
+  }
+  protected updateItemByIndex(index: number, res: IValueGetterInfo): void {
+    const v = res.value;
+    if (Array.isArray(v) && index < v.length) {
+      res.value = v[index];
+      res.isFound = true;
+    } else {
+      res.isFound = false;
+    }
+  }
+  private getValueByItemCore(obj: any, name: string): any {
+    if (!obj || !name) return undefined;
+    const nameInLow = name.toLowerCase();
+    if ((Array.isArray(obj) || typeof obj === "string") && name === "length") return obj.length;
+    let a = nameInLow[0];
+    let A = name[0].toLocaleUpperCase();
+    for (var key in obj) {
+      var first = key[0];
+      if (first === a || first === A) {
+        var keyName = key.toLowerCase();
+        if (keyName == nameInLow) return obj[key];
+      }
+    }
+    return undefined;
+  }
+}
+
 const surveyBuiltInVarible: string = "@survey";
 export class ProcessValue {
+  public context: IValueGetterContext = null;
   public values: HashTable<any> = null;
   public properties: HashTable<any> = null;
   public asyncValues: HashTable<any> = {};
@@ -22,14 +221,21 @@ export class ProcessValue {
     return res;
   }
   public hasValue(text: string, values: HashTable<any> = null): boolean {
+    if (!!this.context) return this.getValueInfoByContext(text).isFound;
     if (!values) values = this.values;
     var res = this.getValueCore(text, values);
     return res.hasValue;
   }
   public getValue(text: string, values: HashTable<any> = null): any {
+    if (!!this.context) return this.getValueInfoByContext(text).value;
     if (!values) values = this.values;
     var res = this.getValueCore(text, values);
     return res.onProcessValue ? res.onProcessValue(res.value) : res.value;
+  }
+  private getValueInfoByContext(text: string): any {
+    return new ValueGetter().getValueInfo(
+      { name: text, context: this.context, isText: false }
+    );
   }
   public setValue(obj: any, text: string, value: any) {
     if (!text) return;
@@ -42,6 +248,13 @@ export class ProcessValue {
     }
   }
   public getValueInfo(valueInfo: any) {
+    if (!!this.context) {
+      const cRes = this.getValueInfoByContext(valueInfo.name);
+      valueInfo.value = cRes.value;
+      valueInfo.hasValue = cRes.isFound;
+      valueInfo.strictCompare = cRes.strictCompare;
+      return;
+    }
     if (!!valueInfo.path) {
       valueInfo.value = this.getValueFromPath(valueInfo.path, this.values);
       valueInfo.hasValue =
@@ -61,7 +274,7 @@ export class ProcessValue {
     valueInfo.hasValue = res.hasValue;
     valueInfo.path = res.hasValue ? res.path : null;
     valueInfo.onProcessValue = res.onProcessValue;
-    valueInfo.sctrictCompare = res.sctrictCompare;
+    valueInfo.strictCompare = res.strictCompare;
   }
   public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
     for (var i = 0; i < usedNames.length; i++) {
@@ -111,7 +324,7 @@ export class ProcessValue {
   private getValueCore(text: string, values: any): any {
     const question = this.getQuestionDirectly(text);
     if (question) {
-      return { hasValue: true, value: question.value, onProcessValue: (val: any): any => question.getExpressionValue(val), path: [text], sctrictCompare: question.requireStrictCompare };
+      return { hasValue: true, value: question.value, onProcessValue: (val: any): any => question.getExpressionValue(val), path: [text], strictCompare: question.requireStrictCompare };
     }
     const res = this.getValueFromValues(text, values);
     if (!!text && !res.hasValue) {

@@ -333,7 +333,7 @@ export class Variable extends Const {
     }
   }
   public get requireStrictCompare(): boolean {
-    return this.valueInfo.sctrictCompare === true;
+    return this.valueInfo.strictCompare === true;
   }
   public getType(): string {
     return "variable";

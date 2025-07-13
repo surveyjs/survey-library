@@ -9,6 +9,7 @@ import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -28,6 +29,16 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
   getCellAriaLabel(row: any, column: any, directRowTitle?: string): string;
+}
+export class MatrixColumnGetterContext implements IValueGetterContext {
+  constructor(private column: MatrixDropdownColumn) {
+  }
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+    if (path.length === 1 && ["name", "item"].indexOf(path[0].name) > -1)
+      return { isFound: true, value: this.column.name };
+    return undefined;
+  }
+  getRootObj(): IObjectValueContext { return <any>this.column.colOwner; }
 }
 
 function onUpdateSelectBaseCellQuestion(
@@ -154,6 +165,9 @@ export class MatrixDropdownColumn extends Base
       this.updateTemplateQuestion();
       this.setParentQuestionToTemplate(this.templateQuestion);
     }
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixColumnGetterContext(this);
   }
   public locStrsChanged() {
     super.locStrsChanged();

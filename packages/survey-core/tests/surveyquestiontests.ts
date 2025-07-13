@@ -2671,13 +2671,13 @@ QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
 
-QUnit.test("matrixdropdown.columnsVisibleIf", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var qCars = new QuestionCheckboxModel("cars");
+QUnit.test("matrixdropdown.columnsVisibleIf", (assert) => {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qCars = new QuestionCheckboxModel("cars");
   qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   page.addElement(qCars);
-  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  const qBestCar = new QuestionMatrixDropdownModel("bestCar");
   qBestCar.rows = ["col1"];
   qBestCar.addColumn("Audi");
   qBestCar.addColumn("BMW");

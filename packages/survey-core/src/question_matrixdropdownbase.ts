@@ -1688,7 +1688,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       } else {
         const condition = new ConditionRunner(this.columnsVisibleIf);
         values["item"] = column.name;
-        column.isColumnsVisibleIf = condition.run(values, properties) === true;
+        column.isColumnsVisibleIf = condition.runContext(column.getValueGetterContext(), properties) === true;
       }
     });
     return false;

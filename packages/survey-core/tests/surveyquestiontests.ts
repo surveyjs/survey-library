@@ -2652,7 +2652,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
+QUnit.test("matrixdropdown.rowsVisibleIf", (assert) => {
   const survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },

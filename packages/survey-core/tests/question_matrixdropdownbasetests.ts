@@ -1829,7 +1829,7 @@ QUnit.test("Support columnsVisibleIf property, Bug#8796", function (assert) {
   assert.equal(table.rows[1].cells.length, 1 + 2, "Row: the last column is invisible, #3");
   assert.equal(table.headerRow.cells[2].headers, "col2", "The last column is col2, #3");
 });
-QUnit.test("rowVisibleIf & rowIndex, Bug#8796", function (assert) {
+QUnit.test("rowVisibleIf & rowIndex, Bug#8796", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {

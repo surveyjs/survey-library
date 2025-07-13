@@ -253,7 +253,8 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     if (name === MatrixDropdownRowModelBase.IndexVariableName.toLocaleLowerCase()) {
       return this.row.rowIndex;
     }
-    if ([MatrixDropdownRowModelBase.RowValueVariableName.toLocaleLowerCase(), MatrixDropdownRowModelBase.RowNameVariableName.toLocaleLowerCase()].indexOf(name) > -1) {
+    //TODO item
+    if (["item", MatrixDropdownRowModelBase.RowValueVariableName.toLocaleLowerCase(), MatrixDropdownRowModelBase.RowNameVariableName.toLocaleLowerCase()].indexOf(name) > -1) {
       return this.row.rowName;
     }
     if (name == MatrixDropdownRowModelBase.RowTitleVariableName.toLocaleLowerCase()) {
@@ -485,7 +486,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (!!rowsVisibleIf) {
       values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
       this.setRowsVisibleIfValues(values);
-      this.visible = new ConditionRunner(rowsVisibleIf).run(values, properties);
+      this.visible = new ConditionRunner(rowsVisibleIf).runContext(this.getValueGetterContext(), properties);
     } else {
       this.visible = true;
     }

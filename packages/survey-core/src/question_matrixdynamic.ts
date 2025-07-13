@@ -587,7 +587,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.getDataFilteredValues(),
         this.getDataFilteredProperties()
       );
-      const rows = this.visibleRows;
+      const rows = this.generatedVisibleRows;
       if (this.isValueEmpty(defaultValue) && rows.length > 0) {
         const row = rows[rows.length - 1];
         if (!this.isValueEmpty(row.value)) {

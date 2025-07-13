@@ -143,7 +143,7 @@ export class Trigger extends Base {
     this.conditionRunner.onRunComplete = (res: boolean) => {
       this.triggerResult(res, values, properties);
     };
-    this.conditionRunner.run(values, properties);
+    this.conditionRunner.runContext(this.getValueGetterContext(), properties);
   }
   private triggerResult(
     res: boolean,
@@ -414,7 +414,7 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
       expression.onRunComplete = (res) => {
         this.onCompleteRunExpression(res);
       };
-      expression.run(values, properties);
+      expression.runContext(this.getValueGetterContext(), properties);
     }
   }
   private onCompleteRunExpression(newValue: any) {

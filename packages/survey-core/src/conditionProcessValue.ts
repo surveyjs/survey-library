@@ -33,6 +33,14 @@ export class ValueGetter {
   public constructor() {
   }
   public getValueInfo(params: IValueInfoParams): IReturnValue {
+    const res = this.getValueInfoCore(params);
+    if (!res.isFound && res.value === undefined && params.name.endsWith(".length")) {
+      res.isFound = true;
+      res.value = 0;
+    }
+    return res;
+  }
+  private getValueInfoCore(params: IValueInfoParams): IReturnValue {
     const name = params.name;
     const cxt = params.context;
     let info = this.run(params.name, cxt);
@@ -184,7 +192,7 @@ export class VariableGetterContext extends ValueGetterContextCore {
   private getValueByItemCore(obj: any, name: string): any {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
-    if ((Array.isArray(obj) || typeof obj === "string") && name === "length") return obj.length;
+    if (name === "length" && (Array.isArray(obj) || typeof obj === "string")) return obj.length;
     let a = nameInLow[0];
     let A = name[0].toLocaleUpperCase();
     for (var key in obj) {

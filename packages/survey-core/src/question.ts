@@ -744,7 +744,7 @@ export class Question extends SurveyElement<Question>
       this.clearValue();
     } else {
       this.ensureSetValueExpressionRunner();
-      this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.setValueExpressionRunner.runValues(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
   private getSetValueExpressionRunner(): ExpressionRunner {
@@ -779,7 +779,7 @@ export class Question extends SurveyElement<Question>
       info.doComplete();
       info.isRunning = false;
     } else {
-      info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      info.runner.runValues(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {

@@ -164,11 +164,11 @@ QUnit.test("Condition: on item - no spaces", function(assert) {
 QUnit.test("Run one condition", function(assert) {
   var runner = new ConditionRunner("{a} > 5");
   var values = { a: 6 };
-  assert.equal(runner.run(values), true, "6 > 5");
+  assert.equal(runner.runValues(values), true, "6 > 5");
   values = { a: 5 };
-  assert.equal(runner.run(values), false, "5 > 5");
+  assert.equal(runner.runValues(values), false, "5 > 5");
   var values2 = { b: 5 };
-  assert.equal(runner.run(values2), false, "undefined > 5");
+  assert.equal(runner.runValues(values2), false, "undefined > 5");
 });
 
 QUnit.test("Run complex condition", function(assert) {
@@ -176,22 +176,22 @@ QUnit.test("Run complex condition", function(assert) {
     "{age} >= 21 and ({sex} = 'male' or {kids} > 1)"
   );
   var values = { age: 21, sex: "male", kids: 1 };
-  assert.equal(runner.run(values), true, "21 >= 21 and (male = male or 1 > 1)");
+  assert.equal(runner.runValues(values), true, "21 >= 21 and (male = male or 1 > 1)");
   var values = { age: 21, sex: "female", kids: 1 };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     false,
     "21 >= 21 and (male = female or 1 > 1)"
   );
   var values = { age: 21, sex: "female", kids: 2 };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     true,
     "21 >= 21 and (male = female or 2 > 1)"
   );
   var values = { age: 20, sex: "male", kids: 2 };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     false,
     "20 >= 21 and (male = male or 2 > 1)"
   );
@@ -200,9 +200,9 @@ QUnit.test("Run complex condition", function(assert) {
 QUnit.test("Run condition with nested properties", function(assert) {
   var runner = new ConditionRunner("{age.min} >= 35 and ({age.max} <= 80");
   var values = { age: { min: 36, max: 40 } };
-  assert.equal(runner.run(values), true, "min > 35 max < 80");
+  assert.equal(runner.runValues(values), true, "min > 35 max < 80");
   values.age.min = 21;
-  assert.equal(runner.run(values), false, "min < 35 max < 80");
+  assert.equal(runner.runValues(values), false, "min < 35 max < 80");
 });
 
 QUnit.test("Condition check #303", function(assert) {
@@ -210,16 +210,16 @@ QUnit.test("Condition check #303", function(assert) {
     "({question-fruit} = 'fruit-apple' and {question-apple-variety} = 'apple-variety-red-delicious') or ({question-fruit} = 'fruit-orange' and {question-orange-variety} = 'orange-variety-blood')"
   );
   var values = {};
-  assert.equal(runner.run(values), false, "nothing was set");
+  assert.equal(runner.runValues(values), false, "nothing was set");
   values = {
     "question-fruit": "fruit-apple",
     "question-apple-variety": "apple-variety-red-delicious",
   };
-  assert.equal(runner.run(values), true, "The first part is correct");
+  assert.equal(runner.runValues(values), true, "The first part is correct");
   values["question-fruit"] = "fruit-orange";
-  assert.equal(runner.run(values), false, "the value is incorrect");
+  assert.equal(runner.runValues(values), false, "the value is incorrect");
   values["question-orange-variety"] = "orange-variety-blood";
-  assert.equal(runner.run(values), true, "The second part is correct");
+  assert.equal(runner.runValues(values), true, "The second part is correct");
 });
 
 QUnit.test("Condition check empty for undefined variables #323", function(
@@ -227,167 +227,167 @@ QUnit.test("Condition check empty for undefined variables #323", function(
 ) {
   var runner = new ConditionRunner("{var1} empty");
   var values = {};
-  assert.equal(runner.run(values), true, "it is empty");
+  assert.equal(runner.runValues(values), true, "it is empty");
   values = { var1: 1 };
-  assert.equal(runner.run(values), false, "it is not empty");
+  assert.equal(runner.runValues(values), false, "it is not empty");
 });
 
 QUnit.test("Condition check for undefined variables #323", function(assert) {
   var runner = new ConditionRunner("{var1} < 3 or {var1} empty");
   var values = {};
-  assert.equal(runner.run(values), true, "empty should work");
+  assert.equal(runner.runValues(values), true, "empty should work");
   values = { var1: 1 };
-  assert.equal(runner.run(values), true, "1 < 3");
+  assert.equal(runner.runValues(values), true, "1 < 3");
   values = { var1: 5 };
-  assert.equal(runner.run(values), false, "5 > 3");
+  assert.equal(runner.runValues(values), false, "5 > 3");
 });
 
 QUnit.test("Check non equal, #377", function(assert) {
   var runner = new ConditionRunner("{var1} != 3");
   var values = {};
-  assert.equal(runner.run(values), true, "empty should give true");
+  assert.equal(runner.runValues(values), true, "empty should give true");
   values = { var1: 1 };
-  assert.equal(runner.run(values), true, "1 != 3");
+  assert.equal(runner.runValues(values), true, "1 != 3");
   values = { var1: 3 };
-  assert.equal(runner.run(values), false, "3 == 3");
+  assert.equal(runner.runValues(values), false, "3 == 3");
 });
 
 QUnit.test("Condition check for undefined #518", function(assert) {
   var runner = new ConditionRunner("{var1} == undefined");
   var values = {};
-  assert.equal(runner.run(values), true, "undefined should work");
+  assert.equal(runner.runValues(values), true, "undefined should work");
   values = { var1: undefined };
-  assert.equal(runner.run(values), true, "undefined should work");
+  assert.equal(runner.runValues(values), true, "undefined should work");
   values = { var1: "a" };
-  assert.equal(runner.run(values), false, "string is not undefined");
+  assert.equal(runner.runValues(values), false, "string is not undefined");
 
   runner = new ConditionRunner("{var1} != undefined");
   values = {};
-  assert.equal(runner.run(values), false, "undefined should work");
+  assert.equal(runner.runValues(values), false, "undefined should work");
   values = { var1: undefined };
-  assert.equal(runner.run(values), false, "undefined should work");
+  assert.equal(runner.runValues(values), false, "undefined should work");
   values = { var1: "a" };
-  assert.equal(runner.run(values), true, "string is not undefined");
+  assert.equal(runner.runValues(values), true, "string is not undefined");
 });
 QUnit.test("Run count function with arrays", function(assert) {
   var runner = new ExpressionRunner("count({var1})");
   var values = { var1: [2, 5], var2: 3 };
-  assert.equal(runner.run(values), 2, "two rows");
+  assert.equal(runner.runValues(values), 2, "two rows");
 });
 
 QUnit.test("Run sum function", function(assert) {
   var runner = new ExpressionRunner("sum({var1},{var2},{var3},{var4})");
   var values = { var1: 2, var2: 3, var3: 4, var4: 5 };
-  assert.equal(runner.run(values), 14, "2 + 3 + 4 + 5 == 14");
+  assert.equal(runner.runValues(values), 14, "2 + 3 + 4 + 5 == 14");
   values.var1 = 1;
-  assert.equal(runner.run(values), 13, "1 + 3 + 4 + 5 == 13");
+  assert.equal(runner.runValues(values), 13, "1 + 3 + 4 + 5 == 13");
 });
 
 QUnit.test("Run sum function with arrays, Bug #1808", function(assert) {
   var runner = new ExpressionRunner("sum({var1},{var2})");
   var values = { var1: [2, 5], var2: 3 };
-  assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
+  assert.equal(runner.runValues(values), 10, "2 + 5 + 3 == 10");
 });
 QUnit.test(
   "Run sum function with arrays, convert values from string to value",
   function(assert) {
     var runner = new ExpressionRunner("sum({var1},{var2})");
     var values = { var1: ["2", "5"], var2: 3 };
-    assert.equal(runner.run(values), 10, "2 + 5 + 3 == 10");
+    assert.equal(runner.runValues(values), 10, "2 + 5 + 3 == 10");
   }
 );
 
 QUnit.test("Run min function", function(assert) {
   var runner = new ExpressionRunner("min({var1},{var2})");
   var values = { var1: [4, 2, 5], var2: 3 };
-  assert.equal(runner.run(values), 2, "4, 2, 5, 3, min is 2");
+  assert.equal(runner.runValues(values), 2, "4, 2, 5, 3, min is 2");
 });
 
 QUnit.test("Run max function", function(assert) {
   var runner = new ExpressionRunner("max({var1},{var2})");
   var values = { var1: [4, 2, 5, 3], var2: 3 };
-  assert.equal(runner.run(values), 5, "4, 2, 5, 3, max is 5");
+  assert.equal(runner.runValues(values), 5, "4, 2, 5, 3, max is 5");
 });
 
 QUnit.test("Run min/max functions with zeros, Bug #2229", function(assert) {
   var runner = new ExpressionRunner("min({var1},{var2})");
   var values = { var1: 0, var2: 3 };
-  assert.equal(runner.run(values), 0, "0, 3, min is 0");
+  assert.equal(runner.runValues(values), 0, "0, 3, min is 0");
   runner = new ExpressionRunner("max({var1},{var2})");
   values = { var1: 0, var2: -3 };
-  assert.equal(runner.run(values), 0, "0, -3, max is 0");
+  assert.equal(runner.runValues(values), 0, "0, -3, max is 0");
 });
 QUnit.test("Run round() function without precision", function(assert) {
   const runner = new ExpressionRunner("round({num})");
   var values = { num: 0.5 };
-  assert.equal(runner.run(values), 1, "0.5 is rounded to 1");
+  assert.equal(runner.runValues(values), 1, "0.5 is rounded to 1");
   values = { num: -0.5 };
-  assert.equal(runner.run(values), -1, "-0.5 is rounded to -1");
+  assert.equal(runner.runValues(values), -1, "-0.5 is rounded to -1");
   (<any>values).num = "0.5";
-  assert.deepEqual(runner.run(values), 1, "A string value \"0.5\" is rounded to a numeric value 1");
+  assert.deepEqual(runner.runValues(values), 1, "A string value \"0.5\" is rounded to a numeric value 1");
   (<any>values).num = "-0.5";
-  assert.deepEqual(runner.run(values), -1, "A string value \"-0.5\" is rounded to a numeric value -1");
+  assert.deepEqual(runner.runValues(values), -1, "A string value \"-0.5\" is rounded to a numeric value -1");
   (<any>values).num = undefined;
-  assert.deepEqual(runner.run(values), NaN, "The value passed to the round() function is not a number");
+  assert.deepEqual(runner.runValues(values), NaN, "The value passed to the round() function is not a number");
 });
 QUnit.test("Run round() function with precision", function(assert) {
   const runner = new ExpressionRunner("round({num}, {precision})");
   var values = { num: 1.005, precision: 2 };
-  assert.equal(runner.run(values), 1.01, "1.005 is rounded to 1.01");
+  assert.equal(runner.runValues(values), 1.01, "1.005 is rounded to 1.01");
   values = { num: 2.175, precision: 2 };
-  assert.equal(runner.run(values), 2.18, "2.175 is rounded to 2.18");
+  assert.equal(runner.runValues(values), 2.18, "2.175 is rounded to 2.18");
   values = { num: 5.015, precision: 2 };
-  assert.equal(runner.run(values), 5.02, "5.015 is rounded to 5.02");
+  assert.equal(runner.runValues(values), 5.02, "5.015 is rounded to 5.02");
   values = { num: 1, precision: 2 };
-  assert.equal(runner.run(values), 1, "1 is rounded to 1 with precision of 2");
+  assert.equal(runner.runValues(values), 1, "1 is rounded to 1 with precision of 2");
   values = { num: -1.005, precision: 2 };
-  assert.equal(runner.run(values), -1.01, "-1.005 is rounded to -1.01");
+  assert.equal(runner.runValues(values), -1.01, "-1.005 is rounded to -1.01");
   values = { num: -2.175, precision: 2 };
-  assert.equal(runner.run(values), -2.18, "-2.175 is rounded to -2.18");
+  assert.equal(runner.runValues(values), -2.18, "-2.175 is rounded to -2.18");
   values = { num: -5.015, precision: 2 };
-  assert.equal(runner.run(values), -5.02, "-5.015 is rounded to -5.02");
+  assert.equal(runner.runValues(values), -5.02, "-5.015 is rounded to -5.02");
   values = { num: -1, precision: 2 };
-  assert.equal(runner.run(values), -1, "-1 is rounded to -1 with precision of 2");
+  assert.equal(runner.runValues(values), -1, "-1 is rounded to -1 with precision of 2");
   (<any>values).precision = "test";
-  assert.deepEqual(runner.run(values), NaN, "The precision value passed to the round() function is not a number");
+  assert.deepEqual(runner.runValues(values), NaN, "The precision value passed to the round() function is not a number");
 });
 QUnit.test("Run trunc() function without precision", function(assert) {
   const runner = new ExpressionRunner("trunc({num})");
   var values = { num: 1.5 };
-  assert.equal(runner.run(values), 1, "1.5 is truncated to 1");
+  assert.equal(runner.runValues(values), 1, "1.5 is truncated to 1");
   values = { num: -1.5 };
-  assert.equal(runner.run(values), -1, "-1.5 is truncated to -1");
+  assert.equal(runner.runValues(values), -1, "-1.5 is truncated to -1");
   values = { num: -0.5 };
-  assert.equal(runner.run(values), 0, "-0.5 is truncated to 0");
+  assert.equal(runner.runValues(values), 0, "-0.5 is truncated to 0");
   (<any>values).num = "-0.5";
-  assert.deepEqual(runner.run(values), 0, "A string value \"-0.5\" is truncated to a numeric value 0");
+  assert.deepEqual(runner.runValues(values), 0, "A string value \"-0.5\" is truncated to a numeric value 0");
   (<any>values).num = undefined;
-  assert.deepEqual(runner.run(values), NaN, "The value passed to the trunc() function is not a number");
+  assert.deepEqual(runner.runValues(values), NaN, "The value passed to the trunc() function is not a number");
 });
 QUnit.test("Run trunc() function with precision", function(assert) {
   const runner = new ExpressionRunner("trunc({num}, {precision})");
   var values = { num: 1.005, precision: 2 };
-  assert.equal(runner.run(values), 1, "1.005 is truncated to 1 with precision of 2");
+  assert.equal(runner.runValues(values), 1, "1.005 is truncated to 1 with precision of 2");
   values = { num: 2.175, precision: 1 };
-  assert.equal(runner.run(values), 2.1, "2.175 is truncated to 2.1 with precision of 1");
+  assert.equal(runner.runValues(values), 2.1, "2.175 is truncated to 2.1 with precision of 1");
   values = { num: 5.015, precision: 2 };
-  assert.equal(runner.run(values), 5.01, "5.015 is truncated to 5.01 with precision of 2");
+  assert.equal(runner.runValues(values), 5.01, "5.015 is truncated to 5.01 with precision of 2");
   values = { num: -1.005, precision: 2 };
-  assert.equal(runner.run(values), -1, "-1.005 is truncated to -1 with precision of 2");
+  assert.equal(runner.runValues(values), -1, "-1.005 is truncated to -1 with precision of 2");
   values = { num: -2.175, precision: 1 };
-  assert.equal(runner.run(values), -2.1, "-2.175 is truncated to -2.1 with precision of 1");
+  assert.equal(runner.runValues(values), -2.1, "-2.175 is truncated to -2.1 with precision of 1");
   values = { num: -5.015, precision: 2 };
-  assert.equal(runner.run(values), -5.01, "-5.015 is truncated to -5.01 with precision of 2");
+  assert.equal(runner.runValues(values), -5.01, "-5.015 is truncated to -5.01 with precision of 2");
   (<any>values).precision = "test";
-  assert.deepEqual(runner.run(values), NaN, "The precision value passed to the truncated() function is not a number");
+  assert.deepEqual(runner.runValues(values), NaN, "The precision value passed to the truncated() function is not a number");
 });
 QUnit.test("Run age function", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var values = { bithday: new Date(1974, 1, 1) };
-  assert.equal(runner.run(values), true, "true, bithday of 1974 >= 21");
+  assert.equal(runner.runValues(values), true, "true, bithday of 1974 >= 21");
   var curDate = new Date(Date.now());
   values.bithday = new Date(curDate.getFullYear() - 10, 1, 1);
-  assert.equal(runner.run(values), false, "false, the person is 10 years old");
+  assert.equal(runner.runValues(values), false, "false, the person is 10 years old");
 });
 QUnit.test("Run age function, Bug#2562", function(assert) {
   var runner = new ExpressionRunner("age({birthday})");
@@ -395,41 +395,41 @@ QUnit.test("Run age function, Bug#2562", function(assert) {
   var date = new Date(Date.now());
   date.setFullYear(date.getFullYear() - 80);
   values = { birthday: date };
-  assert.equal(runner.run(values), 80, "80 years old, bithday is today");
+  assert.equal(runner.runValues(values), 80, "80 years old, bithday is today");
   date = new Date(date.getTime() + 60 * 60 * 24 * 1000);
   values.birthday = date;
-  assert.equal(runner.run(values), 79, "one day till 80");
+  assert.equal(runner.runValues(values), 79, "one day till 80");
 });
 QUnit.test("Run dateDiff by years function", function(assert) {
   const runner = new ExpressionRunner("dateDiff({birthday}, {currentDate}, 'years')");
   const values = { birthday: new Date(1974, 10, 10), currentDate: new Date(2014, 11, 11) };
-  assert.equal(runner.run(values), 40, "Use the second parameter");
+  assert.equal(runner.runValues(values), 40, "Use the second parameter");
 });
 QUnit.test("Run age by months function", function(assert) {
   const runner = new ExpressionRunner("age({birthday}, 'months')");
   var date = new Date(Date.now());
   date.setFullYear(date.getFullYear() - 10);
   const values = { birthday: date };
-  assert.equal(runner.run(values), 10 * 12, "10 years old, bithday is today");
+  assert.equal(runner.runValues(values), 10 * 12, "10 years old, bithday is today");
   date = new Date(date.getTime() + 60 * 60 * 24 * 1000);
   values.birthday = date;
-  assert.equal(runner.run(values), 9 * 12 + 11, "9 years + 11 months");
+  assert.equal(runner.runValues(values), 9 * 12 + 11, "9 years + 11 months");
 });
 QUnit.test("Run dateDiff by months", function(assert) {
   const runner = new ExpressionRunner("dateDiff({birthday}, {currentDate}, 'months')");
   const values = { birthday: new Date(2012, 10, 10), currentDate: new Date(2014, 11, 11) };
-  assert.equal(runner.run(values), 2 * 12 + 1, "Use the second parameter, #1");
+  assert.equal(runner.runValues(values), 2 * 12 + 1, "Use the second parameter, #1");
   values.currentDate = new Date(2014, 11, 9);
-  assert.equal(runner.run(values), 2 * 12, "Use the second parameter, #2");
+  assert.equal(runner.runValues(values), 2 * 12, "Use the second parameter, #2");
 });
 QUnit.test("Run dateDiff by days", function(assert) {
   var runner = new ExpressionRunner("dateDiff({d1}, {d2})");
   var d1 = new Date("2021-01-01");
   var d2 = new Date("2021-02-02");
   const values = { d1: d1, d2: d2 };
-  assert.equal(runner.run(values), 32, "32 days");
+  assert.equal(runner.runValues(values), 32, "32 days");
   (<any>values).d1 = undefined;
-  assert.equal(runner.run(values), null, "a value is undefined");
+  assert.equal(runner.runValues(values), null, "a value is undefined");
 });
 QUnit.test("Run dateDiff by hours", function(assert) {
   const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'hours')");
@@ -438,9 +438,9 @@ QUnit.test("Run dateDiff by hours", function(assert) {
   d1.setHours(1, 0, 0, 0);
   d2.setHours(12, 0, 0, 0);
   const values = { d1: d1, d2: d2 };
-  assert.equal(runner.run(values), 24 + 11, "35 hours");
+  assert.equal(runner.runValues(values), 24 + 11, "35 hours");
   (<any>values).d1 = undefined;
-  assert.equal(runner.run(values), null, "a value is undefined");
+  assert.equal(runner.runValues(values), null, "a value is undefined");
 });
 QUnit.test("Run dateDiff by minutes", function(assert) {
   const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'minutes')");
@@ -449,49 +449,49 @@ QUnit.test("Run dateDiff by minutes", function(assert) {
   d1.setHours(1, 10, 0, 0);
   d2.setHours(12, 25, 0, 0);
   const values = { d1: d1, d2: d2 };
-  assert.equal(runner.run(values), (24 + 11) * 60 + 15, "hours");
+  assert.equal(runner.runValues(values), (24 + 11) * 60 + 15, "hours");
   (<any>values).d1 = undefined;
-  assert.equal(runner.run(values), null, "a value is undefined");
+  assert.equal(runner.runValues(values), null, "a value is undefined");
 });
 QUnit.test("Run dateAdd() for days", function(assert) {
   const d1 = new Date("2021-01-01");
   const values = { d1: d1 };
   var runner = new ExpressionRunner("dateAdd({d1}, 32)");
-  assert.deepEqual(runner.run(values), new Date("2021-02-02"), "February 2, 2021");
+  assert.deepEqual(runner.runValues(values), new Date("2021-02-02"), "February 2, 2021");
   runner = new ExpressionRunner("dateAdd({d1}, -10)");
-  assert.deepEqual(runner.run(values), new Date("2020-12-22"), "December 22, 2020");
+  assert.deepEqual(runner.runValues(values), new Date("2020-12-22"), "December 22, 2020");
   (<any>values).d1 = undefined;
-  assert.equal(runner.run(values), null, "a value is undefined");
+  assert.equal(runner.runValues(values), null, "a value is undefined");
 });
 QUnit.test("Run dateAdd() for months", function(assert) {
   const d1 = new Date("2021-01-01");
   const values = { d1: d1 };
   var runner = new ExpressionRunner("dateAdd({d1}, 13, 'months')");
-  assert.deepEqual(runner.run(values), new Date("2022-02-01"), "February 1, 2022");
+  assert.deepEqual(runner.runValues(values), new Date("2022-02-01"), "February 1, 2022");
   runner = new ExpressionRunner("dateAdd({d1}, -2, 'months')");
-  assert.deepEqual(runner.run(values), new Date("2020-11-01"), "November 1, 2020");
+  assert.deepEqual(runner.runValues(values), new Date("2020-11-01"), "November 1, 2020");
   (<any>values).d1 = undefined;
-  assert.equal(runner.run(values), null, "a value is undefined");
+  assert.equal(runner.runValues(values), null, "a value is undefined");
 });
 QUnit.test("Run dateAdd() for years", function(assert) {
   const d1 = new Date("2020-02-29");
   const values = { d1: d1 };
   var runner = new ExpressionRunner("dateAdd({d1}, 2, 'years')");
-  assert.deepEqual(runner.run(values), new Date("2022-03-01"), "March 1, 2022");
+  assert.deepEqual(runner.runValues(values), new Date("2022-03-01"), "March 1, 2022");
   runner = new ExpressionRunner("dateAdd({d1}, -2, 'years')");
-  assert.deepEqual(runner.run(values), new Date("2018-03-01"), "March 1, 2018");
+  assert.deepEqual(runner.runValues(values), new Date("2018-03-01"), "March 1, 2018");
   (<any>values).d1 = undefined;
-  assert.equal(runner.run(values), null, "a value is undefined");
+  assert.equal(runner.runValues(values), null, "a value is undefined");
 });
 QUnit.test("Run getYear() function", function(assert) {
   var runner = new ExpressionRunner("getYear({birthday})");
   var values = { birthday: new Date(1974, 1, 1) };
-  assert.equal(runner.run(values), 1974);
+  assert.equal(runner.runValues(values), 1974);
 });
 
 QUnit.test("Run currentYear() function", function(assert) {
   var runner = new ExpressionRunner("currentYear()");
-  assert.equal(runner.run({}), new Date().getFullYear());
+  assert.equal(runner.runValues({}), new Date().getFullYear());
 });
 function getDateStr(date: Date): string {
   return Helpers.convertDateToString(date);
@@ -501,7 +501,7 @@ QUnit.test("Run today function", function(assert) {
   const date = new Date();
   date.setHours(0, 0, 0, 0);
   var todayStr = getDateStr(date).slice(0, 10);
-  const runVal = runner.run({});
+  const runVal = runner.runValues({});
   assert.equal(getDateStr(runVal), todayStr, "check today");
 });
 
@@ -516,34 +516,34 @@ QUnit.test("Compare date with today", function(assert) {
   tomorrow.setHours(0, 0, 0, 0);
   var condition = new ConditionRunner("{d} < today()");
   const val = { d: yearsterDay };
-  assert.equal(condition.run(val), true, "yesterday < today");
+  assert.equal(condition.runValues(val), true, "yesterday < today");
   val.d = todayDate;
-  assert.equal(condition.run(val), false, "todayDate < today");
-  assert.equal(condition.run(val), false, "tomorrow < today");
+  assert.equal(condition.runValues(val), false, "todayDate < today");
+  assert.equal(condition.runValues(val), false, "tomorrow < today");
 
   condition = new ConditionRunner("{d} <= today()");
   val.d = yearsterDay;
-  assert.equal(condition.run(val), true, "yesterday <= today");
+  assert.equal(condition.runValues(val), true, "yesterday <= today");
   val.d = todayDate;
-  assert.equal(condition.run(val), true, "todayDate <= today");
+  assert.equal(condition.runValues(val), true, "todayDate <= today");
   val.d = tomorrow;
-  assert.equal(condition.run(val), false, "tomorrow <= today");
+  assert.equal(condition.runValues(val), false, "tomorrow <= today");
 
   condition = new ConditionRunner("{d} >= today()");
   val.d = yearsterDay;
-  assert.equal(condition.run(val), false, "yesterday >= today");
+  assert.equal(condition.runValues(val), false, "yesterday >= today");
   val.d = todayDate;
-  assert.equal(condition.run(val), true, "todayDate >= today");
+  assert.equal(condition.runValues(val), true, "todayDate >= today");
   val.d = tomorrow;
-  assert.equal(condition.run(val), true, "tomorrow >= today");
+  assert.equal(condition.runValues(val), true, "tomorrow >= today");
 
   condition = new ConditionRunner("{d} > today()");
   val.d = yearsterDay;
-  assert.equal(condition.run(val), false, "yesterday > today");
+  assert.equal(condition.runValues(val), false, "yesterday > today");
   val.d = todayDate;
-  assert.equal(condition.run(val), false, "todayDate > today");
+  assert.equal(condition.runValues(val), false, "todayDate > today");
   val.d = tomorrow;
-  assert.equal(condition.run(val), true, "tomorrow > today");
+  assert.equal(condition.runValues(val), true, "tomorrow > today");
 });
 
 QUnit.test("Compare date with today, settings.useLocalTimeZone = false", function(assert) {
@@ -558,34 +558,34 @@ QUnit.test("Compare date with today, settings.useLocalTimeZone = false", functio
   tomorrow.setUTCHours(0, 0, 0, 0);
   var condition = new ConditionRunner("{d} < today()");
   const val = { d: yearsterDay };
-  assert.equal(condition.run(val), true, "yesterday < today");
+  assert.equal(condition.runValues(val), true, "yesterday < today");
   val.d = todayDate;
-  assert.equal(condition.run(val), false, "todayDate < today");
-  assert.equal(condition.run(val), false, "tomorrow < today");
+  assert.equal(condition.runValues(val), false, "todayDate < today");
+  assert.equal(condition.runValues(val), false, "tomorrow < today");
 
   condition = new ConditionRunner("{d} <= today()");
   val.d = yearsterDay;
-  assert.equal(condition.run(val), true, "yesterday <= today");
+  assert.equal(condition.runValues(val), true, "yesterday <= today");
   val.d = todayDate;
-  assert.equal(condition.run(val), true, "todayDate <= today");
+  assert.equal(condition.runValues(val), true, "todayDate <= today");
   val.d = tomorrow;
-  assert.equal(condition.run(val), false, "tomorrow <= today");
+  assert.equal(condition.runValues(val), false, "tomorrow <= today");
 
   condition = new ConditionRunner("{d} >= today()");
   val.d = yearsterDay;
-  assert.equal(condition.run(val), false, "yesterday >= today");
+  assert.equal(condition.runValues(val), false, "yesterday >= today");
   val.d = todayDate;
-  assert.equal(condition.run(val), true, "todayDate >= today");
+  assert.equal(condition.runValues(val), true, "todayDate >= today");
   val.d = tomorrow;
-  assert.equal(condition.run(val), true, "tomorrow >= today");
+  assert.equal(condition.runValues(val), true, "tomorrow >= today");
 
   condition = new ConditionRunner("{d} > today()");
   val.d = yearsterDay;
-  assert.equal(condition.run(val), false, "yesterday > today");
+  assert.equal(condition.runValues(val), false, "yesterday > today");
   val.d = todayDate;
-  assert.equal(condition.run(val), false, "todayDate > today");
+  assert.equal(condition.runValues(val), false, "todayDate > today");
   val.d = tomorrow;
-  assert.equal(condition.run(val), true, "tomorrow > today");
+  assert.equal(condition.runValues(val), true, "tomorrow > today");
   settings.useLocalTimeZone = true;
 });
 
@@ -593,8 +593,8 @@ QUnit.test("Run age function with empty value", function(assert) {
   var runner = new ConditionRunner("age({bithday}) >= 21");
   var runner2 = new ConditionRunner("age({bithday}) < 21");
   var values = {};
-  assert.equal(runner.run(values), false, "1. false, bithday is empty");
-  assert.equal(runner2.run(values), false, "2. false, bithday is empty");
+  assert.equal(runner.runValues(values), false, "1. false, bithday is empty");
+  assert.equal(runner2.runValues(values), false, "2. false, bithday is empty");
 });
 
 QUnit.test("Run function with properties", function(assert) {
@@ -606,48 +606,48 @@ QUnit.test("Run function with properties", function(assert) {
   var runner = new ConditionRunner("isEqual({val}) == true");
   var values = { val: 3 };
   var properties = { propValue: 3 };
-  assert.equal(runner.run(values, properties), true, "3 = 3");
+  assert.equal(runner.runValues(values, properties), true, "3 = 3");
   properties.propValue = 5;
-  assert.equal(runner.run(values, properties), false, "3 != 5");
+  assert.equal(runner.runValues(values, properties), false, "3 != 5");
   FunctionFactory.Instance.unregister("isEqual");
 });
 
 QUnit.test("Support true/false constants, #643", function(assert) {
   var runner = new ConditionRunner("true && {year} >= 21");
   var values = { year: 22 };
-  assert.equal(runner.run(values), true, "true, true && 22 >= 21");
+  assert.equal(runner.runValues(values), true, "true, true && 22 >= 21");
   values = { year: 20 };
-  assert.equal(runner.run(values), false, "false, true && 20 >= 21");
+  assert.equal(runner.runValues(values), false, "false, true && 20 >= 21");
 
   runner = new ConditionRunner("true or {year} >= 21");
   values = { year: 22 };
-  assert.equal(runner.run(values), true, "true, true or 22 >= 21");
+  assert.equal(runner.runValues(values), true, "true, true or 22 >= 21");
   values = { year: 20 };
-  assert.equal(runner.run(values), true, "true, true or 20 >= 21");
+  assert.equal(runner.runValues(values), true, "true, true or 20 >= 21");
 
   runner = new ConditionRunner("false && {year} >= 21");
   values = { year: 22 };
-  assert.equal(runner.run(values), false, "false, false && 22 >= 21");
+  assert.equal(runner.runValues(values), false, "false, false && 22 >= 21");
   values = { year: 20 };
-  assert.equal(runner.run(values), false, "false, false && 20 >= 21");
+  assert.equal(runner.runValues(values), false, "false, false && 20 >= 21");
 
   runner = new ConditionRunner("false or {year} >= 21");
   values = { year: 22 };
-  assert.equal(runner.run(values), true, "true, false or 22 >= 21");
+  assert.equal(runner.runValues(values), true, "true, false or 22 >= 21");
   values = { year: 20 };
-  assert.equal(runner.run(values), false, "false, false or 20 >= 21");
+  assert.equal(runner.runValues(values), false, "false, false or 20 >= 21");
 });
 
 QUnit.test("true/false as string, bug#729", function(assert) {
   var runner = new ConditionRunner("{isTrue} = 'true'");
   var values = { isTrue: "true" };
-  assert.equal(runner.run(values), true, "true, 'true' = 'true'");
+  assert.equal(runner.runValues(values), true, "true, 'true' = 'true'");
 });
 
 QUnit.test("true/false as constant in the left", function(assert) {
   var runner = new ConditionRunner("true = {isTrue}");
   var values = { isTrue: "false" };
-  assert.equal(runner.run(values), false, "false, true = false");
+  assert.equal(runner.runValues(values), false, "false, true = false");
 });
 
 QUnit.test("Constant string with dash (-) doens't work correctly", function(
@@ -655,22 +655,22 @@ QUnit.test("Constant string with dash (-) doens't work correctly", function(
 ) {
   var runner = new ConditionRunner("{a} = '01-01-2018'");
   var values = { a: "01-01" };
-  assert.equal(runner.run(values), false, "'01-01' = '01-01-2018'");
+  assert.equal(runner.runValues(values), false, "'01-01' = '01-01-2018'");
   values.a = "01-01-2018";
-  assert.equal(runner.run(values), true, "'01-01-2018' = '01-01-2018'");
+  assert.equal(runner.runValues(values), true, "'01-01-2018' = '01-01-2018'");
 });
 
 QUnit.test("Bug with contains, bug#781", function(assert) {
   var runner = new ConditionRunner("{ResultaatSelectie} contains '1'");
   var values = { ResultaatSelectie: ["1"] };
-  assert.equal(runner.run(values), true, "['1'] contains '1'");
+  assert.equal(runner.runValues(values), true, "['1'] contains '1'");
   values = { ResultaatSelectie: ["2"] };
-  assert.equal(runner.run(values), false, "['2'] contains '1'");
+  assert.equal(runner.runValues(values), false, "['2'] contains '1'");
 });
 
 QUnit.test("Check contains with empty array, Bug #2193", function(assert) {
   var runner = new ConditionRunner("[] contains 'C1'");
-  assert.equal(runner.run({}), false, "[] doesn't contain 'C1'");
+  assert.equal(runner.runValues({}), false, "[] doesn't contain 'C1'");
   var parser = new ConditionsParser();
   var operand = parser.parseExpression("[] contains 'C1'");
   assert.ok(operand, "The expression parse correctly");
@@ -679,26 +679,26 @@ QUnit.test("Check contains with empty array, Bug #2193", function(assert) {
 QUnit.test("contains as equal", function(assert) {
   var runner = new ConditionRunner("{val} contains 'value'");
   var values = { val: "value" };
-  assert.equal(runner.run(values), true, "'value' contains 'value'");
+  assert.equal(runner.runValues(values), true, "'value' contains 'value'");
 });
 
 QUnit.test("contains for complex object", function(assert) {
   var runner = new ConditionRunner("{val} contains {item}");
   var values = { val: [{ id: 1 }, { id: 2 }], item: { id: 1 } };
-  assert.equal(runner.run(values), true, "works with compelx object");
+  assert.equal(runner.runValues(values), true, "works with compelx object");
 });
 
 QUnit.test("0 is not an empty value", function(assert) {
   var runner = new ConditionRunner("{val} = 0");
   var values = { val: 0 };
-  assert.equal(runner.run(values), true, "0 = 0");
+  assert.equal(runner.runValues(values), true, "0 = 0");
 });
 QUnit.test(
   "0 is not an empty value (variable with complex identifier). Bug T2441 (https://surveyjs.answerdesk.io/internal/ticket/details/T2441)",
   function(assert) {
     var runner = new ConditionRunner("{complexIdentifier} = 0");
     var values = { complexIdentifier: 0 };
-    assert.equal(runner.run(values), true, "0 = 0");
+    assert.equal(runner.runValues(values), true, "0 = 0");
   }
 );
 QUnit.test("Bug with contains, support string.indexof, bug#831", function(
@@ -706,21 +706,21 @@ QUnit.test("Bug with contains, support string.indexof, bug#831", function(
 ) {
   var runner = new ConditionRunner("{str} contains '1'");
   var values = { str: "12345" };
-  assert.equal(runner.run(values), true, "'12345' contains '1'");
+  assert.equal(runner.runValues(values), true, "'12345' contains '1'");
   values = { str: "2345" };
-  assert.equal(runner.run(values), false, "'2345' contains '1'");
+  assert.equal(runner.runValues(values), false, "'2345' contains '1'");
   runner = new ConditionRunner("{str} notcontains '1'");
-  assert.equal(runner.run(values), true, "'2345' notcontains '1'");
+  assert.equal(runner.runValues(values), true, "'2345' notcontains '1'");
   values = { str: "12345" };
-  assert.equal(runner.run(values), false, "'12345' notcontains '1'");
+  assert.equal(runner.runValues(values), false, "'12345' notcontains '1'");
 });
 
 QUnit.test("Bug with contains, bug#1039", function(assert) {
   var runner = new ConditionRunner("{ValueType} contains '3b'");
   var values = { ValueType: ["3b"] };
-  assert.equal(runner.run(values), true, "['3b'] contains '3b'");
+  assert.equal(runner.runValues(values), true, "['3b'] contains '3b'");
   values = { ValueType: ["1"] };
-  assert.equal(runner.run(values), false, "['1'] contains '3b'");
+  assert.equal(runner.runValues(values), false, "['1'] contains '3b'");
 });
 
 QUnit.test("Add support for array for cotains operator, issue#1366", function(
@@ -728,98 +728,98 @@ QUnit.test("Add support for array for cotains operator, issue#1366", function(
 ) {
   var runner = new ConditionRunner("{value} contains ['a', 'b']");
   var values = { value: ["a", "b"] };
-  assert.equal(runner.run(values), true, "['a', 'b'] contains ['a', 'b']");
+  assert.equal(runner.runValues(values), true, "['a', 'b'] contains ['a', 'b']");
   values = { value: ["a", "c"] };
-  assert.equal(runner.run(values), false, "['a', 'c'] contains ['a', 'b']");
+  assert.equal(runner.runValues(values), false, "['a', 'c'] contains ['a', 'b']");
   values = { value: ["a", "b", "c"] };
-  assert.equal(runner.run(values), true, "['a', 'b', 'c'] contains ['a', 'b']");
+  assert.equal(runner.runValues(values), true, "['a', 'b', 'c'] contains ['a', 'b']");
 });
 
 QUnit.test("Escape quotes, bug#786", function(assert) {
   var runner = new ConditionRunner("{text} = 'I\\'m here'");
   var values = { text: "I'm here" };
-  assert.equal(runner.run(values), true, "text equals I'm here");
+  assert.equal(runner.runValues(values), true, "text equals I'm here");
 
   var runner = new ConditionRunner(
     "'I said: \\\"I\\'m here\\\"' contains {text}"
   );
   var values = { text: "I'm here" };
-  assert.equal(runner.run(values), true, "I said contains text");
+  assert.equal(runner.runValues(values), true, "I said contains text");
 });
 
 QUnit.test("Support equals and notequals, #781", function(assert) {
   var runner = new ConditionRunner("{a} equals 1");
   var values = { a: 1 };
-  assert.equal(runner.run(values), true, "1 equals 1");
+  assert.equal(runner.runValues(values), true, "1 equals 1");
   values = { a: 2 };
-  assert.equal(runner.run(values), false, "2 equals 1");
+  assert.equal(runner.runValues(values), false, "2 equals 1");
 });
 QUnit.test("Allow differnt symbols in variable name, bug#803", function(
   assert
 ) {
   var runner = new ConditionRunner("{complex name #$%?dd} = 1");
   var values = { "complex name #$%?dd": 1 };
-  assert.equal(runner.run(values), true, "1= 1");
+  assert.equal(runner.runValues(values), true, "1= 1");
   values = { "complex name #$%?dd": 2 };
-  assert.equal(runner.run(values), false, "2 <> 1");
+  assert.equal(runner.runValues(values), false, "2 <> 1");
 });
 
 QUnit.test("Support array", function(assert) {
   var runner = new ConditionRunner("{a} equals [1, 2]");
   var values = { a: [1, 2] };
-  assert.equal(runner.run(values), true, "[1, 2] equals [1, 2]");
+  assert.equal(runner.runValues(values), true, "[1, 2] equals [1, 2]");
   values = { a: [2] };
-  assert.equal(runner.run(values), false, "[2] equals [1, 2]");
+  assert.equal(runner.runValues(values), false, "[2] equals [1, 2]");
   values = { a: [2, 1] };
-  assert.equal(runner.run(values), true, "[2, 1] equals [1, 2]");
+  assert.equal(runner.runValues(values), true, "[2, 1] equals [1, 2]");
 });
 
 QUnit.test("ExpressionOperand: Simple expression", function(assert) {
   var runner = new ConditionRunner("{a} - 1 > 5");
   var values = { a: 7 };
-  assert.equal(runner.run(values), true, "6 > 5");
+  assert.equal(runner.runValues(values), true, "6 > 5");
   values = { a: 6 };
-  assert.equal(runner.run(values), false, "5 > 5");
+  assert.equal(runner.runValues(values), false, "5 > 5");
 });
 
 QUnit.test("ExpressionOperand: brackets", function(assert) {
   var runner = new ConditionRunner("({a} + {b}) * 2 >= 10");
   var values = { a: 1, b: 3 };
-  assert.equal(runner.run(values), false, "(1 + 3) * 2 >= 10");
+  assert.equal(runner.runValues(values), false, "(1 + 3) * 2 >= 10");
 });
 
 QUnit.test("ExpressionOperand: brackets 2", function(assert) {
   var runner = new ConditionRunner("({a} + {b} + {c}) / 3 >= 3");
   var values = { a: 1, b: 3, c: 2 };
-  assert.equal(runner.run(values), false, "(1 + 3 + 2) / 3 >= 3");
+  assert.equal(runner.runValues(values), false, "(1 + 3 + 2) / 3 >= 3");
   values.c = 5;
-  assert.equal(runner.run(values), true, "(1 + 3 + 4) / 3 >= 3");
+  assert.equal(runner.runValues(values), true, "(1 + 3 + 4) / 3 >= 3");
 });
 
 QUnit.test("ConditionRunner: (1+2)*3", function(assert) {
   var runner = new ExpressionRunner("(1+2)*3");
-  assert.equal(runner.run({}), 9, "(1+2)*3 is 9");
+  assert.equal(runner.runValues({}), 9, "(1+2)*3 is 9");
 });
 
 QUnit.test("ConditionRunner: (1+2)*(3+2) / 5", function(assert) {
   var runner = new ExpressionRunner("(1+2)*(3+2) / 5");
-  assert.equal(runner.run({}), 3, "(1+2)*(3+2) / 5 is 3");
+  assert.equal(runner.runValues({}), 3, "(1+2)*(3+2) / 5 is 3");
 });
 
 QUnit.test("ConditionRunner: 10 % 3", function(assert) {
   var runner = new ExpressionRunner("10 % 3");
-  assert.equal(runner.run({}), 1, "10 % 3 is 1");
+  assert.equal(runner.runValues({}), 1, "10 % 3 is 1");
   var condition = new ConditionRunner("({val1} + {val2}) % 2 = 0");
-  assert.equal(condition.run({ val1: 1, val2: 3 }), true, "(1+3)%2=0");
-  assert.equal(condition.run({ val1: 2, val2: 3 }), false, "(2+3)%2=0");
+  assert.equal(condition.runValues({ val1: 1, val2: 3 }), true, "(1+3)%2=0");
+  assert.equal(condition.runValues({ val1: 2, val2: 3 }), false, "(2+3)%2=0");
 });
 
 QUnit.test("ExpressionRunner: sumInArray", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
   var values = { a: [{ val1: 10 }, { val2: 10 }, { val1: 20 }] };
-  assert.equal(runner.run(values), 30, "10 + 20");
+  assert.equal(runner.runValues(values), 30, "10 + 20");
   values = { a: [{ val2: 1 }] };
-  assert.equal(runner.run(values), 0, "There is no values");
+  assert.equal(runner.runValues(values), 0, "There is no values");
 });
 
 QUnit.test("ExpressionRunner: sumInArray, for objects", function(assert) {
@@ -827,37 +827,37 @@ QUnit.test("ExpressionRunner: sumInArray, for objects", function(assert) {
   var values = {
     a: { row1: { val1: 10 }, row2: { val2: 10 }, row3: { val1: 20 } },
   };
-  assert.equal(runner.run(values), 30, "10 + 20");
+  assert.equal(runner.runValues(values), 30, "10 + 20");
 });
 QUnit.test("ExpressionRunner: sumInArray with conditional logic", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1', '{val2} > 3')");
   var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
-  assert.equal(runner.run(values), 4, "1 + 3");
+  assert.equal(runner.runValues(values), 4, "1 + 3");
 });
 QUnit.test("ExpressionRunner: sumInArray with conditional logic as operand", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1', {val2} > 3)");
   var values = { a: [{ val1: 1, val2: 4 }, { val1: 2, val2: 3 }, { val1: 3, val2: 5 }] };
-  assert.equal(runner.run(values), 4, "1 + 3");
+  assert.equal(runner.runValues(values), 4, "1 + 3");
 });
 QUnit.test("ExpressionRunner: countInArray with conditional logic & strings", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1', {val2} <> 'item1')");
   var values = { a: [{ val1: 1, val2: "item2" }, { val1: 2, val2: "item1" }, { val1: 3, val2: "item3" }] };
-  assert.equal(runner.run(values), 4, "1 + 3");
+  assert.equal(runner.runValues(values), 4, "1 + 3");
 });
 QUnit.test("ExpressionRunner: sumInArray with conditional logic & strings & for object value", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1', {val2} <> 'item1')");
   var values = { a: { row1: { val1: 1, val2: "item2" }, row2: { val1: 2, val2: "item1" }, row3: { val1: 3, val2: "item3" } } };
-  assert.equal(runner.run(values), 4, "1 + 3");
+  assert.equal(runner.runValues(values), 4, "1 + 3");
 });
 QUnit.test("ExpressionRunner: countInArray with conditional logic & strings & for object value, #1", function(assert) {
   var runner = new ExpressionRunner("countInArray({a}, 'val1', {val2} <> 'item1')");
   var values = { a: { row1: { val1: 1, val2: "item2" }, row2: { val1: 2, val2: "item1" }, row3: { val1: 3, val2: "item3" } } };
-  assert.equal(runner.run(values), 2, "1 & 3");
+  assert.equal(runner.runValues(values), 2, "1 & 3");
 });
 QUnit.test("ExpressionRunner: countInArray with conditional logic & strings & for object value, #2", function(assert) {
   var runner = new ExpressionRunner("countInArray({question1}, 'c1', {c1} notempty)");
   var values = { "question1": { "Row 1": { "c1": 3 }, "Row 2": { "c1": 2 } } };
-  assert.equal(runner.run(values), 2, "1 & 2");
+  assert.equal(runner.runValues(values), 2, "1 & 2");
 });
 QUnit.test("ExpressionRunner: UnaryOperand, Bug#10068", function(assert) {
   const operandNotEmpty = parse("{a} notempty");
@@ -870,32 +870,32 @@ QUnit.test("ExpressionRunner: UnaryOperand, Bug#10068", function(assert) {
 QUnit.test("ExpressionRunner: countInArray", function(assert) {
   var runner = new ExpressionRunner("countInArray({a}, 'val1')");
   var values = { a: [{ val1: 10 }, { val2: 10 }, { val1: 20 }] };
-  assert.equal(runner.run(values), 2, "10 + 20");
+  assert.equal(runner.runValues(values), 2, "10 + 20");
   values = { a: [{ val2: 1 }] };
-  assert.equal(runner.run(values), 0, "There is no values");
+  assert.equal(runner.runValues(values), 0, "There is no values");
   var emptyValue = { a: {} };
-  assert.equal(runner.run(emptyValue), 0, "object is empty");
+  assert.equal(runner.runValues(emptyValue), 0, "object is empty");
 });
 QUnit.test("ExpressionRunner: countInArray, value as string", function(assert) {
   var runner = new ExpressionRunner("countInArray({a}, 'val1')");
   var values = { a: [{ val1: "abc" }, { val2: 10 }, { val1: "cde" }] };
-  assert.equal(runner.run(values), 2, "two items in array");
+  assert.equal(runner.runValues(values), 2, "two items in array");
 });
 
 QUnit.test("ConditionRunner, iif simple", function(assert) {
   var runner = new ExpressionRunner("iif({a}, 'high', 'low')");
   var values = { a: true };
-  assert.equal(runner.run(values), "high", "true");
+  assert.equal(runner.runValues(values), "high", "true");
   values.a = false;
-  assert.equal(runner.run(values), "low", "false");
+  assert.equal(runner.runValues(values), "low", "false");
 });
 
 QUnit.test("ExpressionRunner, iif with expression", function(assert) {
   var runner = new ExpressionRunner("iif({a} + {b} > 20, 'high', 'low')");
   var values = { a: 10, b: 20 };
-  assert.equal(runner.run(values), "high", "10 + 20 > 20");
+  assert.equal(runner.runValues(values), "high", "10 + 20 > 20");
   values.b = 5;
-  assert.equal(runner.run(values), "low", "10 + 5 < 20");
+  assert.equal(runner.runValues(values), "low", "10 + 5 < 20");
 });
 
 QUnit.test("ConditionRunner, iif nested using", function(assert) {
@@ -903,11 +903,11 @@ QUnit.test("ConditionRunner, iif nested using", function(assert) {
     "iif({a} + {b} > 20, 'high', iif({a} + {b} > 10, 'medium', 'low'))"
   );
   var values = { a: 10, b: 20 };
-  assert.equal(runner.run(values), "high", "10 + 20 > 20");
+  assert.equal(runner.runValues(values), "high", "10 + 20 > 20");
   values.b = 5;
-  assert.equal(runner.run(values), "medium", "10 + 5 > 10 && 10 + 5 < 20");
+  assert.equal(runner.runValues(values), "medium", "10 + 5 > 10 && 10 + 5 < 20");
   values.a = 1;
-  assert.equal(runner.run(values), "low", "1 + 5 < 10");
+  assert.equal(runner.runValues(values), "low", "1 + 5 < 10");
 });
 
 QUnit.test("ConditionRunner, iif nested using 2", function(assert) {
@@ -915,11 +915,11 @@ QUnit.test("ConditionRunner, iif nested using 2", function(assert) {
     "iif(({a} + {b}) > 20, ({a} * 5 + {b}), iif({a} + {b} > 10, 5*({a}+ {b}), {a}))"
   );
   var values = { a: 10, b: 20 };
-  assert.equal(runner.run(values), 10 * 5 + 20, "10 + 20 > 20");
+  assert.equal(runner.runValues(values), 10 * 5 + 20, "10 + 20 > 20");
   values.b = 5;
-  assert.equal(runner.run(values), 5 * (10 + 5), "10 + 5 > 10 && 10 + 5 < 20");
+  assert.equal(runner.runValues(values), 5 * (10 + 5), "10 + 5 > 10 && 10 + 5 < 20");
   values.a = 1;
-  assert.equal(runner.run(values), 1, "1 + 5 < 10");
+  assert.equal(runner.runValues(values), 1, "1 + 5 < 10");
 });
 
 QUnit.test("ConditionRunner, iif with empty parameter, Bug#2732", function(
@@ -927,9 +927,9 @@ QUnit.test("ConditionRunner, iif with empty parameter, Bug#2732", function(
 ) {
   var runner = new ExpressionRunner("iif({a}, 'yes', '')");
   var values = { a: true };
-  assert.equal(runner.run(values), "yes", "true");
+  assert.equal(runner.runValues(values), "yes", "true");
   values.a = false;
-  assert.equal(runner.run(values), "", "false");
+  assert.equal(runner.runValues(values), "", "false");
 });
 
 QUnit.test("parse iif with empty parameter, Bug#2732", function(assert) {
@@ -957,7 +957,7 @@ QUnit.test(
       RATES_SEXUAL_MOL_END_SD: 3,
     };
     assert.equal(
-      runner.run(values),
+      runner.runValues(values),
       1 + 2 + 3 + 1,
       "the first condition is calling"
     );
@@ -968,75 +968,71 @@ QUnit.test(
 QUnit.test("ConditionRunner, ^ operator", function(assert) {
   var runner = new ExpressionRunner("{a} ^ 3 + {b} ^ 0.5");
   var values = { a: 10, b: 400 };
-  assert.equal(runner.run(values), 1020, "10^3 + 400^0.5 = 1000 + 20");
+  assert.equal(runner.runValues(values), 1020, "10^3 + 400^0.5 = 1000 + 20");
 });
 
 QUnit.test("Variable may have '-' and '+' in their names", function(assert) {
   var runner = new ConditionRunner("{2-3+4} = 1");
   var values = { "2-3+4": 1 };
-  assert.equal(runner.run(values), true, "1 = 1");
+  assert.equal(runner.runValues(values), true, "1 = 1");
   values = { "2-3+4": 2 };
-  assert.equal(runner.run(values), false, "2 != 1");
+  assert.equal(runner.runValues(values), false, "2 != 1");
 });
 
 QUnit.test("Variable equals 0x1 works incorrectly, Bug#1180", function(assert) {
   var runner = new ConditionRunner("{val} notempty");
   var values = { val: "0x1" };
-  assert.equal(runner.run(values), true, "0x1 is not empty");
+  assert.equal(runner.runValues(values), true, "0x1 is not empty");
 
   runner = new ConditionRunner("{val} = 2");
   values = { val: "0x1" };
-  assert.equal(runner.run(values), false, "0x1 is not 2");
+  assert.equal(runner.runValues(values), false, "0x1 is not 2");
   values = { val: "0x2" };
-  assert.equal(runner.run(values), true, "0x2 is not 2");
+  assert.equal(runner.runValues(values), true, "0x2 is not 2");
 });
 
 QUnit.test("notempty with 0 and false, bug#1792", function(assert) {
   var runner = new ConditionRunner("{val} notempty");
   var values: any = { val: 0 };
-  assert.equal(runner.run(values), true, "0 is not empty");
+  assert.equal(runner.runValues(values), true, "0 is not empty");
   values.val = "0";
-  assert.equal(runner.run(values), true, "'0' is not empty");
+  assert.equal(runner.runValues(values), true, "'0' is not empty");
   values.val = false;
-  assert.equal(runner.run(values), true, "false is not empty");
+  assert.equal(runner.runValues(values), true, "false is not empty");
 });
 
 QUnit.test("contain and noncontain for null arrays", function(assert) {
   var runner = new ConditionRunner("{val} contain 1");
   var values = {};
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     false,
     "undefined doesn't contain 1 - false"
   );
   runner = new ConditionRunner("{val} notcontain 1");
   values = {};
-  assert.equal(runner.run(values), true, "undefined doesn't contain 1 - true");
+  assert.equal(runner.runValues(values), true, "undefined doesn't contain 1 - true");
 });
 
-QUnit.test("length for undefined arrays", function(assert) {
+QUnit.test("length for defined arrays", (assert) => {
   var runner = new ConditionRunner("{val.length} > 1");
-  assert.equal(runner.run({ val: [] }), false, "empty array length returns 0");
-  assert.equal(runner.run({ val: [1] }), false, "array length returns 1");
-  assert.equal(runner.run({ val: [1, 2] }), true, "array length returns 2");
-  assert.equal(runner.run({ val: [1, 2, 3] }), true, "array length returns 3");
+  assert.equal(runner.runValues({ val: [] }), false, "empty array length returns 0");
+  assert.equal(runner.runValues({ val: [1] }), false, "array length returns 1");
+  assert.equal(runner.runValues({ val: [1, 2] }), true, "array length returns 2");
+  assert.equal(runner.runValues({ val: [1, 2, 3] }), true, "array length returns 3");
 });
 
-QUnit.test("length for undefined arrays", function(assert) {
+QUnit.test("length for undefined arrays", (assert) => {
   var runner = new ConditionRunner("{val.length} = 0");
-  assert.equal(runner.run({ val: [] }), true, "empty array length returns 0");
-  assert.equal(runner.run({}), true, "undefined length returns 0");
-  assert.equal(
-    runner.run({ val: undefined }),
-    true,
-    "undefined length returns 0"
-  );
-  assert.equal(runner.run({ val: null }), true, "null length returns 0");
+  assert.equal(runner.runValues({ val: [] }), true, "empty array length returns 0");
+  assert.equal(runner.runValues({}), true, "undefined length returns 0");
+  assert.equal(runner.runValues({ val: undefined }), true, "undefined length returns 0");
+  assert.equal(runner.runValues({ val: null }), true, "null length returns 0");
   runner = new ConditionRunner("{val.length} < 4");
-  assert.equal(runner.run({ val: [] }), true, "empty array length < 4");
-  assert.equal(runner.run({}), true, "undefined length < 4");
-  assert.equal(runner.run({ val: undefined }), true, "undefined length  < 4");
-  assert.equal(runner.run({ val: null }), true, "null length  < 4");
+  assert.equal(runner.runValues({ val: [] }), true, "empty array length < 4");
+  assert.equal(runner.runValues({}), true, "undefined length < 4");
+  assert.equal(runner.runValues({ val: undefined }), true, "undefined length  < 4");
+  assert.equal(runner.runValues({ val: null }), true, "null length  < 4");
 });
 
 QUnit.test("length for arrays that becomes undefined, Bug#2432", function(
@@ -1045,28 +1041,28 @@ QUnit.test("length for arrays that becomes undefined, Bug#2432", function(
   var runner = new ConditionRunner("{val.length} < 3");
   var data = { val: [1, 2] };
 
-  assert.equal(runner.run(data), true, "[1,2].length < 3");
+  assert.equal(runner.runValues(data), true, "[1,2].length < 3");
   data.val = undefined;
-  assert.equal(runner.run(data), true, "undefined.length < 3");
+  assert.equal(runner.runValues(data), true, "undefined.length < 3");
 });
 
 QUnit.test("contain and noncontain for strings", function(assert) {
   var runner = new ConditionRunner("{val} contain 'ab'");
   var values = {};
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     false,
     "contains: undefined doesn't contain 'ab' - false"
   );
   values = { val: "ba" };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     false,
     "contains: 'ba' doesn't contain 'ab' - false"
   );
   values = { val: "babc" };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     true,
     "contains: 'babc' contains 'ab' - true"
   );
@@ -1074,19 +1070,19 @@ QUnit.test("contain and noncontain for strings", function(assert) {
   runner = new ConditionRunner("{val} notcontain 'ab'");
   values = {};
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     true,
     "notcontains: undefined doesn't contain 'ab' - true"
   );
   values = { val: "ba" };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     true,
     "notcontains: 'ba' doesn't contain 'ab' - true"
   );
   values = { val: "babc" };
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     false,
     "notcontains: 'babc' contains 'ab' - false"
   );
@@ -1097,7 +1093,7 @@ QUnit.test(
   function(assert) {
     var runner = new ExpressionRunner("7 * ((10 * 0.4) + (20 * 0.6))");
     assert.equal(
-      runner.run({}),
+      runner.runValues({}),
       7 * (4 + 12),
       "7 * ((10 * 0.4) + (20 * 0.6)) is 112"
     );
@@ -1107,7 +1103,7 @@ QUnit.test(
 QUnit.test("0x digits", function(assert) {
   var runner = new ExpressionRunner("0x1 + 0x2 + {x}");
   var values = { x: 0x3 };
-  assert.equal(runner.run(values), 6, "0x: 1 + 2 + 3 equal 6");
+  assert.equal(runner.runValues(values), 6, "0x: 1 + 2 + 3 equal 6");
 });
 
 QUnit.test("dont fault in invalid input", function(assert) {
@@ -1130,94 +1126,94 @@ QUnit.test("Get variables in expression", function(assert) {
 QUnit.test("Test binary operator anyof", function(assert) {
   var runner = new ConditionRunner("{value} anyof ['a', 'b']");
   var values = { value: ["a", "c"] };
-  assert.equal(runner.run(values), true, "['a', 'c'] anyof ['a', 'b']");
+  assert.equal(runner.runValues(values), true, "['a', 'c'] anyof ['a', 'b']");
   values = { value: ["a", "b"] };
-  assert.equal(runner.run(values), true, "['a', 'b'] anyof ['a', 'b']");
+  assert.equal(runner.runValues(values), true, "['a', 'b'] anyof ['a', 'b']");
   values = { value: ["c", "d"] };
-  assert.equal(runner.run(values), false, "['c', 'd'] anyof ['a', 'b']");
+  assert.equal(runner.runValues(values), false, "['c', 'd'] anyof ['a', 'b']");
   values = { value: [] };
-  assert.equal(runner.run(values), false, "[] anyof ['a', 'b']");
+  assert.equal(runner.runValues(values), false, "[] anyof ['a', 'b']");
   values = { value: null };
-  assert.equal(runner.run(values), false, "null anyof ['a', 'b']");
+  assert.equal(runner.runValues(values), false, "null anyof ['a', 'b']");
 });
 QUnit.test("Test binary operator anyof with 0", function(assert) {
   var runner = new ConditionRunner("{value} anyof [7, 3, 0]");
   var values = { value: 3 };
-  assert.equal(runner.run(values), true, "3 anyof [7, 3, 0]");
+  assert.equal(runner.runValues(values), true, "3 anyof [7, 3, 0]");
   values.value = 0;
-  assert.equal(runner.run(values), true, "0 anyof [7, 3, 0]");
+  assert.equal(runner.runValues(values), true, "0 anyof [7, 3, 0]");
   values.value = 1;
-  assert.equal(runner.run(values), false, "1 anyof [7, 3, 0]");
+  assert.equal(runner.runValues(values), false, "1 anyof [7, 3, 0]");
 });
 QUnit.test("Test operator anyof for non-array var", function(assert) {
   var runner = new ConditionRunner("{value} anyof ['a', 'b', 'c']");
   var values = { value: "a" };
-  assert.equal(runner.run(values), true, "'a' anyof ['a', 'b', 'c']");
+  assert.equal(runner.runValues(values), true, "'a' anyof ['a', 'b', 'c']");
   values.value = "e";
-  assert.equal(runner.run(values), false, "'e' anyof ['a', 'b', 'c']");
+  assert.equal(runner.runValues(values), false, "'e' anyof ['a', 'b', 'c']");
 });
 QUnit.test("Test binary operator allof", function(assert) {
   var runner = new ConditionRunner("{value} allof ['a', 'b']");
   var values = { value: ["a", "c"] };
-  assert.equal(runner.run(values), false, "['a', 'c'] allof ['a', 'b']");
+  assert.equal(runner.runValues(values), false, "['a', 'c'] allof ['a', 'b']");
   values = { value: ["a", "b", "c"] };
-  assert.equal(runner.run(values), true, "['a', 'b', 'c'] allof ['a', 'b']");
+  assert.equal(runner.runValues(values), true, "['a', 'b', 'c'] allof ['a', 'b']");
   values = { value: ["c", "d"] };
-  assert.equal(runner.run(values), false, "['c', 'd'] allof ['a', 'b']");
+  assert.equal(runner.runValues(values), false, "['c', 'd'] allof ['a', 'b']");
 });
 
 QUnit.test("Compare object with string", function(assert) {
   var runner = new ConditionRunner("{value} = '1'");
   var values: any = { value: 1 };
-  assert.equal(runner.run(values), true, "1 = '1'");
+  assert.equal(runner.runValues(values), true, "1 = '1'");
 });
 
 QUnit.test("Compare undefined object with string", function(assert) {
   var runner = new ConditionRunner("{value} = 'undefined'");
   var values: any = {};
-  assert.equal(runner.run(values), true, "undefined = 'undefined'");
+  assert.equal(runner.runValues(values), true, "undefined = 'undefined'");
 });
 
 QUnit.test("Compare two undefined variables", function(assert) {
   var values: any = { v1: undefined, v2: undefined };
   assert.equal(
-    new ConditionRunner("{v1} = {v2}").run(values),
+    new ConditionRunner("{v1} = {v2}").runValues(values),
     true,
     "undefined = undefined"
   );
   assert.equal(
-    new ConditionRunner("{v1} != {v2}").run(values),
+    new ConditionRunner("{v1} != {v2}").runValues(values),
     false,
     "undefined != undefined"
   );
   assert.equal(
-    new ConditionRunner("{v1} <= {v2}").run(values),
+    new ConditionRunner("{v1} <= {v2}").runValues(values),
     true,
     "undefined <= undefined"
   );
   assert.equal(
-    new ConditionRunner("{v1} >= {v2}").run(values),
+    new ConditionRunner("{v1} >= {v2}").runValues(values),
     true,
     "undefined >= undefined"
   );
   assert.equal(
-    new ConditionRunner("{v1} < {v2}").run(values),
+    new ConditionRunner("{v1} < {v2}").runValues(values),
     false,
     "undefined < undefined"
   );
   assert.equal(
-    new ConditionRunner("{v1} > {v2}").run(values),
+    new ConditionRunner("{v1} > {v2}").runValues(values),
     false,
     "undefined > undefined"
   );
   values.v1 = 1;
   assert.equal(
-    new ConditionRunner("{v1} > {v2}").run(values),
+    new ConditionRunner("{v1} > {v2}").runValues(values),
     false,
     "1 > undefined"
   );
   assert.equal(
-    new ConditionRunner("{v1} < {v2}").run(values),
+    new ConditionRunner("{v1} < {v2}").runValues(values),
     false,
     "1 < undefined"
   );
@@ -1226,15 +1222,15 @@ QUnit.test("Compare two undefined variables", function(assert) {
 QUnit.test("Support apostrophes in value name", function(assert) {
   var runner = new ConditionRunner("{a'b\"c} = 1");
   var values: any = { "a'b\"c": 1 };
-  assert.equal(runner.run(values), true, "1 = 1");
+  assert.equal(runner.runValues(values), true, "1 = 1");
   values = { "a'b\"c": 2 };
-  assert.equal(runner.run(values), false, "2 = 1");
+  assert.equal(runner.runValues(values), false, "2 = 1");
 });
 
 QUnit.test("String as numbers", function(assert) {
   var runner = new ExpressionRunner("({a} + {b}) * {c}");
   var values: any = { a: "2", b: "3", c: "4" };
-  assert.equal(runner.run(values), 20, "convert strings to numbers");
+  assert.equal(runner.runValues(values), 20, "convert strings to numbers");
 });
 
 QUnit.test(
@@ -1242,30 +1238,30 @@ QUnit.test(
   function(assert) {
     var runner = new ConditionRunner("{a} = 'True'");
     var values: any = { a: "False" };
-    assert.equal(runner.run(values), false, "'True' = 'False'");
+    assert.equal(runner.runValues(values), false, "'True' = 'False'");
     values.a = "True";
-    assert.equal(runner.run(values), true, "'True' = 'True'");
+    assert.equal(runner.runValues(values), true, "'True' = 'True'");
     values.a = false;
-    assert.equal(runner.run(values), false, "false = 'True'");
+    assert.equal(runner.runValues(values), false, "false = 'True'");
     values.a = true;
-    assert.equal(runner.run(values), true, "true = 'True'");
+    assert.equal(runner.runValues(values), true, "true = 'True'");
 
     runner = new ConditionRunner("{a} = 'False'");
     values.a = "False";
-    assert.equal(runner.run(values), true, "'False' = 'False'");
+    assert.equal(runner.runValues(values), true, "'False' = 'False'");
     values.a = "True";
-    assert.equal(runner.run(values), false, "'True' = 'False'");
+    assert.equal(runner.runValues(values), false, "'True' = 'False'");
     values.a = false;
-    assert.equal(runner.run(values), true, "'False' = false");
+    assert.equal(runner.runValues(values), true, "'False' = false");
     values.a = true;
-    assert.equal(runner.run(values), false, "'False'=true");
+    assert.equal(runner.runValues(values), false, "'False'=true");
   }
 );
 
 QUnit.test("Use dot, '.' in names", function(assert) {
   var runner = new ConditionRunner("{a.b.c.d} = 1");
   var values: any = { "a.b.c.d": 1 };
-  assert.equal(runner.run(values), true, "1 = 1");
+  assert.equal(runner.runValues(values), true, "1 = 1");
 });
 
 QUnit.test("Async function", function(assert) {
@@ -1282,10 +1278,10 @@ QUnit.test("Async function", function(assert) {
   };
   assert.equal(runner.isAsync, true, "The condition is async");
   var values = { a: 3 };
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, false, "3*3 = 15");
   values.a = 5;
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, true, "5*3 = 15");
   FunctionFactory.Instance.unregister("asyncFunc");
 });
@@ -1309,10 +1305,10 @@ QUnit.test("Async function inside the sync function, Bug#8732", function(assert)
     runnerResult = result;
   };
   var values = { a: 3 };
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, 19, "3*3 + 10");
   values.a = 5;
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, 25, "5*3 + 10");
   FunctionFactory.Instance.unregister("asyncFunc");
   FunctionFactory.Instance.unregister("syncFunc");
@@ -1337,10 +1333,10 @@ QUnit.test("Async function inside the async function, Bug#8742", function(assert
     runnerResult = result;
   };
   var values = { a: 3 };
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, 19, "3*3 + 10");
   values.a = 5;
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, 25, "5*3 + 10");
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
@@ -1383,7 +1379,7 @@ QUnit.test("Async & sync nested functions, Bug #8732 #8742", function(assert) {
   // (2) syncFunc1({b}, [1]) = 2 * 5 + 17 = 27
   // (3) syncFunc1({a}, [2]) = 1 * 5 + 27 = 32
   // (4) syncFunc2({e}, [3]) = 5 + 32 + 5 = 42
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, 57 + 42, "#1");
 
   FunctionFactory.Instance.unregister("asyncFunc1");
@@ -1405,10 +1401,10 @@ QUnit.test("Use onRunComplete for sync functions", function(assert) {
   };
   assert.equal(runner.isAsync, false, "The condition is sync");
   var values = { a: 3 };
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, false, "3*3 = 15");
   values.a = 5;
-  runner.run(values);
+  runner.runValues(values);
   assert.equal(runnerResult, true, "5*3 = 15");
   FunctionFactory.Instance.unregister("syncFunc");
 });
@@ -1448,7 +1444,7 @@ QUnit.test("Several async functions in expression", function(assert) {
   var values = { a: 3 };
   assert.equal(idBefore, -1, "idBefore #1");
   assert.equal(idAfter, -1, "idAfter #1");
-  runner.run(values);
+  runner.runValues(values);
   assert.notEqual(idBefore, -1, "idBefore #2");
   assert.equal(idAfter, -1, "idAfter #2");
   assert.equal(
@@ -1490,16 +1486,16 @@ QUnit.test("isString function", function(assert) {
   var runner = new ConditionRunner("isString({val}) == true");
   var values: any = { val: "3" };
   var properties = {};
-  assert.equal(runner.run(values, properties), false, "3 is Numeric");
+  assert.equal(runner.runValues(values, properties), false, "3 is Numeric");
   values.val = false;
-  assert.equal(runner.run(values, properties), false, "false is boolean");
+  assert.equal(runner.runValues(values, properties), false, "false is boolean");
   values.val = "abc";
-  assert.equal(runner.run(values, properties), true, "'abc' is string");
+  assert.equal(runner.runValues(values, properties), true, "'abc' is string");
   values.val = "0x2323";
-  assert.equal(runner.run(values, properties), false, "'0x2323' is number");
+  assert.equal(runner.runValues(values, properties), false, "'0x2323' is number");
   values.val = "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8";
   assert.equal(
-    runner.run(values, properties),
+    runner.runValues(values, properties),
     true,
     "'0xbe0eb53f46cd790cd13851d5eff43d12404d33e8' is string"
   );
@@ -1510,19 +1506,19 @@ QUnit.test('express with iif and "[" inside, Bug#1942', function(assert) {
   var expression = "{val1} + iif({val2} = \"item2\", \"[\" + {val1} + \"]\", \"x\")";
   var runner = new ExpressionRunner(expression);
   var values: any = { val1: "1", val2: "item2" };
-  assert.equal(runner.run(values), "1[1]", "val1 + [val1]");
+  assert.equal(runner.runValues(values), "1[1]", "val1 + [val1]");
   values.val2 = "item1";
-  assert.equal(runner.run(values), "1x", "1 + 'x'");
+  assert.equal(runner.runValues(values), "1x", "1 + 'x'");
   values.val1 = undefined;
-  assert.equal(runner.run(values), "x", "undefined + 'x'");
+  assert.equal(runner.runValues(values), "x", "undefined + 'x'");
   // prettier-ignore
   expression = "{val1} + \"x\"";
   var runner = new ExpressionRunner(expression);
-  assert.equal(runner.run(values), "x", "undefined + 'x' without iif");
+  assert.equal(runner.runValues(values), "x", "undefined + 'x' without iif");
   expression = '{val1} + "[" + {val1} + "]"';
   var runner = new ExpressionRunner(expression);
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     "[]",
     "undefined + '[' + undefined + ']' without iif"
   );
@@ -1532,20 +1528,20 @@ QUnit.test('expression with "{", Bug#2337', function(assert) {
   var expression = "{val1} + '\{ text' + '\}'";
   var runner = new ExpressionRunner(expression);
   var values: any = { val1: "1" };
-  assert.equal(runner.run(values), "1{ text}", "{");
+  assert.equal(runner.runValues(values), "1{ text}", "{");
 
   expression = "{val1} + '{ text' + '}'";
   runner = new ExpressionRunner(expression);
   var values: any = { val1: "1" };
-  assert.equal(runner.run(values), "1{ text}", "{ without escape");
+  assert.equal(runner.runValues(values), "1{ text}", "{ without escape");
 });
 QUnit.test("Disable converting string to number, #2376", function(assert) {
   var runner = new ExpressionRunner("{val1} + {val2}");
   var values: any = { val1: "1", val2: "102" };
-  assert.equal(runner.run(values), 103, "Convert strings to numbers");
+  assert.equal(runner.runValues(values), 103, "Convert strings to numbers");
 
   runner = new ExpressionRunner("{#val1} + {#val2}");
-  assert.equal(runner.run(values), "1102", "do not convert the value");
+  assert.equal(runner.runValues(values), "1102", "do not convert the value");
   let expr = new ConditionsParser().createCondition("{#val1} + {#val2}");
   assert.equal(expr.toString(), "({#val1} + {#val2})", "Do not loose '#'");
 });
@@ -1556,7 +1552,7 @@ QUnit.test("ExpressionRunner: age", function(assert) {
   d.setDate(d.getDate() - 1);
   d.setFullYear(d.getFullYear() - 10);
   var values = { d: d };
-  assert.equal(runner.run(values), 10, "10 year");
+  assert.equal(runner.runValues(values), 10, "10 year");
   /* TODO case stop worked on December 31. Do we need minus age?
   d = new Date();
   d.setDate(d.getDate() + 1);
@@ -1571,9 +1567,9 @@ QUnit.test("ExpressionRunner: diffsDays", function(assert) {
   var d1 = new Date("2021-01-01");
   var d2 = new Date("2021-02-02");
   var values = { d1: d1, d2: d2 };
-  assert.equal(runner.run(values), 32, "32 days");
+  assert.equal(runner.runValues(values), 32, "32 days");
   values.d1 = undefined;
-  assert.equal(runner.run(values), 0, "a value is undefined");
+  assert.equal(runner.runValues(values), 0, "a value is undefined");
 });
 
 QUnit.test("parse({val} == '000')", function(assert) {
@@ -1598,73 +1594,73 @@ QUnit.test("000 == '000', '00' != '000', '0' != '000', 0 != '000'", function(
 ) {
   var runner = new ConditionRunner("{val} == '000'");
   var values: any = { val: "000" };
-  assert.equal(runner.run(values), true, "000 == '000'");
+  assert.equal(runner.runValues(values), true, "000 == '000'");
   values.val = "00";
-  assert.equal(runner.run(values), false, "'00' != '000'");
+  assert.equal(runner.runValues(values), false, "'00' != '000'");
   values.val = "0";
   assert.equal(
-    runner.run(values),
+    runner.runValues(values),
     true,
     "'0' != '000', '0' and '000' converted to number"
   );
   values.val = 0;
-  assert.equal(runner.run(values), true, "0 != '000', convert '000' to number");
+  assert.equal(runner.runValues(values), true, "0 != '000', convert '000' to number");
 });
 QUnit.test("True and False as strings'", function(assert) {
   var runner = new ConditionRunner("{val} = 'TRUE'");
   var values: any = { val: "TRUE" };
-  assert.equal(runner.run(values), true, "TRUE == 'TRUE'");
+  assert.equal(runner.runValues(values), true, "TRUE == 'TRUE'");
   runner = new ConditionRunner("{val} contains 'TRU'");
-  assert.equal(runner.run(values), true, "TRUE contains TRU");
+  assert.equal(runner.runValues(values), true, "TRUE contains TRU");
   runner = new ConditionRunner("{val} contains 'FALSE'");
-  assert.equal(runner.run(values), false, "TRUE contains FALSE");
+  assert.equal(runner.runValues(values), false, "TRUE contains FALSE");
   values.val = "FALSE";
-  assert.equal(runner.run(values), true, "FALSE contains FALSE");
+  assert.equal(runner.runValues(values), true, "FALSE contains FALSE");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript multiplication", function(assert) {
   var runner = new ExpressionRunner("3 * 0.6");
-  assert.equal(runner.run({}), 1.8, "It works correctly");
+  assert.equal(runner.runValues({}), 1.8, "It works correctly");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
   var runner = new ExpressionRunner("0.3 + 0.6");
-  assert.equal(runner.run({}), 0.9, "It works correctly");
+  assert.equal(runner.runValues({}), 0.9, "It works correctly");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary", function(assert) {
   var runner = new ExpressionRunner("0.9 - 0.6");
-  assert.equal(runner.run({}), 0.3, "It works correctly");
+  assert.equal(runner.runValues({}), 0.3, "It works correctly");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in sum function", function(assert) {
   var runner = new ExpressionRunner("sum([0.3, 0.6]");
-  assert.equal(runner.run({}), 0.9, "It works correctly, sum function");
+  assert.equal(runner.runValues({}), 0.9, "It works correctly, sum function");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avg function", function(assert) {
   var runner = new ExpressionRunner("avg([0.3, 0.6]");
-  assert.equal(runner.run({}), 0.45, "It works correctly, avg function");
+  assert.equal(runner.runValues({}), 0.45, "It works correctly, avg function");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in sumInArray function", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
   var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
-  assert.equal(runner.run(values), 0.9, "It works correctly, sumInArray func");
+  assert.equal(runner.runValues(values), 0.9, "It works correctly, sumInArray func");
 });
 QUnit.test("ExpressionRunner: fix incorrect JavaScript summary in avgInArray function", function(assert) {
   var runner = new ExpressionRunner("avgInArray({a}, 'val1')");
   var values = { a: [{ val1: 0.3 }, { val2: 10 }, { val1: 0.6 }] };
-  assert.equal(runner.run(values), 0.45, "It works correctly, avgInArray func");
+  assert.equal(runner.runValues(values), 0.45, "It works correctly, avgInArray func");
 });
 QUnit.test("ExpressionRunner: sumInArray function, float and string", function(assert) {
   var runner = new ExpressionRunner("sumInArray({a}, 'val1')");
   var values = { a: [{ val1: 0.3 }, { val1: "10" }, { val1: "0.6" }, { val1: "abc" }] };
-  assert.equal(runner.run(values), 10.9, "It works correctly, sumInArray func");
+  assert.equal(runner.runValues(values), 10.9, "It works correctly, sumInArray func");
 });
 QUnit.test("ExpressionRunner: minInArray function, float and string", function(assert) {
   var runner = new ExpressionRunner("minInArray({a}, 'val1')");
   var values = { a: [{ val1: 3 }, { val1: "1" }, { val1: "abc" }] };
-  assert.equal(runner.run(values), 1, "It works correctly, minInArray func");
+  assert.equal(runner.runValues(values), 1, "It works correctly, minInArray func");
 });
 QUnit.test("ExpressionRunner: maxInArray function, float and string", function(assert) {
   var runner = new ExpressionRunner("maxInArray({a}, 'val1')");
   var values = { a: [{ val1: -3 }, { val1: "-1" }, { val1: "abc" }] };
-  assert.equal(runner.run(values), -1, "It works correctly, maxInArray func");
+  assert.equal(runner.runValues(values), -1, "It works correctly, maxInArray func");
 });
 
 QUnit.test("Operand.isEqual()", function(assert) {
@@ -1687,64 +1683,64 @@ QUnit.test("Operand.isEqual()", function(assert) {
 
 QUnit.test("Expression decimal + string", function(assert) {
   const expression = new ExpressionRunner("0.1 + 'abc'");
-  assert.equal(expression.run({}), "0.1abc");
+  assert.equal(expression.runValues({}), "0.1abc");
 });
 QUnit.test("string contancts without brackets", function(assert) {
   let expression = new ExpressionRunner("{a} = abc");
-  assert.equal(expression.run({ a: "abcd" }), false, "#1");
-  assert.equal(expression.run({ a: "abc" }), true, "#2");
+  assert.equal(expression.runValues({ a: "abcd" }), false, "#1");
+  assert.equal(expression.runValues({ a: "abc" }), true, "#2");
   expression = new ExpressionRunner("{a} = ab_cd");
-  assert.equal(expression.run({ a: "abcd" }), false, "#3");
-  assert.equal(expression.run({ a: "ab_cd" }), true, "#4");
+  assert.equal(expression.runValues({ a: "abcd" }), false, "#3");
+  assert.equal(expression.runValues({ a: "ab_cd" }), true, "#4");
 });
 QUnit.test("Expression string as ==", function(assert) {
   const node = <Const>new ConditionsParser().parseExpression("'=='");
   assert.equal(node.getType(), "const");
   assert.equal(node.correctValue, "==");
-  assert.equal(new ExpressionRunner("'=='").run({}), "==");
-  assert.equal(new ExpressionRunner("'aa' + '=='").run({}), "aa==");
+  assert.equal(new ExpressionRunner("'=='").runValues({}), "==");
+  assert.equal(new ExpressionRunner("'aa' + '=='").runValues({}), "aa==");
 });
 QUnit.test("Arrays and plus operations", function(assert) {
   const runner1 = new ExpressionRunner("{a} + {b}");
   const values1 = { a: [1, 2, 3], b: [4, 5] };
-  assert.deepEqual(runner1.run(values1), [1, 2, 3, 4, 5], "Contact arrays");
+  assert.deepEqual(runner1.runValues(values1), [1, 2, 3, 4, 5], "Contact arrays");
   const runner2 = new ExpressionRunner("{a} + ' '");
   const values2 = { a: ["a", "b", "c"] };
-  assert.equal(runner2.run(values2), "a, b, c ", "Contact strings");
+  assert.equal(runner2.runValues(values2), "a, b, c ", "Contact strings");
   const runner3 = new ExpressionRunner("{a} + 4");
   const values3 = { a: [1, 2, 3] };
-  assert.equal(runner3.run(values3), 10, "summary of numbers");
+  assert.equal(runner3.runValues(values3), 10, "summary of numbers");
   const runner4 = new ExpressionRunner("{a} + ''");
   const values4 = { a: [1, 2, 3] };
-  assert.equal(runner4.run(values4), "1, 2, 3", "summary of numbers");
+  assert.equal(runner4.runValues(values4), "1, 2, 3", "summary of numbers");
 });
 QUnit.test("today(1) <= today(10)", function(assert) {
   const runner = new ExpressionRunner("today(1) <= today(10)");
-  assert.deepEqual(runner.run({}), true, "today(1) <= today(10)");
+  assert.deepEqual(runner.runValues({}), true, "today(1) <= today(10)");
 });
 
 QUnit.test("year, month, day, weekday", function(assert) {
   let runner = new ExpressionRunner("year('2023-07-28')");
-  assert.deepEqual(runner.run({}), 2023, "year");
+  assert.deepEqual(runner.runValues({}), 2023, "year");
   runner = new ExpressionRunner("month('2023-07-28')");
-  assert.deepEqual(runner.run({}), 7, "month");
+  assert.deepEqual(runner.runValues({}), 7, "month");
   runner = new ExpressionRunner("day('2023-07-28')");
-  assert.deepEqual(runner.run({}), 28, "day");
+  assert.deepEqual(runner.runValues({}), 28, "day");
   runner = new ExpressionRunner("weekday('2023-07-28')");
-  assert.deepEqual(runner.run({}), 5, "weekday");
+  assert.deepEqual(runner.runValues({}), 5, "weekday");
   runner = new ExpressionRunner("year()");
-  assert.deepEqual(runner.run({}), new Date().getFullYear(), "current year");
+  assert.deepEqual(runner.runValues({}), new Date().getFullYear(), "current year");
   runner = new ExpressionRunner("month()");
-  assert.deepEqual(runner.run({}), new Date().getMonth() + 1, "current month");
+  assert.deepEqual(runner.runValues({}), new Date().getMonth() + 1, "current month");
   runner = new ExpressionRunner("day()");
-  assert.deepEqual(runner.run({}), new Date().getDate(), "current day");
+  assert.deepEqual(runner.runValues({}), new Date().getDate(), "current day");
   runner = new ExpressionRunner("weekday()");
-  assert.deepEqual(runner.run({}), new Date().getDay(), "current weekday");
+  assert.deepEqual(runner.runValues({}), new Date().getDay(), "current weekday");
 });
 QUnit.test("Sum two float numbers as string", function(assert) {
   let runner = new ExpressionRunner("{a} + {b}");
-  assert.equal(runner.run({ a: "1.1", b: "2.2" }), 3.3, "#1");
-  assert.equal(runner.run({ a: "0.1", b: "0.2" }), 0.3, "#2");
+  assert.equal(runner.runValues({ a: "1.1", b: "2.2" }), 3.3, "#1");
+  assert.equal(runner.runValues({ a: "0.1", b: "0.2" }), 0.3, "#2");
 });
 QUnit.test("Warn in console if the expression is invalid", function(assert) {
   const prev = ConsoleWarnings.warn;
@@ -1754,22 +1750,22 @@ QUnit.test("Warn in console if the expression is invalid", function(assert) {
   };
   const runner = new ExpressionRunner("{a} ++");
   assert.notOk(reportText);
-  runner.run({ a: 1 });
+  runner.runValues({ a: 1 });
   assert.equal(reportText, "Invalid expression: '{a} ++'.");
 
   reportText = "";
   runner.expression = "{a} + 1";
-  runner.run({ a: 1 });
+  runner.runValues({ a: 1 });
   assert.notOk(reportText);
 
   runner.expression = "tooday()";
   assert.notOk(reportText);
-  runner.run({});
+  runner.runValues({});
   assert.equal(reportText, "Unknown function name: 'tooday'.");
 
   reportText = "";
   runner.expression = "today";
-  runner.run({});
+  runner.runValues({});
   assert.notOk(reportText);
   ConsoleWarnings.warn = prev;
 });
@@ -1784,9 +1780,9 @@ QUnit.test("Custom function returns object&array, #7050", function(assert) {
   FunctionFactory.Instance.register("func2", func2);
 
   let runner = new ExpressionRunner("func1()");
-  assert.deepEqual(runner.run({}, {}), { a: 1, b: 2 }, "function returns object");
+  assert.deepEqual(runner.runValues({}, {}), { a: 1, b: 2 }, "function returns object");
   runner.expression = "func2()";
-  assert.deepEqual(runner.run({}, {}), [{ a: 1 }, { b: 2 }], "function returns array");
+  assert.deepEqual(runner.runValues({}, {}), [{ a: 1 }, { b: 2 }], "function returns array");
 
   FunctionFactory.Instance.unregister("func1");
   FunctionFactory.Instance.unregister("func2");
@@ -1794,11 +1790,11 @@ QUnit.test("Custom function returns object&array, #7050", function(assert) {
 QUnit.test("ExpressionRunner: substring", function(assert) {
   var runner = new ExpressionRunner("substring({s}, 1, 3)");
   const values: any = { s: "abcdef" };
-  assert.equal(runner.run(values), "bc", "abcdef");
+  assert.equal(runner.runValues(values), "bc", "abcdef");
   values.s = undefined;
-  assert.equal(runner.run(values), "", "undefined");
+  assert.equal(runner.runValues(values), "", "undefined");
   values.s = 10;
-  assert.equal(runner.run(values), "", "10");
+  assert.equal(runner.runValues(values), "", "10");
 });
 QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
   const newParseNumber = (stringValue: any, numericValue: number): number => {
@@ -1814,26 +1810,26 @@ QUnit.test("ExpressionRunner: apply custom converter, #8634", function(assert) {
 
   var runner = new ExpressionRunner("{a} + {b}");
   const values: any = { a: "100,000", b: "10,000" };
-  assert.equal(runner.run(values), 110000, "apply custom convertr");
+  assert.equal(runner.runValues(values), 110000, "apply custom convertr");
 
   settings.parseNumber = oldCallback;
 });
 QUnit.test("ExpressionRunner: do not convert to number extreme large strings", function(assert) {
   const runner = new ExpressionRunner("{a} + 2");
   const values: any = { a: "999999999999999" };
-  assert.strictEqual(runner.run(values), 1000000000000001, "it is a number");
+  assert.strictEqual(runner.runValues(values), 1000000000000001, "it is a number");
   values.a = "9999999999999999";
-  assert.strictEqual(runner.run(values), "99999999999999992", "it is a string");
+  assert.strictEqual(runner.runValues(values), "99999999999999992", "it is a string");
 });
 QUnit.test("No params for iif function, Bug#9674", function(assert) {
   let runner = new ExpressionRunner("iif()");
-  assert.equal(runner.run(values), null, "Empty paramsters, #1");
+  assert.equal(runner.runValues(values), null, "Empty paramsters, #1");
   runner = new ExpressionRunner("iif('')");
-  assert.equal(runner.run(values), null, "Empty paramsters, #2");
+  assert.equal(runner.runValues(values), null, "Empty paramsters, #2");
 });
 QUnit.test("No params for getDate function, Bug#9674", function(assert) {
   let runner = new ExpressionRunner("getDate()");
-  assert.equal(runner.run(values), null, "Empty paramsters, #1");
+  assert.equal(runner.runValues(values), null, "Empty paramsters, #1");
 });
 QUnit.test("Operand.addOperandsToList", function(assert) {
   let operand = new ConditionsParser().parseExpression("{a} + {b}");

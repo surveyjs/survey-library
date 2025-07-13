@@ -186,7 +186,7 @@ function convertToNumber(val: any): number {
 function processItemInArray(item: any, name: string, res: number,
   func: (res: number, val: number) => number, needToConvert: boolean, condition: ConditionRunner): number {
   if (!item || Helpers.isValueEmpty(item[name])) return res;
-  if (condition && !condition.run(item)) return res;
+  if (condition && !condition.runValues(item)) return res;
   const val = needToConvert ? convertToNumber(item[name]) : 1;
   return func(res, val);
 }

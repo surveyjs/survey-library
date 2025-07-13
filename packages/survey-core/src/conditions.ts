@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { IValueGetterContext, ProcessValue } from "./conditionProcessValue";
+import { IValueGetterContext, ProcessValue, VariableGetterContext } from "./conditionProcessValue";
 import { ConsoleWarnings } from "./console-warnings";
 import { Operand, FunctionOperand, AsyncFunctionItem } from "./expressions/expressions";
 import { ConditionsParser } from "./conditionsParser";
@@ -174,14 +174,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
   }
 
   public run(values: HashTable<any>, properties: HashTable<any> = null, id: number): any {
-    if (!this.operand) {
-      if (!!this.expression) {
-        ConsoleWarnings.warn("Invalid expression: '" + this.expression + "'." + ExpressionExecutor.getQuestionErrorText(properties));
-      }
-      return null;
-    }
-    const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, values, properties);
-    return runner.run(this.isAsync);
+    return this.runContext(new VariableGetterContext(values), properties, id);
   }
   public runContext(context: IValueGetterContext, properties: HashTable<any> = null, id: number): any {
     if (!this.operand) {
@@ -238,13 +231,6 @@ export class ExpressionRunnerBase {
   public canRun(): boolean {
     return this.expressionExecutor.canRun();
   }
-  protected runCore(values: HashTable<any>, properties: HashTable<any> = null): any {
-    const id = ExpressionRunnerBase.IdRunnerCounter ++;
-    if (this.onBeforeAsyncRun && this.isAsync) {
-      this.onBeforeAsyncRun(id);
-    }
-    return this.expressionExecutor.run(values, properties, id);
-  }
   public runContextCore(context: IValueGetterContext, properties?: HashTable<any>): any {
     const id = ExpressionRunnerBase.IdRunnerCounter ++;
     if (this.onBeforeAsyncRun && this.isAsync) {
@@ -261,8 +247,8 @@ export class ExpressionRunnerBase {
 
 export class ConditionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: boolean) => void;
-  public run(values: HashTable<any>, properties: HashTable<any> = null): boolean {
-    return this.runCore(values, properties) == true;
+  public runValues(values: HashTable<any>, properties: HashTable<any> = null): boolean {
+    return this.runContext(new VariableGetterContext(values), properties);
   }
   public runContext(context: IValueGetterContext, properties?: HashTable<any>): boolean {
     return this.runContextCore(context, properties) == true;
@@ -275,8 +261,8 @@ export class ConditionRunner extends ExpressionRunnerBase {
 
 export class ExpressionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: any) => void;
-  public run(values: HashTable<any>, properties: HashTable<any> = null): any {
-    return this.runCore(values, properties);
+  public runValues(values: HashTable<any>, properties: HashTable<any> = null): any {
+    return this.runContext(new VariableGetterContext(values), properties);
   }
   public runContext(context: IValueGetterContext, properties?: HashTable<any>): any {
     return this.runContextCore(context, properties);

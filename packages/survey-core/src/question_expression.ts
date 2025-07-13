@@ -75,7 +75,7 @@ export class QuestionExpressionModel extends Question {
     if (!this.expressionRunner) {
       this.expressionRunner = this.createRunner();
     }
-    this.expressionRunner.run(values, properties);
+    this.expressionRunner.runContext(this.getValueGetterContext(), properties);
   }
   protected canCollectErrors(): boolean {
     return true;

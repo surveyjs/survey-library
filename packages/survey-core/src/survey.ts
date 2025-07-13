@@ -113,15 +113,15 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     name = name.toLowerCase();
     //TODO into settings
-    const filteredNameSuffix = "-unwrapped";
-    const isFiltered = name.endsWith(filteredNameSuffix);
-    if (isFiltered) {
-      name = name.substring(0, name.length - filteredNameSuffix.length);
+    const unWrappedNameSuffix = "-unwrapped";
+    const isUnwrapped = name.endsWith(unWrappedNameSuffix);
+    if (isUnwrapped) {
+      name = name.substring(0, name.length - unWrappedNameSuffix.length);
     }
     const question = this.survey.getQuestionByValueName(name, true);
     if (question) {
       res.isFound = true;
-      res.context = question.getValueGetterContext();
+      res.context = question.getValueGetterContext(isUnwrapped);
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
@@ -3448,7 +3448,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.getAllQuestions().forEach(q => {
         if (q.hasFilteredValue) {
-          values[q.getFilteredName()] = q.getFilteredValue();
+          values[q.getFilteredName()] = q.getFilteredValue(true);
         }
       });
     }

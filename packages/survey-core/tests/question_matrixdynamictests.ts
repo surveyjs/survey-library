@@ -3599,10 +3599,10 @@ QUnit.test("matrix.hasTotal property", function (assert) {
   assert.equal(matrix.hasTotal, true, "There is total, total expression");
 });
 
-QUnit.test("Test matrix.totalValue, expression question", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var matrix = new QuestionMatrixDynamicModel("q1");
+QUnit.test("Test matrix.totalValue, expression question", (assert) => {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const matrix = new QuestionMatrixDynamicModel("q1");
   page.addElement(matrix);
   matrix.addColumn("col1");
   matrix.addColumn("col2");
@@ -3620,37 +3620,13 @@ QUnit.test("Test matrix.totalValue, expression question", function (assert) {
   assert.ok(row, "Total row is not empty");
   assert.equal(row.cells.length, 3, "There are three cells here");
   var question = row.cells[0].question;
-  assert.equal(
-    question.getType(),
-    "expression",
-    "We can have only expression type cells in total"
-  );
-  assert.equal(
-    question.expression,
-    "sumInArray({self}, 'col1')",
-    "Set expression correctly"
-  );
+  assert.equal(question.getType(), "expression", "We can have only expression type cells in total");
+  assert.equal(question.expression, "sumInArray({matrix}, 'col1')", "Set expression correctly");
   assert.equal(question.value, 1 + 2 + 4, "Calculated correctly");
-  assert.equal(
-    row.cells[1].value,
-    10 + 20 + 40,
-    "Calculated correctly, the second cell"
-  );
-  assert.equal(
-    row.cells[2].value,
-    1 + 2 + 4 + 10 + 20 + 40,
-    "Calculated correctly, {row.col1} + {row.col2}"
-  );
-  assert.deepEqual(
-    matrix.totalValue,
-    { col1: 7, col2: 70, col3: 77 },
-    "Total value calculated correctly"
-  );
-  assert.deepEqual(
-    survey.getValue("q1-total"),
-    { col1: 7, col2: 70, col3: 77 },
-    "Total value set into survey correctly"
-  );
+  assert.equal(row.cells[1].value, 10 + 20 + 40, "Calculated correctly, the second cell");
+  assert.equal(row.cells[2].value, 1 + 2 + 4 + 10 + 20 + 40, "Calculated correctly, {row.col1} + {row.col2}");
+  assert.deepEqual(matrix.totalValue, { col1: 7, col2: 70, col3: 77 }, "Total value calculated correctly");
+  assert.deepEqual(survey.getValue("q1-total"), { col1: 7, col2: 70, col3: 77 }, "Total value set into survey correctly");
 });
 
 QUnit.test("Test totals, different value types", function (assert) {
@@ -4634,52 +4610,51 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "Totals in row using total in matrix, Bug #T3162 (https://surveyjs.answerdesk.io/ticket/details/T3162)",
-  function (assert) {
-    var survey = new SurveyModel({
-      elements: [
-        {
-          type: "matrixdropdown",
-          name: "matrix",
-          columns: [
-            {
-              name: "paid",
-            },
-            {
-              name: "free",
-            },
-            {
-              name: "total",
-              totalType: "sum",
-              cellType: "expression",
-              expression: "{row.free} + {row.paid}",
-            },
-            {
-              name: "percentage",
-              cellType: "expression",
-              expression: "({row.free} + {row.paid}) / {totalRow.total}",
-            },
-          ],
-          cellType: "text",
-          rows: [
-            {
-              value: "international",
-            },
-          ],
-        },
-      ],
-    });
-    var matrix = <QuestionMatrixDropdownModel>(
-      survey.getQuestionByName("matrix")
-    );
-    var rows = matrix.visibleRows;
-    rows[0].cells[0].value = 100;
-    rows[0].cells[1].value = 100;
-    assert.equal(rows[0].cells[2].value, 200, "cell1 + cell2");
-    assert.equal(rows[0].cells[3].value, 1, "(cell1 + cell2)/total");
-  }
-);
+QUnit.test("Totals in row using total in matrix, Bug #T3162 (https://surveyjs.answerdesk.io/ticket/details/T3162)", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            totalType: "sum",
+            name: "paid",
+          },
+          {
+            name: "free",
+          },
+          {
+            name: "total",
+            totalType: "sum",
+            cellType: "expression",
+            expression: "{row.free} + {row.paid}",
+          },
+          {
+            name: "percentage",
+            cellType: "expression",
+            expression: "({row.free} + {row.paid}) / {totalRow.total}",
+          },
+        ],
+        cellType: "text",
+        rows: [
+          {
+            value: "international",
+          },
+        ],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>(survey.getQuestionByName("matrix"));
+  const rows = matrix.visibleRows;
+  rows[0].cells[0].value = 100;
+  rows[0].cells[1].value = 100;
+  const totalRow = matrix.visibleTotalRow;
+  assert.equal(totalRow.cells[0].value, 100, "total row column paid");
+  assert.equal(totalRow.cells[2].value, 200, "total row column total");
+  assert.equal(rows[0].cells[2].value, 200, "cell1 + cell2");
+  assert.equal(rows[0].cells[3].value, 1, "(cell1 + cell2)/total");
+});
 
 QUnit.test(
   "The row numbers is incorrect after setting the value: survey.data, Bug #1958",
@@ -9860,7 +9835,7 @@ QUnit.test("matrix dynamic expression & checkbox ValuePropertyName", function (a
   assert.equal(matrix.visibleRows.length, 2, "matrix rows #2");
   assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }], "matrix value #2");
 });
-QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray function", function (assert) {
+QUnit.test("matrix dynamic expression & checkbox valuePropertyName & sumInArray function", (assert) => {
   const survey = new SurveyModel({
     "elements": [
       {

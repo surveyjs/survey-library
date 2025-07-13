@@ -54,10 +54,10 @@ class TriggerExpressionInfo {
 }
 
 export class QuestionValueGetterContext implements IValueGetterContext {
-  constructor (protected question: Question) {}
+  constructor (protected question: Question, protected isUnwrapped?: boolean) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    if (path.length === 0) return { isFound: true, context: this,
-      value: this.question.getFilteredValue(), requireStrictCompare: this.question.requireStrictCompare };
+    //TODO "self"
+    if (path.length === 0 || (path.length === 1 && path[0].name === "self")) return this.getQuestionValue();
     ///TODO "panel"
     if (path.length > 1 && path[0].name === "panel") {
       const panel: any = this.question.parent;
@@ -89,6 +89,10 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     const survey = this.question.getSurvey();
     if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
     return undefined;
+  }
+  private getQuestionValue(): IValueGetterInfo {
+    const q = this.question;
+    return { isFound: true, context: this, value: q.getFilteredValue(this.isUnwrapped), requireStrictCompare: q.requireStrictCompare };
   }
 }
 export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
@@ -138,11 +142,14 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const lowName = name.toLocaleLowerCase();
+    //TODO into settings
+    const unWrappedNameSuffix = "-unwrapped";
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
-      if (q.getFilteredName().toLocaleLowerCase() === lowName) {
+      const qName = q.getFilteredName().toLocaleLowerCase();
+      if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
-        res.context = q.getValueGetterContext();
+        res.context = q.getValueGetterContext(qName.endsWith(unWrappedNameSuffix));
         break;
       }
     }
@@ -795,8 +802,8 @@ export class Question extends SurveyElement<Question>
     }
     return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
-  public getValueGetterContext(): IValueGetterContext {
-    return new QuestionValueGetterContext(this);
+  public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
+    return new QuestionValueGetterContext(this, isUnwrapped);
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -2158,7 +2165,7 @@ export class Question extends SurveyElement<Question>
     this.setNewValue(newValue);
   }
   public get hasFilteredValue(): boolean { return false; }
-  public getFilteredValue(): any { return this.value; }
+  public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
   public getFilteredName(): any { return this.getValueName(); }
   public get valueForSurvey(): any {
     return this.valueForSurveyCore(this.value);

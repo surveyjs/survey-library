@@ -374,6 +374,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.value = value;
   }
+  public getFilteredValue(): any {
+    return this.getExpressionValue(this.value);
+  }
+  //TODO remove this method in the future
   getExpressionValue(val: any): any {
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);

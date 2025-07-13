@@ -11,7 +11,7 @@ export interface IValueGetterInfo {
   value?: any;
 }
 export interface IObjectValueContext {
-  getValueGetterContext(): IValueGetterContext;
+  getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
 }
 export interface IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;

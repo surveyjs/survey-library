@@ -22,7 +22,7 @@ import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
-export interface IMatrixDropdownData {
+export interface IMatrixDropdownData extends IObjectValueContext {
   value: any;
   getFilteredData(): any;
   getSharedQuestionFromArray(name: string, rowIndex: number): Question;
@@ -193,7 +193,7 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     if (this.column.totalType == "none") return "''";
     var funName = this.column.totalType + "InArray";
     if (!FunctionFactory.Instance.hasFunction(funName)) return "";
-    return funName + "({self}, '" + this.column.name + "')";
+    return funName + "({matrix}, '" + this.column.name + "')";
   }
 }
 
@@ -209,6 +209,19 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
       const rowVal = this.getRowValue(path[0].name);
       if (rowVal !== undefined) {
         return { isFound: true, value: rowVal };
+      }
+      //TODO make a constant for this
+      if (path[0].name === "matrix") {
+        const matrix = this.row.data;
+        return { isFound: true, context: matrix.getValueGetterContext(), value: matrix.getFilteredData() };
+      }
+    }
+    //TODO "totalRow"
+    if (path.length > 1 && path[0].name === "totalRow") {
+      const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
+      if (!!totalRow) {
+        path[0].name = "row";
+        return totalRow.getValueGetterContext().getValue(path, isRoot);
       }
     }
     const isRowPrefix = path[0].name === MatrixDropdownRowModelBase.RowVariableName;
@@ -227,7 +240,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     }
     return undefined;
   }
-  getRootObj(): IObjectValueContext { return <any>this.row.data; }
+  getRootObj(): IObjectValueContext { return this.row.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const qs = this.row.getQuestionsByValueName(name, true);
     if (qs.length > 0) {
@@ -236,6 +249,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     }
   }
   private getRowValue(name: string): any {
+    name = name.toLocaleLowerCase();
     if (name === MatrixDropdownRowModelBase.IndexVariableName.toLocaleLowerCase()) {
       return this.row.rowIndex;
     }

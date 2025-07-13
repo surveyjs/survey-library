@@ -632,7 +632,7 @@ QUnit.test("Expression vs saveMaskedValue, #10056", function (assert) {
   q1.value = "1.000,4";
   assert.equal(q2.value, 1022.4, "q2.value #3");
 });
-QUnit.test("Expression vs saveMaskedValue in different surves, #10056", function (assert) {
+QUnit.test("Expression vs saveMaskedValue in different surveys, #10056", function (assert) {
   const survey1 = new SurveyModel({
     elements: [
       {

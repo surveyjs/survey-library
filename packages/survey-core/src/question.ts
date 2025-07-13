@@ -2632,7 +2632,7 @@ export class Question extends SurveyElement<Question>
         setFunc(res);
         this.isChangingViaDefaultValue = false;
       };
-      runner.run(values, properties);
+      runner.runContext(this.getValueGetterContext(), properties);
     }
     return true;
   }

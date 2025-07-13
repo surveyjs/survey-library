@@ -6,6 +6,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
+import { IValueGetterContext } from "./conditionProcessValue";
 
 export class ValidatorResult {
   constructor(public value: any, public error: SurveyError = null) {}
@@ -504,7 +505,7 @@ export class ExpressionValidator extends SurveyValidator {
       }
     };
     this.isRunningValue = true;
-    var res = this.conditionRunner.run(values, properties);
+    var res = this.conditionRunner.runContext(this.getValueGetterContext(), properties);
     if (this.conditionRunner.isAsync) return null;
     this.isRunningValue = false;
     return this.generateError(res, value, name);
@@ -537,6 +538,11 @@ export class ExpressionValidator extends SurveyValidator {
   }
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    const owner = <any>this.errorOwner;
+    if (!!owner && !!owner.getValueGetterContext) return owner.getValueGetterContext();
+    return super.getValueGetterContext();
   }
 }
 

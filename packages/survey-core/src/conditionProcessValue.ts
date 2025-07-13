@@ -15,7 +15,7 @@ export interface IObjectValueContext {
 }
 export interface IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
-  getTextValue(name: string, value: any, isDisplayValue: boolean): string;
+  getTextValue?(name: string, value: any, isDisplayValue: boolean): string;
   getRootObj?(): IObjectValueContext;
 }
 export interface IValueInfoParams {
@@ -48,7 +48,7 @@ export class ValueGetter {
     res.isFound = true;
     res.value = info.value;
     res.strictCompare = info.requireStrictCompare;
-    if (params.isText && info.context) {
+    if (params.isText && info.context && info.context.getTextValue) {
       res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
     }
     return res;

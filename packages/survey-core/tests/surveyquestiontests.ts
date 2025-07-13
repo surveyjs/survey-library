@@ -2534,15 +2534,13 @@ QUnit.test("questionselectbase.choicesEnableIf", function (assert) {
   assert.equal(qBestCar.enabledChoices.length, 4, "there is no filter");
 });
 
-QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var qCars = new QuestionCheckboxModel("cars");
+QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", (assert) => {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qCars = new QuestionCheckboxModel("cars");
   qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   page.addElement(qCars);
-  var qBestCar = new QuestionRadiogroupModel("bestCar");
+  const qBestCar = new QuestionRadiogroupModel("bestCar");
   qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   qBestCar.choicesVisibleIf = "{cars} contains {choice}";
   page.addElement(qBestCar);

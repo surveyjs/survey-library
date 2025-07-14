@@ -210,30 +210,6 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }
-  getFilteredValues(): any {
-    var values: { [key: string]: any } = {};
-    var surveyValues =
-      !!this.data && !!this.data.getRootData()
-        ? this.data.getRootData().getFilteredValues()
-        : {};
-    for (var key in surveyValues) {
-      values[key] = surveyValues[key];
-    }
-    values[QuestionPanelDynamicItem.ItemVariableName] = this.getAllValues();
-    if (!!this.data) {
-      const indexStr = QuestionPanelDynamicItem.IndexVariableName;
-      const visibleIndexStr = QuestionPanelDynamicItem.VisibleIndexVariableName;
-      delete values[indexStr];
-      delete values[visibleIndexStr];
-      values[indexStr.toLowerCase()] = this.data.getItemIndex(this);
-      values[visibleIndexStr.toLowerCase()] = this.data.getVisibleItemIndex(this);
-      const q = <Question>(<any>this.data);
-      if (!!q && !!q.parentQuestion && !!q.parent) {
-        values[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>q.parent).getValue();
-      }
-    }
-    return values;
-  }
   getFilteredProperties(): any {
     if (!!this.data && !!this.data.getRootData())
       return this.data.getRootData().getFilteredProperties();

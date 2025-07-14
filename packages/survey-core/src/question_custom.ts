@@ -723,9 +723,6 @@ export abstract class QuestionCustomModelBase extends Question
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : {};
   }
-  getFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : {};
-  }
   getFilteredProperties(): any {
     return !!this.data ? this.data.getFilteredProperties() : {};
   }
@@ -1291,15 +1288,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         q.runTriggers(name, value);
       });
     }
-  }
-  getFilteredValues(): any {
-    const values = !!this.data ? this.data.getFilteredValues() : {};
-    if (!!this.contentPanel) {
-      values[
-        QuestionCompositeModel.ItemVariableName
-      ] = this.contentPanel.getValue();
-    }
-    return values;
   }
   private updateValueCoreWithPanelValue(): boolean {
     const panelValue = this.getContentPanelValue();

@@ -29,7 +29,6 @@ export interface ISurveyData {
   getComment(name: string): string;
   setComment(name: string, newValue: string, locNotification: any): any;
   getAllValues(): any;
-  getFilteredValues(): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
   getEditingSurveyElement(): Base;

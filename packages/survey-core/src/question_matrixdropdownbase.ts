@@ -71,7 +71,6 @@ export interface IMatrixDropdownData extends IObjectValueContext {
   ): Question;
   onTotalValueChanged(): any;
   getSurvey(): ISurvey;
-  getDataFilteredValues(): any;
   isMatrixReadOnly(): boolean;
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void;
 }
@@ -450,18 +449,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     }
     return res;
   }
-  getFilteredValues(): any {
-    const res = this.data ? this.data.getDataFilteredValues() : {};
-    var values: any = this.validationValues;
-    if (values) {
-      for (var key in values) {
-        res[key] = values[key];
-      }
-    }
-    res.row = this.getAllValues();
-    this.applyRowVariablesToValues(res, this.rowIndex);
-    return res;
-  }
   getFilteredProperties(): any {
     return { survey: this.getSurvey(), row: this };
   }
@@ -817,7 +804,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  private validationValues: any;
   public hasErrors(
     fireCallback: boolean,
     rec: any,
@@ -826,7 +812,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
-    this.validationValues = rec.validationValues;
     const focusOnFirstError = rec?.focusOnFirstError;
     //firstErrorQuestion: <any>null,
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
@@ -854,7 +839,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       }
       res = panelHasError || res;
     }
-    this.validationValues = undefined;
     return res;
   }
 
@@ -2364,7 +2348,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var res = false;
     if (!rec) rec = {};
     if (!rows) return rec;
-    rec.validationValues = this.getDataFilteredValues();
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
@@ -2798,9 +2781,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         false
       );
     }
-  }
-  getDataFilteredValues(): any {
-    return this.data ? this.data.getFilteredValues() : {};
   }
   getParentTextProcessor(): ITextProcessor {
     if (!this.parentQuestion || !this.parent) return null;

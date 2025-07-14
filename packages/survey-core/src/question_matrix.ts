@@ -556,7 +556,6 @@ export class QuestionMatrixModel
   getComment(name: string): string { return this.data?.getComment(name); }
   setComment(name: string, newValue: string, locNotification: any): any { this.data?.setComment(name, newValue, locNotification); }
   getAllValues(): any { return this.data?.getAllValues(); }
-  getFilteredValues(): any { return this.data?.getFilteredValues(); }
   getFilteredProperties(): any { return this.data?.getFilteredProperties(); }
   findQuestionByName(name: string): IQuestion { return this.data?.findQuestionByName(name); }
   getEditingSurveyElement(): Base { return this.data?.getEditingSurveyElement(); }

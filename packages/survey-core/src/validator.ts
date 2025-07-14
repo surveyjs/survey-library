@@ -94,7 +94,6 @@ export interface IValidatorOwner {
   getValidators(): Array<SurveyValidator>;
   validatedValue: any;
   getValidatorTitle(): string;
-  getDataFilteredValues(): any;
   getDataFilteredProperties(): any;
 }
 export class ValidatorRunner {

@@ -740,9 +740,6 @@ export class Base implements IObjectValueContext {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
   }
-  public getDataFilteredValues(): any {
-    return {};
-  }
   public getDataFilteredProperties(): any {
     return {};
   }

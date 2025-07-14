@@ -406,9 +406,6 @@ export class MultipleTextItemModel extends Base
     if (this.data) return this.data.getAllValues();
     return this.value;
   }
-  getFilteredValues(): any {
-    return this.getAllValues();
-  }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };
   }
@@ -426,9 +423,6 @@ export class MultipleTextItemModel extends Base
   }
   set validatedValue(val: any) {
     this.value = val;
-  }
-  getDataFilteredValues(): any {
-    return this.getFilteredValues();
   }
   getDataFilteredProperties(): any {
     return this.getFilteredProperties();

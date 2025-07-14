@@ -1,3 +1,4 @@
+import { IQuestion } from "./base-interfaces";
 import { Helpers, HashTable } from "./helpers";
 
 export interface IValueGetterItem {
@@ -17,6 +18,7 @@ export interface IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
   getTextValue?(name: string, value: any, isDisplayValue: boolean): string;
   getRootObj?(): IObjectValueContext;
+  getQuestion?(): IQuestion;
 }
 export interface IValueInfoParams {
   name: string;
@@ -27,6 +29,7 @@ export interface IValueInfoParams {
 export interface IReturnValue {
   isFound: boolean;
   value: any;
+  question?: IQuestion;
   strictCompare?: boolean;
 }
 export class ValueGetter {
@@ -56,8 +59,13 @@ export class ValueGetter {
     res.isFound = true;
     res.value = info.value;
     res.strictCompare = info.requireStrictCompare;
-    if (params.isText && info.context && info.context.getTextValue) {
-      res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
+    if (info.context) {
+      if (params.isText && info.context.getTextValue) {
+        res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
+      }
+      if (info.context.getQuestion) {
+        res.question = info.context.getQuestion();
+      }
     }
     return res;
   }

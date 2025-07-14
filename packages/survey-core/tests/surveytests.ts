@@ -3151,9 +3151,9 @@ QUnit.test(
     assert.equal(firstFiredEvent, "onComplete", "should be called first");
   }
 );
-QUnit.test("Value trigger test", function (assert) {
-  var survey = twoPageSimplestSurvey();
-  var trigger = new SurveyTriggerSetValue();
+QUnit.test("Value trigger test", (assert) => {
+  const survey = twoPageSimplestSurvey();
+  const trigger = new SurveyTriggerSetValue();
   survey.triggers.push(trigger);
   trigger.name = "question1";
   trigger.value = "Hello";

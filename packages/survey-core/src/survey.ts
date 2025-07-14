@@ -8118,20 +8118,13 @@ export class SurveyModel extends SurveyElementCore
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      var question = this.getQuestionByName(name);
       this.startSetValueFromTrigger();
-      if (!!question) {
-        question.value = value;
+      const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext() });
+      if (info.isFound && info.question) {
+        info.question.value = value;
       } else {
-        var processor = new ProcessValue();
-        var firstName = processor.getFirstName(name);
-        if (firstName == name) {
+        if (name.indexOf(".") < 0) {
           this.setValue(name, value);
-        } else {
-          if (!this.getQuestionByName(firstName)) return;
-          var data = this.getUnbindValue(this.getFilteredValues());
-          processor.setValue(data, name, value);
-          this.setValue(firstName, data[firstName]);
         }
       }
       this.finishSetValueFromTrigger();

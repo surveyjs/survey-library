@@ -85,6 +85,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     return this.question.getDisplayValue(true, value);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
+  getQuestion(): IQuestion { return this.question; }
   protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
     const survey = this.question.getSurvey();
     if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);

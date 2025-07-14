@@ -780,7 +780,7 @@ export class Question extends SurveyElement<Question>
       info.doComplete();
       info.isRunning = false;
     } else {
-      info.runner.runValues(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      info.runner.runContext(this.getValueGetterContext(), this.getDataFilteredProperties());
     }
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {

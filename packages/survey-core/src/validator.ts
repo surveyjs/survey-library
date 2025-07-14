@@ -51,12 +51,7 @@ export class SurveyValidator extends Base {
   protected getDefaultErrorText(name: string): string {
     return "";
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     return null;
   }
   public get isRunning(): boolean {
@@ -107,17 +102,13 @@ export class ValidatorRunner {
   public onAsyncCompleted: (errors: Array<SurveyError>) => void;
   public run(owner: IValidatorOwner): Array<SurveyError> {
     var res = [];
-    var values = null;
     var properties = null;
     this.prepareAsyncValidators();
     var asyncResults: Array<SurveyError> = [];
     var validators = owner.getValidators();
     for (var i = 0; i < validators.length; i++) {
       var validator = validators[i];
-      if (!values && validator.isValidateAllValues) {
-        values = owner.getDataFilteredValues();
-        properties = owner.getDataFilteredProperties();
-      }
+      properties = owner.getDataFilteredProperties();
       if (validator.isAsync) {
         this.asyncValidators.push(validator);
         validator.onAsyncCompleted = (result: ValidatorResult) => {
@@ -134,12 +125,7 @@ export class ValidatorRunner {
     for (var i = 0; i < validators.length; i++) {
       var validator = validators[i];
 
-      var validatorResult = validator.validate(
-        owner.validatedValue,
-        owner.getValidatorTitle(),
-        values,
-        properties
-      );
+      var validatorResult = validator.validate(owner.validatedValue, owner.getValidatorTitle(), properties);
       if (!!validatorResult && !!validatorResult.error) {
         res.push(validatorResult.error);
       }
@@ -171,12 +157,7 @@ export class NumericValidator extends SurveyValidator {
   public getType(): string {
     return "numericvalidator";
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
@@ -243,12 +224,7 @@ export class TextValidator extends SurveyValidator {
   public getType(): string {
     return "textvalidator";
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /\d+$/;
@@ -325,12 +301,7 @@ export class AnswerCountValidator extends SurveyValidator {
   public getType(): string {
     return "answercountvalidator";
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     if (value == null || value.constructor != Array) return null;
     var count = value.length;
     if (count == 0) return null;
@@ -389,12 +360,7 @@ export class RegexValidator extends SurveyValidator {
   public getType(): string {
     return "regexvalidator";
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     if (!this.regex || this.isValueEmpty(value)) return null;
     var re = this.createRegExp();
     if (Array.isArray(value)) {
@@ -452,12 +418,7 @@ export class EmailValidator extends SurveyValidator {
   public getType(): string {
     return "emailvalidator";
   }
-  public validate(
-    value: any,
-    name: string = null,
-    values: any = null,
-    properties: any = null
-  ): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     if (!value) return null;
     if (this.re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
@@ -492,7 +453,7 @@ export class ExpressionValidator extends SurveyValidator {
   public get isRunning(): boolean {
     return this.isRunningValue;
   }
-  public validate(value: any, name: string = null, values: any = null, properties: any = null): ValidatorResult {
+  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
     if (!this.expression) return null;
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;

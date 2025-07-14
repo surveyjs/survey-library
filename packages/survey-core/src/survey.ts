@@ -8139,13 +8139,7 @@ export class SurveyModel extends SurveyElementCore
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
     if (!name || !fromName) return;
-    let value;
-    if (copyDisplayValue) {
-      value = this.processText("{" + fromName + "}", true);
-    } else {
-      const processor = new ProcessValue();
-      value = processor.getValue(fromName, this.getFilteredValues());
-    }
+    const value = new ValueGetter().getValue(fromName, this.getValueGetterContext(), copyDisplayValue, copyDisplayValue);
     this.setTriggerValue(name, Helpers.getUnbindValue(value), false);
   }
   triggerExecuted(trigger: Trigger): void {

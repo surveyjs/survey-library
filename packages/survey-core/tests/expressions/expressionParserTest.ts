@@ -84,8 +84,7 @@ QUnit.test("Variable Const", function(assert) {
   var constOperand = parse("{ImConst}");
   assert.equal(constOperand.toString(), "{ImConst}");
 
-  var processValue = new ProcessValue();
-  processValue.values = { ImConst: 7 };
+  var processValue = new ProcessValue(new VariableGetterContext({ ImConst: 7 }));
   assert.equal(constOperand.evaluate(processValue), 7);
 });
 

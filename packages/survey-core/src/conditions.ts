@@ -45,15 +45,12 @@ export interface IExpresionExecutor {
 export class ExpressionExecutorRunner {
   private processValue: ProcessValue;
   private asyncFuncList: Array<AsyncFunctionItem>;
-  constructor(private operand: Operand, private id: number, private onComplete: (res: any, id: number) => void, values: HashTable<any>, properties: HashTable<any>, context?: IValueGetterContext) {
-    this.processValue = new ProcessValue();
-    this.processValue.context = context;
-    this.processValue.values = values;
+  constructor(private operand: Operand, private id: number, private onComplete: (res: any, id: number) => void, properties: HashTable<any>, context: IValueGetterContext) {
+    this.processValue = new ProcessValue(context);
     this.processValue.properties = properties;
   }
   public run(isAsync: boolean): any {
     if (!isAsync) return this.runValues();
-    this.processValue.values = Helpers.createCopy(this.processValue.values);
     this.processValue.onCompleteAsyncFunc = (op: any): void => {
       const item = this.getAsyncItemByOperand(op, this.asyncFuncList);
       if (item) {
@@ -183,7 +180,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
       }
       return null;
     }
-    const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, {}, properties, context);
+    const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, properties, context);
     return runner.run(this.isAsync);
   }
 }

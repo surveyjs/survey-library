@@ -21212,12 +21212,12 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
   class ScreenoutTrigger extends SurveyTriggerComplete {
     getType() { return "screenouttrigger"; }
 
-    onSuccess(values: any, properties: any) {
+    onSuccess(properties: any) {
       if (this.isRealExecution()) {
         this.owner.setTriggerValue("result", "screenout", false);
       }
       // Parent call
-      super.onSuccess(values, properties);
+      super.onSuccess(properties);
     }
   }
   Serializer.addClass("screenouttrigger", [], () => { return new ScreenoutTrigger(); }, "completetrigger");
@@ -21250,12 +21250,12 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
   class ScreenoutTrigger extends SurveyTriggerComplete {
     getType() { return "screenouttrigger"; }
 
-    onSuccess(values: any, properties: any) {
+    onSuccess(properties: any) {
       if (this.isRealExecution()) {
         this.owner.setCompleted(this);
       }
       // Parent call
-      super.onSuccess(values, properties);
+      super.onSuccess(properties);
     }
   }
   Serializer.addClass("screenouttrigger", [], () => { return new ScreenoutTrigger(); }, "completetrigger");

@@ -501,7 +501,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.updateElementVisibility();
     }
   }
-  protected setRowsVisibleIfValues(values: any): void {}
   public getNamesWithDefaultValues(): Array<string> {
     const res: Array<string> = [];
     this.questions.forEach(q => {

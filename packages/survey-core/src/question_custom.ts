@@ -1046,7 +1046,7 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
     if (path.length > 0) {
-      const isCompPrefix = path[0].name === QuestionCompositeModel.ItemVariableName;
+      const isCompPrefix = path[0].name === settings.expressionVariables.composite;
       if (isCompPrefix || !isRoot) {
         if (isCompPrefix) {
           path.shift();
@@ -1060,7 +1060,6 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
 }
 
 export class QuestionCompositeModel extends QuestionCustomModelBase {
-  public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
   private textProcessing: TextContextProcessor;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
@@ -1253,7 +1252,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
-    this.runPanelTriggers(QuestionCompositeModel.ItemVariableName + "." + name, newValue);
+    this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
   }
   setComment(name: string, newValue: string, locNotification: any): any {
     let val = this.getUnbindValue(this.value);

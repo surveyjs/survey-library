@@ -189,7 +189,7 @@ export class Trigger extends Base {
     if (!this.conditionRunner) return [];
     const res = this.conditionRunner.getVariables();
     if (Array.isArray(res)) {
-      const unw = "-unwrapped";
+      const unw = settings.expressionVariables.unwrapPostfix;
       for (let i = res.length - 1; i >= 0; i--) {
         const s = res[i];
         if (s.endsWith(unw)) {

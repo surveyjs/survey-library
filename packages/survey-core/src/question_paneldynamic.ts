@@ -56,15 +56,17 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
         return { isFound: true, value: val, context: this };
       }
     }
-    if (path.length > 1 && path[0].name === QuestionPanelDynamicItem.ParentItemVariableName) {
+    const expVar = settings.expressionVariables;
+    const panelPrefix = expVar.panel;
+    if (path.length > 1 && path[0].name === expVar.parentPanel.toLocaleLowerCase()) {
       const q = <Question>(<any>this.item.data);
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
-        path[0].name = QuestionPanelDynamicItem.ItemVariableName;
+        path[0].name = panelPrefix;
         return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(path, true);
       }
     }
     const panel = this.item.panel;
-    const isPanelPrefix = path[0].name === QuestionPanelDynamicItem.ItemVariableName;
+    const isPanelPrefix = path[0].name === panelPrefix;
     if (isPanelPrefix || !isRoot) {
       if (isPanelPrefix) {
         path.shift();
@@ -87,8 +89,8 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
     }
     return super.getTextValue(name, value, isDisplayValue);
   }
-  private get indexVar() { return QuestionPanelDynamicItem.IndexVariableName.toLocaleLowerCase(); }
-  private get visIndexVar() { return QuestionPanelDynamicItem.VisibleIndexVariableName.toLocaleLowerCase(); }
+  private get indexVar() { return settings.expressionVariables.panelIndex.toLocaleLowerCase(); }
+  private get visIndexVar() { return settings.expressionVariables.visiblePanelIndex.toLocaleLowerCase(); }
 
   private getPanelValue(name: string): any {
     name = name.toLocaleLowerCase();
@@ -138,10 +140,6 @@ class PanelDynamicTabbedMenuItem extends Action {
 }
 
 export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
-  public static ItemVariableName = "panel";
-  public static ParentItemVariableName = "parentpanel";
-  public static IndexVariableName = "panelIndex";
-  public static VisibleIndexVariableName = "visiblePanelIndex";
   private panelValue: PanelModel;
   private textPreProcessor: TextContextProcessor;
   constructor(public data: IQuestionPanelDynamicData, panel: PanelModel) {
@@ -182,7 +180,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
           newValue = cQ.value;
         }
       }
-      const triggerName = QuestionPanelDynamicItem.ItemVariableName + "." + name;
+      const triggerName = settings.expressionVariables.panel + "." + name;
       q.runTriggers(triggerName, newValue);
     }
   }
@@ -199,7 +197,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
   }
   findQuestionByName(name: string): IQuestion {
     if (!name) return undefined;
-    const prefix = QuestionPanelDynamicItem.ItemVariableName + ".";
+    const prefix = settings.expressionVariables.panel + ".";
     if (name.indexOf(prefix) === 0) {
       return this.panel.getQuestionByName(name.substring(prefix.length));
     }
@@ -1928,11 +1926,12 @@ export class QuestionPanelDynamicModel extends Question
     if (hasContext) {
       const prefixName = context === true ? this.getValueName() + "." : "";
       const prefixText = context === true ? this.processedTitle + "." : "";
+      const panelPrefix = settings.expressionVariables.panel + ".";
       for (var i = 0; i < panelObjs.length; i++) {
         if (panelObjs[i].question == context) continue;
         const obj: IConditionObject = {
-          name: prefixName + QuestionPanelDynamicItem.ItemVariableName + "." + panelObjs[i].name,
-          text: prefixText + QuestionPanelDynamicItem.ItemVariableName + "." + panelObjs[i].text,
+          name: prefixName + panelPrefix + panelObjs[i].name,
+          text: prefixText + panelPrefix + panelObjs[i].text,
           question: panelObjs[i].question
         };
         obj.context = this;
@@ -2028,7 +2027,7 @@ export class QuestionPanelDynamicModel extends Question
     this.visiblePanelsCore.forEach(p => {
       const panelValue = this.getPanelItemData(p.data);
       if (!Helpers.isValueEmpty(panelValue)) {
-        const triggeredValue = Helpers.createCopyWithPrefix(panelValue, QuestionPanelDynamicItem.ItemVariableName + ".");
+        const triggeredValue = Helpers.createCopyWithPrefix(panelValue, settings.expressionVariables.panel + ".");
         p.questions.forEach(q => q.runTriggers("", undefined, triggeredValue));
       }
     });
@@ -2073,7 +2072,7 @@ export class QuestionPanelDynamicModel extends Question
     let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
       const panel = panels[i];
-      const panelName = QuestionPanelDynamicItem.ItemVariableName;
+      const panelName = settings.expressionVariables.panel;
       const newProps = Helpers.createCopy(properties);
       newProps[panelName] = panel;
       panel.runCondition(newProps);
@@ -2091,7 +2090,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     for (var i = 0; i < this.panelsCore.length; i++) {
       this.panelsCore[i].onAnyValueChanged(name, questionName);
-      this.panelsCore[i].onAnyValueChanged(QuestionPanelDynamicItem.ItemVariableName, "");
+      this.panelsCore[i].onAnyValueChanged(settings.expressionVariables.panel, "");
     }
   }
   private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {

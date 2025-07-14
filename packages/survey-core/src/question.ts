@@ -56,10 +56,9 @@ class TriggerExpressionInfo {
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question, protected isUnwrapped?: boolean) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    //TODO "self"
-    if (path.length === 0 || (path.length === 1 && path[0].name === "self")) return this.getQuestionValue();
-    ///TODO "panel"
-    if (path.length > 1 && path[0].name === "panel") {
+    const expVar = settings.expressionVariables;
+    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue();
+    if (path.length > 1 && path[0].name === expVar.panel) {
       const panel: any = this.question.parent;
       if (panel && panel.isPanel) {
         path.shift();
@@ -143,8 +142,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const lowName = name.toLocaleLowerCase();
-    //TODO into settings
-    const unWrappedNameSuffix = "-unwrapped";
+    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
     for (let i = 0; i < this.questions.length; i++) {
       const q = this.questions[i];
       const qName = q.getFilteredName().toLocaleLowerCase();

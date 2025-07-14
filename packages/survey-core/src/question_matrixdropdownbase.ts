@@ -204,26 +204,25 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   protected getQuestionData(): Question { return <Question>(<any>this.row.data); }
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
     if (path.length === 0) return undefined;
+    const setVar = settings.expressionVariables;
     if (path.length === 1) {
       const rowVal = this.getRowValue(path[0].name);
       if (rowVal !== undefined) {
         return { isFound: true, value: rowVal };
       }
-      //TODO make a constant for this
-      if (path[0].name === "matrix") {
+      if (path[0].name === setVar.matrix) {
         const matrix = this.row.data;
         return { isFound: true, context: matrix.getValueGetterContext(), value: matrix.getFilteredData() };
       }
     }
-    //TODO "totalRow"
-    if (path.length > 1 && path[0].name === "totalRow") {
+    if (path.length > 1 && path[0].name === setVar.totalRow) {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
         return totalRow.getValueGetterContext().getValue(path, isRoot);
       }
     }
-    const isRowPrefix = path[0].name === MatrixDropdownRowModelBase.RowVariableName;
+    const isRowPrefix = path[0].name === setVar.row;
     if (isRowPrefix || !isRoot) {
       if (isRowPrefix) {
         path.shift();
@@ -248,15 +247,15 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     }
   }
   private getRowValue(name: string): any {
+    const setVar = settings.expressionVariables;
     name = name.toLocaleLowerCase();
-    if (name === MatrixDropdownRowModelBase.IndexVariableName.toLocaleLowerCase()) {
+    if (name === setVar.rowIndex.toLocaleLowerCase()) {
       return this.row.rowIndex;
     }
-    //TODO item
-    if (["item", MatrixDropdownRowModelBase.RowValueVariableName.toLocaleLowerCase(), MatrixDropdownRowModelBase.RowNameVariableName.toLocaleLowerCase()].indexOf(name) > -1) {
+    if ([setVar.item, setVar.rowName.toLocaleLowerCase(), setVar.rowValue.toLocaleLowerCase()].indexOf(name) > -1) {
       return this.row.rowName;
     }
-    if (name == MatrixDropdownRowModelBase.RowTitleVariableName.toLocaleLowerCase()) {
+    if (name == setVar.rowTitle.toLocaleLowerCase()) {
       return this.row.rowTitle;
     }
     return undefined;
@@ -264,13 +263,6 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
 }
 
 export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILocalizableOwner, IObjectValueContext {
-  public static RowVariableName = "row";
-  public static OwnerVariableName = "self";
-  public static IndexVariableName = "rowIndex";
-  public static RowValueVariableName = "rowValue";
-  public static RowNameVariableName = "rowName";
-  public static RowTitleVariableName = "rowTitle";
-
   private static idCounter: number = 1;
   private static getId(): string {
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
@@ -456,17 +448,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (!this.data) return null;
     return this.data.getRowValue(this.data.getRowIndex(this));
   }
-  private applyRowVariablesToValues(res: any, rowIndex: number): void {
-    res[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
-    res[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
-    res[MatrixDropdownRowModelBase.RowNameVariableName] = this.rowName;
-    res[MatrixDropdownRowModelBase.RowTitleVariableName] = this.rowTitle;
-  }
   public runCondition(properties: HashTable<any>, rowsVisibleIf?: string): void {
     if (!this.data) return;
-    const rowIndex = this.rowIndex;
     const newProps = Helpers.createCopy(properties);
-    newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
+    newProps[settings.expressionVariables.row] = this;
     if (!!rowsVisibleIf) {
       this.visible = new ConditionRunner(rowsVisibleIf).runContext(this.getValueGetterContext(), properties);
     } else {
@@ -537,7 +522,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   findQuestionByName(name: string): IQuestion {
     if (!name) return undefined;
-    const prefix = MatrixDropdownRowModelBase.RowVariableName + ".";
+    const prefix = settings.expressionVariables.row + ".";
     if (name.indexOf(prefix) === 0) {
       return this.getQuestionByName(name.substring(prefix.length));
     }
@@ -573,10 +558,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
+    const rowName = settings.expressionVariables.row;
     if (changedName) {
-      this.runTriggers(MatrixDropdownTotalRowModel.RowVariableName + "." + changedName, newValue);
+      this.runTriggers(rowName + "." + changedName, newValue);
     }
-    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName, "");
+    this.onAnyValueChanged(rowName, "");
   }
 
   private updateQuestionsValue(
@@ -1932,7 +1918,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.generatedVisibleRows.forEach((row) => {
       const rowValue = this.getRowValueCore(row, val);
       if (!Helpers.isValueEmpty(rowValue)) {
-        const triggeredValue = Helpers.createCopyWithPrefix(rowValue, MatrixDropdownRowModelBase.RowVariableName + ".");
+        const triggeredValue = Helpers.createCopyWithPrefix(rowValue, settings.expressionVariables.row + ".");
         row.runTriggers("", undefined, triggeredValue);
       }
     });

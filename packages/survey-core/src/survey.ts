@@ -112,8 +112,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     name = name.toLowerCase();
-    //TODO into settings
-    const unWrappedNameSuffix = "-unwrapped";
+    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
     const isUnwrapped = name.endsWith(unWrappedNameSuffix);
     if (isUnwrapped) {
       name = name.substring(0, name.length - unWrappedNameSuffix.length);

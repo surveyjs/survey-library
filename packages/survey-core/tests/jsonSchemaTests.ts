@@ -198,6 +198,7 @@ QUnit.test("generate survey schema", function (assert) {
   assert.ok(schema.definitions.question.properties.type, "question type is here");
   assert.equal(schema.definitions.question.properties.type.type, "string", "question type is string");
   assert.deepEqual(schema.definitions.question.required, ["type", "name"], "question required");
+  assert.deepEqual(schema.definitions.question.properties.showCommentArea, { "type": "boolean" }, "question showCommentArea is boolean");
 
   const locString = schema.definitions.locstring;
   assert.equal(locString.type, "object", "locString type");

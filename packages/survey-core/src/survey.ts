@@ -2564,7 +2564,6 @@ export class SurveyModel extends SurveyElementCore
    */
   public runExpression(expression: string, callback?: (res: any) => void): any {
     if (!expression) return null;
-    var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     const exp = this.createExpressionRunner(expression);
     let onCompleteRes: any = undefined;

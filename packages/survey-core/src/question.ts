@@ -745,7 +745,7 @@ export class Question extends SurveyElement<Question>
       this.clearValue();
     } else {
       this.ensureSetValueExpressionRunner();
-      this.setValueExpressionRunner.runValues(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.setValueExpressionRunner.runContext(this.getValueGetterContext(), this.getDataFilteredProperties());
     }
   }
   private getSetValueExpressionRunner(): ExpressionRunner {

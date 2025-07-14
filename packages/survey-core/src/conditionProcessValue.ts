@@ -76,6 +76,38 @@ export class ValueGetter {
   public getDisplayValue(name: string, context: IValueGetterContext, isDisplayValue: boolean = true): string {
     return this.getValue(name, context, true, isDisplayValue);
   }
+  public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+    for (var i = 0; i < usedNames.length; i++) {
+      const name = usedNames[i];
+      if (!name) continue;
+      const lowerName = name.toLowerCase();
+      if (keys.hasOwnProperty(name)) return true;
+      if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
+      const path = this.getPath(name);
+      const firstName = path.length > 0 ? path[0].name : "";
+      if (!keys.hasOwnProperty(firstName)) continue;
+      if (name === firstName) return true;
+      const keyValue = keys[firstName];
+      if (keyValue == undefined) continue;
+      if (
+        !keyValue.hasOwnProperty("oldValue") ||
+        !keyValue.hasOwnProperty("newValue")
+      )
+        return true;
+      const v: any = {};
+      v[firstName] = keyValue["oldValue"];
+      var oldValue = this.getValueFromObject(v, name);
+      v[firstName] = keyValue["newValue"];
+      var newValue = this.getValueFromObject(v, name);
+      if (!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
+    }
+    return false;
+
+  }
+  private getValueFromObject(obj: any, fullName: string): any {
+    const res = this.getValueInfo({ name: fullName, context: new VariableGetterContext(obj) });
+    return res.isFound ? res.value : undefined;
+  }
   private run(name: string, context: IValueGetterContext): any {
     if (!context) return undefined;
     let path = this.getPath(name);
@@ -291,33 +323,6 @@ export class ProcessValue {
     valueInfo.path = res.hasValue ? res.path : null;
     valueInfo.onProcessValue = res.onProcessValue;
     valueInfo.strictCompare = res.strictCompare;
-  }
-  public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
-    for (var i = 0; i < usedNames.length; i++) {
-      const name = usedNames[i];
-      if (!name) continue;
-      const lowerName = name.toLowerCase();
-      if (keys.hasOwnProperty(name)) return true;
-      if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
-      var firstName = this.getFirstName(name);
-      if (!keys.hasOwnProperty(firstName)) continue;
-      if (name === firstName) return true;
-      var keyValue = keys[firstName];
-      if (keyValue == undefined) continue;
-      if (
-        !keyValue.hasOwnProperty("oldValue") ||
-        !keyValue.hasOwnProperty("newValue")
-      )
-        return true;
-      var v: any = {};
-      v[firstName] = keyValue["oldValue"];
-      var oldValue = this.getValue(name, v);
-      v[firstName] = keyValue["newValue"];
-      var newValue = this.getValue(name, v);
-      if (!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
-    }
-    return false;
-
   }
   private getValueFromPath(path: Array<string | number>, values: any): any {
     if (path.length === 2 && path[0] === surveyBuiltInVarible) {

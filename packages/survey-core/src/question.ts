@@ -18,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -801,7 +801,7 @@ export class Question extends SurveyElement<Question>
       if (runner.hasFunction()) return "func";
       return "const";
     }
-    return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
+    return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
   }
   public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
     return new QuestionValueGetterContext(this, isUnwrapped);

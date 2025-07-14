@@ -4,7 +4,7 @@ import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
-import { ProcessValue } from "./conditionProcessValue";
+import { ProcessValue, ValueGetter, VariableGetterContext } from "./conditionProcessValue";
 import { settings } from "./settings";
 
 /**
@@ -186,7 +186,7 @@ export class Trigger extends Base {
     if (!keys) return false;
     this.createConditionRunner();
     if (this.conditionRunner && this.conditionRunner.hasFunction() === true) return true;
-    return new ProcessValue().isAnyKeyChanged(keys, this.getUsedVariables());
+    return new ValueGetter().isAnyKeyChanged(keys, this.getUsedVariables());
   }
   protected getUsedVariables(): string[] {
     if (!this.conditionRunner) return [];

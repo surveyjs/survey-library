@@ -329,7 +329,7 @@ export class QuestionMatrixModel
       this.onColumnsChanged();
     });
     this.registerPropertyChangedHandlers(["rows"], () => {
-      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredProperties());
       this.onRowsChanged();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
@@ -483,9 +483,9 @@ export class QuestionMatrixModel
     }
     return res;
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
+    super.runConditionCore(properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;

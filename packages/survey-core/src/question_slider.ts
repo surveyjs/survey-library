@@ -733,8 +733,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.resetPropertyValue("renderedValue");
   }
 
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     this.runMinMaxCondition(this.maxValueExpression, properties, (value: number) => {
       this.max = value ?? this.renderedMax;
     });

@@ -2610,10 +2610,9 @@ export class SurveyModel extends SurveyElementCore
     items: Array<ExpressionItem>
   ): ExpressionItem {
     if (items.length == 0) return null;
-    var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < items.length; i++) {
-      if (items[i].runCondition(values, properties)) {
+      if (items[i].runCondition(properties)) {
         return items[i];
       }
     }
@@ -6588,9 +6587,9 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].onSurveyLoad();
     }
   }
-  private conditionValues: any = null;
+  private isRunningConditionsValue: boolean;
   private get isRunningConditions(): boolean {
-    return !!this.conditionValues;
+    return this.isRunningConditionsValue;
   }
   private isValueChangedOnRunningCondition: boolean = false;
   private conditionRunnerCounter: number = 0;
@@ -6609,12 +6608,12 @@ export class SurveyModel extends SurveyElementCore
       this.isRunningConditions
     )
       return;
-    this.conditionValues = this.getFilteredValues();
+    this.isRunningConditionsValue = true;
     var properties = this.getFilteredProperties();
     var oldCurrentPageIndex = this.pages.indexOf(this.currentPage);
     this.runConditionsCore(properties);
     this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
-    this.conditionValues = null;
+    this.isRunningConditionsValue = false;
     if (
       this.isValueChangedOnRunningCondition &&
       this.conditionRunnerCounter <
@@ -6639,7 +6638,6 @@ export class SurveyModel extends SurveyElementCore
   private questionTriggersKeys: any;
   private runConditionOnValueChanged(name: string, value: any) {
     if (this.isRunningConditions) {
-      this.conditionValues[name] = value;
       if (this.questionTriggersKeys) {
         this.questionTriggersKeys[name] = value;
       }
@@ -6658,15 +6656,11 @@ export class SurveyModel extends SurveyElementCore
       this.calculatedValues[i].resetCalculation();
     }
     for (var i = 0; i < this.calculatedValues.length; i++) {
-      this.calculatedValues[i].doCalculation(
-        this.calculatedValues,
-        this.conditionValues,
-        properties
-      );
+      this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
     }
-    super.runConditionCore(this.conditionValues, properties);
+    super.runConditionCore(properties);
     for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(this.conditionValues, properties);
+      pages[i].runCondition(properties);
     }
   }
   private runQuestionsTriggers(name: string, value: any): void {

@@ -933,10 +933,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.value = this.getContentQuestionValue();
     }
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     if (!!this.contentQuestion) {
-      this.contentQuestion.runCondition(values, properties);
+      this.contentQuestion.runCondition(properties);
     }
   }
   protected convertDataName(name: string): string {
@@ -1218,18 +1218,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return res;
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     if (!!this.contentPanel) {
-      var oldComposite = values[QuestionCompositeModel.ItemVariableName];
-      values[
-        QuestionCompositeModel.ItemVariableName
-      ] = this.contentPanel.getValue();
-      this.contentPanel.runCondition(values, properties);
-      delete values[QuestionCompositeModel.ItemVariableName];
-      if (!!oldComposite) {
-        values[QuestionCompositeModel.ItemVariableName] = oldComposite;
-      }
+      this.contentPanel.runCondition(properties);
     }
   }
   onSurveyValueChanged(newValue: any): void {

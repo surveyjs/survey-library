@@ -113,7 +113,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     items: Array<ItemValue>,
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     useItemExpression: boolean = true,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
@@ -122,7 +121,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       items,
       filteredItems,
       runner,
-      values,
       properties,
       true,
       useItemExpression,
@@ -132,7 +130,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public static runEnabledConditionsForItems(
     items: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
@@ -140,7 +137,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       items,
       null,
       runner,
-      values,
       properties,
       false,
       true,
@@ -151,22 +147,14 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     items: Array<ItemValue>,
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     isVisible: boolean,
     useItemExpression: boolean = true,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
-    if (!values) {
-      values = {};
-    }
-    var itemValue = values["item"];
-    var choiceValue = values["choice"];
     var hasChanded = false;
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
-      values["item"] = item.value;
-      values["choice"] = item.value;
       var itemRunner =
         useItemExpression && !!item.getConditionRunner
           ? item.getConditionRunner(isVisible)
@@ -193,16 +181,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
           if (!!item.setIsEnabled) item.setIsEnabled(newValue);
         }
       }
-    }
-    if (itemValue) {
-      values["item"] = itemValue;
-    } else {
-      delete values["item"];
-    }
-    if (choiceValue) {
-      values["choice"] = choiceValue;
-    } else {
-      delete values["choice"];
     }
     return hasChanded;
   }

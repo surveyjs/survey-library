@@ -274,7 +274,7 @@ export interface ISurveyImpl {
   getTextProcessor(): ITextProcessor;
 }
 export interface IConditionRunner {
-  runCondition(values: HashTable<any>, properties: HashTable<any>): any;
+  runCondition(properties: HashTable<any>): any;
 }
 export interface IShortcutText {
   shortcutText: string;

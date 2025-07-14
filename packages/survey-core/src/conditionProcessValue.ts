@@ -258,11 +258,11 @@ export class ProcessValue {
   public get context(): IValueGetterContext {
     return this.contextValue;
   }
-  public hasValue(text: string, values: HashTable<any> = null): boolean {
+  public hasValue(text: string): boolean {
     if (!!this.context) return this.getValueInfoByContext(text).isFound;
     return false;
   }
-  public getValue(text: string, values: HashTable<any> = null): any {
+  public getValue(text: string): any {
     if (!!this.context) return this.getValueInfoByContext(text).value;
     return undefined;
   }

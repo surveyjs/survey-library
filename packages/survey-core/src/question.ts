@@ -819,10 +819,7 @@ export class Question extends SurveyElement<Question>
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
       if (!this.isDesignMode) {
-        this.runCondition(
-          this.getDataFilteredValues(),
-          this.getDataFilteredProperties()
-        );
+        this.runCondition(this.getDataFilteredProperties());
       }
       this.locStrsChanged();
     }
@@ -2024,14 +2021,14 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("enableIf", val);
   }
   public surveyChoiceItemVisibilityChange(): void { }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  public runCondition(properties: HashTable<any>): void {
     if (this.isDesignMode) return;
     if (!properties) properties = {};
     properties["question"] = this;
-    this.runConditionCore(values, properties);
+    this.runConditionCore(properties);
     if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
-      this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
+      this.runDefaultValueExpression(this.defaultValueRunner, properties);
     }
   }
   public get isInDesignMode(): boolean {
@@ -2582,13 +2579,12 @@ export class Question extends SurveyElement<Question>
     runner: ExpressionRunner,
     defaultValue: any,
     setFunc: (val: any) => void,
-    values: HashTable<any> = null,
     properties: HashTable<any> = null
   ): void {
     const func = (val: any) => {
       this.runExpressionSetValueCore(val, setFunc);
     };
-    if (!this.runDefaultValueExpression(runner, values, properties, func)) {
+    if (!this.runDefaultValueExpression(runner, properties, func)) {
       func(defaultValue);
     }
   }
@@ -2613,15 +2609,13 @@ export class Question extends SurveyElement<Question>
   protected finishSetValueOnExpression(): void {
     this.survey?.finishSetValueOnExpression();
   }
-  private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
-    properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
+  private runDefaultValueExpression(runner: ExpressionRunner, properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val);
       };
     }
-    if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
     if (!properties) {
       properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
       properties["question"] = this;

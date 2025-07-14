@@ -2027,13 +2027,13 @@ export class PanelModelBase extends SurveyElement<Question>
   public removeQuestion(question: Question) {
     this.removeElement(question);
   }
-  runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  runCondition(properties: HashTable<any>) {
     if (this.isDesignMode || this.isLoadingFromJson) return;
     var elements = this.elements.slice();
     for (var i = 0; i < elements.length; i++) {
-      elements[i].runCondition(values, properties);
+      elements[i].runCondition(properties);
     }
-    this.runConditionCore(values, properties);
+    this.runConditionCore(properties);
   }
   onAnyValueChanged(name: string, questionName: string): void {
     var els = this.elements;

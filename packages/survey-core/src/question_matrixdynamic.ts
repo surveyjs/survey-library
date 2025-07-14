@@ -298,7 +298,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.generatedVisibleRows.push(newRow);
         this.onMatrixRowCreated(newRow);
       }
-      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredProperties());
     }
     this.onRowsChanged();
   }
@@ -583,10 +583,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     if (this.data) {
-      this.runCellsCondition(
-        this.getDataFilteredValues(),
-        this.getDataFilteredProperties()
-      );
+      this.runCellsCondition(this.getDataFilteredProperties());
       const rows = this.generatedVisibleRows;
       if (this.isValueEmpty(defaultValue) && rows.length > 0) {
         const row = rows[rows.length - 1];

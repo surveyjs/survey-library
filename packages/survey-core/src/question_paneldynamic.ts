@@ -2078,9 +2078,9 @@ export class QuestionPanelDynamicModel extends Question
       this.panelsCore[i].localeChanged();
     }
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    this.runPanelsCondition(this.panelsCore, values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    this.runPanelsCondition(this.panelsCore, properties);
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
@@ -2090,33 +2090,17 @@ export class QuestionPanelDynamicModel extends Question
   }
   private reRunCondition() {
     if (!this.data) return;
-    this.runCondition(
-      this.getDataFilteredValues(),
-      this.getDataFilteredProperties()
-    );
+    this.runCondition(this.getDataFilteredProperties());
   }
-  protected runPanelsCondition(panels: PanelModel[], values: HashTable<any>, properties: HashTable<any>): void {
-    var cachedValues: { [index: string]: any } = {};
-    if (values && values instanceof Object) {
-      cachedValues = JSON.parse(JSON.stringify(values));
-    }
-    if (!!this.parentQuestion && !!this.parent) {
-      cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
-    }
+  protected runPanelsCondition(panels: PanelModel[], properties: HashTable<any>): void {
     this.isValueChangingInternally = true;
     let visibleIndex = 0;
     for (var i = 0; i < panels.length; i++) {
       const panel = panels[i];
-      var panelValues = this.getPanelItemData(panel.data);
-      //Should be unique for every panel due async expression support
-      const newValues = Helpers.createCopy(cachedValues);
       const panelName = QuestionPanelDynamicItem.ItemVariableName;
-      newValues[panelName] = panelValues;
-      newValues[QuestionPanelDynamicItem.IndexVariableName.toLowerCase()] = i;
-      newValues[QuestionPanelDynamicItem.VisibleIndexVariableName.toLowerCase()] = visibleIndex;
       const newProps = Helpers.createCopy(properties);
       newProps[panelName] = panel;
-      panel.runCondition(newValues, newProps);
+      panel.runCondition(newProps);
       if (panel.isVisible) {
         visibleIndex++;
       }
@@ -2364,7 +2348,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
     if (!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
-      this.runPanelsCondition([panel], this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runPanelsCondition([panel], this.getDataFilteredProperties());
     }
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {

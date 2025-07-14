@@ -131,8 +131,8 @@ export class MatrixDropdownCell {
   public getQuestionWrapperClassName(className: string): string {
     return className;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    this.question.runCondition(values, properties);
+  public runCondition(properties: HashTable<any>): void {
+    this.question.runCondition(properties);
   }
 }
 
@@ -475,30 +475,21 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     res[MatrixDropdownRowModelBase.RowNameVariableName] = this.rowName;
     res[MatrixDropdownRowModelBase.RowTitleVariableName] = this.rowTitle;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
+  public runCondition(properties: HashTable<any>, rowsVisibleIf?: string): void {
     if (!this.data) return;
-    values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.getFilteredData();
     const rowIndex = this.rowIndex;
-    this.applyRowVariablesToValues(values, rowIndex);
     const newProps = Helpers.createCopy(properties);
     newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
-    const rowValues = rowIndex > 0 ? this.getDataRowValue() : this.value;
     if (!!rowsVisibleIf) {
-      values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
-      this.setRowsVisibleIfValues(values);
       this.visible = new ConditionRunner(rowsVisibleIf).runContext(this.getValueGetterContext(), properties);
     } else {
       this.visible = true;
     }
     for (var i = 0; i < this.cells.length; i++) {
-      if (i > 0) {
-        mergeValues(this.value, rowValues);
-      }
-      values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
-      this.cells[i].runCondition(values, newProps);
+      this.cells[i].runCondition(newProps);
     }
     if (!!this.detailPanel) {
-      this.detailPanel.runCondition(values, newProps);
+      this.detailPanel.runCondition(newProps);
     }
     if (this.isRowHasEnabledCondition()) {
       this.onQuestionReadOnlyChanged();
@@ -977,12 +968,12 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
       this.data.onTotalValueChanged();
     }
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>, rowsVisibleIf?: string): void {
+  public runCondition(properties: HashTable<any>, rowsVisibleIf?: string): void {
     var counter = 0;
     var prevValue;
     do {
       prevValue = Helpers.getUnbindValue(this.value);
-      super.runCondition(values, properties, "");
+      super.runCondition(properties, "");
       counter++;
     } while(!Helpers.isTwoValueEquals(prevValue, this.value) && counter < 3);
   }
@@ -1638,22 +1629,20 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    const oldRowVariables = values[MatrixDropdownRowModelBase.RowVariableName];
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     var counter = 0;
     var prevTotalValue;
     do {
       prevTotalValue = Helpers.getUnbindValue(this.totalValue);
-      this.runCellsCondition(values, properties);
-      this.runTotalsCondition(values, properties);
+      this.runCellsCondition(properties);
+      this.runTotalsCondition(properties);
       counter++;
     } while(
       !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
       counter < 3
     );
     this.updateVisibilityBasedOnRows();
-    values[MatrixDropdownRowModelBase.RowVariableName] = oldRowVariables;
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
@@ -1670,25 +1659,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
-  protected runCellsCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runCellsCondition(properties: HashTable<any>): void {
     if (this.isDesignMode) return;
     const rows = this.generatedVisibleRows;
     if (!!rows) {
-      const newValues = this.getRowConditionValues(values);
       for (var i = 0; i < rows.length; i++) {
-        rows[i].runCondition(newValues, properties, this.rowsVisibleIf);
+        rows[i].runCondition(properties, this.rowsVisibleIf);
       }
     }
     this.checkColumnsVisibility();
     this.checkColumnsRenderedRequired();
   }
-  protected runConditionsForColumns(values: HashTable<any>, properties: HashTable<any>): boolean {
+  protected runConditionsForColumns(properties: HashTable<any>): boolean {
     this.columns.forEach(column => {
       if (!this.columnsVisibleIf) {
         column.isColumnsVisibleIf = true;
       } else {
         const condition = new ConditionRunner(this.columnsVisibleIf);
-        values["item"] = column.name;
         column.isColumnsVisibleIf = condition.runContext(column.getValueGetterContext(), properties) === true;
       }
     });
@@ -1758,31 +1745,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       if (dest.indexOf(ch.value) < 0) dest.push(ch.value);
     }
   }
-  protected runTotalsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): void {
+  protected runTotalsCondition(properties: HashTable<any>): void {
     if (!this.generatedTotalRow) return;
-    this.generatedTotalRow.runCondition(this.getRowConditionValues(values), properties);
+    this.generatedTotalRow.runCondition(properties);
   }
-  private getRowConditionValues(values: HashTable<any>): HashTable<any> {
-    var newValues = values;
-    if (!newValues) newValues = {};
-    /*
-    var newValues: { [index: string]: any } = {};
-    if (values && values instanceof Object) {
-      newValues = JSON.parse(JSON.stringify(values));
-    }
-    */
-    var totalRow = {};
-    if (!this.isValueEmpty(this.totalValue)) {
-      totalRow = JSON.parse(JSON.stringify(this.totalValue));
-    }
-    newValues["row"] = {};
-    newValues["totalRow"] = totalRow;
-    return newValues;
-  }
-
   public IsMultiplyColumn(column: MatrixDropdownColumn): boolean {
     return column.isShowInMultipleColumns && !this.isMobile;
   }
@@ -1966,10 +1932,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         this.onMatrixRowCreated(row);
       }
       if (this.data) {
-        this.runCellsCondition(
-          this.data.getFilteredValues(),
-          this.data.getFilteredProperties()
-        );
+        this.runCellsCondition(this.data.getFilteredProperties());
         if (this.isValueChangedWithoutRows) {
           this.isValueChangedWithoutRows = false;
           this.runTriggersOnNewRows();
@@ -2024,8 +1987,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       if (!this.generatedTotalRow) {
         this.generatedTotalRow = this.generateTotalRow();
         if (this.data) {
-          var properties = { survey: this.survey };
-          this.runTotalsCondition(this.data.getAllValues(), properties);
+          this.runTotalsCondition({ survey: this.survey });
         }
       }
     } else {

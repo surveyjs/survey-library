@@ -746,10 +746,10 @@ export class Base implements IObjectValueContext {
   public getDataFilteredProperties(): any {
     return {};
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runConditionCore(properties: HashTable<any>): void {
     if (!this.expressionInfo) return;
     for (var key in this.expressionInfo) {
-      this.runConditionItemCore(key, values, properties);
+      this.runConditionItemCore(key, properties);
     }
   }
   protected canRunConditions(): boolean {
@@ -758,9 +758,9 @@ export class Base implements IObjectValueContext {
   private checkConditionPropertyChanged(propName: string): void {
     if (!this.expressionInfo || !this.expressionInfo[propName]) return;
     if (!this.canRunConditions()) return;
-    this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
+    this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
-  private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {
+  private runConditionItemCore(propName: string, properties: HashTable<any>): void {
     const info = this.expressionInfo[propName];
     const expression = this.getPropertyValue(propName);
     if (!expression) return;

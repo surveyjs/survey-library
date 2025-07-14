@@ -22213,6 +22213,74 @@ QUnit.test("questionPerPage & questionOrder = 'random', Bug#9817", function (ass
   assert.equal(page.rows[0].elements[0].name, "question2", "question2 is the current question in the row");
   Helpers.randomizeArray = oldFunc;
 });
+QUnit.test("questionPerPage & focusing question inside the panel, Bug#10113", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [1, 2]
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question2",
+            "choices": [1, 2]
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "html",
+                "name": "question3",
+                "html": "Test"
+              },
+              {
+                "type": "radiogroup",
+                "name": "question4",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question5",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{question1} = 1",
+        "gotoName": "question4"
+      }
+    ],
+    "questionsOnPageMode": "questionPerPage"
+  });
+  survey.setValue("question1", 1);
+  assert.equal(survey.currentPage.name, "page3", "page2 is the current page");
+  assert.equal(survey.currentSingleElement.name, "panel1", "panel1 is the current element");
+});
 QUnit.test("survey.getAllQuestions, get nested questions & creating nested questions on demand, Bug#9844", function (assert) {
   const survey = new SurveyModel({
     pages: [

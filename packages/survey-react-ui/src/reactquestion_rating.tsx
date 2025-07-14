@@ -42,7 +42,15 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
       : null;
     return (
       <div className={this.question.ratingRootCss} ref={(div) => (this.setControl(div))}>
-        <fieldset role="radiogroup">
+        <fieldset
+          role={this.question.a11y_input_ariaRole}
+          aria-required={this.question.a11y_input_ariaRequired}
+          aria-label={this.question.a11y_input_ariaLabel}
+          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+          aria-describedby={this.question.a11y_input_ariaDescribedBy}
+          aria-invalid={this.question.a11y_input_ariaInvalid}
+          aria-errormessage={this.question.a11y_input_ariaErrormessage}
+        >
           <legend role="presentation" className={"sv-hidden"}></legend>
           {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span> : null}
           {this.question.renderedRateItems.map((item, index) => this.renderItem(item, index))}

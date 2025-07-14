@@ -17,10 +17,7 @@
       :disabled="question.isDisabledAttr"
       :readonly="question.isReadOnlyAttr"
       @click="(e) => question.setValueFromClick(((e.target as any).value))"
-      :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
-      :aria-invalid="question.ariaInvalid"
-      :aria-errormessage="question.ariaErrormessage"
     />
     <SvComponent
       :is="'sv-svg-icon'"

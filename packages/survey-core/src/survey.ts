@@ -4887,6 +4887,11 @@ export class SurveyModel extends SurveyElementCore
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
   public set currentSingleElement(val: IElement) {
+    if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
+      while(val.parent && val.parent.isPanel) {
+        val = <IElement>(<any>val.parent);
+      }
+    }
     const oldVal = this.currentSingleElement;
     if (val !== oldVal && !this.isCompleted) {
       const valQuestion = val?.isQuestion ? <Question>val : undefined;
@@ -8172,7 +8177,7 @@ export class SurveyModel extends SurveyElementCore
       const processor = new ProcessValue();
       value = processor.getValue(fromName, this.getFilteredValues());
     }
-    this.setTriggerValue(name, value, false);
+    this.setTriggerValue(name, Helpers.getUnbindValue(value), false);
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });

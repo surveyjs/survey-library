@@ -1,4 +1,4 @@
-// Uncomment the line below if you create a custom dictionary
+// Uncomment the line below if you create a custom dictionary:
 // import { setupLocale } from "survey-core";
 
 export var englishStrings = {
@@ -122,7 +122,13 @@ export var englishStrings = {
   progressbar: "Progress bar",
 };
 
-// Uncomment the lines below if you create a custom dictionary.
-// Replace "en" with a custom locale code (for example, "fr" or "de"),
-// Replace `englishStrings` with the name of the variable that contains the custom dictionary.
-//setupLocale({ localeCode: "en", strings: englishStrings, nativeName: "English", englishName: "English" });
+/*
+  Uncomment the last line if you create a custom dictionary. This line calls the `setupLocale` method, which supports the following locale settings:
+
+  - `localeCode`: `string` - A short code used as a locale identifier (for example, "en", "de", "fr").
+  - `strings`: `object` - An object with custom translations.
+  - `nativeName`: `string` - The locale name in native language.
+  - `englishName`: `string` - The locale name in English.
+  - `rtl`: `boolean` - A flag that indicates whether the language is right-to-left. Default value: `false`.
+*/
+// setupLocale({ localeCode: "en", strings: englishStrings, nativeName: "English", englishName: "English" });

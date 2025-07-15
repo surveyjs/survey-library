@@ -95,7 +95,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     super();
   }
 
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 1) {
       const name = path[0].name;
       let val: any = this.survey.getBuiltInVariableValue(name);
@@ -104,11 +104,11 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       }
       if (val !== undefined) return { value: val, isFound: true };
     }
-    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot);
+    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot, index, createObjects);
     if (!!res && res.isFound) return res;
-    res = super.getValue(path, isRoot);
+    res = super.getValue(path, isRoot, index, createObjects);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot);
+    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot, index, createObjects);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     name = name.toLowerCase();
@@ -8108,7 +8108,7 @@ export class SurveyModel extends SurveyElementCore
       this.setVariable(name, value);
     } else {
       this.startSetValueFromTrigger();
-      const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext() });
+      const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), createObjects: true });
       if (info.isFound && info.question) {
         info.question.value = value;
       } else {
@@ -8121,8 +8121,11 @@ export class SurveyModel extends SurveyElementCore
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
     if (!name || !fromName) return;
-    const value = new ValueGetter().getValue(fromName, this.getValueGetterContext(), copyDisplayValue, copyDisplayValue);
-    this.setTriggerValue(name, Helpers.getUnbindValue(value), false);
+    const valueInfo = new ValueGetter().getValueInfo({ name: fromName, context: this.getValueGetterContext(), createObjects: true,
+      isText: copyDisplayValue, isDisplayValue: copyDisplayValue });
+    if (valueInfo.isFound) {
+      this.setTriggerValue(name, Helpers.getUnbindValue(valueInfo.value), false);
+    }
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });

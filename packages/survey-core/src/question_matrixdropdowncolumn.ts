@@ -33,7 +33,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
   }
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 1 && ["name", "item"].indexOf(path[0].name) > -1)
       return { isFound: true, value: this.column.name };
     return undefined;

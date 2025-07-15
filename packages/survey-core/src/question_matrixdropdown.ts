@@ -15,12 +15,13 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
     super();
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined, context: this };
     if (path.length > 0) {
-      const res = super.getValue(path, isRoot, index);
+      const res = super.getValue(path, isRoot, index, createObjects);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(path, isRoot);
+    return new VariableGetterContext(this.question.value).getValue(path, isRoot, index, createObjects);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {

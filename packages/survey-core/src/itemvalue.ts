@@ -17,14 +17,14 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGette
 
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 1) {
       const name = path[0].name;
       if (name === "item" || name === "choice") return { isFound: true, value: this.item.value };
     }
     const owner: any = this.item.locOwner;
     if (owner && owner.getValueGetterContext) {
-      return owner.getValueGetterContext().getValue(path, isRoot, index);
+      return owner.getValueGetterContext().getValue(path, isRoot, index, createObjects);
     }
     return undefined;
   }

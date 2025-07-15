@@ -48,7 +48,7 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
   }
   protected getIndex(): number { return this.panelIndex; }
   protected getQuestionData(): Question { return <Question>(<any>this.item.data); }
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 0) return undefined;
     if (path.length === 1) {
       const val = this.getPanelValue(path[0].name);
@@ -62,7 +62,7 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
       const q = <Question>(<any>this.item.data);
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
         path[0].name = panelPrefix;
-        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(path, true);
+        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(path, true, index, createObjects);
       }
     }
     const panel = this.item.panel;
@@ -71,14 +71,14 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
       if (isPanelPrefix) {
         path.shift();
       }
-      const res = new QuestionArrayGetterContext(panel.questions).getValue(path, false);
+      const res = new QuestionArrayGetterContext(panel.questions).getValue(path, false, index, createObjects);
       if (!!res && res.isFound) return res;
       const allValues = this.item.getAllValues();
       if (isRoot) {
         const res = this.getValueFromBindedQuestions(path, allValues);
         if (!!res) return res;
       }
-      return new VariableGetterContext(allValues).getValue(path, false);
+      return new VariableGetterContext(allValues).getValue(path, false, index, createObjects);
     }
     return undefined;
   }
@@ -119,13 +119,17 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    const pd = <QuestionPanelDynamicModel>this.question;
-    if (index >= 0 && index < pd.panels.length) {
-      const item = <QuestionPanelDynamicItem>pd.panels[index].data;
-      return item.getValueGetterContext().getValue(path, false);
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined, context: this };
+    if (index > -1) {
+      const pd = <QuestionPanelDynamicModel>this.question;
+      if (index >= 0 && index < pd.panels.length) {
+        const item = <QuestionPanelDynamicItem>pd.panels[index].data;
+        return item.getValueGetterContext().getValue(path, false, index, createObjects);
+      }
+      return { isFound: false, value: undefined, context: this };
     }
-    return super.getValue(path, isRoot, index);
+    return super.getValue(path, isRoot, index, createObjects);
   }
 }
 

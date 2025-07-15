@@ -15,7 +15,7 @@ export interface IObjectValueContext {
   getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
 }
 export interface IValueGetterContext {
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo;
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo;
   getTextValue?(name: string, value: any, isDisplayValue: boolean): string;
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
@@ -25,6 +25,7 @@ export interface IValueInfoParams {
   context: IValueGetterContext;
   isText?: boolean;
   isDisplayValue?: boolean;
+  createObjects?: boolean;
 }
 export interface IReturnValue {
   isFound: boolean;
@@ -46,7 +47,7 @@ export class ValueGetter {
   private getValueInfoCore(params: IValueInfoParams): IReturnValue {
     const name = params.name;
     const cxt = params.context;
-    let info = this.run(params.name, cxt);
+    let info = this.run(params.name, cxt, params.createObjects);
     if ((!info || !info.isFound) && cxt && cxt.getRootObj) {
       const obj = cxt.getRootObj();
       if (!!obj) {
@@ -108,10 +109,10 @@ export class ValueGetter {
     const res = this.getValueInfo({ name: fullName, context: new VariableGetterContext(obj) });
     return res.isFound ? res.value : undefined;
   }
-  private run(name: string, context: IValueGetterContext): any {
+  private run(name: string, context: IValueGetterContext, createObjects: boolean): any {
     if (!context) return undefined;
     let path = this.getPath(name);
-    const info = context.getValue(path, true);
+    const info = context.getValue(path, true, -1, createObjects);
     return !!info && info.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
@@ -147,7 +148,7 @@ export class ValueGetter {
 }
 export class ValueGetterContextCore implements IValueGetterContext {
   constructor() {}
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     let pIndex = 0;
     const res: IValueGetterInfo = { isFound: false, value: this.getInitialvalue(), context: this };
     while(pIndex < path.length) {
@@ -156,7 +157,7 @@ export class ValueGetterContextCore implements IValueGetterContext {
       const item = path[pIndex];
       pIndex++;
       if (res.context !== this && !!res.context) {
-        return res.context.getValue([].concat(path.slice(pIndex)), false, item.index);
+        return res.context.getValue([].concat(path.slice(pIndex)), false, item.index, createObjects);
       }
       if (item.index !== undefined) {
         this.updateItemByIndex(item.index, res);

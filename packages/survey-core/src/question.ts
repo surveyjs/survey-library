@@ -55,14 +55,14 @@ class TriggerExpressionInfo {
 
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question, protected isUnwrapped?: boolean) {}
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     const expVar = settings.expressionVariables;
     if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue();
     if (path.length > 1 && path[0].name === expVar.panel) {
       const panel: any = this.question.parent;
       if (panel && panel.isPanel) {
         path.shift();
-        return new QuestionArrayGetterContext(panel.questions).getValue(path, false, index);
+        return new QuestionArrayGetterContext(panel.questions).getValue(path, false, index, createObjects);
       }
     }
     if (!this.question.isEmpty()) {
@@ -71,7 +71,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
         if (!Array.isArray(val || index >= val.length)) return undefined;
         val = val[index];
       }
-      return new VariableGetterContext(val).getValue(path, false);
+      return new VariableGetterContext(val).getValue(path, false, index, createObjects);
     } else {
       if (path.length === 1 && path[0].name === "length") {
         return { isFound: true, value: 0 };
@@ -87,7 +87,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   getQuestion(): IQuestion { return this.question; }
   protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
     const survey = this.question.getSurvey();
-    if (survey) return (<any>survey).getValueGetterContext().getValue(path, index);
+    if (survey) return (<any>survey).getValueGetterContext().getValue(path, false, index, false);
     return undefined;
   }
   private getQuestionValue(): IValueGetterInfo {
@@ -110,7 +110,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue(path, false, this.getIndex());
+      const res = q.getValueGetterContext().getValue(path, false, this.getIndex(), false);
       if (!!res && res.isFound) return res;
     }
     return undefined;

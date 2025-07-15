@@ -202,7 +202,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   }
   protected getIndex(): number { return this.row.rowIndex - 1; }
   protected getQuestionData(): Question { return <Question>(<any>this.row.data); }
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 0) return undefined;
     const setVar = settings.expressionVariables;
     if (path.length === 1) {
@@ -219,7 +219,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
-        return totalRow.getValueGetterContext().getValue(path, isRoot);
+        return totalRow.getValueGetterContext().getValue(path, isRoot, index, createObjects);
       }
     }
     const isRowPrefix = path[0].name === setVar.row;
@@ -227,14 +227,14 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
       if (isRowPrefix) {
         path.shift();
       }
-      let res = super.getValue(path, isRoot);
+      let res = super.getValue(path, isRoot, index, createObjects);
       if (!!res && res.isFound) return res;
       const allValues = this.row.getAllValues();
       if (isRoot) {
         res = this.getValueFromBindedQuestions(path, allValues);
         if (!!res) return res;
       }
-      return new VariableGetterContext(allValues).getValue(path, isRoot);
+      return new VariableGetterContext(allValues).getValue(path, isRoot, index, createObjects);
     }
     return undefined;
   }

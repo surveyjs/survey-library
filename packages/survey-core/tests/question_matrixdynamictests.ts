@@ -10802,6 +10802,7 @@ QUnit.test("matrixdynamic.getValueGetterContext()", function (assert) {
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   const getter = new ValueGetter();
   const context = survey.getValueGetterContext();
+  assert.equal(matrix.visibleRows.length, 2, "There are two rows");
   assert.equal(getter.getValue("matrix[1].col1", context), 1, "#1");
   assert.equal(getter.getDisplayValue("matrix[1].col1", context,), "item1", "text #1");
   assert.equal(matrix.visibleRows.length, 2, "There are two rows: header and data row");

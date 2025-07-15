@@ -26,13 +26,17 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
   constructor (protected question: Question) {
     super(question);
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index?: number): IValueGetterInfo {
-    const md = <QuestionMatrixDynamicModel>this.question;
-    const rows = md.allRows;
-    if (index >= 0 && index < rows.length) {
-      return rows[index].getValueGetterContext().getValue(path, false);
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined, context: this };
+    if (index > -1) {
+      const md = <QuestionMatrixDynamicModel>this.question;
+      const rows = md.allRows;
+      if (index >= 0 && index < rows.length) {
+        return rows[index].getValueGetterContext().getValue(path, false, index, createObjects);
+      }
+      return { isFound: false, value: undefined, context: this };
     }
-    return super.getValue(path, isRoot, index);
+    return super.getValue(path, isRoot, index, createObjects);
   }
 }
 

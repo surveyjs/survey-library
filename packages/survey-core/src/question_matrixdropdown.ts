@@ -222,11 +222,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getFilteredDataCore(): any {
     const res: any = {};
-    const val = this.createValueCopy();
     this.generatedVisibleRows.forEach(row => {
-      const rowVal = val[row.rowName];
-      if (row.isVisible && !Helpers.isValueEmpty(rowVal)) {
-        res[row.rowName] = rowVal;
+      if (row.isVisible && !row.isEmpty) {
+        res[row.rowName] = row.filteredValue;
       }
     });
     return res;

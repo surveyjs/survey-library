@@ -2135,3 +2135,135 @@ QUnit.test("matrixdropdown.getValueGetterContext()", function (assert) {
   assert.equal(getter.getValue("matrix.row2.col1", context), 1, "#1");
   assert.equal(getter.getDisplayValue("matrix.row2.col1", context), "item1", "text #1");
 });
+QUnit.test("Expression vs saveMaskedValue, Bug#10095, related to Bug#10056 ", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 2,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col3",
+            "cellType": "expression",
+            "expression": "{row.col1} + {row.col2}",
+            "totalType": "sum",
+          },
+        ],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row1 = matrix.visibleRows[0];
+  const row2 = matrix.visibleRows[1];
+  row1.cells[0].question.value = "1.000,4";
+  row1.cells[1].question.value = "2.000,6";
+  assert.equal(row1.cells[2].question.value, "3001", "row1 col3 value");
+  row2.cells[0].question.value = "3.000,4";
+  row2.cells[1].question.value = "4.000,6";
+  assert.equal(row2.cells[2].question.value, "7001", "row2 col3 value");
+  const totalRow = matrix.visibleTotalRow;
+  assert.equal(totalRow.cells[0].question.value, "4000.8", "col1 total value");
+  assert.equal(totalRow.cells[1].question.value, "6001.2", "col2 total value");
+  assert.equal(totalRow.cells[2].question.value, "10002", "col3 total value");
+  assert.deepEqual(survey.data, { matrix: [
+    { col1: "1.000,4", col2: "2.000,6", col3: 3001 },
+    { col1: "3.000,4", col2: "4.000,6", col3: 7001 }],
+  "matrix-total": {
+    "col1": 4000.8,
+    "col2": 6001.2,
+    "col3": 10002
+  } }
+  , "matrix value");
+});
+QUnit.test("defaultValueExpression vs saveMaskedValue, Bug#10095, related to Bug#10056 ", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 2,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col3",
+            "cellType": "text",
+            "defaultValueExpression": "{row.col1} + {row.col2}",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+        ],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row1 = matrix.visibleRows[0];
+  const row2 = matrix.visibleRows[1];
+  row1.cells[0].question.value = "1.000,4";
+  row1.cells[1].question.value = "2.000,6";
+  assert.equal(row1.cells[2].question.value, "3.001", "row1 col3 value");
+  row2.cells[0].question.value = "3.000,4";
+  row2.cells[1].question.value = "4.000,6";
+  assert.equal(row2.cells[2].question.value, "7.001", "row2 col3 value");
+  const totalRow = matrix.visibleTotalRow;
+  assert.equal(totalRow.cells[0].question.value, "4000.8", "col1 total value");
+  assert.equal(totalRow.cells[1].question.value, "6001.2", "col2 total value");
+  assert.equal(totalRow.cells[2].question.value, "10002", "col3 total value");
+  assert.deepEqual(survey.data, { matrix: [
+    { col1: "1.000,4", col2: "2.000,6", col3: "3.001" },
+    { col1: "3.000,4", col2: "4.000,6", col3: "7.001" }],
+  "matrix-total": {
+    "col1": 4000.8,
+    "col2": 6001.2,
+    "col3": 10002
+  } }
+  , "matrix value");
+});

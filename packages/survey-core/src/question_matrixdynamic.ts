@@ -1060,15 +1060,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected getFilteredDataCore(): any {
     const res: any = [];
-    const val = this.createValueCopy();
-    if (!Array.isArray(val)) return res;
-    const rows = this.generatedVisibleRows;
-    for (let i = 0; i < rows.length && i < val.length; i ++) {
-      const rowVal = val[i];
-      if (rows[i].isVisible && !Helpers.isValueEmpty(rowVal)) {
-        res.push(rowVal);
+    this.generatedVisibleRows.forEach(row => {
+      if (row.isVisible && !row.isEmpty) {
+        res.push(row.filteredValue);
       }
-    }
+    });
     return res;
   }
   protected onBeforeValueChanged(val: any): void {

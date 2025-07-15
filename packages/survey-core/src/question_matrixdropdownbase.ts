@@ -318,23 +318,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   protected isItemVisible(): boolean { return true; }
   public get value(): any {
-    var result: any = {};
-    var questions = this.questions;
-    for (var i = 0; i < questions.length; i++) {
-      var question = questions[i];
-      if (!question.isEmpty()) {
-        result[question.getValueName()] = question.value;
-      }
-      if (
-        !!question.comment &&
-        !!this.getSurvey() &&
-        this.getSurvey().storeOthersAsComment
-      ) {
-        result[question.getValueName() + Base.commentSuffix] =
-          question.comment;
-      }
-    }
-    return result;
+    return this.getValueCore(false);
   }
   public set value(value: any) {
     this.isSettingValue = true;
@@ -355,6 +339,28 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       question.onSurveyValueChanged(val);
     }
     this.isSettingValue = false;
+  }
+  public get filteredValue(): any {
+    return this.getValueCore(true);
+  }
+  private getValueCore(isFiltered: boolean): any {
+    var result: any = {};
+    var questions = this.questions;
+    for (var i = 0; i < questions.length; i++) {
+      var question = questions[i];
+      if (!question.isEmpty()) {
+        result[question.getValueName()] = isFiltered ? question.getFilteredValue() : question.value;
+      }
+      if (
+        !!question.comment &&
+        !!this.getSurvey() &&
+        this.getSurvey().storeOthersAsComment
+      ) {
+        result[question.getValueName() + Base.commentSuffix] =
+          question.comment;
+      }
+    }
+    return result;
   }
   public get locText(): LocalizableString {
     return null;
@@ -2570,7 +2576,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return false;
   }
   getFilteredData(): any {
-    if (this.isEmpty() || !this.generatedVisibleRows || !this.hasInvisibleRows) return this.value;
+    if (this.isEmpty() || !this.generatedVisibleRows) return this.value;
     return this.getFilteredDataCore();
   }
   protected getFilteredDataCore(): any { return this.value; }

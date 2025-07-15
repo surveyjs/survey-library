@@ -2576,7 +2576,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return false;
   }
   getFilteredData(): any {
-    if (this.isEmpty() || !this.generatedVisibleRows) return this.value;
+    if (this.isEmpty() || !this.generatedVisibleRows || this.isEditingSurveyElement) return this.value;
     return this.getFilteredDataCore();
   }
   protected getFilteredDataCore(): any { return this.value; }

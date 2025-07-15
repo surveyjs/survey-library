@@ -4920,6 +4920,11 @@ export class SurveyModel extends SurveyElementCore
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
   public set currentSingleElement(val: IElement) {
+    if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
+      while(val.parent && val.parent.isPanel) {
+        val = <IElement>(<any>val.parent);
+      }
+    }
     const oldVal = this.currentSingleElement;
     if (val !== oldVal && !this.isCompleted) {
       const valQuestion = val?.isQuestion ? <Question>val : undefined;

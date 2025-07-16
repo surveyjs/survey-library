@@ -12,11 +12,9 @@ export class TextPreProcessorItem {
 export class TextPreProcessorValue {
   constructor(public name: string, public returnDisplayValue: boolean) {
     this.isExists = false;
-    this.canProcess = true;
   }
   public value: any;
   public isExists: boolean;
-  public canProcess: boolean;
 }
 
 export class TextPreProcessor {
@@ -41,9 +39,7 @@ export class TextPreProcessor {
         const textValue = new TextPreProcessorValue(name, returnDisplayValue === true);
         this.onProcess(textValue);
         if (!textValue.isExists) {
-          if (textValue.canProcess) {
-            this.hasAllValuesOnLastRunValue = false;
-          }
+          this.hasAllValuesOnLastRunValue = false;
         }
         if (textValue.isExists || replaceUndefinedValues) {
           if (Helpers.isValueEmpty(textValue.value)) {
@@ -117,7 +113,7 @@ export class TextContextProcessor implements ITextProcessor {
     };
   }
   processText(text: string, returnDisplayValue: boolean): string {
-    const params: ITextProcessorProp = { text: text, returnDisplayValue: returnDisplayValue, replaceUndefinedValues: true };
+    const params: ITextProcessorProp = { text: text, returnDisplayValue: returnDisplayValue };
     return this.processTextEx(params).text;
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {

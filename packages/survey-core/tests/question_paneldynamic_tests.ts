@@ -524,6 +524,7 @@ QUnit.test("Text Processing from panel.data", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");
   var question = new QuestionPanelDynamicModel("q");
+  question.template.addNewQuestion("text", "panelQ1");
   question.templateTitle = "Value: {panel.panelQ1}";
   question.panelCount = 2;
   assert.equal(

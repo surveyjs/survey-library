@@ -16,7 +16,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
     super();
   }
   public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined, context: this };
+    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (path.length > 0) {
       const res = super.getValue(path, isRoot, index, createObjects);
       if (res && res.isFound) return res;

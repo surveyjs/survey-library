@@ -98,7 +98,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 1) {
       const name = path[0].name;
-      let val: any = this.survey.getBuiltInVariableValue(name);
+      let val: any = this.getBuiltInVariableValue(name);
       if (name === "locale") {
         val = this.survey.locale || surveyLocalization.defaultLocale;
       }
@@ -124,6 +124,28 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     }
   }
   protected isSearchNameRevert(): boolean { return true; }
+  private getBuiltInVariableValue(name: string): number {
+    const survey = this.survey;
+    name = name.toLocaleLowerCase();
+    if (name === "pageno") {
+      var page = survey.currentPage;
+      return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
+    }
+    if (name === "pagecount") {
+      return survey.visiblePageCount;
+    }
+    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
+      return survey.getCorrectedAnswerCount();
+    }
+    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
+      return survey.getInCorrectedAnswerCount();
+    }
+    if (name === "questioncount") {
+      return survey.getQuizQuestionCount();
+    }
+    return undefined;
+  }
+
 }
 
 /**
@@ -6926,26 +6948,6 @@ export class SurveyModel extends SurveyElementCore
       textValue.isExists =
         textValue.isExists || (wasEmpty && !this.isValueEmpty(textValue.value));
     }
-  }
-  getBuiltInVariableValue(name: string): number {
-    name = name.toLocaleLowerCase();
-    if (name === "pageno") {
-      var page = this.currentPage;
-      return page != null ? this.visiblePages.indexOf(page) + 1 : 0;
-    }
-    if (name === "pagecount") {
-      return this.visiblePageCount;
-    }
-    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
-      return this.getCorrectedAnswerCount();
-    }
-    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
-      return this.getInCorrectedAnswerCount();
-    }
-    if (name === "questioncount") {
-      return this.getQuizQuestionCount();
-    }
-    return undefined;
   }
   private getProcessedTextValueCore(textValue: TextPreProcessorValue): void {
     const name = textValue.name.toLocaleLowerCase();

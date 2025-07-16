@@ -6,7 +6,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
-import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { MatrixDropdownRowModel, QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
@@ -2266,4 +2266,22 @@ QUnit.test("defaultValueExpression vs saveMaskedValue, Bug#10095, related to Bug
     "col3": 10002
   } }
   , "matrix value");
+});
+QUnit.test("Process text for question with value, no value and non existing for question in detail matrix", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValue: "val" }, { type: "text", name: "q2" },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q4", title: "{q1}+{q2}+{q3}" }]
+      }
+    ]
+  });
+  const row = <MatrixDropdownRowModel>survey.getQuestionByName("matrix").visibleRows[0];
+  row.showDetailPanel();
+  const q4 = row.detailPanel.getQuestionByName("q4");
+  assert.equal(q4.locTitle.textOrHtml, "val++{q3}", "show value, show empty string, show as it is");
 });

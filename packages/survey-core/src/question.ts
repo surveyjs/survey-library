@@ -72,10 +72,6 @@ export class QuestionValueGetterContext implements IValueGetterContext {
         val = val[index];
       }
       return new VariableGetterContext(val).getValue(path, false, index, createObjects);
-    } else {
-      if (path.length === 1 && path[0].name === "length") {
-        return { isFound: true, value: 0 };
-      }
     }
     return undefined;
   }

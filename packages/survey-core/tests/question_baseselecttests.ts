@@ -3177,6 +3177,56 @@ QUnit.test("Radiogroup/dropdown hasComment supportAutoAdvance", (assert) => {
   assert.equal(q1.supportAutoAdvance(), false, "q1 supportAutoAdvance, #4");
   assert.equal(q2.supportAutoAdvance(), false, "q2 supportAutoAdvance, #4");
 });
+QUnit.test("isCommentRequired serialization", (assert) => {
+  const q = new QuestionRadiogroupModel("q1");
+  q.choices = [{ value: 1 }];
+  const choice = q.choices[0];
+  assert.equal(choice.isCommentRequired, true, "isCommentRequired is true by default");
+  assert.equal(choice.toJSON().isCommentRequired, undefined, "isCommentRequired is undefined by default in JSON");
+  choice.isCommentRequired = false;
+  assert.equal(choice.toJSON().isCommentRequired, false, "isCommentRequired is false after setting it");
+});
+QUnit.test("commentPlaceholder serialization", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{ name: "q1", type: "radiogroup", choices: [1] }] });
+  const q = survey.getQuestionByName("q1");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder");
+  q.choices[0].commentPlaceholder = "val1";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "val1", "locCommentPlaceholder.text is set");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: "val1" }] }, "serialization vs commentPlaceHolder");
+  q.fromJSON({ name: "q1", type: "radiogroup", choices: [{ value: 1, commentPlaceholder: { default: "en-val", de: "de-val" } }] });
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "en-val", "locCommentPlaceholder.text for locale 'default'");
+  survey.locale = "de";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "de-val", "locCommentPlaceholder.text for locale 'de'");
+  survey.locale = "fr";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "en-val", "locCommentPlaceholder.text for locale 'fr #1'");
+  q.choices[0].locCommentPlaceholder.text = "fr-val";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "fr-val", "locCommentPlaceholder.text for locale 'fr #2'");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: { "default": "en-val", "de": "de-val", fr: "fr-val" } }] }, "serialization vs commentPlaceHolder&locales");
+  q.choices[0].locCommentPlaceholder.clear();
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder #2");
+});
+QUnit.test("checbox question and choices has comment - custom placeholder", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, hasComment: true, commentPlaceholder: "Please add com" }, 3],
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = [1, 2];
+  assert.equal(q1.choices[1].commentPlaceholder, "Please add com", "commentPlaceholder for choices[1], #1");
+  const textArea1 = q1.getCommentTextAreaModel(q1.choices[0]);
+  const textArea2 = q1.getCommentTextAreaModel(q1.choices[1]);
+  assert.equal(textArea1.placeholder, "Some comment", "textArea1 placeholder");
+  assert.equal(textArea2.placeholder, "Please add com", "textArea2 placeholders");
+});
 QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
   const survey = new SurveyModel({
     elements: [

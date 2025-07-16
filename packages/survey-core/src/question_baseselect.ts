@@ -1,4 +1,4 @@
-import { property, propertyArray, Serializer } from "./jsonobject";
+import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues } from "./base-interfaces";
 import { SurveyModel } from "./survey";
@@ -18,6 +18,7 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 
 export class ChoiceItem extends ItemValue {
+  private locCommentPlaceholderValue: LocalizableString;
   protected getBaseType(): string { return "choiceitem"; }
   public get hasComment(): boolean {
     return this.getPropertyValue("hasComment");
@@ -37,6 +38,21 @@ export class ChoiceItem extends ItemValue {
   public get isCommentShowing(): boolean {
     return this.getPropertyValue("isCommentShowing", false);
   }
+  public get locCommentPlaceholder(): LocalizableString {
+    if (!this.locCommentPlaceholderValue) {
+      this.locCommentPlaceholderValue = new LocalizableString(this, true, "commentPlaceholder");
+      this.locCommentPlaceholderValue.onChanged = () => {
+        this.setPropertyValue("commentPlaceholder", this.locCommentPlaceholderValue.text);
+      };
+    }
+    return this.locCommentPlaceholderValue;
+  }
+  public get commentPlaceholder(): string {
+    return this.locCommentPlaceholder.text;
+  }
+  public set commentPlaceholder(val: string) {
+    this.locCommentPlaceholder.text = val;
+  }
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
   }
@@ -44,6 +60,10 @@ export class ChoiceItem extends ItemValue {
     const owner: any = this.locOwner;
     if (!owner || !owner.supportMultipleComment) return false;
     return owner.supportMultipleComment(this);
+  }
+  protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
+    if (prop.name === "commentPlaceholder") return !!this.locCommentPlaceholderValue;
+    return super.canAddPpropertyToJSON(prop);
   }
   protected onLocOwnerChanged() : void {
     if (this.hasComment && !this.supportComment) {
@@ -160,17 +180,17 @@ export class QuestionSelectBase extends Question {
     }
     const dic = this.commentAreaModelValues;
     if (!dic[val]) {
-      dic[val] = new TextAreaModel(this.getOtherTextAreaOptions(item));
+      dic[val] = new TextAreaModel(this.getOtherTextAreaOptions(<ChoiceItem>item));
     }
     return dic[val];
   }
-  private getOtherTextAreaOptions(item: ItemValue): ITextArea {
+  private getOtherTextAreaOptions(item: ChoiceItem): ITextArea {
     const options: ITextArea = {
       question: this,
       id: () => this.getItemCommentId(item),
       propertyNames: [this.getCommentPropertyValue(item)],
       className: () => this.cssClasses.other,
-      placeholder: () => this.otherPlaceholder,
+      placeholder: () => item.commentPlaceholder || this.otherPlaceholder,
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,
       maxLength: () => this.getOthersMaxLength(),
@@ -2297,6 +2317,7 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 Serializer.addClass("choiceitem",
   [{ name: "hasComment:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
     { name: "isCommentRequired:boolean", default: true, locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.hasComment; } },
+    { name: "commentPlaceholder", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.hasComment; } }
   ],
   (value) => new ChoiceItem(value),
   "itemvalue"

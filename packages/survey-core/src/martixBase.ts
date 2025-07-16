@@ -119,7 +119,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public set rowsVisibleIf(val: string) {
     this.setPropertyValue("rowsVisibleIf", val);
     if (!this.isLoadingFromJsonValue) {
-      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredProperties());
     }
   }
   /**
@@ -140,12 +140,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public set columnsVisibleIf(val: string) {
     this.setPropertyValue("columnsVisibleIf", val);
     if (!this.isLoadingFromJson) {
-      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredProperties());
     }
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    this.runItemsCondition(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    this.runItemsCondition(properties);
   }
   protected onColumnsChanged(): void { }
   protected onRowsChanged(): void {
@@ -168,9 +168,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected hasRowsAsItems(): boolean {
     return true;
   }
-  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): void {
-    let hasChanges = this.hasRowsAsItems() && this.runConditionsForRows(values, properties);
-    const hasColumnsChanged = this.runConditionsForColumns(values, properties);
+  protected runItemsCondition(properties: HashTable<any>): void {
+    let hasChanges = this.hasRowsAsItems() && this.runConditionsForRows(properties);
+    const hasColumnsChanged = this.runConditionsForColumns(properties);
     hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
       if (this.isClearValueOnHidden && hasColumnsChanged) {
@@ -188,22 +188,22 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.generatedVisibleRows = null;
   }
   protected createRowsVisibleIfRunner(): ConditionRunner { return null; }
-  private runConditionsForRows(values: HashTable<any>, properties: HashTable<any>): boolean {
+  private runConditionsForRows(properties: HashTable<any>): boolean {
     const showInvisibile = !!this.survey && this.survey.areInvisibleElementsShowing;
     const runner = !showInvisibile ? this.createRowsVisibleIfRunner() : null;
     this.filteredRows = [];
     const hasChanged = ItemValue.runConditionsForItems(this.rows, this.filteredRows, runner,
-      values, properties, !showInvisibile);
-    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
+      properties, !showInvisibile);
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
     }
     return hasChanged;
   }
-  protected runConditionsForColumns(values: HashTable<any>, properties: HashTable<any>): boolean {
+  protected runConditionsForColumns(properties: HashTable<any>): boolean {
     const useColumnsExpression = !!this.survey && !this.survey.areInvisibleElementsShowing;
     const runner = useColumnsExpression && !!this.columnsVisibleIf ? new ConditionRunner(this.columnsVisibleIf) : null;
-    return ItemValue.runConditionsForItems(this.columns, undefined, runner, values, properties, this.shouldRunColumnExpression());
+    return ItemValue.runConditionsForItems(this.columns, undefined, runner, properties, this.shouldRunColumnExpression());
   }
   protected clearInvisibleColumnValues(): void {}
   protected clearInvisibleValuesInRows(): void {}

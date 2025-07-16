@@ -17,10 +17,12 @@ import { IPlainDataOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions";
 import { Question } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
+  getDisplayRowValue(value: any): string;
   cssClasses: any;
   isDisabledStyle: boolean;
   isInputReadOnly: boolean;
@@ -28,7 +30,17 @@ export interface IMatrixData {
   isReadOnlyAttr: boolean;
   hasErrorInRow(row: MatrixRowModel): boolean;
 }
-
+class MatrixRowValueGetterContext implements IValueGetterContext {
+  constructor(private row: MatrixRowModel) {}
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (path.length !== 0) return undefined;
+    return { isFound: true, value: this.row.value, context: this };
+  }
+  public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (!isDisplayValue) return value;
+    return this.row.getDisplayValue(value);
+  }
+}
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
   public cellClick: any;
@@ -72,6 +84,9 @@ export class MatrixRowModel extends Base {
   public setValueDirectly(val: any): void {
     this.setPropertyValue("value", val);
   }
+  public getDisplayValue(val: any): string {
+    return this.data.getDisplayRowValue(val);
+  }
   public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
   public get isReadOnlyAttr(): boolean { return this.data.isReadOnlyAttr; }
   public get isDisabledAttr(): boolean { return !this.item.enabled || this.data.isDisabledAttr; }
@@ -91,6 +106,9 @@ export class MatrixRowModel extends Base {
       .append(cssClasses.rowReadOnly, this.isReadOnly)
       .append(cssClasses.rowDisabled, this.data.isDisabledStyle)
       .toString();
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixRowValueGetterContext(this);
   }
 }
 
@@ -262,6 +280,33 @@ export class MatrixCells extends Base {
   }
 }
 
+export class MatrixValueGetterContext extends ValueGetterContextCore {
+  constructor (protected question: QuestionMatrixModel) {
+    super();
+  }
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (path.length > 0) {
+      const res = super.getValue(path, isRoot, index, createObjects);
+      if (res && res.isFound) return res;
+    }
+    return new VariableGetterContext(this.question.value).getValue(path, isRoot, index, createObjects);
+  }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const rows = this.question.visibleRows;
+    name = name.toLocaleLowerCase();
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const itemName = row.name?.toString() || "";
+      if (itemName.toLocaleLowerCase() === name) {
+        res.isFound = true;
+        res.context = row.getValueGetterContext();
+        return;
+      }
+    }
+  }
+}
+
 /**
   * A class that describes the Single-Select Matrix question type.
   *
@@ -284,7 +329,7 @@ export class QuestionMatrixModel
       this.onColumnsChanged();
     });
     this.registerPropertyChangedHandlers(["rows"], () => {
-      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredProperties());
       this.onRowsChanged();
     });
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
@@ -438,9 +483,9 @@ export class QuestionMatrixModel
     }
     return res;
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
+    super.runConditionCore(properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
     return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;
@@ -511,7 +556,6 @@ export class QuestionMatrixModel
   getComment(name: string): string { return this.data?.getComment(name); }
   setComment(name: string, newValue: string, locNotification: any): any { this.data?.setComment(name, newValue, locNotification); }
   getAllValues(): any { return this.data?.getAllValues(); }
-  getFilteredValues(): any { return this.data?.getFilteredValues(); }
   getFilteredProperties(): any { return this.data?.getFilteredProperties(); }
   findQuestionByName(name: string): IQuestion { return this.data?.findQuestionByName(name); }
   getEditingSurveyElement(): Base { return this.data?.getEditingSurveyElement(); }
@@ -674,6 +718,9 @@ export class QuestionMatrixModel
     this.updateIsAnswered();
     this.isRowChanging = false;
   }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixValueGetterContext(this);
+  }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res: { [index: string]: any } = {};
     for (var key in value) {
@@ -814,14 +861,23 @@ export class QuestionMatrixModel
     this.isRowChanging = false;
   }
   getCorrectedRowValue(value: any): any {
-    for (var i = 0; i < this.columns.length; i++) {
-      if (value === this.columns[i].value) return value;
+    const col = this.getColumnByValue(value);
+    return col ? col.value : value;
+  }
+  getDisplayRowValue(value: any): string {
+    const col = this.getColumnByValue(value);
+    if (col) return col.text;
+    return value !== null && value !== undefined ? value.toString() : "";
+  }
+  private getColumnByValue(value: any): ItemValue {
+    const cols = this.columns;
+    for (var i = 0; i < cols.length; i++) {
+      if (value === cols[i].value) return cols[i];
     }
-    for (var i = 0; i < this.columns.length; i++) {
-      if (this.isTwoValueEquals(value, this.columns[i].value))
-        return this.columns[i].value;
+    for (var i = 0; i < cols.length; i++) {
+      if (this.isTwoValueEquals(value, cols[i].value)) return cols[i];
     }
-    return value;
+    return null;
   }
   hasErrorInRow(row: MatrixRowModel): boolean {
     return !!this.errorsInRow && !!this.errorsInRow[row.name];

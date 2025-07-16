@@ -86,7 +86,7 @@ const customLocaleStrings = {
 
 setupLocale({
   localeCode: "customlocale",   // A short code used as a locale identifier (for example, "en", "de", "fr")
-  strings: customLocaleStrings, // An array with custom translations
+  strings: customLocaleStrings, // An object with custom translations
   nativeName: "Custom Locale",  // The locale name in native language
   englishName: "Custom Locale", // The locale name in English 
   rtl: false                    // A flag that indicates whether the language is right-to-left

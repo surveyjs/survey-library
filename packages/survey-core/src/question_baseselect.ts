@@ -512,12 +512,12 @@ export class QuestionSelectBase extends Question {
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    this.runItemsEnableCondition(values, properties);
-    this.runItemsCondition(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    this.runItemsEnableCondition(properties);
+    this.runItemsCondition(properties);
     this.choices.forEach(item => {
-      item.runConditionCore(values, properties);
+      item.runConditionCore(properties);
     });
   }
   protected isTextValue(): boolean {
@@ -548,17 +548,13 @@ export class QuestionSelectBase extends Question {
       this.areInvisibleElementsShowing
     )
       return false;
-    var values = this.getDataFilteredValues();
     var properties = this.getDataFilteredProperties();
-    this.runItemsEnableCondition(values, properties);
-    return this.runItemsCondition(values, properties);
+    this.runItemsEnableCondition(properties);
+    return this.runItemsCondition(properties);
   }
-  protected runItemsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
+  protected runItemsCondition(properties: HashTable<any>): boolean {
     this.setConditionalChoicesRunner();
-    var hasChanges = this.runConditionsForItems(values, properties);
+    var hasChanges = this.runConditionsForItems(properties);
     if (
       !!this.filteredChoicesValue &&
       this.filteredChoicesValue.length === this.activeChoices.length
@@ -571,15 +567,11 @@ export class QuestionSelectBase extends Question {
     }
     return hasChanges;
   }
-  protected runItemsEnableCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): any {
+  protected runItemsEnableCondition(properties: HashTable<any>): any {
     this.setConditionalEnableChoicesRunner();
     var hasChanged = ItemValue.runEnabledConditionsForItems(
       this.activeChoices,
       this.conditionChoicesEnableIfRunner,
-      values,
       properties,
       (item: ItemValue, val: boolean): boolean => {
         return val && this.onEnableItemCallBack(item);
@@ -651,10 +643,7 @@ export class QuestionSelectBase extends Question {
       (item: ItemValue, val: boolean): boolean => this.survey.getChoiceItemVisibility(this, item, val)
       : null;
   }
-  private runConditionsForItems(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ): boolean {
+  private runConditionsForItems(properties: HashTable<any>): boolean {
     this.filteredChoicesValue = [];
     const calcVisibility = this.changeItemVisibility();
     return ItemValue.runConditionsForItems(
@@ -663,7 +652,6 @@ export class QuestionSelectBase extends Question {
       this.areInvisibleElementsShowing
         ? null
         : this.conditionChoicesVisibleIfRunner,
-      values,
       properties,
       !this.survey || !this.survey.areInvisibleElementsShowing,
       (item: ItemValue, val: boolean): boolean => {

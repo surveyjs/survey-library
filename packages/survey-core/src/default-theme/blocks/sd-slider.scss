@@ -2,8 +2,8 @@
 
 :root {
   --sjs-postcss-fix-slider-path-height: var(--lbr-slider-path-height, #{calcSize(0.5)});
-  --sjs-postcss-fix-slider-path-color: var(--lbr-slider-path-color, #{$border-light});
-  --sjs-postcss-fix-slider-path-color-filled: var(--lbr-slider-path-color-filled, #{$primary});
+  --sjs-postcss-fix-slider-path-color: var(--lbr-slider-path-color);
+  --sjs-postcss-fix-slider-path-color-filled: var(--lbr-slider-path-color-filled);
   --sjs-postcss-fix-slider-thumb-width: var(--lbr-slider-thumb-width, #{calcSize(4)});
   --sjs-postcss-fix-slider-thumb-height: var(--lbr-slider-thumb-height, #{calcSize(4)});
   --sjs-postcss-fix-slider-thumb-color: var(--lbr-slider-thumb-color, #{$question-background});
@@ -67,10 +67,10 @@
 }
 
 .sd-slider__inverse-track {
-  background: var(--sjs-postcss-fix-slider-path-color);
+  background: var(--sjs-postcss-fix-slider-path-color, #{$border-light});
   &::after,
   &::before {
-    background: var(--sjs-postcss-fix-slider-path-color);
+    background: var(--sjs-postcss-fix-slider-path-color, #{$border-light});
   }
 }
 
@@ -92,16 +92,16 @@
 
 .sd-slider__range-track {
   left: 0;
-  background: var(--sjs-postcss-fix-slider-path-color-filled);
+  background: var(--sjs-postcss-fix-slider-path-color-filled, #{$primary});
 
   &::before {
     @include leftOutrangePath;
-    background: var(--sjs-postcss-fix-slider-path-color-filled);
+    background: var(--sjs-postcss-fix-slider-path-color-filled, #{$primary});
   }
 
   &::after {
     @include rightOutrangePath;
-    background: var(--sjs-postcss-fix-slider-path-color-filled);
+    background: var(--sjs-postcss-fix-slider-path-color-filled, #{$primary});
   }
 }
 

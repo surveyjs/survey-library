@@ -2534,15 +2534,13 @@ QUnit.test("questionselectbase.choicesEnableIf", function (assert) {
   assert.equal(qBestCar.enabledChoices.length, 4, "there is no filter");
 });
 
-QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var qCars = new QuestionCheckboxModel("cars");
+QUnit.test("questionselectbase.choicesVisibleIf, support {choice}", (assert) => {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qCars = new QuestionCheckboxModel("cars");
   qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   page.addElement(qCars);
-  var qBestCar = new QuestionRadiogroupModel("bestCar");
+  const qBestCar = new QuestionRadiogroupModel("bestCar");
   qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   qBestCar.choicesVisibleIf = "{cars} contains {choice}";
   page.addElement(qBestCar);
@@ -2654,7 +2652,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
+QUnit.test("matrixdropdown.rowsVisibleIf", (assert) => {
   const survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "cars", choices: ["Audi", "BMW", "Mercedes", "Volkswagen"] },
@@ -2673,13 +2671,13 @@ QUnit.test("matrixdropdown.rowsVisibleIf", function (assert) {
   assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
 });
 
-QUnit.test("matrixdropdown.columnsVisibleIf", function (assert) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("p1");
-  var qCars = new QuestionCheckboxModel("cars");
+QUnit.test("matrixdropdown.columnsVisibleIf", (assert) => {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qCars = new QuestionCheckboxModel("cars");
   qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   page.addElement(qCars);
-  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  const qBestCar = new QuestionMatrixDropdownModel("bestCar");
   qBestCar.rows = ["col1"];
   qBestCar.addColumn("Audi");
   qBestCar.addColumn("BMW");
@@ -7061,9 +7059,6 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
   const prop = Serializer.findProperty("comment", "cols");
   assert.equal(prop.visible, false, "property is invisible");
   assert.equal(prop.isSerializable, false, "property is non-serializable");
-});
-QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
-  assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
 });
 QUnit.test("question.getRootCss apply disable css correctly", function (assert) {
   const survey = new SurveyModel({

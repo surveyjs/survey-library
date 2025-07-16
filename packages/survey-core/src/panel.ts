@@ -764,15 +764,22 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return null;
   }
-  public getQuestionByValueName(valueName: string): Question {
-    const res = this.getQuestionsByValueName(valueName);
+  public getQuestionByValueName(valueName: string, caseInsensitive: boolean = false): Question {
+    const res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return res.length > 0 ? res[0] : null;
   }
-  public getQuestionsByValueName(valueName: string): Array<Question> {
+  public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
     const res = [];
+    if (caseInsensitive) {
+      valueName = valueName.toLowerCase();
+    }
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      if (questions[i].getValueName() == valueName) res.push(questions[i]);
+      let name = questions[i].getValueName();
+      if (caseInsensitive) {
+        name = name.toLowerCase();
+      }
+      if (name == valueName) res.push(questions[i]);
     }
     return res;
   }
@@ -2020,13 +2027,13 @@ export class PanelModelBase extends SurveyElement<Question>
   public removeQuestion(question: Question) {
     this.removeElement(question);
   }
-  runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  runCondition(properties: HashTable<any>) {
     if (this.isDesignMode || this.isLoadingFromJson) return;
     var elements = this.elements.slice();
     for (var i = 0; i < elements.length; i++) {
-      elements[i].runCondition(values, properties);
+      elements[i].runCondition(properties);
     }
-    this.runConditionCore(values, properties);
+    this.runConditionCore(properties);
   }
   onAnyValueChanged(name: string, questionName: string): void {
     var els = this.elements;

@@ -89,15 +89,11 @@ QUnit.test("Simple custom trigger", function(assert) {
   assert.equal(counterSuccess, 3, "2 not in []");
   assert.equal(counterFalure, 3, "2 not in [2, 3]");
 });
-QUnit.test("Visibility trigger", function(assert) {
+QUnit.test("Visibility trigger", (assert) => {
   var owner = new SurveyTriggerVisibleOwnerTester();
   var trigger = new SurveyTriggerVisible();
   trigger.setOwner(owner);
-  assert.equal(
-    owner.items[0].visible,
-    false,
-    "By default the item.visible = false"
-  );
+  assert.equal(owner.items[0].visible, false, "By default the item.visible = false");
   trigger.value = 10;
   trigger.check(10);
   assert.equal(owner.items[0].visible, true, "The trigger should succeed");
@@ -105,8 +101,8 @@ QUnit.test("Visibility trigger", function(assert) {
   assert.equal(owner.items[0].visible, false, "The trigger should failed");
 });
 
-QUnit.test("Visibility trigger", function(assert) {
-  var survey = new SurveyModel({
+QUnit.test("setvalue trigger", (assert) => {
+  const survey = new SurveyModel({
     elements: [
       {
         type: "text",
@@ -135,15 +131,11 @@ QUnit.test("Visibility trigger", function(assert) {
       },
     ],
   });
-  survey.setValue("matrix", [{ col1: 1 }, { col2: 2 }]);
+  survey.setValue("matrix", [{ Col1: 1 }, { Col2: 2 }]);
   assert.equal(survey.getValue("q1"), "exec", "Trigger executed correctly");
   survey.setValue("q1", "notExec");
-  survey.setValue("matrix", [{ col1: 1, col2: 1 }, { col2: 2 }]);
-  assert.equal(
-    survey.getValue("q1"),
-    "notExec",
-    "Trigger not executed correctly"
-  );
+  survey.setValue("matrix", [{ Col1: 1, Col2: 1 }, { Col2: 2 }]);
+  assert.equal(survey.getValue("q1"), "notExec", "Trigger not executed correctly");
 });
 QUnit.test("Clear seValue on setToName property in design mode", function(
   assert

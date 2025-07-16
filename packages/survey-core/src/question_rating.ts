@@ -351,11 +351,11 @@ export class QuestionRatingModel extends Question {
     if (!this.useRateValues() && newValue !== undefined)this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    this.runRateItesmCondition(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    this.runRateItesmCondition(properties);
   }
-  protected runRateItesmCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runRateItesmCondition(properties: HashTable<any>): void {
     if (!this.useRateValues()) return;
     let isChanged = false;
     if (this.survey?.areInvisibleElementsShowing) {
@@ -364,7 +364,7 @@ export class QuestionRatingModel extends Question {
         item.setIsVisible(item, true);
       });
     } else {
-      isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, values, properties, true);
+      isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, properties, true);
     }
     if (isChanged) {
       this.resetRenderedItems();

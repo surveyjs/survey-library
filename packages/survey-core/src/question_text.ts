@@ -191,10 +191,10 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this.isTextInput) return null;
     return super.getMaxLength();
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     if (!!this.minValueExpression || !!this.maxValueExpression) {
-      this.setRenderedMinMax(values, properties);
+      this.setRenderedMinMax(properties);
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -374,6 +374,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.value = value;
   }
+  public getFilteredValue(): any {
+    return this.getExpressionValue(this.value);
+  }
+  //TODO remove this method in the future
   getExpressionValue(val: any): any {
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);
@@ -522,10 +526,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.isValueEmpty(minMax)) return minMax;
     return this.isDateInputType ? this.createDate(minMax) : minMax;
   }
-  private setRenderedMinMax(
-    values: HashTable<any> = null,
-    properties: HashTable<any> = null
-  ) {
+  private setRenderedMinMax(properties: HashTable<any> = null) {
     this.minValueRunner = this.getDefaultRunner(this.minValueRunner, this.minValueExpression);
     this.setValueAndRunExpression(
       this.minValueRunner,
@@ -536,7 +537,6 @@ export class QuestionTextModel extends QuestionTextBase {
         }
         this.setPropertyValue("renderedMin", val);
       },
-      values,
       properties
     );
     this.maxValueRunner = this.getDefaultRunner(this.maxValueRunner, this.maxValueExpression);
@@ -549,7 +549,6 @@ export class QuestionTextModel extends QuestionTextBase {
         }
         this.setPropertyValue("renderedMax", val);
       },
-      values,
       properties
     );
   }

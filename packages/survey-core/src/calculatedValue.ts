@@ -78,17 +78,14 @@ export class CalculatedValue extends Base {
   public resetCalculation() {
     this.isCalculated = false;
   }
-  public doCalculation(
-    calculatedValues: Array<CalculatedValue>,
-    values: HashTable<any>,
-    properties: HashTable<any>
+  public doCalculation(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>
   ) {
     if (this.isCalculated) return;
-    this.runExpressionCore(calculatedValues, values, properties);
+    this.runExpressionCore(calculatedValues, properties);
     this.isCalculated = true;
   }
-  public runExpression(values: HashTable<any>, properties: HashTable<any>) {
-    this.runExpressionCore(null, values, properties);
+  public runExpression(properties: HashTable<any>) {
+    this.runExpressionCore(null, properties);
   }
   public get value(): any {
     if (!this.data) return undefined;
@@ -109,39 +106,27 @@ export class CalculatedValue extends Base {
   }
   private rerunExpression() {
     if (!this.canRunExpression) return;
-    this.runExpression(
-      this.data.getFilteredValues(),
-      this.data.getFilteredProperties()
-    );
+    this.runExpression(this.data.getFilteredProperties());
   }
-  private runExpressionCore(
-    calculatedValues: Array<CalculatedValue>,
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
+  private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     if (!this.canRunExpression) return;
-    this.ensureExpression(values);
+    this.ensureExpression();
     this.locCalculation();
     if (!!calculatedValues) {
-      this.runDependentExpressions(calculatedValues, values, properties);
+      this.runDependentExpressions(calculatedValues, properties);
     }
-    this.expressionRunner.run(values, properties);
+    this.expressionRunner.runContext(this.getValueGetterContext(), properties);
   }
-  private runDependentExpressions(
-    calculatedValues: Array<CalculatedValue>,
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
+  private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     var variables = this.expressionRunner.getVariables();
     if (!variables) return;
     for (var i = 0; i < calculatedValues.length; i++) {
       var calcItem = calculatedValues[i];
       if (calcItem === this || variables.indexOf(calcItem.name) < 0) continue;
-      calcItem.doCalculation(calculatedValues, values, properties);
-      values[calcItem.name] = calcItem.value;
+      calcItem.doCalculation(calculatedValues, properties);
     }
   }
-  private ensureExpression(values: HashTable<any>) {
+  private ensureExpression() {
     if (!!this.expressionRunner) return;
     this.expressionRunner = new ExpressionRunner(this.expression);
     this.expressionRunner.onRunComplete = newValue => {

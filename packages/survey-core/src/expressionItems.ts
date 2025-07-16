@@ -16,9 +16,9 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   public getType(): string {
     return "expressionitem";
   }
-  public runCondition(values: any, properties: any): boolean {
+  public runCondition(properties: any): boolean {
     if (!this.expression) return false;
-    return new ConditionRunner(this.expression).run(values, properties);
+    return new ConditionRunner(this.expression).runContext(this.getValueGetterContext(), properties);
   }
   /**
    * The expression property. If this expression returns true, then survey will use html property to show on complete page.

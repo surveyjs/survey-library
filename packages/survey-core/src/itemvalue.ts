@@ -13,6 +13,27 @@ import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+
+export class ItemValueGetterContext implements IValueGetterContext {
+  constructor (protected item: ItemValue) {}
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (path.length === 1) {
+      const name = path[0].name;
+      if (name === "item" || name === "choice") return { isFound: true, value: this.item.value };
+    }
+    const owner: any = this.item.locOwner;
+    if (owner && owner.getValueGetterContext) {
+      return owner.getValueGetterContext().getValue(path, isRoot, index, createObjects);
+    }
+    return undefined;
+  }
+  getRootObj(): IObjectValueContext {
+    const owner: any = this.item.locOwner;
+    if (owner && owner.getValueGetterContext) return owner;
+    return <any>this.item.getSurvey();
+  }
+}
 
 /**
  * Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
@@ -92,7 +113,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     items: Array<ItemValue>,
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     useItemExpression: boolean = true,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
@@ -101,7 +121,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       items,
       filteredItems,
       runner,
-      values,
       properties,
       true,
       useItemExpression,
@@ -111,7 +130,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public static runEnabledConditionsForItems(
     items: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
@@ -119,7 +137,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       items,
       null,
       runner,
-      values,
       properties,
       false,
       true,
@@ -130,22 +147,14 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     items: Array<ItemValue>,
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     isVisible: boolean,
     useItemExpression: boolean = true,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
-    if (!values) {
-      values = {};
-    }
-    var itemValue = values["item"];
-    var choiceValue = values["choice"];
     var hasChanded = false;
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
-      values["item"] = item.value;
-      values["choice"] = item.value;
       var itemRunner =
         useItemExpression && !!item.getConditionRunner
           ? item.getConditionRunner(isVisible)
@@ -155,7 +164,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       }
       var newValue = true;
       if (itemRunner) {
-        newValue = itemRunner.run(values, properties);
+        newValue = itemRunner.runContext(item.getValueGetterContext(), properties);
       }
       if (!!onItemCallBack) {
         newValue = onItemCallBack(item, newValue);
@@ -172,16 +181,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
           if (!!item.setIsEnabled) item.setIsEnabled(newValue);
         }
       }
-    }
-    if (itemValue) {
-      values["item"] = itemValue;
-    } else {
-      delete values["item"];
-    }
-    if (choiceValue) {
-      values["choice"] = choiceValue;
-    } else {
-      delete values["choice"];
     }
     return hasChanded;
   }
@@ -220,6 +219,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getLocalizableString(name: string): LocalizableString {
     if (name === "text") return this.locText;
     return super.getLocalizableString(name);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new ItemValueGetterContext(this);
   }
   public isGhost: boolean;
   protected get isInternal(): boolean {

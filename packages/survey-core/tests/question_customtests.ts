@@ -19,6 +19,7 @@ import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { setOldTheme } from "./oldTheme";
+import { ValueGetter } from "../src/conditionProcessValue";
 
 export default QUnit.module("custom questions");
 
@@ -3696,5 +3697,37 @@ QUnit.test("Composite: contentAriaHidden", function (assert) {
   assert.strictEqual(q1.contentAriaHidden, true);
   survey.setDesignMode(false);
   assert.strictEqual(q1.contentAriaHidden, null);
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: text piping", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }, { type: "text", name: "q2", title: "item: {q1.item1}" }]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  q2.value = "test2";
+  assert.equal(q2.locTitle.renderedHtml, "item: ", "q2 title is correct before piping");
+  q1.contentPanel.getQuestionByName("item1").value = "test1";
+  assert.equal(q2.locTitle.renderedHtml, "item: test1", "q2 title is correct after piping");
+
+  const getter = new ValueGetter();
+  const context = q1.getValueGetterContext();
+  assert.equal(getter.getValue("q2", context), "test2", "valueGetter #1");
+  assert.equal(getter.getValue("composite.item1", context), "test1", "valueGetter #2");
+  assert.equal(getter.getValue("q1.item1", context), "test1", "valueGetter #3");
+
   ComponentCollection.Instance.clear();
 });

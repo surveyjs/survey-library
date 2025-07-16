@@ -318,13 +318,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public getFilteredName(): any {
     let res = super.getFilteredName();
     if (this.hasFilteredValue) {
-      res += "-unwrapped";
+      res += settings.expressionVariables.unwrapPostfix;
     }
     return res;
   }
-  public getFilteredValue(): any {
-    if (this.hasFilteredValue) return this.renderedValue;
-    return super.getFilteredValue();
+  public getFilteredValue(isUnwrapped?: boolean): any {
+    if (isUnwrapped && this.hasFilteredValue) return this.renderedValue;
+    return super.getFilteredValue(isUnwrapped);
   }
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return this.selectedChoices;

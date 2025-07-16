@@ -3151,9 +3151,9 @@ QUnit.test(
     assert.equal(firstFiredEvent, "onComplete", "should be called first");
   }
 );
-QUnit.test("Value trigger test", function (assert) {
-  var survey = twoPageSimplestSurvey();
-  var trigger = new SurveyTriggerSetValue();
+QUnit.test("Value trigger test", (assert) => {
+  const survey = twoPageSimplestSurvey();
+  const trigger = new SurveyTriggerSetValue();
   survey.triggers.push(trigger);
   trigger.name = "question1";
   trigger.value = "Hello";
@@ -3516,18 +3516,16 @@ QUnit.test(
   }
 );
 
-QUnit.test("pre process completedHtml nested properties and arrays", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("page1");
+QUnit.test("pre process completedHtml nested properties and arrays", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page1");
 
-  var multipleText = new QuestionMultipleTextModel("mt");
+  const multipleText = new QuestionMultipleTextModel("mt");
   multipleText.addItem("t1");
   multipleText.addItem("t2");
   page.addQuestion(multipleText);
 
-  var dynamicMatrix = new QuestionMatrixDynamicModel("matrix");
+  const dynamicMatrix = new QuestionMatrixDynamicModel("matrix");
   dynamicMatrix.addColumn("col1");
   dynamicMatrix.addColumn("col2");
   dynamicMatrix.addColumn("col3");
@@ -3540,30 +3538,27 @@ QUnit.test("pre process completedHtml nested properties and arrays", function (
   assert.equal(survey.processedCompletedHtml, "Year:2017");
 });
 
-QUnit.test(
-  "pre process completedHtml nested properties and arrays + name with dot",
-  function (assert) {
-    var survey = new SurveyModel();
-    var page = survey.addNewPage("page1");
+QUnit.test("pre process completedHtml nested properties and arrays + name with dot", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page1");
 
-    var multipleText = new QuestionMultipleTextModel("m.t");
-    multipleText.addItem("t1");
-    multipleText.addItem("t2");
-    page.addQuestion(multipleText);
+  const multipleText = new QuestionMultipleTextModel("m.t");
+  multipleText.addItem("t1");
+  multipleText.addItem("t2");
+  page.addQuestion(multipleText);
 
-    var dynamicMatrix = new QuestionMatrixDynamicModel("matri.x");
-    dynamicMatrix.addColumn("col1");
-    dynamicMatrix.addColumn("col2");
-    dynamicMatrix.addColumn("col3");
-    page.addQuestion(dynamicMatrix);
+  const dynamicMatrix = new QuestionMatrixDynamicModel("matri.x");
+  dynamicMatrix.addColumn("col1");
+  dynamicMatrix.addColumn("col2");
+  dynamicMatrix.addColumn("col3");
+  page.addQuestion(dynamicMatrix);
 
-    multipleText.value = { t2: "Year" };
-    dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
+  multipleText.value = { t2: "Year" };
+  dynamicMatrix.value = [{ col1: 1 }, { col2: 2017 }];
 
-    survey.completedHtml = "{m.t.t2}:{matri.x[1].col2}";
-    assert.equal(survey.processedCompletedHtml, "Year:2017");
-  }
-);
+  survey.completedHtml = "{m.t.t2}:{matri.x[1].col2}";
+  assert.equal(survey.processedCompletedHtml, "Year:2017");
+});
 
 QUnit.test("question fullTitle", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -4508,14 +4503,14 @@ QUnit.test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop
   }], "nav both contentBottom");
 });
 
-QUnit.test("simple condition test", function (assert) {
-  var survey = new SurveyModel({
+QUnit.test("simple condition test", (assert) => {
+  const survey = new SurveyModel({
     pages: [
       {
         name: "page1",
         questions: [
-          { type: "checkbox", name: "q1", choices: ["yes", "no"] },
-          { type: "checkbox", name: "q2", choices: ["yes", "no"] },
+          { type: "radiogroup", name: "q1", choices: ["yes", "no"] },
+          { type: "radiogroup", name: "q2", choices: ["yes", "no"] },
         ],
       },
       {
@@ -4532,47 +4527,21 @@ QUnit.test("simple condition test", function (assert) {
       },
     ],
   });
-  var q3 = survey.getQuestionByName("q3");
-  assert.equal(
-    survey.pages[1].visible,
-    false,
-    "initially the page becomes invisible"
-  );
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(survey.pages[1].visible, false, "initially the page becomes invisible");
   assert.equal(q3.visible, false, "initially q3 becomes invisible");
   survey.setValue("q1", "yes");
   survey.setValue("q2", "no");
-  assert.equal(
-    survey.pages[1].visible,
-    true,
-    "the page becomes visible, q1 = 'yes'"
-  );
-  assert.equal(
-    q3.visible,
-    true,
-    "q3 becomes visible, q1 = 'yes' and q2 = 'no'"
-  );
+  assert.equal(survey.getQuestionByName("q1").value, "yes", "q1 = 'yes'");
+  assert.equal(survey.getQuestionByName("q2").value, "no", "q2 = 'no'");
+  assert.equal(survey.pages[1].visible, true, "the page becomes visible, q1 = 'yes'");
+  assert.equal(q3.visible, true, "q3 becomes visible, q1 = 'yes' and q2 = 'no'");
   survey.setValue("q2", "yes");
-  assert.equal(
-    survey.pages[1].visible,
-    true,
-    "the page becomes visible, q1 = 'yes'"
-  );
-  assert.equal(
-    q3.visible,
-    false,
-    "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'"
-  );
+  assert.equal(survey.pages[1].visible, true, "the page becomes visible, q1 = 'yes'");
+  assert.equal(q3.visible, false, "q3 becomes invisible, q1 = 'yes' and q2 = 'yes'");
   survey.setValue("q1", "no");
-  assert.equal(
-    survey.pages[1].visible,
-    false,
-    "the page becomes invisible, q1 = 'no'"
-  );
-  assert.equal(
-    q3.visible,
-    false,
-    "q3becomes invisible, q1 = 'no' and q2 = 'yes'"
-  );
+  assert.equal(survey.pages[1].visible, false, "the page becomes invisible, q1 = 'no'");
+  assert.equal(q3.visible, false, "q3 becomes invisible, q1 = 'no' and q2 = 'yes'");
 });
 
 QUnit.test("simple condition test, page visibility", function (assert) {
@@ -5644,12 +5613,10 @@ QUnit.test("Survey text preprocessing, matrix, issue #499", function (assert) {
   assert.equal(q2.locTitle.renderedHtml, "Col 1", "Matrix use text");
 });
 
-QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("Page 1");
-  var q1 = <QuestionMatrixDropdownModel>(
+QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page 1");
+  const q1 = <QuestionMatrixDropdownModel>(
     page.addNewQuestion("matrixdropdown", "q1")
   );
   q1.rows = [
@@ -5662,21 +5629,15 @@ QUnit.test("Survey text preprocessing, dropdown matrix, issue #499", function (
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
-  var q2 = <Question>page.addNewQuestion("text", "q2");
+  const q2 = <Question>page.addNewQuestion("text", "q2");
   q2.title = "{q1.row1.col1}";
   q1.value = { row1: { col1: 1 } };
-  assert.equal(
-    q2.locTitle.renderedHtml,
-    "Item 1",
-    "Dropdown Matrix Column use text"
-  );
+  assert.equal(q2.locTitle.renderedHtml, "Item 1", "Dropdown Matrix Column use text");
 });
 
-QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (
-  assert
-) {
-  var survey = new SurveyModel();
-  var page = survey.addNewPage("Page 1");
+QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("Page 1");
   var q1 = <QuestionMatrixDynamicModel>(
     page.addNewQuestion("matrixdynamic", "q1")
   );
@@ -5687,14 +5648,10 @@ QUnit.test("Survey text preprocessing, dynamic matrix, issue #499", function (
     { value: 1, text: "Item 1" },
     { value: 2, text: "Item 2" },
   ];
-  var q2 = <Question>page.addNewQuestion("text", "q2");
+  const q2 = <Question>page.addNewQuestion("text", "q2");
   q2.title = "{q1[0].col1}";
   q1.value = [{ col1: 1 }, {}];
-  assert.equal(
-    q2.locTitle.renderedHtml,
-    "Item 1",
-    "Dropdown Matrix Column use text"
-  );
+  assert.equal(q2.locTitle.renderedHtml, "Item 1", "Dynamic Matrix Column use text");
 });
 QUnit.test("Survey text preprocessing with camella case, issue #913", function (
   assert
@@ -11888,76 +11845,58 @@ QUnit.test(
     );
   }
 );
-QUnit.test(
-  "valueName for matrix dynamic and panel dynamic with different question and display text processing, bug# https://surveyjs.answerdesk.io/ticket/details/T2053",
-  function (assert) {
-    var json = {
-      elements: [
-        {
-          name: "matrix1",
-          valueName: "shared",
-          type: "matrixdynamic",
-          columns: [
-            {
-              name: "elementId",
-              cellType: "expression",
-              expression: "{rowIndex}",
-            },
-            {
-              name: "col1",
-              cellType: "dropdown",
-              choices: [
-                { value: 1, text: "Item 1" },
-                { value: 2, text: "Item 2" },
-              ],
-            },
-          ],
-          rowCount: 1,
-        },
-        {
-          name: "panel1",
-          valueName: "shared",
-          type: "paneldynamic",
-          templateTitle: "{panel.col1}",
-          templateElements: [
-            {
-              name: "ed1",
-              type: "dropdown",
-              choices: [
-                { value: 1, text: "Item 10" },
-                { value: 2, text: "Item 20" },
-              ],
-            },
-          ],
-        },
-      ],
-    };
-    var survey = new SurveyModel(json);
-    var matrix1 = <QuestionMatrixDynamicModel>(
-      survey.getQuestionByName("matrix1")
-    );
-    var panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
-    var rows1 = matrix1.visibleRows;
-    rows1[0].cells[1].value = 1;
-    assert.deepEqual(
-      survey.data,
-      { shared: [{ elementId: 1, col1: 1 }] },
-      "set matrix1 col1"
-    );
-    panel1.panels[0].getQuestionByName("ed1").value = 1;
-    assert.deepEqual(matrix1.getDisplayValue(false), [
-      { elementId: "1", col1: "Item 1", ed1: "Item 10" },
-    ]);
-    assert.deepEqual(panel1.getDisplayValue(false), [
-      { elementId: "1", col1: "Item 1", ed1: "Item 10" },
-    ]);
-    assert.equal(
-      panel1.panels[0].locTitle.renderedHtml,
-      "Item 1",
-      "Get the display text"
-    );
-  }
-);
+QUnit.test("valueName for matrix dynamic and panel dynamic with different question and display text processing, bug# https://surveyjs.answerdesk.io/ticket/details/T2053", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "matrix1",
+        valueName: "shared",
+        type: "matrixdynamic",
+        columns: [
+          {
+            name: "elementId",
+            cellType: "expression",
+            expression: "{rowIndex}",
+          },
+          {
+            name: "col1",
+            cellType: "dropdown",
+            choices: [
+              { value: 1, text: "Item 1" },
+              { value: 2, text: "Item 2" },
+            ],
+          },
+        ],
+        rowCount: 1,
+      },
+      {
+        name: "panel1",
+        valueName: "shared",
+        type: "paneldynamic",
+        templateTitle: "{panel.col1}",
+        templateElements: [
+          {
+            name: "ed1",
+            type: "dropdown",
+            choices: [
+              { value: 1, text: "Item 10" },
+              { value: 2, text: "Item 20" },
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const rows1 = matrix1.visibleRows;
+  rows1[0].cells[1].value = 1;
+  assert.deepEqual(survey.data, { shared: [{ elementId: 1, col1: 1 }] }, "set matrix1 col1");
+  panel1.panels[0].getQuestionByName("ed1").value = 1;
+  assert.deepEqual(matrix1.getDisplayValue(false), [{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
+  assert.deepEqual(panel1.getDisplayValue(false), [{ elementId: "1", col1: "Item 1", ed1: "Item 10" }]);
+  assert.equal(panel1.panels[0].locTitle.renderedHtml, "Item 1", "Get the display text");
+});
 
 QUnit.test("Test element.moveTo function", function (assert) {
   var json = {
@@ -16522,6 +16461,7 @@ QUnit.test("Run expressions on changing comments", function (assert) {
   const question2 = survey.getQuestionByName("question2");
   assert.equal(question2.isVisible, false, "Invisible by default");
   survey.setComment("question1", "abcd");
+  assert.deepEqual(survey.data, { "question1-Comment": "abcd" }, "Check comment value");
   assert.equal(question2.isVisible, true, "visible");
   survey.setComment("question1", "abc");
   assert.equal(question2.isVisible, false, "Invisible again");
@@ -21272,12 +21212,12 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
   class ScreenoutTrigger extends SurveyTriggerComplete {
     getType() { return "screenouttrigger"; }
 
-    onSuccess(values: any, properties: any) {
+    onSuccess(properties: any) {
       if (this.isRealExecution()) {
         this.owner.setTriggerValue("result", "screenout", false);
       }
       // Parent call
-      super.onSuccess(values, properties);
+      super.onSuccess(properties);
     }
   }
   Serializer.addClass("screenouttrigger", [], () => { return new ScreenoutTrigger(); }, "completetrigger");
@@ -21310,12 +21250,12 @@ QUnit.test("questionsOnPageMode: `questionPerPage` & custom complete trigger , #
   class ScreenoutTrigger extends SurveyTriggerComplete {
     getType() { return "screenouttrigger"; }
 
-    onSuccess(values: any, properties: any) {
+    onSuccess(properties: any) {
       if (this.isRealExecution()) {
         this.owner.setCompleted(this);
       }
       // Parent call
-      super.onSuccess(values, properties);
+      super.onSuccess(properties);
     }
   }
   Serializer.addClass("screenouttrigger", [], () => { return new ScreenoutTrigger(); }, "completetrigger");

@@ -27,6 +27,7 @@ frameworks.forEach((framework) => {
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(0).click();
       expect(await commentArea.count()).toEqual(1);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for a");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "a", "q1-Comment": "Comment for a" });
@@ -37,6 +38,7 @@ frameworks.forEach((framework) => {
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(2).click();
       expect(await commentArea.count()).toEqual(1);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "c", "q1-Comment": "Comment for c" });
@@ -44,12 +46,14 @@ frameworks.forEach((framework) => {
       await itemsSelector.nth(3).click();
       expect(await commentArea.count()).toEqual(1);
       expect(await getData(page)).toEqual({ "q1": "other" });
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "other", "q1-Comment": "Comment for d" });
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(2).click();
       expect(await commentArea.count()).toEqual(1);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
 
@@ -74,6 +78,7 @@ frameworks.forEach((framework) => {
       const checks = page.locator(".sd-radio__control");
       await checks.nth(0).click({ force: true });
       expect(await commentArea.count()).toEqual(1);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for a");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "a", "q1-Comment": "Comment for a" });
@@ -82,12 +87,14 @@ frameworks.forEach((framework) => {
       expect(await getData(page)).toEqual({ "q1": "b" });
       await checks.nth(2).click({ force: true });
       expect(await commentArea.count()).toEqual(1);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": "c", "q1-Comment": "Comment for c" });
       await checks.nth(3).click({ force: true });
       expect(await commentArea.count()).toEqual(1);
       expect(await getData(page)).toEqual({ "q1": "other" });
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
 
@@ -112,6 +119,7 @@ frameworks.forEach((framework) => {
       const checks = page.locator(".sd-checkbox__control");
       await checks.nth(0).click({ force: true });
       expect(await commentArea.count()).toEqual(1);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for a");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": [{ value: "a", "comment": "Comment for a" }] });
@@ -120,6 +128,7 @@ frameworks.forEach((framework) => {
       expect(await getData(page)).toEqual({ q1: [{ value: "a", "comment": "Comment for a" }, { value: "b" }] });
       await checks.nth(2).click({ force: true });
       expect(await commentArea.count()).toEqual(2);
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
       expect(await getData(page)).toEqual({ "q1": [{ value: "a", "comment": "Comment for a", }, { value: "b" },
@@ -128,6 +137,7 @@ frameworks.forEach((framework) => {
       expect(await commentArea.count()).toEqual(3);
       expect(await getData(page)).toEqual({ "q1": [{ value: "a", "comment": "Comment for a", }, { value: "b" },
         { value: "c", "comment": "Comment for c" }, { value: "other" }] });
+      await page.waitForTimeout(500);
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
 

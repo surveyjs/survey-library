@@ -9291,6 +9291,12 @@ QUnit.test("Survey get full title with values, bug#5383", function (assert) {
 
   assert.equal(survey.getProcessedText("{q1}"), 1, "Get question value");
 });
+QUnit.test("Process text for question with value, no value and non existing", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValue: "val" }, { type: "text", name: "q2" }]
+  });
+  assert.equal(survey.getProcessedText("{q1}+{q2}+{q3}"), "val++{q3}", "show value, show empty string, show as it is");
+});
 
 QUnit.test(
   "Survey radioGroup remove data on visible items change even if there are other visible questions here, Bug# T1239",

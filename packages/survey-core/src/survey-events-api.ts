@@ -633,7 +633,6 @@ export interface ProcessDynamicTextEvent {
    */
   value: any;
   isExists: boolean;
-  canProcess: boolean;
   returnDisplayValue: boolean;
 }
 export interface ProcessTextValueEvent extends ProcessDynamicTextEvent { }

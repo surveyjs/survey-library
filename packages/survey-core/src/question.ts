@@ -541,7 +541,7 @@ export class Question extends SurveyElement<Question>
    * @see visibleIf
    */
   public get visible(): boolean {
-    return this.getPropertyValue("visible", true);
+    return this.getPropertyValue("visible");
   }
   public set visible(val: boolean) {
     if (val == this.visible) return;

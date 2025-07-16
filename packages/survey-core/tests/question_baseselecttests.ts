@@ -1083,6 +1083,7 @@ QUnit.test("check renamed has... properties", (assert) => {
   assert.notOk(question.hasSelectAll);
   assert.notOk(question.hasOther);
   assert.notOk(question.hasComment);
+  assert.notOk(question.showCommentArea);
 
   assert.notOk(question.showNoneItem);
   assert.notOk(question.showSelectAllItem);
@@ -2654,15 +2655,15 @@ QUnit.test("Radiogroup question and choices has comment", (assert) => {
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, 3],
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
         "showOtherItem": true,
       }
     ]
   });
   const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
-  assert.equal(q1.choices[0].hasComment, false, "choices[0].hasComment");
-  assert.equal(q1.choices[1].hasComment, true, "choices[1].hasComment");
-  assert.equal(q1.otherItem.hasComment, true, "choices[1].hasComment");
+  assert.equal(q1.choices[0].showCommentArea, false, "choices[0].showCommentArea");
+  assert.equal(q1.choices[1].showCommentArea, true, "choices[1].showCommentArea");
+  assert.equal(q1.otherItem.showCommentArea, true, "choices[1].showCommentArea");
   assert.equal(q1.isCommentShowing(q1.choices[0]), false, "isCommentShowing for choices[0], #1");
   assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #1");
   assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #1");
@@ -2700,12 +2701,12 @@ QUnit.test("Radiogroup/dropdown questions and choices has comment: do not remove
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, 3]
+        "choices": [1, { value: 2, showCommentArea: true }, 3]
       },
       {
         "type": "dropdown",
         "name": "q2",
-        "choices": [1, { value: 2, hasComment: true }, 3]
+        "choices": [1, { value: 2, showCommentArea: true }, 3]
       }
     ]
   });
@@ -2724,7 +2725,7 @@ QUnit.test("Radiogroup question, choices has comment and defaultValue", (assert)
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, 3],
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
         "showOtherItem": true,
         defaultValue: "other",
       }
@@ -2738,10 +2739,10 @@ QUnit.test("Radiogroup question, choices has comment and defaultValue", (assert)
   assert.equal(q1.renderedValue, "other", "q1.renderedValue is 'other'");
 });
 function testCheckboxQuestionWithSeveralCommentChoices(q1: QuestionCheckboxModel, assert): void {
-  assert.equal(q1.choices[0].hasComment, false, "choices[0].hasComment");
-  assert.equal(q1.choices[1].hasComment, true, "choices[1].hasComment");
-  assert.equal(q1.choices[2].hasComment, true, "choices[2].hasComment");
-  assert.equal(q1.otherItem.hasComment, true, "choices[1].hasComment");
+  assert.equal(q1.choices[0].showCommentArea, false, "choices[0].showCommentArea");
+  assert.equal(q1.choices[1].showCommentArea, true, "choices[1].showCommentArea");
+  assert.equal(q1.choices[2].showCommentArea, true, "choices[2].showCommentArea");
+  assert.equal(q1.otherItem.showCommentArea, true, "choices[1].showCommentArea");
   assert.equal(q1.isCommentShowing(q1.choices[0]), false, "isCommentShowing for choices[0], #1");
   assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #1");
   assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #1");
@@ -2778,7 +2779,7 @@ QUnit.test("checbox question and choices has comment", (assert) => {
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, { value: 3, hasComment: true }],
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
         "showOtherItem": true,
       }
     ]
@@ -2793,7 +2794,7 @@ QUnit.test("checbox question and choices has comment and storeOthersAsComment = 
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, { value: 3, hasComment: true }],
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
         "showOtherItem": true,
       }
     ]
@@ -2807,7 +2808,7 @@ QUnit.test("checbox question and choices has comment vs renderedValue", (assert)
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, 3]
+        "choices": [1, { value: 2, showCommentArea: true }, 3]
       }
     ]
   });
@@ -2823,7 +2824,7 @@ QUnit.test("checbox question and choices has comment: clear comment on unselecti
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, 3],
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
         "showOtherItem": true,
         "showNoneItem": true
       }
@@ -2851,7 +2852,7 @@ QUnit.test("checbox question and choices has comment with other value", (assert)
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: "other", hasComment: true }, 3]
+        "choices": [1, { value: "other", showCommentArea: true }, 3]
       }
     ]
   });
@@ -2869,7 +2870,7 @@ QUnit.test("checkbox vs multiple comment choices - question.value", (assert) => 
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, { value: 3, hasComment: true }],
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       }
     ]
@@ -2895,7 +2896,7 @@ QUnit.test("checkbox vs multiple comment choices - question.value - set incorrec
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, { value: 3, hasComment: true }],
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       }
     ]
@@ -2925,13 +2926,13 @@ QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: f
       {
         "type": "radiogroup",
         "name": "q3",
-        "choices": [1, { value: 2, hasComment: true }, 3],
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
         "showOtherItem": true,
       },
       {
         "type": "radiogroup",
         "name": "q4",
-        "choices": [1, { value: 2, hasComment: true }, 3],
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
         "showCommentArea": true,
         "showOtherItem": true,
       }
@@ -3004,7 +3005,7 @@ QUnit.test("checkbox vs selectAll and isExclusive", (assert) => {
   q.renderedValue = ["none2", "none"];
   assert.deepEqual(q.value, ["none"], "#12");
 });
-QUnit.test("Focus element on selecting hasComment element", (assert) => {
+QUnit.test("Focus element on selecting showCommentArea element", (assert) => {
   const oldFunc = SurveyElement.FocusElement;
   const els = new Array<string>();
   SurveyElement.FocusElement = function (elId: string): boolean {
@@ -3018,13 +3019,13 @@ QUnit.test("Focus element on selecting hasComment element", (assert) => {
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       },
       {
         "type": "radiogroup",
         "name": "q2",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       }
     ]
@@ -3061,19 +3062,19 @@ QUnit.test("Focus element on selecting hasComment element", (assert) => {
   assert.deepEqual(els, [], "autoOtherMode, focus is not called");
   SurveyElement.FocusElement = oldFunc;
 });
-QUnit.test("Radiogroup/dropdown hasComment validation", (assert) => {
+QUnit.test("Radiogroup/dropdown showCommentArea validation", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
         "showOtherItem": true
       },
       {
         "type": "dropdown",
         "name": "q2",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
         "showOtherItem": true
       },
     ]
@@ -3111,13 +3112,13 @@ QUnit.test("Radiogroup/dropdown hasComment validation", (assert) => {
   assert.equal(q1.validate(), true, "q1 validation, #8");
   assert.equal(q2.validate(), true, "q2 validation, #8");
 });
-QUnit.test("Checkbox hasComment validation", (assert) => {
+QUnit.test("Checkbox showCommentArea validation", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
         "showOtherItem": true
       }
     ]
@@ -3139,19 +3140,19 @@ QUnit.test("Checkbox hasComment validation", (assert) => {
   q1.setCommentValue(q1.otherItem, "test comment");
   assert.equal(q1.validate(), true, "q1 validation, #8");
 });
-QUnit.test("Radiogroup/dropdown hasComment supportAutoAdvance", (assert) => {
+QUnit.test("Radiogroup/dropdown showCommentArea supportAutoAdvance", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
         "showOtherItem": true
       },
       {
         "type": "dropdown",
         "name": "q2",
-        "choices": [{ value: 1, hasComment: true }, 2, { value: 3, hasComment: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
         "showOtherItem": true
       },
     ]
@@ -3212,7 +3213,7 @@ QUnit.test("checbox question and choices has comment - custom placeholder", (ass
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true, commentPlaceholder: "Please add com" }, 3],
+        "choices": [1, { value: 2, showCommentArea: true, commentPlaceholder: "Please add com" }, 3],
         "showOtherItem": true,
         "showNoneItem": true,
         otherPlaceholder: "Some comment"

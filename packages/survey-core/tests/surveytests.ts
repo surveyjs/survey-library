@@ -1363,7 +1363,7 @@ QUnit.test("Store comments in the survey", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(new PageModel("Page 1"));
   var question = <Question>survey.pages[0].addNewQuestion("text", "question");
-  question.hasComment = true;
+  question.showCommentArea = true;
   assert.equal(survey.getComment("question"), "", "Comment is empty");
   assert.equal(question.comment, "", "Comment is empty");
 
@@ -3790,7 +3790,7 @@ QUnit.test("clearInvisibleValues - comments and other values, #309", function (
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   q1.hasOther = true;
   var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
-  q2.hasComment = true;
+  q2.showCommentArea = true;
   var q3 = <QuestionTextModel>page.addNewQuestion("text", "q3");
   survey.clearInvisibleValues = true;
   q1.value = q1.otherItem.value;
@@ -6062,7 +6062,7 @@ QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function (
   assert
 ) {
   var question = new QuestionRadiogroupModel("q1");
-  question.hasComment = true;
+  question.showCommentArea = true;
   question.comment = "comment text";
   question.clearUnusedValues();
   assert.equal(question.comment, "comment text");
@@ -10843,7 +10843,7 @@ QUnit.test(
       {
         type: "checkbox",
         name: "q1",
-        hasComment: true,
+        showCommentArea: true,
         choices: [
           {
             value: "lion",
@@ -10929,7 +10929,7 @@ QUnit.test(
       {
         type: "radiogroup",
         name: "q1",
-        hasComment: true,
+        showCommentArea: true,
         choices: [
           {
             value: "lion",
@@ -13832,7 +13832,7 @@ QUnit.test(
           name: "test",
           title: "My Test field",
           choices: ["A", "B", "C"],
-          hasComment: true,
+          showCommentArea: true,
         },
       ],
     });

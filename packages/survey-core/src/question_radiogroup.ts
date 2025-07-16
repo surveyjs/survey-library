@@ -55,7 +55,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return this.getLocalizationString("clearCaption");
   }
   supportAutoAdvance(): boolean {
-    return this.isMouseDown === true && !this.selectedItem?.hasComment;
+    return this.isMouseDown === true && !this.selectedItem?.showCommentArea;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);
@@ -72,7 +72,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     this.selectItem(item);
   }
   protected isOtherValueUnused(): boolean {
-    return !this.selectedItem?.hasComment;
+    return !this.selectedItem?.showCommentArea;
   }
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];

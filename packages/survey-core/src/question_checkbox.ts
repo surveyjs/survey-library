@@ -2,8 +2,7 @@ import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import {
   ChoiceItem,
-  QuestionCheckboxBase,
-  QuestionSelectBase,
+  QuestionCheckboxBase
 } from "./question_baseselect";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
@@ -24,7 +23,7 @@ export class CheckboxItem extends ChoiceItem {
   protected getBaseType(): string { return "checkboxitem"; }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "hasComment" && this.locOwner) {
+    if (name === "showCommentArea" && this.locOwner) {
       (<any>this.locOwner).onItemHasCommentChanged();
     }
   }
@@ -287,7 +286,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private calcIsTheOnlyComment(): boolean {
     for (let i = 0; i < this.choices.length; i++) {
       const ch = this.choices[i];
-      if (ch.hasComment && ch.value !== this.otherItem.value) return false;
+      if (ch.showCommentArea && ch.value !== this.otherItem.value) return false;
     }
     return true;
   }
@@ -624,7 +623,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!Array.isArray(val) || val.length == 0) {
       this.isChangingValueOnClearIncorrect = true;
       if (!clearDisabled) {
-        if (this.hasComment) {
+        if (this.showCommentArea) {
           this.value = null;
         } else {
           this.clearValue(true);

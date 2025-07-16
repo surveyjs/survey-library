@@ -1522,7 +1522,7 @@ QUnit.test("show comment and show other together", assert => {
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   assert.equal(question.showOtherItem, true, "showOtherItem is true");
-  assert.equal(question.showCommentArea, true, "hasComment is true");
+  assert.equal(question.showCommentArea, true, "showCommentArea is true");
   assert.equal(question.getStoreOthersAsComment(), false, "we have show comment");
   question.showCommentArea = false;
   assert.equal(question.getStoreOthersAsComment(), true, "show comment is hidden");

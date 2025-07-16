@@ -6386,7 +6386,7 @@ QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
       {
         type: "rating",
         name: "satisfaction",
-        "hasComment": true,
+        "showCommentArea": true,
         "commentPlaceHolder": {
           "da": "Skriv din begrundelse her...",
           "default": "Write your reason here..."
@@ -8071,13 +8071,13 @@ QUnit.test("The text area value is not updated on setting the question comment/o
     textArea1.remove();
   }
 });
-QUnit.test("The text area value for multiple hasComment", function (assert) {
+QUnit.test("The text area value for multiple showCommentArea", function (assert) {
   const survey = new SurveyModel({
     "elements": [
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, hasComment: true }, 3, 4],
+        "choices": [1, { value: 2, showCommentArea: true }, 3, 4],
         "showOtherItem": true
       }
     ]
@@ -8086,7 +8086,7 @@ QUnit.test("The text area value for multiple hasComment", function (assert) {
   const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
   question.value = [{ value: 1 }, { value: 2 }, { value: "other" }];
   assert.deepEqual(question.renderedValue, [1, 2, "other"], "question.renderedValue");
-  assert.equal(question.isCommentShowing(question.choices[1]), true, "isCommentShowing for choice with hasComment");
+  assert.equal(question.isCommentShowing(question.choices[1]), true, "isCommentShowing for choice with showCommentArea");
   const otherOptions = question.otherTextAreaModel;
   const item2CommentOptions = question.getCommentTextAreaModel(question.choices[1]);
   const textArea1 = document.createElement("textarea");

@@ -20,14 +20,14 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 export class ChoiceItem extends ItemValue {
   private locCommentPlaceholderValue: LocalizableString;
   protected getBaseType(): string { return "choiceitem"; }
-  public get hasComment(): boolean {
-    return this.getPropertyValue("hasComment");
+  public get showCommentArea(): boolean {
+    return this.getPropertyValue("showCommentArea");
   }
-  public set hasComment(val: boolean) {
+  public set showCommentArea(val: boolean) {
     if (val && !this.supportComment) {
       val = false;
     }
-    this.setPropertyValue("hasComment", val);
+    this.setPropertyValue("showCommentArea", val);
   }
   public get isCommentRequired(): boolean {
     return this.getPropertyValue("isCommentRequired");
@@ -66,8 +66,8 @@ export class ChoiceItem extends ItemValue {
     return super.canAddPpropertyToJSON(prop);
   }
   protected onLocOwnerChanged() : void {
-    if (this.hasComment && !this.supportComment) {
-      this.hasComment = false;
+    if (this.showCommentArea && !this.supportComment) {
+      this.showCommentArea = false;
     }
   }
 }
@@ -103,7 +103,7 @@ export class QuestionSelectBase extends Question {
   constructor(name: string) {
     super(name);
     this.otherItemValue = this.createItemValue("other");
-    this.otherItem.hasComment = true;
+    this.otherItem.showCommentArea = true;
     this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
@@ -326,7 +326,7 @@ export class QuestionSelectBase extends Question {
   }
   public supportMultipleComment(item: ItemValue): boolean { return true; }
   public isCommentShowing(item: ItemValue): boolean {
-    return item && item.hasComment && this.isItemSelected(item);
+    return item && item.showCommentArea && this.isItemSelected(item);
   }
   public getCommentValue(item: ItemValue): string {
     return this.isCommentShowing(item) ? this.getCommentValueCore(item) || "" : "";
@@ -685,7 +685,7 @@ export class QuestionSelectBase extends Question {
   protected getQuestionComment(): string {
     if (this.showCommentArea) return super.getQuestionComment();
     if (!!this.otherValueCore) return this.otherValueCore;
-    if (this.hasComment || this.getStoreOthersAsComment())
+    if (this.showCommentArea || this.getStoreOthersAsComment())
       return super.getQuestionComment();
     return this.otherValueCore;
   }
@@ -745,7 +745,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   private updateItemIsCommentShowing(item: ItemValue, updateComment: boolean): void {
-    if (item.hasComment) {
+    if (item.showCommentArea) {
       const isShowing = this.isCommentShowing(item);
       item.setIsCommentShowing(isShowing);
       if (!isShowing && updateComment) {
@@ -763,12 +763,12 @@ export class QuestionSelectBase extends Question {
     this.onItemSelected(item);
   }
   protected onItemSelected(item: ItemValue): void {
-    if (item.hasComment) {
+    if (item.showCommentArea) {
       this.focusOtherComment(item);
     }
   }
   protected onItemDeselected(item: ItemValue): void {
-    if (item.hasComment) {
+    if (item.showCommentArea) {
       this.setCommentValueCore(item, "");
     }
   }
@@ -782,7 +782,7 @@ export class QuestionSelectBase extends Question {
     this.setRenderedValue(this.rendredValueFromData(newValue), false);
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateChoicesDependedQuestions();
-    if (this.hasComment || !updateComment) return;
+    if (this.showCommentArea || !updateComment) return;
     if (!this.isOtherSelected && !!this.otherValue) {
       this.makeCommentEmpty = true;
       this.otherValueCore = "";
@@ -1536,7 +1536,7 @@ export class QuestionSelectBase extends Question {
   public set hasOther(val: boolean) {
     this.showOtherItem = val;
   }
-  public get requireUpdateCommentValue(): boolean { return this.hasComment || this.showOtherItem; }
+  public get requireUpdateCommentValue(): boolean { return this.showCommentArea || this.showOtherItem; }
   public supportOther(): boolean {
     return this.isSupportProperty("showOtherItem");
   }
@@ -1599,7 +1599,7 @@ export class QuestionSelectBase extends Question {
   private checkHasChoicesComments(): boolean {
     const choices = this.choices;
     for (let i = 0; i < choices.length; i++) {
-      if (choices[i].hasComment) return true;
+      if (choices[i].showCommentArea) return true;
     }
     return false;
   }
@@ -2303,9 +2303,9 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 }
 
 Serializer.addClass("choiceitem",
-  [{ name: "hasComment:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
-    { name: "isCommentRequired:boolean", default: true, locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.hasComment; } },
-    { name: "commentPlaceholder", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.hasComment; } }
+  [{ name: "showCommentArea:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
+    { name: "isCommentRequired:boolean", default: true, locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
+    { name: "commentPlaceholder", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } }
   ],
   (value) => new ChoiceItem(value),
   "itemvalue"

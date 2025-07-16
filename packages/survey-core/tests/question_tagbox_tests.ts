@@ -2445,15 +2445,15 @@ QUnit.test("lazy loading + isReady", assert => {
     done();
   });
 });
-QUnit.test("Tagbox doesn't support hasComment functionality", assert => {
+QUnit.test("Tagbox doesn't support showCommentArea functionality", assert => {
   const survey = new SurveyModel(
-    { questions: [{ "type": "tagbox", "name": "q1", "choices": [{ value: 1, hasComment: true }] }] });
+    { questions: [{ "type": "tagbox", "name": "q1", "choices": [{ value: 1, showCommentArea: true }] }] });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.choices.length, 1, "#1");
-  assert.equal(question.choices[0].hasComment, false, "#1");
-  question.choices[0].hasComment = true;
-  assert.equal(question.choices[0].hasComment, false, "#2");
-  assert.equal(question.otherItem.hasComment, true, "#3");
+  assert.equal(question.choices[0].showCommentArea, false, "#1");
+  question.choices[0].showCommentArea = true;
+  assert.equal(question.choices[0].showCommentArea, false, "#2");
+  assert.equal(question.otherItem.showCommentArea, true, "#3");
 });
 QUnit.test("Tagbox otherItem works correctly", assert => {
   const survey = new SurveyModel(

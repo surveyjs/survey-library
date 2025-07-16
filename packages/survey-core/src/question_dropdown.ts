@@ -93,7 +93,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   public get selectedItem(): ChoiceItem { return <ChoiceItem>this.getSingleSelectedItem(); }
   protected isOtherValueUnused(): boolean {
-    return !this.selectedItem?.hasComment;
+    return !this.selectedItem?.showCommentArea;
   }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
     if (!!selectedItemByValue) {
@@ -101,7 +101,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
   public get isShowingChoiceComment(): boolean {
-    return this.selectedItem?.hasComment;
+    return this.selectedItem?.showCommentArea;
   }
   supportAutoAdvance(): boolean {
     return !this.isShowingChoiceComment;

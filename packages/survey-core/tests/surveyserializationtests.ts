@@ -45,7 +45,7 @@ QUnit.test("Serialize two questions", function (assert) {
   var checkBoxQuestion = new QuestionCheckboxModel("checkboxQuestion");
   checkBoxQuestion.choices = ["red", "white"];
   checkBoxQuestion.isRequired = true;
-  checkBoxQuestion.hasComment = true;
+  checkBoxQuestion.showCommentArea = true;
   page.addQuestion(textQuestion);
   page.addQuestion(checkBoxQuestion);
   var jsObj = new JsonObject().toJsonObject(page);

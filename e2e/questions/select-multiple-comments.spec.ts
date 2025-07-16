@@ -14,7 +14,7 @@ frameworks.forEach((framework) => {
           {
             "type": "dropdown",
             "name": "q1",
-            "choices": [{ "value": "a", "hasComment": true }, "b", { "value": "c", "hasComment": true }],
+            "choices": [{ "value": "a", "showCommentArea": true }, "b", { "value": "c", "showCommentArea": true }],
             "searchEnabled": false,
             "showOtherItem": true
           }
@@ -68,7 +68,7 @@ frameworks.forEach((framework) => {
           {
             "type": "radiogroup",
             "name": "q1",
-            "choices": [{ "value": "a", "hasComment": true }, "b", { "value": "c", "hasComment": true }],
+            "choices": [{ "value": "a", "showCommentArea": true }, "b", { "value": "c", "showCommentArea": true }],
             "showOtherItem": true
           }
         ]
@@ -109,7 +109,7 @@ frameworks.forEach((framework) => {
           {
             "type": "checkbox",
             "name": "q1",
-            "choices": [{ "value": "a", "hasComment": true }, "b", { "value": "c", "hasComment": true }],
+            "choices": [{ "value": "a", "showCommentArea": true }, "b", { "value": "c", "showCommentArea": true }],
             "showOtherItem": true
           }
         ]

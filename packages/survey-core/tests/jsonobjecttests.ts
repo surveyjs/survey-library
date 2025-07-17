@@ -3581,3 +3581,31 @@ QUnit.test("Could not override default value for valueName & titleName propertie
   assert.equal(q.choicesByUrl.valueName, "", "default valueName, #3");
   assert.equal(q.choicesByUrl.titleName, "", "default titleName, #3");
 });
+QUnit.test("Make expression question invisible by default, Bug#10135", function (assert) {
+  Serializer.getProperty("expression", "visible").defaultValue = false;
+  const survey = new SurveyModel({ elements: [
+    {
+      "type": "expression",
+      "name": "q1",
+    },
+    {
+      "type": "expression",
+      "name": "q2",
+      "visible": true
+    },
+    {
+      "type": "text",
+      "name": "q3",
+    }
+  ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.visible, false, "expression q1 is invisible by default");
+  assert.equal(q2.visible, true, "expression q2 is visible");
+  assert.equal(q3.visible, true, "text q3 is visible");
+  assert.deepEqual(q1.toJSON(), { name: "q1" }, "expression q1 toJSON is empty");
+  assert.deepEqual(q2.toJSON(), { name: "q2", visible: true }, "expression q2 toJSON is not empty");
+  assert.deepEqual(q3.toJSON(), { name: "q3" }, "text q3 toJSON is empty");
+  Serializer.removeProperty("expression", "visible");
+});

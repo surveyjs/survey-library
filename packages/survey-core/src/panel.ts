@@ -1766,7 +1766,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see isVisible
    */
   public get visible(): boolean {
-    return this.getPropertyValue("visible", true);
+    return this.getPropertyValue("visible");
   }
   public set visible(value: boolean) {
     if (value === this.visible) return;

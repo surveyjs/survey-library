@@ -49,7 +49,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
-      expect(await getData(page)).toEqual({ "q1": { "value": "d", "comment": "Comment for d" } });
+      expect(await getData(page)).toEqual({ "q1": "other", "q1-Comment": "Comment for d" });
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(2).click();
       expect(await commentArea.count()).toEqual(1);
@@ -98,7 +98,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
 
-      const finalResult = { "q1": { "value": "d", "comment": "Comment for d" } };
+      const finalResult = { "q1": "other", "q1-Comment": "Comment for d" };
       expect(await getData(page)).toEqual(finalResult);
       await page.locator("input[value=Complete]").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);

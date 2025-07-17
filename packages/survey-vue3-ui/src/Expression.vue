@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.root" ref="root">
+  <div :class="question.cssClasses.root" ref="root" aria-live="polite" :aria-label="question.formatedValue">
     {{ question.formatedValue }}
   </div>
 </template>

@@ -88,9 +88,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public getValuePropertyName(): string {
     return this.valuePropertyName || (!this.isTheOnlyComment ? "value" : "");
   }
-  public get commentPropertyValue(): string {
-    return "comment";
-  }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (!!name && name === this.getValuePropertyName()) {
       const v = this.value;
@@ -250,15 +247,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     return super.hasUnknownValueItem(this.getRealValue(val), includeOther, isFilteredChoices, checkEmptyValue);
   }
-  protected getCommentValueCore(item: ItemValue): string {
-    if (this.isOtherItemByValue(item)) return super.getCommentValueCore(item);
-    return this.getPropertyValue(this.getCommentPropertyValue(item), this.getCommentValueByItem(item)) || "";
-  }
   protected setCommentValueCore(item: ItemValue, newValue: string): void {
+    newValue = this.trimCommentValue(newValue);
     if (this.isOtherItemByValue(item)) {
       super.setCommentValueCore(item, newValue);
     } else {
-      this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
+      this.setCommentPropertyValue(item, newValue);
       const index = this.getItemValIndexByItemValue(item.value);
       if (index > -1) {
         const val = this.createValueCopy();
@@ -267,7 +261,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     }
   }
-  private getCommentValueByItem(item: ItemValue): string {
+  protected getCommentValueByItem(item: ItemValue): string {
     const index = this.getItemValIndexByItemValue(item.value);
     return index > -1 ? this.value[index][this.commentPropertyValue] : undefined;
   }

@@ -2661,6 +2661,7 @@ QUnit.test("Radiogroup question and choices has comment", (assert) => {
     ]
   });
   const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.comment, "", "comment is empty by default");
   assert.equal(q1.choices[0].showCommentArea, false, "choices[0].showCommentArea");
   assert.equal(q1.choices[1].showCommentArea, true, "choices[1].showCommentArea");
   assert.equal(q1.otherItem.showCommentArea, true, "choices[1].showCommentArea");
@@ -2679,9 +2680,11 @@ QUnit.test("Radiogroup question and choices has comment", (assert) => {
   assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #3");
   assert.equal(q1.otherItem.isCommentShowing, false, "isCommentShowing for otherItem, #3");
   q1.setCommentValue(q1.choices[0], "test comment, #1");
-  assert.equal(q1.comment, "", "comment is empty if we set comment for choices[0], #1");
+  assert.notOk(q1.comment, "comment is empty if we set comment for choices[0], #1");
+  assert.equal(q1.renderedValue, 2, "renderedValue, #1");
+  assert.equal(q1.isCommentShowing(q1.choices[1]), true, "comment is showing, #1");
   q1.setCommentValue(q1.choices[1], "test comment");
-  assert.equal(q1.comment, "test comment", "comment is set for choices[1], #2");
+  assert.notOk(q1.comment, "comment is not used for choices[1], #2");
   assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #2");
   assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #2");
   assert.equal(q1.getCommentValue(q1.otherItem), "", "getCommentValue for otherItem, #2");
@@ -2717,7 +2720,7 @@ QUnit.test("Radiogroup/dropdown questions and choices has comment: do not remove
   q2.renderedValue = 2;
   q2.setCommentValue(q1.choices[1], "test comment2");
   survey.doComplete();
-  assert.deepEqual(survey.data, { q1: 2, "q1-Comment": "test comment1", q2: 2, "q2-Comment": "test comment2" }, "survey.data after complete");
+  assert.deepEqual(survey.data, { q1: { value: 2, comment: "test comment1" }, q2: { value: 2, comment: "test comment2" } }, "survey.data after complete");
 });
 QUnit.test("Radiogroup question, choices has comment and defaultValue", (assert) => {
   const survey = new SurveyModel({
@@ -3087,8 +3090,8 @@ QUnit.test("Radiogroup/dropdown showCommentArea validation", (assert) => {
   q2.value = 1;
   assert.equal(q1.validate(), false, "q1 validation, #2");
   assert.equal(q2.validate(), false, "q2 validation, #2");
-  q1.otherValue = "test comment";
-  q2.otherValue = "test comment";
+  q1.setCommentValue(q1.choices[0], "test comment");
+  q2.setCommentValue(q1.choices[0], "test comment");
   assert.equal(q1.validate(), true, "q1 validation, #3");
   assert.equal(q2.validate(), true, "q2 validation, #3");
   q1.value = 2;
@@ -3099,12 +3102,16 @@ QUnit.test("Radiogroup/dropdown showCommentArea validation", (assert) => {
   q2.value = 3;
   assert.equal(q1.validate(), true, "q1 validation, #5");
   assert.equal(q2.validate(), true, "q2 validation, #5");
-  q1.otherValue = "test comment";
-  q2.otherValue = "test comment";
+  q1.setCommentValue(q1.choices[2], "test comment");
+  q2.setCommentValue(q1.choices[2], "test comment");
   assert.equal(q1.validate(), true, "q1 validation, #6");
   assert.equal(q2.validate(), true, "q2 validation, #6");
+  assert.notOk(q1.otherValue, "q1 otherValue, #6");
+  assert.notOk(q2.otherValue, "q2 otherValue, #6");
   q1.renderedValue = "other";
   q2.renderedValue = "other";
+  assert.notOk(q1.otherValue, "q1 otherValue, #7");
+  assert.notOk(q2.otherValue, "q2 otherValue, #7");
   assert.equal(q1.validate(), false, "q1 validation, #7");
   assert.equal(q2.validate(), false, "q2 validation, #7");
   q1.otherValue = "test comment";
@@ -3177,6 +3184,62 @@ QUnit.test("Radiogroup/dropdown showCommentArea supportAutoAdvance", (assert) =>
   q1.onMouseDown();
   assert.equal(q1.supportAutoAdvance(), false, "q1 supportAutoAdvance, #4");
   assert.equal(q2.supportAutoAdvance(), false, "q2 supportAutoAdvance, #4");
+});
+QUnit.test("checkbox/radiogroup showCommentArea & isCommentRequired", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }]
+      },
+      {
+        "type": "checkbox",
+        "name": "q2",
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }]
+      },
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.renderedValue = 1;
+  assert.equal(q1.renderedValue, 1, "q1 renderedValue, #1");
+  q2.renderedValue = [1, 2];
+  assert.equal(q1.validate(), false, "q1 validate, #1");
+  assert.equal(q2.validate(), false, "q2 validate, #1");
+  q1.renderedValue = 3;
+  q2.renderedValue = [2, 3];
+  assert.equal(q1.validate(), true, "q1 validate, #2");
+  assert.equal(q2.validate(), true, "q2 validate, #2");
+  q2.setCommentValue(q2.choices[2], "");
+  assert.deepEqual(q2.value, [{ value: 2 }, { value: 3 }], "q2.value #1");
+  q1.setCommentValue(q2.choices[2], "test comment1");
+  q2.setCommentValue(q2.choices[2], "test comment2");
+  assert.equal(q2.validate(), true, "q2 validate, #3");
+  assert.deepEqual(q1.value, { value: 3, comment: "test comment1" }, "q1.value #2");
+  assert.deepEqual(q2.value, [{ value: 2 }, { value: 3, comment: "test comment2" }], "q2.value #2");
+});
+QUnit.test("radiogroup showCommentArea & renderedValue/value", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true }]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = 1;
+  assert.equal(q1.renderedValue, 1, "q1.renderedValue #1");
+  q1.setCommentValue(q1.choices[0], "test comment1");
+  assert.equal(q1.renderedValue, 1, "q1.renderedValue #2");
+  assert.deepEqual(q1.value, { value: 1, comment: "test comment1" }, "q1.value #2");
+  q1.renderedValue = 3;
+  assert.equal(q1.value, 3, "q1.value #3");
+  q1.value = { value: 1, comment: "test comment2" };
+  assert.equal(q1.renderedValue, 1, "q1.renderedValue #3");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "test comment2", "q1.getCommentValue #4");
 });
 QUnit.test("isCommentRequired serialization", (assert) => {
   const q = new QuestionRadiogroupModel("q1");

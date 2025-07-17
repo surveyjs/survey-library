@@ -30,7 +30,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.type("Comment for a");
       await page.keyboard.press("Tab");
-      expect(await getData(page)).toEqual({ "q1": "a", "q1-Comment": "Comment for a" });
+      expect(await getData(page)).toEqual({ "q1": { "value": "a", "comment": "Comment for a" } });
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(1).click();
       expect(await commentArea.count()).toEqual(0);
@@ -41,7 +41,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
-      expect(await getData(page)).toEqual({ "q1": "c", "q1-Comment": "Comment for c" });
+      expect(await getData(page)).toEqual({ "q1": { "value": "c", "comment": "Comment for c" } });
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(3).click();
       expect(await commentArea.count()).toEqual(1);
@@ -49,7 +49,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
-      expect(await getData(page)).toEqual({ "q1": "other", "q1-Comment": "Comment for d" });
+      expect(await getData(page)).toEqual({ "q1": { "value": "d", "comment": "Comment for d" } });
       await questionDropdownSelect.first().click();
       await itemsSelector.nth(2).click();
       expect(await commentArea.count()).toEqual(1);
@@ -57,7 +57,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
 
-      const finalResult = { "q1": "c", "q1-Comment": "Comment for c" };
+      const finalResult = { "q1": { "value": "c", "comment": "Comment for c" } };
       expect(await getData(page)).toEqual(finalResult);
       await page.locator("input[value=Complete]").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);
@@ -81,7 +81,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.type("Comment for a");
       await page.keyboard.press("Tab");
-      expect(await getData(page)).toEqual({ "q1": "a", "q1-Comment": "Comment for a" });
+      expect(await getData(page)).toEqual({ "q1": { "value": "a", "comment": "Comment for a" } });
       await checks.nth(1).click({ force: true });
       expect(await commentArea.count()).toEqual(0);
       expect(await getData(page)).toEqual({ "q1": "b" });
@@ -90,7 +90,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.keyboard.type("Comment for c");
       await page.keyboard.press("Tab");
-      expect(await getData(page)).toEqual({ "q1": "c", "q1-Comment": "Comment for c" });
+      expect(await getData(page)).toEqual({ "q1": { "value": "c", "comment": "Comment for c" } });
       await checks.nth(3).click({ force: true });
       expect(await commentArea.count()).toEqual(1);
       expect(await getData(page)).toEqual({ "q1": "other" });
@@ -98,7 +98,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("Comment for d");
       await page.keyboard.press("Tab");
 
-      const finalResult = { "q1": "other", "q1-Comment": "Comment for d" };
+      const finalResult = { "q1": { "value": "d", "comment": "Comment for d" } };
       expect(await getData(page)).toEqual(finalResult);
       await page.locator("input[value=Complete]").click();
       expect(await getSurveyResult(page)).toEqual(finalResult);

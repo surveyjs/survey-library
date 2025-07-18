@@ -1103,9 +1103,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private rootElement: HTMLElement;
   private canDragDrop(): boolean { return !this.isInputReadOnly && this.currentMode !== "camera" && !this.isPlayingVideo; }
   public afterRenderQuestionElement(el: HTMLElement): void {
+    super.afterRenderQuestionElement(el);
     this.rootElement = el;
   }
   public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.stopVideo();
     this.rootElement = undefined;
   }
   private dragCounter: number = 0;

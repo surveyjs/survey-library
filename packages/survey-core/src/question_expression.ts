@@ -245,6 +245,11 @@ export class QuestionExpressionModel extends Question {
     }
     return val.toString();
   }
+  //a11y
+  public get ariaRole(): string {
+    return "presentation";
+  }
+  // EO a11y
 }
 
 export function getCurrecyCodes(): Array<string> {

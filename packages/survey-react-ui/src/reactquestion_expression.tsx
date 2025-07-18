@@ -17,6 +17,8 @@ export class SurveyQuestionExpression extends SurveyQuestionElementBase {
         id={this.question.inputId}
         className={cssClasses.root}
         ref={(div) => (this.setControl(div))}
+        aria-live="polite"
+        aria-label={this.question.formatedValue}
       >
         {this.question.formatedValue}
       </div>

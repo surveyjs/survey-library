@@ -982,7 +982,7 @@ export class QuestionRatingModel extends Question {
     return true;
   }
   public get a11y_input_ariaRole(): string {
-    return "group";
+    return "radiogroup";
   }
   // EO a11y
 }

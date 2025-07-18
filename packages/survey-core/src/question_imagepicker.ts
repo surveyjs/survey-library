@@ -481,6 +481,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.reCalcGapBetweenItemsCallback();
     }
   }
+  //a11y
+  public get ariaRole(): string {
+    return this.multiSelect ? "group" : "radiogroup";
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "imageitemvalue",

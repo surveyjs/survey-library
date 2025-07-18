@@ -480,7 +480,24 @@ export var settings = {
    * });
    * ```
    *
-   * You can redefine the `confirmActionAsync` function if you want to display a custom dialog window. Your function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
+   * You can redefine the `confirmActionAsync` function if you want to display a custom dialog window. Your function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. The code below shows a template for redefining the `confirmActionAsync` function:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * async function confirmDialog(message) {
+   *   return new Promise((resolve) => {
+   *     // Implement an async dialog window here
+   *   });
+   * }
+   *
+   * settings.confirmActionAsync = (message, callback) => {
+   *   confirmDialog(message).then((result) => {
+   *     callback(result);
+   *   });
+   *   return true;
+   * };
+   * ```
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */

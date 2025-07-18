@@ -940,7 +940,7 @@ QUnit.test("storeOthersAsComment is false", assert => {
 
   question.renderedValue = "other";
   assert.deepEqual(question.value, "other", "#1");
-  question.comment = "text1";
+  question.otherValue = "text1";
   assert.deepEqual(question.value, "text1", "#2");
   assert.deepEqual(survey.data, { q1: "text1" }, "#3");
 });
@@ -979,7 +979,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
 
   question.renderedValue = "other";
   assert.deepEqual(question.value, "other", "#1");
-  question.comment = "text1";
+  question.otherValue = "text1";
   assert.deepEqual(question.value, "text1", "#2");
   assert.deepEqual(survey.data, { q1: "text1" }, "#3");
 });
@@ -1522,7 +1522,7 @@ QUnit.test("show comment and show other together", assert => {
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   assert.equal(question.showOtherItem, true, "showOtherItem is true");
-  assert.equal(question.showCommentArea, true, "hasComment is true");
+  assert.equal(question.showCommentArea, true, "showCommentArea is true");
   assert.equal(question.getStoreOthersAsComment(), false, "we have show comment");
   question.showCommentArea = false;
   assert.equal(question.getStoreOthersAsComment(), true, "show comment is hidden");

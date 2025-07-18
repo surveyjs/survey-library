@@ -1,6 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { QuestionCheckboxBase } from "./question_baseselect";
+import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
@@ -27,7 +27,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.
    */
-  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+  public get selectedItem(): ChoiceItem { return <ChoiceItem>this.getSingleSelectedItem(); }
   /**
    * Specifies whether to display a button that clears the question value.
    *
@@ -55,7 +55,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return this.getLocalizationString("clearCaption");
   }
   supportAutoAdvance(): boolean {
-    return this.isMouseDown === true && !this.isOtherSelected;
+    return this.isMouseDown === true && !this.selectedItem?.showCommentArea;
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     const json = super.getConditionJson(operator, path);
@@ -69,10 +69,11 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     this.isMouseDown = false;
   }
   public clickItemHandler(item: ItemValue): void {
-    if (this.isReadOnlyAttr) return;
-    this.renderedValue = item.value;
+    this.selectItem(item);
   }
-
+  protected isOtherValueUnused(): boolean {
+    return !this.selectedItem?.showCommentArea;
+  }
   protected getDefaultTitleActions(): Array<Action> {
     const actions = [];
     if (!this.isDesignMode) {

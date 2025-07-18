@@ -373,10 +373,10 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.readOnly = val;
   }
   public get hasOther(): boolean {
-    return this.templateQuestion.hasOther;
+    return this.templateQuestion.showOtherItem;
   }
   public set hasOther(val: boolean) {
-    this.templateQuestion.hasOther = val;
+    this.templateQuestion.showOtherItem = val;
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this column becomes hidden.

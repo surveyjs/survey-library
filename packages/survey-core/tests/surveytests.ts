@@ -359,7 +359,7 @@ QUnit.test("Survey.onValueChanged event, #352", function (assert) {
   assert.equal(valueChangedCallCounter, 1, "Set one value");
   q1.value = q1.otherItem.value;
   assert.equal(valueChangedCallCounter, 2, "Set other value");
-  q1.comment = "new comment";
+  q1.otherValue = "new comment";
   assert.equal(valueChangedCallCounter, 3, "Set comment to other value");
 });
 QUnit.test("Do not show errors in display mode", function (assert) {
@@ -1363,7 +1363,7 @@ QUnit.test("Store comments in the survey", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(new PageModel("Page 1"));
   var question = <Question>survey.pages[0].addNewQuestion("text", "question");
-  question.hasComment = true;
+  question.showCommentArea = true;
   assert.equal(survey.getComment("question"), "", "Comment is empty");
   assert.equal(question.comment, "", "Comment is empty");
 
@@ -1719,7 +1719,7 @@ QUnit.test("Should not show errors with others bug #2014", function (assert) {
   question.value = question.otherItem.value;
   assert.equal(survey.currentPageNo, 0, "The page is still first");
   assert.equal(question.errors.length, 0, "Do not show any error");
-  question.comment = "Some text";
+  question.otherValue = "Some text";
   assert.equal(survey.currentPageNo, 0, "The page is still first, #2");
   question.value = 2;
   assert.equal(survey.currentPageNo, 1, "The second page is shown");
@@ -3790,11 +3790,11 @@ QUnit.test("clearInvisibleValues - comments and other values, #309", function (
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   q1.hasOther = true;
   var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
-  q2.hasComment = true;
+  q2.showCommentArea = true;
   var q3 = <QuestionTextModel>page.addNewQuestion("text", "q3");
   survey.clearInvisibleValues = true;
   q1.value = q1.otherItem.value;
-  q1.comment = "comment1";
+  q1.otherValue = "comment1";
   q2.value = "val2";
   q2.comment = "comment2";
   q3.value = "val3";
@@ -3817,7 +3817,7 @@ QUnit.test(
     q1.choices = [1];
     q1.hasOther = true;
     q1.value = q1.otherItem.value;
-    q1.comment = "comment1";
+    q1.otherValue = "comment1";
     q1.value = 1;
     assert.deepEqual(survey.data, { q1: 1 }, "There is no comment already");
     survey.doComplete();
@@ -4036,7 +4036,7 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
     "stay on the second page"
   );
   assert.notEqual(survey.state, "completed", "survey is still running");
-  dropDownQ.comment = "other value";
+  dropDownQ.otherValue = "other value";
   assert.notEqual(survey.state, "completed", "survey is still running #2");
   dropDownQ.value = 1;
   assert.equal(survey.state, "completed", "complete the survey");
@@ -4119,7 +4119,7 @@ QUnit.test(
       "stay on the second page"
     );
     assert.notEqual(survey.state, "completed", "survey is still running");
-    dropDownQ.comment = "other value";
+    dropDownQ.otherValue = "other value";
     assert.notEqual(survey.state, "completed", "survey is still running");
   }
 );
@@ -6062,7 +6062,7 @@ QUnit.test("QuestionRadiogroupModel clears comment - issue #390", function (
   assert
 ) {
   var question = new QuestionRadiogroupModel("q1");
-  question.hasComment = true;
+  question.showCommentArea = true;
   question.comment = "comment text";
   question.clearUnusedValues();
   assert.equal(question.comment, "comment text");
@@ -6749,8 +6749,8 @@ QUnit.test("defaultValue + survey.clear() + 'other'", function (assert) {
     { q1: "other", q2: ["other"] },
     "check initial state"
   );
-  survey.getQuestionByName("q1").comment = "comment1";
-  survey.getQuestionByName("q2").comment = "comment2";
+  survey.getQuestionByName("q1").otherValue = "comment1";
+  survey.getQuestionByName("q2").otherValue = "comment2";
   assert.equal(
     survey.getQuestionByName("q1").getPropertyValue("comment"),
     "comment1"
@@ -7397,7 +7397,7 @@ QUnit.test("survey.isSinglePage revert and other value", function (assert) {
   });
   var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   question.value = "other";
-  question.comment = "other2";
+  question.otherValue = "other2";
   survey.isSinglePage = true;
   assert.equal(
     survey.storeOthersAsComment,
@@ -10818,7 +10818,7 @@ QUnit.test(
     );
 
     question.value = ["other", "giraffe"];
-    question.comment = "Other value text";
+    question.otherValue = "Other value text";
 
     const plainData = question.getPlainData();
     assert.deepEqual(plainData.value, ["other", "giraffe"]);
@@ -10843,7 +10843,7 @@ QUnit.test(
       {
         type: "checkbox",
         name: "q1",
-        hasComment: true,
+        showCommentArea: true,
         choices: [
           {
             value: "lion",
@@ -10907,7 +10907,7 @@ QUnit.test(
     );
 
     question.value = "other";
-    question.comment = "Other value text";
+    question.otherValue = "Other value text";
 
     var plainData = question.getPlainData();
     assert.deepEqual(plainData.value, ["other"]);
@@ -10929,7 +10929,7 @@ QUnit.test(
       {
         type: "radiogroup",
         name: "q1",
-        hasComment: true,
+        showCommentArea: true,
         choices: [
           {
             value: "lion",
@@ -13397,35 +13397,32 @@ QUnit.test(
     assert.equal(q2.errors.length, 0, "q2 has no errors");
   }
 );
-QUnit.test(
-  "Update question errors on other text change if survey.checkErrorsMode property is 'onValueChanged'. Bug#1854",
-  function (assert) {
-    var survey = new SurveyModel({
-      checkErrorsMode: "onValueChanged",
-      elements: [
-        {
-          type: "dropdown",
-          name: "q1",
-          choices: [1, 2],
-          hasOther: true,
-        },
-      ],
-    });
-    var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
-    q1.value = q1.otherItem.value;
-    assert.equal(q1.errors.length, 0, "There is no error yet");
-    q1.comment = "some value1";
-    assert.equal(q1.errors.length, 0, "There is no error - there is a value");
-    q1.comment = "";
-    assert.equal(q1.errors.length, 1, "There is an error right now");
-    q1.comment = "some value2";
-    assert.equal(q1.errors.length, 0, "There is no error again");
-    q1.value = 1;
-    q1.value = q1.otherItem.value;
-    assert.equal(q1.comment, "", "Comment is empty");
-    assert.equal(q1.errors.length, 0, "There is no error - comment was cleaned");
-  }
-);
+QUnit.test("Update question errors on other text change if survey.checkErrorsMode property is 'onValueChanged'. Bug#1854", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "dropdown",
+        name: "q1",
+        choices: [1, 2],
+        hasOther: true,
+      },
+    ],
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  q1.value = q1.otherItem.value;
+  assert.equal(q1.errors.length, 0, "There is no error yet, #1");
+  q1.otherValue = "some value1";
+  assert.equal(q1.errors.length, 0, "There is no error - there is a value, #2");
+  q1.otherValue = "";
+  assert.equal(q1.errors.length, 1, "There is an error right now, #3");
+  q1.otherValue = "some value2";
+  assert.equal(q1.errors.length, 0, "There is no error again, #4");
+  q1.value = 1;
+  q1.value = q1.otherItem.value;
+  assert.equal(q1.otherValue, "", "Comment is empty");
+  assert.equal(q1.errors.length, 0, "There is no error - comment was cleaned, #5");
+});
 QUnit.test(
   "Update question errors on other text change if question has error already. Bug #1854",
   function (assert) {
@@ -13443,7 +13440,7 @@ QUnit.test(
     q1.value = q1.otherItem.value;
     survey.tryComplete();
     assert.equal(q1.errors.length, 1, "There is an error right now");
-    q1.comment = "some value";
+    q1.otherValue = "some value";
     assert.equal(q1.errors.length, 0, "There is no error now");
   }
 );
@@ -13835,7 +13832,7 @@ QUnit.test(
           name: "test",
           title: "My Test field",
           choices: ["A", "B", "C"],
-          hasComment: true,
+          showCommentArea: true,
         },
       ],
     });
@@ -15548,7 +15545,7 @@ QUnit.test("Skip trigger and 'other' value", function (assert) {
   });
   survey.getQuestionByName("q1").value = "other";
   assert.equal(survey.currentPage.name, "page1", "We are still on the first page");
-  survey.getQuestionByName("q1").comment = "abc";
+  survey.getQuestionByName("q1").otherValue = "abc";
   assert.equal(survey.currentPage.name, "page3", "We moved to another page");
 });
 QUnit.test(
@@ -15727,16 +15724,16 @@ QUnit.test("other and survey.clear", function (assert) {
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
   q1.value = "other";
-  q1.comment = "q1-comment";
+  q1.otherValue = "q1-comment";
   q2.value = ["item1", "other"];
-  q2.comment = "q2-comment";
+  q2.otherValue = "q2-comment";
   survey.clear();
-  assert.notOk(q1.comment, "after clear - dropdown");
-  assert.notOk(q2.comment, "after clear - checkbox");
+  assert.notOk(q1.otherValue, "after clear - dropdown");
+  assert.notOk(q2.otherValue, "after clear - checkbox");
   q1.value = "other";
   q2.value = ["other"];
-  assert.notOk(q1.comment, "after set other - dropdown");
-  assert.notOk(q2.comment, "after set other - checkbox");
+  assert.notOk(q1.otherValue, "after set other - dropdown");
+  assert.notOk(q2.otherValue, "after set other - checkbox");
 });
 QUnit.test("survey.fromJSON with existing model",
   function (assert) {

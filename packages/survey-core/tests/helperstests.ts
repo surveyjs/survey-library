@@ -502,11 +502,6 @@ QUnit.test("Check compareStrings function", function(assert) {
   assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });
-QUnit.test("convertArrayValueToObject function", function(assert) {
-  assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");
-  assert.deepEqual(Helpers.convertArrayObjectToValue([{ name: 1 }, { name: 2 }], "name"), [1, 2], "#2");
-  assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name", [{ name: 1, test: 2 }]), [{ name: 1, test: 2 }, { name: 2 }], "#1");
-});
 QUnit.test("getUnbindValue function", function(assert) {
   assert.deepEqual(Helpers.getUnbindValue(1), 1, "do not convert number");
   const obj = { val: 1 };

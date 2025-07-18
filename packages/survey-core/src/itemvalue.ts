@@ -260,8 +260,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public set locOwner(value: ILocalizableOwner) {
     this._locOwner = value;
+    this.onLocOwnerChanged();
   }
-
+  protected onLocOwnerChanged(): void {}
   public get value(): any {
     return this.getPropertyValue("value");
   }
@@ -291,6 +292,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected getCorrectValue(value: any): any {
     return value;
+  }
+  public get normalizedId(): string {
+    const val = !Helpers.isValueEmpty(this.value) ? this.value.toString() : "";
+    return val.replace(/[^a-zA-Z0-9_]/g, "_");
   }
   public get hasText(): boolean {
     return this.pureText ? true : false;
@@ -347,11 +352,18 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
-        Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) continue;
-      jsoObj.valueToJson(this, res, prop);
+      if (this.canAddPpropertyToJSON(prop)) {
+        jsoObj.valueToJson(this, res, prop);
+      }
     }
     return res;
+  }
+  protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
+    if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
+      Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) {
+      return false;
+    }
+    return true;
   }
   public setData(value: any, isNewItem?: boolean): void {
     if (Helpers.isValueEmpty(value)) return;

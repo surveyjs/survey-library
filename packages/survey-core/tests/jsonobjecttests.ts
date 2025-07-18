@@ -25,6 +25,7 @@ import { ImageItemValue } from "../src/question_imagepicker";
 import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -3555,6 +3556,15 @@ QUnit.test("column isRequired vs default value in column&question, Bug#9920", fu
   doChecks(5, true, undefined, undefined, true, false, false);
   Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = undefined;
   doChecks(6, true, undefined, undefined, true, false, false);
+});
+QUnit.test("choiceitem showCommentArea visibilty for different questions", function (assert) {
+  const prop = Serializer.findProperty("choiceitem", "showCommentArea");
+  const q1 = new QuestionCheckboxModel("q1");
+  q1.choices = [1];
+  assert.equal(prop.isVisible("", q1.choices[0]), true, "showCommentArea is visible choice item in checkbox question");
+  const q2 = new QuestionTagboxModel("q2");
+  q2.choices = [1];
+  assert.equal(prop.isVisible("", q2.choices[0]), false, "showCommentArea is invisible choice item in tagbox question");
 });
 QUnit.test("Could not override default value for valueName & titleName properties in choicesByUrl object, Bug#10088", function (assert) {
   const valueProp = Serializer.findProperty("choicesbyurl", "valueName");

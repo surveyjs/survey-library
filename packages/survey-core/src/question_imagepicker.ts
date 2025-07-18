@@ -461,7 +461,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return false;
   }
 
-  public triggerResponsiveness(hard: boolean = true): void {
+  public triggerResponsiveness(hard = true): void {
     if (hard && this.reCalcGapBetweenItemsCallback) {
       this.reCalcGapBetweenItemsCallback();
     }
@@ -484,6 +484,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   //a11y
   public get ariaRole(): string {
     return this.multiSelect ? "group" : "radiogroup";
+  }
+  public get ariaRequired(): "true" | "false" {
+    return null;
   }
   // EO a11y
 }

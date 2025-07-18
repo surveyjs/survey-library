@@ -5,7 +5,7 @@ import { QuestionExpressionModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-expression",
-  template: "<div [class]='model.cssClasses.root' #contentElement>{{ model.formatedValue }}</div>"
+  template: "<div [class]='model.cssClasses.root' #contentElement [attr.aria-label]='model.formatedValue' aria-live='polite' >{{ model.formatedValue }}</div>"
 })
 export class ExpressionComponent extends QuestionAngular<QuestionExpressionModel> {
 }

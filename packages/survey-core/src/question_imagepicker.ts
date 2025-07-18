@@ -488,6 +488,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get ariaRequired(): "true" | "false" {
     return null;
   }
+  public get inputRequiredAttribute(): boolean | null {
+    return this.multiSelect ? this.hasRequiredError() : null;
+  }
   // EO a11y
 }
 Serializer.addClass(

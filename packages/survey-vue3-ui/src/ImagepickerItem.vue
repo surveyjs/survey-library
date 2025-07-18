@@ -10,7 +10,7 @@
         v-model="value"
         :disabled="!question.getItemEnabled(item)"
         :readonly="question.isReadOnlyAttr"
-        :required="question.hasRequiredError()"
+        :required="question.inputRequiredAttribute"
         :aria-label="item.locText.renderedHtml"
         :aria-invalid="question.ariaInvalid"
         :aria-errormessage="question.ariaErrormessage"

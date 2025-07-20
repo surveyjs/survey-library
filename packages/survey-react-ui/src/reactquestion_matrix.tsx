@@ -183,7 +183,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return tds;
   }
   cellClick(row: any, column: any): void {
-    row.value = column.value;
+    row.cellClick(column);
     this.setState({ value: this.row.value });
   }
 }
@@ -218,7 +218,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     return !!this.question && !!this.row;
   }
   protected renderElement(): React.JSX.Element {
-    const isChecked = this.row.value == this.column.value;
+    const isChecked = this.row.isChecked(this.column);
     const inputId = this.question.inputId + "_" + this.row.name + "_" + this.columnIndex;
     const itemClass = this.question.getItemClass(this.row, this.column);
     const mobileSpan = this.question.isMobile ?

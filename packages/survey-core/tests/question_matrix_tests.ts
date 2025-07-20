@@ -156,6 +156,75 @@ QUnit.test("matrix row, rowClasses property, #7889", function (assert) {
   assert.equal(question.hasErrorInRow(question.visibleRows[2]), false, "hasErrorInRow(2), #7");
   assert.equal(question.visibleRows[2].hasError, false, "visibleRows[2].hasError, #7");
 });
+QUnit.test("matrix row, cellClick&isChecked", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2", "row3"]
+      },
+    ],
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  const rows = question.visibleRows;
+  assert.equal(rows.length, 3, "rows 3");
+  assert.equal(rows[0].value, undefined, "row1 value is empty");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #1");
+  assert.equal(rows[0].isChecked(question.columns[1]), false, "row1 isChecked col2 #1");
+  rows[0].cellClick(question.columns[1]);
+  assert.equal(rows[0].value, "col2", "row1 value is col2");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #2");
+  assert.equal(rows[0].isChecked(question.columns[1]), true, "row1 isChecked col2 #2");
+  rows[1].cellClick(question.columns[0]);
+  assert.equal(rows[1].value, "col1", "row2 value is col1");
+  assert.equal(rows[1].isChecked(question.columns[0]), true, "row2 isChecked col1 #1");
+  assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #1");
+  assert.deepEqual(question.value, { row1: "col2", row2: "col1" }, "value is set correctly");
+});
+QUnit.test("matrix row, cellClick&isChecked, isMultipleSelect", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2", "row3"],
+        isMultipleSelect: true
+      },
+    ],
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.ok(question.isMultipleSelect, "isMultipleSelect is true");
+  const rows = question.visibleRows;
+  assert.equal(rows.length, 3, "rows 3");
+  assert.deepEqual(rows[0].value, undefined, "row1 value is empty");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #1");
+  assert.equal(rows[0].isChecked(question.columns[1]), false, "row1 isChecked col2 #1");
+  rows[0].cellClick(question.columns[1]);
+  assert.deepEqual(rows[0].value, ["col2"], "row1 value is col2");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #2");
+  assert.equal(rows[0].isChecked(question.columns[1]), true, "row1 isChecked col2 #2");
+  rows[0].cellClick(question.columns[0]);
+  assert.deepEqual(rows[0].value, ["col2", "col1"], "row1 value is col2, col1");
+  assert.equal(rows[0].isChecked(question.columns[0]), true, "row1 isChecked col1 #3");
+  assert.equal(rows[0].isChecked(question.columns[1]), true, "row1 isChecked col2 #3");
+  rows[1].cellClick(question.columns[0]);
+  assert.deepEqual(rows[1].value, ["col1"], "row2 value is col1");
+  assert.equal(rows[1].isChecked(question.columns[0]), true, "row2 isChecked col1 #1");
+  assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #1");
+  assert.deepEqual(question.value, { row1: ["col2", "col1"], row2: ["col1"] }, "value is set correctly, #1");
+  rows[0].cellClick(question.columns[1]);
+  assert.equal(rows[0].isChecked(question.columns[0]), true, "row1 isChecked col1 #3");
+  assert.equal(rows[0].isChecked(question.columns[1]), false, "row1 isChecked col2 #3");
+  rows[1].cellClick(question.columns[0]);
+  assert.equal(rows[1].isChecked(question.columns[0]), false, "row2 isChecked col1 #2");
+  assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #2");
+  assert.equal(rows[1].value, undefined, "row2 value is set correctly, #2");
+  assert.deepEqual(question.value, { row1: ["col1"] }, "value is set correctly, #2");
+});
+
 QUnit.test("check row randomization in design mode", (assert) => {
 
   var json = {

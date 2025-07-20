@@ -59,11 +59,14 @@ const props = defineProps<{
 }>();
 const renderedValue = computed({
   get() {
-    return props.row.value ?? "";
+    const row = props.row;
+    const column = props.column;
+    return row.isChecked(column) ? column.value : "";
   },
   set(val) {
     const row = props.row;
-    row.value = val;
+    const column = props.column;
+    row.cellClick(column);
   },
 });
 </script>

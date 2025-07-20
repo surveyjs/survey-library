@@ -4,7 +4,7 @@
     [class]="question.cssClasses.itemValue"
     [name]="row.fullName"
     [value]="column.value"
-    [checked]="row.value === column.value"
+    [checked]="row.isChecked(column)"
     [readonly]="row.isReadOnlyAttr"
     [disabled]="row.isDisabledAttr"
     [attr.id]="question.inputId + '_' + row.name + '_' + columnIndex"

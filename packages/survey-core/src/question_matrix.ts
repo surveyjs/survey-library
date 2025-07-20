@@ -23,6 +23,8 @@ export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
   getDisplayRowValue(value: any): string;
+  cellClick(row: MatrixRowModel, column: ItemValue): void;
+  isCellChecked(row: MatrixRowModel, column: ItemValue): boolean;
   cssClasses: any;
   isDisabledStyle: boolean;
   isInputReadOnly: boolean;
@@ -43,7 +45,6 @@ class MatrixRowValueGetterContext implements IValueGetterContext {
 }
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
-  public cellClick: any;
 
   constructor(
     public item: ItemValue,
@@ -54,15 +55,18 @@ export class MatrixRowModel extends Base {
     super();
     this.data = data;
     this.setValueDirectly(value);
-    this.cellClick = (column: any) => {
-      this.value = column.value;
-    };
     this.registerPropertyChangedHandlers(["value"], () => {
-      if (this.data)this.data.onMatrixRowChanged(this);
+      this.data.onMatrixRowChanged(this);
     });
-    if (this.data && this.data.hasErrorInRow(this)) {
+    if (this.data.hasErrorInRow(this)) {
       this.hasError = true;
     }
+  }
+  public cellClick(column: ItemValue): void {
+    this.data.cellClick(this, column);
+  }
+  public isChecked(column: ItemValue): boolean {
+    return this.data.isCellChecked(this, column);
   }
   public get name(): string {
     return this.item.value;
@@ -339,6 +343,12 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  public get isMultipleSelect(): boolean {
+    return this.getPropertyValue("isMultipleSelect");
+  }
+  public set isMultipleSelect(val: boolean) {
+    this.setPropertyValue("isMultipleSelect", val);
+  }
   /**
    * The name of a component used to render cells.
    */
@@ -437,7 +447,7 @@ export class QuestionMatrixModel
     return col;
   }
   public getItemClass(row: any, column: any): string {
-    const isChecked = row.value == column.value;
+    const isChecked = row.isChecked(column);
     const isDisabled = this.isReadOnly;
     const allowHover = !isChecked && !isDisabled;
     const hasCellText = this.hasCellText;
@@ -520,8 +530,9 @@ export class QuestionMatrixModel
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     if (!!this.nestedQuestionsValue) return this.nestedQuestionsValue;
     const res: Array<Question> = [];
+    const qType = this.isMultipleSelect ? "checkbox" : "radiogroup";
     this.visibleRows.forEach(row => {
-      const question = <Question>Serializer.createClass("radiogroup");
+      const question = <Question>Serializer.createClass(qType);
       question.name = row.name;
       question.locTitle.sharedData = row.locText;
       question.choices = this.visibleColumns;
@@ -851,11 +862,12 @@ export class QuestionMatrixModel
     if (!this.hasRows) {
       this.setNewValue(row.value);
     } else {
-      var newValue = this.value;
-      if (!newValue) {
-        newValue = {};
+      const newValue = this.value || {};
+      if (this.isValueEmpty(row.value)) {
+        delete newValue[row.name];
+      } else {
+        newValue[row.name] = row.value;
       }
-      newValue[row.name] = row.value;
       this.setNewValue(newValue);
     }
     this.isRowChanging = false;
@@ -869,6 +881,44 @@ export class QuestionMatrixModel
     if (col) return col.text;
     return value !== null && value !== undefined ? value.toString() : "";
   }
+  cellClick(row: MatrixRowModel, column: ItemValue): void {
+    if (this.isReadOnly || this.isDisabledAttr) return;
+    if (this.isMultipleSelect) {
+      let val = Array.isArray(row.value) ? [].concat(row.value) : [];
+      if (this.isCellChecked(row, column)) {
+        const index = this.getRowValueIndex(row, column);
+        if (index > -1) {
+          val.splice(index, 1);
+        }
+        if (val.length === 0) {
+          val = undefined;
+        }
+      } else {
+        if (!Array.isArray(val)) {
+          val = [];
+        }
+        val.push(column.value);
+      }
+      row.value = val;
+    } else {
+      row.value = column.value;
+    }
+  }
+  isCellChecked(row: MatrixRowModel, column: ItemValue): boolean {
+    if (this.isMultipleSelect) {
+      return this.getRowValueIndex(row, column) > -1;
+    }
+    return Helpers.isTwoValueEquals(row.value, column.value);
+  }
+  getRowValueIndex(row: MatrixRowModel, column: ItemValue): number {
+    const val = row.value;
+    if (!Array.isArray(val)) return -1;
+    for (let i = 0; i < val.length; i++) {
+      if (this.isTwoValueEquals(val[i], column.value)) return i;
+    }
+    return -1;
+  }
+
   private getColumnByValue(value: any): ItemValue {
     const cols = this.columns;
     for (var i = 0; i < cols.length; i++) {
@@ -941,7 +991,8 @@ Serializer.addClass(
     { name: "eachRowRequired:boolean", alternativeName: "isAllRowRequired" },
     { name: "eachRowUnique:boolean", category: "validation" },
     "hideIfRowsEmpty:boolean",
-    { name: "cellComponent", visible: false, default: "survey-matrix-cell" }
+    { name: "cellComponent", visible: false, default: "survey-matrix-cell" },
+    { name: "isMultipleSelect:boolean", visible: false },
   ],
   function () {
     return new QuestionMatrixModel("");

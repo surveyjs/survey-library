@@ -8,6 +8,7 @@
       :class="question.cssClasses.itemValue"
       :name="row.fullName"
       v-model="renderedValue"
+      @change="changed"
       :value="column.value"
       :readonly="row.isReadOnlyAttr"
       :disabled="row.isDisabledAttr"
@@ -46,7 +47,6 @@ import type {
   ItemValue,
   QuestionMatrixModel,
 } from "survey-core";
-import { computed } from "vue";
 
 defineOptions({
   inheritAttrs: false,
@@ -57,16 +57,10 @@ const props = defineProps<{
   column: ItemValue;
   columnIndex: number;
 }>();
-const renderedValue = computed({
-  get() {
-    const row = props.row;
-    const column = props.column;
-    return row.isChecked(column) ? column.value : "";
-  },
-  set(val) {
-    const row = props.row;
-    const column = props.column;
-    row.cellClick(column);
-  },
-});
+const renderedValue = props.row.isChecked(props.column) ? props.column.value : "";
+const changed = () => {
+  const row = props.row;
+  const column = props.column;
+  row.cellClick(column);
+}
 </script>

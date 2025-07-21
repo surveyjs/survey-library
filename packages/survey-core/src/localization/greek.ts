@@ -118,7 +118,7 @@ export var greekSurveyStrings = {
   createCustomItem: "Δημιουργία στοιχείου \"{0}\"..."
 };
 
-setupLocale({ localeCode: "gr", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });
+setupLocale({ localeCode: "el", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

@@ -2465,3 +2465,27 @@ QUnit.test("Tagbox otherItem works correctly", assert => {
   question.renderedValue = [2];
   assert.equal(question.otherItem.isCommentShowing, false, "#3");
 });
+
+QUnit.test("TagBox becomes unresponsive when 0 is selected", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          { "type": "tagbox", "name": "question1", "choices": [0, 1, 2] }
+        ]
+      }
+    ]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  assert.equal(list.actions.length, 3);
+  assert.deepEqual(question.value, [], "#1");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0, "#2");
+
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [0], "#3");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1, "#4");
+});

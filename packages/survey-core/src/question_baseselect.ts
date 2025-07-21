@@ -931,7 +931,7 @@ export class QuestionSelectBase extends Question {
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     if (!Array.isArray(val)) return this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
     for (let i = 0; i < val.length; i++) {
-      if (this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue)) return true;
+      if (this.hasUnknownValueItem(val[i], includeOther, isFilteredChoices, checkEmptyValue)) return true;
     }
     return false;
   }

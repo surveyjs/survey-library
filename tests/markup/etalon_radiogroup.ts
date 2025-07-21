@@ -297,6 +297,22 @@ registerMarkupTests(
       ]
     },
     snapshot: "radiogroup-row-no-head-foot",
-  }
+  },
+  {
+    name: "Test radiogroup vs mutliple comments",
+    json: {
+      questions: [
+        {
+          "type": "radiogroup",
+          "name": "name",
+          "choices": [{ value: "item1", showCommentArea: true }, { value: "item2", showCommentArea: true }],
+          showOtherItem: true,
+          defaultValue: { value: "item1", comment: "Item 1 comment" },
+          titleLocation: "hidden"
+        }
+      ]
+    },
+    snapshot: "radiogroup-multiple-comments",
+  },
   ]
 );

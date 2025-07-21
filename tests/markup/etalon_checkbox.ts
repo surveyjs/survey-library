@@ -358,7 +358,7 @@ registerMarkupTests(
             "name": "name",
             "choices": [{ value: "item1", showCommentArea: true }, { value: "item2", showCommentArea: true }],
             showOtherItem: true,
-            defaultValue: [{ value: "item1", comment: "Item 1 comment" }, { value: "item2", comment: "Item 2 comment" }],
+            defaultValue: ["item1", "item2"],
             titleLocation: "hidden"
           }
         ]

@@ -456,9 +456,7 @@ export var settings = {
    * You can redefine the `confirmActionFunc` function if you want to display a custom dialog window. Your function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    */
-  confirmActionFunc: function (message: string): boolean {
-    return confirm(message);
-  },
+  confirmActionFunc: <(message: string)=> boolean>undefined,
   /**
    * A function that activates a proprietary SurveyJS confirm dialog.
    *
@@ -501,8 +499,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): boolean {
-    return showConfirmDialog(message, callback, options);
+  confirmActionAsync: (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void => {
+    showConfirmDialog(message, callback, options);
   },
   /**
    * A minimum width value for all survey elements.

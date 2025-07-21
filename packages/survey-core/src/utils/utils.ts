@@ -31,12 +31,15 @@ function confirmActionAsync(options: IConfirmDialogOptions): void {
     if (res) options.funcOnYes();
     else if (!!options.funcOnNo) options.funcOnNo();
   };
-
-  if (!!settings && !!settings.confirmActionAsync) {
-    if (settings.confirmActionAsync(options.message, callbackFunc, options)) return;
+  if (!!settings && !!settings.confirmActionFunc) {
+    callbackFunc(confirmAction(options.message));
+    return;
   }
-
-  callbackFunc(confirmAction(options.message));
+  if (!!settings && !!settings.confirmActionAsync) {
+    settings.confirmActionAsync(options.message, callbackFunc, options);
+  } else {
+    showConfirmDialog(options.message, callbackFunc, options);
+  }
 }
 function detectIEBrowser(): boolean {
   const ua: string = navigator.userAgent;

@@ -12,6 +12,7 @@ import "../src/localization/serbian";
 import "../src/localization/ukrainian";
 import "../src/localization/portuguese";
 import "../src/localization/portuguese-br";
+import "../src/localization/greek";
 import { QuestionCheckboxBase } from "../src/question_baseselect";
 import { englishStrings } from "../src/localization/english";
 
@@ -248,6 +249,19 @@ QUnit.test("Ukraine locale is 'uk', but support the old one 'ua', Bug #9908",
     surveyLocalization.defaultLocale = "ua";
     assert.equal(surveyLocalization.defaultLocale, "uk", "ua => uk, default");
     assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly");
+    surveyLocalization.defaultLocale = oldDl;
+    surveyLocalization.currentLocale = oldCl;
+  }
+);
+QUnit.test("Greek locale is 'el', but support the old one 'gr', Bug #10156",
+  function(assert) {
+    var oldDl = surveyLocalization.defaultLocale;
+    var oldCl = surveyLocalization.currentLocale;
+    surveyLocalization.currentLocale = "gr";
+    assert.equal(surveyLocalization.currentLocale, "el", "gr => el, current");
+    surveyLocalization.defaultLocale = "gr";
+    assert.equal(surveyLocalization.defaultLocale, "el", "gr => el, default");
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Προηγούμενο", "Set locale correctly");
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }

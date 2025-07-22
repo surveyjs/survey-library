@@ -1702,7 +1702,7 @@ export class QuestionSelectBase extends Question {
     this.setCommentValueCore(item, event.target.value);
     const val = this.getCommentValueCore(item);
     if (val !== event.target.value) {
-      event.target.value = val;
+      event.target.value = val || "";
     }
   }
   private isRunningChoices: boolean = false;

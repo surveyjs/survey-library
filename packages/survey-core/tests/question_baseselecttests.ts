@@ -3363,3 +3363,23 @@ QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
   assert.equal(q.dataChoices.length, 4, "dataChoices length");
   assert.equal(q.dataChoices[2].value, "none2", "none2 is here");
 });
+QUnit.test("radiogroup question showOtherItem - lost focus on empty", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.clickItemHandler(q1.otherItem);
+  const textArea = q1.getCommentTextAreaModel(q1.otherItem);
+  assert.equal(textArea.getTextValue(), "", "text area is empty #1");
+  const event: any = { target: { value: "" } };
+  textArea.onTextAreaBlur({ target: { value: "" } });
+  assert.strictEqual(event.target.value, "", "event.target.value is empty");
+  assert.equal(textArea.getTextValue(), "", "text area is empty #2");
+});

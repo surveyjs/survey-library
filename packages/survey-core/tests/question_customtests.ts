@@ -3667,3 +3667,19 @@ QUnit.test("Composite: isMobile flag, Bug#9927", function (assert) {
   assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: supportAutoAdvance, bug#10149", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: { type: "radiogroup", choices: [1, 2, 3], showOtherItem: true },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(q1.supportAutoAdvance(), false, "supportAutoAdvance #1");
+  q1.contentQuestion.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), true, "supportAutoAdvance #2");
+  q1.contentQuestion.value = "other";
+  assert.equal(q1.supportAutoAdvance(), false, "supportAutoAdvance #3");
+  ComponentCollection.Instance.clear();
+});

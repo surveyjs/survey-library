@@ -442,23 +442,22 @@ export var settings = {
    */
   dropdownSearchDelay: 500,
   /**
-   * A function that activates a browser confirm dialog.
+   * A function used to display a custom confirmation dialog.
    *
-   * Use the following code to execute this function:
+   * This function is `undefined` by default. To enable a custom dialog, assign a function that returns `true` if the user confirms the action or `false` otherwise. For example, the following code uses the built-in `window.confirm()` method to open a confirmation dialog window:
    *
    * ```js
    * import { settings } from "survey-core";
    *
-   * // `result` contains `true` if the action was confirmed or `false` otherwise
-   * const result = settings.confirmActionFunc("Are you sure?");
+   * settings.confirmActionAsync = (message) => {
+   *   return window.confirm(message);
+   * };
    * ```
-   *
-   * You can redefine the `confirmActionFunc` function if you want to display a custom dialog window. Your function should return `true` if a user confirms an action or `false` otherwise.
-   * @param message A message to be displayed in the confirm dialog window.
+   * @param message A message to display in the confirmation dialog.
    */
   confirmActionFunc: <(message: string)=> boolean>undefined,
   /**
-   * A function that activates a proprietary SurveyJS confirm dialog.
+   * A function that activates a proprietary SurveyJS confirmation dialog.
    *
    * Use the following code to execute this function:
    *
@@ -478,7 +477,7 @@ export var settings = {
    * });
    * ```
    *
-   * You can redefine the `confirmActionAsync` function if you want to display a custom dialog window. Your function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. The code below shows a template for redefining the `confirmActionAsync` function:
+   * You can override the `confirmActionAsync` function if you want to display a custom dialog window asynchronously:
    *
    * ```js
    * import { settings } from "survey-core";
@@ -493,10 +492,9 @@ export var settings = {
    *   confirmDialog(message).then((result) => {
    *     callback(result);
    *   });
-   *   return true;
    * };
    * ```
-   * @param message A message to be displayed in the confirm dialog window.
+   * @param message A message to display in the confirmation dialog.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
   confirmActionAsync: (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void => {

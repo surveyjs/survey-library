@@ -3291,6 +3291,62 @@ QUnit.test("checbox question and choices has comment - custom placeholder", (ass
   assert.equal(textArea1.placeholder, "Some comment", "textArea1 placeholder");
   assert.equal(textArea2.placeholder, "Please add com", "textArea2 placeholders");
 });
+QUnit.test("checbox question and choices has comment - default value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }],
+        "choices": [{ value: 1, showCommentArea: true }, { value: 2, showCommentArea: true }],
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.renderedValue, [1, 2], "q1.renderedValue");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "abc", "getCommentValue for choices[0], #1");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "edf", "getCommentValue for choices[1], #1");
+});
+QUnit.test("checbox question and choices has comment - set value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true }, { value: 2, showCommentArea: true }],
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }];
+  assert.deepEqual(q1.renderedValue, [1, 2], "q1.renderedValue");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "abc", "getCommentValue for choices[0], #1");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "edf", "getCommentValue for choices[1], #1");
+});
+QUnit.test("radiogroup question and choices has comment - default value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "defaultValue": [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }],
+        "choices": { value: 1, showCommentArea: true },
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.renderedValue, 1, "q1.renderedValue");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "abc", "getCommentValue for choices[0], #1");
+});
 QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
   const survey = new SurveyModel({
     elements: [

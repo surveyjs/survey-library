@@ -45,6 +45,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.registerPropertyChangedHandlers(["showSelectAllItem", "selectAllText"], () => {
       this.onVisibleChoicesChanged();
     });
+    this.registerPropertyChangedHandlers(["choices"], () => {
+      this.onItemHasCommentChanged();
+    });
   }
   protected getDefaultItemComponent(): string {
     return "survey-checkbox-item";
@@ -460,6 +463,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   updateValueFromSurvey(newValue: any, clearData: boolean): void {
     super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
+  }
+  onSurveyLoad(): void {
+    this.onItemHasCommentChanged();
+    super.onSurveyLoad();
   }
   protected setDefaultUnknownValue(val : any): void {
     if (!Array.isArray(val)) {

@@ -3379,7 +3379,7 @@ QUnit.test("radiogroup question showOtherItem - lost focus on empty", (assert) =
   const textArea = q1.getCommentTextAreaModel(q1.otherItem);
   assert.equal(textArea.getTextValue(), "", "text area is empty #1");
   const event: any = { target: { value: "" } };
-  textArea.onTextAreaBlur({ target: { value: "" } });
+  textArea.onTextAreaBlur(event);
   assert.strictEqual(event.target.value, "", "event.target.value is empty");
   assert.equal(textArea.getTextValue(), "", "text area is empty #2");
 });

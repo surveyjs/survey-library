@@ -20,7 +20,7 @@ export class ItemValueGetterContext implements IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 1) {
       const name = path[0].name;
-      if (name === "item" || name === "choice") return { isFound: true, value: this.item.value };
+      if (name === "item" || name === "choice") return { isFound: true, value: this.item.value, context: this };
     }
     const owner: any = this.item.locOwner;
     if (owner && owner.getValueGetterContext) {
@@ -32,6 +32,10 @@ export class ItemValueGetterContext implements IValueGetterContext {
     const owner: any = this.item.locOwner;
     if (owner && owner.getValueGetterContext) return owner;
     return <any>this.item.getSurvey();
+  }
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (isDisplayValue && value === this.item.value) return this.item.textOrHtml;
+    return value !== undefined && value !== null ? value.toString() : "";
   }
 }
 

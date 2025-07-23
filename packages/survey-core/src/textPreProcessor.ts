@@ -87,7 +87,7 @@ export class TextPreProcessor {
           var item = new TextPreProcessorItem();
           item.start = start;
           item.end = i;
-          if (this.isValidItemName(text.substring(start + 1, i - 1))) {
+          if (this.isValidItemName(text.substring(start + 1, i))) {
             items.push(item);
           }
         }

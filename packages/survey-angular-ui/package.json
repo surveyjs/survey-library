@@ -63,6 +63,9 @@
     "survey-core": "../survey-core/build",
     "http-server": "^14.1.1"
   },
+  "overrides": {
+    "stylus": "github:stylus/stylus#0.54.8"
+  },
   "scripts": {
     "build": "ng build && node ./update-version.js",
     "serve:example:dev": "ng serve",

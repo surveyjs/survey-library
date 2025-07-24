@@ -63,5 +63,5 @@ const changed = () => {
   const column = props.column;
   row.cellClick(column);
 }
-const itemSvgIcon = () => { return props.question.getItemSvgIcon(row, column); };
+const itemSvgIcon = () => { return props.question.getItemSvgIcon(props.row, props.column); };
 </script>

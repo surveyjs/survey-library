@@ -4,7 +4,7 @@
     :class="question.getItemClass(row, column)"
   >
     <input
-      type="question.checkType"
+      :type="question.checkType"
       :class="question.cssItemValue"
       :name="row.fullName"
       v-model="renderedValue"
@@ -22,10 +22,10 @@
     />
     <span :class="question.cssMaterialDecorator">
       <svg
-        v-if="itemSvgIcon()"
+        v-if="itemSvgIcon"
         :class="question.cssItemDecorator"
       >
-        <use :xlink:href="itemSvgIcon()"></use>
+        <use :xlink:href="itemSvgIcon"></use>
       </svg>
     </span>
     <span
@@ -63,5 +63,5 @@ const changed = () => {
   const column = props.column;
   row.cellClick(column);
 }
-const itemSvgIcon = () => { return props.question.getItemSvgIcon(props.row, props.column); };
+const itemSvgIcon = props.question.getItemSvgIcon(props.row, props.column);
 </script>

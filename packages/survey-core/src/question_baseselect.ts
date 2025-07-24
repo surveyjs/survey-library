@@ -106,6 +106,7 @@ export class QuestionSelectBase extends Question {
     super(name);
     this.otherItemValue = this.createItemValue("other");
     this.otherItem.showCommentArea = true;
+    this.otherItem.isCommentRequired = true;
     this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
@@ -2347,7 +2348,7 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 
 Serializer.addClass("choiceitem",
   [{ name: "showCommentArea:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
-    { name: "isCommentRequired:boolean", default: true, locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
+    { name: "isCommentRequired:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
     { name: "commentPlaceholder", locationInTable: "detail", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } }
   ],
   (value) => new ChoiceItem(value),

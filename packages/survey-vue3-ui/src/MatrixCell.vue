@@ -47,6 +47,7 @@ import type {
   ItemValue,
   QuestionMatrixModel,
 } from "survey-core";
+import { computed } from "vue";
 
 defineOptions({
   inheritAttrs: false,
@@ -63,5 +64,5 @@ const changed = () => {
   const column = props.column;
   row.cellClick(column);
 }
-const itemSvgIcon = props.question.getItemSvgIcon(props.row, props.column);
+const itemSvgIcon = computed(() => { return props.question.getItemSvgIcon(props.row, props.column); });
 </script>

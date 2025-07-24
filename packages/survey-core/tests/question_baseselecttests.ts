@@ -3276,20 +3276,20 @@ QUnit.test("checbox question and choices has comment - custom placeholder", (ass
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, showCommentArea: true, commentPlaceholder: "Please add com" }, 3],
+        "choices": [{ value: 1, showCommentArea: true, text: "Item 1" }, { value: 2, showCommentArea: true, commentPlaceholder: "Please add comment" }, 3],
         "showOtherItem": true,
         "showNoneItem": true,
-        otherPlaceholder: "Some comment"
+        "commentPlaceholder": "Some comment for {item}"
       }
     ]
   });
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.renderedValue = [1, 2];
-  assert.equal(q1.choices[1].commentPlaceholder, "Please add com", "commentPlaceholder for choices[1], #1");
+  assert.equal(q1.choices[1].commentPlaceholder, "Please add comment", "commentPlaceholder for choices[1], #1");
   const textArea1 = q1.getCommentTextAreaModel(q1.choices[0]);
   const textArea2 = q1.getCommentTextAreaModel(q1.choices[1]);
-  assert.equal(textArea1.placeholder, "Some comment", "textArea1 placeholder");
-  assert.equal(textArea2.placeholder, "Please add com", "textArea2 placeholders");
+  assert.equal(textArea1.placeholder, "Some comment for Item 1", "textArea1 placeholder");
+  assert.equal(textArea2.placeholder, "Please add comment", "textArea2 placeholders");
 });
 QUnit.test("checbox question and choices has comment - default value", (assert) => {
   const survey = new SurveyModel({

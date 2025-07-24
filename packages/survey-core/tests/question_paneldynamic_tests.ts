@@ -8141,3 +8141,42 @@ QUnit.test("paneldynamic.getValueGetterContext()", function (assert) {
   assert.equal(getter.getValue("panel.q1", panelContext), 1, "panel context #1");
   assert.equal(getter.getValue("var1", panelContext), "b", "panel context #2");
 });
+QUnit.test("paneldynamic.panelCountExpression custom property, Bug#10171", function (assert) {
+  Serializer.addProperty("paneldynamic", {
+    name: "panelCountExpression",
+    type: "condition",
+    category: "logic",
+    onExecuteExpression: (obj, res) => {
+      obj.panelCount = res;
+    }
+  });
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+        "defaultValue": 1
+      },
+      {
+        "type": "paneldynamic",
+        "name": "question2",
+        "panelCountExpression": "{question1}",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question2");
+  assert.equal(panel.panelCount, 1, "panelCount #1");
+  panel.removePanel(0);
+  assert.equal(panel.panelCount, 1, "panelCount #2");
+  panel.addPanelUI();
+  assert.equal(panel.panelCount, 1, "panelCount #3");
+  survey.setValue("question1", 2);
+  assert.equal(panel.panelCount, 2, "panelCount #4");
+  Serializer.removeProperty("paneldynamic", "panelCountExpression");
+});

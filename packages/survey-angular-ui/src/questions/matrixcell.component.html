@@ -1,7 +1,7 @@
 <label (mousedown)="question.onMouseDown()" [class]="question.getItemClass(row, column)">
   <input
-    type="radio"
-    [class]="question.cssClasses.itemValue"
+    [type]="question.checkType"
+    [class]="question.cssItemValue"
     [name]="row.fullName"
     [value]="column.value"
     [checked]="row.isChecked(column)"
@@ -14,9 +14,9 @@
     [attr.aria-invalid]="question.a11y_input_ariaInvalid"
     [attr.aria-errormessage]="question.a11y_input_ariaErrormessage"
   />
-  <span [class]="question.cssClasses.materialDecorator">
-    <svg *ngIf="question.itemSvgIcon" [class]="question.cssClasses.itemDecorator">
-      <use [attr.xlink:href]="question.itemSvgIcon"></use>
+  <span [class]="question.cssMaterialDecorator">
+    <svg *ngIf="model.itemSvgIcon" [class]="question.cssItemDecorator">
+      <use [attr.xlink:href]="model.itemSvgIcon"></use>
     </svg> 
   </span>
   <span *ngIf="question.isMobile" [class]="question.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>

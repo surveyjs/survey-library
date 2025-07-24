@@ -446,6 +446,10 @@ export class QuestionMatrixModel
     this.columns.push(col);
     return col;
   }
+  public get checkType(): string { return this.isMultipleSelect ? "checkbox" : "radio"; }
+  private formatCss(val: string) : string {
+    return (val || "").replace("{type}", this.checkType);
+  }
   public getItemClass(row: any, column: any): string {
     const isChecked = row.isChecked(column);
     const isDisabled = this.isReadOnly;
@@ -454,13 +458,13 @@ export class QuestionMatrixModel
     const css = this.cssClasses;
     return new CssClassBuilder()
       .append(css.cell, hasCellText)
-      .append(hasCellText ? css.cellText : css.label)
+      .append(hasCellText ? css.cellText : this.formatCss(css.label))
       .append(css.itemOnError, !hasCellText && (this.eachRowRequired || this.eachRowUnique ? row.hasError : this.hasCssError()))
-      .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
-      .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, this.isDisabledStyle)
-      .append(hasCellText ? css.cellTextReadOnly : css.itemReadOnly, this.isReadOnlyStyle)
-      .append(hasCellText ? css.cellTextPreview : css.itemPreview, this.isPreviewStyle)
-      .append(css.itemHover, allowHover && !hasCellText)
+      .append(hasCellText ? css.cellTextSelected : this.formatCss(css.itemChecked), isChecked)
+      .append(hasCellText ? css.cellTextDisabled : this.formatCss(css.itemDisabled), this.isDisabledStyle)
+      .append(hasCellText ? css.cellTextReadOnly : this.formatCss(css.itemReadOnly), this.isReadOnlyStyle)
+      .append(hasCellText ? css.cellTextPreview : this.formatCss(css.itemPreview), this.isPreviewStyle)
+      .append(this.formatCss(css.itemHover), allowHover && !hasCellText)
       .toString();
   }
   public get itemSvgIcon(): string {
@@ -468,6 +472,19 @@ export class QuestionMatrixModel
       return this.cssClasses.itemPreviewSvgIconId;
     }
     return this.cssClasses.itemSvgIconId;
+  }
+  public getItemSvgIcon(row: any, column: any): string {
+    if (this.isMultipleSelect && row.isChecked(column)) return this.cssClasses.itemPreviewSvgIconId;
+    return this.itemSvgIcon;
+  }
+  public get cssItemValue(): string {
+    return this.formatCss(this.cssClasses.itemValue);
+  }
+  public get cssMaterialDecorator(): string {
+    return this.formatCss(this.cssClasses.materialDecorator);
+  }
+  public get cssItemDecorator(): string {
+    return this.formatCss(this.cssClasses.itemDecorator);
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
@@ -826,14 +843,19 @@ export class QuestionMatrixModel
     if (this.isEmpty()) return;
     let updatedData = this.getUnbindValue(this.value);
     const newData: any = {};
-    var rows = this.rows;
-    for (var i = 0; i < rows.length; i++) {
-      var key = rows[i].value;
+    const rows = this.rows;
+    for (let i = 0; i < rows.length; i++) {
+      const key = rows[i].value;
       if (!!updatedData[key]) {
-        if (inRows && !rows[i].isVisible || inColumns && !this.getVisibleColumnByValue(updatedData[key])) {
+        if (inRows && !rows[i].isVisible) {
           delete updatedData[key];
         } else {
-          newData[key] = updatedData[key];
+          if (inColumns) {
+            this.clearIncorrectValuesInRow(key, updatedData);
+          }
+          if (updatedData[key] != undefined) {
+            newData[key] = updatedData[key];
+          }
         }
       }
     }
@@ -842,6 +864,28 @@ export class QuestionMatrixModel
     }
     if (this.isTwoValueEquals(updatedData, this.value)) return;
     this.value = updatedData;
+  }
+  protected clearIncorrectValuesInRow(key: any, data: any): void {
+    const obj = data[key];
+    if (obj === undefined) {
+      delete data[key];
+      return;
+    }
+    if (this.isMultipleSelect && Array.isArray(obj)) {
+      for (let i = obj.length - 1; i >= 0; i--) {
+        const col = this.getVisibleColumnByValue(obj[i]);
+        if (!col) {
+          obj.splice(i, 1);
+        }
+      }
+      if (obj.length === 0) {
+        delete data[key];
+      }
+    } else {
+      if (!this.getVisibleColumnByValue(obj)) {
+        delete data[key];
+      }
+    }
   }
   private getVisibleColumnByValue(val: any): ItemValue {
     const col = ItemValue.getItemByValue(this.columns, val);

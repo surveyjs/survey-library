@@ -4,8 +4,8 @@
     :class="question.getItemClass(row, column)"
   >
     <input
-      type="radio"
-      :class="question.cssClasses.itemValue"
+      type="question.checkType"
+      :class="question.cssItemValue"
       :name="row.fullName"
       v-model="renderedValue"
       @change="changed"
@@ -20,12 +20,12 @@
       :aria-invalid="question.a11y_input_ariaInvalid"
       :aria-errormessage="question.a11y_input_ariaErrormessage"
     />
-    <span :class="question.cssClasses.materialDecorator">
+    <span :class="question.cssMaterialDecorator">
       <svg
-        v-if="question.itemSvgIcon"
-        :class="question.cssClasses.itemDecorator"
+        v-if="itemSvgIcon()"
+        :class="question.cssItemDecorator"
       >
-        <use :xlink:href="question.itemSvgIcon"></use>
+        <use :xlink:href="itemSvgIcon()"></use>
       </svg>
     </span>
     <span
@@ -63,4 +63,5 @@ const changed = () => {
   const column = props.column;
   row.cellClick(column);
 }
+const itemSvgIcon = () => { return props.question.getItemSvgIcon(row, column); };
 </script>

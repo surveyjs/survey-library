@@ -23,5 +23,8 @@ export class MatrixCellComponent extends BaseAngular<ItemValue> {
   public onChange(): void {
     this.cellChangedOwner.onCellChanged(this.row, this.column);
   }
+  public get itemSvgIcon(): string {
+    return this.question.getItemSvgIcon(this.row, this.column);
+  }
 }
 AngularComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCellComponent);

@@ -223,6 +223,9 @@ QUnit.test("matrix row, cellClick&isChecked, isMultipleSelect", function (assert
   assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #2");
   assert.equal(rows[1].value, undefined, "row2 value is set correctly, #2");
   assert.deepEqual(question.value, { row1: ["col1"] }, "value is set correctly, #2");
+  assert.deepEqual(survey.data, { q1: { row1: ["col1"] } }, "survey.data, #1");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: { row1: ["col1"] } }, "survey.data, #2");
 });
 
 QUnit.test("check row randomization in design mode", (assert) => {

@@ -156,6 +156,78 @@ QUnit.test("matrix row, rowClasses property, #7889", function (assert) {
   assert.equal(question.hasErrorInRow(question.visibleRows[2]), false, "hasErrorInRow(2), #7");
   assert.equal(question.visibleRows[2].hasError, false, "visibleRows[2].hasError, #7");
 });
+QUnit.test("matrix row, cellClick&isChecked", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2", "row3"]
+      },
+    ],
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  const rows = question.visibleRows;
+  assert.equal(rows.length, 3, "rows 3");
+  assert.equal(rows[0].value, undefined, "row1 value is empty");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #1");
+  assert.equal(rows[0].isChecked(question.columns[1]), false, "row1 isChecked col2 #1");
+  rows[0].cellClick(question.columns[1]);
+  assert.equal(rows[0].value, "col2", "row1 value is col2");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #2");
+  assert.equal(rows[0].isChecked(question.columns[1]), true, "row1 isChecked col2 #2");
+  rows[1].cellClick(question.columns[0]);
+  assert.equal(rows[1].value, "col1", "row2 value is col1");
+  assert.equal(rows[1].isChecked(question.columns[0]), true, "row2 isChecked col1 #1");
+  assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #1");
+  assert.deepEqual(question.value, { row1: "col2", row2: "col1" }, "value is set correctly");
+});
+QUnit.test("matrix row, cellClick&isChecked, isMultiSelect", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2", "row3"],
+        cellType: "checkbox"
+      },
+    ],
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.ok(question.isMultiSelect, "isMultiSelect is true");
+  const rows = question.visibleRows;
+  assert.equal(rows.length, 3, "rows 3");
+  assert.deepEqual(rows[0].value, undefined, "row1 value is empty");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #1");
+  assert.equal(rows[0].isChecked(question.columns[1]), false, "row1 isChecked col2 #1");
+  rows[0].cellClick(question.columns[1]);
+  assert.deepEqual(rows[0].value, ["col2"], "row1 value is col2");
+  assert.equal(rows[0].isChecked(question.columns[0]), false, "row1 isChecked col1 #2");
+  assert.equal(rows[0].isChecked(question.columns[1]), true, "row1 isChecked col2 #2");
+  rows[0].cellClick(question.columns[0]);
+  assert.deepEqual(rows[0].value, ["col2", "col1"], "row1 value is col2, col1");
+  assert.equal(rows[0].isChecked(question.columns[0]), true, "row1 isChecked col1 #3");
+  assert.equal(rows[0].isChecked(question.columns[1]), true, "row1 isChecked col2 #3");
+  rows[1].cellClick(question.columns[0]);
+  assert.deepEqual(rows[1].value, ["col1"], "row2 value is col1");
+  assert.equal(rows[1].isChecked(question.columns[0]), true, "row2 isChecked col1 #1");
+  assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #1");
+  assert.deepEqual(question.value, { row1: ["col2", "col1"], row2: ["col1"] }, "value is set correctly, #1");
+  rows[0].cellClick(question.columns[1]);
+  assert.equal(rows[0].isChecked(question.columns[0]), true, "row1 isChecked col1 #3");
+  assert.equal(rows[0].isChecked(question.columns[1]), false, "row1 isChecked col2 #3");
+  rows[1].cellClick(question.columns[0]);
+  assert.equal(rows[1].isChecked(question.columns[0]), false, "row2 isChecked col1 #2");
+  assert.equal(rows[1].isChecked(question.columns[1]), false, "row2 isChecked col2 #2");
+  assert.equal(rows[1].value, undefined, "row2 value is set correctly, #2");
+  assert.deepEqual(question.value, { row1: ["col1"] }, "value is set correctly, #2");
+  assert.deepEqual(survey.data, { q1: { row1: ["col1"] } }, "survey.data, #1");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: { row1: ["col1"] } }, "survey.data, #2");
+});
+
 QUnit.test("check row randomization in design mode", (assert) => {
 
   var json = {
@@ -736,4 +808,51 @@ QUnit.test("Support locales in matrix cells, Bug#9593", function (
   assert.equal(matrix.cells.getCellText(0, 1), "cell01", "get text #0.1");
   assert.equal(matrix.cells.getCellText(1, 0), "cell10", "get text #1.0");
   assert.equal(matrix.cells.getCellText(1, 1), "col2", "get text #1.1");
+});
+QUnit.test("Changing isMultiSelect on the fly - correct values", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2", "col3"],
+      rows: ["row1", "row2"]
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  matrix.value = { row1: "col1", row2: "col2" };
+  matrix.cellType = "checkbox";
+  assert.deepEqual(matrix.value, { row1: ["col1"], row2: ["col2"] }, "value #1");
+  matrix.value = { row1: "col2", row2: "col1" };
+  assert.deepEqual(matrix.value, { row1: ["col2"], row2: ["col1"] }, "value #2");
+  matrix.cellType = "radio";
+  assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "value  #3");
+  matrix.value = { row1: ["col2", "col3"], row2: ["col3", "col1"] };
+  assert.deepEqual(matrix.value, { row1: "col2", row2: "col3" }, "value  #4");
+});
+QUnit.test("isMultiSelect default value is not array", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2", "col3"],
+      rows: ["row1", "row2"],
+      defaultValue: { row1: "col1", row2: "col2" },
+      cellType: "checkbox"
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.deepEqual(matrix.value, { row1: ["col1"], row2: ["col2"] }, "default value is array");
+});
+QUnit.test("isMultiSelect default value is array", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2", "col3"],
+      rows: ["row1", "row2"],
+      defaultValue: { row1: ["col2", "col1"], row2: ["col1", "col3"] }
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "default value is not array");
 });

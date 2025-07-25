@@ -113,6 +113,6 @@ useQuestion<QuestionMatrixModel>(
 );
 
 const cellClick = (row: any, column: any) => {
-  row.value = column.value;
+  row.cellClick(column);
 };
 </script>

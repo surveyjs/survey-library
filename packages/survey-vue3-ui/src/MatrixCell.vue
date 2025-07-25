@@ -4,10 +4,11 @@
     :class="question.getItemClass(row, column)"
   >
     <input
-      type="radio"
-      :class="question.cssClasses.itemValue"
+      :type="question.checkType"
+      :class="question.cssItemValue"
       :name="row.fullName"
       v-model="renderedValue"
+      @change="changed"
       :value="column.value"
       :readonly="row.isReadOnlyAttr"
       :disabled="row.isDisabledAttr"
@@ -19,12 +20,12 @@
       :aria-invalid="question.a11y_input_ariaInvalid"
       :aria-errormessage="question.a11y_input_ariaErrormessage"
     />
-    <span :class="question.cssClasses.materialDecorator">
+    <span :class="question.cssMaterialDecorator">
       <svg
-        v-if="question.itemSvgIcon"
-        :class="question.cssClasses.itemDecorator"
+        v-if="itemSvgIcon"
+        :class="question.cssItemDecorator"
       >
-        <use :xlink:href="question.itemSvgIcon"></use>
+        <use :xlink:href="itemSvgIcon"></use>
       </svg>
     </span>
     <span
@@ -57,13 +58,11 @@ const props = defineProps<{
   column: ItemValue;
   columnIndex: number;
 }>();
-const renderedValue = computed({
-  get() {
-    return props.row.value ?? "";
-  },
-  set(val) {
-    const row = props.row;
-    row.value = val;
-  },
-});
+const renderedValue = props.row.isChecked(props.column) ? props.column.value : "";
+const changed = () => {
+  const row = props.row;
+  const column = props.column;
+  row.cellClick(column);
+}
+const itemSvgIcon = computed(() => { return props.question.getItemSvgIcon(props.row, props.column); });
 </script>

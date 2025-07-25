@@ -16,7 +16,7 @@ export class MatrixQuestionComponent extends QuestionAngular<QuestionMatrixModel
     super.ngOnInit();
   }
   public onCellChanged(row: any, column: any): void {
-    row.value = column.value;
+    row.cellClick(column);
     this.detectChanges();
   }
   trackRowByFn(i: number, row: any): string {

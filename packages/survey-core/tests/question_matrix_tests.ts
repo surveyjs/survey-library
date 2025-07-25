@@ -873,3 +873,11 @@ QUnit.test("isMultiSelect default value is array", function (assert) {
   const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
   assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "default value is not array");
 });
+QUnit.test("set incorrect cellType", function (assert) {
+  const matrix = new QuestionMatrixModel("matrix");
+  assert.equal(matrix.cellType, "radio", "cellType #1");
+  matrix.cellType = "checkbox";
+  assert.equal(matrix.cellType, "checkbox", "cellType #2");
+  matrix.cellType = "dropdown";
+  assert.equal(matrix.cellType, "radio", "cellType #3, incorrect value is not set");
+});

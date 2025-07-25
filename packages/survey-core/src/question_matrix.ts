@@ -350,6 +350,9 @@ export class QuestionMatrixModel
     return this.getPropertyValue("cellType");
   }
   public set cellType(val: string) {
+    if (val !== "checkbox") {
+      val = "radio";
+    }
     this.setPropertyValue("cellType", val);
   }
   public get isMultiSelect(): boolean {

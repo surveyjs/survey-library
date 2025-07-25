@@ -521,7 +521,7 @@ export class QuestionMultipleTextModel extends Question
    * ```js
    * {
    *   "name": any, // A unique value used to identify an input item and save an item value to survey results.
-   *   "title": String // An item caption. When `title` is undefined, `name` is used. This property supports Markdown.
+   *   "title": string // An item caption. When `title` is undefined, `name` is used. This property supports Markdown.
    * }
    * ```
    *

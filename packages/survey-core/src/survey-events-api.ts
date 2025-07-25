@@ -521,8 +521,8 @@ export interface GetResultEvent {
    *
    *     ```js
    *     {
-   *       AnswersCount: Number, // A total number of posted answers to the question
-   *       QuestionResult: Object // All unique answers to the question and their number
+   *       AnswersCount: number, // A total number of posted answers to the question
+   *       QuestionResult: object // All unique answers to the question and their number
    *     }
    *     ```
    */
@@ -532,8 +532,8 @@ export interface GetResultEvent {
    *
    *     ```js
    *     {
-   *       name: String, // A unique answer to the question
-   *       value: Number // The number of user responses with this answer
+   *       name: string, // A unique answer to the question
+   *       value: number // The number of user responses with this answer
    *     }
    *     ```
    */

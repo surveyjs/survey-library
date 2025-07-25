@@ -339,6 +339,9 @@ export class QuestionMatrixModel
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
       this.updateVisibilityBasedOnRows();
     });
+    this.registerPropertyChangedHandlers(["isMultipleSelect"], () => {
+      this.value = this.convertToCorrectValue(this.value);
+    });
   }
   public getType(): string {
     return "matrix";
@@ -496,6 +499,25 @@ export class QuestionMatrixModel
       if (!this.isValueEmpty(this.correctAnswer[this.rows[i].value])) res++;
     }
     return res;
+  }
+  protected convertToCorrectValue(val: any) {
+    if (typeof val !== "object") return val;
+    const keys = Object.keys(val);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const obj = val[key];
+      if (Array.isArray(obj) && !this.isMultipleSelect) {
+        if (obj.length > 0) {
+          val[key] = obj[0];
+        } else {
+          delete val[key];
+        }
+      }
+      if (!Array.isArray(obj) && this.isMultipleSelect) {
+        val[key] = [obj];
+      }
+    }
+    return val;
   }
   protected getCorrectAnswerCount(): number {
     var res = 0;

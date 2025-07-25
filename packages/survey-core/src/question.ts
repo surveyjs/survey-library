@@ -2537,6 +2537,7 @@ export class Question extends SurveyElement<Question>
   }
   protected setDefaultValue(): void {
     this.setDefaultValueCore((val: any): void => {
+      val = this.convertToCorrectValue(val);
       if (!this.isTwoValueEquals(this.value, val)) {
         this.setDefaultIntoValue(val);
       }

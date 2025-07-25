@@ -809,3 +809,50 @@ QUnit.test("Support locales in matrix cells, Bug#9593", function (
   assert.equal(matrix.cells.getCellText(1, 0), "cell10", "get text #1.0");
   assert.equal(matrix.cells.getCellText(1, 1), "col2", "get text #1.1");
 });
+QUnit.test("Changing isMultipleSelect on the fly - correct values", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2", "col3"],
+      rows: ["row1", "row2"]
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  matrix.value = { row1: "col1", row2: "col2" };
+  matrix.isMultipleSelect = true;
+  assert.deepEqual(matrix.value, { row1: ["col1"], row2: ["col2"] }, "value #1");
+  matrix.value = { row1: "col2", row2: "col1" };
+  assert.deepEqual(matrix.value, { row1: ["col2"], row2: ["col1"] }, "value #2");
+  matrix.isMultipleSelect = false;
+  assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "value  #3");
+  matrix.value = { row1: ["col2", "col3"], row2: ["col3", "col1"] };
+  assert.deepEqual(matrix.value, { row1: "col2", row2: "col3" }, "value  #4");
+});
+QUnit.test("isMultipleSelect default value is not array", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2", "col3"],
+      rows: ["row1", "row2"],
+      defaultValue: { row1: "col1", row2: "col2" },
+      isMultipleSelect: true
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.deepEqual(matrix.value, { row1: ["col1"], row2: ["col2"] }, "default value is array");
+});
+QUnit.test("isMultipleSelect default value is array", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: ["col1", "col2", "col3"],
+      rows: ["row1", "row2"],
+      defaultValue: { row1: ["col2", "col1"], row2: ["col1", "col3"] }
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "default value is not array");
+});

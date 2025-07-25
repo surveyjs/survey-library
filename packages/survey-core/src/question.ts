@@ -3374,7 +3374,7 @@ export class Question extends SurveyElement<Question>
     let result = null;
 
     if (this.hasCssError()) {
-      result = " " + this.id + "_errors";
+      result = this.id + "_errors";
     } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
       result = this.ariaDescriptionId;
     }

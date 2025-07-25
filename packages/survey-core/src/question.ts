@@ -3372,14 +3372,19 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
-      return this.ariaDescriptionId;
-    } else {
-      return null;
+    let result = null;
+
+    if (this.hasCssError()) {
+      result = this.id + "_errors";
+    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
+      result = this.ariaDescriptionId;
     }
+
+    return result;
   }
   public get a11y_input_ariaErrormessage(): string {
-    return this.hasCssError() ? this.id + "_errors" : null;
+    return null;
+    //return this.hasCssError() ? this.id + "_errors" : null; // due to https://cerovac.com/a11y/2024/06/support-for-aria-errormessage-is-getting-better-but-still-not-there-yet/
   }
   public get a11y_input_ariaExpanded(): "true" | "false" {
     return this.getPropertyValue("ariaExpanded");

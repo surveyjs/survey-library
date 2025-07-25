@@ -273,8 +273,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
 
     return (
       <div
-        role="alert"
-        aria-live="polite"
         className={this.element.cssError}
         id={this.id}
       >

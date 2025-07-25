@@ -199,7 +199,7 @@ export class QuestionRatingModel extends Question {
    * ```js
    * {
    *   "value": any, // A value to be saved in survey results
-   *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   *   "text": string, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "customProperty": any // Any property that you find useful.
    * }
    * ```

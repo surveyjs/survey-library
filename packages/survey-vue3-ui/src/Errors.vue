@@ -1,7 +1,5 @@
 <template>
   <div
-    role="alert"
-    aria-live="polite"
     v-if="element.hasVisibleErrors"
     :class="element.cssError"
     :id="element.id + '_errors'"

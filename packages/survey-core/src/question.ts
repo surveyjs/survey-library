@@ -3380,7 +3380,8 @@ export class Question extends SurveyElement<Question>
     return result;
   }
   public get a11y_input_ariaErrormessage(): string {
-    return this.hasCssError() ? this.id + "_errors" : null;
+    return null;
+    //return this.hasCssError() ? this.id + "_errors" : null; // due to https://cerovac.com/a11y/2024/06/support-for-aria-errormessage-is-getting-better-but-still-not-there-yet/
   }
   public get a11y_input_ariaExpanded(): "true" | "false" {
     return this.getPropertyValue("ariaExpanded");

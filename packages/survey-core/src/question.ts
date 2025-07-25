@@ -3372,11 +3372,13 @@ export class Question extends SurveyElement<Question>
   }
   public get a11y_input_ariaDescribedBy(): string {
     let result = null;
-    if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
-      result = this.ariaDescriptionId;
-    } else if (this.hasCssError()) {
+
+    if (this.hasCssError()) {
       result = " " + this.id + "_errors";
+    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
+      result = this.ariaDescriptionId;
     }
+
     return result;
   }
   public get a11y_input_ariaErrormessage(): string {

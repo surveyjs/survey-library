@@ -828,6 +828,23 @@ QUnit.test("Changing isMultiSelect on the fly - correct values", function (asser
   assert.deepEqual(matrix.value, { row1: "col2", row2: "col1" }, "value  #3");
   matrix.value = { row1: ["col2", "col3"], row2: ["col3", "col1"] };
   assert.deepEqual(matrix.value, { row1: "col2", row2: "col3" }, "value  #4");
+  matrix.value = undefined;
+  matrix.cellType = "checkbox";
+  assert.equal(matrix.value, undefined, "value is undefined #1");
+  matrix.cellType = "radio";
+  assert.equal(matrix.value, undefined, "value is undefined #2");
+  matrix.value = null;
+  matrix.cellType = "checkbox";
+  assert.equal(matrix.value, null, "value is null #1");
+  matrix.cellType = "radio";
+  assert.equal(matrix.value, null, "value is null #2");
+  matrix.value = { row1: "col1", row2: "col2" };
+  survey.setValue("matrix", undefined);
+  assert.equal(matrix.value, undefined, "value is undefined #3");
+  matrix.cellType = "checkbox";
+  matrix.value = { row1: ["col2", "col3"], row2: ["col3", "col1"] };
+  survey.setValue("matrix", undefined);
+  assert.equal(matrix.value, undefined, "value is undefined #4");
 });
 QUnit.test("isMultiSelect default value is not array", function (assert) {
   const survey = new SurveyModel({

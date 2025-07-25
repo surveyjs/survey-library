@@ -504,7 +504,7 @@ export class QuestionMatrixModel
     return res;
   }
   protected convertToCorrectValue(val: any) {
-    if (typeof val !== "object") return val;
+    if (val === undefined || val === null || typeof val !== "object") return val;
     const keys = Object.keys(val);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];

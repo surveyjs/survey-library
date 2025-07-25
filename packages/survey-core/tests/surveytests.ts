@@ -8602,6 +8602,19 @@ QUnit.test("Undefined variables in text processing, Bug#9417", function (assert)
   assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #3");
   assert.equal(q2.locTitle.renderedHtml, "", "q2.title #3");
 });
+QUnit.test("Question name is one symbol in text processing, Bug#10164", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "radiogroup", name: "a", choices: [{ value: 1, text: "Item1" }, { value: 2, text: "Item2" }] },
+      { type: "text", name: "q1", title: "test:{a}" }
+    ]
+  });
+  const qa = survey.getQuestionByName("a");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.locTitle.renderedHtml, "test:", "q1.title #1");
+  qa.value = 1;
+  assert.equal(q1.locTitle.renderedHtml, "test:Item1", "q1.title #2");
+});
 
 QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function (
   assert
@@ -22226,6 +22239,49 @@ QUnit.test("questionPerPage & focusing question inside the panel, Bug#10113", (a
   survey.setValue("question1", 1);
   assert.equal(survey.currentPage.name, "page3", "page2 is the current page");
   assert.equal(survey.currentSingleElement.name, "panel1", "panel1 is the current element");
+});
+QUnit.test("questionPerPage & asyc validation, Bug#10163", (assert) => {
+  let returnResultFunc = undefined;
+  function isItCorrect([value]) {
+    returnResultFunc = this.returnResult;
+  }
+
+  FunctionFactory.Instance.register("isItCorrect", isItCorrect, true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        isRequired: true,
+        title: "Allows 'abc' only",
+        validators: [
+          {
+            type: "expression",
+            expression: "isItCorrect({q1})",
+          },
+        ],
+      },
+      {
+        type: "text",
+        name: "q2"
+      }
+    ],
+    questionsOnPageMode: "questionPerPage",
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "current question, #1");
+  q1.value = "abcd";
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "current question, #2");
+  returnResultFunc(false);
+  assert.equal(survey.currentSingleQuestion.name, "q1", "current question, #3");
+  q1.value = "abc";
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q1", "current question, #4");
+  returnResultFunc(true);
+  assert.equal(survey.currentSingleQuestion.name, "q2", "current question, #5");
+
+  FunctionFactory.Instance.unregister("isItCorrect");
 });
 QUnit.test("survey.getAllQuestions, get nested questions & creating nested questions on demand, Bug#9844", function (assert) {
   const survey = new SurveyModel({

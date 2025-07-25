@@ -3071,13 +3071,13 @@ QUnit.test("Radiogroup/dropdown showCommentArea validation", (assert) => {
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       },
       {
         "type": "dropdown",
         "name": "q2",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       },
     ]
@@ -3125,7 +3125,7 @@ QUnit.test("Checkbox showCommentArea validation", (assert) => {
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       }
     ]
@@ -3153,13 +3153,13 @@ QUnit.test("Radiogroup/dropdown showCommentArea supportAutoAdvance", (assert) =>
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       },
       {
         "type": "dropdown",
         "name": "q2",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }],
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
         "showOtherItem": true
       },
     ]
@@ -3191,12 +3191,12 @@ QUnit.test("checkbox/radiogroup showCommentArea & isCommentRequired", (assert) =
       {
         "type": "radiogroup",
         "name": "q1",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }]
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }]
       },
       {
         "type": "checkbox",
         "name": "q2",
-        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true, isCommentRequired: false }]
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }]
       },
     ]
   });
@@ -3245,10 +3245,10 @@ QUnit.test("isCommentRequired serialization", (assert) => {
   const q = new QuestionRadiogroupModel("q1");
   q.choices = [{ value: 1 }];
   const choice = q.choices[0];
-  assert.equal(choice.isCommentRequired, true, "isCommentRequired is true by default");
+  assert.equal(choice.isCommentRequired, false, "isCommentRequired is false by default");
   assert.equal(choice.toJSON().isCommentRequired, undefined, "isCommentRequired is undefined by default in JSON");
-  choice.isCommentRequired = false;
-  assert.equal(choice.toJSON().isCommentRequired, false, "isCommentRequired is false after setting it");
+  choice.isCommentRequired = true;
+  assert.equal(choice.toJSON().isCommentRequired, true, "isCommentRequired is true after setting it");
 });
 QUnit.test("commentPlaceholder serialization", (assert) => {
   const survey = new SurveyModel({
@@ -3276,20 +3276,20 @@ QUnit.test("checbox question and choices has comment - custom placeholder", (ass
       {
         "type": "checkbox",
         "name": "q1",
-        "choices": [1, { value: 2, showCommentArea: true, commentPlaceholder: "Please add com" }, 3],
+        "choices": [{ value: 1, showCommentArea: true, text: "Item 1" }, { value: 2, showCommentArea: true, commentPlaceholder: "Please add comment" }, 3],
         "showOtherItem": true,
         "showNoneItem": true,
-        otherPlaceholder: "Some comment"
+        "commentPlaceholder": "Some comment for {item}"
       }
     ]
   });
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.renderedValue = [1, 2];
-  assert.equal(q1.choices[1].commentPlaceholder, "Please add com", "commentPlaceholder for choices[1], #1");
+  assert.equal(q1.choices[1].commentPlaceholder, "Please add comment", "commentPlaceholder for choices[1], #1");
   const textArea1 = q1.getCommentTextAreaModel(q1.choices[0]);
   const textArea2 = q1.getCommentTextAreaModel(q1.choices[1]);
-  assert.equal(textArea1.placeholder, "Some comment", "textArea1 placeholder");
-  assert.equal(textArea2.placeholder, "Please add com", "textArea2 placeholders");
+  assert.equal(textArea1.placeholder, "Some comment for Item 1", "textArea1 placeholder");
+  assert.equal(textArea2.placeholder, "Please add comment", "textArea2 placeholders");
 });
 QUnit.test("checbox question and choices has comment - default value", (assert) => {
   const survey = new SurveyModel({

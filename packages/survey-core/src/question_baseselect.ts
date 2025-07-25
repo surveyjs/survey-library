@@ -16,6 +16,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
+import { TextContextProcessor } from "./textPreProcessor";
 
 export class ChoiceItem extends ItemValue {
   private locCommentPlaceholderValue: LocalizableString;
@@ -106,6 +107,7 @@ export class QuestionSelectBase extends Question {
     super(name);
     this.otherItemValue = this.createItemValue("other");
     this.otherItem.showCommentArea = true;
+    this.otherItem.isCommentRequired = true;
     this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
@@ -192,7 +194,7 @@ export class QuestionSelectBase extends Question {
       id: () => this.getItemCommentId(item),
       propertyNames: [this.getCommentPropertyValue(item)],
       className: () => this.cssClasses.other,
-      placeholder: () => item.commentPlaceholder || this.otherPlaceholder,
+      placeholder: () => this.getCommentPlaceholder(item),
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,
       maxLength: () => this.getOthersMaxLength(),
@@ -204,6 +206,12 @@ export class QuestionSelectBase extends Question {
       onTextAreaInput: (e) => { this.onOtherValueInput(item, e); },
     };
     return options;
+  }
+  private getCommentPlaceholder(item: ChoiceItem): string {
+    if (item.commentPlaceholder) return item.commentPlaceholder;
+    if (this.isOtherItemByValue(item)) return this.otherPlaceholder;
+    const commentPlaceholder = this.commentPlaceholder;
+    return new TextContextProcessor(item).processText(commentPlaceholder, true);
   }
   protected resetDependedQuestion(): void {
     this.choicesFromQuestion = "";
@@ -2347,7 +2355,7 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 
 Serializer.addClass("choiceitem",
   [{ name: "showCommentArea:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
-    { name: "isCommentRequired:boolean", default: true, locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
+    { name: "isCommentRequired:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
     { name: "commentPlaceholder", locationInTable: "detail", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } }
   ],
   (value) => new ChoiceItem(value),

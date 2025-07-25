@@ -4277,6 +4277,19 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (this.validationEnabled && !q.validate(true)) return false;
+    if (q.isRunningValidators) {
+      q.onCompletedAsyncValidators = (hasErrors: boolean) => {
+        q.onCompletedAsyncValidators = null;
+        if (!hasErrors) {
+          this.performNextAfterValidation(q);
+        }
+      };
+      return false;
+    }
+    this.performNextAfterValidation(q);
+    return true;
+  }
+  private performNextAfterValidation(q: Question): boolean {
     this.sendPartialResult();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
@@ -4293,7 +4306,6 @@ export class SurveyModel extends SurveyElementCore
     if (q === this.currentSingleElement) {
       this.currentSingleElement = questions[index + 1];
     }
-    return true;
   }
   public performPrevious(): boolean {
     return this.prevPage();

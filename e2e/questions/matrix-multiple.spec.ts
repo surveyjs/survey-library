@@ -16,7 +16,7 @@ frameworks.forEach((framework) => {
             "name": "q1",
             "rows": ["row1", "row2"],
             "columns": ["col1", "col2", "col3"],
-            "isMultipleSelect": true
+            "cellType": "checkbox"
           }
         ]
       });
@@ -63,7 +63,7 @@ frameworks.forEach((framework) => {
                 "col3": "Text-6"
               }
             },
-            "isMultipleSelect": true
+            "cellType": "checkbox"
           }
         ]
       });

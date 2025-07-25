@@ -339,18 +339,21 @@ export class QuestionMatrixModel
     this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
       this.updateVisibilityBasedOnRows();
     });
-    this.registerPropertyChangedHandlers(["isMultipleSelect"], () => {
+    this.registerPropertyChangedHandlers(["cellType"], () => {
       this.value = this.convertToCorrectValue(this.value);
     });
   }
   public getType(): string {
     return "matrix";
   }
-  public get isMultipleSelect(): boolean {
-    return this.getPropertyValue("isMultipleSelect");
+  public get cellType(): string {
+    return this.getPropertyValue("cellType");
   }
-  public set isMultipleSelect(val: boolean) {
-    this.setPropertyValue("isMultipleSelect", val);
+  public set cellType(val: string) {
+    this.setPropertyValue("cellType", val);
+  }
+  public get isMultiSelect(): boolean {
+    return this.cellType === "checkbox";
   }
   /**
    * The name of a component used to render cells.
@@ -449,7 +452,7 @@ export class QuestionMatrixModel
     this.columns.push(col);
     return col;
   }
-  public get checkType(): string { return this.isMultipleSelect ? "checkbox" : "radio"; }
+  public get checkType(): string { return this.isMultiSelect ? "checkbox" : "radio"; }
   private formatCss(val: string) : string {
     return (val || "").replace("{type}", this.checkType);
   }
@@ -477,7 +480,7 @@ export class QuestionMatrixModel
     return this.cssClasses.itemSvgIconId;
   }
   public getItemSvgIcon(row: any, column: any): string {
-    if (this.isMultipleSelect && row.isChecked(column)) return this.cssClasses.itemPreviewSvgIconId;
+    if (this.isMultiSelect && row.isChecked(column)) return this.cssClasses.itemPreviewSvgIconId;
     return this.itemSvgIcon;
   }
   public get cssItemValue(): string {
@@ -506,14 +509,14 @@ export class QuestionMatrixModel
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
       const obj = val[key];
-      if (Array.isArray(obj) && !this.isMultipleSelect) {
+      if (Array.isArray(obj) && !this.isMultiSelect) {
         if (obj.length > 0) {
           val[key] = obj[0];
         } else {
           delete val[key];
         }
       }
-      if (!Array.isArray(obj) && this.isMultipleSelect) {
+      if (!Array.isArray(obj) && this.isMultiSelect) {
         val[key] = [obj];
       }
     }
@@ -569,7 +572,7 @@ export class QuestionMatrixModel
   protected getSingleInputQuestionsCore(question: Question, checkDynamic: boolean): Array<Question> {
     if (!!this.nestedQuestionsValue) return this.nestedQuestionsValue;
     const res: Array<Question> = [];
-    const qType = this.isMultipleSelect ? "checkbox" : "radiogroup";
+    const qType = this.isMultiSelect ? "checkbox" : "radiogroup";
     this.visibleRows.forEach(row => {
       const question = <Question>Serializer.createClass(qType);
       question.name = row.name;
@@ -893,7 +896,7 @@ export class QuestionMatrixModel
       delete data[key];
       return;
     }
-    if (this.isMultipleSelect && Array.isArray(obj)) {
+    if (this.isMultiSelect && Array.isArray(obj)) {
       for (let i = obj.length - 1; i >= 0; i--) {
         const col = this.getVisibleColumnByValue(obj[i]);
         if (!col) {
@@ -949,7 +952,7 @@ export class QuestionMatrixModel
   }
   cellClick(row: MatrixRowModel, column: ItemValue): void {
     if (this.isReadOnly || this.isDisabledAttr) return;
-    if (this.isMultipleSelect) {
+    if (this.isMultiSelect) {
       let val = Array.isArray(row.value) ? [].concat(row.value) : [];
       if (this.isCellChecked(row, column)) {
         const index = this.getRowValueIndex(row, column);
@@ -971,7 +974,7 @@ export class QuestionMatrixModel
     }
   }
   isCellChecked(row: MatrixRowModel, column: ItemValue): boolean {
-    if (this.isMultipleSelect) {
+    if (this.isMultiSelect) {
       return this.getRowValueIndex(row, column) > -1;
     }
     return Helpers.isTwoValueEquals(row.value, column.value);
@@ -1058,7 +1061,7 @@ Serializer.addClass(
     { name: "eachRowUnique:boolean", category: "validation" },
     "hideIfRowsEmpty:boolean",
     { name: "cellComponent", visible: false, default: "survey-matrix-cell" },
-    { name: "isMultipleSelect:boolean", visible: false },
+    { name: "cellType", default: "radio", choices: ["radio", "checkbox"] },
   ],
   function () {
     return new QuestionMatrixModel("");

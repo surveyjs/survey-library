@@ -429,50 +429,49 @@ export class QuestionTextModel extends QuestionTextBase {
   private dateValidationMessage: string;
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (isOnValueChanged) return;
-    if (this.isValueLessMin) {
-      const minError = new CustomError(
-        this.getMinMaxErrorText(
-          this.minErrorText,
-          this.getCalculatedMinMax(this.renderedMin)
-        ),
-        this
-      );
-      minError.onUpdateErrorTextCallback = err => {
-        err.text = this.getMinMaxErrorText(
-          this.minErrorText,
-          this.getCalculatedMinMax(this.renderedMin)
+    const isInputUpdate = this.getIsInputTextUpdate();
+    if (isOnValueChanged && isInputUpdate) return;
+    if (!this.isOnValueChanged) {
+      if (this.isValueLessMin) {
+        const minError = new CustomError(
+          this.getMinMaxErrorText(
+            this.minErrorText,
+            this.getCalculatedMinMax(this.renderedMin)
+          ),
+          this
         );
-      };
-      errors.push(minError);
-    }
-    if (this.isValueGreaterMax) {
-      const maxError = new CustomError(
-        this.getMinMaxErrorText(
-          this.maxErrorText,
-          this.getCalculatedMinMax(this.renderedMax)
-        ),
-        this
-      );
-      maxError.onUpdateErrorTextCallback = err => {
-        err.text = this.getMinMaxErrorText(
-          this.maxErrorText,
-          this.getCalculatedMinMax(this.renderedMax)
+        minError.onUpdateErrorTextCallback = err => {
+          err.text = this.getMinMaxErrorText(
+            this.minErrorText,
+            this.getCalculatedMinMax(this.renderedMin)
+          );
+        };
+        errors.push(minError);
+      }
+      if (this.isValueGreaterMax) {
+        const maxError = new CustomError(
+          this.getMinMaxErrorText(
+            this.maxErrorText,
+            this.getCalculatedMinMax(this.renderedMax)
+          ),
+          this
         );
-      };
-      errors.push(maxError);
+        maxError.onUpdateErrorTextCallback = err => {
+          err.text = this.getMinMaxErrorText(
+            this.maxErrorText,
+            this.getCalculatedMinMax(this.renderedMax)
+          );
+        };
+        errors.push(maxError);
+      }
+      if (!!this.dateValidationMessage) {
+        errors.push(new CustomError(this.dateValidationMessage, this));
+      }
     }
-    if (!!this.dateValidationMessage) {
-      errors.push(new CustomError(this.dateValidationMessage, this));
-    }
-
-    const valName = this.getValidatorTitle();
-    const emailValidator = new EmailValidator();
-    emailValidator.errorOwner = this;
-    if (
-      this.inputType === "email" &&
-      !this.validators.some((v) => v.getType() === "emailvalidator")
-    ) {
+    if (this.inputType === "email" && !this.validators.some((v) => v.getType() === "emailvalidator")) {
+      const valName = this.getValidatorTitle();
+      const emailValidator = new EmailValidator();
+      emailValidator.errorOwner = this;
       const validateResult = emailValidator.validate(this.value, valName);
 
       if (!!validateResult && !!validateResult.error) {

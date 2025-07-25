@@ -123,7 +123,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.getLocalizableString("selectAllText");
   }
   /**
-   * Enable this property to display a "Select All" item. When users select it, all other choice items, except "Other" and "None", also become selected.
+   * Enable this property to display a "Select All" item. When users select it, all other choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices), also become selected.
    * @see selectAll
    * @see isAllSelected
    * @see separateSpecialChoices
@@ -142,7 +142,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.showSelectAllItem = val;
   }
   /**
-   * Returns `true` if all choice items, except "Other" and "None", are selected.
+   * Returns `true` if all choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices), are selected.
    * @see showSelectAllItem
    */
   public get isAllSelected(): boolean {
@@ -191,7 +191,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return res;
   }
   /**
-   * Selects all choice items, except "Other" and "None".
+   * Selects all choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices).
    *
    * To clear selection, call the `clearValue()` method.
    * @see clearValue
@@ -341,7 +341,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.setPropertyValue("minSelectedChoices", val);
   }
   /**
-   * An array of selected choice items. Includes the "Other" and "None" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
+   * An array of selected choice items. Includes the "Other", "None", "Refuse to answer", and "Don't know" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
    * @see visibleChoices
    * @see enabledChoices
    */

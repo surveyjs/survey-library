@@ -1,6 +1,6 @@
 import * as React from "react";
-import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel, TextAreaModel } from "survey-core";
+import { IReactSurveyElementProps, ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
+import { ItemValue, Question, QuestionCommentModel, TextAreaModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
 import { TextAreaComponent } from "./components/text-area";
@@ -35,10 +35,13 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
   }
 }
 
-export class SurveyQuestionCommentItem extends ReactSurveyElement {
+export interface ISurveyQuestionCommentItemProps extends IReactSurveyElementProps {
+   question: Question;
+}
+export class SurveyQuestionCommentItem<P extends ISurveyQuestionCommentItemProps = ISurveyQuestionCommentItemProps> extends ReactSurveyElement<P> {
   private textAreaModel: TextAreaModel;
 
-  constructor(props: any) {
+  constructor(props: { question: Question }) {
     super(props);
     this.textAreaModel = this.getTextAreaModel();
   }
@@ -64,7 +67,16 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   }
   protected getKey(): string { return undefined; }
 }
-export class SurveyQuestionCommentValueItem extends SurveyQuestionCommentItem {
+
+export interface ISurveyQuestionCommentValueItemProps extends ISurveyQuestionCommentItemProps {
+   question: Question;
+   item: ItemValue;
+}
+
+export class SurveyQuestionCommentValueItem extends SurveyQuestionCommentItem<ISurveyQuestionCommentValueItemProps> {
+  constructor(props: ISurveyQuestionCommentValueItemProps) {
+    super(props);
+  }
   protected getTextAreaModel(): TextAreaModel {
     return this.props.question.getCommentTextAreaModel(this.props.item);
   }

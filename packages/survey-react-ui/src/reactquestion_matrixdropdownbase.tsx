@@ -414,7 +414,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
   private renderOtherComment(): React.JSX.Element {
     const question = this.cell.question;
     const cssClasses = question.cssClasses || {};
-    return <SurveyQuestionCommentValueItem question={question} item={question.otherItem} cssClasses={cssClasses} otherCss={cssClasses.other} isDisplayMode={question.isInputReadOnly} />;
+    return <SurveyQuestionCommentValueItem question={question} item={question.otherItem} cssClasses={cssClasses} />;
   }
   private renderCellCheckboxButton(): React.JSX.Element {
     var key = this.cell.question.id + "item" + this.cell.choiceIndex;

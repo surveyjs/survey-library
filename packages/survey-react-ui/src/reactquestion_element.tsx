@@ -200,7 +200,11 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
 }
 
-export class ReactSurveyElement extends SurveyElementBase<any, any> {
+export interface IReactSurveyElementProps {
+  cssClasses: any;
+}
+
+export class ReactSurveyElement<P extends IReactSurveyElementProps = any, S = any> extends SurveyElementBase<P, S> {
   constructor(props: any) {
     super(props);
   }

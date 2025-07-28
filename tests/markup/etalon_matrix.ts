@@ -226,6 +226,24 @@ registerMarkupTests(
       },
       snapshot: "martix-celltype-text-a11y"
     },
+    {
+      name: "Test matrix question cellType checkbox",
+      json: {
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "matrix",
+            "titleLocation": "hidden",
+            "cellType": "checkbox",
+            "columns": ["col_1", "col_2"],
+            "rows": ["row_1", "row_2"]
+          }
+        ]
+      },
+
+      initSurvey: survey => survey.setIsMobile(true),
+      snapshot: "matrix-celltype-checkbox",
+    },
   ]
 );
 

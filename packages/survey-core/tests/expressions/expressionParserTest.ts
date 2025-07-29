@@ -459,6 +459,13 @@ QUnit.test("Run dateDiff by minutes Bug#10177", function(assert) {
   const values = { d1: d1, d2: d2 };
   assert.equal(runner.runValues(values), 5, "minutes");
 });
+QUnit.test("Run dateDiff by seconds #10176", function(assert) {
+  const runner = new ExpressionRunner("dateDiff({d1}, {d2}, 'seconds')");
+  const d1 = new Date("2025-07-25T02:13:48");
+  const d2 = new Date("2025-07-25T02:15:05");
+  const values = { d1: d1, d2: d2 };
+  assert.equal(runner.runValues(values), 77, "seconds");
+});
 QUnit.test("Run dateAdd() for days", function(assert) {
   const d1 = new Date("2021-01-01");
   const values = { d1: d1 };

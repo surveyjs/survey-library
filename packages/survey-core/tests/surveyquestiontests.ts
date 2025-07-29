@@ -8010,7 +8010,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   const textAreaOptions = q2.textAreaModel;
 
   assert.equal(otherOptions.id, "sq_101_other", "otherOptions id");
-  assert.equal(otherOptions.className, "sd-input sd-comment sd-selectbase__other", "otherOptions className");
+  assert.equal(otherOptions.className, "sd-input sd-comment", "otherOptions className");
   assert.equal(otherOptions.isDisabledAttr, "", "otherOptions isDisabledAttr");
   assert.equal(otherOptions.isReadOnlyAttr, undefined, "otherOptions isReadOnlyAttr");
   assert.equal(otherOptions.placeholder, "Other placeholder", "otherOptions placeholder");

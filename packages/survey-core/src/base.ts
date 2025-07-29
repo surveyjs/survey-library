@@ -425,7 +425,7 @@ export class Base implements IObjectValueContext {
   /**
    * Returns a JSON schema that corresponds to the current survey element.
    * @param options An object with configuration options.
-   * @param {boolean} options.storeDefaults Pass `true` the JSON schema should include properties with default values.
+   * @param {boolean} options.storeDefaults Pass `true` if the JSON schema should include properties with default values.
    * @returns A JSON schema of the survey element.
    * @see fromJSON
    */

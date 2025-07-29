@@ -7,12 +7,24 @@ import { calculateIsTablet, IsTouch } from "./utils/devices";
 type DisplayPopupMode = "modal-popup" | "modal-overlay" | "menu-overlay" | "menu-popup-overlay" | "menu-popup";
 export interface IPopupOptionsBase {
   onHide?: () => void;
+  /**
+   * A callback function executed when the dialog is opened.
+   */
   onShow?: () => void;
+  /**
+   * A callback function executed when users click the Cancel button in the dialog.
+   */
   onCancel?: () => void;
   onDispose?: () => void;
   getTargetCallback?: (container: HTMLElement) => HTMLElement;
   getAreaCallback?: (container: HTMLElement) => HTMLElement;
+  /**
+   * A CSS class to apply to the root element of the dialog for custom styling.
+   */
   cssClass?: string;
+  /**
+   * The dialog's title.
+   */
   title?: string;
   verticalPosition?: VerticalPosition;
   horizontalPosition?: HorizontalPosition;
@@ -21,9 +33,29 @@ export interface IPopupOptionsBase {
   canShrink?: boolean;
   displayMode?: "popup" | "overlay";
 }
+/**
+ * An interface used to configure the content and behavior of a modal dialog displayed via the [`showDialog()`](https://surveyjs.io/form-library/documentation/api-reference/settings#showDialog) method.
+ *
+ * [View Demo](https://surveyjs.io/survey-creator/examples/add-modal-property-editor-to-property-grid/ (linkStyle))
+ */
 export interface IDialogOptions extends IPopupOptionsBase {
+  /**
+   * The name of the component to render inside the dialog.
+   *
+   * This component should be registered in the component collection used by the application (e.g., in `ReactElementFactory` for React and HTML/JS/CSS, `AngularComponentFactory` for Angular, or `app.component()` for Vue.js).
+   */
   componentName: string;
+  /**
+   * An object with component props.
+   */
   data: any;
+  /**
+   * A callback function executed when users click the Apply button in the dialog.
+   *
+   * This function should return `true` to close the dialog or `false` to keep it open (for example, if validation fails).
+   * @returns `true` to close the dialog or `false` to keep it open.
+   * @see onCancel
+   */
   onApply: () => boolean;
   isFocusedContent?: boolean;
 }

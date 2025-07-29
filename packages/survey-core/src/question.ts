@@ -2648,6 +2648,7 @@ export class Question extends SurveyElement<Question>
       .append("form-group", isOther)
       .append(this.cssClasses.formGroup, !isOther)
       .append(this.cssClasses.commentArea)
+      .append(this.cssClasses.otherArea, isOther)
       .toString();
   }
 

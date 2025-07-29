@@ -1,5 +1,4 @@
-import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, test } from "../e2e/helper";
 
 const title = "Selectbase Screenshot";
 
@@ -248,6 +247,65 @@ frameworks.forEach(framework => {
 
       await resetFocusToBody(page);
       await compareScreenshot(page, questionRoot, "question-selectbase-zero-column-panelless.png");
+    });
+
+    test("check selectbase with item comment", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "question1",
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "showCommentArea": true
+                  },
+                  {
+                    "value": "Item 2",
+                    "showCommentArea": true
+                  },
+                  {
+                    "value": "Item 3",
+                    "showCommentArea": true
+                  },
+                  "Item 4",
+                  "Item 5",
+                  "Item 6",
+                  "Item 7"
+                ],
+                "colCount": 5,
+              }
+            ]
+          }
+        ],
+        "headerView": "advanced"
+      });
+      await page.evaluate(() => {
+        (window as any).survey.data = {
+          "question1": [
+            {
+              "value": "Item 1",
+              "comment": "aaaa"
+            },
+            {
+              "value": "Item 3",
+              "comment": "bbbb"
+            },
+            {
+              "value": "Item 2",
+              "comment": "cccc"
+            }
+          ]
+        };
+      });
+      const questionRoot = page.locator(".sd-question .sd-question__content");
+      await questionRoot.waitFor();
+      await resetFocusToBody(page);
+      await compareScreenshot(page, questionRoot, "question-selectbase-item-comment.png");
     });
   });
 });

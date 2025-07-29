@@ -193,7 +193,7 @@ export class QuestionSelectBase extends Question {
       question: this,
       id: () => this.getItemCommentId(item),
       propertyNames: [this.getCommentPropertyValue(item)],
-      className: () => this.cssClasses.other,
+      className: () => this.cssClasses.comment,
       placeholder: () => this.getCommentPlaceholder(item),
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,

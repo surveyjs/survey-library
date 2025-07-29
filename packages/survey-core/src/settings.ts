@@ -642,6 +642,19 @@ export var settings = {
    * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
+  /**
+   * A method that displays a modal dialog.
+   *
+   * Parameters:
+   *
+   * - `options`: [`IDialogOptions`](https://surveyjs.io/form-library/documentation/api-reference/idialogoptions)\
+   * An object that configures the dialog's content and behavior.
+   *
+   * - `rootElement?`: `HTMLElement`\
+   * A DOM element where the dialog should be rendered. If not specified, the dialog is rendered into `document.body`.
+   *
+   * [View Demo](https://surveyjs.io/survey-creator/examples/add-modal-property-editor-to-property-grid/ (linkStyle))
+   */
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
   showDefaultItemsInCreator: true,
   /**

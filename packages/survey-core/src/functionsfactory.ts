@@ -298,7 +298,7 @@ function dateDiff(params: any[]): any {
   if (isHours) {
     const date1 = createDate("function-dateDiffMonths", params[0]);
     const date2 = createDate("function-dateDiffMonths", params[1]);
-    if (date2.getHours() > date1.getHours()) {
+    if (date2.getHours() > date1.getHours() || (type !== "hours" && date2.getHours() === date1.getHours() && date2.getMinutes() > date1.getMinutes())) {
       days -= 1;
     }
     let hours = days * 24 + date2.getHours() - date1.getHours();

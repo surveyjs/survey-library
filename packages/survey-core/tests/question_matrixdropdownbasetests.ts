@@ -6,12 +6,13 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
-import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { MatrixDropdownRowModel, QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 import { Question } from "../src/question";
+import { ValueGetter } from "../src/conditionProcessValue";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -1828,7 +1829,7 @@ QUnit.test("Support columnsVisibleIf property, Bug#8796", function (assert) {
   assert.equal(table.rows[1].cells.length, 1 + 2, "Row: the last column is invisible, #3");
   assert.equal(table.headerRow.cells[2].headers, "col2", "The last column is col2, #3");
 });
-QUnit.test("rowVisibleIf & rowIndex, Bug#8796", function (assert) {
+QUnit.test("rowVisibleIf & rowIndex, Bug#8796", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -2114,4 +2115,173 @@ QUnit.test("Update rowValue on changing cellType, Bug#10038", function(assert) {
   assert.deepEqual(matrix.defaultRowValue, { col2: 2 }, "defaultRowValue, #1");
   matrix.columns[1].cellType = "file";
   assert.equal(matrix.defaultRowValue, undefined, "defaultRowValue, #2");
+});
+QUnit.test("matrixdropdown.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { cellType: "dropdown", name: "col1", defaultValue: 1, choices: [{ value: 1, text: "item1" }] }
+        ],
+        rows: ["row1", "row2"]
+      }]
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.visibleRows.length, 2, "There are two rows: header and data row");
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("matrix.row2.col1", context), 1, "#1");
+  assert.equal(getter.getDisplayValue("matrix.row2.col1", context), "item1", "text #1");
+});
+QUnit.test("Expression vs saveMaskedValue, Bug#10095, related to Bug#10056 ", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 2,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col3",
+            "cellType": "expression",
+            "expression": "{row.col1} + {row.col2}",
+            "totalType": "sum",
+          },
+        ],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row1 = matrix.visibleRows[0];
+  const row2 = matrix.visibleRows[1];
+  row1.cells[0].question.value = "1.000,4";
+  row1.cells[1].question.value = "2.000,6";
+  assert.equal(row1.cells[2].question.value, "3001", "row1 col3 value");
+  row2.cells[0].question.value = "3.000,4";
+  row2.cells[1].question.value = "4.000,6";
+  assert.equal(row2.cells[2].question.value, "7001", "row2 col3 value");
+  const totalRow = matrix.visibleTotalRow;
+  assert.equal(totalRow.cells[0].question.value, "4000.8", "col1 total value");
+  assert.equal(totalRow.cells[1].question.value, "6001.2", "col2 total value");
+  assert.equal(totalRow.cells[2].question.value, "10002", "col3 total value");
+  assert.deepEqual(survey.data, { matrix: [
+    { col1: "1.000,4", col2: "2.000,6", col3: 3001 },
+    { col1: "3.000,4", col2: "4.000,6", col3: 7001 }],
+  "matrix-total": {
+    "col1": 4000.8,
+    "col2": 6001.2,
+    "col3": 10002
+  } }
+  , "matrix value");
+});
+QUnit.test("defaultValueExpression vs saveMaskedValue, Bug#10095, related to Bug#10056 ", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 2,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+          {
+            "name": "col3",
+            "cellType": "text",
+            "defaultValueExpression": "{row.col1} + {row.col2}",
+            "maskType": "numeric",
+            "maskSettings": {
+              "saveMaskedValue": true,
+              "decimalSeparator": ",",
+              "thousandsSeparator": "."
+            },
+            "totalType": "sum",
+          },
+        ],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const row1 = matrix.visibleRows[0];
+  const row2 = matrix.visibleRows[1];
+  row1.cells[0].question.value = "1.000,4";
+  row1.cells[1].question.value = "2.000,6";
+  assert.equal(row1.cells[2].question.value, "3.001", "row1 col3 value");
+  row2.cells[0].question.value = "3.000,4";
+  row2.cells[1].question.value = "4.000,6";
+  assert.equal(row2.cells[2].question.value, "7.001", "row2 col3 value");
+  const totalRow = matrix.visibleTotalRow;
+  assert.equal(totalRow.cells[0].question.value, "4000.8", "col1 total value");
+  assert.equal(totalRow.cells[1].question.value, "6001.2", "col2 total value");
+  assert.equal(totalRow.cells[2].question.value, "10002", "col3 total value");
+  assert.deepEqual(survey.data, { matrix: [
+    { col1: "1.000,4", col2: "2.000,6", col3: "3.001" },
+    { col1: "3.000,4", col2: "4.000,6", col3: "7.001" }],
+  "matrix-total": {
+    "col1": 4000.8,
+    "col2": 6001.2,
+    "col3": 10002
+  } }
+  , "matrix value");
+});
+QUnit.test("Process text for question with value, no value and non existing for question in detail matrix", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1", defaultValue: "val" }, { type: "text", name: "q2" },
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q4", title: "{q1}+{q2}+{q3}" }]
+      }
+    ]
+  });
+  const row = <MatrixDropdownRowModel>survey.getQuestionByName("matrix").visibleRows[0];
+  row.showDetailPanel();
+  const q4 = row.detailPanel.getQuestionByName("q4");
+  assert.equal(q4.locTitle.textOrHtml, "val++{q3}", "show value, show empty string, show as it is");
 });

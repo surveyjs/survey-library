@@ -442,25 +442,22 @@ export var settings = {
    */
   dropdownSearchDelay: 500,
   /**
-   * A function that activates a browser confirm dialog.
+   * A function used to display a custom confirmation dialog.
    *
-   * Use the following code to execute this function:
+   * This function is `undefined` by default. To enable a custom dialog, assign a function that returns `true` if the user confirms the action or `false` otherwise. For example, the following code uses the built-in `window.confirm()` method to open a confirmation dialog window:
    *
    * ```js
    * import { settings } from "survey-core";
    *
-   * // `result` contains `true` if the action was confirmed or `false` otherwise
-   * const result = settings.confirmActionFunc("Are you sure?");
+   * settings.confirmActionAsync = (message) => {
+   *   return window.confirm(message);
+   * };
    * ```
-   *
-   * You can redefine the `confirmActionFunc` function if you want to display a custom dialog window. Your function should return `true` if a user confirms an action or `false` otherwise.
-   * @param message A message to be displayed in the confirm dialog window.
+   * @param message A message to display in the confirmation dialog.
    */
-  confirmActionFunc: function (message: string): boolean {
-    return confirm(message);
-  },
+  confirmActionFunc: <(message: string)=> boolean>undefined,
   /**
-   * A function that activates a proprietary SurveyJS confirm dialog.
+   * A function that activates a proprietary SurveyJS confirmation dialog.
    *
    * Use the following code to execute this function:
    *
@@ -480,12 +477,28 @@ export var settings = {
    * });
    * ```
    *
-   * You can redefine the `confirmActionAsync` function if you want to display a custom dialog window. Your function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
-   * @param message A message to be displayed in the confirm dialog window.
+   * You can override the `confirmActionAsync` function if you want to display a custom dialog window asynchronously:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * async function confirmDialog(message) {
+   *   return new Promise((resolve) => {
+   *     // Implement an async dialog window here
+   *   });
+   * }
+   *
+   * settings.confirmActionAsync = (message, callback) => {
+   *   confirmDialog(message).then((result) => {
+   *     callback(result);
+   *   });
+   * };
+   * ```
+   * @param message A message to display in the confirmation dialog.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): boolean {
-    return showConfirmDialog(message, callback, options);
+  confirmActionAsync: (message: string, callback: (res: boolean) => void, options?: IConfirmDialogOptions): void => {
+    showConfirmDialog(message, callback, options);
   },
   /**
    * A minimum width value for all survey elements.
@@ -561,7 +574,7 @@ export var settings = {
   /**
    * An object whose properties specify the order of the special choice items ("None", "Other", "Select All", "Refuse to answer", "Don't know") in select-based questions.
    *
-   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2], dontKnowItem: [3], otherItem: [4] }`
+   * Default value: `{ selectAllItem: [-1], noneItem: [1], refuseItem: [2], dontKnowItem: [3], otherItem: [4] }`
    *
    * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the code below specifies the following order of choices: None, Select All, regular choices, Other.
    *
@@ -603,6 +616,24 @@ export var settings = {
     checkbox: ["answercount"],
     imagepicker: ["answercount"],
   },
+  expressionVariables: {
+    question: "self",
+    matrix: "matrix",
+    composite: "composite",
+    item: "item",
+    choice: "choice",
+    row: "row",
+    totalRow: "totalRow",
+    rowIndex: "rowIndex",
+    rowValue: "rowValue",
+    rowName: "rowName",
+    rowTitle: "rowTitle",
+    panel: "panel",
+    parentPanel: "parentPanel",
+    panelIndex: "panelIndex",
+    visiblePanelIndex: "visiblePanelIndex",
+    unwrapPostfix: "-unwrapped"
+  },
   /**
    * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
@@ -611,6 +642,19 @@ export var settings = {
    * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
+  /**
+   * A method that displays a modal dialog.
+   *
+   * Parameters:
+   *
+   * - `options`: [`IDialogOptions`](https://surveyjs.io/form-library/documentation/api-reference/idialogoptions)\
+   * An object that configures the dialog's content and behavior.
+   *
+   * - `rootElement?`: `HTMLElement`\
+   * A DOM element where the dialog should be rendered. If not specified, the dialog is rendered into `document.body`.
+   *
+   * [View Demo](https://surveyjs.io/survey-creator/examples/add-modal-property-editor-to-property-grid/ (linkStyle))
+   */
   showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
   showDefaultItemsInCreator: true,
   /**

@@ -63,8 +63,8 @@ export class QuestionExpressionModel extends Question {
   public unlocCalculation() {
     this.expressionIsRunning = false;
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>) {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>) {
+    super.runConditionCore(properties);
     if (
       !this.expression ||
       this.expressionIsRunning ||
@@ -75,7 +75,7 @@ export class QuestionExpressionModel extends Question {
     if (!this.expressionRunner) {
       this.expressionRunner = this.createRunner();
     }
-    this.expressionRunner.run(values, properties);
+    this.expressionRunner.runContext(this.getValueGetterContext(), properties);
   }
   protected canCollectErrors(): boolean {
     return true;
@@ -245,6 +245,11 @@ export class QuestionExpressionModel extends Question {
     }
     return val.toString();
   }
+  //a11y
+  public get ariaRole(): string {
+    return "presentation";
+  }
+  // EO a11y
 }
 
 export function getCurrecyCodes(): Array<string> {

@@ -349,5 +349,21 @@ registerMarkupTests(
       },
       snapshot: "checkbox-row-head-foot",
     },
+    {
+      name: "Test checkbox vs mutliple comments",
+      json: {
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "choices": [{ value: "item1", showCommentArea: true }, { value: "item2", showCommentArea: true }],
+            showOtherItem: true,
+            defaultValue: ["item1", "item2"],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-multiple-comments",
+    },
   ]
 );

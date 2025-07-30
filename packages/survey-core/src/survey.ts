@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { ProcessValue } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -89,6 +89,64 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
+
+class SurveyValueGetterContext extends ValueGetterContextCore {
+  constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
+    super();
+  }
+
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (path.length === 1) {
+      const name = path[0].name;
+      let val: any = this.getBuiltInVariableValue(name);
+      if (name === "locale") {
+        val = this.survey.locale || surveyLocalization.defaultLocale;
+      }
+      if (val !== undefined) return { value: val, isFound: true };
+    }
+    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot, index, createObjects);
+    if (!!res && res.isFound) return res;
+    res = super.getValue(path, isRoot, index, createObjects);
+    if (!!res && res.isFound) return res;
+    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot, index, createObjects);
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    name = name.toLowerCase();
+    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
+    const isUnwrapped = name.endsWith(unWrappedNameSuffix);
+    if (isUnwrapped) {
+      name = name.substring(0, name.length - unWrappedNameSuffix.length);
+    }
+    const question = this.survey.getQuestionByValueName(name, true);
+    if (question) {
+      res.isFound = true;
+      res.context = question.getValueGetterContext(isUnwrapped);
+    }
+  }
+  protected isSearchNameRevert(): boolean { return true; }
+  private getBuiltInVariableValue(name: string): number {
+    const survey = this.survey;
+    name = name.toLocaleLowerCase();
+    if (name === "pageno") {
+      var page = survey.currentPage;
+      return page != null ? survey.visiblePages.indexOf(page) + 1 : 0;
+    }
+    if (name === "pagecount") {
+      return survey.visiblePageCount;
+    }
+    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
+      return survey.getCorrectedAnswerCount();
+    }
+    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
+      return survey.getInCorrectedAnswerCount();
+    }
+    if (name === "questioncount") {
+      return survey.getQuizQuestionCount();
+    }
+    return undefined;
+  }
+
+}
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -2527,15 +2585,14 @@ export class SurveyModel extends SurveyElementCore
    */
   public runExpression(expression: string, callback?: (res: any) => void): any {
     if (!expression) return null;
-    var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
-    const exp = new ExpressionRunner(expression);
+    const exp = this.createExpressionRunner(expression);
     let onCompleteRes: any = undefined;
     exp.onRunComplete = (res: any) => {
       onCompleteRes = res;
       callback && callback(res);
     };
-    return exp.run(values, properties) || onCompleteRes;
+    return exp.runContext(this.getValueGetterContext(), properties) || onCompleteRes;
   }
   private setValueOnExpressionCounter: number = 0;
   public get isSettingValueOnExpression(): boolean { return this.setValueOnExpressionCounter > 0; }
@@ -2551,9 +2608,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public runCondition(expression: string): boolean {
     if (!expression) return false;
-    var values = this.getFilteredValues();
-    var properties = this.getFilteredProperties();
-    return new ConditionRunner(expression).run(values, properties);
+    const properties = this.getFilteredProperties();
+    return new ConditionRunner(expression).runContext(this.getValueGetterContext(), properties);
   }
   /**
    * Executes [all triggers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers), except ["complete"](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
@@ -2574,10 +2630,9 @@ export class SurveyModel extends SurveyElementCore
     items: Array<ExpressionItem>
   ): ExpressionItem {
     if (items.length == 0) return null;
-    var values = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     for (var i = 0; i < items.length; i++) {
-      if (items[i].runCondition(values, properties)) {
+      if (items[i].runCondition(properties)) {
         return items[i];
       }
     }
@@ -3412,7 +3467,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.getAllQuestions().forEach(q => {
         if (q.hasFilteredValue) {
-          values[q.getFilteredName()] = q.getFilteredValue();
+          values[q.getFilteredName()] = q.getFilteredValue(true);
         }
       });
     }
@@ -4222,6 +4277,19 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (this.validationEnabled && !q.validate(true)) return false;
+    if (q.isRunningValidators) {
+      q.onCompletedAsyncValidators = (hasErrors: boolean) => {
+        q.onCompletedAsyncValidators = null;
+        if (!hasErrors) {
+          this.performNextAfterValidation(q);
+        }
+      };
+      return false;
+    }
+    this.performNextAfterValidation(q);
+    return true;
+  }
+  private performNextAfterValidation(q: Question): boolean {
     this.sendPartialResult();
     const questions = this.getSingleElements();
     const index = questions.indexOf(q);
@@ -4238,7 +4306,6 @@ export class SurveyModel extends SurveyElementCore
     if (q === this.currentSingleElement) {
       this.currentSingleElement = questions[index + 1];
     }
-    return true;
   }
   public performPrevious(): boolean {
     return this.prevPage();
@@ -4887,6 +4954,11 @@ export class SurveyModel extends SurveyElementCore
     return !this.isShowingPreview ? this.currentSingleElementValue : undefined;
   }
   public set currentSingleElement(val: IElement) {
+    if (!!val && val.isQuestion && this.isSingleVisibleQuestionVal(this.questionsOnPageMode)) {
+      while(val.parent && val.parent.isPanel) {
+        val = <IElement>(<any>val.parent);
+      }
+    }
     const oldVal = this.currentSingleElement;
     if (val !== oldVal && !this.isCompleted) {
       const valQuestion = val?.isQuestion ? <Question>val : undefined;
@@ -6502,12 +6574,10 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   private isTriggerIsRunning: boolean = false;
-  private triggerValues: any = null;
   private triggerKeys: any = null;
   private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, isOnNavigation: boolean = false, name?: string): void {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
-      this.triggerValues = this.getFilteredValues();
       for (var k in key) {
         this.triggerKeys[k] = key[k];
       }
@@ -6520,14 +6590,13 @@ export class SurveyModel extends SurveyElementCore
     }
     this.isTriggerIsRunning = true;
     this.triggerKeys = key;
-    this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
     for (let i = 0; i < this.triggers.length; i++) {
       const trigger = this.triggers[i];
       if (isQuestionInvalid && trigger.requireValidQuestion) continue;
       const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-        keys: this.triggerKeys, values: this.triggerValues, properties: properties };
+        keys: this.triggerKeys, properties: properties };
       trigger.checkExpression(options);
     }
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
@@ -6552,9 +6621,9 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].onSurveyLoad();
     }
   }
-  private conditionValues: any = null;
+  private isRunningConditionsValue: boolean;
   private get isRunningConditions(): boolean {
-    return !!this.conditionValues;
+    return this.isRunningConditionsValue;
   }
   private isValueChangedOnRunningCondition: boolean = false;
   private conditionRunnerCounter: number = 0;
@@ -6573,12 +6642,12 @@ export class SurveyModel extends SurveyElementCore
       this.isRunningConditions
     )
       return;
-    this.conditionValues = this.getFilteredValues();
+    this.isRunningConditionsValue = true;
     var properties = this.getFilteredProperties();
     var oldCurrentPageIndex = this.pages.indexOf(this.currentPage);
     this.runConditionsCore(properties);
     this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
-    this.conditionValues = null;
+    this.isRunningConditionsValue = false;
     if (
       this.isValueChangedOnRunningCondition &&
       this.conditionRunnerCounter <
@@ -6603,7 +6672,6 @@ export class SurveyModel extends SurveyElementCore
   private questionTriggersKeys: any;
   private runConditionOnValueChanged(name: string, value: any) {
     if (this.isRunningConditions) {
-      this.conditionValues[name] = value;
       if (this.questionTriggersKeys) {
         this.questionTriggersKeys[name] = value;
       }
@@ -6622,15 +6690,11 @@ export class SurveyModel extends SurveyElementCore
       this.calculatedValues[i].resetCalculation();
     }
     for (var i = 0; i < this.calculatedValues.length; i++) {
-      this.calculatedValues[i].doCalculation(
-        this.calculatedValues,
-        this.conditionValues,
-        properties
-      );
+      this.calculatedValues[i].doCalculation(this.calculatedValues, properties);
     }
-    super.runConditionCore(this.conditionValues, properties);
+    super.runConditionCore(properties);
     for (let i = 0; i < pages.length; i++) {
-      pages[i].runCondition(this.conditionValues, properties);
+      pages[i].runCondition(properties);
     }
   }
   private runQuestionsTriggers(name: string, value: any): void {
@@ -6897,100 +6961,16 @@ export class SurveyModel extends SurveyElementCore
         textValue.isExists || (wasEmpty && !this.isValueEmpty(textValue.value));
     }
   }
-  getBuiltInVariableValue(name: string): number {
-    if (name === "pageno") {
-      var page = this.currentPage;
-      return page != null ? this.visiblePages.indexOf(page) + 1 : 0;
-    }
-    if (name === "pagecount") {
-      return this.visiblePageCount;
-    }
-    if (name === "correctedanswers" || name === "correctanswers" || name === "correctedanswercount") {
-      return this.getCorrectedAnswerCount();
-    }
-    if (name === "incorrectedanswers" || name === "incorrectanswers" || name === "incorrectedanswercount") {
-      return this.getInCorrectedAnswerCount();
-    }
-    if (name === "questioncount") {
-      return this.getQuizQuestionCount();
-    }
-    return undefined;
-  }
   private getProcessedTextValueCore(textValue: TextPreProcessorValue): void {
-    var name = textValue.name.toLocaleLowerCase();
+    const name = textValue.name.toLocaleLowerCase();
     if (["no", "require", "title"].indexOf(name) !== -1) {
       return;
     }
-    const builtInVar = this.getBuiltInVariableValue(name);
-    if (builtInVar !== undefined) {
+    const res = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
+    if (res.isFound) {
       textValue.isExists = true;
-      textValue.value = builtInVar;
-      return;
+      textValue.value = res.value;
     }
-    if (name === "locale") {
-      textValue.isExists = true;
-      textValue.value = !!this.locale
-        ? this.locale
-        : surveyLocalization.defaultLocale;
-      return;
-    }
-    var variable = this.getVariable(name);
-    if (variable !== undefined) {
-      textValue.isExists = true;
-      textValue.value = variable;
-      return;
-    }
-    var question = this.getFirstName(name);
-    if (question) {
-      const questionUseDisplayText = (<Question>question).useDisplayValuesInDynamicTexts;
-      textValue.isExists = true;
-      const firstName = question.getValueName().toLowerCase();
-      name = firstName + name.substring(firstName.length);
-      name = name.toLocaleLowerCase();
-      var values: { [index: string]: any } = {};
-      values[firstName] = textValue.returnDisplayValue && questionUseDisplayText
-        ? question.getDisplayValue(false, undefined)
-        : question.value;
-      textValue.value = new ProcessValue().getValue(name, values);
-      return;
-    }
-    this.getProcessedValuesWithoutQuestion(textValue);
-  }
-  private getProcessedValuesWithoutQuestion(textValue: TextPreProcessorValue): void {
-    var value = this.getValue(textValue.name);
-    if (value !== undefined) {
-      textValue.isExists = true;
-      textValue.value = value;
-      return;
-    }
-    const processor = new ProcessValue();
-    const firstName = processor.getFirstName(textValue.name);
-    if (firstName === textValue.name) return;
-    const data: any = {};
-    let val = this.getValue(firstName);
-    if (Helpers.isValueEmpty(val)) {
-      val = this.getVariable(firstName);
-    }
-    if (Helpers.isValueEmpty(val)) return;
-    data[firstName] = val;
-    textValue.value = processor.getValue(textValue.name, data);
-    textValue.isExists = processor.hasValue(textValue.name, data);
-  }
-  private getFirstName(name: string): Question {
-    name = name.toLowerCase();
-    var question;
-    do {
-      question = this.getQuestionByValueName(name, true);
-      name = this.reduceFirstName(name);
-    } while(!question && !!name);
-    return question;
-  }
-  private reduceFirstName(name: string): string {
-    var pos1 = name.lastIndexOf(".");
-    var pos2 = name.lastIndexOf("[");
-    if (pos1 < 0 && pos2 < 0) return "";
-    var pos = Math.max(pos1, pos2);
-    return name.substring(0, pos);
   }
   private isClearingUnsedValues: boolean;
   private clearUnusedValues() {
@@ -7037,8 +7017,7 @@ export class SurveyModel extends SurveyElementCore
     var res = this.variablesHash[name];
     if (!this.isValueEmpty(res)) return res;
     if (name.indexOf(".") > -1 || name.indexOf("[") > -1) {
-      if (new ProcessValue().hasValue(name, this.variablesHash))
-        return new ProcessValue().getValue(name, this.variablesHash);
+      return new ValueGetter().getValue(name, new VariableGetterContext(this.variablesHash));
     }
     return res;
   }
@@ -7597,6 +7576,9 @@ export class SurveyModel extends SurveyElementCore
     this.onProcessHtml.fire(this, options);
     return this.processText(options.html, true);
   }
+  public getValueGetterContext(): IValueGetterContext {
+    return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash);
+  }
   processText(text: string, returnDisplayValue: boolean): string {
     return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false }).text;
   }
@@ -8144,20 +8126,13 @@ export class SurveyModel extends SurveyElementCore
     if (isVariable) {
       this.setVariable(name, value);
     } else {
-      var question = this.getQuestionByName(name);
       this.startSetValueFromTrigger();
-      if (!!question) {
-        question.value = value;
+      const info = new ValueGetter().getValueInfo({ name: name, context: this.getValueGetterContext(), createObjects: true });
+      if (info.isFound && info.question) {
+        info.question.value = value;
       } else {
-        var processor = new ProcessValue();
-        var firstName = processor.getFirstName(name);
-        if (firstName == name) {
+        if (name.indexOf(".") < 0) {
           this.setValue(name, value);
-        } else {
-          if (!this.getQuestionByName(firstName)) return;
-          var data = this.getUnbindValue(this.getFilteredValues());
-          processor.setValue(data, name, value);
-          this.setValue(firstName, data[firstName]);
         }
       }
       this.finishSetValueFromTrigger();
@@ -8165,14 +8140,11 @@ export class SurveyModel extends SurveyElementCore
   }
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
     if (!name || !fromName) return;
-    let value;
-    if (copyDisplayValue) {
-      value = this.processText("{" + fromName + "}", true);
-    } else {
-      const processor = new ProcessValue();
-      value = processor.getValue(fromName, this.getFilteredValues());
+    const valueInfo = new ValueGetter().getValueInfo({ name: fromName, context: this.getValueGetterContext(), createObjects: true,
+      isText: copyDisplayValue, isDisplayValue: copyDisplayValue });
+    if (valueInfo.isFound) {
+      this.setTriggerValue(name, Helpers.getUnbindValue(valueInfo.value), false);
     }
-    this.setTriggerValue(name, Helpers.getUnbindValue(value), false);
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });

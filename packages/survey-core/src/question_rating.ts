@@ -199,7 +199,7 @@ export class QuestionRatingModel extends Question {
    * ```js
    * {
    *   "value": any, // A value to be saved in survey results
-   *   "text": String, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
+   *   "text": string, // A display text. This property supports Markdown. When `text` is undefined, `value` is used.
    *   "customProperty": any // Any property that you find useful.
    * }
    * ```
@@ -219,6 +219,11 @@ export class QuestionRatingModel extends Question {
   }
   public set rateValues(val: Array<any>) {
     this.setPropertyValue("rateValues", val);
+  }
+  public selectItem(item: ItemValue): void {
+    if (!this.isReadOnly && !!item) {
+      this.value = item.value;
+    }
   }
   /**
    * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
@@ -346,11 +351,11 @@ export class QuestionRatingModel extends Question {
     if (!this.useRateValues() && newValue !== undefined)this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    this.runRateItesmCondition(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    this.runRateItesmCondition(properties);
   }
-  protected runRateItesmCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runRateItesmCondition(properties: HashTable<any>): void {
     if (!this.useRateValues()) return;
     let isChanged = false;
     if (this.survey?.areInvisibleElementsShowing) {
@@ -359,7 +364,7 @@ export class QuestionRatingModel extends Question {
         item.setIsVisible(item, true);
       });
     } else {
-      isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, values, properties, true);
+      isChanged = ItemValue.runConditionsForItems(this.rateValues, undefined, undefined, properties, true);
     }
     if (isChanged) {
       this.resetRenderedItems();
@@ -904,9 +909,6 @@ export class QuestionRatingModel extends Question {
     return this.getLocalizableString("readOnlyText");
   }
 
-  public get a11yInputAriaRole(): string | null {
-    return this.renderAs === "dropdown" ? "combobox" : null;
-  }
   public needResponsiveWidth() {
     const rateValues = this.getPropertyValue("rateValues");
     const rateStep = this.getPropertyValue("rateStep");
@@ -976,6 +978,18 @@ export class QuestionRatingModel extends Question {
       this.dropdownListModelValue = undefined;
     }
   }
+
+  //a11y
+  public get a11yInputAriaRole(): string | null {
+    return this.renderAs === "dropdown" ? "combobox" : null;
+  }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "radiogroup";
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "rating",

@@ -1,6 +1,6 @@
 {
   "name": "survey-angular-ui",
-  "version": "2.2.4",
+  "version": "2.2.6",
   "description": "survey.js is a JavaScript Survey Library. It is a modern way to add a survey to your website. It uses JSON for survey metadata and results.",
   "keywords": [
     "Survey",
@@ -62,6 +62,9 @@
     "zone.js": "~0.11.4",
     "survey-core": "../survey-core/build",
     "http-server": "^14.1.1"
+  },
+  "overrides": {
+    "stylus": "github:stylus/stylus#0.54.8"
   },
   "scripts": {
     "build": "ng build && node ./update-version.js",

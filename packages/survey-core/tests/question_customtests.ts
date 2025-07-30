@@ -19,6 +19,8 @@ import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { setOldTheme } from "./oldTheme";
+import { SurveyElement } from "../src/survey-element";
+import { ValueGetter } from "../src/conditionProcessValue";
 
 export default QUnit.module("custom questions");
 
@@ -3489,7 +3491,7 @@ QUnit.test("Composite: with dropdown & showOtherItem, Bug#9378", function (asser
   const q2 = q.contentPanel.getQuestionByName("q2");
   q1.value = "test1";
   q2.value = "other";
-  q2.comment = "abc";
+  q2.otherValue = "abc";
   assert.deepEqual(q.value, { q1: "test1", q2: "other", "q2-Comment": "abc" }, "q.value #1");
   survey.data = {};
   assert.ok(q.isEmpty(), "q.value #2");
@@ -3513,7 +3515,7 @@ QUnit.test("Single: with checkbox & showOtherItem, Bug#9929", function (assert) 
   const cQ = <QuestionCheckboxModel>q.contentQuestion;
   assert.deepEqual(cQ.value, [2, "other"], "q.value #1");
   assert.deepEqual(cQ.comment, "abc", "q.comment #1");
-  cQ.comment = "def";
+  cQ.otherValue = "def";
   assert.deepEqual(survey.data, { question1: [2, "other"], "question1-Comment": "def" }, "survey.data #2");
 
   ComponentCollection.Instance.clear();
@@ -3673,6 +3675,99 @@ QUnit.test("Composite: isMobile flag, Bug#9927", function (assert) {
   assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: Do not focus element on setting defaultValue & on setting value to survey.data, Bug#10016", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+  ComponentCollection.Instance.add({
+    name: "customcheckbox",
+    questionJSON: {
+      "type": "checkbox",
+      "choices": [
+        "Item 1",
+        "Item 2",
+        "Item 3"
+      ],
+      "showOtherItem": true
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "customcheckbox", name: "q1" }]
+  });
+
+  survey.data = { "q1-Comment": "3",
+    "q1": [
+      "Item 2",
+      "Item 3",
+      "other"
+    ],
+  };
+
+  assert.equal(counter, 0, "Do not focus element on setting value from survey.data");
+  const q1 = survey.getQuestionByName("q1");
+  const question = <QuestionCheckboxModel>q1.contentQuestion;
+  question.clearValue();
+  question.clickItemHandler(question.choices[0], true);
+  assert.equal(counter, 0, "It is not other item");
+  question.clickItemHandler(question.otherItem, true);
+  assert.equal(counter, 1, "Focus on setting the question value");
+  assert.deepEqual(question.renderedValue, ["Item 1", "other"], "check question initial value");
+
+  ComponentCollection.Instance.clear();
+  SurveyElement.FocusElement = oldFunc;
+});
+QUnit.test("Composite: Do not focus element on setting defaultValue & on setting value to survey.data, Bug#10016", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+  ComponentCollection.Instance.add({
+    name: "customcheckbox",
+    elementsJSON: [{
+      "type": "checkbox",
+      "name": "check",
+      "choices": [
+        "Item 1",
+        "Item 2",
+        "Item 3"
+      ],
+      "showOtherItem": true
+    },
+    { type: "text", name: "comment" }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "customcheckbox", name: "q1" }]
+  });
+
+  survey.data = { q1: { "check-Comment": "3",
+    "check": [
+      "Item 2",
+      "Item 3",
+      "other"
+    ],
+  } };
+
+  assert.equal(counter, 0, "Do not focus element on setting value from survey.data");
+  const q1 = survey.getQuestionByName("q1");
+  const question = <QuestionCheckboxModel>(q1.contentPanel.getQuestionByName("check"));
+  assert.deepEqual(question.renderedValue, ["Item 2", "Item 3", "other"], "check question initial value");
+  assert.equal(question.comment, "3", "check question comment");
+  question.clearValue();
+  question.clickItemHandler(question.choices[0], true);
+  assert.equal(counter, 0, "It is not other item");
+  question.clickItemHandler(question.otherItem, true);
+  assert.equal(counter, 1, "Focus on setting the question value");
+  assert.deepEqual(question.renderedValue, ["Item 1", "other"], "check question initial value");
+
+  ComponentCollection.Instance.clear();
+  SurveyElement.FocusElement = oldFunc;
+});
 QUnit.test("Composite: contentAriaHidden", function (assert) {
   ComponentCollection.Instance.add({
     name: "test",
@@ -3696,5 +3791,53 @@ QUnit.test("Composite: contentAriaHidden", function (assert) {
   assert.strictEqual(q1.contentAriaHidden, true);
   survey.setDesignMode(false);
   assert.strictEqual(q1.contentAriaHidden, null);
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: text piping", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }, { type: "text", name: "q2", title: "item: {q1.item1}" }]
+  });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  q2.value = "test2";
+  assert.equal(q2.locTitle.renderedHtml, "item: ", "q2 title is correct before piping");
+  q1.contentPanel.getQuestionByName("item1").value = "test1";
+  assert.equal(q2.locTitle.renderedHtml, "item: test1", "q2 title is correct after piping");
+
+  const getter = new ValueGetter();
+  const context = q1.getValueGetterContext();
+  assert.equal(getter.getValue("q2", context), "test2", "valueGetter #1");
+  assert.equal(getter.getValue("composite.item1", context), "test1", "valueGetter #2");
+  assert.equal(getter.getValue("q1.item1", context), "test1", "valueGetter #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: supportAutoAdvance, bug#10149", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: { type: "radiogroup", choices: [1, 2, 3], showOtherItem: true },
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1" }],
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(q1.supportAutoAdvance(), false, "supportAutoAdvance #1");
+  q1.contentQuestion.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), true, "supportAutoAdvance #2");
+  q1.contentQuestion.value = "other";
+  assert.equal(q1.supportAutoAdvance(), false, "supportAutoAdvance #3");
   ComponentCollection.Instance.clear();
 });

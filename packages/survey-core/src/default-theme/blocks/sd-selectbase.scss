@@ -23,8 +23,8 @@
   flex: 1 1 0px;
   flex-wrap: nowrap;
   overflow: auto;
-  padding: 0 2px;
-  margin: 0 -2px;
+  padding: 2px;
+  margin: -2px;
 }
 
 .sd-selectbase__label {
@@ -95,4 +95,10 @@ div[class*="sv-q-column-"] {
       --fade-animation-delay: 0s;
     }
   }
+}
+.sd-selectbase__other {
+  margin-top: 0;
+}
+.sd-selectbase__other:not(:last-of-type) {
+  margin-bottom: calcSize(2);
 }

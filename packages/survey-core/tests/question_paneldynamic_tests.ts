@@ -22,6 +22,7 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
+import { ValueGetter } from "../src/conditionProcessValue";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -523,6 +524,7 @@ QUnit.test("Text Processing from panel.data", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("p");
   var question = new QuestionPanelDynamicModel("q");
+  question.template.addNewQuestion("text", "panelQ1");
   question.templateTitle = "Value: {panel.panelQ1}";
   question.panelCount = 2;
   assert.equal(
@@ -3028,9 +3030,9 @@ QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert
   const question = <QuestionPanelDynamicModel>(rootPanel.panels[0].getQuestionByName("question"));
   const panel1 = question.addPanel();
   panel1.getQuestionByName("q1").value = "other";
-  panel1.getQuestionByName("q1").comment = "comment1";
+  panel1.getQuestionByName("q1").otherValue = "comment1";
   panel1.getQuestionByName("q2").value = "other";
-  panel1.getQuestionByName("q2").comment = "comment2";
+  panel1.getQuestionByName("q2").otherValue = "comment2";
   let counter = 0;
   survey.onDynamicPanelItemValueChanged.add((sender, options) => {
     counter ++;
@@ -7170,7 +7172,7 @@ QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
   const panel = dynamicPanel.panels[0];
   const question = panel.getQuestionByName("q1");
   question.value = "other";
-  question.comment = "comment1";
+  question.otherValue = "comment1";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment1" }], "panel.value #1");
   question.value = 1;
   assert.equal(question.value, 1, "question value is changed");
@@ -7178,7 +7180,7 @@ QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
   assert.deepEqual(dynamicPanel.value, [{ q1: 1 }], "panel.value #2");
   question.value = "other";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other" }], "panel.value #3");
-  question.comment = "comment2";
+  question.otherValue = "comment2";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
 });
 QUnit.test("panel dynamic & getQuestionFromArray with non-build panels, #7693", function (assert) {
@@ -7964,7 +7966,7 @@ QUnit.test("Test displayValue() function in dynamic panel, Bug#9635", function (
   const q2 = panel.panels[0].getQuestionByName("q2");
   q1.value = ["item1", "other"];
   assert.equal(q2.value, "item1, Other (describe)", "Other as other display value");
-  q1.comment = "other comment";
+  q1.otherValue = "other comment";
   assert.equal(q2.value, "item1, other comment", "Other is comment value");
   assert.deepEqual(panel.value, [{ q1: ["item1", "other"], "q1-Comment": "other comment", q2: "item1, other comment" }], "value is set correctly");
 });
@@ -8108,4 +8110,73 @@ QUnit.test("Using resetValueIf, visibleIf & default value for a question in dyna
   assert.equal(panel.getQuestionByName("q1").value, 100, "q1 value, #3");
   assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #3");
   assert.equal(panel.getQuestionByName("q3").value, 700, "q3 value, #3");
+});
+QUnit.test("paneldynamic.getValueGetterContext()", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rPanel",
+        panelCount: 1,
+        templateElements: [
+          { type: "dropdown", name: "q1", choices: [{ value: 1, text: "item1" }] },
+          {
+            type: "paneldynamic",
+            name: "dPanel",
+            templateElements: [
+              { type: "dropdown", name: "q2", choices: [1, { value: 2, text: "item2" }] },
+            ]
+          }]
+      }]
+  });
+  survey.data = { rPanel: [{ q1: 1, dPanel: [{ q2: 2 }, { q2: 2 }] }], var1: "b" };
+  const getter = new ValueGetter();
+  const context = survey.getValueGetterContext();
+  assert.equal(getter.getValue("rPanel[0].q1", context), 1, "#1");
+  assert.equal(getter.getDisplayValue("rPanel[0].q1", context), "item1", "text #1");
+  assert.equal(getter.getValue("rPanel[0].dPanel[1].q2", context), 2, "#2");
+  assert.equal(getter.getDisplayValue("rPanel[0].dPanel[1].q2", context), "item2", "text #2");
+  const rPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rPanel");
+  const panelContext = (<any>rPanel.panels[0].data).getValueGetterContext();
+  assert.equal(getter.getValue("panel.q1", panelContext), 1, "panel context #1");
+  assert.equal(getter.getValue("var1", panelContext), "b", "panel context #2");
+});
+QUnit.test("paneldynamic.panelCountExpression custom property, Bug#10171", function (assert) {
+  Serializer.addProperty("paneldynamic", {
+    name: "panelCountExpression",
+    type: "condition",
+    category: "logic",
+    onExecuteExpression: (obj, res) => {
+      obj.panelCount = res;
+    }
+  });
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1",
+        "defaultValue": 1
+      },
+      {
+        "type": "paneldynamic",
+        "name": "question2",
+        "panelCountExpression": "{question1}",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("question2");
+  assert.equal(panel.panelCount, 1, "panelCount #1");
+  panel.removePanel(0);
+  assert.equal(panel.panelCount, 1, "panelCount #2");
+  panel.addPanelUI();
+  assert.equal(panel.panelCount, 1, "panelCount #3");
+  survey.setValue("question1", 2);
+  assert.equal(panel.panelCount, 2, "panelCount #4");
+  Serializer.removeProperty("paneldynamic", "panelCountExpression");
 });

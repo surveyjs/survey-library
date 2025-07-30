@@ -1,6 +1,14 @@
 <template>
   <div :class="question.ratingRootCss" ref="root">
-    <fieldset role="radiogroup">
+    <fieldset
+      :role="question.a11y_input_ariaRole"
+      :aria-required="question.a11y_input_ariaRequired"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :aria-invalid="question.a11y_input_ariaInvalid"
+      :aria-errormessage="question.a11y_input_ariaErrormessage"
+    >
       <legend role="presentation" class="sv-hidden"></legend>
       <span v-if="question.hasMinLabel" :class="question.cssClasses.minText">
         <SvComponent

@@ -9,7 +9,35 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { Helpers } from "./helpers";
-import { Question } from "./question";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+
+export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
+  constructor (protected question: QuestionMatrixDropdownModel) {
+    super();
+  }
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    if (path.length > 0) {
+      const res = super.getValue(path, isRoot, index, createObjects);
+      if (res && res.isFound) return res;
+    }
+    return new VariableGetterContext(this.question.value).getValue(path, isRoot, index, createObjects);
+  }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const rows = this.question.visibleRows;
+    name = name.toLocaleLowerCase();
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      const itemName = row.rowName?.toString() || "";
+      if (itemName.toLocaleLowerCase() === name) {
+        res.isFound = true;
+        res.context = row.getValueGetterContext();
+        return;
+      }
+    }
+  }
+}
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -38,10 +66,6 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   protected isItemVisible(): boolean { return this.item.isVisible; }
   public isRowEnabled(): boolean { return this.item.isEnabled; }
   protected isRowHasEnabledCondition(): boolean { return !!this.item.enableIf; }
-  protected setRowsVisibleIfValues(values: any): void {
-    values["item"] = this.item.value;
-    values["choice"] = this.item.value;
-  }
 }
 /**
   * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
@@ -98,6 +122,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.setPropertyValue("hideIfRowsEmpty", val);
   }
   protected getSingleInputTitleTemplate(): string { return "rowNameTemplateTitle"; }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixDropdownValueGetterContext(this);
+  }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;
     var rows = this.visibleRows;
@@ -195,11 +222,9 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   }
   protected getFilteredDataCore(): any {
     const res: any = {};
-    const val = this.createValueCopy();
     this.generatedVisibleRows.forEach(row => {
-      const rowVal = val[row.rowName];
-      if (row.isVisible && !Helpers.isValueEmpty(rowVal)) {
-        res[row.rowName] = rowVal;
+      if (row.isVisible && !row.isEmpty) {
+        res[row.rowName] = row.filteredValue;
       }
     });
     return res;

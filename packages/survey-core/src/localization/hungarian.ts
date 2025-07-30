@@ -86,7 +86,7 @@ export var hungarianSurveyStrings = {
   timerLimitAll: "Ön {0} / {1} összeget költött ezen az oldalon, és összesen {2} / {3}.",
   timerLimitPage: "Ön {0} / {1} összeget költött ezen az oldalon.",
   timerLimitSurvey: "Összesen {0} / {1} összeget költött el.",
-  clearCaption: "Egyértelmű",
+  clearCaption: "Törlés",
   signaturePlaceHolder: "Írja alá itt",
   signaturePlaceHolderReadOnly: "Nincs aláírás",
   chooseFileCaption: "Válassz fájlt",

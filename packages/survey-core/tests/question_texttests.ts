@@ -632,7 +632,7 @@ QUnit.test("Expression vs saveMaskedValue, #10056", function (assert) {
   q1.value = "1.000,4";
   assert.equal(q2.value, 1022.4, "q2.value #3");
 });
-QUnit.test("Expression vs saveMaskedValue in different surves, #10056", function (assert) {
+QUnit.test("Expression vs saveMaskedValue in different surveys, #10056", function (assert) {
   const survey1 = new SurveyModel({
     elements: [
       {
@@ -675,4 +675,38 @@ QUnit.test("Expression vs saveMaskedValue in different surves, #10056", function
   assert.equal(q2.value, 12, "survey2 q2.value #1");
   q1.inputValue = "1000";
   assert.equal(q2.value, 1012, "survey2 q2.value #2");
+});
+QUnit.test("inputType email &  checkErrorsMode = `onValueChanged`, #10173", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "inputType": "email",
+        "validators": [
+          {
+            "type": "text",
+            "minLength": 9
+          }
+        ],
+      }
+    ],
+    "checkErrorsMode": "onValueChanged"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = "test";
+  assert.equal(q1.errors.length, 1, "There is an error");
+  assert.equal(q1.errors[0].text, "Please enter a valid e-mail address.", "Error text is correct #1");
+  q1.value = "a@a.com";
+  assert.equal(q1.errors.length, 1, "There is an error - incorrect email");
+  assert.equal(q1.errors[0].text, "Please enter at least 9 character(s).", "Error text is correct #2");
+  q1.value = "a@abc.com";
+  assert.equal(q1.errors.length, 0, "There is no errors #1");
+  q1.textUpdateMode = "onTyping";
+  q1.value = "test";
+  assert.equal(q1.errors.length, 1, "There is an error #2");
+  q1.value = "a@abc.com";
+  assert.equal(q1.errors.length, 0, "No errors #2");
+  q1.value = "test_test";
+  assert.equal(q1.errors.length, 0, "Do not show email error if textUpdateMode is onTyping");
 });

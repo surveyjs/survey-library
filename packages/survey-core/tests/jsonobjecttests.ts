@@ -25,6 +25,7 @@ import { ImageItemValue } from "../src/question_imagepicker";
 import { PageModel } from "../src/page";
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -3556,6 +3557,15 @@ QUnit.test("column isRequired vs default value in column&question, Bug#9920", fu
   Serializer.findProperty("matrixdropdowncolumn", "isRequired").defaultValue = undefined;
   doChecks(6, true, undefined, undefined, true, false, false);
 });
+QUnit.test("choiceitem showCommentArea visibilty for different questions", function (assert) {
+  const prop = Serializer.findProperty("choiceitem", "showCommentArea");
+  const q1 = new QuestionCheckboxModel("q1");
+  q1.choices = [1];
+  assert.equal(prop.isVisible("", q1.choices[0]), true, "showCommentArea is visible choice item in checkbox question");
+  const q2 = new QuestionTagboxModel("q2");
+  q2.choices = [1];
+  assert.equal(prop.isVisible("", q2.choices[0]), false, "showCommentArea is invisible choice item in tagbox question");
+});
 QUnit.test("Could not override default value for valueName & titleName properties in choicesByUrl object, Bug#10088", function (assert) {
   const valueProp = Serializer.findProperty("choicesbyurl", "valueName");
   const titleProp = Serializer.findProperty("choicesbyurl", "titleName");
@@ -3570,4 +3580,32 @@ QUnit.test("Could not override default value for valueName & titleName propertie
   titleProp.defaultValue = undefined;
   assert.equal(q.choicesByUrl.valueName, "", "default valueName, #3");
   assert.equal(q.choicesByUrl.titleName, "", "default titleName, #3");
+});
+QUnit.test("Make expression question invisible by default, Bug#10135", function (assert) {
+  Serializer.getProperty("expression", "visible").defaultValue = false;
+  const survey = new SurveyModel({ elements: [
+    {
+      "type": "expression",
+      "name": "q1",
+    },
+    {
+      "type": "expression",
+      "name": "q2",
+      "visible": true
+    },
+    {
+      "type": "text",
+      "name": "q3",
+    }
+  ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.visible, false, "expression q1 is invisible by default");
+  assert.equal(q2.visible, true, "expression q2 is visible");
+  assert.equal(q3.visible, true, "text q3 is visible");
+  assert.deepEqual(q1.toJSON(), { name: "q1" }, "expression q1 toJSON is empty");
+  assert.deepEqual(q2.toJSON(), { name: "q2", visible: true }, "expression q2 toJSON is not empty");
+  assert.deepEqual(q3.toJSON(), { name: "q3" }, "text q3 toJSON is empty");
+  Serializer.removeProperty("expression", "visible");
 });

@@ -175,7 +175,7 @@ QUnit.test("generate survey schema", function (assert) {
   const propChoices = selectBaseProps.choices;
   assert.ok(propChoices, "selectbase class and it's choices is here");
   assert.equal(propChoices.type, "array", "choices is array");
-  assert.equal(propChoices.items.$ref, "itemvalue", "item is  itemvalue");
+  assert.equal(propChoices.items.$ref, "choiceitem", "item is  choiceitem");
   assert.notOk(selectBaseProps.name, "The property name should be in question");
   assert.notOk(selectBaseProps.showCommentArea, "The property showCommentArea should be in question");
 
@@ -198,6 +198,7 @@ QUnit.test("generate survey schema", function (assert) {
   assert.ok(schema.definitions.question.properties.type, "question type is here");
   assert.equal(schema.definitions.question.properties.type.type, "string", "question type is string");
   assert.deepEqual(schema.definitions.question.required, ["type", "name"], "question required");
+  assert.deepEqual(schema.definitions.question.properties.showCommentArea, { "type": "boolean" }, "question showCommentArea is boolean");
 
   const locString = schema.definitions.locstring;
   assert.equal(locString.type, "object", "locString type");

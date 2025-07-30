@@ -202,7 +202,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(item)}
             readOnly={this.question.isReadOnlyAttr}
             onChange={this.handleOnChange}
-            aria-required={this.question.ariaRequired}
+            required={this.question.inputRequiredAttribute}
             aria-label={item.locText.renderedHtml}
             aria-invalid={this.question.ariaInvalid}
             aria-errormessage={this.question.ariaErrormessage}

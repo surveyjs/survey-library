@@ -29,7 +29,6 @@ export interface ISurveyData {
   getComment(name: string): string;
   setComment(name: string, newValue: string, locNotification: any): any;
   getAllValues(): any;
-  getFilteredValues(): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
   getEditingSurveyElement(): Base;
@@ -274,7 +273,7 @@ export interface ISurveyImpl {
   getTextProcessor(): ITextProcessor;
 }
 export interface IConditionRunner {
-  runCondition(values: HashTable<any>, properties: HashTable<any>): any;
+  runCondition(properties: HashTable<any>): any;
 }
 export interface IShortcutText {
   shortcutText: string;

@@ -11,7 +11,6 @@ import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
-import { setOldTheme } from "./oldTheme";
 import { ItemValue } from "../src/itemvalue";
 import { SurveyElement } from "../src/survey-element";
 
@@ -338,13 +337,13 @@ QUnit.test("check item value type", (assert) => {
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   const q3 = <QuestionSelectBase>survey.getQuestionByName("q3");
-  assert.equal(q1.choices[0].getType(), "itemvalue", "load dropdown");
+  assert.equal(q1.choices[0].getType(), "choiceitem", "load dropdown");
   assert.equal(q1.choices[0].value, "Item 1", "load dropdown, value");
   assert.equal(q2.choices[0].getType(), "imageitemvalue", "load imagepicker");
   assert.equal(q2.choices[0].value, "Item 1", "load imagepicker value");
   assert.equal(q3.choices[0].getType(), "buttongroupitemvalue", "load buttongroup");
   assert.equal(q3.choices[0].value, "Item 1", "load buttongroup value");
-  assert.equal(q1.createItemValue(1).getType(), "itemvalue", "create dropdown item");
+  assert.equal(q1.createItemValue(1).getType(), "choiceitem", "create dropdown item");
   assert.equal(q1.createItemValue(1).value, 1, "create dropdown, value");
   assert.equal(q2.createItemValue(1).getType(), "imageitemvalue", "create imagepicker item");
   assert.equal(q2.createItemValue(1).value, 1, "create imagepicker, value");
@@ -366,7 +365,7 @@ QUnit.test("check item locstring owner and name", (assert) => {
   assert.equal(question.locTitle.owner.getType(), "radiogroup", "Owner for radio question title is radiogroup");
   assert.equal(question.locTitle.name, "title", "Name for radio question title is title");
   var itemValue = (question.choices[0]);
-  assert.equal(itemValue.locText.owner.getType(), "itemvalue", "Owner for radio question item text is itemvalue");
+  assert.equal(itemValue.locText.owner.getType(), "choiceitem", "Owner for radio question item text is itemvalue");
   assert.equal(itemValue.locText.name, "text", "Name for radio question item text is text");
 });
 
@@ -443,18 +442,20 @@ QUnit.test("check focus comment of other select", (assert) => {
     ]
   });
   let counter = 0;
-  const q = survey.getQuestionByName("q1");
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q["focusOtherComment"] = () => {
     counter++;
   };
   assert.equal(counter, 0);
-  q.value = ["other"];
+  q.selectItem(q.otherItem, true);
   assert.equal(counter, 1);
   q.value = ["other", "item1"];
+  q.selectItem(q.choices[0], true);
   assert.equal(counter, 1);
-  q.value = ["item1"];
+  q.selectItem(q.otherItem, false);
   assert.equal(counter, 1);
-  q.value = ["item1", "other"];
+  q.selectItem(q.otherItem, true);
+  assert.deepEqual(q.value, ["item1", "other"], "other is selected in question value");
   assert.equal(counter, 2);
 });
 QUnit.test("Do not focus element on setting defaultValue & on setting value to survey.data, Bug#9700", (assert) => {
@@ -491,7 +492,8 @@ QUnit.test("Do not focus element on setting defaultValue & on setting value to s
   assert.equal(counter, 0, "Do not focus element on setting survey.data");
   const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   question.value = ["Item 1"];
-  question.value = ["Item 1", "other"];
+  question.selectItem(question.otherItem, true);
+  assert.deepEqual(question.value, ["Item 1", "other"], "question value is correct");
   assert.equal(counter, 1, "Focus on setting the question value");
   SurveyElement.FocusElement = oldFunc;
 });
@@ -503,7 +505,7 @@ QUnit.test("check separateSpecialChoices property visibility", (assert) => {
   assert.notOk(Serializer.findProperty("imagepicker", "separateSpecialChoices").visible);
   assert.notOk(Serializer.findProperty("dropdown", "separateSpecialChoices").visible);
 });
-QUnit.test("check focus comment of other select", (assert) => {
+QUnit.test("Apply choice visibleIf correctly on setting survey.data", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -720,7 +722,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
   assert.equal(q.getStoreOthersAsComment(), false, "It becomes false because of valuePropertyName");
   q.renderedValue = ["other"];
   assert.deepEqual(q.value, [{ fruit: "other" }], "#1");
-  q.comment = "text1";
+  q.otherValue = "text1";
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "2");
 });
 QUnit.test("checkbox vs valuePropertyName, getDisplayValue", (assert) => {
@@ -756,7 +758,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q.renderedValue = ["other"];
   assert.deepEqual(q.value, [{ fruit: "other" }], "#1");
-  q.comment = "text1";
+  q.otherValue = "text1";
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
 });
@@ -787,7 +789,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   q.renderedValue = ["apple", "other"];
   const rows = matrix.visibleRows;
   assert.equal(rows.length, 2, "matrix rows");
-  q.comment = "text1";
+  q.otherValue = "text1";
   assert.equal(rows.length, 2, "matrix rows");
   assert.equal(rows[0].cells[1].question.value, "apple", "rows[0]");
   assert.equal(rows[1].cells[1].question.value, "text1", "rows[1]");
@@ -1018,22 +1020,22 @@ QUnit.test("autoOtherMode property, radiogroup", (assert) => {
   question.choices = [1, 2, 3];
   question.autoOtherMode = true;
   assert.equal(question.isOtherSelected, false, "other is not selected by default");
-  question.comment = "comment";
+  question.otherValue = "comment";
   assert.equal(question.isOtherSelected, true, "other is selected by setting comments");
-  question.comment = "";
+  question.otherValue = "";
   assert.equal(question.isOtherSelected, false, "other is not selected by resetting comment");
   question.value = 1;
-  question.comment = "comment";
+  question.otherValue = "comment";
   assert.equal(question.value, "other", "other is selected by setting comments, value");
-  question.comment = "";
+  question.otherValue = "";
   assert.equal(question.value, undefined, "other is not selected by resetting comment, value");
-  question.comment = "comment";
+  question.otherValue = "comment";
   question.value = 1;
-  assert.equal(question.comment, "", "Clear comment on changing value");
+  assert.equal(question.otherValue, "", "Clear comment on changing value");
   question.storeOthersAsComment = false;
-  question.comment = "comment1";
+  question.otherValue = "comment1";
   assert.equal(question.value, "comment1", "other is selected by setting comments, value + storeOthersAsComment");
-  question.comment = "";
+  question.otherValue = "";
   assert.equal(question.value, undefined, "other is not selected by resetting comment, value + storeOthersAsComment");
 });
 QUnit.test("autoOtherMode property, checkbox", (assert) => {
@@ -1045,22 +1047,22 @@ QUnit.test("autoOtherMode property, checkbox", (assert) => {
   question.choices = [1, 2, 3];
   question.autoOtherMode = true;
   assert.equal(question.isOtherSelected, false, "other is not selected by default");
-  question.comment = "comment";
+  question.otherValue = "comment";
   assert.equal(question.isOtherSelected, true, "other is selected by setting comments");
-  question.comment = "";
+  question.otherValue = "";
   assert.equal(question.isOtherSelected, false, "other is not selected by resetting comment");
   question.value = [1, 3];
-  question.comment = "comment";
+  question.otherValue = "comment";
   assert.deepEqual(question.value, [1, 3, "other"], "other is selected by setting comments, value");
   assert.deepEqual(survey.data, { q1: [1, 3, "other"], "q1-Comment": "comment" }, "survey: other is selected by setting comments, value");
-  question.comment = "";
+  question.otherValue = "";
   assert.deepEqual(question.value, [1, 3], "other is not selected by resetting comment, value");
   assert.deepEqual(survey.data, { q1: [1, 3] }, "survey: other is not selected by resetting comment, value");
   question.storeOthersAsComment = false;
-  question.comment = "comment1";
+  question.otherValue = "comment1";
   assert.deepEqual(question.value, [1, 3, "comment1"], "other is selected by setting comments, value + storeOthersAsComment");
   assert.deepEqual(survey.data, { q1: [1, 3, "comment1"] }, "survey: other is selected by setting comments, value + storeOthersAsComment");
-  question.comment = "";
+  question.otherValue = "";
   assert.deepEqual(question.value, [1, 3], "other is not selected by resetting comment, value + storeOthersAsComment");
   assert.deepEqual(survey.data, { q1: [1, 3] }, "survey: other is not selected by resetting comment, value + storeOthersAsComment");
 });
@@ -1081,6 +1083,7 @@ QUnit.test("check renamed has... properties", (assert) => {
   assert.notOk(question.hasSelectAll);
   assert.notOk(question.hasOther);
   assert.notOk(question.hasComment);
+  assert.notOk(question.showCommentArea);
 
   assert.notOk(question.showNoneItem);
   assert.notOk(question.showSelectAllItem);
@@ -1192,10 +1195,10 @@ QUnit.test("selectbase and otherValue/comment", (assert) => {
 
   question.showCommentArea = true;
   question.value = "other";
-  question.otherValue = " ";
-  assert.equal(" ", question.otherValue, "other value, #22");
+  question.otherValue = "a";
+  assert.equal("a", question.otherValue, "other value, #22");
   assert.equal(question.selectedItem.value, "other", "selectedItem #6");
-  assert.equal("other", question.value, "question value, #23");
+  assert.equal("a", question.value, "question value, #23");
   assert.equal("", question.comment, "comment, #24");
 });
 QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
@@ -1206,9 +1209,9 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   q1.renderedValue = "other";
-  q1.otherValue = " ";
-  assert.equal("other", q1.value, "q1 value, #1");
-  assert.equal(" ", q1.otherValue, "q1 otherValue, #2");
+  q1.otherValue = "a";
+  assert.equal("a", q1.value, "q1 value, #1");
+  assert.equal("a", q1.otherValue, "q1 otherValue, #2");
   q1.otherValue = "item2";
   assert.equal("other", q1.value, "q1 value, #3");
   assert.equal("item2", q1.otherValue, "q1 otherValue, #4");
@@ -1216,9 +1219,9 @@ QUnit.test("selectbase and otherValue/comment + same values", (assert) => {
   assert.equal("item22", q1.value, "q1 value, #5");
   assert.equal("item22", q1.otherValue, "q1 otherValue, #6");
   q2.renderedValue = ["other"];
-  q2.otherValue = " ";
-  assert.deepEqual(["other"], q2.value, "q2 value, #1");
-  assert.equal(" ", q2.otherValue, "q2 otherValue, #2");
+  q2.otherValue = "a";
+  assert.deepEqual(["a"], q2.value, "q2 value, #1");
+  assert.equal("a", q2.otherValue, "q2 otherValue, #2");
   q2.otherValue = "item3";
   assert.deepEqual(["other"], q2.value, "q2 value, #3");
   assert.equal("item3", q2.otherValue, "q2 otherValue, #4");
@@ -1310,7 +1313,7 @@ QUnit.test("choicesFromQuestion & showOtherItem", function (assert) {
   });
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1, 2, "other"];
-  q1.comment = "other comment";
+  q1.otherValue = "other comment";
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
   assert.equal(q1.visibleChoices.length, 4, "q1 length");
@@ -1380,7 +1383,7 @@ QUnit.test("choicesFromQuestion & showOtherItem & mode=selected", function (asse
   assert.equal(q3.visibleChoices.length, 3, "q3 length");
   assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
   q1.value = [1, 2, 3, "other"];
-  q1.comment = "other comment";
+  q1.otherValue = "other comment";
   assert.equal(q2.visibleChoices.length, 4, "q2 length");
   assert.equal(q3.visibleChoices.length, 4, "q3 length");
   assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
@@ -1515,12 +1518,12 @@ QUnit.test("displayValue & otherItem", function (assert) {
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   q1.value = "other";
   assert.equal(q1.displayValue, "Other (describe)", "#1");
-  q1.comment = "Some comments";
+  q1.otherValue = "Some comments";
   assert.equal(q1.displayValue, "Some comments", "#2");
   q2.value = ["other", 1];
-  q2.comment = "";
+  q2.otherValue = "";
   assert.equal(q2.displayValue, "Other (describe), 1", "#3");
-  q2.comment = "Some comments";
+  q2.otherValue = "Some comments";
   assert.equal(q2.displayValue, "Some comments, 1", "#4");
 });
 QUnit.test("Use carryForward with matrix dynamic", function (assert) {
@@ -2292,7 +2295,7 @@ QUnit.test("On value changed, comment and valueName Bug#8137", (assert) => {
   questionName = "";
   name = "";
   value = undefined;
-  q.comment = "comment1";
+  q.otherValue = "comment1";
   assert.equal(counter, 3, "counter #3");
   assert.equal(questionName, "q1", "question name #3");
   assert.equal(name, "val1-Comment", "name #3");
@@ -2360,7 +2363,7 @@ QUnit.test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8
   q1.comment = "abc";
   q1.clearValue(true);
   q2.value = "other";
-  q2.comment = "abc";
+  q2.otherValue = "abc";
   q2.clearValue(true);
   q3.value = "val";
   q3.comment = "abc";
@@ -2388,19 +2391,19 @@ QUnit.test("storeOthersAsComment & entering comment equals to the value in the c
   const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   q1.value = "other";
   assert.equal(q1.isOtherSelected, true, "q1, isOther is selected");
-  q1.comment = "red";
+  q1.otherValue = "red";
   assert.equal(q1.value, "red", "q1, value is red");
   assert.equal(q1.selectedItem.value, "red", "q1, Make the red item seleted");
   assert.equal(q1.isOtherSelected, false, "q1, isOther is not selected");
   const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
   q2.value = ["green", "other"];
   assert.equal(q2.isOtherSelected, true, "q2, isOther is selected, #1");
-  q2.comment = "red";
+  q2.otherValue = "red";
   assert.deepEqual(q2.value, ["green", "red"], "q2, Make the red item seleted, #1");
   assert.equal(q2.isOtherSelected, false, "q2, isOther is not selected, #1");
   q2.value = ["green", "other"];
   assert.equal(q2.isOtherSelected, true, "q2, isOther is selected, #2");
-  q2.comment = "green";
+  q2.otherValue = "green";
   assert.deepEqual(q2.value, ["green"], "q2, Make the red item seleted, #2");
   assert.equal(q2.isOtherSelected, false, "q2, isOther is not selected, #2");
 });
@@ -2630,6 +2633,323 @@ QUnit.test("Checkbox question show selected item incorrectly if choices set afte
   assert.equal(q1.isOtherSelected, false, "q1.isOtherSelected is false");
   assert.equal(q1.selectedChoices.length, 2, "q1.selectedChoices.length is correct");
 });
+QUnit.test("Dropdown question and choiceitem type", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(q1.choices[0].getType(), "choiceitem", "choiceitem type for choices[0]");
+  assert.equal(q1.choices[2].getType(), "choiceitem", "choiceitem type for choices[2]");
+  assert.equal(q1.otherItem.getType(), "choiceitem", "choiceitem type for otherItem");
+});
+QUnit.test("Radiogroup question and choices has comment", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.comment, "", "comment is empty by default");
+  assert.equal(q1.choices[0].showCommentArea, false, "choices[0].showCommentArea");
+  assert.equal(q1.choices[1].showCommentArea, true, "choices[1].showCommentArea");
+  assert.equal(q1.otherItem.showCommentArea, true, "choices[1].showCommentArea");
+  assert.equal(q1.isCommentShowing(q1.choices[0]), false, "isCommentShowing for choices[0], #1");
+  assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #1");
+  assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #1");
+  assert.equal(q1.choices[0].isCommentShowing, false, "isCommentShowing for choices[0], #1");
+  assert.equal(q1.choices[1].isCommentShowing, false, "isCommentShowing for choices[1], #1");
+  q1.clickItemHandler(q1.otherItem);
+  assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #2");
+  assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #2");
+  assert.equal(q1.otherItem.isCommentShowing, true, "isCommentShowing for otherItem, #2");
+  q1.clickItemHandler(q1.choices[1]);
+  assert.equal(q1.isCommentShowing(q1.choices[1]), true, "isCommentShowing for choices[1], #3");
+  assert.equal(q1.choices[1].isCommentShowing, true, "isCommentShowing for choices[1], #3");
+  assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #3");
+  assert.equal(q1.otherItem.isCommentShowing, false, "isCommentShowing for otherItem, #3");
+  q1.setCommentValue(q1.choices[0], "test comment, #1");
+  assert.notOk(q1.comment, "comment is empty if we set comment for choices[0], #1");
+  assert.equal(q1.renderedValue, 2, "renderedValue, #1");
+  assert.equal(q1.isCommentShowing(q1.choices[1]), true, "comment is showing, #1");
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.notOk(q1.comment, "comment is not used for choices[1], #2");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #2");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #2");
+  assert.equal(q1.getCommentValue(q1.otherItem), "", "getCommentValue for otherItem, #2");
+  q1.setCommentValue(q1.otherItem, "test comment 2");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #3");
+  assert.equal(q1.getCommentValue(q1.otherItem), "", "getCommentValue for otherItem, #3");
+  q1.clickItemHandler(q1.otherItem);
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #4");
+  assert.equal(q1.getCommentValue(q1.otherItem), "", "getCommentValue for otherItem, #4");
+  q1.setCommentValue(q1.otherItem, "test comment 3");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #5");
+  assert.equal(q1.getCommentValue(q1.otherItem), "test comment 3", "getCommentValue for otherItem, #5");
+});
+QUnit.test("Radiogroup/dropdown questions and choices has comment: do not remove comment on complete", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, 3]
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": [1, { value: 2, showCommentArea: true }, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  q1.clickItemHandler(q1.choices[1]);
+  q1.setCommentValue(q1.choices[1], "test comment1");
+  q2.renderedValue = 2;
+  q2.setCommentValue(q1.choices[1], "test comment2");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: { value: 2, comment: "test comment1" }, q2: { value: 2, comment: "test comment2" } }, "survey.data after complete");
+});
+QUnit.test("Radiogroup question, choices has comment and defaultValue", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
+        "showOtherItem": true,
+        defaultValue: "other",
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.value, "other", "q1.value is 'other'");
+  assert.equal(q1.isOtherSelected, true, "q1.isOtherSelected is true");
+  assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #1");
+  assert.equal(q1.otherItem.isCommentShowing, true, "isCommentShowing for otherItem, #1");
+  assert.equal(q1.renderedValue, "other", "q1.renderedValue is 'other'");
+});
+function testCheckboxQuestionWithSeveralCommentChoices(q1: QuestionCheckboxModel, assert): void {
+  assert.equal(q1.choices[0].showCommentArea, false, "choices[0].showCommentArea");
+  assert.equal(q1.choices[1].showCommentArea, true, "choices[1].showCommentArea");
+  assert.equal(q1.choices[2].showCommentArea, true, "choices[2].showCommentArea");
+  assert.equal(q1.otherItem.showCommentArea, true, "choices[1].showCommentArea");
+  assert.equal(q1.isCommentShowing(q1.choices[0]), false, "isCommentShowing for choices[0], #1");
+  assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #1");
+  assert.equal(q1.isCommentShowing(q1.otherItem), false, "isCommentShowing for otherItem, #1");
+  q1.clickItemHandler(q1.otherItem, true);
+  assert.equal(q1.isCommentShowing(q1.choices[1]), false, "isCommentShowing for choices[1], #2");
+  assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #2");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1.isCommentShowing(q1.choices[1]), true, "isCommentShowing for choices[1], #3");
+  assert.equal(q1.isCommentShowing(q1.otherItem), true, "isCommentShowing for otherItem, #3");
+  q1.setCommentValue(q1.choices[1], "test comment, #1");
+  q1.setCommentValue(q1.choices[2], "test comment, #2");
+  q1.setCommentValue(q1.otherItem, "test comment, #other");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #4");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment, #1", "getCommentValue for choices[1], #4");
+  assert.equal(q1.getCommentValue(q1.choices[2]), "", "getCommentValue for choices[2], #4");
+  assert.equal(q1.getCommentValue(q1.otherItem), "test comment, #other", "getCommentValue for otherItem, #4");
+  q1.clickItemHandler(q1.choices[2], true);
+  q1.setCommentValue(q1.choices[2], "test comment, #2");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #5");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment, #1", "getCommentValue for choices[1], #5");
+  assert.equal(q1.getCommentValue(q1.choices[2]), "test comment, #2", "getCommentValue for choices[2], #5");
+  assert.equal(q1.getCommentValue(q1.otherItem), "test comment, #other", "getCommentValue for otherItem, #5");
+  q1.clickItemHandler(q1.otherItem, false);
+  q1.clickItemHandler(q1.choices[0], false);
+  q1.clickItemHandler(q1.choices[1], false);
+  assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #6");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #6");
+  assert.equal(q1.getCommentValue(q1.choices[2]), "test comment, #2", "getCommentValue for choices[2], #6");
+  assert.equal(q1.getCommentValue(q1.otherItem), "", "getCommentValue for otherItem, #6");
+}
+QUnit.test("checbox question and choices has comment", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  testCheckboxQuestionWithSeveralCommentChoices(q1, assert);
+});
+QUnit.test("checbox question and choices has comment and storeOthersAsComment = false", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  testCheckboxQuestionWithSeveralCommentChoices(q1, assert);
+});
+QUnit.test("checbox question and choices has comment vs renderedValue", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = [1, 2];
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
+  assert.notOk(q1.comment, "comment is not set for choices[1], #1");
+});
+QUnit.test("checbox question and choices has comment: clear comment on unselecting choice", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
+        "showOtherItem": true,
+        "showNoneItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = [1, 2];
+  const textArea1 = q1.getCommentTextAreaModel(q1.choices[1]);
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
+  assert.equal(q1.getPropertyValue("other_2"), "test comment", "comment property value, #1");
+  q1.renderedValue = [1];
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #2");
+  assert.equal(q1.getPropertyValue("other_2"), undefined, "comment property value, #2");
+  assert.equal(textArea1.getTextValue(), "", "No value in text area");
+  q1.renderedValue = [1, 2];
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #3");
+  q1.clickItemHandler(q1.noneItem, true);
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #4");
+});
+QUnit.test("checbox question and choices has comment with other value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: "other", showCommentArea: true }, 3]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = [1, "other"];
+  q1.setCommentValue(q1.choices[1], "test comment");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
+  assert.equal(q1.comment, "test comment", "comment is set for choices[1], #1");
+  q1.comment = "test comment 2";
+  assert.equal(q1.getCommentValue(q1.choices[1]), "test comment 2", "getCommentValue for choices[1], #2");
+});
+QUnit.test("checkbox vs multiple comment choices - question.value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.getValuePropertyName(), "value", "getValuePropertyName");
+  q1.renderedValue = [1, 2, "other"];
+  assert.deepEqual(q1.value, [{ value: 1 }, { value: 2 }, { value: "other" }], "q1.value, #1");
+  q1.setCommentValue(q1.choices[1], "choices comment1");
+  q1.setCommentValue(q1.otherItem, "other comment1");
+  assert.deepEqual(q1.value, [{ value: 1 }, { value: 2, comment: "choices comment1" }, { value: "other comment1" }], "q1.value, #2");
+  q1.value = [{ value: 1 }, { value: 3, comment: "choice comment3" }, { value: "other comment2" }];
+  assert.deepEqual(q1.renderedValue, [1, 3, "other"], "q1.renderedValue, #3");
+  assert.deepEqual(q1.value, [{ value: 1 }, { value: 3, comment: "choice comment3" }, { value: "other comment2" }], "q1.value, #3");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "", "getCommentValue for choices[0], #3");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #3");
+  assert.equal(q1.getCommentValue(q1.choices[2]), "choice comment3", "getCommentValue for choices[2], #3");
+  assert.equal(q1.getCommentValue(q1.otherItem), "other comment2", "getCommentValue for otherItem, #3");
+});
+QUnit.test("checkbox vs multiple comment choices - question.value - set incorrect value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [1, { value: 2, showCommentArea: true }, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.getValuePropertyName(), "value", "getValuePropertyName");
+  q1.value = [1, 2, "other"];
+  assert.deepEqual(q1.value, [{ value: 1 }, { value: 2 }, { value: "other" }], "q1.value, #1");
+  assert.deepEqual(q1.renderedValue, [1, 2, "other"], "q1.renderedValue, #1");
+});
+QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: false", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, 2, 3]
+      },
+      {
+        "type": "radiogroup",
+        "name": "q2",
+        "choices": [1, 2, 3],
+        "showCommentArea": true,
+        "showOtherItem": true,
+      },
+      {
+        "type": "radiogroup",
+        "name": "q3",
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
+        "showOtherItem": true,
+      },
+      {
+        "type": "radiogroup",
+        "name": "q4",
+        "choices": [1, { value: 2, showCommentArea: true }, 3],
+        "showCommentArea": true,
+        "showOtherItem": true,
+      }
+    ]
+  });
+  const checkFunc = (name: string, res: boolean, no: number) => {
+    const q = <QuestionRadiogroupModel>survey.getQuestionByName(name);
+    assert.equal(q.getStoreOthersAsComment(), res, "getStoreOthersAsComment() #" + no.toString());
+  };
+  checkFunc("q1", false, 1);
+  checkFunc("q2", false, 2);
+  checkFunc("q3", true, 3);
+  checkFunc("q4", true, 4);
+});
 QUnit.test("Create multiple choice item for checkbox", (assert) => {
   const survey = new SurveyModel({
     questions: [
@@ -2688,6 +3008,345 @@ QUnit.test("checkbox vs selectAll and isExclusive", (assert) => {
   q.renderedValue = ["none2", "none"];
   assert.deepEqual(q.value, ["none"], "#12");
 });
+QUnit.test("Focus element on selecting showCommentArea element", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  const els = new Array<string>();
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    const index = elId.lastIndexOf("_");
+    els.push(elId.substring(index + 1));
+    return true;
+  };
+
+  let survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      },
+      {
+        "type": "radiogroup",
+        "name": "q2",
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.selectItem(q1.otherItem, true);
+  assert.deepEqual(els, ["other"], "q1.focus #1");
+  q1.selectItem(q1.otherItem, false);
+  assert.deepEqual(els, ["other"], "q1.focus #2");
+  q1.selectItem(q1.choices[0], true);
+  assert.deepEqual(els, ["other", "1"], "q1.focus #3");
+  q1.selectItem(q1.choices[0], false);
+  q1.selectItem(q1.choices[1], true);
+  assert.deepEqual(els, ["other", "1"], "q1.focus #4");
+  q1.selectItem(q1.choices[2], true);
+  assert.deepEqual(els, ["other", "1", "3"], "q1.focus #5");
+
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  els.length = 0;
+  q2.selectItem(q2.otherItem);
+  assert.deepEqual(els, ["other"], "q2.focus #1");
+  q2.selectItem(q1.choices[0]);
+  assert.deepEqual(els, ["other", "1"], "q2.focus #2");
+  q2.selectItem(q1.choices[1]);
+  assert.deepEqual(els, ["other", "1"], "q2.focus #3");
+  q2.selectItem(q2.choices[2]);
+  assert.deepEqual(els, ["other", "1", "3"], "q2.focus #4");
+
+  els.length = 0;
+  q1.autoOtherMode = true;
+  q2.autoOtherMode = true;
+  q1.selectItem(q1.otherItem, true);
+  q2.selectItem(q2.otherItem);
+  assert.deepEqual(els, [], "autoOtherMode, focus is not called");
+  SurveyElement.FocusElement = oldFunc;
+});
+QUnit.test("Radiogroup/dropdown showCommentArea validation", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      },
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  assert.equal(q1.validate(), true, "q1 validation, #1");
+  assert.equal(q2.validate(), true, "q1 validation, #1");
+  q1.value = 1;
+  q2.value = 1;
+  assert.equal(q1.validate(), false, "q1 validation, #2");
+  assert.equal(q2.validate(), false, "q2 validation, #2");
+  q1.setCommentValue(q1.choices[0], "test comment");
+  q2.setCommentValue(q1.choices[0], "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #3");
+  assert.equal(q2.validate(), true, "q2 validation, #3");
+  q1.value = 2;
+  q2.value = 2;
+  assert.equal(q1.validate(), true, "q1 validation, #4");
+  assert.equal(q2.validate(), true, "q2 validation, #4");
+  q1.value = 3;
+  q2.value = 3;
+  assert.equal(q1.validate(), true, "q1 validation, #5");
+  assert.equal(q2.validate(), true, "q2 validation, #5");
+  q1.setCommentValue(q1.choices[2], "test comment");
+  q2.setCommentValue(q1.choices[2], "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #6");
+  assert.equal(q2.validate(), true, "q2 validation, #6");
+  assert.notOk(q1.otherValue, "q1 otherValue, #6");
+  assert.notOk(q2.otherValue, "q2 otherValue, #6");
+  q1.renderedValue = "other";
+  q2.renderedValue = "other";
+  assert.notOk(q1.otherValue, "q1 otherValue, #7");
+  assert.notOk(q2.otherValue, "q2 otherValue, #7");
+  assert.equal(q1.validate(), false, "q1 validation, #7");
+  assert.equal(q2.validate(), false, "q2 validation, #7");
+  q1.otherValue = "test comment";
+  q2.otherValue = "test comment";
+  assert.equal(q1.validate(), true, "q1 validation, #8");
+  assert.equal(q2.validate(), true, "q2 validation, #8");
+});
+QUnit.test("Checkbox showCommentArea validation", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.validate(), true, "q1 validation, #1");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(q1.validate(), false, "q1 validation, #2");
+  q1.setCommentValue(q1.choices[0], "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #3");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1.validate(), true, "q1 validation, #4");
+  q1.clickItemHandler(q1.choices[2], true);
+  assert.equal(q1.validate(), true, "q1 validation, #5");
+  q1.setCommentValue(q1.choices[2], "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #6");
+  q1.clickItemHandler(q1.otherItem, true);
+  assert.equal(q1.validate(), false, "q1 validation, #7");
+  q1.setCommentValue(q1.otherItem, "test comment");
+  assert.equal(q1.validate(), true, "q1 validation, #8");
+});
+QUnit.test("Radiogroup/dropdown showCommentArea supportAutoAdvance", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }],
+        "showOtherItem": true
+      },
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), true, "q1 supportAutoAdvance, #1");
+  assert.equal(q2.supportAutoAdvance(), true, "q2 supportAutoAdvance, #1");
+  q1.value = 1;
+  q2.value = 1;
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), false, "q1 supportAutoAdvance, #2");
+  assert.equal(q2.supportAutoAdvance(), false, "q2 supportAutoAdvance, #2");
+  q1.value = 2;
+  q2.value = 2;
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), true, "q1 supportAutoAdvance, #3");
+  assert.equal(q2.supportAutoAdvance(), true, "q2 supportAutoAdvance, #3");
+  q1.value = "other";
+  q2.value = "other";
+  q1.onMouseDown();
+  assert.equal(q1.supportAutoAdvance(), false, "q1 supportAutoAdvance, #4");
+  assert.equal(q2.supportAutoAdvance(), false, "q2 supportAutoAdvance, #4");
+});
+QUnit.test("checkbox/radiogroup showCommentArea & isCommentRequired", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }]
+      },
+      {
+        "type": "checkbox",
+        "name": "q2",
+        "choices": [{ value: 1, showCommentArea: true, isCommentRequired: true }, 2, { value: 3, showCommentArea: true }]
+      },
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.renderedValue = 1;
+  assert.equal(q1.renderedValue, 1, "q1 renderedValue, #1");
+  q2.renderedValue = [1, 2];
+  assert.equal(q1.validate(), false, "q1 validate, #1");
+  assert.equal(q2.validate(), false, "q2 validate, #1");
+  q1.renderedValue = 3;
+  q2.renderedValue = [2, 3];
+  assert.equal(q1.validate(), true, "q1 validate, #2");
+  assert.equal(q2.validate(), true, "q2 validate, #2");
+  q2.setCommentValue(q2.choices[2], "");
+  assert.deepEqual(q2.value, [{ value: 2 }, { value: 3 }], "q2.value #1");
+  q1.setCommentValue(q2.choices[2], "test comment1");
+  q2.setCommentValue(q2.choices[2], "test comment2");
+  assert.equal(q2.validate(), true, "q2 validate, #3");
+  assert.deepEqual(q1.value, { value: 3, comment: "test comment1" }, "q1.value #2");
+  assert.deepEqual(q2.value, [{ value: 2 }, { value: 3, comment: "test comment2" }], "q2.value #2");
+});
+QUnit.test("radiogroup showCommentArea & renderedValue/value", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true }, 2, { value: 3, showCommentArea: true }]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.value = 1;
+  assert.equal(q1.renderedValue, 1, "q1.renderedValue #1");
+  q1.setCommentValue(q1.choices[0], "test comment1");
+  assert.equal(q1.renderedValue, 1, "q1.renderedValue #2");
+  assert.deepEqual(q1.value, { value: 1, comment: "test comment1" }, "q1.value #2");
+  q1.renderedValue = 3;
+  assert.equal(q1.value, 3, "q1.value #3");
+  q1.value = { value: 1, comment: "test comment2" };
+  assert.equal(q1.renderedValue, 1, "q1.renderedValue #3");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "test comment2", "q1.getCommentValue #4");
+});
+QUnit.test("isCommentRequired serialization", (assert) => {
+  const q = new QuestionRadiogroupModel("q1");
+  q.choices = [{ value: 1 }];
+  const choice = q.choices[0];
+  assert.equal(choice.isCommentRequired, false, "isCommentRequired is false by default");
+  assert.equal(choice.toJSON().isCommentRequired, undefined, "isCommentRequired is undefined by default in JSON");
+  choice.isCommentRequired = true;
+  assert.equal(choice.toJSON().isCommentRequired, true, "isCommentRequired is true after setting it");
+});
+QUnit.test("commentPlaceholder serialization", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{ name: "q1", type: "radiogroup", choices: [1] }] });
+  const q = survey.getQuestionByName("q1");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder");
+  q.choices[0].commentPlaceholder = "val1";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "val1", "locCommentPlaceholder.text is set");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: "val1" }] }, "serialization vs commentPlaceHolder");
+  q.fromJSON({ name: "q1", type: "radiogroup", choices: [{ value: 1, commentPlaceholder: { default: "en-val", de: "de-val" } }] });
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "en-val", "locCommentPlaceholder.text for locale 'default'");
+  survey.locale = "de";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "de-val", "locCommentPlaceholder.text for locale 'de'");
+  survey.locale = "fr";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "en-val", "locCommentPlaceholder.text for locale 'fr #1'");
+  q.choices[0].locCommentPlaceholder.text = "fr-val";
+  assert.equal(q.choices[0].locCommentPlaceholder.text, "fr-val", "locCommentPlaceholder.text for locale 'fr #2'");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: { "default": "en-val", "de": "de-val", fr: "fr-val" } }] }, "serialization vs commentPlaceHolder&locales");
+  q.choices[0].locCommentPlaceholder.clear();
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder #2");
+});
+QUnit.test("checbox question and choices has comment - custom placeholder", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true, text: "Item 1" }, { value: 2, showCommentArea: true, commentPlaceholder: "Please add comment" }, 3],
+        "showOtherItem": true,
+        "showNoneItem": true,
+        "commentPlaceholder": "Some comment for {item}"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = [1, 2];
+  assert.equal(q1.choices[1].commentPlaceholder, "Please add comment", "commentPlaceholder for choices[1], #1");
+  const textArea1 = q1.getCommentTextAreaModel(q1.choices[0]);
+  const textArea2 = q1.getCommentTextAreaModel(q1.choices[1]);
+  assert.equal(textArea1.placeholder, "Some comment for Item 1", "textArea1 placeholder");
+  assert.equal(textArea2.placeholder, "Please add comment", "textArea2 placeholders");
+});
+QUnit.test("checbox question and choices has comment - default value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }],
+        "choices": [{ value: 1, showCommentArea: true }, { value: 2, showCommentArea: true }],
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.renderedValue, [1, 2], "q1.renderedValue");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "abc", "getCommentValue for choices[0], #1");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "edf", "getCommentValue for choices[1], #1");
+});
+QUnit.test("checbox question and choices has comment - set value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: 1, showCommentArea: true }, { value: 2, showCommentArea: true }],
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }];
+  assert.deepEqual(q1.renderedValue, [1, 2], "q1.renderedValue");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "abc", "getCommentValue for choices[0], #1");
+  assert.equal(q1.getCommentValue(q1.choices[1]), "edf", "getCommentValue for choices[1], #1");
+});
+QUnit.test("radiogroup question and choices has comment - default value", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "defaultValue": [{ value: 1, comment: "abc" }, { value: 2, comment: "edf" }],
+        "choices": { value: 1, showCommentArea: true },
+        "showOtherItem": true,
+        "showNoneItem": true,
+        otherPlaceholder: "Some comment"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.renderedValue, 1, "q1.renderedValue");
+  assert.equal(q1.getCommentValue(q1.choices[0]), "abc", "getCommentValue for choices[0], #1");
+});
 QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
   const survey = new SurveyModel({
     elements: [
@@ -2703,4 +3362,24 @@ QUnit.test("checkbox vs dataItems and isExclusive, Bug10002", (assert) => {
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   assert.equal(q.dataChoices.length, 4, "dataChoices length");
   assert.equal(q.dataChoices[2].value, "none2", "none2 is here");
+});
+QUnit.test("radiogroup question showOtherItem - lost focus on empty", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [1, 2, 3],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.clickItemHandler(q1.otherItem);
+  const textArea = q1.getCommentTextAreaModel(q1.otherItem);
+  assert.equal(textArea.getTextValue(), "", "text area is empty #1");
+  const event: any = { target: { value: "" } };
+  textArea.onTextAreaBlur(event);
+  assert.strictEqual(event.target.value, "", "event.target.value is empty");
+  assert.equal(textArea.getTextValue(), "", "text area is empty #2");
 });

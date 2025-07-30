@@ -32,8 +32,8 @@
             [question]="cell.question" [model]="cell.item"></sv-ng-selebase-item>
         </ng-template>
       </ng-container>
-      <div *ngIf="cell.isOtherChoice" [class]="cell.question.getCommentAreaCss(true)" [question]="cell.question"
-        sv-ng-comment-other></div>
+      <div *ngIf="cell.isOtherChoice" [class]="cell.question.getCommentAreaCss(true)" [question]="cell.question" [item]="cell.question.otherItem"
+        sv-ng-comment-choice></div>
     </div>
     <ng-container *ngIf="cell.hasTitle">
       <ng-template

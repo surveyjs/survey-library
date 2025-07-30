@@ -1,4 +1,4 @@
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, QuestionValueGetterContext, QuestionArrayGetterContext } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import { Base, ArrayChanges } from "./base";
 import {
@@ -16,13 +16,14 @@ import { PanelModel } from "./panel";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { QuestionTextProcessor } from "./textPreProcessor";
+import { TextContextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 
 /**
  * An interface used to create custom question types.
@@ -722,9 +723,6 @@ export abstract class QuestionCustomModelBase extends Question
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : {};
   }
-  getFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : {};
-  }
   getFilteredProperties(): any {
     return !!this.data ? this.data.getFilteredProperties() : {};
   }
@@ -819,6 +817,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected getElement(): SurveyElement {
     return this.contentQuestion;
+  }
+  supportAutoAdvance(): boolean {
+    return !!this.contentQuestion && this.contentQuestion.supportAutoAdvance();
   }
   onAnyValueChanged(name: string, questionName: string): void {
     super.onAnyValueChanged(name, questionName);
@@ -932,10 +933,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.value = this.getContentQuestionValue();
     }
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     if (!!this.contentQuestion) {
-      this.contentQuestion.runCondition(values, properties);
+      this.contentQuestion.runCondition(properties);
     }
   }
   protected convertDataName(name: string): string {
@@ -1041,31 +1042,32 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
 }
 
-class QuestionCompositeTextProcessor extends QuestionTextProcessor {
-  constructor(
-    protected composite: QuestionCompositeModel,
-    protected variableName: string
-  ) {
-    super(variableName);
+export class CompositeValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
   }
-  protected get survey(): ISurvey {
-    return this.composite.survey;
-  }
-  protected get panel(): PanelModel {
-    return this.composite.contentPanel;
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    const cq = <QuestionCompositeModel>this.question;
+    if (path.length > 0) {
+      const isCompPrefix = path[0].name === settings.expressionVariables.composite;
+      if (isCompPrefix || !isRoot) {
+        if (isCompPrefix) {
+          path.shift();
+        }
+        const res = new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index, createObjects);
+        if (res && res.isFound) return res;
+      }
+    }
+    return super.getValue(path, isRoot, index, createObjects);
   }
 }
 
 export class QuestionCompositeModel extends QuestionCustomModelBase {
-  public static ItemVariableName = "composite";
   private panelWrapper: PanelModel;
-  private textProcessing: QuestionCompositeTextProcessor;
+  private textProcessing: TextContextProcessor;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name, customQuestion);
-    this.textProcessing = new QuestionCompositeTextProcessor(
-      this,
-      QuestionCompositeModel.ItemVariableName
-    );
+    this.textProcessing = new TextContextProcessor(this);
   }
   protected createWrapper(): void {
     this.panelWrapper = this.createPanel();
@@ -1215,18 +1217,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return res;
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     if (!!this.contentPanel) {
-      var oldComposite = values[QuestionCompositeModel.ItemVariableName];
-      values[
-        QuestionCompositeModel.ItemVariableName
-      ] = this.contentPanel.getValue();
-      this.contentPanel.runCondition(values, properties);
-      delete values[QuestionCompositeModel.ItemVariableName];
-      if (!!oldComposite) {
-        values[QuestionCompositeModel.ItemVariableName] = oldComposite;
-      }
+      this.contentPanel.runCondition(properties);
     }
   }
   onSurveyValueChanged(newValue: any): void {
@@ -1261,7 +1255,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
-    this.runPanelTriggers(QuestionCompositeModel.ItemVariableName + "." + name, newValue);
+    this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
   }
   setComment(name: string, newValue: string, locNotification: any): any {
     let val = this.getUnbindValue(this.value);
@@ -1296,15 +1290,6 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         q.runTriggers(name, value);
       });
     }
-  }
-  getFilteredValues(): any {
-    const values = !!this.data ? this.data.getFilteredValues() : {};
-    if (!!this.contentPanel) {
-      values[
-        QuestionCompositeModel.ItemVariableName
-      ] = this.contentPanel.getValue();
-    }
-    return values;
   }
   private updateValueCoreWithPanelValue(): boolean {
     const panelValue = this.getContentPanelValue();
@@ -1389,6 +1374,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
     this.settingNewValue = oldSettingNewValue;
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new CompositeValueGetterContext(this);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return super.getContentDisplayValueCore(keyAsText, value, <any>this.contentPanel);

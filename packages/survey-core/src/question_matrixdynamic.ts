@@ -1,11 +1,12 @@
 import { Serializer } from "./jsonobject";
 import { Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
-import { Question } from "./question";
+import { Question, QuestionValueGetterContext } from "./question";
 import {
   QuestionMatrixDropdownModelBase,
   MatrixDropdownRowModelBase,
-  IMatrixDropdownData
+  IMatrixDropdownData,
+  MatrixSingleInputLocOwner
 } from "./question_matrixdropdownbase";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
@@ -19,6 +20,25 @@ import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownre
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
+import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+
+export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
+  constructor (protected question: Question) {
+    super(question);
+  }
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    if (index > -1) {
+      const md = <QuestionMatrixDynamicModel>this.question;
+      const rows = md.allRows;
+      if (index >= 0 && index < rows.length) {
+        return rows[index].getValueGetterContext().getValue(path, false, index, createObjects);
+      }
+      return { isFound: false, value: undefined, context: this };
+    }
+    return super.getValue(path, isRoot, index, createObjects);
+  }
+}
 
 export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements IShortcutText {
   private dragOrClickHelper: DragOrClickHelper;
@@ -282,7 +302,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.generatedVisibleRows.push(newRow);
         this.onMatrixRowCreated(newRow);
       }
-      this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.runCondition(this.getDataFilteredProperties());
     }
     this.onRowsChanged();
   }
@@ -567,11 +587,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     if (this.data) {
-      this.runCellsCondition(
-        this.getDataFilteredValues(),
-        this.getDataFilteredProperties()
-      );
-      const rows = this.visibleRows;
+      this.runCellsCondition(this.getDataFilteredProperties());
+      const rows = this.generatedVisibleRows;
       if (this.isValueEmpty(defaultValue) && rows.length > 0) {
         const row = rows[rows.length - 1];
         if (!this.isValueEmpty(row.value)) {
@@ -784,11 +801,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const items = new Array<QuestionSingleInputSummaryItem>();
     const canRemoveRows = this.canRemoveRows;
     this.visibleRows.forEach((row) => {
-      const locText = new LocalizableString(this, true, undefined, this.getSingleInputTitleTemplate());
+      const locText = new LocalizableString(new MatrixSingleInputLocOwner(this, row), true, undefined, this.getSingleInputTitleTemplate());
       locText.setJson(this.locSingleInputTitleTemplate.getJson());
-      locText.onGetTextCallback = (text: string): string => {
-        return row.getTextProcessor().processText(text, true);
-      };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editRowText"), action: () => { this.singleInputEditRow(row); } });
       const btnRemove = canRemoveRows && this.canRemoveRow(row) ?
         new Action({ locTitle: this.locRemoveRowText, action: () => { this.removeRowUI(row); } }) : undefined;
@@ -917,6 +931,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   get locEmptyRowsText(): LocalizableString {
     return this.locNoRowsText;
   }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MatrixDynamicValueGetterContext(this);
+  }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value || !Array.isArray(value)) return value;
     var values = this.getUnbindValue(value);
@@ -1043,15 +1060,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected getFilteredDataCore(): any {
     const res: any = [];
-    const val = this.createValueCopy();
-    if (!Array.isArray(val)) return res;
-    const rows = this.generatedVisibleRows;
-    for (let i = 0; i < rows.length && i < val.length; i ++) {
-      const rowVal = val[i];
-      if (rows[i].isVisible && !Helpers.isValueEmpty(rowVal)) {
-        res.push(rowVal);
+    this.generatedVisibleRows.forEach(row => {
+      if (row.isVisible && !row.isEmpty) {
+        res.push(row.filteredValue);
       }
-    }
+    });
     return res;
   }
   protected onBeforeValueChanged(val: any): void {

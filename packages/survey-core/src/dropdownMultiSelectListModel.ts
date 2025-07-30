@@ -137,7 +137,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       addedItem = id;
     }
 
-    if (addedItem) {
+    if (addedItem !== undefined && addedItem !== null) {
       let newValue = [].concat(this.question.renderedValue || []);
       newValue.push(addedItem);
       this.question.renderedValue = newValue;

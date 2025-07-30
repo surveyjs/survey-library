@@ -13,6 +13,7 @@ import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, I
 import { ExpressionRunner } from "./conditions";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
@@ -182,7 +183,7 @@ export class ComputedUpdater<T = any> {
 /**
  * A base class for all SurveyJS objects.
  */
-export class Base {
+export class Base implements IObjectValueContext {
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -362,6 +363,10 @@ export class Base {
   public getSurvey(isLive: boolean = false): ISurvey {
     return null;
   }
+  public getValueGetterContext(): IValueGetterContext {
+    const survey = <IObjectValueContext><any>this.getSurvey();
+    return !!survey ? survey.getValueGetterContext() : new VariableGetterContext({});
+  }
   /**
    * Returns `true` if the survey is being designed in Survey Creator.
    */
@@ -420,7 +425,7 @@ export class Base {
   /**
    * Returns a JSON schema that corresponds to the current survey element.
    * @param options An object with configuration options.
-   * @param {boolean} options.storeDefaults Pass `true` the JSON schema should include properties with default values.
+   * @param {boolean} options.storeDefaults Pass `true` if the JSON schema should include properties with default values.
    * @returns A JSON schema of the survey element.
    * @see fromJSON
    */
@@ -735,16 +740,13 @@ export class Base {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
   }
-  public getDataFilteredValues(): any {
-    return {};
-  }
   public getDataFilteredProperties(): any {
     return {};
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
+  protected runConditionCore(properties: HashTable<any>): void {
     if (!this.expressionInfo) return;
     for (var key in this.expressionInfo) {
-      this.runConditionItemCore(key, values, properties);
+      this.runConditionItemCore(key, properties);
     }
   }
   protected canRunConditions(): boolean {
@@ -753,9 +755,9 @@ export class Base {
   private checkConditionPropertyChanged(propName: string): void {
     if (!this.expressionInfo || !this.expressionInfo[propName]) return;
     if (!this.canRunConditions()) return;
-    this.runConditionItemCore(propName, this.getDataFilteredValues(), this.getDataFilteredProperties());
+    this.runConditionItemCore(propName, this.getDataFilteredProperties());
   }
-  private runConditionItemCore(propName: string, values: HashTable<any>, properties: HashTable<any>): void {
+  private runConditionItemCore(propName: string, properties: HashTable<any>): void {
     const info = this.expressionInfo[propName];
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
@@ -767,7 +769,7 @@ export class Base {
       };
     }
     info.runner.expression = expression;
-    info.runner.run(values, properties);
+    info.runner.runContext(this.getValueGetterContext(), properties);
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {

@@ -5,7 +5,6 @@ import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITit
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
-import { TextPreProcessorValue } from "./textPreProcessor";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
@@ -19,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { ProcessValue } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -54,16 +53,110 @@ class TriggerExpressionInfo {
   getSecondRunner: () => ExpressionRunner = () => undefined;
 }
 
+export class QuestionValueGetterContext implements IValueGetterContext {
+  constructor (protected question: Question, protected isUnwrapped?: boolean) {}
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    const expVar = settings.expressionVariables;
+    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue();
+    if (path.length > 1 && path[0].name === expVar.panel) {
+      const panel: any = this.question.parent;
+      if (panel && panel.isPanel) {
+        path.shift();
+        return new QuestionArrayGetterContext(panel.questions).getValue(path, false, index, createObjects);
+      }
+    }
+    if (!this.question.isEmpty()) {
+      let val = this.question.value;
+      if (index >= 0) {
+        if (!Array.isArray(val || index >= val.length)) return undefined;
+        val = val[index];
+      }
+      return new VariableGetterContext(val).getValue(path, false, index, createObjects);
+    }
+    return undefined;
+  }
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (!isDisplayValue) return value;
+    return this.question.getDisplayValue(true, value);
+  }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
+  getQuestion(): IQuestion { return this.question; }
+  protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
+    const survey = this.question.getSurvey();
+    if (survey) return (<any>survey).getValueGetterContext().getValue(path, false, index, false);
+    return undefined;
+  }
+  private getQuestionValue(): IValueGetterInfo {
+    const q = this.question;
+    return { isFound: true, context: this, value: q.getFilteredValue(this.isUnwrapped), requireStrictCompare: q.requireStrictCompare };
+  }
+}
+export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
+  protected abstract getIndex(): number;
+  protected abstract getQuestionData(): Question;
+  protected getValueFromBindedQuestions(path: Array<IValueGetterItem>, objValue: any): IValueGetterInfo {
+    if (typeof objValue !== "object") {
+      objValue = undefined;
+    }
+    const name = path.length === 1 ? path[0].name : "";
+    const qs = this.getQuestionsBySameValueNames();
+    for (let i = 0; i < qs.length; i++) {
+      const q = qs[i];
+      //TODO valuePropertyName
+      if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
+        return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
+      }
+      const res = q.getValueGetterContext().getValue(path, false, this.getIndex(), false);
+      if (!!res && res.isFound) return res;
+    }
+    return undefined;
+  }
+  private getQuestionsBySameValueNames(): Array<Question> {
+    const res = new Array<Question>();
+    const q = this.getQuestionData();
+    if (!q || !q.isQuestion) return res;
+    if (q.parent && q.parent.isPanel) {
+      this.fillQuestions((<PanelModel>q.parent).getQuestionsByValueName(q.getValueName()), q, res);
+    }
+    if (res.length === 0 && !!q.survey) {
+      this.fillQuestions((<any>q.survey).getQuestionsByValueName(q.getValueName()), q, res);
+    }
+    return res;
+  }
+  private fillQuestions(qs: Array<Question>, q: Question, res: Array<Question>): void {
+    qs.forEach((question) => {
+      if (question !== q) {
+        res.push(question);
+      }
+    });
+  }
+  getRootObj(): any { return this.getQuestionData(); }
+}
+export class QuestionArrayGetterContext extends ValueGetterContextCore {
+  constructor(private questions: Array<Question>) {
+    super();
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const lowName = name.toLocaleLowerCase();
+    const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
+    for (let i = 0; i < this.questions.length; i++) {
+      const q = this.questions[i];
+      const qName = q.getFilteredName().toLocaleLowerCase();
+      if (qName.toLocaleLowerCase() === lowName) {
+        res.isFound = true;
+        res.context = q.getValueGetterContext(qName.endsWith(unWrappedNameSuffix));
+        break;
+      }
+    }
+  }
+}
+
 /**
  * A base class for all questions.
  */
 export class Question extends SurveyElement<Question>
   implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
-  private static TextPreprocessorValuesMap = {
-    title: "processedTitle",
-    require: "requiredMark",
-  };
   private static questionCounter = 100;
   private static getQuestionId(): string {
     return "sq_" + Question.questionCounter++;
@@ -444,7 +537,7 @@ export class Question extends SurveyElement<Question>
    * @see visibleIf
    */
   public get visible(): boolean {
-    return this.getPropertyValue("visible", true);
+    return this.getPropertyValue("visible");
   }
   public set visible(val: boolean) {
     if (val == this.visible) return;
@@ -646,7 +739,7 @@ export class Question extends SurveyElement<Question>
       this.clearValue();
     } else {
       this.ensureSetValueExpressionRunner();
-      this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      this.setValueExpressionRunner.runContext(this.getValueGetterContext(), this.getDataFilteredProperties());
     }
   }
   private getSetValueExpressionRunner(): ExpressionRunner {
@@ -681,7 +774,7 @@ export class Question extends SurveyElement<Question>
       info.doComplete();
       info.isRunning = false;
     } else {
-      info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+      info.runner.runContext(this.getValueGetterContext(), this.getDataFilteredProperties());
     }
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
@@ -702,7 +795,10 @@ export class Question extends SurveyElement<Question>
       if (runner.hasFunction()) return "func";
       return "const";
     }
-    return new ProcessValue().isAnyKeyChanged(keys, vars) ? "var" : "";
+    return new ValueGetter().isAnyKeyChanged(keys, vars) ? "var" : "";
+  }
+  public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
+    return new QuestionValueGetterContext(this, isUnwrapped);
   }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
@@ -717,10 +813,7 @@ export class Question extends SurveyElement<Question>
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
       if (!this.isDesignMode) {
-        this.runCondition(
-          this.getDataFilteredValues(),
-          this.getDataFilteredProperties()
-        );
+        this.runCondition(this.getDataFilteredProperties());
       }
       this.locStrsChanged();
     }
@@ -1403,15 +1496,11 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get isContainer(): boolean { return false; }
-  protected updateCommentElements(): void {
-  }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
       if (event.target) {
         this.comment = event.target.value;
       }
-    } else {
-      this.updateCommentElements();
     }
   }
   public onCommentChange(event: any): void {
@@ -1438,7 +1527,6 @@ export class Question extends SurveyElement<Question>
         const commentEl = el?.querySelector(`#${id}`);
         if (commentEl)this.commentElements.push(commentEl as HTMLElement);
       });
-      this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
   }
@@ -1797,15 +1885,6 @@ export class Question extends SurveyElement<Question>
   protected getFirstErrorInputElementId(): string {
     return this.getFirstInputElementId();
   }
-  protected getProcessedTextValue(textValue: TextPreProcessorValue): void {
-    var name = textValue.name.toLocaleLowerCase();
-    textValue.isExists =
-      Object.keys(Question.TextPreprocessorValuesMap).indexOf(name) !== -1 ||
-      (<any>this)[textValue.name] !== undefined;
-    textValue.value = (<any>this)[
-      (<any>Question.TextPreprocessorValuesMap)[name] || textValue.name
-    ];
-  }
   public supportComment(): boolean {
     const prop = this.getPropertyByName("showCommentArea");
     return !prop || prop.visible;
@@ -1931,14 +2010,14 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("enableIf", val);
   }
   public surveyChoiceItemVisibilityChange(): void { }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+  public runCondition(properties: HashTable<any>): void {
     if (this.isDesignMode) return;
     if (!properties) properties = {};
     properties["question"] = this;
-    this.runConditionCore(values, properties);
+    this.runConditionCore(properties);
     if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
-      this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
+      this.runDefaultValueExpression(this.defaultValueRunner, properties);
     }
   }
   public get isInDesignMode(): boolean {
@@ -2073,7 +2152,7 @@ export class Question extends SurveyElement<Question>
     this.setNewValue(newValue);
   }
   public get hasFilteredValue(): boolean { return false; }
-  public getFilteredValue(): any { return this.value; }
+  public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
   public getFilteredName(): any { return this.getValueName(); }
   public get valueForSurvey(): any {
     return this.valueForSurveyCore(this.value);
@@ -2234,7 +2313,7 @@ export class Question extends SurveyElement<Question>
       this.defaultValueExpression = val.substring(1);
       return;
     }
-    this.setPropertyValue("defaultValue", this.convertDefaultValue(val));
+    this.setPropertyValue("defaultValue", this.valueToData(val));
     this.updateValueWithDefaults();
   }
   /**
@@ -2368,10 +2447,7 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("correctAnswer");
   }
   public set correctAnswer(val: any) {
-    this.setPropertyValue("correctAnswer", this.convertDefaultValue(val));
-  }
-  protected convertDefaultValue(val: any): any {
-    return val;
+    this.setPropertyValue("correctAnswer", this.valueToData(val));
   }
   /**
    * The number of quiz questions. A question counts if it is visible, has an input field, and specifies `correctAnswer`.
@@ -2461,10 +2537,14 @@ export class Question extends SurveyElement<Question>
   }
   protected setDefaultValue(): void {
     this.setDefaultValueCore((val: any): void => {
+      val = this.convertToCorrectValue(val);
       if (!this.isTwoValueEquals(this.value, val)) {
-        this.value = val;
+        this.setDefaultIntoValue(val);
       }
     });
+  }
+  protected setDefaultIntoValue(val: any): void {
+    this.value = val;
   }
   private setDefaultValueCore(func: (val: any) => void): void {
     this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
@@ -2489,13 +2569,12 @@ export class Question extends SurveyElement<Question>
     runner: ExpressionRunner,
     defaultValue: any,
     setFunc: (val: any) => void,
-    values: HashTable<any> = null,
     properties: HashTable<any> = null
   ): void {
     const func = (val: any) => {
       this.runExpressionSetValueCore(val, setFunc);
     };
-    if (!this.runDefaultValueExpression(runner, values, properties, func)) {
+    if (!this.runDefaultValueExpression(runner, properties, func)) {
       func(defaultValue);
     }
   }
@@ -2520,15 +2599,13 @@ export class Question extends SurveyElement<Question>
   protected finishSetValueOnExpression(): void {
     this.survey?.finishSetValueOnExpression();
   }
-  private runDefaultValueExpression(runner: ExpressionRunner, values: HashTable<any> = null,
-    properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
+  private runDefaultValueExpression(runner: ExpressionRunner, properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
     if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val);
       };
     }
-    if (!values) values = this.defaultValueExpression ? this.data.getFilteredValues() : {};
     if (!properties) {
       properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
       properties["question"] = this;
@@ -2540,7 +2617,7 @@ export class Question extends SurveyElement<Question>
         setFunc(res);
         this.isChangingViaDefaultValue = false;
       };
-      runner.run(values, properties);
+      runner.runContext(this.getValueGetterContext(), properties);
     }
     return true;
   }
@@ -2563,8 +2640,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     if (this.comment == newValue) return;
-    this.setQuestionComment(newValue);
-    this.updateCommentElements();
+    this.setNewComment(newValue);
   }
 
   public getCommentAreaCss(isOther: boolean = false): string {
@@ -2572,14 +2648,12 @@ export class Question extends SurveyElement<Question>
       .append("form-group", isOther)
       .append(this.cssClasses.formGroup, !isOther)
       .append(this.cssClasses.commentArea)
+      .append(this.cssClasses.otherArea, isOther)
       .toString();
   }
 
   protected getQuestionComment(): string {
     return this.questionComment;
-  }
-  protected setQuestionComment(newValue: string): void {
-    this.setNewComment(newValue);
   }
   /**
    * Returns `true` if the question value is an empty string, array, or object or if it equals `undefined` or `null`.
@@ -3299,14 +3373,19 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
-      return this.ariaDescriptionId;
-    } else {
-      return null;
+    let result = null;
+
+    if (this.hasCssError()) {
+      result = this.id + "_errors";
+    } else if (this.hasTitle && !this.parentQuestion && this.hasDescription && this.descriptionLocation !== "hidden") {
+      result = this.ariaDescriptionId;
     }
+
+    return result;
   }
   public get a11y_input_ariaErrormessage(): string {
-    return this.hasCssError() ? this.id + "_errors" : null;
+    return null;
+    //return this.hasCssError() ? this.id + "_errors" : null; // due to https://cerovac.com/a11y/2024/06/support-for-aria-errormessage-is-getting-better-but-still-not-there-yet/
   }
   public get a11y_input_ariaExpanded(): "true" | "false" {
     return this.getPropertyValue("ariaExpanded");
@@ -3466,7 +3545,7 @@ Serializer.addClass("question", [
     },
   },
   { name: "renderAs", default: "default", visible: false },
-  { name: "showCommentArea", visible: false, default: false, alternativeName: "hasComment", category: "general" },
+  { name: "showCommentArea:switch", visible: false, default: false, alternativeName: "hasComment", category: "general" },
   {
     name: "commentText",
     dependsOn: "showCommentArea",

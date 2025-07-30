@@ -441,3 +441,14 @@ QUnit.test("supports survey width scale", function (assert) {
   assert.equal(question.renderedImageWidth, 112.5);
   assert.equal(question.renderedImageHeight, 75);
 });
+
+QUnit.test("inputRequiredAttribute", function (assert) {
+  const q = new QuestionImagePickerModel("q");
+  assert.equal(q.inputRequiredAttribute, null);
+  q.isRequired = true;
+  assert.equal(q.inputRequiredAttribute, null);
+  q.multiSelect = true;
+  assert.equal(q.inputRequiredAttribute, true);
+  q.isRequired = false;
+  assert.equal(q.inputRequiredAttribute, false);
+});

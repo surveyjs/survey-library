@@ -1642,6 +1642,22 @@ QUnit.test("QuestionFile stop playing video on going to another page or complete
   survey.doComplete();
   assert.equal(q1.isPlayingVideo, false, "complete survey");
 });
+QUnit.test("QuestionFile stop playing video when question's html element is destroyed", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q2" }] },
+      { elements: [{ type: "file", name: "q1" }] },
+      { elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.equal(q1.isPlayingVideo, true);
+  q1.beforeDestroyQuestionElement(null as any);
+  survey.nextPage();
+  assert.equal(q1.isPlayingVideo, false);
+});
 
 QUnit.test("QuestionFile check actions container", function (assert) {
   const survey = new SurveyModel({

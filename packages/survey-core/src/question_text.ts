@@ -191,10 +191,10 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this.isTextInput) return null;
     return super.getMaxLength();
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
     if (!!this.minValueExpression || !!this.maxValueExpression) {
-      this.setRenderedMinMax(values, properties);
+      this.setRenderedMinMax(properties);
     }
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -374,6 +374,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     this.value = value;
   }
+  public getFilteredValue(): any {
+    return this.getExpressionValue(this.value);
+  }
+  //TODO remove this method in the future
   getExpressionValue(val: any): any {
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);
@@ -425,50 +429,49 @@ export class QuestionTextModel extends QuestionTextBase {
   private dateValidationMessage: string;
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (isOnValueChanged) return;
-    if (this.isValueLessMin) {
-      const minError = new CustomError(
-        this.getMinMaxErrorText(
-          this.minErrorText,
-          this.getCalculatedMinMax(this.renderedMin)
-        ),
-        this
-      );
-      minError.onUpdateErrorTextCallback = err => {
-        err.text = this.getMinMaxErrorText(
-          this.minErrorText,
-          this.getCalculatedMinMax(this.renderedMin)
+    const isInputUpdate = this.getIsInputTextUpdate();
+    if (isOnValueChanged && isInputUpdate) return;
+    if (!this.isOnValueChanged) {
+      if (this.isValueLessMin) {
+        const minError = new CustomError(
+          this.getMinMaxErrorText(
+            this.minErrorText,
+            this.getCalculatedMinMax(this.renderedMin)
+          ),
+          this
         );
-      };
-      errors.push(minError);
-    }
-    if (this.isValueGreaterMax) {
-      const maxError = new CustomError(
-        this.getMinMaxErrorText(
-          this.maxErrorText,
-          this.getCalculatedMinMax(this.renderedMax)
-        ),
-        this
-      );
-      maxError.onUpdateErrorTextCallback = err => {
-        err.text = this.getMinMaxErrorText(
-          this.maxErrorText,
-          this.getCalculatedMinMax(this.renderedMax)
+        minError.onUpdateErrorTextCallback = err => {
+          err.text = this.getMinMaxErrorText(
+            this.minErrorText,
+            this.getCalculatedMinMax(this.renderedMin)
+          );
+        };
+        errors.push(minError);
+      }
+      if (this.isValueGreaterMax) {
+        const maxError = new CustomError(
+          this.getMinMaxErrorText(
+            this.maxErrorText,
+            this.getCalculatedMinMax(this.renderedMax)
+          ),
+          this
         );
-      };
-      errors.push(maxError);
+        maxError.onUpdateErrorTextCallback = err => {
+          err.text = this.getMinMaxErrorText(
+            this.maxErrorText,
+            this.getCalculatedMinMax(this.renderedMax)
+          );
+        };
+        errors.push(maxError);
+      }
+      if (!!this.dateValidationMessage) {
+        errors.push(new CustomError(this.dateValidationMessage, this));
+      }
     }
-    if (!!this.dateValidationMessage) {
-      errors.push(new CustomError(this.dateValidationMessage, this));
-    }
-
-    const valName = this.getValidatorTitle();
-    const emailValidator = new EmailValidator();
-    emailValidator.errorOwner = this;
-    if (
-      this.inputType === "email" &&
-      !this.validators.some((v) => v.getType() === "emailvalidator")
-    ) {
+    if (this.inputType === "email" && !this.validators.some((v) => v.getType() === "emailvalidator")) {
+      const valName = this.getValidatorTitle();
+      const emailValidator = new EmailValidator();
+      emailValidator.errorOwner = this;
       const validateResult = emailValidator.validate(this.value, valName);
 
       if (!!validateResult && !!validateResult.error) {
@@ -522,10 +525,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (this.isValueEmpty(minMax)) return minMax;
     return this.isDateInputType ? this.createDate(minMax) : minMax;
   }
-  private setRenderedMinMax(
-    values: HashTable<any> = null,
-    properties: HashTable<any> = null
-  ) {
+  private setRenderedMinMax(properties: HashTable<any> = null) {
     this.minValueRunner = this.getDefaultRunner(this.minValueRunner, this.minValueExpression);
     this.setValueAndRunExpression(
       this.minValueRunner,
@@ -536,7 +536,6 @@ export class QuestionTextModel extends QuestionTextBase {
         }
         this.setPropertyValue("renderedMin", val);
       },
-      values,
       properties
     );
     this.maxValueRunner = this.getDefaultRunner(this.maxValueRunner, this.maxValueExpression);
@@ -549,7 +548,6 @@ export class QuestionTextModel extends QuestionTextBase {
         }
         this.setPropertyValue("renderedMax", val);
       },
-      values,
       properties
     );
   }

@@ -35,8 +35,9 @@ export var surveyLocalization = {
   },
   getCorrectLocaleName(loc: string): string {
     if (loc === "cz") loc = "cs";
-    if (loc === "ua") loc = "uk";
+    if (loc === "gr") loc = "el";
     if (loc === "rs") loc = "sr";
+    if (loc === "ua") loc = "uk";
     return loc;
   },
   getLocaleStrings(loc: string): any {

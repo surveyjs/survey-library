@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { SurveyQuestionOtherValueItem } from "./reactquestion_comment";
+import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { Base, ItemValue, SurveyModel, QuestionCheckboxModel } from "survey-core";
@@ -36,7 +36,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
           ? this.getColumnedBody(cssClasses)
           : this.getBody(cssClasses)}
         {this.getFooter()}
-        {this.question.isOtherSelected ? this.renderOther() : null}
       </fieldset>
     );
   }
@@ -99,7 +98,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     var renderedItems: Array<React.JSX.Element> = [];
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
-      var key = "item" + item.value;
       var renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i);
       if (!!renderedItem) {
         renderedItems.push(renderedItem);
@@ -109,19 +107,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   }
   protected get textStyle(): any {
     return null;
-  }
-  protected renderOther(): React.JSX.Element {
-    let cssClasses = this.question.cssClasses;
-    return (
-      <div className={this.question.getCommentAreaCss(true)}>
-        <SurveyQuestionOtherValueItem
-          question={this.question}
-          otherCss={cssClasses.other}
-          cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
-        />
-      </div>
-    );
   }
   protected renderItem(
     item: any,
@@ -204,11 +189,24 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     return !!this.item && !!this.question;
   }
   protected renderElement(): React.JSX.Element {
-    var isChecked = this.question.isItemSelected(this.item);
-    return this.renderCheckbox(isChecked, null);
+    const isChecked = this.question.isItemSelected(this.item);
+    return <>
+      {this.renderCheckbox(isChecked, null)}
+      {this.renderComment()}
+    </>;
   }
   protected get inputStyle(): any {
     return null;//{ marginRight: "3px" };
+  }
+  protected renderComment(): React.JSX.Element | null {
+    if (!this.item.isCommentShowing) return null;
+    return <div className={this.question.getCommentAreaCss(true)}>
+      <SurveyQuestionCommentValueItem
+        question={this.question}
+        item={this.item}
+        cssClasses={this.question.cssClasses}
+      />
+    </div>;
   }
   protected renderCheckbox(
     isChecked: boolean,

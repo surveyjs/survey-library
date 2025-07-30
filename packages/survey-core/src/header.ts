@@ -125,7 +125,8 @@ export class Cover extends Base {
   }
   private updateContentClasses(): void {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
-    this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.width;
+    const useSurveyWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static";
+    this.maxWidth = useSurveyWidth ? this.survey.width : undefined;
     if (!!this.maxWidth) {
       const maxWidthString = this.maxWidth.toString();
       if (maxWidthString.indexOf("px") === -1 && maxWidthString.indexOf("%") === -1) {
@@ -134,7 +135,7 @@ export class Cover extends Base {
     }
     this.contentClasses = new CssClassBuilder()
       .append("sv-header__content")
-      .append("sv-header__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
+      .append("sv-header__content--static", useSurveyWidth)
       .append("sv-header__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
       .toString();
   }

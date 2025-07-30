@@ -13,6 +13,31 @@ import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+
+export class ItemValueGetterContext implements IValueGetterContext {
+  constructor (protected item: ItemValue) {}
+  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    if (path.length === 1) {
+      const name = path[0].name;
+      if (name === "item" || name === "choice") return { isFound: true, value: this.item.value, context: this };
+    }
+    const owner: any = this.item.locOwner;
+    if (owner && owner.getValueGetterContext) {
+      return owner.getValueGetterContext().getValue(path, isRoot, index, createObjects);
+    }
+    return undefined;
+  }
+  getRootObj(): IObjectValueContext {
+    const owner: any = this.item.locOwner;
+    if (owner && owner.getValueGetterContext) return owner;
+    return <any>this.item.getSurvey();
+  }
+  getTextValue(name: string, value: any, isDisplayValue: boolean): string {
+    if (isDisplayValue && value === this.item.value) return this.item.textOrHtml;
+    return value !== undefined && value !== null ? value.toString() : "";
+  }
+}
 
 /**
  * Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
@@ -92,7 +117,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     items: Array<ItemValue>,
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     useItemExpression: boolean = true,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
@@ -101,7 +125,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       items,
       filteredItems,
       runner,
-      values,
       properties,
       true,
       useItemExpression,
@@ -111,7 +134,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public static runEnabledConditionsForItems(
     items: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
@@ -119,7 +141,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       items,
       null,
       runner,
-      values,
       properties,
       false,
       true,
@@ -130,22 +151,14 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     items: Array<ItemValue>,
     filteredItems: Array<ItemValue>,
     runner: ConditionRunner,
-    values: any,
     properties: any,
     isVisible: boolean,
     useItemExpression: boolean = true,
     onItemCallBack?: (item: ItemValue, val: boolean) => boolean
   ): boolean {
-    if (!values) {
-      values = {};
-    }
-    var itemValue = values["item"];
-    var choiceValue = values["choice"];
     var hasChanded = false;
     for (var i = 0; i < items.length; i++) {
       var item = items[i];
-      values["item"] = item.value;
-      values["choice"] = item.value;
       var itemRunner =
         useItemExpression && !!item.getConditionRunner
           ? item.getConditionRunner(isVisible)
@@ -155,7 +168,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       }
       var newValue = true;
       if (itemRunner) {
-        newValue = itemRunner.run(values, properties);
+        newValue = itemRunner.runContext(item.getValueGetterContext(), properties);
       }
       if (!!onItemCallBack) {
         newValue = onItemCallBack(item, newValue);
@@ -172,16 +185,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
           if (!!item.setIsEnabled) item.setIsEnabled(newValue);
         }
       }
-    }
-    if (itemValue) {
-      values["item"] = itemValue;
-    } else {
-      delete values["item"];
-    }
-    if (choiceValue) {
-      values["choice"] = choiceValue;
-    } else {
-      delete values["choice"];
     }
     return hasChanded;
   }
@@ -221,6 +224,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (name === "text") return this.locText;
     return super.getLocalizableString(name);
   }
+  public getValueGetterContext(): IValueGetterContext {
+    return new ItemValueGetterContext(this);
+  }
   public isGhost: boolean;
   protected get isInternal(): boolean {
     return this.isGhost === true;
@@ -258,8 +264,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public set locOwner(value: ILocalizableOwner) {
     this._locOwner = value;
+    this.onLocOwnerChanged();
   }
-
+  protected onLocOwnerChanged(): void {}
   public get value(): any {
     return this.getPropertyValue("value");
   }
@@ -289,6 +296,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected getCorrectValue(value: any): any {
     return value;
+  }
+  public get normalizedId(): string {
+    const val = !Helpers.isValueEmpty(this.value) ? this.value.toString() : "";
+    return val.replace(/[^a-zA-Z0-9_]/g, "_");
   }
   public get hasText(): boolean {
     return this.pureText ? true : false;
@@ -345,11 +356,18 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     var jsoObj = new JsonObject();
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
-      if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
-        Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) continue;
-      jsoObj.valueToJson(this, res, prop);
+      if (this.canAddPpropertyToJSON(prop)) {
+        jsoObj.valueToJson(this, res, prop);
+      }
     }
     return res;
+  }
+  protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
+    if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
+      Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) {
+      return false;
+    }
+    return true;
   }
   public setData(value: any, isNewItem?: boolean): void {
     if (Helpers.isValueEmpty(value)) return;

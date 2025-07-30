@@ -23,6 +23,27 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore } from "./conditionProcessValue";
+
+export class MultipleTextValueGetterContext extends ValueGetterContextCore {
+  constructor (protected question: QuestionMultipleTextModel) {
+    super();
+  }
+  getRootObj(): IObjectValueContext { return <any>this.question.data; }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const items = this.question.items;
+    name = name.toLocaleLowerCase();
+    for (let i = 0; i < items.length; i++) {
+      const q = items[i].question;
+      const qName = q.getValueName();
+      if (qName.toLocaleLowerCase() === name) {
+        res.isFound = true;
+        res.context = q.getValueGetterContext();
+        return;
+      }
+    }
+  }
+}
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -385,9 +406,6 @@ export class MultipleTextItemModel extends Base
     if (this.data) return this.data.getAllValues();
     return this.value;
   }
-  getFilteredValues(): any {
-    return this.getAllValues();
-  }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };
   }
@@ -405,9 +423,6 @@ export class MultipleTextItemModel extends Base
   }
   set validatedValue(val: any) {
     this.value = val;
-  }
-  getDataFilteredValues(): any {
-    return this.getFilteredValues();
   }
   getDataFilteredProperties(): any {
     return this.getFilteredProperties();
@@ -506,7 +521,7 @@ export class QuestionMultipleTextModel extends Question
    * ```js
    * {
    *   "name": any, // A unique value used to identify an input item and save an item value to survey results.
-   *   "title": String // An item caption. When `title` is undefined, `name` is used. This property supports Markdown.
+   *   "title": string // An item caption. When `title` is undefined, `name` is used. This property supports Markdown.
    * }
    * ```
    *
@@ -715,9 +730,9 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
-  protected runConditionCore(values: HashTable<any>, properties: HashTable<any>): void {
-    super.runConditionCore(values, properties);
-    this.items.forEach(item => item.editor.runCondition(values, properties));
+  protected runConditionCore(properties: HashTable<any>): void {
+    super.runConditionCore(properties);
+    this.items.forEach(item => item.editor.runCondition(properties));
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -783,6 +798,9 @@ export class QuestionMultipleTextModel extends Question
       elements.push(this.items[i].editor);
     }
     return SurveyElement.getProgressInfoByElements(elements, this.isRequired);
+  }
+  public getValueGetterContext(): IValueGetterContext {
+    return new MultipleTextValueGetterContext(this);
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     if (!value) return value;

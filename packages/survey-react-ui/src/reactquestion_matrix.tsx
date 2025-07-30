@@ -183,8 +183,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     return tds;
   }
   cellClick(row: any, column: any): void {
-    row.value = column.value;
-    this.setState({ value: this.row.value });
+    row.cellClick(column);
+    this.setState({ value: row.value });
   }
 }
 
@@ -198,6 +198,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     if (!!this.props.cellChanged) {
       this.props.cellChanged();
     }
+    this.setState({ value: this.row.isChecked(this.column) });
   }
   handleOnMouseDown(event: any): void {
     this.question.onMouseDown();
@@ -218,22 +219,20 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     return !!this.question && !!this.row;
   }
   protected renderElement(): React.JSX.Element {
-    const isChecked = this.row.value == this.column.value;
+    const isChecked = this.row.isChecked(this.column);
     const inputId = this.question.inputId + "_" + this.row.name + "_" + this.columnIndex;
     const itemClass = this.question.getItemClass(this.row, this.column);
+    const itemSvgIcon = this.question.getItemSvgIcon(this.row, this.column);
     const mobileSpan = this.question.isMobile ?
       (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
       : undefined;
     return (<label onMouseDown={this.handleOnMouseDown} className={itemClass}>
       {this.renderInput(inputId, isChecked)}
-      <span className={this.question.cssClasses.materialDecorator}>
-        {this.question.itemSvgIcon ?
-          <svg
-            className={this.cssClasses.itemDecorator}
-          >
-            <use xlinkHref={this.question.itemSvgIcon}></use>
-          </svg> :
-          null
+      <span className={this.question.cssMaterialDecorator}>
+        {itemSvgIcon ?
+          <svg className={this.question.cssItemDecorator}>
+            <use xlinkHref={itemSvgIcon}></use>
+          </svg> : null
         }
       </span>
       {mobileSpan}
@@ -242,8 +241,8 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
   protected renderInput(inputId: string, isChecked: boolean): React.JSX.Element {
     return (<input
       id={inputId}
-      type="radio"
-      className={this.cssClasses.itemValue}
+      type={this.question.checkType}
+      className={this.question.cssItemValue}
       name={this.row.fullName}
       value={this.column.value}
       disabled={this.row.isDisabledAttr}

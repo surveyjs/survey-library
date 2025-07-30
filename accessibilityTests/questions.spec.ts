@@ -53,5 +53,20 @@ frameworks.forEach((framework) => {
       });
       await checkA11y(page, axeContext, { axeOptions });
     });
+    test("axe check errors", async ({ page }) => {
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            type: "text",
+            "isRequired": true,
+            name: "text"
+          },
+        ]
+      });
+      await page.evaluate(() => {
+        (window as any).survey.hasErrors();
+      });
+      await checkA11y(page, axeContext, { axeOptions });
+    });
   });
 });

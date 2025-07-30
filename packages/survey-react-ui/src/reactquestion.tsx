@@ -213,7 +213,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         <SurveyQuestionCommentItem
           question={this.question}
           cssClasses={cssClasses}
-          otherCss={cssClasses.other}
           isDisplayMode={this.question.isInputReadOnly}
         />
       </div>
@@ -273,8 +272,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
 
     return (
       <div
-        role="alert"
-        aria-live="polite"
         className={this.element.cssError}
         id={this.id}
       >

@@ -1,7 +1,7 @@
 import { Helpers, createDate } from "../src/helpers";
 import { EmailValidator } from "../src/validator";
 import { SurveyModel } from "../src/survey";
-import { ProcessValue } from "../src/conditionProcessValue";
+import { ValueGetter, VariableGetterContext } from "../src/conditionProcessValue";
 import { Base } from "../src/base";
 import { property } from "../src/jsonobject";
 import { settings } from "../src/settings";
@@ -138,35 +138,20 @@ QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function
 });
 
 QUnit.test("Return correct value for array.length", function(assert) {
-  var process = new ProcessValue();
-  assert.equal(
-    process.getValue("ar.length", { ar: [1, 2] }),
-    2,
-    "There are two values in array"
-  );
-  assert.equal(
-    process.getValue("ar.length", { ar: [] }),
-    0,
-    "Return 0 for empty array"
-  );
-  assert.equal(
-    process.getValue("ar.length", { ar: null }),
-    0,
-    "Return 0 for null value"
-  );
-  assert.equal(
-    process.getValue("ar.length", {}),
-    0,
-    "Return 0 for undefined array"
-  );
+  var valueGetter = new ValueGetter();
+  assert.equal(valueGetter.getValueInfo({ name: "ar.length", context: new VariableGetterContext({ ar: [1, 2] }) }).value,
+    2, "There are two values in array");
+  assert.equal(valueGetter.getValueInfo({ name: "ar.length", context: new VariableGetterContext({ ar: [] }) }).value,
+    0, "Return 0 for empty array");
+  assert.equal(valueGetter.getValueInfo({ name: "ar.length", context: new VariableGetterContext({ ar: null }) }).value,
+    0, "Return 0 for null value");
+  assert.equal(valueGetter.getValueInfo({ name: "ar.length", context: new VariableGetterContext({}) }).value,
+    0, "Return 0 for undefined array");
   //Test for bug: #1243
-  assert.equal(process.getValue("region", {}), null, "Return null string");
+  assert.equal(valueGetter.getValueInfo({ name: "region", context: new VariableGetterContext({}) }).value, null, "Return null string");
   //Test for bug: https://surveyjs.answerdesk.io/ticket/details/t2558
-  assert.equal(
-    process.getValue("a.b.c.D", { "a.b": 1, "a.b.c.D": 2 }),
-    2,
-    "Ignore a.b"
-  );
+  assert.equal(valueGetter.getValueInfo({ name: "a.b.c.D", context: new VariableGetterContext({ "a.b": 1, "a.b.c.D": 2 }) }).value,
+    2, "Ignore a.b");
 });
 
 QUnit.test("isConvertibleToNumber", function(assert) {
@@ -516,11 +501,6 @@ QUnit.test("Check compareStrings function", function(assert) {
   };
   assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
-});
-QUnit.test("convertArrayValueToObject function", function(assert) {
-  assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");
-  assert.deepEqual(Helpers.convertArrayObjectToValue([{ name: 1 }, { name: 2 }], "name"), [1, 2], "#2");
-  assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name", [{ name: 1, test: 2 }]), [{ name: 1, test: 2 }, { name: 2 }], "#1");
 });
 QUnit.test("getUnbindValue function", function(assert) {
   assert.deepEqual(Helpers.getUnbindValue(1), 1, "do not convert number");

@@ -453,7 +453,7 @@ QUnit.test("storeOthersAsComment is false", assert => {
 
   question.renderedValue = ["other"];
   assert.deepEqual(question.value, ["other"], "#1");
-  question.comment = "text1";
+  question.otherValue = "text1";
   assert.deepEqual(question.value, ["text1"], "#2");
   assert.deepEqual(survey.data, { q1: ["text1"] }, "#3");
 });
@@ -492,7 +492,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
 
   question.renderedValue = ["other"];
   assert.deepEqual(question.value, ["other"], "#1");
-  question.comment = "text1";
+  question.otherValue = "text1";
   assert.deepEqual(question.value, ["text1"], "#2");
   assert.deepEqual(survey.data, { q1: ["text1"] }, "#3");
 });
@@ -2444,4 +2444,48 @@ QUnit.test("lazy loading + isReady", assert => {
     assert.equal(question.isReady, true, "#2");
     done();
   });
+});
+QUnit.test("Tagbox doesn't support showCommentArea functionality", assert => {
+  const survey = new SurveyModel(
+    { questions: [{ "type": "tagbox", "name": "q1", "choices": [{ value: 1, showCommentArea: true }] }] });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 1, "#1");
+  assert.equal(question.choices[0].showCommentArea, false, "#1");
+  question.choices[0].showCommentArea = true;
+  assert.equal(question.choices[0].showCommentArea, false, "#2");
+  assert.equal(question.otherItem.showCommentArea, true, "#3");
+});
+QUnit.test("Tagbox otherItem works correctly", assert => {
+  const survey = new SurveyModel(
+    { questions: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.otherItem.isCommentShowing, false, "#1");
+  question.renderedValue = [1, "other"];
+  assert.equal(question.otherItem.isCommentShowing, true, "#2");
+  question.renderedValue = [2];
+  assert.equal(question.otherItem.isCommentShowing, false, "#3");
+});
+
+QUnit.test("TagBox becomes unresponsive when 0 is selected", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          { "type": "tagbox", "name": "question1", "choices": [0, 1, 2] }
+        ]
+      }
+    ]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  assert.equal(list.actions.length, 3);
+  assert.deepEqual(question.value, [], "#1");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 0, "#2");
+
+  list.onItemClick(list.actions[0]);
+  assert.deepEqual(question.value, [0], "#3");
+  assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1, "#4");
 });

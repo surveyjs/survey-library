@@ -319,6 +319,10 @@
               "Title": "IHeader"
             },
             {
+              "Name": "IDialogOptions",
+              "Title": "IDialogOptions"
+            },
+            {
               "Name": "ICustomQuestionTypeConfiguration",
               "Title": "ICustomQuestionTypeConfiguration"
             }

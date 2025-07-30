@@ -351,8 +351,8 @@ export class QuestionMatrixModel
    *
    * Possible values:
    *
-   * - `radio` (default)
-   * - `checkbox`
+   * - `"radio"` (default)
+   * - `"checkbox"`
    *
    * [Radio-Button Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
    *

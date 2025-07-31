@@ -393,11 +393,16 @@
             "type": "boolean"
         },
         "showPreviewBeforeComplete": {
-            "type": "string",
+            "type": [
+                "string",
+                "boolean"
+            ],
             "enum": [
                 "noPreview",
                 "showAllQuestions",
-                "showAnsweredQuestions"
+                "showAnsweredQuestions",
+                true,
+                false
             ]
         },
         "showTimerPanel": {

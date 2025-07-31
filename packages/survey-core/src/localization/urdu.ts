@@ -13,27 +13,27 @@ export var urduSurveyStrings = {
   editText: "ترمیم",
   // "Start"
   startSurveyText: "شروع کریں",
-  //  [Auto-translated] "Please leave a comment"
+  // [Auto-translated] "Please leave a comment"
   commentText: "براہ مہربانی ایک تبصرہ چھوڑ دیں",
   // "Other (describe)"
   otherItemText: "دیگر (بیان کریں)",
   // "None"
   noneItemText: "کوئی نہیں",
-  //  [Auto-translated] "Refuse to answer"
+  // [Auto-translated] "Refuse to answer"
   refuseItemText: "جواب دینے سے انکار",
-  //  [Auto-translated] "Don't know"
+  // [Auto-translated] "Don't know"
   dontKnowItemText: "معلوم نہيں",
   // "Select All"
   selectAllItemText: "تمام منتخب کریں",
-  //  [Auto-translated] "Deselect all"
+  // [Auto-translated] "Deselect all"
   deselectAllItemText: "Deselect all",
   // "Page {0} of {1}"
   progressText: "صفحہ {0} از {1}",
-  //  [Auto-translated] "{0} of {1}"
+  // [Auto-translated] "{0} of {1}"
   indexText: "{1} کے {0}",
   // "{0} of {1}"
   panelDynamicProgressText: "ریکارڈ {0} {1}",
-  //  [Auto-translated] "Panel {panelIndex}"
+  // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: " سوالات کا جواب دیا۔ {0}/{1}",
@@ -47,9 +47,9 @@ export var urduSurveyStrings = {
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
   // "Select..."
   placeholder: "...منتخب کریں ",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   ratingOptionsCaption: "منتخب...",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "منتخب...",
   // "value"
   value: "value",
@@ -59,7 +59,7 @@ export var urduSurveyStrings = {
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
   // "Response required: answer questions in all rows."
   requiredInAllRowsError: "براہ کرم تمام قطاروں میں سوالات کے جوابات دیں۔",
-  //  [Auto-translated] "Each row must have a unique value."
+  // [Auto-translated] "Each row must have a unique value."
   eachRowUniqueError: "ہر قطار کی ایک منفرد قدر ہونی چاہئے۔",
   // "The value should be numeric."
   numericError: "اس کا جواب عدد میں ہونا چاہئے۔",
@@ -67,7 +67,7 @@ export var urduSurveyStrings = {
   minError: "عدد صفر سے کم نہیں ہونی چاہئے",
   // "The value should not be greater than {0}"
   maxError: "عدد صفر سے زیادہ نہیں ہونی چاہیے",
-  //  [Auto-translated] "Numbers are not allowed."
+  // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "نمبروں کی اجازت نہیں ہے۔",
   // "Please enter at least {0} character(s)."
   textMinLength: "براہ کرم کم از کم صفر حروف درج کریں۔",
@@ -97,7 +97,7 @@ export var urduSurveyStrings = {
   urlGetChoicesError: "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
   // "The file size should not exceed {0}."
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
-  //  [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
+  // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "فائلیں اپ لوڈ نہیں کی جا سکتیں۔ براہ کرم 'آن اپ لوڈ فائلز' ایونٹ کے لئے ایک ہینڈلر شامل کریں۔",
   // "Response required: enter another value."
   otherRequiredError: "براہ کرم دوسری عدد درج کریں۔ ",
@@ -123,7 +123,7 @@ export var urduSurveyStrings = {
   removeRow: "مٹائے",
   // "There are no rows."
   noRowsText: "کوئی قطار نہیں ہیں۔ ",
-  //  [Auto-translated] "Row {rowIndex}"
+  // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Row {rowIndex}",
   // "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
@@ -131,13 +131,13 @@ export var urduSurveyStrings = {
   addPanel: "نیا شامل کریں",
   // "Remove"
   removePanel: "مٹائے",
-  //  [Auto-translated] "Show Details"
+  // [Auto-translated] "Show Details"
   showDetails: "تفصیلات دکھائیں",
-  //  [Auto-translated] "Hide Details"
+  // [Auto-translated] "Hide Details"
   hideDetails: "تفصیلات چھپائیں",
   // "item"
   choices_Item: "آئٹم",
-  //  [Auto-translated] "Choice option"
+  // [Auto-translated] "Choice option"
   choices_Choice: "انتخاب کا اختیار",
   // "Column"
   matrix_column: "کالم۔",
@@ -151,7 +151,7 @@ export var urduSurveyStrings = {
   savingDataError: "ایک خرابی پیش آگئی اور ہم نتائج کو محفوظ نہیں کر سکے۔",
   // "The results were saved successfully!"
   savingDataSuccess: "نتائج کامیابی سے محفوظ ہو گئے۔",
-  //  [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
   savingExceedSize: "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔",
   // "Try again"
   saveAgainButton: "دوبارہ کوشش کریں",
@@ -175,17 +175,17 @@ export var urduSurveyStrings = {
   clearCaption: "صاف",
   // "Sign here"
   signaturePlaceHolder: "یہاں سائن کریں۔",
-  //  [Auto-translated] "No signature"
+  // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "کوئی دستخط نہیں",
   // "Select File"
   chooseFileCaption: "فائل منتخب کریں",
-  //  [Auto-translated] "Take Photo"
+  // [Auto-translated] "Take Photo"
   takePhotoCaption: "تصویر لیں",
-  //  [Auto-translated] "Click the button below to take a photo using the camera."
+  // [Auto-translated] "Click the button below to take a photo using the camera."
   photoPlaceholder: "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
-  //  [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
+  // [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
   fileOrPhotoPlaceholder: "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔",
-  //  [Auto-translated] "Replace file"
+  // [Auto-translated] "Replace file"
   replaceFileCaption: "فائل کو تبدیل کریں",
   // "Remove this file"
   removeFileCaption: "اس فائل کو ہٹائے۔",
@@ -203,31 +203,31 @@ export var urduSurveyStrings = {
   modalCancelButtonText: "منسوخ کریں",
   // "Apply"
   modalApplyButtonText: "درخواست دیں",
-  //  [Auto-translated] "Type to search..."
+  // [Auto-translated] "Type to search..."
   filterStringPlaceholder: "تلاش کرنے کے لئے ٹائپ کریں...",
-  //  [Auto-translated] "No data to display"
+  // [Auto-translated] "No data to display"
   emptyMessage: "ظاہر کرنے کے لئے کوئی ڈیٹا نہیں",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingPage: "لوڈنگ...",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingData: "لوڈنگ...",
-  //  [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
+  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
   noEntriesText: "ابھی تک کوئی اندراج نہیں ہے.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
-  //  [Auto-translated] "There are no entries."
+  // [Auto-translated] "There are no entries."
   noEntriesReadonlyText: "کوئی اندراج نہیں ہے.",
-  //  [Auto-translated] "New Panel"
+  // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "نیا پینل",
-  //  [Auto-translated] "More"
+  // [Auto-translated] "More"
   more: "زیادہ",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ٹھيک ہے",
-  //  [Auto-translated] "All choices are ranked"
+  // [Auto-translated] "All choices are ranked"
   selectToRankEmptyRankedAreaText: "تمام اختیارات کی درجہ بندی کی جاتی ہے",
-  //  [Auto-translated] "Drag and drop choices here to rank them"
+  // [Auto-translated] "Drag and drop choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   ok: "ٹھيک ہے",
-  //  [Auto-translated] "Cancel"
+  // [Auto-translated] "Cancel"
   cancel: "منسوخ",
   // "Create \"{0}\" item..."
   createCustomItem: "\"{0}\" آئٹم بنائیں..."

@@ -113,7 +113,6 @@ export var finnishSurveyStrings = {
   addRow: "Lisää rivi",
   // "Remove"
   removeRow: "Poista",
-  emptyRowsText: "Ei rivejä",
   // "Add new"
   addPanel: "Lisää uusi",
   // "Remove"

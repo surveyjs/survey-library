@@ -13,27 +13,27 @@ export var welshSurveyStrings = {
   editText: "Golygu",
   // "Start"
   startSurveyText: "Dechrau",
-  //  [Auto-translated] "Please leave a comment"
+  // [Auto-translated] "Please leave a comment"
   commentText: "Gadewch sylw os gwelwch yn dda",
   // "Other (describe)"
   otherItemText: "Arall (disgrifiwch)",
   // "None"
   noneItemText: "Dim",
-  //  [Auto-translated] "Refuse to answer"
+  // [Auto-translated] "Refuse to answer"
   refuseItemText: "Gwrthod ateb",
-  //  [Auto-translated] "Don't know"
+  // [Auto-translated] "Don't know"
   dontKnowItemText: "Ddim yn gwybod",
   // "Select All"
   selectAllItemText: "Dewis y Cyfan ",
-  //  [Auto-translated] "Deselect all"
+  // [Auto-translated] "Deselect all"
   deselectAllItemText: "Dad-ddethol yr holl",
   // "Page {0} of {1}"
   progressText: "Tudalen {0} o {1}",
-  //  [Auto-translated] "{0} of {1}"
+  // [Auto-translated] "{0} of {1}"
   indexText: "{0} o {1}",
   // "{0} of {1}"
   panelDynamicProgressText: "Cofnod {0} o {1}",
-  //  [Auto-translated] "Panel {panelIndex}"
+  // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "Wedi ateb {0}/{1} cwestiwn",
@@ -47,9 +47,9 @@ export var welshSurveyStrings = {
   loadingSurvey: "Wrthi’n Llwytho’r Arolwg...",
   // "Select..."
   placeholder: "Dewiswch...",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   ratingOptionsCaption: "Dewis...",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "Dewis...",
   // "value"
   value: "gwerth",
@@ -59,15 +59,15 @@ export var welshSurveyStrings = {
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",
   // "Response required: answer questions in all rows."
   requiredInAllRowsError: "Atebwch y cwestiynau ym mhob rhes.",
-  //  [Auto-translated] "Each row must have a unique value."
+  // [Auto-translated] "Each row must have a unique value."
   eachRowUniqueError: "Rhaid i bob rhes fod â gwerth unigryw.",
   // "The value should be numeric."
   numericError: "Dylai’r gwerth fod yn rhif.",
-  //  [Auto-translated] "The value should not be less than {0}"
+  // [Auto-translated] "The value should not be less than {0}"
   minError: "Ni ddylai'r gwerth fod yn llai na {0}",
-  //  [Auto-translated] "The value should not be greater than {0}"
+  // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Ni ddylai'r gwerth fod yn fwy na {0}",
-  //  [Auto-translated] "Numbers are not allowed."
+  // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Ni chaniateir rhifau.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Rhowch o leiaf {0} nod.",
@@ -97,7 +97,7 @@ export var welshSurveyStrings = {
   urlGetChoicesError: "Roedd y cais wedi arwain at ddata gwag neu mae priodwedd y ‘path’ yn anghywir ",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Ddylai’r ffeil ddim bod yn fwy na {0}.",
-  //  [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
+  // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Ni ellir llwytho ffeiliau i fyny. Ychwanegwch handler ar gyfer y digwyddiad 'onUploadFiles'.",
   // "Response required: enter another value."
   otherRequiredError: "Rhowch y gwerth arall.",
@@ -109,7 +109,7 @@ export var welshSurveyStrings = {
   chooseFile: "Dewiswch ffeil(iau)...",
   // "No file selected"
   noFileChosen: "Heb ddewis ffeil ",
-  //  [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
+  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
   filePlaceholder: "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Ydych chi am ddileu’r cofnod?",
@@ -121,9 +121,9 @@ export var welshSurveyStrings = {
   addRow: "Ychwanegu rhes",
   // "Remove"
   removeRow: "Tynnu",
-  //  [Auto-translated] "There are no rows."
+  // [Auto-translated] "There are no rows."
   noRowsText: "Nid oes unrhyw ffraeau.",
-  //  [Auto-translated] "Row {rowIndex}"
+  // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Rhes {rowIndex}",
   // "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
@@ -131,19 +131,19 @@ export var welshSurveyStrings = {
   addPanel: "Ychwanegu o’r newydd",
   // "Remove"
   removePanel: "Tynnu",
-  //  [Auto-translated] "Show Details"
+  // [Auto-translated] "Show Details"
   showDetails: "Dangos manylion",
-  //  [Auto-translated] "Hide Details"
+  // [Auto-translated] "Hide Details"
   hideDetails: "Manylion Cuddio",
   // "item"
   choices_Item: "eitem",
-  //  [Auto-translated] "Choice option"
+  // [Auto-translated] "Choice option"
   choices_Choice: "Dewis opsiwn",
   // "Column"
   matrix_column: "Colofn",
   // "Row"
   matrix_row: "Rhes",
-  //  [Auto-translated] "text"
+  // [Auto-translated] "text"
   multipletext_itemname: "Testun",
   // "The results are being saved on the server..."
   savingData: "Mae’r canlyniadau’n cael eu cadw ar y gweinydd...",
@@ -151,7 +151,7 @@ export var welshSurveyStrings = {
   savingDataError: "Roedd gwall a doedd dim modd cadw’r canlyniadau.",
   // "The results were saved successfully!"
   savingDataSuccess: "Wedi llwyddo i gadw’r canlyniadau!",
-  //  [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
   savingExceedSize: "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg.",
   // "Try again"
   saveAgainButton: "Rhowch gynnig arall arni",
@@ -173,19 +173,19 @@ export var welshSurveyStrings = {
   timerLimitSurvey: "Rydych chi wedi treulio {0} o {1} gyda’i gilydd.",
   // "Clear"
   clearCaption: "Clirio",
-  //  [Auto-translated] "Sign here"
+  // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Arwydd yma",
-  //  [Auto-translated] "No signature"
+  // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "Dim llofnod",
   // "Select File"
   chooseFileCaption: "Dewiswch ffeil ",
-  //  [Auto-translated] "Take Photo"
+  // [Auto-translated] "Take Photo"
   takePhotoCaption: "Tynnu Llun",
-  //  [Auto-translated] "Click the button below to take a photo using the camera."
+  // [Auto-translated] "Click the button below to take a photo using the camera."
   photoPlaceholder: "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera.",
-  //  [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
+  // [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
   fileOrPhotoPlaceholder: "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera.",
-  //  [Auto-translated] "Replace file"
+  // [Auto-translated] "Replace file"
   replaceFileCaption: "Amnewid ffeil",
   // "Remove this file"
   removeFileCaption: "Tynnu’r ffeil hon ",
@@ -199,35 +199,35 @@ export var welshSurveyStrings = {
   confirmRemoveAllFiles: "Ydych chi’n siŵr eich bod am dynnu pob ffeil?",
   // "Question Title"
   questionTitlePatternText: "Teitl y Cwestiwn ",
-  //  [Auto-translated] "Cancel"
+  // [Auto-translated] "Cancel"
   modalCancelButtonText: "Canslo",
-  //  [Auto-translated] "Apply"
+  // [Auto-translated] "Apply"
   modalApplyButtonText: "Cynnig",
-  //  [Auto-translated] "Type to search..."
+  // [Auto-translated] "Type to search..."
   filterStringPlaceholder: "Teipiwch i chwilio...",
-  //  [Auto-translated] "No data to display"
+  // [Auto-translated] "No data to display"
   emptyMessage: "Dim data i'w arddangos",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingPage: "Llwytho...",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingData: "Llwytho...",
-  //  [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
+  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Nid oes unrhyw gofnodion hyd yn hyn.\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
-  //  [Auto-translated] "There are no entries."
+  // [Auto-translated] "There are no entries."
   noEntriesReadonlyText: "Nid oes unrhyw gofnodion.",
-  //  [Auto-translated] "New Panel"
+  // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel newydd",
-  //  [Auto-translated] "More"
+  // [Auto-translated] "More"
   more: "Rhagor",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OCÊ",
-  //  [Auto-translated] "All choices are ranked"
+  // [Auto-translated] "All choices are ranked"
   selectToRankEmptyRankedAreaText: "Mae'r holl ddewisiadau yn cael eu rhestru",
-  //  [Auto-translated] "Drag and drop choices here to rank them"
+  // [Auto-translated] "Drag and drop choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "Dewisiadau llusgo a gollwng yma i'w graddio",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   ok: "OCÊ",
-  //  [Auto-translated] "Cancel"
+  // [Auto-translated] "Cancel"
   cancel: "Canslo",
   // "Create \"{0}\" item..."
   createCustomItem: "Creu eitem \"{0}\"..."

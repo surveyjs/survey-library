@@ -13,19 +13,19 @@ export var turkishSurveyStrings = {
   editText: "Düzenle",
   // "Start"
   startSurveyText: "Başlat",
-  //  [Auto-translated] "Please leave a comment"
+  // [Auto-translated] "Please leave a comment"
   commentText: "Lütfen bir yorum bırakın",
   // "Other (describe)"
   otherItemText: "Diğer (açıklayınız)",
   // "None"
   noneItemText: "Hiçbiri",
-  //  [Auto-translated] "Refuse to answer"
+  // [Auto-translated] "Refuse to answer"
   refuseItemText: "Cevap vermeyi reddet",
-  //  [Auto-translated] "Don't know"
+  // [Auto-translated] "Don't know"
   dontKnowItemText: "Bilmiyorum",
   // "Select All"
   selectAllItemText: "Tümünü Seç",
-  //  [Auto-translated] "Deselect all"
+  // [Auto-translated] "Deselect all"
   deselectAllItemText: "Tümünün seçimini kaldır",
   // "Page {0} of {1}"
   progressText: "Sayfa {0}/{1}",
@@ -49,7 +49,7 @@ export var turkishSurveyStrings = {
   placeholder: "Seçiniz...",
   // "Select..."
   ratingOptionsCaption: "Seçiniz...",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "Seçmek...",
   // "value"
   value: "değer",
@@ -59,7 +59,7 @@ export var turkishSurveyStrings = {
   requiredErrorInPanel: "Lütfen en az bir soruyu yanıtlayın.",
   // "Response required: answer questions in all rows."
   requiredInAllRowsError: "Lütfen tüm satırlardaki soruları cevaplayın.",
-  //  [Auto-translated] "Each row must have a unique value."
+  // [Auto-translated] "Each row must have a unique value."
   eachRowUniqueError: "Her satırın benzersiz bir değeri olmalıdır.",
   // "The value should be numeric."
   numericError: "Değer sayısal olmalıdır.",
@@ -67,7 +67,7 @@ export var turkishSurveyStrings = {
   minError: "Değer {0}'den küçük olmamalıdır",
   // "The value should not be greater than {0}"
   maxError: "Değer {0}'dan büyük olmamalıdır",
-  //  [Auto-translated] "Numbers are not allowed."
+  // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "Numaralara izin verilmez.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Lütfen en az {0} karakter girin.",
@@ -97,7 +97,7 @@ export var turkishSurveyStrings = {
   urlGetChoicesError: "İstek boş veri döndürdü veya 'path' özelliği yanlış",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Dosya boyutu {0} değerini geçemez.",
-  //  [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
+  // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Dosyalar yüklenemiyor. Lütfen 'onUploadFiles' olayı için bir işleyici ekleyin.",
   // "Response required: enter another value."
   otherRequiredError: "Lütfen diğer değerleri girin.",
@@ -123,7 +123,7 @@ export var turkishSurveyStrings = {
   removeRow: "Kaldır",
   // "There are no rows."
   noRowsText: "Satır yok.",
-  //  [Auto-translated] "Row {rowIndex}"
+  // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Satır {rowIndex}",
   // "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
@@ -131,13 +131,13 @@ export var turkishSurveyStrings = {
   addPanel: "Yeni ekle",
   // "Remove"
   removePanel: "Kaldır",
-  //  [Auto-translated] "Show Details"
+  // [Auto-translated] "Show Details"
   showDetails: "Detayları göster",
-  //  [Auto-translated] "Hide Details"
+  // [Auto-translated] "Hide Details"
   hideDetails: "Detayları Gizle",
   // "item"
   choices_Item: "öğe",
-  //  [Auto-translated] "Choice option"
+  // [Auto-translated] "Choice option"
   choices_Choice: "Seçim seçeneği",
   // "Column"
   matrix_column: "Sütun",
@@ -151,7 +151,7 @@ export var turkishSurveyStrings = {
   savingDataError: "Bir hata oluştu ve sonuçlar kaydedilemedi.",
   // "The results were saved successfully!"
   savingDataSuccess: "Sonuçlar başarıyla kaydedildi!",
-  //  [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
   savingExceedSize: "Yanıtınız 64 KB'ı aşıyor. Lütfen dosyalarınızın boyutunu küçültün ve tekrar deneyin veya bir anket sahibiyle iletişime geçin.",
   // "Try again"
   saveAgainButton: "Tekrar deneyin",
@@ -175,17 +175,17 @@ export var turkishSurveyStrings = {
   clearCaption: "Temizle",
   // "Sign here"
   signaturePlaceHolder: "Burayı imzalayın",
-  //  [Auto-translated] "No signature"
+  // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "İmza yok",
   // "Select File"
   chooseFileCaption: "Dosya seçin",
-  //  [Auto-translated] "Take Photo"
+  // [Auto-translated] "Take Photo"
   takePhotoCaption: "Fotoğraf Çekin",
-  //  [Auto-translated] "Click the button below to take a photo using the camera."
+  // [Auto-translated] "Click the button below to take a photo using the camera."
   photoPlaceholder: "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın.",
-  //  [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
+  // [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
   fileOrPhotoPlaceholder: "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin.",
-  //  [Auto-translated] "Replace file"
+  // [Auto-translated] "Replace file"
   replaceFileCaption: "Dosyayı değiştir",
   // "Remove this file"
   removeFileCaption: "Bu dosyayı kaldır",
@@ -207,15 +207,15 @@ export var turkishSurveyStrings = {
   filterStringPlaceholder: "Aramak için yazın...",
   // "No data to display"
   emptyMessage: "Görüntülenecek veri yok",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingPage: "Yükleme...",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingData: "Yükleme...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Henüz giriş yok.\nYeni bir giriş eklemek için aşağıdaki düğmeyi tıklayın.",
   // "No entries"
   noEntriesReadonlyText: "Giriş yok.",
-  //  [Auto-translated] "New Panel"
+  // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Yeni Panel",
   // "More"
   more: "Daha fazla",
@@ -225,9 +225,9 @@ export var turkishSurveyStrings = {
   selectToRankEmptyRankedAreaText: "Tüm seçenekler sıralanmıştır",
   // "Drag choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "Seçimleri sıralamak için buraya sürükleyip bırakın",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   ok: "TAMAM",
-  //  [Auto-translated] "Cancel"
+  // [Auto-translated] "Cancel"
   cancel: "İptal",
   // "Create \"{0}\" item..."
   createCustomItem: "\"{0}\" öğesi oluştur..."

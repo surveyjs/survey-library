@@ -117,7 +117,6 @@ export var burmeseStrings = {
   addRow: "တန်းထည့်ရန်",
   // "Remove"
   removeRow: "ဖယ်ရှားရန်",
-  emptyRowsText: "တန်းများမရှိပါ။",
   // "Add new"
   addPanel: "အသစ်ထည့်ပါ",
   // "Remove"

@@ -13,27 +13,27 @@ export var teluguStrings = {
   editText: "మార్పులు చెయ్యి",
   // "Start"
   startSurveyText: "ప్రారంభించు",
-  //  [Auto-translated] "Please leave a comment"
+  // [Auto-translated] "Please leave a comment"
   commentText: "దయచేసి ఒక వ్యాఖ్య ఇవ్వండి",
   // "Other (describe)"
   otherItemText: "ఇతరమైన(వివరించండి)",
-  //  [Auto-translated] "None"
+  // [Auto-translated] "None"
   noneItemText: "ఎవరు కాదు",
-  //  [Auto-translated] "Refuse to answer"
+  // [Auto-translated] "Refuse to answer"
   refuseItemText: "సమాధానం ఇవ్వడానికి నిరాకరించండి",
-  //  [Auto-translated] "Don't know"
+  // [Auto-translated] "Don't know"
   dontKnowItemText: "తెలియదు",
   // "Select All"
   selectAllItemText: "అన్ని ఎంచుకో",
-  //  [Auto-translated] "Deselect all"
+  // [Auto-translated] "Deselect all"
   deselectAllItemText: "Deselect all",
   // "Page {0} of {1}"
   progressText: "పేజీ{0}/{1}",
-  //  [Auto-translated] "{0} of {1}"
+  // [Auto-translated] "{0} of {1}"
   indexText: "{1} {0}[మార్చు]",
   // "{0} of {1}"
   panelDynamicProgressText: "దాఖలాలు{0}/{1}",
-  //  [Auto-translated] "Panel {panelIndex}"
+  // [Auto-translated] "Panel {panelIndex}"
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   // "Answered {0}/{1} questions"
   questionsProgressText: "{0}/{1} ప్రశ్నలకు జవాబు ఇవ్వడం అయినది",
@@ -47,9 +47,9 @@ export var teluguStrings = {
   loadingSurvey: "సర్వే లోడ్ అవుతుంది",
   // "Select..."
   placeholder: "ఎన్నుకోండి",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   ratingOptionsCaption: "ఎంచు...",
-  //  [Auto-translated] "Select..."
+  // [Auto-translated] "Select..."
   buttongroupOptionsCaption: "ఎంచు...",
   // "value"
   value: "విలువ",
@@ -59,15 +59,15 @@ export var teluguStrings = {
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
   // "Response required: answer questions in all rows."
   requiredInAllRowsError: "దయచేసి అన్ని వరుసలలో ఉన్న ప్రశ్నలకు జవాబు ఇవ్వండి",
-  //  [Auto-translated] "Each row must have a unique value."
+  // [Auto-translated] "Each row must have a unique value."
   eachRowUniqueError: "ప్రతి వరుసకు ఒక ప్రత్యేకమైన విలువ ఉండాలి.",
   // "The value should be numeric."
   numericError: "విలువను సంఖ్యలలో తెలియజేయండి",
-  //  [Auto-translated] "The value should not be less than {0}"
+  // [Auto-translated] "The value should not be less than {0}"
   minError: "విలువ {0} కంటే తక్కువగా ఉండకూడదు.",
-  //  [Auto-translated] "The value should not be greater than {0}"
+  // [Auto-translated] "The value should not be greater than {0}"
   maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
-  //  [Auto-translated] "Numbers are not allowed."
+  // [Auto-translated] "Numbers are not allowed."
   textNoDigitsAllow: "అంకెలు అనుమతించబడవు.",
   // "Please enter at least {0} character(s)."
   textMinLength: "దయచేసి కనీసం {0} అక్షరాలను నమోదు చేయండి",
@@ -97,7 +97,7 @@ export var teluguStrings = {
   urlGetChoicesError: "విన్నపము ఖాళీ డేటాని తిరిగిచ్చింది, లేదా path తప్పైన ది",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ఫైల్ పరిమాణం{0} కంటే పెద్దదిగా ఉండకూడదు",
-  //  [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
+  // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "ఫైళ్లను అప్ లోడ్ చేయలేం. దయచేసి 'ఆన్ అప్ లోడ్ ఫైల్స్' ఈవెంట్ కొరకు ఒక హ్యాండ్లర్ ని జోడించండి.",
   // "Response required: enter another value."
   otherRequiredError: "దయచేసి ఇతర విలువలను నమో దించండి",
@@ -109,7 +109,7 @@ export var teluguStrings = {
   chooseFile: "ఫైళ్లను ఎన్నుకోండి",
   // "No file selected"
   noFileChosen: "ఏ ఫైల్ ఎన్నుకో లేదు",
-  //  [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
+  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
   filePlaceholder: "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "మీరు రికార్డులను తొలగించాలని అనుకుంటున్నారా",
@@ -121,9 +121,9 @@ export var teluguStrings = {
   addRow: "వరుసలు చేర్పించండి",
   // "Remove"
   removeRow: "తీసేయండి",
-  //  [Auto-translated] "There are no rows."
+  // [Auto-translated] "There are no rows."
   noRowsText: "వరుసలు లేవు.",
-  //  [Auto-translated] "Row {rowIndex}"
+  // [Auto-translated] "Row {rowIndex}"
   rowIndexTemplateTitle: "Row {rowIndex}",
   // "{rowTitle}"
   rowNameTemplateTitle: "{rowTitle}",
@@ -131,19 +131,19 @@ export var teluguStrings = {
   addPanel: "కొత్త దాన్ని చేర్పించండి",
   // "Remove"
   removePanel: "తీసేయండి",
-  //  [Auto-translated] "Show Details"
+  // [Auto-translated] "Show Details"
   showDetails: "వివరాలు చూపించు",
-  //  [Auto-translated] "Hide Details"
+  // [Auto-translated] "Hide Details"
   hideDetails: "వివరాలను దాచండి",
   // "item"
   choices_Item: "వస్తువులు",
-  //  [Auto-translated] "Choice option"
+  // [Auto-translated] "Choice option"
   choices_Choice: "ఛాయిస్ ఆప్షన్",
   // "Column"
   matrix_column: "కాలం ",
   // "Row"
   matrix_row: "వరుస",
-  //  [Auto-translated] "text"
+  // [Auto-translated] "text"
   multipletext_itemname: "వచనం",
   // "The results are being saved on the server..."
   savingData: "ఫలితాంశాలు సర్వర్లో సేవ్ అవుతున్నాయి",
@@ -151,7 +151,7 @@ export var teluguStrings = {
   savingDataError: "ఒక లోపము సంభవించినది అందుకని ఫలితాంశాలను సేవ్ చేయలేకపోయాము  ",
   // "The results were saved successfully!"
   savingDataSuccess: "ఫలితాంశాలను విజయవంతంగా సేవ్ చేసాము",
-  //  [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
   savingExceedSize: "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి.",
   // "Try again"
   saveAgainButton: "మళ్లీ ప్రయత్నించు",
@@ -173,19 +173,19 @@ export var teluguStrings = {
   timerLimitSurvey: " మొత్తంగా మీరు {1} లో {0} ని ఉపయోగించారు ",
   // "Clear"
   clearCaption: "స్పష్టమ్",
-  //  [Auto-translated] "Sign here"
+  // [Auto-translated] "Sign here"
   signaturePlaceHolder: "ఇక్కడ సంతకం చేయండి",
-  //  [Auto-translated] "No signature"
+  // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "సంతకం లేదు",
   // "Select File"
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
-  //  [Auto-translated] "Take Photo"
+  // [Auto-translated] "Take Photo"
   takePhotoCaption: "ఫోటో తీసుకోండి",
-  //  [Auto-translated] "Click the button below to take a photo using the camera."
+  // [Auto-translated] "Click the button below to take a photo using the camera."
   photoPlaceholder: "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి.",
-  //  [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
+  // [Auto-translated] "Drag and drop or select a file to upload or take a photo using the camera."
   fileOrPhotoPlaceholder: "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి.",
-  //  [Auto-translated] "Replace file"
+  // [Auto-translated] "Replace file"
   replaceFileCaption: "ఫైలు మార్చండి",
   // "Remove this file"
   removeFileCaption: "ఈ ఫైల్ తీసేయండి",
@@ -199,35 +199,35 @@ export var teluguStrings = {
   confirmRemoveAllFiles: "అన్ని ఫైళ్లను తీసేయాలని మీరు ఖచ్చితంగా అనుకుంటున్నారా",
   // "Question Title"
   questionTitlePatternText: "ప్రశ్న శీర్షిక",
-  //  [Auto-translated] "Cancel"
+  // [Auto-translated] "Cancel"
   modalCancelButtonText: "రద్దు",
-  //  [Auto-translated] "Apply"
+  // [Auto-translated] "Apply"
   modalApplyButtonText: "సరిపడు",
-  //  [Auto-translated] "Type to search..."
+  // [Auto-translated] "Type to search..."
   filterStringPlaceholder: "శోధించడానికి టైప్ చేయండి...",
-  //  [Auto-translated] "No data to display"
+  // [Auto-translated] "No data to display"
   emptyMessage: "డిస్ ప్లే చేయడానికి డేటా లేదు",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingPage: "లోడింగ్...",
-  //  [Auto-translated] "Loading..."
+  // [Auto-translated] "Loading..."
   loadingData: "లోడింగ్...",
-  //  [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
+  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
   noEntriesText: "ఇంకా ఎలాంటి ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి.",
-  //  [Auto-translated] "There are no entries."
+  // [Auto-translated] "There are no entries."
   noEntriesReadonlyText: "ఎలాంటి ఎంట్రీలు లేవు.",
-  //  [Auto-translated] "New Panel"
+  // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "కొత్త ప్యానెల్",
-  //  [Auto-translated] "More"
+  // [Auto-translated] "More"
   more: "ఎక్కువ",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "సరే",
-  //  [Auto-translated] "All choices are ranked"
+  // [Auto-translated] "All choices are ranked"
   selectToRankEmptyRankedAreaText: "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి",
-  //  [Auto-translated] "Drag and drop choices here to rank them"
+  // [Auto-translated] "Drag and drop choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి",
-  //  [Auto-translated] "OK"
+  // [Auto-translated] "OK"
   ok: "సరే",
-  //  [Auto-translated] "Cancel"
+  // [Auto-translated] "Cancel"
   cancel: "రద్దు",
   // "Create \"{0}\" item..."
   createCustomItem: "\"{0}\" ఐటమ్ సృష్టించండి..."

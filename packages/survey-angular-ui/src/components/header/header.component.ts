@@ -16,6 +16,21 @@ export class HeaderComponent extends BaseAngular<Cover> {
     this.model.survey = this.survey;
     return this.model;
   }
+  private shouldProcessResponsiveness: boolean = false;
+  protected override onModelChanged(): void {
+    super.onModelChanged();
+    this.shouldProcessResponsiveness = true;
+  }
+  ngAfterViewInit() {
+    this.shouldProcessResponsiveness = true;
+  }
+  override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
+    if (this.shouldProcessResponsiveness) {
+      this.model.processResponsiveness();
+      this.shouldProcessResponsiveness = false;
+    }
+  }
 }
 
 AngularComponentFactory.Instance.registerComponent("sv-header", HeaderComponent);

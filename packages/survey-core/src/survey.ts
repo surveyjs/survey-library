@@ -4277,15 +4277,14 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (this.validationEnabled && !q.validate(true)) return false;
-    if (q.isRunningValidators) {
-      q.onCompletedAsyncValidators = (hasErrors: boolean) => {
-        q.onCompletedAsyncValidators = null;
-        if (!hasErrors) {
-          this.performNextAfterValidation(q);
-        }
-      };
-      return false;
-    }
+    const questions = q.isQuestion ? [q] : q.visibleQuestions;
+    const onHasErrors = (hasErrors: boolean) => {
+      this.clearAsyncValidationQuesitons();
+      if (!hasErrors) {
+        this.performNextAfterValidation(q);
+      }
+    };
+    if (this.checkForAsyncQuestionValidation(questions, onHasErrors)) return false;
     this.performNextAfterValidation(q);
     return true;
   }

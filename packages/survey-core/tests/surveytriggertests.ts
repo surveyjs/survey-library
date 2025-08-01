@@ -393,11 +393,11 @@ QUnit.test("copyvalue without expression, bug#7030", function(assert) {
       { type: "text", name: "q3" }
 
     ],
-    "triggers": [
+    triggers: [
       {
-        "type": "copyvalue",
-        "fromName": "q1",
-        "setToName": "q2"
+        type: "copyvalue",
+        fromName: "q1",
+        setToName: "q2"
       }
     ],
   });
@@ -409,6 +409,44 @@ QUnit.test("copyvalue without expression, bug#7030", function(assert) {
   q2.value = "B";
   q3.value = "C";
   assert.equal(q2.value, "B", "Do not copy value");
+});
+QUnit.skip("copyvalue vs expression on changing fromName. We may want to introduce this behavior #10192", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+      { type: "text", name: "q4" }
+    ],
+    triggers: [
+      {
+        type: "copyvalue",
+        expression: "{q4} notempty",
+        fromName: "q1",
+        setToName: "q2"
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q1.value = "A";
+  assert.equal(q2.value, undefined, "value 1");
+  q4.value = "B";
+  assert.equal(q2.value, "A", "value 2");
+  q1.value = "C";
+  assert.equal(q2.value, "C", "value 3");
+  q2.value = "D";
+  assert.equal(q2.value, "D", "value 4");
+  q3.value = "E";
+  assert.equal(q2.value, "D", "value 5");
+  q1.value = "F";
+  assert.equal(q2.value, "F", "value 6");
+  q4.value = "";
+  assert.equal(q2.value, "F", "value 7");
+  q1.value = "G";
+  assert.equal(q2.value, "F", "value 8");
 });
 
 QUnit.test("Execute trigger on complete", function(assert) {

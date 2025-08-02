@@ -173,6 +173,8 @@ export var slovenianStrings = {
   timerLimitSurvey: "Skupaj ste porabili {0} od {1}.",
   // "Clear"
   clearCaption: "Počisti",
+  // [Auto-translated] "Select"
+  selectCaption: "Izbrati",
   // "Sign here"
   signaturePlaceHolder: "Podpišite se tukaj",
   // "No signature"
@@ -230,6 +232,10 @@ export var slovenianStrings = {
   // "Cancel"
   cancel: "Prekliči",
   // "Create \"{0}\" item..."
-  createCustomItem: "Ustvari element »{0}« ..."
+  createCustomItem: "Ustvari element »{0}« ...",
+  // [Auto-translated] "Table of contents"
+  toc: "Kazalo vsebine",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Vrstica napredovanja"
 };
 setupLocale({ localeCode: "sl", strings: slovenianStrings, nativeName: "slovenščina", englishName: "Slovenian" });

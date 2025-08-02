@@ -109,8 +109,8 @@ export var romanianSurveyStrings = {
   chooseFile: "Alege fisierele...",
   // "No file selected"
   noFileChosen: "Niciun fișier ales",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Glisați și fixați un fișier aici sau faceți clic pe butonul de mai jos și alegeți un fișier de încărcat.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Trageți și plasați un fișier aici sau faceți clic pe butonul de mai jos pentru a selecta un fișier de încărcat.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Sunteți sigur că doriți să ștergeți înregistrarea?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var romanianSurveyStrings = {
   savingDataError: "A intervenit o eroare, rezultatele nu au putut fi salvate.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultatele au fost salvate cu succes!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Răspunsul tău depășește 64KB. Reduceți dimensiunea fișierelor și încercați din nou sau contactați un proprietar de sondaj.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Răspunsul tău depășește 64KB. Vă rugăm să reduceți dimensiunea fișierelor și să încercați din nou sau să contactați proprietarul sondajului.",
   // "Try again"
   saveAgainButton: "Încercați din nou",
   // "min"
@@ -173,6 +173,8 @@ export var romanianSurveyStrings = {
   timerLimitSurvey: "Ați petrecut {0} din {1} în total.",
   // "Clear"
   clearCaption: "clar",
+  // [Auto-translated] "Select"
+  selectCaption: "Alege",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Semnează aici",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var romanianSurveyStrings = {
   loadingPage: "Încărcare...",
   // [Auto-translated] "Loading..."
   loadingData: "Încărcare...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Nu există încă intrări.\nFaceți clic pe butonul de mai jos pentru a adăuga o intrare nouă.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Nu există intrări.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Nu există încă intrări.\\nFaceți clic pe butonul de mai jos pentru a adăuga o nouă intrare.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Fără intrări",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panou nou",
   // [Auto-translated] "More"
   more: "Mai mult",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Toate opțiunile sunt clasificate",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Glisați și fixați opțiunile aici pentru a le clasifica",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Toate opțiunile sunt selectate pentru clasare",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Trageți opțiunile aici pentru a le clasifica",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Anula",
   // "Create \"{0}\" item..."
-  createCustomItem: "Creați un articol \"{0}\"..."
+  createCustomItem: "Creați un articol \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Cuprins",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Bara de progres"
 };
 
 setupLocale({ localeCode: "ro", strings: romanianSurveyStrings, nativeName: "română", englishName: "Romanian" });

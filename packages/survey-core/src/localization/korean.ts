@@ -151,8 +151,8 @@ export var koreanStrings = {
   savingDataError: "오류가 발생하여 결과를 저장할 수 없습니다.",
   // "The results were saved successfully!"
   savingDataSuccess: "결과가 성공적으로 저장되었습니다.",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "응답이 64KB를 초과합니다. 파일 크기를 줄인 후 다시 시도하거나 설문조사 소유자에게 문의하세요.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "응답이 64KB를 초과합니다. 파일 크기를 줄이고 다시 시도하거나 설문조사 소유자에게 문의하십시오.",
   // "Try again"
   saveAgainButton: "다시 시도하세요.",
   // "min"
@@ -173,6 +173,8 @@ export var koreanStrings = {
   timerLimitSurvey: "총 {0}/{1}이 걸렸습니다.",
   // "Clear"
   clearCaption: "지우기",
+  // [Auto-translated] "Select"
+  selectCaption: "고르다",
   // "Sign here"
   signaturePlaceHolder: "서명하세요.",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var koreanStrings = {
   loadingData: "로드...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "아직 항목이 없습니다.\n새 항목을 추가하려면 아래 버튼을 클릭하세요.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "항목이 없습니다.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "항목 없음",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "새 패널",
   // "More"
   more: "더보기",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "그래",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "모든 선택 항목이 순위가 매겨집니다.",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다.",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "모든 선택 항목이 순위를 위해 선택됩니다.",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "선택 항목을 여기로 드래그하여 순위를 매깁니다",
   // [Auto-translated] "OK"
   ok: "그래",
   // [Auto-translated] "Cancel"
   cancel: "취소",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\" 항목 만들기..."
+  createCustomItem: "\"{0}\" 항목 만들기...",
+  // [Auto-translated] "Table of contents"
+  toc: "목차",
+  // [Auto-translated] "Progress bar"
+  progressbar: "진행률 표시줄"
 };
 
 setupLocale({ localeCode: "ko", strings: koreanStrings, nativeName: "한국어", englishName: "Korean" });

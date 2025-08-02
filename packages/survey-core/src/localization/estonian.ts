@@ -109,8 +109,8 @@ export var estonianSurveyStrings = {
   chooseFile: "Vali fail(id)...",
   // "No file selected"
   noFileChosen: "Faili pole valitud",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Pukseerige fail siia või klõpsake allolevat nuppu ja valige üleslaaditav fail.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Pukseerige fail siia või klõpsake alloleval nupul, et valida üleslaaditav fail.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Kas tahad kirje kustutada?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var estonianSurveyStrings = {
   savingDataError: "Tekkis viga ning me ei saanud vastuseid salvestada.",
   // "The results were saved successfully!"
   savingDataSuccess: "Vastuste salvestamine õnnestus!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Teie vastus ületab 64 KB. Vähendage faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Teie vastus ületab 64 KB. Vähendage oma faili(de) mahtu ja proovige uuesti või võtke ühendust uuringu omanikuga.",
   // "Try again"
   saveAgainButton: "Proovi uuesti",
   // "min"
@@ -173,6 +173,8 @@ export var estonianSurveyStrings = {
   timerLimitSurvey: "Oled kulutanud {0} võimalikust {1} koguajast.",
   // "Clear"
   clearCaption: "Puhasta",
+  // [Auto-translated] "Select"
+  selectCaption: "Valima",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Allkirjasta siin",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var estonianSurveyStrings = {
   loadingPage: "Laadimise...",
   // [Auto-translated] "Loading..."
   loadingData: "Laadimise...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Sissekandeid veel ei ole.\nUue kirje lisamiseks klõpsake allolevat nuppu.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Kirjeid ei ole.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Kirjeid veel pole.\\nUue kirje lisamiseks klõpsake alloleval nupul.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Sissekandeid pole",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Uus paneel",
   // [Auto-translated] "More"
   more: "Rohkem",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Kõik valikud on järjestatud",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Lohistage valikuid siia, et neid järjestada",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Kõik valikud valitakse järjestamiseks",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Lohistage valikud siia, et neid järjestada",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Tühistama",
   // "Create \"{0}\" item..."
-  createCustomItem: "Looge üksus \"{0}\"..."
+  createCustomItem: "Looge üksus \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Sisukord",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Edenemisriba"
 };
 
 setupLocale({ localeCode: "et", strings: estonianSurveyStrings, nativeName: "eesti keel", englishName: "Estonian" });

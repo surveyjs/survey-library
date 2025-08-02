@@ -151,8 +151,8 @@ export var slovakSurveyStrings = {
   savingDataError: "V dôsledku chyby sa nepodarilo výsledky uložiť.",
   // "The results were saved successfully!"
   savingDataSuccess: "Výsledky sa úspešne uložili.",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Vaša odpoveď presahuje 64 kB. Zmenšite veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Vaša odpoveď presahuje 64 kB. Znížte veľkosť svojich súborov a skúste to znova alebo kontaktujte vlastníka prieskumu.",
   // "Try again"
   saveAgainButton: "Skúste to znova",
   // "min"
@@ -173,6 +173,8 @@ export var slovakSurveyStrings = {
   timerLimitSurvey: "Celkovo ste strávili {0} z {1}.",
   // "Clear"
   clearCaption: "Vymazať",
+  // [Auto-translated] "Select"
+  selectCaption: "Vybrať",
   // "Sign here"
   signaturePlaceHolder: "Podpísať tu",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var slovakSurveyStrings = {
   loadingData: "Nakladanie...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "K dispozícii ešte nie sú žiadne zadania.\nKliknutím na nasledujúce tlačidlo pridajte nové zadanie.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Nie sú k dispozícii žiadne záznamy.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Žiadne vstupy",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nový panel",
   // [Auto-translated] "More"
   more: "Viacej",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Všetky možnosti sú zoradené",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Presuňte sem voľby, aby ste ich zoradili",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Všetky možnosti sú vybrané na poradie",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Presunutím možností sem ich zoradíte",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Zrušiť",
   // "Create \"{0}\" item..."
-  createCustomItem: "Vytvoriť položku \"{0}\"..."
+  createCustomItem: "Vytvoriť položku \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Obsah",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Indikátor priebehu"
 };
 
 setupLocale({ localeCode: "sk", strings: slovakSurveyStrings, nativeName: "Slovenčina", englishName: "Slovak" });

@@ -109,8 +109,8 @@ export var czechSurveyStrings = {
   chooseFile: "Vyberte soubory...",
   // "No file selected"
   noFileChosen: "Není zvolený žádný soubor",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Přetáhněte sem soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Sem přetáhněte soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Chcete záznam smazat?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var czechSurveyStrings = {
   savingDataError: "Došlo k chybě a výsledky jsme nemohli uložit.",
   // "The results were saved successfully!"
   savingDataSuccess: "Výsledky byly úspěšně uloženy!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Vaše odpověď překračuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Vaše odpověď přesahuje 64 kB. Zmenšete prosím velikost svých souborů a zkuste to znovu nebo kontaktujte vlastníka průzkumu.",
   // "Try again"
   saveAgainButton: "Zkuste to znovu",
   // "min"
@@ -173,6 +173,8 @@ export var czechSurveyStrings = {
   timerLimitSurvey: "Celkově jste strávil/a {0} z {1}.",
   // "Clear"
   clearCaption: "Vymazat",
+  // [Auto-translated] "Select"
+  selectCaption: "Vybrat",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Podepište se zde",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var czechSurveyStrings = {
   loadingPage: "Nakládka...",
   // [Auto-translated] "Loading..."
   loadingData: "Nakládka...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Zatím nejsou žádné záznamy.\nKliknutím na tlačítko níže přidáte novou položku.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Nejsou zde žádné položky.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Zatím žádné záznamy.\\nKlikněte na tlačítko níže pro přidání nového záznamu.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Žádné vstupy",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nový panel",
   // [Auto-translated] "More"
   more: "Více",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Všechny možnosti jsou seřazeny",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Přetáhněte volby zde a seřaďte je",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Všechny možnosti jsou vybrány pro pořadí",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Přetažením voleb sem je seřadíte",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Zrušit",
   // "Create \"{0}\" item..."
-  createCustomItem: "Vytvořte položku \"{0}\"..."
+  createCustomItem: "Vytvořte položku \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Obsah",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Indikátor průběhu"
 };
 
 setupLocale({ localeCode: "cs", strings: czechSurveyStrings, nativeName: "čeština", englishName: "Czech" });

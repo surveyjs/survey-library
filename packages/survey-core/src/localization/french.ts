@@ -151,8 +151,8 @@ export var frenchSurveyStrings = {
   savingDataError: "Une erreur est survenue et a empêché la sauvegarde des résultats.",
   // "The results were saved successfully!"
   savingDataSuccess: "Les résultats ont bien été enregistrés !",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de votre ou vos fichiers et réessayer ou contacter un propriétaire de sondage.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Votre réponse dépasse 64 Ko. Veuillez réduire la taille de vos fichiers et réessayer ou contacter le propriétaire du sondage.",
   // "Try again"
   saveAgainButton: "Réessayer",
   // "min"
@@ -173,6 +173,8 @@ export var frenchSurveyStrings = {
   timerLimitSurvey: "Vous avez passé {0} sur {1} au total.",
   // "Clear"
   clearCaption: "Vider",
+  // [Auto-translated] "Select"
+  selectCaption: "Choisir",
   // "Sign here"
   signaturePlaceHolder: "Signez ici",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var frenchSurveyStrings = {
   loadingData: "Chargement...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Il n’y a pas d’entrées.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Aucune entrée",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nouveau panneau",
   // [Auto-translated] "More"
   more: "Plus",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "D’ACCORD",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Tous les choix sont classés",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Faites glisser et déposez les choix ici pour les classer",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Tous les choix sont sélectionnés pour le classement",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Faites glisser les choix ici pour les classer",
   // [Auto-translated] "OK"
   ok: "D’ACCORD",
   // [Auto-translated] "Cancel"
   cancel: "Annuler",
   // "Create \"{0}\" item..."
-  createCustomItem: "Créez un élément \"{0}\"..."
+  createCustomItem: "Créez un élément \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Table des matières",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Barre de progression"
 };
 
 setupLocale({ localeCode: "fr", strings: frenchSurveyStrings, nativeName: "français", englishName: "French" });

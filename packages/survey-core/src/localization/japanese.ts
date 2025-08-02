@@ -109,8 +109,8 @@ export var japaneseSurveyStrings = {
   chooseFile: "ファイルを選択",
   // "No file selected"
   noFileChosen: "選択されたファイルはありません",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "ここにファイルをドラッグアンドドロップするか、下のボタンをクリックしてアップロードするファイルを選択します。",
   // "Are you sure you want to delete this record?"
   confirmDelete: "レコードを削除しますか？",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var japaneseSurveyStrings = {
   savingDataError: "エラーが発生し、結果を保存できませんでした。",
   // "The results were saved successfully!"
   savingDataSuccess: "結果が正常に保存されました",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "回答は 64 KB を超えています。ファイルのサイズを小さくしてもう一度お試しいただくか、アンケートの作成者にお問い合わせください。",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "回答が64KBを超えています。ファイルのサイズを小さくして、もう一度やり直すか、アンケートの所有者にお問い合わせください。",
   // "Try again"
   saveAgainButton: "もう一度試してみてください。",
   // "min"
@@ -173,6 +173,8 @@ export var japaneseSurveyStrings = {
   timerLimitSurvey: "合計で{1}の{0}を使ったことがあります。",
   // "Clear"
   clearCaption: "空白",
+  // [Auto-translated] "Select"
+  selectCaption: "選ぶ",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "ここに署名",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var japaneseSurveyStrings = {
   loadingPage: "積載。。。",
   // [Auto-translated] "Loading..."
   loadingData: "積載。。。",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "エントリはまだありません。\n下のボタンをクリックして、新しいエントリを追加します。",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "エントリはありません。",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "エントリーはまだありません。\\n下のボタンをクリックして、新しいエントリーを追加します。",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "エントリなし",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "新しいパネル",
   // [Auto-translated] "More"
   more: "続きを見る",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "わかりました",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "すべての選択肢がランク付けされます",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "ここに選択肢をドラッグアンドドロップしてランク付けします",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "すべての選択肢がランキング用に選択されます",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "選択肢をここにドラッグしてランク付けします",
   // [Auto-translated] "OK"
   ok: "わかりました",
   // [Auto-translated] "Cancel"
   cancel: "キャンセル",
   // "Create \"{0}\" item..."
-  createCustomItem: "「{0}」アイテムを作成..."
+  createCustomItem: "「{0}」アイテムを作成...",
+  // [Auto-translated] "Table of contents"
+  toc: "目次",
+  // [Auto-translated] "Progress bar"
+  progressbar: "進行状況バー"
 };
 
 setupLocale({ localeCode: "ja", strings: japaneseSurveyStrings, nativeName: "日本語", englishName: "Japanese" });

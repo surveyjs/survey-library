@@ -41,8 +41,8 @@ export var georgianSurveyStrings = {
   emptySurvey: "არცერთი კითხვა არ არის.",
   // "Thank you for completing the survey"
   completingSurvey: "გმადლობთ კითხვარის შევსებისთვის!",
-  // [Auto-translated] "Our records show that you have already completed this survey."
-  completingSurveyBefore: "ჩვენი ჩანაწერები აჩვენებს, რომ თქვენ უკვე დაასრულეთ ეს გამოკითხვა.",
+  // [Auto-translated] "You have already completed this survey."
+  completingSurveyBefore: "თქვენ უკვე დაასრულეთ ეს გამოკითხვა.",
   // "Loading Survey..."
   loadingSurvey: "ჩატვირთვა სერვერიდან...",
   // "Select..."
@@ -107,12 +107,12 @@ export var georgianSurveyStrings = {
   loadingFile: "იტვირთება...",
   // [Auto-translated] "Choose file(s)..."
   chooseFile: "აირჩიეთ ფაილი...",
-  // [Auto-translated] "No file chosen"
-  noFileChosen: "ფაილის არჩევა არ არის",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "გადაიტანეთ და ჩამოაგდეთ ფაილი აქ ან დააჭირეთ ქვემოთ მოცემულ ღილაკს და აირჩიეთ ფაილი ასატვირთად.",
-  // [Auto-translated] "Do you want to delete the record?"
-  confirmDelete: "გსურთ ჩანაწერის წაშლა?",
+  // [Auto-translated] "No file selected"
+  noFileChosen: "ფაილი არ არის არჩეული",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "გადაიტანეთ და ჩამოაგდეთ ფაილი აქ ან დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ აირჩიოთ ფაილი ასატვირთად.",
+  // [Auto-translated] "Are you sure you want to delete this record?"
+  confirmDelete: "დარწმუნებული ხართ, რომ გსურთ ამ ჩანაწერის წაშლა?",
   // [Auto-translated] "This value should be unique."
   keyDuplicationError: "ეს მნიშვნელობა უნდა იყოს უნიკალური.",
   // [Auto-translated] "Add Column"
@@ -151,7 +151,7 @@ export var georgianSurveyStrings = {
   savingDataError: "დაფიქსირდა შეცდომა და შედეგი ვერ შევინახავდით.",
   // [Auto-translated] "The results were saved successfully!"
   savingDataSuccess: "შედეგები წარმატებით გადაარჩინეს!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "თქვენი პასუხი აღემატება 64KB. გთხოვთ, შეამციროთ თქვენი ფაილ(ებ)ის ზომა და სცადოთ ხელახლა ან დაუკავშირდეთ გამოკითხვის მფლობელს.",
   // [Auto-translated] "Try again"
   saveAgainButton: "კიდევ სცადე",
@@ -173,12 +173,14 @@ export var georgianSurveyStrings = {
   timerLimitSurvey: "თქვენ სულ {1} {0} დახარჯეთ.",
   // [Auto-translated] "Clear"
   clearCaption: "მოწმენდილი ცა",
+  // [Auto-translated] "Select"
+  selectCaption: "აირჩიე",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "შესვლა აქ",
   // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "ხელმოწერა არ არის",
-  // [Auto-translated] "Choose file"
-  chooseFileCaption: "ვაუჩერის ნახვა",
+  // [Auto-translated] "Select File"
+  chooseFileCaption: "აირჩიეთ ფაილი",
   // [Auto-translated] "Take Photo"
   takePhotoCaption: "გადაიღეთ ფოტო",
   // [Auto-translated] "Click the button below to take a photo using the camera."
@@ -211,26 +213,30 @@ export var georgianSurveyStrings = {
   loadingPage: "იტვირთება...",
   // [Auto-translated] "Loading..."
   loadingData: "იტვირთება...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "ჯერ არ არის ჩანაწერები.\nდააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ დაამატოთ ახალი ჩანაწერი.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "არ არსებობს ჩანაწერები.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "ჯერ არ არის ჩანაწერები.\\nდააკლის ღილაკი ქვემოთ, რომ დაამატოთ ახალი ჩანაწერი.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "ჩანაწერები არ არის",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "ახალი პანელი",
   // [Auto-translated] "More"
   more: "სრულად",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "კარგი",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "ყველა არჩევანი რანჟირებულია",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "ყველა არჩევანი შეირჩევა რეიტინგისთვის",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "გადაიტანეთ არჩევანი აქ, რომ დაასახელოთ ისინი",
   // [Auto-translated] "OK"
   ok: "კარგი",
   // [Auto-translated] "Cancel"
   cancel: "გაუქმება",
   // "Create \"{0}\" item..."
-  createCustomItem: "შექმენით \"{0}\" ელემენტი..."
+  createCustomItem: "შექმენით \"{0}\" ელემენტი...",
+  // [Auto-translated] "Table of contents"
+  toc: "სარჩევი",
+  // [Auto-translated] "Progress bar"
+  progressbar: "პროგრესის ბარი"
 };
 
 setupLocale({ localeCode: "ka", strings: georgianSurveyStrings, nativeName: "ქართული", englishName: "Georgian" });

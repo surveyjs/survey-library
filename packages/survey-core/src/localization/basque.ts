@@ -109,8 +109,8 @@ export var basqueSurveyStrings = {
   chooseFile: "Fitxategia(k) hautatu...",
   // "No file selected"
   noFileChosen: "Ez da inolako fitxategirik hautatu",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Eraman artxibo bat hemen edo egin klik beheko botoian, kargatzeko artxibo bat aukeratzeko.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "¿Erregistroa borratu nahi al duzu?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var basqueSurveyStrings = {
   savingDataError: "Erroreren bat gertatu eta erantzunak ez dira zerbitzarian gorde ahal izan.",
   // "The results were saved successfully!"
   savingDataSuccess: "Erantzunak egoki gorde dira!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkesta baten jabearekin.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Erantzuna 64 KB-tik gorakoa da. Murriztu artxiboaren tamaina, eta berriro saiatu edo jarri harremanetan inkestaren jabearekin.",
   // "Try again"
   saveAgainButton: "Berriro saiatu.",
   // "min"
@@ -173,6 +173,8 @@ export var basqueSurveyStrings = {
   timerLimitSurvey: "Zuk orotara {0} gastatu duzu {1}-(e)tik.",
   // "Clear"
   clearCaption: "Hustu",
+  // [Auto-translated] "Select"
+  selectCaption: "Aukeratu",
   // "Sign here"
   signaturePlaceHolder: "Sinatu hemen",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var basqueSurveyStrings = {
   loadingPage: "Karga...",
   // [Auto-translated] "Loading..."
   loadingData: "Karga...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Ez sarrerarik.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Oraindik ez sarrerarik.\\nHaga klik beheko botoian, sarrera berri bat gehitzeko.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Ez sarrerarik",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel berria",
   // [Auto-translated] "More"
   more: "Gehiago",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "Ados",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Aukera guztiak sailkatuta daude",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Arrastaka eta askatzen ditu hemen sailkatzeko",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Aukera guztiak sailkapenerako aukeratzen dira",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Aukerak hemen dituzu sailkatzeko",
   // [Auto-translated] "OK"
   ok: "Ados",
   // [Auto-translated] "Cancel"
   cancel: "Ezeztatu",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\" artikulua sortzea..."
+  createCustomItem: "\"{0}\" artikulua sortzea...",
+  // [Auto-translated] "Table of contents"
+  toc: "Edukien taula",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Aurrerapen barra"
 };
 
 setupLocale({ localeCode: "eu", strings: basqueSurveyStrings, nativeName: "euskara", englishName: "Basque" });

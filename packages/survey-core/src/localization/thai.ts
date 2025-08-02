@@ -109,8 +109,8 @@ export var thaiStrings = {
   chooseFile: "เลือกไฟล์...",
   // "No file selected"
   noFileChosen: "ไม่ไฟล์ที่เลือก",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างและเลือกไฟล์ที่จะอัปโหลด",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างเพื่อเลือกไฟล์ที่จะอัปโหลด",
   // "Are you sure you want to delete this record?"
   confirmDelete: "คุณต้องการลบรายการนี้จริงหรือไม่?",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var thaiStrings = {
   savingDataError: "มีความผิดพลาดเกิดขึ้นส่งผลให้ไม่สามารถบันทึกผลได้",
   // "The results were saved successfully!"
   savingDataSuccess: "บันทึกสำเร็จแล้ว",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "คําตอบของคุณเกิน 64KB โปรดลดขนาดไฟล์ของคุณแล้วลองอีกครั้งหรือติดต่อเจ้าของแบบสํารวจ",
   // "Try again"
   saveAgainButton: "รบกวนลองอีกครั้ง",
@@ -173,6 +173,8 @@ export var thaiStrings = {
   timerLimitSurvey: "คุณใช้เวลา {0} ของ {1} รวมทั้งหมด",
   // "Clear"
   clearCaption: "เคลียร์",
+  // [Auto-translated] "Select"
+  selectCaption: "เลือก",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "ลงชื่อที่นี่",
   // [Auto-translated] "No signature"
@@ -211,9 +213,9 @@ export var thaiStrings = {
   loadingPage: "การโหลด   ",
   // [Auto-translated] "Loading..."
   loadingData: "การโหลด   ",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "ยังไม่มีรายการ\nคลิกปุ่มด้านล่างเพื่อเพิ่มรายการใหม่",
-  // [Auto-translated] "There are no entries."
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "ยังไม่มีรายการ\\n คลิกปุ่มด้านล่างเพื่อเพิ่มรายการใหม่",
+  // [Auto-translated] "No entries"
   noEntriesReadonlyText: "ไม่มีรายการ",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "แผงใหม่",
@@ -221,16 +223,20 @@ export var thaiStrings = {
   more: "อีก",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ตกลง, ได้",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "ตัวเลือกทั้งหมดจะถูกจัดอันดับ",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "ตัวเลือกทั้งหมดถูกเลือกสําหรับการจัดอันดับ",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "ลากตัวเลือกที่นี่เพื่อจัดอันดับ",
   // [Auto-translated] "OK"
   ok: "ตกลง, ได้",
   // [Auto-translated] "Cancel"
   cancel: "ยกเลิก",
   // "Create \"{0}\" item..."
-  createCustomItem: "สร้างรายการ \"{0}\"..."
+  createCustomItem: "สร้างรายการ \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "สารบัญ",
+  // [Auto-translated] "Progress bar"
+  progressbar: "แถบความคืบหน้า"
 };
 
 setupLocale({ localeCode: "th", strings: thaiStrings, nativeName: "ไทย", englishName: "Thai" });

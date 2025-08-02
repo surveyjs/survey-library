@@ -151,8 +151,8 @@ export var italianSurveyStrings = {
   savingDataError: "Si è verificato un errore e non è stato possibile salvare i risultati.",
   // "The results were saved successfully!"
   savingDataSuccess: "I risultati sono stati salvati con successo!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "La tua risposta supera i 64 KB. Riduci le dimensioni dei tuoi file e riprova o contatta il proprietario di un'indagine.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "La tua risposta supera i 64 KB. Riduci le dimensioni dei file e riprova o contatta il proprietario dell'indagine.",
   // "Try again"
   saveAgainButton: "Riprova",
   // "min"
@@ -173,6 +173,8 @@ export var italianSurveyStrings = {
   timerLimitSurvey: "Hai impiegato {0} di {1} in totale.",
   // "Clear"
   clearCaption: "Cancella",
+  // [Auto-translated] "Select"
+  selectCaption: "Selezionare",
   // "Sign here"
   signaturePlaceHolder: "Firmare qui",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var italianSurveyStrings = {
   loadingData: "Caricamento...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Non ci sono ancora voci.\nFai clic sul pulsante qui sotto per aggiungere una nuova voce.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Non ci sono voci.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Nessuna voce",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nuovo pannello",
   // [Auto-translated] "More"
   more: "Più",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Tutte le scelte sono classificate",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Trascina e rilascia le scelte qui per classificarle",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Tutte le scelte sono selezionate per la classificazione",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Trascina qui le scelte per classificarle",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Annulla",
   // "Create \"{0}\" item..."
-  createCustomItem: "Crea un articolo \"{0}\"..."
+  createCustomItem: "Crea un articolo \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Sommario",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Indicatore"
 };
 
 setupLocale({ localeCode: "it", strings: italianSurveyStrings, nativeName: "italiano", englishName: "Italian" });

@@ -109,8 +109,8 @@ export var hindiStrings = {
   chooseFile: "फ़ाइल चुनें",
   // "No file selected"
   noFileChosen: "कोई फाइल नहीं चुनी गई",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "यहां एक फ़ाइल खींचें और छोड़ें या नीचे दिए गए बटन पर क्लिक करें और अपलोड करने के लिए एक फ़ाइल चुनें।",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "किसी फ़ाइल को यहाँ खींचें और छोड़ें या अपलोड करने के लिए फ़ाइल का चयन करने के लिए नीचे दिए गए बटन पर क्लिक करें।",
   // "Are you sure you want to delete this record?"
   confirmDelete: "क्या आप रिकॉर्ड हटाना चाहते हैं",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var hindiStrings = {
   savingDataError: "एक त्रुटि हुई और हम परिणामों को नहीं सेव कर सके",
   // "The results were saved successfully!"
   savingDataSuccess: "परिणाम सफलतापूर्वक सेव हो गए",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "आपकी प्रतिक्रिया 64KB से अधिक है। कृपया अपनी फ़ाइल(फ़ाइलों) का आकार घटाएँ और पुन: प्रयास करें या सर्वेक्षण स्वामी से संपर्क करें.",
   // "Try again"
   saveAgainButton: "फिर कोशिश करो",
@@ -173,6 +173,8 @@ export var hindiStrings = {
   timerLimitSurvey: "आपने कुल {1} की {0} खर्च की है",
   // "Clear"
   clearCaption: "स्पष्ट",
+  // [Auto-translated] "Select"
+  selectCaption: "चुनना",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "यहां साइन करें",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var hindiStrings = {
   loadingPage: "लोड।।।",
   // [Auto-translated] "Loading..."
   loadingData: "लोड।।।",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "अभी तक कोई प्रविष्टियां नहीं हैं।\nनई प्रविष्टि जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "कोई प्रविष्टियाँ नहीं हैं.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "अभी तक कोई प्रविष्टि नहीं.\\nनई प्रविष्टि जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "कोई प्रविष्टि नहीं",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "नया पैनल",
   // [Auto-translated] "More"
   more: "अधिक",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ठीक है",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "सभी विकल्पों को रैंक किया गया है",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "रैंकिंग के लिए सभी विकल्पों का चयन किया जाता है",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "विकल्पों को रैंक करने के लिए यहां खींचें",
   // [Auto-translated] "OK"
   ok: "ठीक है",
   // [Auto-translated] "Cancel"
   cancel: "रद्द करना",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\" आइटम बनाएँ..."
+  createCustomItem: "\"{0}\" आइटम बनाएँ...",
+  // [Auto-translated] "Table of contents"
+  toc: "विषय-सूची",
+  // [Auto-translated] "Progress bar"
+  progressbar: "प्रगति पट्टी"
 };
 
 setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });

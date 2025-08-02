@@ -175,6 +175,8 @@ export var haitianCreoleStrings = {
   timerLimitSurvey: "Ou te depanse {0} nan {1} an total.",
   // "Clear"
   clearCaption: "Klè",
+  // [Auto-translated] "Select"
+  selectCaption: "Chwazi",
   // "Sign here"
   signaturePlaceHolder: "Siyen isit la",
   // "No signature"
@@ -232,7 +234,11 @@ export var haitianCreoleStrings = {
   // "Cancel"
   cancel: "Anile",
   // "Create \"{0}\" item..."
-  createCustomItem: "Kreye \"{0}\" atik ..."
+  createCustomItem: "Kreye \"{0}\" atik ...",
+  // [Auto-translated] "Table of contents"
+  toc: "Sa ki nan yon tablo",
+  // [Auto-translated] "Progress bar"
+  progressbar: "ba pwogrè"
 };
 
 setupLocale({ localeCode: "ht", strings: haitianCreoleStrings, nativeName: "Kreyòl ayisyen", englishName: "Haitian Creole" });

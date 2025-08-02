@@ -109,8 +109,8 @@ export var hebrewSurveyStrings = {
   chooseFile: "לבחור קבצים...",
   // "No file selected"
   noFileChosen: "לא נבחר קובץ",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "גרור ושחרר קובץ כאן או לחץ על הכפתור למטה כדי לבחור קובץ להעלאה.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "האם אתה רוצה למחוק את הרשומה?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var hebrewSurveyStrings = {
   savingDataError: "אירעה שגיאה ולא הצלחנו לשמור את התוצאות.",
   // "The results were saved successfully!"
   savingDataSuccess: "התוצאות נשמרו בהצלחה!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "תגובתך עולה על 64KB. הקטן את גודל הקבצים שלך ונסה שוב או פנה לבעלים של סקר.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "תגובתך עולה על 64KB. אנא הקטן את גודל הקבצים שלך ונסה שוב או צור קשר עם בעל הסקר.",
   // "Try again"
   saveAgainButton: "נסה שוב",
   // "min"
@@ -173,6 +173,8 @@ export var hebrewSurveyStrings = {
   timerLimitSurvey: "הוצאת סכום כולל של {0} מתוך {1}.",
   // "Clear"
   clearCaption: "לנקות",
+  // [Auto-translated] "Select"
+  selectCaption: "בחר",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "חתום כאן",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var hebrewSurveyStrings = {
   loadingPage: "טעינת...",
   // [Auto-translated] "Loading..."
   loadingData: "טעינת...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "אין עדיין ערכים.\nלחץ על הלחצן למטה כדי להוסיף ערך חדש.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "אין ערכים.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "עדיין אין רשומות.\\nלחץ על הכפתור למטה כדי להוסיף ערך חדש.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "אין כניסות",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "פאנל חדש",
   // [Auto-translated] "More"
   more: "עוד",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "אוקיי",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "כל האפשרויות מדורגות",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "גרור ושחרר אפשרויות לכאן כדי לדרג אותן",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "כל האפשרויות נבחרות לדירוג",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "גרור אפשרויות לכאן כדי לדרג אותן",
   // [Auto-translated] "OK"
   ok: "אוקיי",
   // [Auto-translated] "Cancel"
   cancel: "ביטל",
   // "Create \"{0}\" item..."
-  createCustomItem: "צור פריט \"{0}\"..."
+  createCustomItem: "צור פריט \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "תוכן עניינים",
+  // [Auto-translated] "Progress bar"
+  progressbar: "מד התקדמות"
 };
 
 setupLocale({ localeCode: "he", strings: hebrewSurveyStrings, nativeName: "עברית", englishName: "Hebrew", rtl: true });

@@ -41,8 +41,8 @@ export var catalanSurveyStrings = {
   emptySurvey: "No hi ha cap pàgina visible o pregunta a l'enquesta.",
   // "Thank you for completing the survey"
   completingSurvey: "Gràcies per completar l'enquesta!",
-  // [Auto-translated] "Our records show that you have already completed this survey."
-  completingSurveyBefore: "Els nostres registres mostren que ja heu completat aquesta enquesta.",
+  // [Auto-translated] "You have already completed this survey."
+  completingSurveyBefore: "Ja heu completat aquesta enquesta.",
   // "Loading Survey..."
   loadingSurvey: "L'enquesta s'està carregant ...",
   // "Select..."
@@ -107,12 +107,12 @@ export var catalanSurveyStrings = {
   loadingFile: "Càrrega...",
   // [Auto-translated] "Choose file(s)..."
   chooseFile: "Trieu fitxer(s)...",
-  // [Auto-translated] "No file chosen"
-  noFileChosen: "No s'ha triat cap fitxer",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Arrossegueu i deixeu anar un fitxer aquí o feu clic al botó següent i trieu un fitxer per carregar.",
-  // [Auto-translated] "Do you want to delete the record?"
-  confirmDelete: "Vols eliminar el registre?",
+  // [Auto-translated] "No file selected"
+  noFileChosen: "Cap fitxer seleccionat",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Arrossegueu i deixeu anar un fitxer aquí o feu clic al botó següent per seleccionar un fitxer per penjar.",
+  // [Auto-translated] "Are you sure you want to delete this record?"
+  confirmDelete: "Esteu segur que voleu suprimir aquest registre?",
   // [Auto-translated] "This value should be unique."
   keyDuplicationError: "Aquest valor ha de ser únic.",
   // [Auto-translated] "Add Column"
@@ -151,8 +151,8 @@ export var catalanSurveyStrings = {
   savingDataError: "S'ha produït un error i no hem pogut guardar els resultats.",
   // [Auto-translated] "The results were saved successfully!"
   savingDataSuccess: "Els resultats es van salvar amb èxit!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "La teva resposta supera els 64KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "La teva resposta supera els 64 KB. Reduïu la mida dels fitxers i torneu-ho a provar o poseu-vos en contacte amb el propietari de l'enquesta.",
   // [Auto-translated] "Try again"
   saveAgainButton: "Prova una altra vegada",
   // [Auto-translated] "min"
@@ -173,12 +173,14 @@ export var catalanSurveyStrings = {
   timerLimitSurvey: "Has gastat {0} d'{1} en total.",
   // [Auto-translated] "Clear"
   clearCaption: "Clar",
+  // [Auto-translated] "Select"
+  selectCaption: "Seleccionar",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Inscriu-te aquí",
   // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "Sense signatura",
-  // [Auto-translated] "Choose file"
-  chooseFileCaption: "Tria un fitxer",
+  // [Auto-translated] "Select File"
+  chooseFileCaption: "Seleccioneu Fitxer",
   // [Auto-translated] "Take Photo"
   takePhotoCaption: "Fer foto",
   // [Auto-translated] "Click the button below to take a photo using the camera."
@@ -211,26 +213,30 @@ export var catalanSurveyStrings = {
   loadingPage: "Càrrega...",
   // [Auto-translated] "Loading..."
   loadingData: "Càrrega...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Encara no hi ha entrades.\nFeu clic al botó següent per afegir una entrada nova.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "No hi ha entrades.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Encara no hi ha entrades.\\nFeu clic al botó següent per afegir una entrada nova.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "No hi ha entrades",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nou Panell",
   // [Auto-translated] "More"
   more: "Més",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "D'ACORD",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Totes les opcions estan classificades",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Arrossegueu i deixeu anar les opcions aquí per classificar-les",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Totes les opcions estan seleccionades per a la classificació",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Arrossega les opcions aquí per classificar-les",
   // [Auto-translated] "OK"
   ok: "D'ACORD",
   // [Auto-translated] "Cancel"
   cancel: "Cancel·lar",
   // "Create \"{0}\" item..."
-  createCustomItem: "Crea un element \"{0}\"..."
+  createCustomItem: "Crea un element \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Taula de continguts",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Barra de progrés"
 };
 
 setupLocale({ localeCode: "ca", strings: catalanSurveyStrings, nativeName: "català", englishName: "Catalan" });

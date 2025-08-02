@@ -109,8 +109,8 @@ export var simplifiedChineseSurveyStrings = {
   chooseFile: "选择文件...",
   // "No file selected"
   noFileChosen: "未选择文件",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "将文件拖放到此处或单击下面的按钮并选择要上传的文件。",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "将文件拖放到此处或单击下面的按钮选择要上传的文件。",
   // "Are you sure you want to delete this record?"
   confirmDelete: "删除记录?",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var simplifiedChineseSurveyStrings = {
   savingDataError: "在保存结果过程中发生了错误，结果未能保存",
   // "The results were saved successfully!"
   savingDataSuccess: "结果保存成功!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "您的回复超过 64KB。请减小文件的大小，然后重试或联系调查所有者。",
   // "Try again"
   saveAgainButton: "请重试",
@@ -173,6 +173,8 @@ export var simplifiedChineseSurveyStrings = {
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
   // "Clear"
   clearCaption: "清除",
+  // [Auto-translated] "Select"
+  selectCaption: "选择",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "在此签名",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var simplifiedChineseSurveyStrings = {
   loadingPage: "装载。。。",
   // [Auto-translated] "Loading..."
   loadingData: "装载。。。",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "尚无条目。\n单击下面的按钮以添加新条目。",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "没有条目。",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "尚无条目。\\n单击下面的按钮添加新条目。",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "暂无条目",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "新面板",
   // [Auto-translated] "More"
   more: "更多",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "还行",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "所有选择均已排名",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "将选项拖放到此处进行排名",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "所有选项均被选中进行排名",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "将选项拖到此处以对其进行排名",
   // [Auto-translated] "OK"
   ok: "还行",
   // [Auto-translated] "Cancel"
   cancel: "取消",
   // "Create \"{0}\" item..."
-  createCustomItem: "创建 {0} 项..."
+  createCustomItem: "创建 {0} 项...",
+  // [Auto-translated] "Table of contents"
+  toc: "目录",
+  // [Auto-translated] "Progress bar"
+  progressbar: "进度条"
 };
 
 setupLocale({ localeCode: "zh-cn", strings: simplifiedChineseSurveyStrings, nativeName: "简体中文", englishName: "Simplified Chinese" });

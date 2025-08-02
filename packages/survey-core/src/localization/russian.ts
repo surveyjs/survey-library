@@ -151,7 +151,7 @@ export var russianSurveyStrings = {
   savingDataError: "Произошла ошибка, результат не был сохранён.",
   // "The results were saved successfully!"
   savingDataSuccess: "Результат успешно сохранён!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "Ваш ответ превышает 64 КБ. Уменьшите размер файла (файлов) и повторите попытку или обратитесь к владельцу опроса.",
   // "Try again"
   saveAgainButton: "Попробовать снова",
@@ -173,6 +173,8 @@ export var russianSurveyStrings = {
   timerLimitSurvey: "Вы потратили {0} из {1} для всего теста.",
   // "Clear"
   clearCaption: "Очистить",
+  // [Auto-translated] "Select"
+  selectCaption: "Выбирать",
   // "Sign here"
   signaturePlaceHolder: "Подпишите здесь",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var russianSurveyStrings = {
   loadingData: "Загрузка...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Записей нет.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Нет записей",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Новая панель",
   // [Auto-translated] "More"
   more: "Больше",
   // "OK"
   tagboxDoneButtonCaption: "Хорошо",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Все варианты отбираются для ранжирования",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Перетащите варианты сюда для их ранжирования",
   // "OK"
   ok: "Хорошо",
   // [Auto-translated] "Cancel"
   cancel: "Отмена",
   // "Create \"{0}\" item..."
-  createCustomItem: "Создать элемент \"{0}\"..."
+  createCustomItem: "Создать элемент \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Содержание",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Индикатор выполнения"
 };
 
 setupLocale({ localeCode: "ru", strings: russianSurveyStrings, nativeName: "русский", englishName: "Russian" });

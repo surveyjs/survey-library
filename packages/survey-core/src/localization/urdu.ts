@@ -151,7 +151,7 @@ export var urduSurveyStrings = {
   savingDataError: "ایک خرابی پیش آگئی اور ہم نتائج کو محفوظ نہیں کر سکے۔",
   // "The results were saved successfully!"
   savingDataSuccess: "نتائج کامیابی سے محفوظ ہو گئے۔",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "آپ کا جواب 64KB سے تجاوز کر گیا ہے۔ براہ کرم اپنی فائل کا سائز کم کریں اور دوبارہ کوشش کریں یا سروے کے مالک سے رابطہ کریں۔",
   // "Try again"
   saveAgainButton: "دوبارہ کوشش کریں",
@@ -173,6 +173,8 @@ export var urduSurveyStrings = {
   timerLimitSurvey: "آپ نے کل {1} میں سے {1} خرچ کیا ہے۔",
   // "Clear"
   clearCaption: "صاف",
+  // [Auto-translated] "Select"
+  selectCaption: "منتخب",
   // "Sign here"
   signaturePlaceHolder: "یہاں سائن کریں۔",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var urduSurveyStrings = {
   loadingPage: "لوڈنگ...",
   // [Auto-translated] "Loading..."
   loadingData: "لوڈنگ...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "ابھی تک کوئی اندراج نہیں ہے.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "کوئی اندراج نہیں ہے.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "ابھی تک کوئی اندراج نہیں ہے۔\\nایک نیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن کو کلک کریں۔",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "کوئی اندراج نہیں",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "نیا پینل",
   // [Auto-translated] "More"
   more: "زیادہ",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ٹھيک ہے",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "تمام اختیارات کی درجہ بندی کی جاتی ہے",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "درجہ بندی کے لئے تمام اختیارات منتخب کیے جاتے ہیں",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں",
   // [Auto-translated] "OK"
   ok: "ٹھيک ہے",
   // [Auto-translated] "Cancel"
   cancel: "منسوخ",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\" آئٹم بنائیں..."
+  createCustomItem: "\"{0}\" آئٹم بنائیں...",
+  // [Auto-translated] "Table of contents"
+  toc: "مواد کا جدول",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Progress bar"
 };
 
 setupLocale({ localeCode: "ur", strings: urduSurveyStrings, nativeName: "urdu", englishName: "Urdu" });

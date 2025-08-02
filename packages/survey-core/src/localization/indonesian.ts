@@ -109,8 +109,8 @@ export var indonesianStrings = {
   chooseFile: "Pilih berkas...",
   // "No file selected"
   noFileChosen: "Tidak ada file yang dipilih",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Seret dan jatuhkan file di sini atau klik tombol di bawah ini dan pilih file yang akan diunggah.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Seret dan lepas file di sini atau klik tombol di bawah ini untuk memilih file yang akan diunggah.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Apakah Anda ingin menghapus catatan?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var indonesianStrings = {
   savingDataError: "Kesalahan terjadi dan kami tidak dapat menyimpan hasil.",
   // "The results were saved successfully!"
   savingDataSuccess: "Hasil telah sukses disimpan!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Respons Anda melebihi 64 KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Respons Anda melebihi 64KB. Harap kurangi ukuran file Anda dan coba lagi atau hubungi pemilik survei.",
   // "Try again"
   saveAgainButton: "Coba lagi",
   // "min"
@@ -173,6 +173,8 @@ export var indonesianStrings = {
   timerLimitSurvey: "Anda telah menghabiskan {0} dari {1} secara keseluruhan.",
   // "Clear"
   clearCaption: "Bersihkan",
+  // [Auto-translated] "Select"
+  selectCaption: "Pilih",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Tanda tangan di sini",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var indonesianStrings = {
   loadingPage: "Loading...",
   // [Auto-translated] "Loading..."
   loadingData: "Loading...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Belum ada entri.\nKlik tombol di bawah ini untuk menambahkan entri baru.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Tidak ada entri.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Belum ada entri.\\nKlik tombol di bawah ini untuk menambahkan entri baru.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Tidak ada entri",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel Baru",
   // [Auto-translated] "More"
   more: "Lebih",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OKE",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Semua pilihan diberi peringkat",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Seret dan lepas pilihan di sini untuk memberi peringkat",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Semua pilihan dipilih untuk peringkat",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Seret pilihan di sini untuk memberi peringkat",
   // [Auto-translated] "OK"
   ok: "OKE",
   // [Auto-translated] "Cancel"
   cancel: "Membatalkan",
   // "Create \"{0}\" item..."
-  createCustomItem: "Buat item \"{0}\"..."
+  createCustomItem: "Buat item \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Indeks",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Bilah kemajuan"
 };
 
 setupLocale({ localeCode: "id", strings: indonesianStrings, nativeName: "bahasa indonesia", englishName: "Indonesian" });

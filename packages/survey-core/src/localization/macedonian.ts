@@ -151,8 +151,8 @@ export var macedonianSurveyStrings = {
   savingDataError: "Настана грешка и не можевме да ги зачуваме резултатите.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резултатите беа успешно зачувани!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Вашиот одговор надминува 64KB. Ве молиме да ја намалите големината на вашата(ите) датотека(и) и обидете се повторно или контактирајте го сопственикот на истражувањето.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Вашиот одговор надминува 64KB. Молиме намалете ја големината на вашите документи и пробајте повторно или контактирајте го сопственикот на анкетата.",
   // "Try again"
   saveAgainButton: "Обиди се повторно",
   // "min"
@@ -173,6 +173,8 @@ export var macedonianSurveyStrings = {
   timerLimitSurvey: "Вие потрошивте вкупно {0} од {1}.",
   // "Clear"
   clearCaption: "Да расчисти",
+  // [Auto-translated] "Select"
+  selectCaption: "Избери",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Потпиши се овде.",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var macedonianSurveyStrings = {
   loadingPage: "Вчитување...",
   // [Auto-translated] "Loading..."
   loadingData: "Вчитување...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Сеуште нема влезници.\nКликнете на копчето подолу за да додадете нов влез.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Нема влезници.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Сè уште нема записи.\\nКликнете на копчето подолу за да додадете нов запис.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Нема записи",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Нов панел",
   // [Auto-translated] "More"
   more: "Повеќе",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ДОБРО",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Сите избори се рангирани",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Влечете и фрлете го изборот овде за да ги рангирате",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Сите избори се избрани за рангирање",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Повлечете избори тука за да ги рангирате",
   // [Auto-translated] "OK"
   ok: "ДОБРО",
   // [Auto-translated] "Cancel"
   cancel: "Откажи",
   // "Create \"{0}\" item..."
-  createCustomItem: "Креирање на \"{0}\" ставка..."
+  createCustomItem: "Креирање на \"{0}\" ставка...",
+  // [Auto-translated] "Table of contents"
+  toc: "Содржина",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Лента за напредок"
 };
 
 setupLocale({ localeCode: "mk", strings: macedonianSurveyStrings, nativeName: "македонски", englishName: "Macedonian" });

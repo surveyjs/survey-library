@@ -109,8 +109,8 @@ export var swahiliStrings = {
   chooseFile: "Chagua faili...",
   // "No file selected"
   noFileChosen: "Hujachagua faili",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Buruta na udondoshe faili hapa au bofya kitufe hapa chini na uchague faili ya kupakia.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Buruta na udondoshe faili hapa au bonyeza kitufe kilicho hapa chini ili kuchagua faili ya kupakia.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Je! Unataka kufuta rekodi?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var swahiliStrings = {
   savingDataError: "Kosa limetokea na hatukuweza kuhifadhi matokeo.",
   // "The results were saved successfully!"
   savingDataSuccess: "Matokeo yamehifadhiwa!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Jibu lako ni zaidi ya 64KB. Tafadhali punguza ukubwa wa faili yako na jaribu tena au wasiliana na mmiliki wa utafiti.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Jibu lako linazidi 64KB. Tafadhali punguza saizi ya faili zako na ujaribu tena au wasiliana na mmiliki wa utafiti.",
   // "Try again"
   saveAgainButton: "Jaribu tena",
   // "min"
@@ -173,6 +173,8 @@ export var swahiliStrings = {
   timerLimitSurvey: "Umetumia {0} ya {1} kwa jumla.",
   // "Clear"
   clearCaption: "Ondoa",
+  // [Auto-translated] "Select"
+  selectCaption: "Teua",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Ingia hapa",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var swahiliStrings = {
   loadingPage: "Kupakia...",
   // [Auto-translated] "Loading..."
   loadingData: "Kupakia...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Hakuna maingizo kwa sasa.\nBofya kitufe hapa chini ili kuongeza ingizo jipya.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Hakuna viingilio.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Bado hakuna mainizo.\\nBofya kitufe kilicho hapa chini ili kuongeza ingizo jipya.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Hakuna maingizo",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Jopo Jipya",
   // [Auto-translated] "More"
   more: "Zaidi",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "Sawa kabisa",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Chaguzi zote zimeorodheshwa",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Buruta na uache uchaguzi hapa ili kuziorodhesha",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Chaguo zote huchaguliwa kwa cheo",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Buruta chaguzi hapa ili kuziorodhesha",
   // [Auto-translated] "OK"
   ok: "Sawa kabisa",
   // [Auto-translated] "Cancel"
   cancel: "Katisha",
   // "Create \"{0}\" item..."
-  createCustomItem: "Unda kipengee cha \"{0}\"..."
+  createCustomItem: "Unda kipengee cha \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Jedwali la yaliyomo",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Upau wa maendeleo"
 };
 
 setupLocale({ localeCode: "sw", strings: swahiliStrings, nativeName: "swahili", englishName: "Swahili" });

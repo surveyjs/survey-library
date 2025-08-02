@@ -109,8 +109,8 @@ export var teluguStrings = {
   chooseFile: "ఫైళ్లను ఎన్నుకోండి",
   // "No file selected"
   noFileChosen: "ఏ ఫైల్ ఎన్నుకో లేదు",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "ఒక ఫైల్ ను ఇక్కడ డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోవడానికి దిగువ బటన్ మీద క్లిక్ చేయండి.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "మీరు రికార్డులను తొలగించాలని అనుకుంటున్నారా",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var teluguStrings = {
   savingDataError: "ఒక లోపము సంభవించినది అందుకని ఫలితాంశాలను సేవ్ చేయలేకపోయాము  ",
   // "The results were saved successfully!"
   savingDataSuccess: "ఫలితాంశాలను విజయవంతంగా సేవ్ చేసాము",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "మీ ప్రతిస్పందన 64KBని మించిపోయింది. దయచేసి మీ ఫైల్(లు) పరిమాణాన్ని తగ్గించండి మరియు మళ్లీ ప్రయత్నించండి లేదా సర్వే యజమానిని సంప్రదించండి.",
   // "Try again"
   saveAgainButton: "మళ్లీ ప్రయత్నించు",
@@ -173,6 +173,8 @@ export var teluguStrings = {
   timerLimitSurvey: " మొత్తంగా మీరు {1} లో {0} ని ఉపయోగించారు ",
   // "Clear"
   clearCaption: "స్పష్టమ్",
+  // [Auto-translated] "Select"
+  selectCaption: "ఎంచు",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "ఇక్కడ సంతకం చేయండి",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var teluguStrings = {
   loadingPage: "లోడింగ్...",
   // [Auto-translated] "Loading..."
   loadingData: "లోడింగ్...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "ఇంకా ఎలాంటి ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "ఎలాంటి ఎంట్రీలు లేవు.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "ఇంకా ఎంట్రీలు లేవు.\\n కొత్త ఎంట్రీని జోడించడానికి దిగువ బటన్ ను క్లిక్ చేయండి.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "ఎంట్రీలు లేవు",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "కొత్త ప్యానెల్",
   // [Auto-translated] "More"
   more: "ఎక్కువ",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "సరే",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "ర్యాంకింగ్ కొరకు అన్ని ఎంపికలు ఎంపిక చేయబడతాయి.",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ చేయండి",
   // [Auto-translated] "OK"
   ok: "సరే",
   // [Auto-translated] "Cancel"
   cancel: "రద్దు",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\" ఐటమ్ సృష్టించండి..."
+  createCustomItem: "\"{0}\" ఐటమ్ సృష్టించండి...",
+  // [Auto-translated] "Table of contents"
+  toc: "విషయ పట్టిక[మార్చు]",
+  // [Auto-translated] "Progress bar"
+  progressbar: "పురోగతి బార్"
 };
 
 setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", englishName: "Telugu" });

@@ -151,8 +151,8 @@ export var malaySurveyStrings = {
   savingDataError: "Ralat berlaku dan kami tidak dapat menyimpan keputusan.",
   // "The results were saved successfully!"
   savingDataSuccess: "Keputusan berjaya disimpan!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Jawapan anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Respons anda melebihi 64KB. Sila kurangkan saiz fail anda dan cuba lagi atau hubungi pemilik tinjauan.",
   // "Try again"
   saveAgainButton: "Cuba lagi",
   // "min"
@@ -173,6 +173,8 @@ export var malaySurveyStrings = {
   timerLimitSurvey: "Anda telah meluangkan {0} daripada {1} secara keseluruhan.",
   // "Clear"
   clearCaption: "Kosongkan",
+  // [Auto-translated] "Select"
+  selectCaption: "Pilih",
   // "Sign here"
   signaturePlaceHolder: "Tandatangan di sini",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var malaySurveyStrings = {
   loadingData: "Memuatkan...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Belum ada entri.\nKlik butang di bawah untuk menambahkan entri.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Tiada penyertaan.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Tiada penyertaan",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel Baru",
   // [Auto-translated] "More"
   more: "Lebih banyak",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Semua pilihan disenaraikan",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Seret dan lepaskan pilihan di sini untuk meletakkannya",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Semua pilihan dipilih untuk kedudukan",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Seret pilihan di sini untuk meletakkan kedudukan mereka",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Batal",
   // "Create \"{0}\" item..."
-  createCustomItem: "Buat item \"{0}\"..."
+  createCustomItem: "Buat item \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Jadual kandungan",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Bar kemajuan"
 };
 
 setupLocale({ localeCode: "ms", strings: malaySurveyStrings, nativeName: "melayu", englishName: "Malay" });

@@ -151,8 +151,8 @@ export var dutchSurveyStrings = {
   savingDataError: "Er was een probleem en we konden de resultaten niet bewaren.",
   // "The results were saved successfully!"
   savingDataSuccess: "De resultaten werden succesvol bewaard!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestand(en) en probeer het opnieuw of neem contact op met een enquête-eigenaar.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Uw antwoord is groter dan 64 kB. Verklein de grootte van uw bestanden en probeer het opnieuw of neem contact op met de eigenaar van de enquête.",
   // "Try again"
   saveAgainButton: "Probeer opnieuw",
   // "min"
@@ -173,6 +173,8 @@ export var dutchSurveyStrings = {
   timerLimitSurvey: "U heeft {0} van {1} in het totaal.",
   // "Clear"
   clearCaption: "Verwijder",
+  // [Auto-translated] "Select"
+  selectCaption: "Selecteren",
   // "Sign here"
   signaturePlaceHolder: "Hier tekenen",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var dutchSurveyStrings = {
   loadingPage: "Laden...",
   // [Auto-translated] "Loading..."
   loadingData: "Laden...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Er zijn nog geen inzendingen.\nKlik op de onderstaande knop om een nieuw item toe te voegen.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Er zijn geen inzendingen.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Nog geen inzendingen.\\nKlik op de knop hieronder om een nieuw artikel toe te voegen.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Geen inzendingen",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nieuw paneel",
   // [Auto-translated] "More"
   more: "Meer",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Alle keuzes zijn gerangschikt",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Drag en drop keuzes hier om ze te rangschikken",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Alle keuzes zijn geselecteerd voor rangschikking",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Sleep keuzes hierheen om ze te rangschikken",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Annuleren",
   // "Create \"{0}\" item..."
-  createCustomItem: "Maak een \"{0}\" item..."
+  createCustomItem: "Maak een \"{0}\" item...",
+  // [Auto-translated] "Table of contents"
+  toc: "Inhoudsopgave",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Voortgangsbalk"
 };
 
 setupLocale({ localeCode: "nl", strings: dutchSurveyStrings, nativeName: "nederlands", englishName: "Dutch" });

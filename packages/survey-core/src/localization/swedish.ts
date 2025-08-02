@@ -109,8 +109,8 @@ export var swedishSurveyStrings = {
   chooseFile: "Välj fil(er) ...",
   // "No file selected"
   noFileChosen: "Ingen fil vald",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Dra och släpp en fil här eller klicka på knappen nedan för att välja en fil att ladda upp.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Vill du radera posten?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var swedishSurveyStrings = {
   savingDataError: "Ett fel inträffade och vi kunde inte spara resultaten.",
   // "The results were saved successfully!"
   savingDataSuccess: "Resultaten lyckades sparas!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Ditt svar överskrider 64 kB. Minska storleken på dina filer och försök igen eller kontakta en undersökningsägare.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Ditt svar överstiger 64 kB. Minska storleken på dina filer och försök igen eller kontakta undersökningens ägare.",
   // "Try again"
   saveAgainButton: "Försök igen",
   // "min"
@@ -173,6 +173,8 @@ export var swedishSurveyStrings = {
   timerLimitSurvey: "Du har spenderat {0} av {1} totalt.",
   // "Clear"
   clearCaption: "Klar",
+  // [Auto-translated] "Select"
+  selectCaption: "Utvald",
   // "Sign here"
   signaturePlaceHolder: "Signera här",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var swedishSurveyStrings = {
   loadingData: "Lastning...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Det finns inga värden än.\nKlicka på knappen nedan för att lägga till nytt värde.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Det finns inga poster.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Inga anmälningar",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Ny panel",
   // "More"
   more: "Mer",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OKEJ",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Alla val rangordnas",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Dra och släpp val här för att rangordna dem",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Alla val väljs ut för rankning",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Dra valen hit för att rangordna dem",
   // [Auto-translated] "OK"
   ok: "OKEJ",
   // [Auto-translated] "Cancel"
   cancel: "Annullera",
   // "Create \"{0}\" item..."
-  createCustomItem: "Skapa \"{0}\"-objekt..."
+  createCustomItem: "Skapa \"{0}\"-objekt...",
+  // [Auto-translated] "Table of contents"
+  toc: "Innehållsförteckning",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Förloppsindikator"
 };
 
 setupLocale({ localeCode: "sv", strings: swedishSurveyStrings, nativeName: "svenska", englishName: "Swedish" });

@@ -232,7 +232,11 @@ export var germanSurveyStrings = {
   // "Cancel"
   cancel: "Abbrechen",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\"-Element erstellen..."
+  createCustomItem: "\"{0}\"-Element erstellen...",
+  // [Auto-translated] "Table of contents"
+  toc: "Inhaltsverzeichnis",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Fortschrittsbalken"
 };
 
 setupLocale({ localeCode: "de", strings: germanSurveyStrings, nativeName: "deutsch", englishName: "German" });

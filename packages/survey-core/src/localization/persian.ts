@@ -109,8 +109,8 @@ export var persianSurveyStrings = {
   chooseFile: "انتخاب فایل(ها)...",
   // "No file selected"
   noFileChosen: "هیچ فایلی انتخاب نشده",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "کشیدن و رها کردن یک فایل در اینجا و یا کلیک بر روی دکمه زیر و یک فایل برای اپلود را انتخاب کنید.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "یک فایل را در اینجا بکشید و رها کنید یا روی دکمه زیر کلیک کنید تا فایلی را برای آپلود انتخاب کنید.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "آیا مایل به حذف این ردیف هستید؟",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var persianSurveyStrings = {
   savingDataError: "خطایی در ذخیره سازی نتایج رخ داده است",
   // "The results were saved successfully!"
   savingDataSuccess: "نتایج با موفقیت ذخیره شد",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "پاسخ شما بیش از 64KB است. لطفا اندازه فایل(های) خود را کاهش دهید و دوباره تلاش کنید یا با صاحب نظرسنجی تماس بگیرید.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "پاسخ شما بیش از 64 کیلوبایت است. لطفا حجم فایل(های) خود را کاهش دهید و دوباره امتحان کنید یا با مالک نظرسنجی تماس بگیرید.",
   // "Try again"
   saveAgainButton: "مجدد تلاش کنید",
   // "min"
@@ -173,6 +173,8 @@ export var persianSurveyStrings = {
   timerLimitSurvey: "شما مدت {0} از {1} را در مجموع سپری کرده اید.",
   // "Clear"
   clearCaption: "خالی کردن",
+  // [Auto-translated] "Select"
+  selectCaption: "انتخاب",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "اینجا را امضا کنید",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var persianSurveyStrings = {
   loadingPage: "بارگذاری...",
   // [Auto-translated] "Loading..."
   loadingData: "بارگذاری...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "هنوز هیچ ورودی وجود ندارد.\nروی دکمه زیر کلیک کنید تا یک ورودی جدید اضافه شود.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "هیچ ورودی وجود ندارد.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "هنوز هیچ مدخلی وجود ندارد.\\nبرای افزودن یک ورودی جدید روی دکمه زیر کلیک کنید.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "بدون ورودی",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "پنل جدید",
   // [Auto-translated] "More"
   more: "بیشتر",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "باشه",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "همه انتخاب ها رتبه بندی می شوند",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "همه گزینه ها برای رتبه بندی انتخاب می شوند",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "گزینه ها را در اینجا بکشید تا آنها را رتبه بندی کنید",
   // [Auto-translated] "OK"
   ok: "باشه",
   // [Auto-translated] "Cancel"
   cancel: "لغو",
   // "Create \"{0}\" item..."
-  createCustomItem: "مورد \"{0}\" ایجاد کنید..."
+  createCustomItem: "مورد \"{0}\" ایجاد کنید...",
+  // [Auto-translated] "Table of contents"
+  toc: "جدول محتویات",
+  // [Auto-translated] "Progress bar"
+  progressbar: "نوار پیشرفت"
 };
 
 setupLocale({ localeCode: "fa", strings: persianSurveyStrings, nativeName: "فارْسِى", englishName: "Persian", rtl: true });

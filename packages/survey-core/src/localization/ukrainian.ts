@@ -109,8 +109,8 @@ export var ukrainianSurveyStrings = {
   chooseFile: "Виберіть файл(и)...",
   // "No file selected"
   noFileChosen: "Файл не вибрано",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Перетягніть файл сюди або натисніть кнопку нижче та виберіть файл для завантаження.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Перетягніть файл сюди або натисніть кнопку нижче, щоб вибрати файл для завантаження.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Ви хочете видалити запис?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var ukrainianSurveyStrings = {
   savingDataError: "Відбулася помилка, результат не був збережений.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резвультат успішно збережений!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір файлу (файлів) і повторіть спробу або зв'яжіться з власником опитування.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Ваша відповідь перевищує 64 КБ. Будь ласка, зменшіть розмір вашого файлу (файлів) і спробуйте ще раз або зверніться до власника опитування.",
   // "Try again"
   saveAgainButton: "Спробувати знову",
   // "min"
@@ -173,6 +173,8 @@ export var ukrainianSurveyStrings = {
   timerLimitSurvey: "Ви витратили {0} з {1} для всього тесту.",
   // "Clear"
   clearCaption: "Очистити",
+  // [Auto-translated] "Select"
+  selectCaption: "Виберіть",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Підпишіться тут",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var ukrainianSurveyStrings = {
   loadingPage: "Завантаження...",
   // [Auto-translated] "Loading..."
   loadingData: "Завантаження...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Записів поки немає.\nНатисніть кнопку нижче, щоб додати новий запис.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Записів немає.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Поки що немає записів.\\nНатисніть кнопку нижче, щоб додати новий запис.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Записів немає",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Нова панель",
   // [Auto-translated] "More"
   more: "Більше",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ГАРАЗД",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Всі варіанти ранжуються",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Перетягніть варіанти тут, щоб оцінити їх",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Всі варіанти вибираються для ранжування",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Перетягніть варіанти сюди, щоб ранжувати їх",
   // [Auto-translated] "OK"
   ok: "ГАРАЗД",
   // [Auto-translated] "Cancel"
   cancel: "Скасувати",
   // "Create \"{0}\" item..."
-  createCustomItem: "Створіть пункт \"{0}\"..."
+  createCustomItem: "Створіть пункт \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Зміст",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Індикатор прогресу"
 };
 
 setupLocale({ localeCode: "uk", strings: ukrainianSurveyStrings, nativeName: "українська", englishName: "Ukrainian" });

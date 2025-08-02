@@ -151,8 +151,8 @@ export var latvianSurveyStrings = {
   savingDataError: "Radās kļūda, un mēs nevarējām saglabāt rezultātus.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultāti tika veiksmīgi saglabāti!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet sava(-u) faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Jūsu atbilde pārsniedz 64 KB. Lūdzu, samaziniet faila(-u) lielumu un mēģiniet vēlreiz vai sazinieties ar aptaujas īpašnieku.",
   // "Try again"
   saveAgainButton: "Mēģiniet vēlreiz",
   // "min"
@@ -173,6 +173,8 @@ export var latvianSurveyStrings = {
   timerLimitSurvey: "Kopā esat iztērējis {0} no {1}.",
   // "Clear"
   clearCaption: "Iztīrīt",
+  // [Auto-translated] "Select"
+  selectCaption: "Atlasiet",
   // "Sign here"
   signaturePlaceHolder: "Parakstieties šeit",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var latvianSurveyStrings = {
   loadingData: "Iekraušanas...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Vēl nav neviena ieraksta.\nNoklikšķiniet uz zemāk esošās pogas, lai pievienotu jaunu ierakstu.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Ierakstu nav.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Nav ierakstu",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Jauns panelis",
   // [Auto-translated] "More"
   more: "Vairāk",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "LABI",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Visas izvēles ir sarindotas",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Visas izvēles tiek atlasītas ranžēšanai",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Velciet izvēles šeit, lai tās sakārtotu",
   // [Auto-translated] "OK"
   ok: "LABI",
   // [Auto-translated] "Cancel"
   cancel: "Atcelt",
   // "Create \"{0}\" item..."
-  createCustomItem: "Izveidot vienumu \"{0}\"..."
+  createCustomItem: "Izveidot vienumu \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Satura rādītājs",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Progresa josla"
 };
 
 setupLocale({ localeCode: "lv", strings: latvianSurveyStrings, nativeName: "latviešu", englishName: "Latvian" });

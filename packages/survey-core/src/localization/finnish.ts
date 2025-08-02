@@ -13,6 +13,8 @@ export var finnishSurveyStrings = {
   editText: "Muokkaa",
   // "Start"
   startSurveyText: "Aloita",
+  // [Auto-translated] "Please leave a comment"
+  commentText: "Jätä kommentti",
   // "Other (describe)"
   otherItemText: "Muu (tarkenna)",
   // "None"
@@ -23,6 +25,8 @@ export var finnishSurveyStrings = {
   dontKnowItemText: "Ei tiedä",
   // "Select All"
   selectAllItemText: "Valitse kaikki",
+  // [Auto-translated] "Deselect all"
+  deselectAllItemText: "Poista kaikki valinnat",
   // "Page {0} of {1}"
   progressText: "Sivu {0} / {1}",
   // "{0} of {1}"
@@ -45,6 +49,8 @@ export var finnishSurveyStrings = {
   placeholder: "Valitse...",
   // "Select..."
   ratingOptionsCaption: "Arvioi napauttamalla tätä...",
+  // [Auto-translated] "Select..."
+  buttongroupOptionsCaption: "Valitse...",
   // "value"
   value: "arvo",
   // "Response required."
@@ -61,6 +67,8 @@ export var finnishSurveyStrings = {
   minError: "Arvo ei saa olla pienempi kuin {0}",
   // "The value should not be greater than {0}"
   maxError: "Arvo ei saa olla suurempi kuin {0}",
+  // [Auto-translated] "Numbers are not allowed."
+  textNoDigitsAllow: "Numerot eivät ole sallittuja.",
   // "Please enter at least {0} character(s)."
   textMinLength: "Syötä vähintään {0} merkkiä.",
   // "Please enter no more than {0} character(s)."
@@ -113,6 +121,12 @@ export var finnishSurveyStrings = {
   addRow: "Lisää rivi",
   // "Remove"
   removeRow: "Poista",
+  // "There are no rows."
+  noRowsText: "Ei rivejä",
+  // [Auto-translated] "Row {rowIndex}"
+  rowIndexTemplateTitle: "Rivi {rowIndex}",
+  // "{rowTitle}"
+  rowNameTemplateTitle: "{rowTitle}",
   // "Add new"
   addPanel: "Lisää uusi",
   // "Remove"
@@ -123,6 +137,8 @@ export var finnishSurveyStrings = {
   hideDetails: "Piilota tiedot",
   // "item"
   choices_Item: "kohde",
+  // [Auto-translated] "Choice option"
+  choices_Choice: "Valintavaihtoehto",
   // "Column"
   matrix_column: "Sarake",
   // "Row"
@@ -135,7 +151,7 @@ export var finnishSurveyStrings = {
   savingDataError: "Tapahtui virhe, emmekä voineet tallentaa kyselyn tietoja.",
   // "The results were saved successfully!"
   savingDataSuccess: "Tiedot tallennettiin onnistuneesti!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "Vastauksesi ylittää 64 kt. Pienennä tiedostojesi kokoa ja yritä uudelleen tai ota yhteyttä kyselyn omistajaan.",
   // "Try again"
   saveAgainButton: "Yritä uudelleen",
@@ -157,6 +173,8 @@ export var finnishSurveyStrings = {
   timerLimitSurvey: "Olet käyttänyt yhteensä {0} / {1}.",
   // "Clear"
   clearCaption: "Tyhjennä",
+  // [Auto-translated] "Select"
+  selectCaption: "Valikoida",
   // "Sign here"
   signaturePlaceHolder: "Allekirjoita tähän",
   // [Auto-translated] "No signature"
@@ -191,46 +209,34 @@ export var finnishSurveyStrings = {
   filterStringPlaceholder: "Hae kirjoittamalla...",
   // [Auto-translated] "No data to display"
   emptyMessage: "Ei näytettäviä tietoja",
+  // [Auto-translated] "Loading..."
+  loadingPage: "Latautuu...",
+  // [Auto-translated] "Loading..."
+  loadingData: "Latautuu...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Merkintöjä ei ole vielä.\nLisää uusi merkintä napsauttamalla alla olevaa painiketta.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Merkintöjä ei ole.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Ei merkintöjä",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Uusi paneeli",
   // [Auto-translated] "More"
   more: "Enemmän",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "Ok",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Kaikki valinnat asetetaan paremmuusjärjestykseen",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Kaikki valinnat valitaan paremmuusjärjestykseen",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Vedä valinnat tähän asettaaksesi ne paremmuusjärjestykseen",
   // [Auto-translated] "OK"
   ok: "Ok",
   // [Auto-translated] "Cancel"
   cancel: "Peru",
-  // [Auto-translated] "Please leave a comment"
-  commentText: "Jätä kommentti",
-  // [Auto-translated] "Deselect all"
-  deselectAllItemText: "Poista kaikki valinnat",
-  // [Auto-translated] "Select..."
-  buttongroupOptionsCaption: "Valitse...",
-  // [Auto-translated] "Numbers are not allowed."
-  textNoDigitsAllow: "Numerot eivät ole sallittuja.",
-  // "There are no rows."
-  noRowsText: "Ei rivejä",
-  // [Auto-translated] "Row {rowIndex}"
-  rowIndexTemplateTitle: "Rivi {rowIndex}",
-  // "{rowTitle}"
-  rowNameTemplateTitle: "{rowTitle}",
-  // [Auto-translated] "Choice option"
-  choices_Choice: "Valintavaihtoehto",
-  // [Auto-translated] "Loading..."
-  loadingPage: "Latautuu...",
-  // [Auto-translated] "Loading..."
-  loadingData: "Latautuu...",
   // "Create \"{0}\" item..."
-  createCustomItem: "Luo \"{0}\"-kohde..."
+  createCustomItem: "Luo \"{0}\"-kohde...",
+  // [Auto-translated] "Table of contents"
+  toc: "Sisällysluettelo",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Edistymispalkki"
 };
 
 setupLocale({ localeCode: "fi", strings: finnishSurveyStrings, nativeName: "suomi", englishName: "Finnish" });

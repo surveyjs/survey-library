@@ -109,8 +109,8 @@ export var lithuaniaSurveyStrings = {
   chooseFile: "Pasirinkti failą(us)...",
   // "No file selected"
   noFileChosen: "Nepasirinktas joks failas",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką ir pasirinkite failą, kurį norite įkelti.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką, kad pasirinktumėte failą, kurį norite įkelti.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Ar norite ištrinti įrašą?",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var lithuaniaSurveyStrings = {
   savingDataError: "Įvyko klaida ir mes negalėjome išsaugoti rezultatų.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultatai buvo išsaugoti sėkmingai!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "Jūsų atsakymas viršija 64 KB. Sumažinkite failo (-ų) dydį ir bandykite dar kartą arba susisiekite su apklausos savininku.",
   // "Try again"
   saveAgainButton: "Bandyti dar kartą",
@@ -173,6 +173,8 @@ export var lithuaniaSurveyStrings = {
   timerLimitSurvey: "Praleidote {0} iš {1} iš viso.",
   // "Clear"
   clearCaption: "Valyti",
+  // [Auto-translated] "Select"
+  selectCaption: "Žymėti",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Pasirašykite čia",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var lithuaniaSurveyStrings = {
   loadingPage: "Pakrovimo...",
   // [Auto-translated] "Loading..."
   loadingData: "Pakrovimo...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Įrašų dar nėra.\nSpustelėkite žemiau esantį mygtuką, kad pridėtumėte naują įrašą.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Įrašų nėra.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Įrašų dar nėra.\\nSpustelėkite žemiau esantį mygtuką, jei norite pridėti naują įrašą.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Įrašų nėra",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Naujas skydelis",
   // [Auto-translated] "More"
   more: "Daugiau",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "GERAI",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Visi pasirinkimai yra reitinguojami",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Visi pasirinkimai atrenkami reitingui",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Vilkite pasirinkimus čia, kad juos reitinguotumėte",
   // [Auto-translated] "OK"
   ok: "GERAI",
   // [Auto-translated] "Cancel"
   cancel: "Atšaukti",
   // "Create \"{0}\" item..."
-  createCustomItem: "Sukurkite elementą \"{0}\"..."
+  createCustomItem: "Sukurkite elementą \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Turinys",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Eigos juosta"
 };
 
 setupLocale({ localeCode: "lt", strings: lithuaniaSurveyStrings, nativeName: "lietuvių", englishName: "Lithuanian" });

@@ -109,8 +109,8 @@ export var welshSurveyStrings = {
   chooseFile: "Dewiswch ffeil(iau)...",
   // "No file selected"
   noFileChosen: "Heb ddewis ffeil ",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Llusgwch a gollwng ffeil yma neu cliciwch ar y botwm isod i ddewis ffeil i'w llwytho i fyny.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Ydych chi am ddileu’r cofnod?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var welshSurveyStrings = {
   savingDataError: "Roedd gwall a doedd dim modd cadw’r canlyniadau.",
   // "The results were saved successfully!"
   savingDataSuccess: "Wedi llwyddo i gadw’r canlyniadau!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(au) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Mae eich ymateb yn fwy na 64KB. Lleihau maint eich ffeil(iau) a cheisiwch eto neu cysylltwch â pherchennog yr arolwg.",
   // "Try again"
   saveAgainButton: "Rhowch gynnig arall arni",
   // "min"
@@ -173,6 +173,8 @@ export var welshSurveyStrings = {
   timerLimitSurvey: "Rydych chi wedi treulio {0} o {1} gyda’i gilydd.",
   // "Clear"
   clearCaption: "Clirio",
+  // [Auto-translated] "Select"
+  selectCaption: "Dewis",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Arwydd yma",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var welshSurveyStrings = {
   loadingPage: "Llwytho...",
   // [Auto-translated] "Loading..."
   loadingData: "Llwytho...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Nid oes unrhyw gofnodion hyd yn hyn.\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Nid oes unrhyw gofnodion.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Dim cofnodion eto.\\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Dim cofnodion",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Panel newydd",
   // [Auto-translated] "More"
   more: "Rhagor",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OCÊ",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Mae'r holl ddewisiadau yn cael eu rhestru",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Dewisiadau llusgo a gollwng yma i'w graddio",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Dewisir pob dewis ar gyfer graddio",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Llusgwch ddewisiadau yma i'w graddio",
   // [Auto-translated] "OK"
   ok: "OCÊ",
   // [Auto-translated] "Cancel"
   cancel: "Canslo",
   // "Create \"{0}\" item..."
-  createCustomItem: "Creu eitem \"{0}\"..."
+  createCustomItem: "Creu eitem \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Tabl cynnwys",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Bar cynnydd"
 };
 
 setupLocale({ localeCode: "cy", strings: welshSurveyStrings, nativeName: "cymraeg", englishName: "Welsh" });

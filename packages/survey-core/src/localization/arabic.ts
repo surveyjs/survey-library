@@ -109,8 +109,8 @@ export var arabicSurveyStrings = {
   chooseFile: "اختر الملفات...",
   // "No file selected"
   noFileChosen: "لم تقم باختيار ملف",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه لتحديد ملف لتحميله.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "هل تريد حذف السجل؟",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var arabicSurveyStrings = {
   savingDataError: "حدث خطأ ولم نتمكن من حفظ النتائج.",
   // "The results were saved successfully!"
   savingDataSuccess: "تم حفظ النتائج بنجاح!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "ردك يتجاوز 64 كيلوبايت. يرجى تقليل حجم الملف (الملفات) الخاصة بك والمحاولة مرة أخرى أو الاتصال بمالك الاستطلاع.",
   // "Try again"
   saveAgainButton: "حاول مجددا",
   // "min"
@@ -173,6 +173,8 @@ export var arabicSurveyStrings = {
   timerLimitSurvey: "لقد أنفقت {0} من إجمالي {1}.",
   // "Clear"
   clearCaption: "واضح",
+  // [Auto-translated] "Select"
+  selectCaption: "اختار",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "وقع هنا",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var arabicSurveyStrings = {
   loadingPage: "تحميل...",
   // [Auto-translated] "Loading..."
   loadingData: "تحميل...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "لا توجد إدخالات حتى الآن.\nانقر فوق الزر أدناه لإضافة إدخال جديد.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "لا توجد إدخالات.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "لا توجد إدخالات بعد.\\nانقر فوق الزر أدناه لإضافة إدخال جديد.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "لا توجد إدخالات",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "لوحة جديدة",
   // [Auto-translated] "More"
   more: "أكثر",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "موافق",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "يتم ترتيب جميع الخيارات",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "قم بسحب وإسقاط الخيارات هنا لترتيبها",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "يتم تحديد جميع الخيارات للترتيب",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "اسحب الخيارات هنا لترتيبها",
   // [Auto-translated] "OK"
   ok: "موافق",
   // [Auto-translated] "Cancel"
   cancel: "إلغاء الأمر",
   // "Create \"{0}\" item..."
-  createCustomItem: "قم بإنشاء عنصر \"{0}\" ..."
+  createCustomItem: "قم بإنشاء عنصر \"{0}\" ...",
+  // [Auto-translated] "Table of contents"
+  toc: "جدول المحتويات",
+  // [Auto-translated] "Progress bar"
+  progressbar: "شريط التقدم"
 };
 
 setupLocale({ localeCode: "ar", strings: arabicSurveyStrings, nativeName: "العربية", englishName: "Arabic", rtl: true });

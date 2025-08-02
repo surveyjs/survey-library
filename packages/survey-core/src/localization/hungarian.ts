@@ -151,8 +151,8 @@ export var hungarianSurveyStrings = {
   savingDataError: "Egy hiba folytán nem tudtuk elmenteni az eredményt.",
   // "The results were saved successfully!"
   savingDataSuccess: "Eredmény sikeresen mentve!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba egy felmérés tulajdonosával.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "A válasz meghaladja a 64 KB-ot. Kérjük, csökkentse a fájl(ok) méretét, és próbálja újra, vagy lépjen kapcsolatba a felmérés tulajdonosával.",
   // "Try again"
   saveAgainButton: "Próbálja újra",
   // "min"
@@ -173,6 +173,8 @@ export var hungarianSurveyStrings = {
   timerLimitSurvey: "Összesen {0} / {1} összeget költött el.",
   // "Clear"
   clearCaption: "Törlés",
+  // [Auto-translated] "Select"
+  selectCaption: "Kiválaszt",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Írja alá itt",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var hungarianSurveyStrings = {
   loadingPage: "Berakás...",
   // [Auto-translated] "Loading..."
   loadingData: "Berakás...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Még nincsenek bejegyzések.\nKattintson az alábbi gombra egy új bejegyzés hozzáadásához.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Nincsenek bejegyzések.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Még nincs bejegyzés.\\nKattintson az alábbi gombra új bejegyzés hozzáadásához.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Nincs nevezés",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Új panel",
   // [Auto-translated] "More"
   more: "Több",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OKÉ",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Minden választási lehetőség rangsorolva van",
-  // [Auto-translated] "Drag and drop choices here to rank them"
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Minden választás kiválasztásra kerül a rangsoroláshoz",
+  // [Auto-translated] "Drag choices here to rank them"
   selectToRankEmptyUnrankedAreaText: "Húzza ide a választási lehetőségeket a rangsoroláshoz",
   // [Auto-translated] "OK"
   ok: "OKÉ",
   // [Auto-translated] "Cancel"
   cancel: "Érvénytelenít",
   // "Create \"{0}\" item..."
-  createCustomItem: "\"{0}\" elem létrehozása..."
+  createCustomItem: "\"{0}\" elem létrehozása...",
+  // [Auto-translated] "Table of contents"
+  toc: "Tartalomjegyzék",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Folyamatjelző sáv"
 };
 
 setupLocale({ localeCode: "hu", strings: hungarianSurveyStrings, nativeName: "magyar", englishName: "Hungarian" });

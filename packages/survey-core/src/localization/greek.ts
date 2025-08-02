@@ -151,8 +151,8 @@ export var greekSurveyStrings = {
   savingDataError: "Παρουσιάστηκε σφάλμα και δεν ήταν δυνατή η αποθήκευση των αποτελεσμάτων.",
   // "The results were saved successfully!"
   savingDataSuccess: "Τα αποτελέσματα αποθηκεύτηκαν με επιτυχία!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με έναν κάτοχο έρευνας.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Η απάντησή σας υπερβαίνει τα 64KB. Μειώστε το μέγεθος των αρχείων σας και προσπαθήστε ξανά ή επικοινωνήστε με τον κάτοχο της έρευνας.",
   // "Try again"
   saveAgainButton: "Προσπάθησε ξανά",
   // "min"
@@ -173,6 +173,8 @@ export var greekSurveyStrings = {
   timerLimitSurvey: "Έχετε ξοδέψει {0} από {1} συνολικά.",
   // "Clear"
   clearCaption: "Εκκαθάριση",
+  // [Auto-translated] "Select"
+  selectCaption: "Διαλέγω",
   // "Sign here"
   signaturePlaceHolder: "Υπογράψτε εδώ",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var greekSurveyStrings = {
   loadingData: "Φόρτωση...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Δεν υπάρχουν ακόμη εγγραφές.\nΚάντε κλικ στο κουμπί παρακάτω για να προσθέσετε μια νέα εγγραφή.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Δεν υπάρχουν καταχωρήσεις.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Δεν υπάρχουν καταχωρήσεις",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Νέο πάνελ",
   // "More"
   more: "Περισσότερα",
   // "OK"
   tagboxDoneButtonCaption: "ΟΚ",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Όλες οι επιλογές κατατάσσονται",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Όλες οι επιλογές επιλέγονται για κατάταξη",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Σύρετε τις επιλογές εδώ για να τις κατατάξετε",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Ακυρώνω",
   // "Create \"{0}\" item..."
-  createCustomItem: "Δημιουργία στοιχείου \"{0}\"..."
+  createCustomItem: "Δημιουργία στοιχείου \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Πίνακας περιεχομένων",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Γραμμή προόδου"
 };
 
 setupLocale({ localeCode: "el", strings: greekSurveyStrings, nativeName: "ελληνικά", englishName: "Greek" });

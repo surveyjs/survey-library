@@ -109,8 +109,8 @@ export var danishSurveyStrings = {
   chooseFile: "Vælg fil(er)...",
   // "No file selected"
   noFileChosen: "Ingen fil er valgt",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Træk og slip en fil her, eller klik på knappen nedenfor, og vælg en fil, der skal uploades.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Træk og slip en fil her, eller klik på knappen nedenfor for at vælge en fil, der skal uploades.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Vil du fjerne den?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var danishSurveyStrings = {
   savingDataError: "Der opstod en fejl og vi kunne ikke gemme resultatet.",
   // "The results were saved successfully!"
   savingDataSuccess: "Resultatet blev gemt!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Dit svar overstiger 64 KB. Reducer størrelsen på din(e) fil(er), og prøv igen, eller kontakt en undersøgelsesejer.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Dit svar overstiger 64 KB. Reducer størrelsen på dine filer, og prøv igen, eller kontakt ejeren af undersøgelsen.",
   // "Try again"
   saveAgainButton: "Prøv igen",
   // "min"
@@ -173,6 +173,8 @@ export var danishSurveyStrings = {
   timerLimitSurvey: "Du har brugt {0} af {1} i alt.",
   // "Clear"
   clearCaption: "Fjern",
+  // [Auto-translated] "Select"
+  selectCaption: "Markere",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Tilmeld dig her",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var danishSurveyStrings = {
   loadingPage: "Pålæsning...",
   // [Auto-translated] "Loading..."
   loadingData: "Pålæsning...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Der er endnu ingen tilmeldinger.\nKlik på knappen nedenfor for at tilføje en ny post.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Der er ingen poster.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Ingen poster endnu.\\nKlik på knappen nedenfor for at tilføje en ny post.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Ingen poster",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nyt panel",
   // [Auto-translated] "More"
   more: "Mere",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Alle valg er rangeret",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Træk og slip valg her for at rangere dem",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Alle valg er udvalgt til rangering",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Træk valgmuligheder her for at rangere dem",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Aflyse",
   // "Create \"{0}\" item..."
-  createCustomItem: "Opret \"{0}\" element..."
+  createCustomItem: "Opret \"{0}\" element...",
+  // [Auto-translated] "Table of contents"
+  toc: "Indholdsfortegnelse",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Statuslinje"
 };
 
 setupLocale({ localeCode: "da", strings: danishSurveyStrings, nativeName: "dansk", englishName: "Danish" });

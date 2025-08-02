@@ -173,6 +173,8 @@ export var philippinesStrings = {
   timerLimitSurvey: "Gumastos ka ng {0} sa {1} sa kabuuan.",
   // "Clear"
   clearCaption: "Maaliwalas",
+  // [Auto-translated] "Select"
+  selectCaption: "Piliin",
   // "Sign here"
   signaturePlaceHolder: "Pumirma dito",
   // "No signature"
@@ -230,7 +232,11 @@ export var philippinesStrings = {
   // "Cancel"
   cancel: "Kanselahin",
   // "Create \"{0}\" item..."
-  createCustomItem: "Lumikha ng \"{0}\" na item ..."
+  createCustomItem: "Lumikha ng \"{0}\" na item ...",
+  // [Auto-translated] "Table of contents"
+  toc: "Talaan ng mga nilalaman",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Email Address *"
 };
 
 // Uncomment the lines below if you create a custom dictionary.

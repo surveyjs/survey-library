@@ -109,8 +109,8 @@ export var bulgarianStrings = {
   chooseFile: "Изберете файл(ове)...",
   // "No file selected"
   noFileChosen: "Няма избран файл",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу и изберете файл за качване.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу, за да изберете файл за качване.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Желаете ли да изтриете записа?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var bulgarianStrings = {
   savingDataError: "Поради възникнала грешка резултатите не можаха да бъдат запазени.",
   // "The results were saved successfully!"
   savingDataSuccess: "Резултатите бяха запазени успешно!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Вашият отговор надхвърля 64KB. Намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Вашият отговор надхвърля 64KB. Моля, намалете размера на вашите файлове и опитайте отново или се свържете със собственика на проучването.",
   // "Try again"
   saveAgainButton: "Нов опит",
   // "min"
@@ -173,6 +173,8 @@ export var bulgarianStrings = {
   timerLimitSurvey: "Вие използвахте общо {0} от {1}.",
   // "Clear"
   clearCaption: "Начално състояние",
+  // [Auto-translated] "Select"
+  selectCaption: "Отбран",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Подпишете тук",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var bulgarianStrings = {
   loadingPage: "Зареждане...",
   // [Auto-translated] "Loading..."
   loadingData: "Зареждане...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Все още няма записи.\nЩракнете върху бутона по-долу, за да добавите нов запис.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Няма записи.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Все още няма записи.\\nЩракнете върху бутона по-долу, за да добавите нов запис.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Няма записи",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Нов панел",
   // [Auto-translated] "More"
   more: "Още",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "Добре",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Всички възможности за избор са класирани",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Плъзнете и пуснете опции тук, за да ги класирате",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Всички избори се избират за класиране",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Плъзнете изборите тук, за да ги класирате",
   // [Auto-translated] "OK"
   ok: "Добре",
   // [Auto-translated] "Cancel"
   cancel: "Отмени",
   // "Create \"{0}\" item..."
-  createCustomItem: "Създайте елемент \"{0}\"..."
+  createCustomItem: "Създайте елемент \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Съдържание",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Лента за напредъка"
 };
 
 setupLocale({ localeCode: "bg", strings: bulgarianStrings, nativeName: "български", englishName: "Bulgarian" });

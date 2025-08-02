@@ -109,8 +109,8 @@ export var icelandicSurveyStrings = {
   chooseFile: "Veldu skrár ...",
   // "No file selected"
   noFileChosen: "Engin skrá valin",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan til að velja skrá til að hlaða upp.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Viltu eyða skránni?",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var icelandicSurveyStrings = {
   savingDataError: "Villa kom upp og við gátum ekki vistað niðurstöðurnar.",
   // "The results were saved successfully!"
   savingDataSuccess: "Árangurinn var vistaður með góðum árangri!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "Svar þitt fer yfir 64KB. Vinsamlegast minnkaðu stærð skráa þinna og reyndu aftur eða hafðu samband við eiganda könnunarinnar.",
   // "Try again"
   saveAgainButton: "Reyndu aftur",
@@ -173,6 +173,8 @@ export var icelandicSurveyStrings = {
   timerLimitSurvey: "Þú hefur eytt {0} af {1} samtals.",
   // "Clear"
   clearCaption: "Hreinsa",
+  // [Auto-translated] "Select"
+  selectCaption: "Velja",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Kvittađu hér",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var icelandicSurveyStrings = {
   loadingPage: "Hleðsla...",
   // [Auto-translated] "Loading..."
   loadingData: "Hleðsla...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Það eru engar færslur ennþá.\nSmelltu á hnappinn hér að neðan til að bæta við nýrri færslu.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Það eru engar færslur.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Engar færslur ennþá.\\nSmelltu á hnappinn hér fyrir neðan til að bæta við nýrri færslu.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Engar færslur",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nýtt spjald",
   // [Auto-translated] "More"
   more: "Fleiri",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ÓKEI",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Öllum valkostum er raðað",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Dragðu og slepptu valkostum hér til að raða þeim",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Allir valkostir eru valdir til röðunar",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Dragðu val hér til að raða þeim",
   // [Auto-translated] "OK"
   ok: "ÓKEI",
   // [Auto-translated] "Cancel"
   cancel: "Afturkalla",
   // "Create \"{0}\" item..."
-  createCustomItem: "Búðu til \"{0}\" hlut..."
+  createCustomItem: "Búðu til \"{0}\" hlut...",
+  // [Auto-translated] "Table of contents"
+  toc: "Efnisyfirlit",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Framvindustika"
 };
 
 setupLocale({ localeCode: "is", strings: icelandicSurveyStrings, nativeName: "íslenska", englishName: "Icelandic" });

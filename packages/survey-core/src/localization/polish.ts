@@ -151,7 +151,7 @@ export var polishSurveyStrings = {
   savingDataError: "Wystąpił błąd i wyniki nie mogły zostać zapisane.",
   // "The results were saved successfully!"
   savingDataSuccess: "Wyniki zostały poprawnie zapisane!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "Twoja odpowiedź przekracza 64 KB. Zmniejsz rozmiar plików i spróbuj ponownie lub skontaktuj się z właścicielem ankiety.",
   // "Try again"
   saveAgainButton: "Spróbuj ponownie",
@@ -173,6 +173,8 @@ export var polishSurveyStrings = {
   timerLimitSurvey: "Spędziłeś {0} z {1}.",
   // "Clear"
   clearCaption: "Wyczyść",
+  // [Auto-translated] "Select"
+  selectCaption: "Wybrać",
   // "Sign here"
   signaturePlaceHolder: "Podpisz tutaj",
   // [Auto-translated] "No signature"
@@ -213,24 +215,28 @@ export var polishSurveyStrings = {
   loadingData: "Ładowania...",
   // "No entries yet.\nClick the button below to add a new entry."
   noEntriesText: "Nie ma jeszcze wpisów.\nKliknij przycisk poniżej, aby dodać nowy wpis.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Brak wpisów.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Brak zgłoszeń",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nowy panel",
   // [Auto-translated] "More"
   more: "Więcej",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Wszystkie wybory są uszeregowane",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Przeciągnij i upuść tutaj wybory, aby je uszeregować",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Wszystkie opcje są wybierane do rankingu",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Przeciągnij opcje tutaj, aby je uszeregować",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Anuluj",
   // "Create \"{0}\" item..."
-  createCustomItem: "Utwórz element \"{0}\"..."
+  createCustomItem: "Utwórz element \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Spis treści",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Pasek postępu"
 };
 
 setupLocale({ localeCode: "pl", strings: polishSurveyStrings, nativeName: "polski", englishName: "Polish" });

@@ -109,8 +109,8 @@ export var serbianStrings = {
   chooseFile: "Izaberite fajlove...",
   // "No file selected"
   noFileChosen: "Nije izabran nijedan fajl",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Prevucite i ispustite datoteku ovde ili kliknite na dugme ispod da biste izabrali datoteku za otpremanje.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Da li želite da izbrišete unos?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var serbianStrings = {
   savingDataError: "Došlo je do greške i rezultati nisu sačuvani.",
   // "The results were saved successfully!"
   savingDataSuccess: "Rezultati su uspešno sačuvani!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Vaš odgovor premašuje 64KB. Smanjite veličinu datoteka i pokušajte ponovo ili se obratite vlasniku ankete.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Vaš odgovor prelazi 64KB. Smanjite veličinu datoteka/datoteka i pokušajte ponovo ili se obratite vlasniku ankete.",
   // "Try again"
   saveAgainButton: "Pokušajte ponovo",
   // "min"
@@ -173,6 +173,8 @@ export var serbianStrings = {
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
   // "Clear"
   clearCaption: "Poništi",
+  // [Auto-translated] "Select"
+  selectCaption: "Izaberite",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Potpišite ovde",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var serbianStrings = {
   loadingPage: "Učitavanje...",
   // [Auto-translated] "Loading..."
   loadingData: "Učitavanje...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Još uvek nema stavki.\nKliknite na dugme ispod da biste dodali novu stavku.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Nema stavki.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Još uvek nema unosa.\\nKliknite na dugme ispod da biste dodali novi unos.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Nema unosa",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Nova tabla",
   // [Auto-translated] "More"
   more: "Viљe",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "U redu",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Prevucite i otpustite izbor ovde da biste ih rangirali",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Svi izbori su izabrani za rangiranje",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Prevucite izbore ovde da biste ih rangirali",
   // [Auto-translated] "OK"
   ok: "U redu",
   // [Auto-translated] "Cancel"
   cancel: "Otkaži",
   // "Create \"{0}\" item..."
-  createCustomItem: "Kreiraj \"{0}\" stavku..."
+  createCustomItem: "Kreiraj \"{0}\" stavku...",
+  // [Auto-translated] "Table of contents"
+  toc: "Sadržaj",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Traka napretka"
 };
 
 setupLocale({ localeCode: "sr", strings: serbianStrings, nativeName: "srpski", englishName: "Serbian" });

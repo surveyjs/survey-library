@@ -109,8 +109,8 @@ export var vietnameseSurveyStrings = {
   chooseFile: "Chọn các tập tin...",
   // "No file selected"
   noFileChosen: "Không có tập tin nào được chọn",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới để chọn tệp để tải lên.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Bạn muốn xóa dòng này?",
   // "This value should be unique."
@@ -151,8 +151,8 @@ export var vietnameseSurveyStrings = {
   savingDataError: "Có lỗi xảy ra và chúng ta không thể lưu kết quả.",
   // "The results were saved successfully!"
   savingDataSuccess: "Kết quả đã được lưu thành công!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước (các) tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Phản hồi của bạn vượt quá 64KB. Vui lòng giảm kích thước tệp của bạn và thử lại hoặc liên hệ với chủ sở hữu khảo sát.",
   // "Try again"
   saveAgainButton: "Thử lại",
   // "min"
@@ -173,6 +173,8 @@ export var vietnameseSurveyStrings = {
   timerLimitSurvey: "Bạn đã sử dụng {0} / {1} trên toàn bộ.",
   // "Clear"
   clearCaption: "Xóa",
+  // [Auto-translated] "Select"
+  selectCaption: "Lựa",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Ký tên tại đây",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var vietnameseSurveyStrings = {
   loadingPage: "Tải...",
   // [Auto-translated] "Loading..."
   loadingData: "Tải...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Chưa có mục nào.\nNhấp vào nút bên dưới để thêm mục nhập mới.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Không có mục.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Chưa có mục nhập nào.\\nNhấp vào nút bên dưới để thêm mục mới.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Không có mục nhập",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Bảng điều khiển mới",
   // [Auto-translated] "More"
   more: "Nhiều hơn",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OK",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Tất cả các lựa chọn được xếp hạng",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Kéo và thả các lựa chọn vào đây để xếp hạng chúng",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Tất cả các lựa chọn được chọn để xếp hạng",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Kéo các lựa chọn vào đây để xếp hạng chúng",
   // [Auto-translated] "OK"
   ok: "OK",
   // [Auto-translated] "Cancel"
   cancel: "Hủy",
   // "Create \"{0}\" item..."
-  createCustomItem: "Tạo vật phẩm \"{0}\"..."
+  createCustomItem: "Tạo vật phẩm \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Mục lục",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Thanh tiến trình"
 };
 
 setupLocale({ localeCode: "vi", strings: vietnameseSurveyStrings, nativeName: "việt nam", englishName: "Vietnamese" });

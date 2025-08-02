@@ -109,8 +109,8 @@ export var kazakhStrings = {
   chooseFile: "Файлдарды таңдаңыз...",
   // "No file selected"
   noFileChosen: "Файл таңдалынбады",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Файлды осы жерге апарып тастаңыз немесе кері жүктеу үшін файлды таңдау үшін төмендегі батырманың астын басыңыз.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Сіз жазбаны жоятыныңызға сенімдісіз бе?",
   // "This value should be unique."
@@ -151,7 +151,7 @@ export var kazakhStrings = {
   savingDataError: "Қателік туындады, нәтиже сақталынбады.",
   // "The results were saved successfully!"
   savingDataSuccess: "Нәтиже ойдағыдай сақталды!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "Сіздің жауабыңыз 64КБ-тан асады. Файлдың өлшемін азайтып, қайталап көріңіз немесе сауалнама иесіне хабарласыңыз.",
   // "Try again"
   saveAgainButton: "Қайтадан байқап көру",
@@ -173,6 +173,8 @@ export var kazakhStrings = {
   timerLimitSurvey: "Сіз бүкіл сауалнама үшін {0} ден {1} кетірдіңіз ",
   // "Clear"
   clearCaption: "Тазалау",
+  // [Auto-translated] "Select"
+  selectCaption: "Таңдау",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Осында кіру",
   // [Auto-translated] "No signature"
@@ -211,26 +213,30 @@ export var kazakhStrings = {
   loadingPage: "Жүктеу...",
   // [Auto-translated] "Loading..."
   loadingData: "Жүктеу...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Әзірге жазбалар жоқ.\nЖаңа жазбаны қосу үшін төмендегі түймешігіңді басыңыз.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Жазбалар жоқ.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Әлі жазбалар жоқ.\\nClick батырманы жаңа жазба қосу үшін басыңыз.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Жазбалар жоқ",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Жаңа панель",
   // [Auto-translated] "More"
   more: "Қосымша",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "ЖАҚСЫ",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Барлық таңдаулар ранжирленген",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Таңдауды рангтеу үшін осында апарып тастау",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Барлық таңдаулар рейтингке таңдалады",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Таңдаулар санын осында апарыңыз",
   // [Auto-translated] "OK"
   ok: "ЖАҚСЫ",
   // [Auto-translated] "Cancel"
   cancel: "Болдырмау",
   // "Create \"{0}\" item..."
-  createCustomItem: "«{0}» элементін жасау..."
+  createCustomItem: "«{0}» элементін жасау...",
+  // [Auto-translated] "Table of contents"
+  toc: "Мазмұн кестесі",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Прогресс тақтасы"
 };
 
 setupLocale({ localeCode: "kk", strings: kazakhStrings, nativeName: "kazakh", englishName: "Kazakh" });

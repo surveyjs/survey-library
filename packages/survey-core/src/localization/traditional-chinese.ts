@@ -41,8 +41,8 @@ export var traditionalChineseSurveyStrings = {
   emptySurvey: "問卷中沒有問題或頁面",
   // "Thank you for completing the survey"
   completingSurvey: "感謝您的參與!",
-  // [Auto-translated] "Our records show that you have already completed this survey."
-  completingSurveyBefore: "我們的記錄顯示您已經完成了此調查。",
+  // [Auto-translated] "You have already completed this survey."
+  completingSurveyBefore: "您已經完成了此調查。",
   // "Loading Survey..."
   loadingSurvey: "問卷載入中...",
   // "Select..."
@@ -107,12 +107,12 @@ export var traditionalChineseSurveyStrings = {
   loadingFile: "裝載。。。",
   // [Auto-translated] "Choose file(s)..."
   chooseFile: "選擇檔案...",
-  // [Auto-translated] "No file chosen"
-  noFileChosen: "未選擇任何檔",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "將檔案拖放到此處或按下下面的按鈕並選擇要上傳的檔。",
-  // [Auto-translated] "Do you want to delete the record?"
-  confirmDelete: "是否要刪除記錄？",
+  // [Auto-translated] "No file selected"
+  noFileChosen: "未選擇檔案",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "將檔案拖放到此處或按下下面的按鈕選擇要上傳的檔。",
+  // [Auto-translated] "Are you sure you want to delete this record?"
+  confirmDelete: "您確定要刪除此記錄嗎？",
   // [Auto-translated] "This value should be unique."
   keyDuplicationError: "此值應該是唯一的。",
   // [Auto-translated] "Add Column"
@@ -151,7 +151,7 @@ export var traditionalChineseSurveyStrings = {
   savingDataError: "在保存結果過程中發生了錯誤，結果未能保存",
   // "The results were saved successfully!"
   savingDataSuccess: "結果保存成功!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
   savingExceedSize: "您的回復超過 64KB。請減小檔的大小，然後重試或聯繫調查擁有者。",
   // "Try again"
   saveAgainButton: "請重試",
@@ -173,11 +173,13 @@ export var traditionalChineseSurveyStrings = {
   timerLimitSurvey: "您總共花費了{1}的{0}。",
   // [Auto-translated] "Clear"
   clearCaption: "清楚",
+  // [Auto-translated] "Select"
+  selectCaption: "選擇",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "在此簽名",
   // [Auto-translated] "No signature"
   signaturePlaceHolderReadOnly: "無簽名",
-  // [Auto-translated] "Choose file"
+  // [Auto-translated] "Select File"
   chooseFileCaption: "選擇檔案",
   // [Auto-translated] "Take Photo"
   takePhotoCaption: "拍照",
@@ -211,26 +213,30 @@ export var traditionalChineseSurveyStrings = {
   loadingPage: "裝載。。。",
   // [Auto-translated] "Loading..."
   loadingData: "裝載。。。",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "尚無條目。\n按下下面的按鈕以添加新條目。",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "沒有條目。",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "尚無條目。\\n按下下面的按鈕添加新條目。",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "暫無條目",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "新面板",
   // [Auto-translated] "More"
   more: "更多",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "還行",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "所有選擇均已排名",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "將選項拖放到此處進行排名",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "所有選項均被選中進行排名",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "將選項拖到此處以對其進行排名",
   // [Auto-translated] "OK"
   ok: "還行",
   // [Auto-translated] "Cancel"
   cancel: "取消",
   // "Create \"{0}\" item..."
-  createCustomItem: "建立 {0} 項目..."
+  createCustomItem: "建立 {0} 項目...",
+  // [Auto-translated] "Table of contents"
+  toc: "目錄",
+  // [Auto-translated] "Progress bar"
+  progressbar: "進度條"
 };
 
 setupLocale({ localeCode: "zh-tw", strings: traditionalChineseSurveyStrings, nativeName: "繁體中文", englishName: "Tranditional Chinese" });

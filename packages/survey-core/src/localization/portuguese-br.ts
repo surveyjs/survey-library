@@ -79,8 +79,8 @@ export var portugueseBrSurveyStrings = {
   textMinMaxLength: "Insira pelo menos {0} e não mais do que {1} caracteres.",
   // [Auto-translated] "Please fill in at least {0} row(s)."
   minRowCountError: "Por favor, preencha pelo menos {0} linha(s).",
-  // [Auto-translated] "Please select at least {0} variant(s)."
-  minSelectError: "Selecione pelo menos {0} variante(s).",
+  // [Auto-translated] "Please select at least {0} option(s)."
+  minSelectError: "Selecione pelo menos {0} opção(ões).",
   // "Please select no more than {0} option(s)."
   maxSelectError: "Por favor, selecione não mais do que {0} opções.",
   // "The '{0}' should be at least {1} and at most {2}"
@@ -111,8 +111,8 @@ export var portugueseBrSurveyStrings = {
   chooseFile: "Escolha o(s) arquivo(s)...",
   // "No file selected"
   noFileChosen: "Nenhum arquivo escolhido",
-  // [Auto-translated] "Drag and drop a file here or click the button below and choose a file to upload."
-  filePlaceholder: "Arraste e solte um arquivo aqui ou clique no botão abaixo e escolha um arquivo para carregar.",
+  // [Auto-translated] "Drag and drop a file here or click the button below to select a file to upload."
+  filePlaceholder: "Arraste e solte um arquivo aqui ou clique no botão abaixo para selecionar um arquivo para carregar.",
   // "Are you sure you want to delete this record?"
   confirmDelete: "Tem certeza que deseja deletar?",
   // "This value should be unique."
@@ -153,8 +153,8 @@ export var portugueseBrSurveyStrings = {
   savingDataError: "Ocorreu um erro e não foi possível salvar os resultados.",
   // "The results were saved successfully!"
   savingDataSuccess: "Os resultados foram salvos com sucesso!",
-  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact a survey owner."
-  savingExceedSize: "Sua resposta excede 64KB. Reduza o tamanho do(s) seu(s) arquivo(s) e tente novamente ou entre em contato com o proprietário do questionário.",
+  // [Auto-translated] "Your response exceeds 64KB. Please reduce the size of your file(s) and try again or contact the survey owner."
+  savingExceedSize: "Sua resposta excede 64 KB. Reduza o tamanho do(s) seu(s) arquivo(s) e tente novamente ou entre em contato com o proprietário da pesquisa.",
   // [Auto-translated] "Try again"
   saveAgainButton: "Tentar novamente",
   // [Auto-translated] "min"
@@ -175,6 +175,8 @@ export var portugueseBrSurveyStrings = {
   timerLimitSurvey: "Gastou {0} de {1} no total.",
   // [Auto-translated] "Clear"
   clearCaption: "Claro",
+  // [Auto-translated] "Select"
+  selectCaption: "Selecionar",
   // [Auto-translated] "Sign here"
   signaturePlaceHolder: "Assine aqui",
   // [Auto-translated] "No signature"
@@ -213,26 +215,30 @@ export var portugueseBrSurveyStrings = {
   loadingPage: "Carregamento...",
   // [Auto-translated] "Loading..."
   loadingData: "Carregamento...",
-  // [Auto-translated] "There are no entries yet.\nClick the button below to add a new entry."
-  noEntriesText: "Ainda não há inscrições.\nClique no botão abaixo para adicionar uma nova entrada.",
-  // [Auto-translated] "There are no entries."
-  noEntriesReadonlyText: "Não há entradas.",
+  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
+  noEntriesText: "Ainda não há entradas.\\nClique no botão abaixo para adicionar uma nova entrada.",
+  // [Auto-translated] "No entries"
+  noEntriesReadonlyText: "Sem entradas",
   // [Auto-translated] "New Panel"
   tabTitlePlaceholder: "Novo Painel",
   // [Auto-translated] "More"
   more: "Mais",
   // [Auto-translated] "OK"
   tagboxDoneButtonCaption: "OKEY",
-  // [Auto-translated] "All choices are ranked"
-  selectToRankEmptyRankedAreaText: "Todas as opções são classificadas",
-  // [Auto-translated] "Drag and drop choices here to rank them"
-  selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las",
+  // [Auto-translated] "All choices are selected for ranking"
+  selectToRankEmptyRankedAreaText: "Todas as opções são selecionadas para classificação",
+  // [Auto-translated] "Drag choices here to rank them"
+  selectToRankEmptyUnrankedAreaText: "Arraste as opções aqui para classificá-las",
   // [Auto-translated] "OK"
   ok: "OKEY",
   // [Auto-translated] "Cancel"
   cancel: "Cancelar",
   // "Create \"{0}\" item..."
-  createCustomItem: "Criar item \"{0}\"..."
+  createCustomItem: "Criar item \"{0}\"...",
+  // [Auto-translated] "Table of contents"
+  toc: "Índice",
+  // [Auto-translated] "Progress bar"
+  progressbar: "Barra de progresso"
 };
 
 setupLocale({ localeCode: "pt-br", strings: portugueseBrSurveyStrings, nativeName: "português brasileiro", englishName: "Brazilian Portuguese" });

@@ -932,4 +932,8 @@ QUnit.test("setValueExpression", (assert) => {
   qMax.value = 40;
   assert.deepEqual(slider.renderedValue, [20, 40], "set max renderedValue");
   assert.deepEqual(slider.value, [20, 40], "set max value");
+
+  slider.value = [10, 80];
+  assert.deepEqual(qMin.value, 10, "min value from slider");
+  assert.deepEqual(qMax.value, 80, "max value from slider");
 });

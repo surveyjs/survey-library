@@ -7,7 +7,7 @@ This topic describes how to add a new dictionary or update an existing dictionar
 Follow the steps below to add a new localization dictionary:
 
 1. Fork the [`survey-library`](https://github.com/surveyjs/survey-library) repository.
-2. Create a new file in the [`src/localization`](../localization/) directory and name it `[language name].ts`, for example, `french.ts`.
+2. Create a new file in the [`packages/survey-core/src/localization`](../localization/) directory and name it `[language name].ts`, for example, `french.ts`.
 3. Copy the content from the [`english.ts`](../localization/english.ts) file and uncomment the first and last lines.
 4. Translate required strings.
 5. Open the [`entries/chunks/localization.ts`](../../entries/chunks/localization.ts) file and import your file in it for Webpack. For example, the following code imports the `french.ts` file:

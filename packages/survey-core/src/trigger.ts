@@ -4,7 +4,7 @@ import { ISurvey } from "./base-interfaces";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { OperandMaker } from "./expressions/expressions";
-import { ProcessValue, ValueGetter, VariableGetterContext } from "./conditionProcessValue";
+import { ValueGetter } from "./conditionProcessValue";
 import { settings } from "./settings";
 
 /**
@@ -121,6 +121,8 @@ export class Trigger extends Base {
     if (!this.canBeExecuted(options.isOnNextPage)) return;
     if (options.isOnComplete && !this.canBeExecutedOnComplete()) return;
     if (!this.isCheckRequired(options.keys)) return;
+    const keys = Object.keys(options.keys);
+    if (Array.isArray(keys) && !this.canBeExecuteOnKeysChange(keys)) return;
     if (!!this.conditionRunner) {
       this.perform(options.properties || null);
     } else {
@@ -128,6 +130,9 @@ export class Trigger extends Base {
         this.triggerResult(true, options.properties || null);
       }
     }
+  }
+  protected canBeExecuteOnKeysChange(keys: any[]) {
+    return true;
   }
   protected canSuccessOnEmptyExpression(): boolean { return false; }
   public check(value: any): void {
@@ -323,6 +328,10 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return !isOnNextPage && !!this.setToName;
   }
+  protected canBeExecuteOnKeysChange(keys: any[]) {
+    if (keys.length === 1 && keys[0] === this.setToName) return false;
+    return super.canBeExecuteOnKeysChange(keys);
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name !== "setToName") return;
@@ -452,6 +461,10 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   }
   public getType(): string {
     return "copyvaluetrigger";
+  }
+  protected canBeExecuteOnKeysChange(keys: any[]) {
+    if (keys.length === 1 && keys[0] === this.setToName) return false;
+    return super.canBeExecuteOnKeysChange(keys);
   }
   protected onSuccess(properties: HashTable<any>): void {
     if (!this.setToName || !this.owner) return;

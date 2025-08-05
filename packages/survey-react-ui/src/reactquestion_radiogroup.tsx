@@ -204,9 +204,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       <SurveyQuestionCommentValueItem
         question={this.question}
         item={this.item}
-        isDisplayMode={this.isDisplayMode}
         cssClasses={this.question.cssClasses}
-        otherCss={this.question.getCommentAreaCss(false)}
       />
     </div>;
   }

@@ -57,7 +57,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question, protected isUnwrapped?: boolean) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     const expVar = settings.expressionVariables;
-    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue();
+    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue(index);
     if (path.length > 1 && path[0].name === expVar.panel) {
       const panel: any = this.question.parent;
       if (panel && panel.isPanel) {
@@ -86,9 +86,13 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     if (survey) return (<any>survey).getValueGetterContext().getValue(path, false, index, false);
     return undefined;
   }
-  private getQuestionValue(): IValueGetterInfo {
+  private getQuestionValue(index: number): IValueGetterInfo {
     const q = this.question;
-    return { isFound: true, context: this, value: q.getFilteredValue(this.isUnwrapped), requireStrictCompare: q.requireStrictCompare };
+    let val = q.getFilteredValue(this.isUnwrapped);
+    if (index > -1 && Array.isArray(val)) {
+      val = index < val.length ? val[index] : undefined;
+    }
+    return { isFound: true, context: this, value: val, requireStrictCompare: q.requireStrictCompare };
   }
 }
 export abstract class QuestionItemValueGetterContext extends ValueGetterContextCore {
@@ -2648,6 +2652,7 @@ export class Question extends SurveyElement<Question>
       .append("form-group", isOther)
       .append(this.cssClasses.formGroup, !isOther)
       .append(this.cssClasses.commentArea)
+      .append(this.cssClasses.otherArea, isOther)
       .toString();
   }
 

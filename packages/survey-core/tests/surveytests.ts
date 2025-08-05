@@ -22283,6 +22283,49 @@ QUnit.test("questionPerPage & asyc validation, Bug#10163", (assert) => {
 
   FunctionFactory.Instance.unregister("isItCorrect");
 });
+QUnit.test("questionPerPage & asyc validation & using panel, Bug#10163 #2 (panel)", (assert) => {
+  let returnResultFunc = undefined;
+  function isItCorrect([value]) {
+    returnResultFunc = this.returnResult;
+  }
+
+  FunctionFactory.Instance.register("isItCorrect", isItCorrect, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1", elements: [{
+        type: "text",
+        name: "q1",
+        isRequired: true,
+        title: "Allows 'abc' only",
+        validators: [
+          {
+            type: "expression",
+            expression: "isItCorrect({q1})",
+          },
+        ],
+      }] },
+      {
+        type: "text",
+        name: "q2"
+      }
+    ],
+    questionsOnPageMode: "questionPerPage",
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(survey.currentSingleElement.name, "panel1", "current question, #1");
+  q1.value = "abcd";
+  survey.performNext();
+  assert.equal(survey.currentSingleElement.name, "panel1", "current question, #2");
+  returnResultFunc(false);
+  assert.equal(survey.currentSingleElement.name, "panel1", "current question, #3");
+  q1.value = "abc";
+  survey.performNext();
+  assert.equal(survey.currentSingleElement.name, "panel1", "current question, #4");
+  returnResultFunc(true);
+  assert.equal(survey.currentSingleElement.name, "q2", "current question, #5");
+
+  FunctionFactory.Instance.unregister("isItCorrect");
+});
 QUnit.test("survey.getAllQuestions, get nested questions & creating nested questions on demand, Bug#9844", function (assert) {
   const survey = new SurveyModel({
     pages: [

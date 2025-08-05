@@ -213,7 +213,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         <SurveyQuestionCommentItem
           question={this.question}
           cssClasses={cssClasses}
-          otherCss={cssClasses.other}
           isDisplayMode={this.question.isInputReadOnly}
         />
       </div>

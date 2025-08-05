@@ -33,6 +33,7 @@
     "get-func-name": "2.0.0",
     "husky": "^9.1.7",
     "node-uuid": "1.4.7",
+    "typescript": "5.8.3",
     "playwright": "1.52.0",
     "puppeteer": "22.13.1",
     "testcafe": "3.3.0"

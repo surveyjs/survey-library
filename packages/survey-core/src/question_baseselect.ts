@@ -193,7 +193,7 @@ export class QuestionSelectBase extends Question {
       question: this,
       id: () => this.getItemCommentId(item),
       propertyNames: [this.getCommentPropertyValue(item)],
-      className: () => this.cssClasses.other,
+      className: () => this.cssClasses.comment,
       placeholder: () => this.getCommentPlaceholder(item),
       isDisabledAttr: () => this.isInputReadOnly || false,
       rows: () => this.commentAreaRows,
@@ -869,6 +869,10 @@ export class QuestionSelectBase extends Question {
     if (this.getStoreOthersAsComment()) return val;
     return this.renderedValueFromDataCore(val);
   }
+  private getValueFromValueWithComment(val: any): any {
+    if (!!val && typeof val === "object" && !Helpers.isValueEmpty(val.value)) return val.value;
+    return val;
+  }
   protected rendredValueToData(val: any): any {
     if (this.getStoreOthersAsComment()) return val;
     return this.renderedValueToDataCore(val);
@@ -1377,6 +1381,7 @@ export class QuestionSelectBase extends Question {
     return questionPlainData;
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    value = this.getValueFromValueWithComment(value);
     if (!this.useDisplayValuesInDynamicTexts) return value;
     return this.getChoicesDisplayValue(this.visibleChoices, value);
   }

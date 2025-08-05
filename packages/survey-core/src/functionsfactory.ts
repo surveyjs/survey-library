@@ -292,7 +292,7 @@ FunctionFactory.Instance.register("age", age);
 function dateDiff(params: any[]): any {
   if (!Array.isArray(params) || params.length < 2 || !params[0] || !params[1]) return null;
   const type = (params.length > 2 ? params[2] : "") || "days";
-  const isHours = type === "hours" || type === "minutes";
+  const isHours = type === "hours" || type === "minutes" || type === "seconds";
   const dType = isHours ? "days" : type;
   let days = dateDiffMonths(params[0], params[1], dType);
   if (isHours) {
@@ -306,7 +306,9 @@ function dateDiff(params: any[]): any {
     if (date2.getMinutes() < date1.getMinutes()) {
       hours -= 1;
     }
-    return hours * 60 + date2.getMinutes() - date1.getMinutes();
+    const minutes = hours * 60 + date2.getMinutes() - date1.getMinutes();
+    if (type === "minutes") return minutes;
+    return minutes * 60 + date2.getSeconds() - date1.getSeconds();
   }
   return days;
 }

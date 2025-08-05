@@ -346,6 +346,18 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  /**
+   * Specifies the type of matrix cells.
+   *
+   * Possible values:
+   *
+   * - `"radio"` (default)
+   * - `"checkbox"`
+   *
+   * [Radio-Button Matrix Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * [Checkbox Matrix Demo](https://surveyjs.io/form-library/examples/checkbox-matrix-question/ (linkStyle))
+   */
   public get cellType(): string {
     return this.getPropertyValue("cellType");
   }

@@ -3,7 +3,8 @@ import {
   ISurveyTriggerOwner,
   SurveyTriggerVisible,
   SurveyTriggerSetValue,
-  SurveyTriggerRunExpression
+  SurveyTriggerRunExpression,
+  SurveyTriggerCopyValue
 } from "../src/trigger";
 import { SurveyModel } from "../src/survey";
 import { settings } from "../src/settings";
@@ -850,4 +851,90 @@ QUnit.test("runexpression trigger and calculated values, Bug#8273 Case#2", funct
   assert.equal(calcVal1.value, false, "calcVal1.val #4");
   assert.equal(calcVal2.value, true, "calcVal2.val #4");
   assert.equal(q2.value, "20", "q2.value #4");
+});
+QUnit.test("copyvalue & custom function, Bug#10192, #1", function(assert) {
+  FunctionFactory.Instance.register("canCopyValue", (params) => {
+    return params[0] === "copy";
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+    triggers: [
+      {
+        "type": "copyvalue",
+        "expression": "canCopyValue({q2})",
+        "fromName": "q1",
+        "setToName": "q3"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = "A";
+  assert.equal(q3.value, undefined, "q3.value #1");
+  q2.value = "copy";
+  assert.equal(q3.value, "A", "q3 is not empty");
+  q3.value = "B";
+  assert.equal(q3.value, "B", "q3.value #2");
+  q2.value = "notCopy";
+  assert.equal(q3.value, "B", "q3.value #3");
+  q1.value = "C";
+  assert.equal(q3.value, "B", "q3.value #4");
+  q2.value = "copy";
+  assert.equal(q3.value, "C", "q3.value #5");
+  q1.value = "D";
+  assert.equal(q3.value, "D", "q3.value #6");
+  FunctionFactory.Instance.unregister("canCopyValue");
+});
+QUnit.test("copyvalue & custom function, Bug#10192, #2", function(assert) {
+  class SurveyTriggerCopyValueEx extends SurveyTriggerCopyValue {
+    protected getUsedVariables(): string[] {
+      const res = super.getUsedVariables();
+      res.push(this.fromName);
+      return res;
+    }
+  }
+  const copyClassInfo = Serializer.findClass("copyvaluetrigger");
+  copyClassInfo.creator = () => {
+    return new SurveyTriggerCopyValueEx();
+  };
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+    triggers: [
+      {
+        "type": "copyvalue",
+        "expression": "{q2} = 'copy'",
+        "fromName": "q1",
+        "setToName": "q3"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = "A";
+  assert.equal(q3.value, undefined, "q3.value #1");
+  q2.value = "copy";
+  assert.equal(q3.value, "A", "q3 is not empty");
+  q3.value = "B";
+  assert.equal(q3.value, "B", "q3.value #2");
+  q2.value = "notCopy";
+  assert.equal(q3.value, "B", "q3.value #3");
+  q1.value = "C";
+  assert.equal(q3.value, "B", "q3.value #4");
+  q2.value = "copy";
+  assert.equal(q3.value, "C", "q3.value #5");
+  q1.value = "D";
+  assert.equal(q3.value, "D", "q3.value #6");
+  copyClassInfo.creator = () => {
+    return new SurveyTriggerCopyValue();
+  };
 });

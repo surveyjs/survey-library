@@ -2,6 +2,7 @@ import * as React from "react";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
 import { SvgIcon } from "../svg-icon/svg-icon";
+import { ReactElementFactory } from "../../element-factory";
 
 export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileModel, item: any }, {}> {
 
@@ -70,3 +71,7 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
     return this.question.showPreviewContainer;
   }
 }
+
+ReactElementFactory.Instance.registerElement("sv-file-item", (props) => {
+  return React.createElement(SurveyFileItem, props);
+});

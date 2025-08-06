@@ -491,9 +491,9 @@ Adds or subtracts a specified number of full days (default), months, or years to
 
 #### `dateDiff`
 
-*Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "hours" | "minutes" | "months" | "years"): number`
+*Definition*: `dateDiff(fromDate: any, toDate: any, interval: "days" | "hours" | "minutes" | "seconds" | "months" | "years"): number`
 
-Returns a difference between two given dates in full days (default), hours, minutes, months, or years.
+Returns a difference between two given dates in full days (default), hours, minutes, seconds, months, or years.
 
 *Example*: `"expression": "dateDiff({birthdate}, today(), "months")"`
 

@@ -18,43 +18,43 @@ export class Trigger extends Base {
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
     Trigger.operatorsValue = {
-      empty: function(value: any, expectedValue: any) {
+      empty: function (value: any, expectedValue: any) {
         return !value;
       },
-      notempty: function(value: any, expectedValue: any) {
+      notempty: function (value: any, expectedValue: any) {
         return !!value;
       },
-      equal: function(value: any, expectedValue: any) {
+      equal: function (value: any, expectedValue: any) {
         return value == expectedValue;
       },
-      notequal: function(value: any, expectedValue: any) {
+      notequal: function (value: any, expectedValue: any) {
         return value != expectedValue;
       },
-      contains: function(value: any, expectedValue: any) {
+      contains: function (value: any, expectedValue: any) {
         return value && value["indexOf"] && value.indexOf(expectedValue) > -1;
       },
-      notcontains: function(value: any, expectedValue: any) {
+      notcontains: function (value: any, expectedValue: any) {
         return (
           !value || !value["indexOf"] || value.indexOf(expectedValue) == -1
         );
       },
-      greater: function(value: any, expectedValue: any) {
+      greater: function (value: any, expectedValue: any) {
         return value > expectedValue;
       },
-      less: function(value: any, expectedValue: any) {
+      less: function (value: any, expectedValue: any) {
         return value < expectedValue;
       },
-      greaterorequal: function(value: any, expectedValue: any) {
+      greaterorequal: function (value: any, expectedValue: any) {
         return value >= expectedValue;
       },
-      lessorequal: function(value: any, expectedValue: any) {
+      lessorequal: function (value: any, expectedValue: any) {
         return value <= expectedValue;
       },
     };
     return Trigger.operatorsValue;
   }
   private conditionRunner: ConditionRunner;
-  private idValue: number = (Trigger.idCounter ++);
+  private idValue: number = (Trigger.idCounter++);
   constructor() {
     super();
     this.registerPropertyChangedHandlers(["operator", "value", "name"], () => {
@@ -114,20 +114,27 @@ export class Trigger extends Base {
   }
   protected isExecutingOnNextPage: boolean;
   protected isExecutingOnNavigation: boolean;
-  public checkExpression(options: { isOnNextPage: boolean, isOnComplete: boolean, isOnNavigation: boolean,
-    keys: any, values: HashTable<any>, properties?: HashTable<any>, }): void {
+  public checkExpression(options: {
+    isOnNextPage: boolean, isOnComplete: boolean, isOnNavigation: boolean,
+    keys: any, values: HashTable<any>, properties?: HashTable<any>,
+  }): void {
     this.isExecutingOnNextPage = options.isOnNextPage;
     this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
-    if(!this.canBeExecuted(options.isOnNextPage)) return;
-    if(options.isOnComplete && !this.canBeExecutedOnComplete()) return;
+    if (!this.canBeExecuted(options.isOnNextPage)) return;
+    if (options.isOnComplete && !this.canBeExecutedOnComplete()) return;
     if (!this.isCheckRequired(options.keys)) return;
+    const keys = Object.keys(options.keys);
+    if (Array.isArray(keys) && !this.canBeExecuteOnKeysChange(keys)) return;
     if (!!this.conditionRunner) {
       this.perform(options.values, options.properties || null);
     } else {
-      if(this.canSuccessOnEmptyExpression()) {
+      if (this.canSuccessOnEmptyExpression()) {
         this.triggerResult(true, options.values, options.properties || null);
       }
     }
+  }
+  protected canBeExecuteOnKeysChange(keys: any[]) {
+    return true;
   }
   protected canSuccessOnEmptyExpression(): boolean { return false; }
   public check(value: any): void {
@@ -157,9 +164,9 @@ export class Trigger extends Base {
       this.onFailure();
     }
   }
-  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {}
-  protected onFailure(): void {}
-  protected onSuccessExecuted(): void {}
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void { }
+  protected onFailure(): void { }
+  protected onSuccessExecuted(): void { }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.oldPropertiesChanged();
@@ -189,13 +196,13 @@ export class Trigger extends Base {
     return new ProcessValue().isAnyKeyChanged(keys, this.getUsedVariables());
   }
   protected getUsedVariables(): string[] {
-    if(!this.conditionRunner) return [];
+    if (!this.conditionRunner) return [];
     const res = this.conditionRunner.getVariables();
-    if(Array.isArray(res)) {
+    if (Array.isArray(res)) {
       const unw = "-unwrapped";
-      for(let i = res.length -1; i >= 0; i--) {
+      for (let i = res.length - 1; i >= 0; i--) {
         const s = res[i];
-        if(s.endsWith(unw)) {
+        if (s.endsWith(unw)) {
           res.push(s.substring(0, s.length - unw.length));
         }
       }
@@ -249,7 +256,7 @@ export class SurveyTrigger extends Trigger {
     return true;
   }
   protected onSuccessExecuted(): void {
-    if(!!this.owner && this.isRealExecution()) {
+    if (!!this.owner && this.isRealExecution()) {
       this.owner.triggerExecuted(this);
     }
   }
@@ -303,7 +310,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.owner) return;
-    if(this.isRealExecution()) {
+    if (this.isRealExecution()) {
       this.owner.setCompleted(this);
     } else {
       this.owner.canBeCompleted(this, true);
@@ -325,6 +332,10 @@ export class SurveyTriggerSetValue extends SurveyTrigger {
   }
   protected canBeExecuted(isOnNextPage: boolean): boolean {
     return !isOnNextPage && !!this.setToName;
+  }
+  protected canBeExecuteOnKeysChange(keys: any[]) {
+    if (keys.length === 1 && keys[0] === this.setToName) return false;
+    return super.canBeExecuteOnKeysChange(keys);
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -456,6 +467,10 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   public getType(): string {
     return "copyvaluetrigger";
   }
+  protected canBeExecuteOnKeysChange(keys: any[]): boolean {
+    if (keys.length === 1 && keys[0] === this.setToName) return false;
+    return super.canBeExecuteOnKeysChange(keys);
+  }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.setToName || !this.owner) return;
     this.owner.copyTriggerValue(this.setToName, this.fromName, this.copyDisplayValue);
@@ -463,7 +478,7 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   protected canSuccessOnEmptyExpression(): boolean { return true; }
   protected getUsedVariables(): string[] {
     const res = super.getUsedVariables();
-    if(res.length === 0 && !!this.fromName) {
+    if (res.length === 0 && !!this.fromName) {
       res.push(this.fromName);
     }
     return res;
@@ -484,7 +499,7 @@ Serializer.addClass(
 Serializer.addClass(
   "visibletrigger",
   ["pages:pages", "questions:questions"],
-  function() {
+  function () {
     return new SurveyTriggerVisible();
   },
   "surveytrigger"
@@ -492,7 +507,7 @@ Serializer.addClass(
 Serializer.addClass(
   "completetrigger",
   [],
-  function() {
+  function () {
     return new SurveyTriggerComplete();
   },
   "surveytrigger"
@@ -504,13 +519,13 @@ Serializer.addClass(
     {
       name: "setValue:triggervalue",
       dependsOn: "setToName",
-      visibleIf: function(obj: any) {
+      visibleIf: function (obj: any) {
         return !!obj && !!obj["setToName"];
       },
     },
     { name: "isVariable:boolean", visible: false },
   ],
-  function() {
+  function () {
     return new SurveyTriggerSetValue();
   },
   "surveytrigger"
@@ -518,8 +533,8 @@ Serializer.addClass(
 Serializer.addClass(
   "copyvaluetrigger",
   [{ name: "!fromName:questionvalue" }, { name: "!setToName:questionvalue" },
-    { name: "copyDisplayValue:boolean", visible: false }],
-  function() {
+  { name: "copyDisplayValue:boolean", visible: false }],
+  function () {
     return new SurveyTriggerCopyValue();
   },
   "surveytrigger"
@@ -527,7 +542,7 @@ Serializer.addClass(
 Serializer.addClass(
   "skiptrigger",
   [{ name: "!gotoName:question" }],
-  function() {
+  function () {
     return new SurveyTriggerSkip();
   },
   "surveytrigger"
@@ -535,7 +550,7 @@ Serializer.addClass(
 Serializer.addClass(
   "runexpressiontrigger",
   [{ name: "setToName:questionvalue" }, "runExpression:expression"],
-  function() {
+  function () {
     return new SurveyTriggerRunExpression();
   },
   "surveytrigger"

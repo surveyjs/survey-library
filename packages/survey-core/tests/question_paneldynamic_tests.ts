@@ -8180,3 +8180,26 @@ QUnit.test("paneldynamic.panelCountExpression custom property, Bug#10171", funct
   assert.equal(panel.panelCount, 2, "panelCount #4");
   Serializer.removeProperty("paneldynamic", "panelCountExpression");
 });
+QUnit.test("paneldynamic nested question valueName & clearIncorrectValues, Bug#10206", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "valueName": "q1Value"
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    panel: [{ q1Value: 1, }, { q1Value: 2 }]
+  };
+  assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #1");
+  survey.clearIncorrectValues();
+  assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #2");
+});

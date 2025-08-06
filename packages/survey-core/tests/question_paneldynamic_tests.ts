@@ -7987,3 +7987,26 @@ QUnit.test("Using resetValueIf, visibleIf & default value for a question in dyna
   assert.equal(panel.getQuestionByName("q2").value, 200, "q2  value, #3");
   assert.equal(panel.getQuestionByName("q3").value, 700, "q3 value, #3");
 });
+QUnit.test("paneldynamic nested question valueName & clearIncorrectValues, Bug#10206", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "valueName": "q1Value"
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    panel: [{ q1Value: 1, }, { q1Value: 2 }]
+  };
+  assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #1");
+  survey.clearIncorrectValues();
+  assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #2");
+});

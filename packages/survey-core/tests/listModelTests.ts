@@ -554,3 +554,41 @@ QUnit.test("a11y: list item aria attr", function (assert) {
   assert.equal(list.getA11yItemAriaSelected(list.actions[1]), undefined, "1 ariaSelected #2");
   assert.equal(list.getA11yItemAriaChecked(list.actions[1]), "false", "1 ariaChecked #2");
 });
+
+QUnit.test("ListModel disableSearch property", function (assert) {
+  const items = createIActionArray(12);
+  const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
+  list.flushUpdates();
+
+  // Test default behavior (disableSearch = false)
+  assert.equal(list.disableSearch, false, "disableSearch defaults to false");
+  assert.equal(list.renderedActions.length, 12, "all items are rendered initially");
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12, "all items are visible initially");
+
+  // Test filtering with disableSearch = false
+  list.filterString = "1";
+  list.flushUpdates();
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 3, "filtering works when disableSearch is false");
+
+  // Test with disableSearch = true
+  list.disableSearch = true;
+  list.flushUpdates();
+  assert.equal(list.disableSearch, true, "disableSearch is set to true");
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12, "all items are visible when disableSearch is true, even with filterString");
+
+  // Test that filterString is ignored when disableSearch is true
+  list.filterString = "nonexistent";
+  list.flushUpdates();
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12, "all items remain visible when disableSearch is true, even with non-matching filterString");
+
+  // Test switching back to disableSearch = false
+  list.disableSearch = false;
+  list.flushUpdates();
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 0, "filtering works again when disableSearch is set back to false");
+
+  // Test with empty filterString and disableSearch = true
+  list.filterString = "";
+  list.disableSearch = true;
+  list.flushUpdates();
+  assert.equal(list.renderedActions.filter(item => list.isItemVisible(item)).length, 12, "all items are visible when disableSearch is true and filterString is empty");
+});

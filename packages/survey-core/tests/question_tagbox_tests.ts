@@ -2270,7 +2270,7 @@ QUnit.test("allowCustomChoices: Filter choices if choicesLazyLoadEnabled is true
   callback(dropdownListModel.filterString);
   assert.equal(listModel.actions.length, 26, "#0 listModel.actions");
   assert.equal(listModel.actions[25].id, "newCustomItem", "#0 added item id");
-  assert.equal(listModel.isItemVisible(listModel.actions[25]), false, "#0 added item visible");
+  assert.equal(listModel.isItemVisible(listModel.actions[25]), false, "#0 added item hide");
 
   dropdownListModel.inputStringRendered = testCustomValue;
   callback(dropdownListModel.filterString);
@@ -2283,7 +2283,7 @@ QUnit.test("allowCustomChoices: Filter choices if choicesLazyLoadEnabled is true
   callback(dropdownListModel.filterString);
   assert.equal(listModel.actions.length, 2, "#2 listModel.actions");
   assert.equal(listModel.actions[0].id, "testCustomValue", "#2 added item id");
-  assert.equal(listModel.isItemVisible(listModel.actions[0]), false, "#2 added item visible");
+  assert.equal(listModel.isItemVisible(listModel.actions[0]), true, "#2 added item visible");
   assert.equal(listModel.actions[1].id, "newCustomItem", "#2 custom item id");
   assert.equal(listModel.isItemVisible(listModel.actions[1]), true, "#2 custom item visible");
 });

@@ -571,6 +571,7 @@ QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
   dropdownListModel.onFocus(null);
 
   assert.equal(dropdownListModel.inputString, "item12", "inputString is item12");
+  assert.equal(dropdownListModel.hintString, "item12", "hintString is item12");
   assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
 
   dropdownListModel.inputStringRendered = "item2";
@@ -587,7 +588,7 @@ QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
   assert.equal(dropdownListModel.inputString, "item20", "inputString is item22 on Enter again");
 });
 
-QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
+QUnit.test("lazy load & hintString test", function (assert) {
   const survey = new SurveyModel({
     elements: [{
       type: "dropdown",

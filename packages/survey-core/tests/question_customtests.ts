@@ -2026,6 +2026,20 @@ QUnit.test("Single: isContentElement property", function (assert) {
     true,
     "Design is disabled for contentQuestion"
   );
+
+  const page2 = survey.addNewPage("newPage2");
+  const q2 = page2.addNewQuestion("newquestion", "q2");
+  assert.equal(
+    q2.isContentElement,
+    false,
+    "Design is available for root q2"
+  );
+  assert.equal(
+    q2.contentQuestion.isContentElement,
+    true,
+    "Design is disabled for contentQuestion q2"
+  );
+
   ComponentCollection.Instance.clear();
 });
 
@@ -2160,6 +2174,45 @@ QUnit.test("Composite: Support carry-forward", function (assert) {
   q1.value = [1, 3, 5];
   assert.equal(q2.visibleChoices.length, 3, "Choices are here");
   assert.equal(q2.visibleChoices[1].value, 3, "A choice value is correct");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: isContentElement property", function (assert) {
+  var json = {
+    name: "newquestion",
+    elementsJSON: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] },
+      { type: "radiogroup", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" }
+    ]
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "qu1" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(
+    q.isContentElement,
+    false,
+    "Design is available for root"
+  );
+  assert.equal(
+    q.contentPanel.isContentElement,
+    true,
+    "Design is disabled for contentQuestion"
+  );
+
+  const page2 = survey.addNewPage("newPage2");
+  const q2 = page2.addNewQuestion("newquestion", "qu2");
+  assert.equal(
+    q2.isContentElement,
+    false,
+    "Design is available for root qu2"
+  );
+  assert.equal(
+    q2.contentPanel.isContentElement,
+    true,
+    "Design is disabled for contentQuestion qu2"
+  );
+
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: merge data, Bug#5583", function (assert) {

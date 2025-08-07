@@ -1165,6 +1165,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       json.createElements(res, this);
     }
     this.initElement(res);
+    this.setIsContentElement(res);
     res.readOnly = this.isReadOnly;
     res.questions.forEach(q => {
       q.setParentQuestion(this);

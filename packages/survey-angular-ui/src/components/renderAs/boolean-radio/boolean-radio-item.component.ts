@@ -11,4 +11,7 @@ export class BooleanRadioItemComponent {
   constructor() {
 
   }
+  public change() {
+    this.question.value == this.value;
+  }
 }

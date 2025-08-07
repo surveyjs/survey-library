@@ -248,5 +248,35 @@ frameworks.forEach((framework) => {
       await question.hasClassIncluded(sdItem.nth(0), false, checkedClass);
       await question.hasClassIncluded(sdItem.nth(1), true, checkedClass);
     });
+    test("Check boolean radio checked attribute when setting survey data", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "q1",
+            "renderAs": "radio",
+          }
+        ]
+      });
+      expect(await page.locator(".sd-item__control").nth(0).isChecked()).toBeFalsy();
+      expect(await page.locator(".sd-item__control").nth(1).isChecked()).toBeFalsy();
+      await page.evaluate((data) => {
+        (window as any).survey.data = data;
+      }, {
+        q1: false
+      });
+      expect(await page.locator(".sd-item__control").nth(0).isChecked()).toBeTruthy();
+      expect(await page.locator(".sd-item__control").nth(1).isChecked()).toBeFalsy();
+      await page.evaluate((data) => {
+        (window as any).survey.data = data;
+      }, {
+        q1: true
+      });
+      expect(await page.locator(".sd-item__control").nth(0).isChecked()).toBeFalsy();
+      expect(await page.locator(".sd-item__control").nth(1).isChecked()).toBeTruthy();
+    });
   });
 });

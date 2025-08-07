@@ -9,6 +9,9 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
   }
   private renderRadioItem(value: any, locText: any): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
+    const handleOnChange = () => {
+      this.question.value = value;
+    };
     return (
       <div role="presentation" className={this.question.getRadioItemClass(cssClasses, value)}>
         <label className={cssClasses.radioLabel}>
@@ -17,11 +20,11 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             name={this.question.name}
             value={value}
             aria-errormessage={this.question.ariaErrormessage}
-            checked={value === this.question.booleanValueRendered}
+            checked={value === this.question.value}
             disabled={this.question.isDisabledAttr}
             readOnly={this.question.isReadOnlyAttr}
             className={cssClasses.itemRadioControl}
-            onChange={this.handleOnChange}
+            onInput={handleOnChange}
           />
           {this.question.cssClasses.materialRadioDecorator ?
             (<span className={cssClasses.materialRadioDecorator}>
@@ -37,20 +40,17 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
       </div>
     );
   }
-  handleOnChange = (event: any) => {
-    this.question.booleanValue = event.nativeEvent.target.value == "true";
-  };
   protected renderElement(): React.JSX.Element {
     const cssClasses = this.question.cssClasses;
     return (
       <div className={cssClasses.rootRadio}>
         <fieldset role="presentation" className={cssClasses.radioFieldset}>
           {!this.question.swapOrder ?
-            (<>{this.renderRadioItem(false, this.question.locLabelFalse)}
-              {this.renderRadioItem(true, this.question.locLabelTrue)}</>)
+            (<>{this.renderRadioItem(this.question.getValueFalse(), this.question.locLabelFalse)}
+              {this.renderRadioItem(this.question.getValueTrue(), this.question.locLabelTrue)}</>)
             :
-            (<>{this.renderRadioItem(true, this.question.locLabelTrue)}
-              {this.renderRadioItem(false, this.question.locLabelFalse)}</>)
+            (<>{this.renderRadioItem(this.question.getValueTrue(), this.question.locLabelTrue)}
+              {this.renderRadioItem(this.question.getValueFalse(), this.question.locLabelFalse)}</>)
           }
         </fieldset>
       </div>

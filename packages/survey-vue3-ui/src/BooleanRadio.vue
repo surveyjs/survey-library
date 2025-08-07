@@ -7,14 +7,14 @@
         :key="'true'"
         :question="question"
         :locText="question.locLabelTrue"
-        :value="true"
+        :value="question.getValueTrue()"
       ></SvComponent>
       <SvComponent
         :is="'sv-boolean-radio-item'"
         :key="'false'"
         :question="question"
         :locText="question.locLabelFalse"
-        :value="false"
+        :value="question.getValueFalse()"
       ></SvComponent>
       <SvComponent
         :is="'sv-boolean-radio-item'"
@@ -22,7 +22,7 @@
         :key="'true'"
         :question="question"
         :locText="question.locLabelTrue"
-        :value="true"
+        :value="question.getValueTrue()"
       ></SvComponent>
     </fieldset>
   </div>

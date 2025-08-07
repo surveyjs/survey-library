@@ -8,7 +8,7 @@
         type="radio"
         :name="question.name"
         :value="value"
-        :checked="value === question.booleanValueRendered"
+        :checked="value === question.value"
         :aria-errormessage="question.ariaErrormessage"
         :disabled="question.isDisabledAttr"
         :readonly="question.isReadOnlyAttr"
@@ -44,6 +44,6 @@ const props = defineProps<{
 }>();
 const handleChange = (event: any) => {
   const question = props.question;
-  question.booleanValue = event.target.value == "true";
+  question.booleanValue = event.target.value == question.value;
 };
 </script>

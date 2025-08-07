@@ -605,7 +605,45 @@ QUnit.test("Text Processing and parent panel variable", function(assert) {
     "child processed text correctly, lowcase"
   );
 });
-
+QUnit.test("parentPanel variable in the expression, Bug#10221", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "rootPanel",
+        panelCount: 1,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          },
+          {
+            type: "paneldynamic",
+            name: "childPanel",
+            panelCount: 1,
+            templateElements: [
+              {
+                type: "text",
+                name: "childPanel_q1",
+                defaultValueExpression: "{parentPanel.q1} + '-child'",
+              }
+            ],
+          },
+        ],
+      },
+    ],
+  });
+  const rootPanel = <QuestionPanelDynamicModel>(
+    survey.getQuestionByName("rootPanel")
+  );
+  const q1 = rootPanel.panels[0].getQuestionByName("q1");
+  const childPanel = <QuestionPanelDynamicModel>(
+    rootPanel.panels[0].getQuestionByName("childPanel")
+  );
+  const childPanel_q1 = childPanel.panels[0].getQuestionByName("childPanel_q1");
+  q1.value = "q1-value";
+  assert.equal(childPanel_q1.value, "q1-value-child", "childPanel_q1 value is set correctly");
+});
 QUnit.test("Text Processing design mode - https://github.com/surveyjs/survey-creator/issues/2192", function(assert) {
   var survey = new SurveyModel({
     "pages": [

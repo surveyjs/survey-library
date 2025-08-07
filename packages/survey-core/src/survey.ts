@@ -6425,7 +6425,7 @@ export class SurveyModel extends SurveyElementCore
     return options.value;
   }
   private getLocNotification(loc: boolean, value: any, oldValue: any): boolean {
-    return loc && !Helpers.isTwoValueEquals(oldValue, value, false, false, false);
+    return loc || Helpers.isTwoValueEquals(value, oldValue, false, true, false);
   }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;

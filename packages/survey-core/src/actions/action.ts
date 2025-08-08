@@ -211,6 +211,10 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
     if (!!_popupOptions.onShow) _popupOptions.onShow();
     listModel.scrollToSelectedItem();
   };
+  popupModel.onHide = () => {
+    if (!!_popupOptions.onHide) _popupOptions.onHide();
+    listModel.filterString = "";
+  };
 
   return popupModel;
 }

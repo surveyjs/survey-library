@@ -58,7 +58,6 @@ const props = defineProps<{
   column: ItemValue;
   columnIndex: number;
 }>();
-const renderedValue = props.row.isChecked(props.column) ? props.column.value : "";
 const changed = () => {
   const row = props.row;
   const column = props.column;

@@ -33,7 +33,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Space");
-      checkSurveyData(page, {
+      await checkSurveyData(page, {
         question1: {
           "Row 1": ["Column 2", "Column 3"],
           "Row 2": ["Column 1"]

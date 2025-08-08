@@ -494,7 +494,21 @@ QUnit.test("hideIfRowsEmpty & question visibleIf, bug#8459", function (assert) {
   survey.setValue("b", 2);
   assert.equal(question.isVisible, true, "#7");
 });
-
+QUnit.test("row visibleIf, bug#10222", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "matrix", name: "q1",
+      rows: [{ value: "row1", visibleIf: "{var1}=2" }, "row2"] }],
+    calculatedValues: [{ name: "var1", expression: "2" }],
+  });
+  const calcValue = survey.calculatedValues[0];
+  assert.equal(calcValue.value, 2, "calcValue.value is 2");
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(question.rows.length, 2, "There are two rows");
+  assert.equal(question.visibleRows.length, 2, "There is one visible row");
+  calcValue.expression = "1";
+  assert.equal(calcValue.value, 1, "calcValue.value is 1");
+  assert.equal(question.visibleRows.length, 1, "There is one visible row after expression change");
+});
 QUnit.test("check displayMode property", function (assert) {
   const survey = new SurveyModel({ elements: { type: "matrix", name: "q1", rows: [{ value: "row1" }] } });
   const question = <QuestionMatrixModel>survey.getAllQuestions()[0];

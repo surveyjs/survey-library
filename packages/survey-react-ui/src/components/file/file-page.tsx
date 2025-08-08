@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { QuestionFileModel, QuestionFilePage } from "survey-core";
-import { SurveyFileItem } from "./file-item";
+import { ReactElementFactory } from "../../element-factory";
 
 export class SurveyFilePage extends SurveyElementBase<{ question: QuestionFileModel, page: QuestionFilePage }, {}> {
   protected get question(): QuestionFileModel {
@@ -13,7 +13,7 @@ export class SurveyFilePage extends SurveyElementBase<{ question: QuestionFileMo
   }
 
   protected renderElement(): React.JSX.Element | null {
-    const items = this.page.items.map((item: any, index: number) => { return (<SurveyFileItem item={item} question={this.question} key={index}></SurveyFileItem>); });
+    const items = this.page.items.map((item: any, index: number) => { return ReactElementFactory.Instance.createElement("sv-file-item", { item, question: this.question, key: index }); });
     return (
       <div className={this.page.css} id={this.page.id} >
         {items}

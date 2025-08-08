@@ -7,8 +7,8 @@
       :type="question.checkType"
       :class="question.cssItemValue"
       :name="row.fullName"
-      v-model="renderedValue"
-      @change="changed"
+      :checked="row.isChecked(column)"
+      @input="changed"
       :value="column.value"
       :readonly="row.isReadOnlyAttr"
       :disabled="row.isDisabledAttr"
@@ -58,7 +58,6 @@ const props = defineProps<{
   column: ItemValue;
   columnIndex: number;
 }>();
-const renderedValue = props.row.isChecked(props.column) ? props.column.value : "";
 const changed = () => {
   const row = props.row;
   const column = props.column;

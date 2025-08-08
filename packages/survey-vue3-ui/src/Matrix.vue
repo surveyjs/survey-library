@@ -69,7 +69,6 @@
                 :key="columnIndex"
                 :data-responsive-title="column.locText.renderedHtml"
                 :class="question.cssClasses.cell"
-                v-on:click="cellClick(row, column)"
               >
                 <SvComponent
                   :is="question.cellComponent"

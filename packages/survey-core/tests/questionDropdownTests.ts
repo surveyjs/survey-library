@@ -2708,3 +2708,40 @@ QUnit.test("lazy loading + isReady", assert => {
     done();
   });
 });
+
+QUnit.test("Dropdown with Lazy Loading applies additional client-side filtering to the choice list", assert => {
+  const survey = new SurveyModel({
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  });
+
+  const doCallback = (options: any) => {
+    if (!!options.filter) {
+      options.setItems(["fruit juice", "fruit salad", "apple", "banana"], 4);
+    } else {
+      options.setItems([], 0);
+    }
+  };
+  const opts = new Array<any>();
+  survey.onChoicesLazyLoad.add((_, opt) => { opts.push(opt); });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 0);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.show();
+  doCallback(opts[0]);
+  assert.equal(question.choices.length, 0);
+  assert.equal(list.actions.length, 0);
+
+  question.dropdownListModel.filterString = "fruit";
+  doCallback(opts[1]);
+  assert.equal(question.choices.length, 4);
+  assert.equal(list.actions.length, 4);
+  assert.equal(list.actions.filter(item => list.isItemVisible(item)).length, 4);
+});

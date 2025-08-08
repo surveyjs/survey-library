@@ -58,7 +58,7 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
     }
     const expVar = settings.expressionVariables;
     const panelPrefix = expVar.panel;
-    if (path.length > 1 && path[0].name === expVar.parentPanel.toLocaleLowerCase()) {
+    if (path.length > 1 && path[0].name.toLocaleLowerCase() === expVar.parentPanel.toLocaleLowerCase()) {
       const q = <Question>(<any>this.item.data);
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
         path[0].name = panelPrefix;

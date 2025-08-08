@@ -50,17 +50,11 @@ export class QuestionBooleanModel extends Question {
     }
     this.setBooleanValue(val);
   }
-  @property() booleanValueRendered: boolean;
-
-  public get checkedValue(): any { return this.booleanValue; }
-  public set checkedValue(val: any) { this.booleanValue = val; }
   private setBooleanValue(val: any) {
     if (this.isValueEmpty(val)) {
       this.value = undefined;
-      this.booleanValueRendered = undefined;
     } else {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
-      this.booleanValueRendered = val;
     }
   }
   public get defaultValue(): any {
@@ -320,7 +314,7 @@ export class QuestionBooleanModel extends Question {
     if (css.radioItem) {
       className = css.radioItem;
     }
-    if (css.radioItemChecked && value === this.booleanValue) {
+    if (css.radioItemChecked && value === this.value) {
       className = (className ? className + " " : "") + css.radioItemChecked;
     }
     if (this.isDisabledStyle) {

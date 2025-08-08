@@ -200,7 +200,7 @@ registerMarkupTests(
       questions: [
         {
           name: "name",
-          defaultValue: true,
+          defaultValue: "true_val",
           type: "boolean",
           title: "Question title",
           titleLocation: "hidden",

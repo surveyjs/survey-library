@@ -1669,28 +1669,28 @@ QUnit.test("Custom text in required error", function (assert) {
 });
 QUnit.test("Boolean question checkedValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
-  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  assert.equal(question.booleanValue, null, "Indertemenated by default");
   question.value = true;
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     true,
     "value == true, checkedvalue == true"
   );
   question.value = false;
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     false,
     "value == false, checkedvalue == false"
   );
   question.value = null;
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     null,
     "value == null, checkedvalue == null"
   );
   question.value = "a";
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     false,
     "value == 'a', checkedvalue == false"
   );
@@ -1699,36 +1699,36 @@ QUnit.test("Boolean question valueTrue, valueFalse", function (assert) {
   var question = new QuestionBooleanModel("bool");
   question.valueTrue = "yes";
   question.valueFalse = "no";
-  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  assert.equal(question.booleanValue, null, "Indertemenated by default");
   question.value = "yes";
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     true,
     "value == 'yes', checkedvalue == true"
   );
   question.value = "no";
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     false,
     "value == 'no', checkedvalue == false"
   );
-  question.checkedValue = true;
+  question.booleanValue = true;
   assert.equal(question.value, "yes", "checkedvalue == true, value = 'yes'");
-  question.checkedValue = false;
+  question.booleanValue = false;
   assert.equal(question.value, "no", "checkedvalue == false, value = 'no'");
 });
 QUnit.test("Boolean question defaultValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
-  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  assert.equal(question.booleanValue, null, "Indertemenated by default");
   question.defaultValue = "true";
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     true,
     "defaultValue is set to 'true', checkedvalue == true"
   );
   question.defaultValue = "false";
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     true,
     "defaultValue is set to 'false', but value has been already set to checkedvalue == true"
   );
@@ -1743,18 +1743,18 @@ QUnit.test("Boolean question defaultValue as a boolean values", function (
   assert
 ) {
   var question = new QuestionBooleanModel("bool");
-  assert.equal(question.checkedValue, null, "Indertemenated by default");
+  assert.equal(question.booleanValue, null, "Indertemenated by default");
   question.defaultValue = true;
   assert.equal(question.defaultValue, "true", "default value is true");
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     true,
     "defaultValue is set to 'true', checkedvalue == true"
   );
   question.defaultValue = false;
   assert.equal(question.defaultValue, "false", "default value is false");
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     true,
     "defaultValue is set to 'false', but value has been already set to checkedvalue == true"
   );
@@ -1768,16 +1768,16 @@ QUnit.test("Boolean question defaultValue as a boolean values", function (
 QUnit.test("Boolean question read only checkedValue", function (assert) {
   var question = new QuestionBooleanModel("bool");
   question.readOnly = true;
-  assert.equal(question.checkedValue, null, "Indertemenated by default");
-  question.checkedValue = false;
+  assert.equal(question.booleanValue, null, "Indertemenated by default");
+  question.booleanValue = false;
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     null,
     "Indertemenated by default is not changed due to read only mode"
   );
-  question.checkedValue = true;
+  question.booleanValue = true;
   assert.equal(
-    question.checkedValue,
+    question.booleanValue,
     null,
     "Indertemenated by default is not changed due to read only mode"
   );

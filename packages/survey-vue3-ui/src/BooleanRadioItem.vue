@@ -8,7 +8,7 @@
         type="radio"
         :name="question.name"
         :value="value"
-        :checked="value === question.booleanValueRendered"
+        :checked="value === question.value"
         :aria-errormessage="question.ariaErrormessage"
         :disabled="question.isDisabledAttr"
         :readonly="question.isReadOnlyAttr"
@@ -40,10 +40,10 @@ import type { LocalizableString, QuestionBooleanModel } from "survey-core";
 const props = defineProps<{
   question: QuestionBooleanModel;
   locText: LocalizableString;
-  value: boolean;
+  value: string | boolean;
 }>();
-const handleChange = (event: any) => {
+const handleChange = () => {
   const question = props.question;
-  question.booleanValue = event.target.value == "true";
+  question.value = props.value;
 };
 </script>

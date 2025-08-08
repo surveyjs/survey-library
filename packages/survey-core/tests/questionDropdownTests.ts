@@ -2367,7 +2367,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
   assert.equal(listModel.actions[4].id, "newCustomItem");
 
   listModel.onItemClick(listModel.actions[4]);
-  assert.equal(dropdownListModel.inputStringRendered, "item10", "#2 inputStringRendered");
+  assert.equal(dropdownListModel.inputStringRendered, testCustomValueUpperCase, "#2 inputStringRendered");
   assert.equal(question.value, testCustomValue, "#2 question.value");
   assert.equal(question.selectedItem.value, testCustomValue, "#2 question.selectedItem.id");
   assert.equal(question.selectedItem.text, testCustomValueUpperCase, "#2 question.selectedItem.text");
@@ -2384,7 +2384,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
   assert.equal(dropdownListModel.inputStringRendered, "", "#4 inputStringRendered");
   assert.equal(question.value, testCustomValue, "#4 question.value");
   assert.equal(question.selectedItem.value, testCustomValue, "#4 question.selectedItem.id");
-  assert.equal(question.selectedItem.text, testCustomValue.toUpperCase(), "#4 question.selectedItem.text");
+  assert.equal(question.selectedItem.text, testCustomValueUpperCase, "#4 question.selectedItem.text");
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#4 survey.data");
 });
 

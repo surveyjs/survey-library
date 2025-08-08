@@ -345,9 +345,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public onPointerDown(event: PointerEvent, item: any) { }
   public refresh(): void { // used in popup
-    if (this.filterString !== "") {
-      this.filterString = "";
-    } else {
+    if (this.filterString == "") {
       this.raiseUpdate({ needUpdateIsEmpty: true });
     }
     this.resetFocusedItem();

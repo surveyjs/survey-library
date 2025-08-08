@@ -47,6 +47,7 @@ export interface IListModel {
   listAriaLabel?: string;
   onFilterStringChangedCallback?: (text: string) => void;
   onTextSearchCallback?: (item: IAction, textToSearch: string) => boolean;
+  disableSearch?: boolean;
 }
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
@@ -79,6 +80,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: "listbox" }) listRole: string;
   @property({ defaultValue: "option" }) listItemRole: string;
   @property() listAriaLabel: string;
+  @property({ defaultValue: false }) disableSearch: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -95,6 +97,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public isItemVisible(item: T): boolean {
     if (item.id === this.loadingIndicator.id) return item.visible;
+    if (this.disableSearch) return item.visible;
     return item.visible && this.hasText(item, this.filterString);
   }
 

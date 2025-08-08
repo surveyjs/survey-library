@@ -381,6 +381,7 @@ export class DropdownListModel extends Base {
       }
     });
     model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
+    model.disableSearch = this.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
     model.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
   }
@@ -696,6 +697,8 @@ export class DropdownListModel extends Base {
 
   public setChoicesLazyLoadEnabled(newValue: boolean): void {
     this.choicesLazyLoadEnabled = newValue;
+    this.listModel.disableSearch = newValue;
+    this.listModel.isAllDataLoaded = !newValue;
   }
 
   public setInputPlaceholder(newValue: string): void {

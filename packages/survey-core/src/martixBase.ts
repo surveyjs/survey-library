@@ -21,7 +21,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
 
   constructor(name: string) {
     super(name);
-    this.filteredRows = null;
     this.columns = this.createColumnValues();
     this.rows = this.createItemValues("rows");
   }
@@ -197,6 +196,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
     if (this.filteredRows.length === this.rows.length) {
       this.filteredRows = null;
+      if (!!this.generatedVisibleRows && this.generatedVisibleRows.length !== this.rows.length) {
+        this.generatedVisibleRows = null;
+      }
     }
     return hasChanged;
   }

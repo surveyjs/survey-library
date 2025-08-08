@@ -79,11 +79,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     res.forceShowFilter = this.question.choicesLazyLoadEnabled;
     return res;
   }
-  protected resetFilterString(): void {
-    super.resetFilterString();
-    this.inputString = null;
-    this.hintString = "";
-  }
+
   @property() previousValue: any;
   @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;
   private get shouldResetAfterCancel() {

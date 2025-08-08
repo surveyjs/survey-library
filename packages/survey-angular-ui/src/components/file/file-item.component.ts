@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 import { EmbeddedViewContentComponent } from "../../embedded-view-content.component";
 import { QuestionFileModel } from "survey-core";
-import { AngularComponentFactory } from "build/component-factory";
+import { AngularComponentFactory } from "../../component-factory";
 
 @Component({
   templateUrl: "./file-item.component.html",

@@ -6,12 +6,12 @@ import { LocalizableString, QuestionBooleanModel } from "survey-core";
 })
 export class BooleanRadioItemComponent {
   @Input() question!: QuestionBooleanModel;
-  @Input() value!: boolean;
+  @Input() value!: string | boolean;
   @Input() locText!: LocalizableString;
   constructor() {
 
   }
   public change() {
-    this.question.value == this.value;
+    this.question.value = this.value;
   }
 }

@@ -24,7 +24,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             disabled={this.question.isDisabledAttr}
             readOnly={this.question.isReadOnlyAttr}
             className={cssClasses.itemRadioControl}
-            onInput={handleOnChange}
+            onChange={handleOnChange}
           />
           {this.question.cssClasses.materialRadioDecorator ?
             (<span className={cssClasses.materialRadioDecorator}>

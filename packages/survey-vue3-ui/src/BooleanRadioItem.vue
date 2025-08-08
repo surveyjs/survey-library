@@ -40,10 +40,10 @@ import type { LocalizableString, QuestionBooleanModel } from "survey-core";
 const props = defineProps<{
   question: QuestionBooleanModel;
   locText: LocalizableString;
-  value: boolean;
+  value: string | boolean;
 }>();
-const handleChange = (event: any) => {
+const handleChange = () => {
   const question = props.question;
-  question.booleanValue = event.target.value == question.value;
+  question.value = props.value;
 };
 </script>

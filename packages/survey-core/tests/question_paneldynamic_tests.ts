@@ -8241,3 +8241,42 @@ QUnit.test("paneldynamic nested question valueName & clearIncorrectValues, Bug#1
   survey.clearIncorrectValues();
   assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #2");
 });
+QUnit.test("survey.getData vs panel inside tempalte panel, Bug#10230", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "d1",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      },
+      {
+        "type": "paneldynamic",
+        "name": "d2",
+        "templateElements": [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "q2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    d1: [{ q1: 1, }, { q1: 2 }],
+    d2: [{ q2: 1 }, { q2: 2 }]
+  };
+  assert.deepEqual(survey.getData({ includePanels: true }),
+    { d1: [{ q1: 1 }, { q1: 2 }], d2: [{ panel1: { q2: 1 } }, { panel1: { q2: 2 } }] }
+    , "survey.getData #1");
+});

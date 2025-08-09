@@ -817,7 +817,7 @@ export class PanelModelBase extends SurveyElement<Question>
         const q = <Question>el;
         if (!q.isEmpty()) {
           var valueName = q.getValueName();
-          data[valueName] = q.value;
+          data[valueName] = q.getStructuredValue(level - 1);
           if (!!this.data) {
             var comment = this.data.getComment(valueName);
             if (!!comment) {

@@ -1020,6 +1020,18 @@ export class QuestionPanelDynamicModel extends Question
   public set panelsState(val: string) {
     this.setPropertyValue("panelsState", val);
   }
+  public getStructuredValue(level: number = -1): any {
+    if (level < 0 || this.isEmpty() || !Array.isArray(this.value)) return this.value;
+    const data = new Array<any>();
+    const valCount = Math.min(this.visiblePanelCount, this.value.length);
+    for (let i = 0; i < valCount; i++) {
+      const panel = this.visiblePanels[i];
+      const panelData: any = {};
+      panel.collectValues(panelData, level);
+      data.push(panelData);
+    }
+    return data;
+  }
   private setTemplatePanelSurveyImpl() {
     this.template.setSurveyImpl(
       this.useTemplatePanel

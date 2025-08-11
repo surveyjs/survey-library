@@ -2155,6 +2155,9 @@ export class Question extends SurveyElement<Question>
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  public getStructuredValue(level: number = -1): any {
+    return this.value;
+  }
   public get hasFilteredValue(): boolean { return false; }
   public getFilteredValue(isUnwrapped?: boolean): any { return this.value; }
   public getFilteredName(): any { return this.getValueName(); }

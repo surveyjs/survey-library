@@ -290,7 +290,6 @@ export class DropdownListModel extends Base {
   }
 
   protected onHidePopup(): void {
-    this.resetFilterString();
     this.question.suggestedItem = null;
     if (this.choicesLazyLoadEnabled) {
       this.resetItemsSettings();
@@ -342,15 +341,17 @@ export class DropdownListModel extends Base {
   }
 
   private setQuestionValue(item: IAction) {
+    let selectedItem = item;
     if (this.allowCustomChoices && item.id === this.customItemValue.id) {
       const newChoice = this.createCustomItem();
-      if (!!newChoice) {
-        this.question.selectItem(newChoice);
-        this.hintString = "";
+      selectedItem = newChoice;
+    }
+    if (!!selectedItem) {
+      this.resetFilterString();
+      this.question.selectItem(selectedItem);
+      if (this.searchEnabled) {
+        this.applyInputString(selectedItem as ItemValue);
       }
-    } else {
-      this.question.selectItem(item);
-      if (this.searchEnabled)this.applyInputString(item as ItemValue);
     }
   }
 
@@ -393,12 +394,13 @@ export class DropdownListModel extends Base {
   protected resetFilterString(): void {
     if (!!this.filterString) {
       this.filterString = undefined;
+      this.listModel.filterString = "";
     }
+    this.inputString = null;
+    this.hintString = "";
   }
   public clear(): void {
     this.customValue = undefined;
-    this.inputString = null;
-    this.hintString = "";
     this.resetFilterString();
   }
   protected onSetFilterString(): void {
@@ -858,8 +860,6 @@ export class DropdownListModel extends Base {
     doKey2ClickBlur(event);
     this._popupModel.hide();
     this.resetFilterString();
-    this.inputString = null;
-    this.hintString = "";
     event.stopPropagation();
   }
   onFocus(event: any): void {
@@ -871,8 +871,6 @@ export class DropdownListModel extends Base {
     if (!this.focused) return;
     if (this.searchEnabled && !!newValue) {
       this.applyInputString(newValue);
-    } else {
-      this.inputString = null;
     }
   }
 

@@ -6625,7 +6625,48 @@ QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearIn
   survey.setValue("q1", 1);
   assert.deepEqual(survey.data, { q1: 1 }, "q2 is invisible");
 });
-
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearInvisibleValues='none', Bug#10035", function (assert) {
+  const survey = new SurveyModel({
+    validationType: "none",
+    elements: [
+      {
+        type: "text",
+        name: "status",
+        defaultValueExpression: "'completed'",
+      },
+      {
+        type: "panel",
+        name: "panel_b",
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+            visibleIf: "{status} = 'completed'",
+            clearIfInvisible: "none",
+          },
+          {
+            type: "panel",
+            name: "panel_c",
+            visibleIf: "{q2} notempty",
+            title: "panel_c",
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                clearIfInvisible: "onHiddenContainer",
+              },
+            ],
+          }] }
+    ]
+  });
+  survey.data = { status: "completed-non", q2: "abc", q1: "def" };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.visible, true, "q1 is visible");
+  assert.equal(q2.visible, false, "q2 is invisible");
+  assert.equal(q1.value, "def", "q1 value is not cleared");
+  assert.equal(q2.value, "abc", "q2 value is not cleared");
+});
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.inputType, "text");

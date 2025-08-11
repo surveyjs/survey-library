@@ -1167,6 +1167,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.initElement(res);
     this.setIsContentElement(res);
     res.readOnly = this.isReadOnly;
+    res.onGetNoCallback = (no: string): string => { return this.no; };
     res.questions.forEach(q => {
       q.setParentQuestion(this);
       q.onUpdateCssClassesCallback = (css: any): void => { this.onUpdateQuestionCssClasses(q, css); };

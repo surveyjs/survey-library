@@ -259,7 +259,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       const index = this.getItemValIndexByItemValue(item.value);
       if (index > -1) {
         const val = this.createValueCopy();
-        val[index][this.commentPropertyValue] = newValue;
+        const itemVal = val[index];
+        if (newValue) {
+          itemVal[this.commentPropertyValue] = newValue;
+        } else {
+          delete itemVal[this.commentPropertyValue];
+        }
         this.value = val;
       }
     }
@@ -545,6 +550,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return -1;
   }
   protected removeNoneItemsValues(value: Array<any>, newValue: Array<any>): void {
+    if (value.length === 1 && newValue.length === 1
+      && this.getRealValue(value[0]) === this.getRealValue(newValue[0])) return;
     const noneValues = this.getNoneItems().map(item => item.value);
     if (noneValues.length > 0) {
       const prevNone = this.noneIndexInArray(value, noneValues);
@@ -703,9 +710,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!Array.isArray(val)) return [super.valueFromData(val)];
     let value = [];
     for (let i = 0; i < val.length; i++) {
-      let choiceitem = ItemValue.getItemByValue(this.visibleChoices, val[i]);
+      const choiceitem = this.getItemByValue(val[i], this.visibleChoices);
       if (!!choiceitem) {
-        value.push(choiceitem.value);
+        value.push(this.getChoiceValue(choiceitem, val[i], true));
       } else {
         value.push(val[i]);
       }

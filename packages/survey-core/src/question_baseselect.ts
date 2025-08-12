@@ -845,11 +845,20 @@ export class QuestionSelectBase extends Question {
   protected valueFromData(val: any): any {
     let item = this.getItemByValue(val, this.activeChoices);
     if (!!item) {
-      if (typeof val === "object" && item.showCommentArea && !Helpers.isValueEmpty(val[this.commentPropertyValue]))
-        return { value: item.value, [this.commentPropertyValue]: val[this.commentPropertyValue] };
-      return item.value;
+      return this.getChoiceValue(item, val, false);
     }
     return super.valueFromData(val);
+  }
+  protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
+    const isObj = typeof val === "object";
+    const comment = isObj ? val[this.commentPropertyValue] : "";
+    const hasComment = !Helpers.isValueEmpty(comment);
+    if (isObj && choice.showCommentArea && (objOnComment || hasComment)) {
+      const res: any = { value: choice.value };
+      if (hasComment) res[this.commentPropertyValue] = comment;
+      return res;
+    }
+    return choice.value;
   }
   protected getItemByValue(val: any, choices? : Array<ItemValue>): ItemValue {
     const chs = choices || this.visibleChoices;

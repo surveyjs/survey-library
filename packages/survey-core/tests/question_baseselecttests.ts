@@ -3405,3 +3405,27 @@ QUnit.test("radiogroup & checkbox questions and choices has comment - display va
   assert.equal(q1.displayValue, "Item 1", "q1.displayValue, #1");
   assert.equal(q2.displayValue, "Item 1", "q2.displayValue, #2");
 });
+QUnit.test("checkbox choices vs showComment & isExclusive - display value, Bug#10236", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": [{ value: 1, comment: "abc" }],
+        "choices": [{ value: "item1", showCommentArea: true, isExclusive: true }, "item2", "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.renderedValue = ["item2", "item3"];
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.deepEqual(q1.renderedValue, ["item1"], "q1.renderedValue, #1");
+  assert.deepEqual(q1.value, [{ value: "item1" }], "q1.value, #1");
+  const textArea = q1.getCommentTextAreaModel(q1.choices[0]);
+  textArea.onTextAreaBlur({ target: { value: "" } });
+  assert.deepEqual(q1.renderedValue, ["item1"], "q1.renderedValue, #2");
+  assert.deepEqual(q1.value, [{ value: "item1" }], "q1.value, #2");
+  textArea.onTextAreaBlur({ target: { value: "abc" } });
+  assert.deepEqual(q1.renderedValue, ["item1"], "q1.renderedValue, #3");
+  assert.deepEqual(q1.value, [{ value: "item1", comment: "abc" }], "q1.value, #3");
+});

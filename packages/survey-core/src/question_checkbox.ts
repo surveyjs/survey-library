@@ -725,8 +725,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   private convertValueFromObject(val: any): any {
     const valProp = this.getValuePropertyName();
-    if (!valProp) return val;
-    return Helpers.convertArrayObjectToValue(val, valProp);
+    if (!valProp || !Array.isArray(val)) return val;
+    const res = [];
+    for (let i = 0; i < val.length; i++) {
+      res.push(this.getRealValue(val[i]));
+    }
+    return res;
   }
   protected renderedValueFromDataCore(val: any): any {
     if (!val || !Array.isArray(val)) val = [];

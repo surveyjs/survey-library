@@ -33,6 +33,8 @@ Use this approach if you want to add or remove survey elements at runtime.
 Static survey models are specified by model schemas (JSON objects). For example, the following model schema declares a [page](https://surveyjs.io/Documentation/Library?id=pagemodel) that contains two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel) and an expandable panel with two more textual questions. All survey elements have unique [names](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name) that can be used to identify the elements in code. The panel and questions also have [titles](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) that are displayed on screen.
 
 ```js
+import { Model } from "survey-core";
+
 const surveyJson = {
   pages: [{
     name: "PersonalDetails",
@@ -62,7 +64,7 @@ const surveyJson = {
   }]
 };
 
-const survey = new Survey.Model(surveyJson);
+const survey = new Model(surveyJson);
 ```
 
 The model schema above produces the following survey:
@@ -77,6 +79,8 @@ The model schema above produces the following survey:
 If your survey contains only one page, as in the previous example, you can skip the `pages` array declaration and specify the `elements` array at the top level:
 
 ```js
+import { Model } from "survey-core";
+
 const surveyJson = {
   elements: [{
     type: "text",
@@ -87,16 +91,18 @@ const surveyJson = {
   ]
 };
 
-const survey = new Survey.Model(surveyJson);
+const survey = new Model(surveyJson);
 ```
 
 ### Create or Change a Survey Model Dynamically
 
-SurveyJS allows you to create or modify a survey model at runtime. Call different methods to add or remove survey elements; specify properties using dot notation to configure the elements. For example, the following code adds survey elements using the [addNewPage(name)](https://surveyjs.io/Documentation/Library?id=surveymodel#addNewPage), [addNewPanel(name)](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewPanel), and [addNewQuestion(type, name)](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewQuestion) methods. The [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and [state](https://surveyjs.io/Documentation/Library?id=panelmodel#state) properties configure the added elements. Refer to the [API](https://surveyjs.io/Documentation/Library?id=surveymodel) help section for a full list of supported methods and properties.
+SurveyJS allows you to create or modify a survey model at runtime. Call different methods to add or remove survey elements and specify properties using dot notation to configure the elements. For example, the following code adds survey elements using the [`addNewPage(name)`](https://surveyjs.io/Documentation/Library?id=surveymodel#addNewPage), [`addNewPanel(name)`](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewPanel), and [`addNewQuestion(type, name)`](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewQuestion) methods. The [`title`](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and [`state`](https://surveyjs.io/Documentation/Library?id=panelmodel#state) properties configure the added elements. Refer to the [API Reference](https://surveyjs.io/Documentation/Library?id=surveymodel) help section for a full list of supported methods and properties.
 
 ```js
+import { Model } from "survey-core";
+
 // Create an empty model
-const survey = new Survey.Model();
+const survey = new Model();
 // Add a PersonalDetails page to the model
 const page = survey.addNewPage("PersonalDetails");
 // Add a FirstName question to the page
@@ -121,9 +127,23 @@ const github = panel.addNewQuestion("text", "GitHub");
 github.title = "GitHub username:"
 ```
 
+If you want to add a [Dynamic Panel](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/) to your survey at runtime, push the nested elements to the panel's [`templateElements`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateElements) array:
+
+```js
+const page1 = survey.addNewPage("page1");
+const q1 = page.addNewQuestion("text", "question1");
+q1.title = "My Question";
+
+const dynamicPanel = page.addNewQuestion("paneldynamic", "myDynamicPanel");
+dynamicPanel.title = "My Dynamic Panel";
+dynamicPanel.templateElements.push(q1);
+```
+
 You can combine both approaches to survey model configuration. The following example shows how to define a survey model in JSON, and then change it using methods and properties:
 
 ```js
+import { Model } from "survey-core";
+
 const surveyJson = {
   pages: [{
     name: "PersonalDetails",
@@ -147,7 +167,7 @@ const surveyJson = {
   }]
 };
 
-const survey = new Survey.Model(surveyJson);
+const survey = new Model(surveyJson);
 
 // Add a title to the GitHub question
 const github = survey.getQuestionByName("GitHub");

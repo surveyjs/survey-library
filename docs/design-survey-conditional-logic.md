@@ -586,7 +586,7 @@ Truncates the given number to the specified number of decimal places. If the `pr
 "expression": "trunc(1.005, 2)" // 1
 "expression": "trunc(2.175, 1)" // 2.1
 "expression": "trunc(-1.005, 2)" // -1
-"expression": "trunc(-2.175, 1)" // -2.17
+"expression": "trunc(-2.175, 1)" // -2.1
 ```
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/2c5c9367646847899e773554c021418d8e2b5f05/packages/survey-core/src/functionsfactory.ts#L149-L162 (linkStyle))

@@ -3411,7 +3411,6 @@ QUnit.test("checkbox choices vs showComment & isExclusive - display value, Bug#1
       {
         "type": "checkbox",
         "name": "q1",
-        "defaultValue": [{ value: 1, comment: "abc" }],
         "choices": [{ value: "item1", showCommentArea: true, isExclusive: true }, "item2", "item3"]
       }
     ]
@@ -3428,4 +3427,20 @@ QUnit.test("checkbox choices vs showComment & isExclusive - display value, Bug#1
   textArea.onTextAreaBlur({ target: { value: "abc" } });
   assert.deepEqual(q1.renderedValue, ["item1"], "q1.renderedValue, #3");
   assert.deepEqual(q1.value, [{ value: "item1", comment: "abc" }], "q1.value, #3");
+});
+QUnit.test("checkbox choices vs showComment & selection, Bug#10243", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", showCommentArea: true }, "item2"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  survey.data = { q1: [{ value: "item1", comment: "abc" }, "item2"] };
+  assert.deepEqual(q1.value, [{ value: "item1", comment: "abc" }, "item2"], "q1.value, #1");
+  assert.deepEqual(q1.renderedValue, ["item1", "item2"], "q1.renderedValue, #1");
+  assert.equal(q1.getCommentTextAreaModel(q1.choices[0]).getTextValue(), "abc", "comment text area value, #1");
 });

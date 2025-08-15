@@ -213,8 +213,8 @@ export var serbianStrings = {
   loadingPage: "Učitavanje...",
   // [Auto-translated] "Loading..."
   loadingData: "Učitavanje...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Još uvek nema unosa.\\nKliknite na dugme ispod da biste dodali novi unos.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Još nema unosa.\nKliknite na dugme ispod da biste dodali novi unos.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Nema unosa",
   // [Auto-translated] "New Panel"

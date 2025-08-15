@@ -213,8 +213,8 @@ export var arabicSurveyStrings = {
   loadingPage: "تحميل...",
   // [Auto-translated] "Loading..."
   loadingData: "تحميل...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "لا توجد إدخالات بعد.\\nانقر فوق الزر أدناه لإضافة إدخال جديد.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "لا توجد إدخالات بعد.\nانقر فوق الزر أدناه لإضافة إدخال جديد.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "لا توجد إدخالات",
   // [Auto-translated] "New Panel"

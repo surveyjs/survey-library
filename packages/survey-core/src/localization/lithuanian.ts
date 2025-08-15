@@ -213,8 +213,8 @@ export var lithuaniaSurveyStrings = {
   loadingPage: "Pakrovimo...",
   // [Auto-translated] "Loading..."
   loadingData: "Pakrovimo...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Įrašų dar nėra.\\nSpustelėkite žemiau esantį mygtuką, jei norite pridėti naują įrašą.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Įrašų dar nėra.\nSpustelėkite žemiau esantį mygtuką, kad pridėtumėte naują įrašą.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Įrašų nėra",
   // [Auto-translated] "New Panel"

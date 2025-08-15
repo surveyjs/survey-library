@@ -213,8 +213,8 @@ export var hindiStrings = {
   loadingPage: "लोड।।।",
   // [Auto-translated] "Loading..."
   loadingData: "लोड।।।",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "अभी तक कोई प्रविष्टि नहीं.\\nनई प्रविष्टि जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "अभी तक कोई प्रविष्टि नहीं।\nनई प्रविष्टि जोड़ने के लिए नीचे दिए गए बटन पर क्लिक करें.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "कोई प्रविष्टि नहीं",
   // [Auto-translated] "New Panel"

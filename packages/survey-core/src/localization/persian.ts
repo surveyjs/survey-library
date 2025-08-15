@@ -213,8 +213,8 @@ export var persianSurveyStrings = {
   loadingPage: "بارگذاری...",
   // [Auto-translated] "Loading..."
   loadingData: "بارگذاری...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "هنوز هیچ مدخلی وجود ندارد.\\nبرای افزودن یک ورودی جدید روی دکمه زیر کلیک کنید.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "هنوز هیچ مدخلی وجود ندارد.\nبرای افزودن ورودی جدید روی دکمه زیر کلیک کنید.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "بدون ورودی",
   // [Auto-translated] "New Panel"

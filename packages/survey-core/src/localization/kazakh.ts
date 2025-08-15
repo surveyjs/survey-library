@@ -213,8 +213,8 @@ export var kazakhStrings = {
   loadingPage: "Жүктеу...",
   // [Auto-translated] "Loading..."
   loadingData: "Жүктеу...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Әлі жазбалар жоқ.\\nClick батырманы жаңа жазба қосу үшін басыңыз.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Әзірге жазбалар жоқ.\nЖаңа жазбаны қосу үшін төмендегі түймешігіңді басыңыз.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Жазбалар жоқ",
   // [Auto-translated] "New Panel"

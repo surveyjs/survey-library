@@ -213,8 +213,8 @@ export var norwegianSurveyStrings = {
   loadingPage: "Lasting...",
   // [Auto-translated] "Loading..."
   loadingData: "Lasting...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Ingen oppføringer ennå.\\nKlikk på knappen nedenfor for å legge til en ny oppføring.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Ingen oppføringer ennå.\nKlikk på knappen nedenfor for å legge til en ny oppføring.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Ingen oppføringer",
   // [Auto-translated] "New Panel"

@@ -213,8 +213,8 @@ export var swahiliStrings = {
   loadingPage: "Kupakia...",
   // [Auto-translated] "Loading..."
   loadingData: "Kupakia...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Bado hakuna mainizo.\\nBofya kitufe kilicho hapa chini ili kuongeza ingizo jipya.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Bado hakuna maingizo makubwa.\nBofya kitufe kilicho hapa chini ili kuongeza ingizo jipya.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Hakuna maingizo",
   // [Auto-translated] "New Panel"

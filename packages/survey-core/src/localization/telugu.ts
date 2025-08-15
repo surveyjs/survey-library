@@ -213,8 +213,8 @@ export var teluguStrings = {
   loadingPage: "లోడింగ్...",
   // [Auto-translated] "Loading..."
   loadingData: "లోడింగ్...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "ఇంకా ఎంట్రీలు లేవు.\\n కొత్త ఎంట్రీని జోడించడానికి దిగువ బటన్ ను క్లిక్ చేయండి.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "ఇంకా ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "ఎంట్రీలు లేవు",
   // [Auto-translated] "New Panel"

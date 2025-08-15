@@ -213,8 +213,8 @@ export var estonianSurveyStrings = {
   loadingPage: "Laadimise...",
   // [Auto-translated] "Loading..."
   loadingData: "Laadimise...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Kirjeid veel pole.\\nUue kirje lisamiseks klõpsake alloleval nupul.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Sissekandeid veel pole.\nUue kirje lisamiseks klõpsake alloleval nupul.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Sissekandeid pole",
   // [Auto-translated] "New Panel"

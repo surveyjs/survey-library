@@ -213,8 +213,8 @@ export var danishSurveyStrings = {
   loadingPage: "Pålæsning...",
   // [Auto-translated] "Loading..."
   loadingData: "Pålæsning...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Ingen poster endnu.\\nKlik på knappen nedenfor for at tilføje en ny post.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Ingen tilmeldinger endnu.\nKlik på knappen nedenfor for at tilføje en ny post.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Ingen poster",
   // [Auto-translated] "New Panel"

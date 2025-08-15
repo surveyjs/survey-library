@@ -213,8 +213,8 @@ export var basqueSurveyStrings = {
   loadingPage: "Karga...",
   // [Auto-translated] "Loading..."
   loadingData: "Karga...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Oraindik ez sarrerarik.\\nHaga klik beheko botoian, sarrera berri bat gehitzeko.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Ez sarrerarik",
   // [Auto-translated] "New Panel"

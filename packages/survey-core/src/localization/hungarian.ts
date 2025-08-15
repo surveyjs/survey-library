@@ -213,8 +213,8 @@ export var hungarianSurveyStrings = {
   loadingPage: "Berakás...",
   // [Auto-translated] "Loading..."
   loadingData: "Berakás...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Még nincs bejegyzés.\\nKattintson az alábbi gombra új bejegyzés hozzáadásához.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Még nincs nevezés.\nKattintson az alábbi gombra új bejegyzés hozzáadásához.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Nincs nevezés",
   // [Auto-translated] "New Panel"

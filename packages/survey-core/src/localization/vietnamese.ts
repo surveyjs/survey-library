@@ -213,8 +213,8 @@ export var vietnameseSurveyStrings = {
   loadingPage: "Tải...",
   // [Auto-translated] "Loading..."
   loadingData: "Tải...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Chưa có mục nhập nào.\\nNhấp vào nút bên dưới để thêm mục mới.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Chưa có mục nhập.\nNhấp vào nút bên dưới để thêm mục mới.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Không có mục nhập",
   // [Auto-translated] "New Panel"

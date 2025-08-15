@@ -213,8 +213,8 @@ export var catalanSurveyStrings = {
   loadingPage: "Càrrega...",
   // [Auto-translated] "Loading..."
   loadingData: "Càrrega...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Encara no hi ha entrades.\\nFeu clic al botó següent per afegir una entrada nova.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Encara no hi ha entrades.\nFeu clic al botó següent per afegir una nova entrada.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "No hi ha entrades",
   // [Auto-translated] "New Panel"

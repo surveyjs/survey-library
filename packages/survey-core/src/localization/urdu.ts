@@ -213,8 +213,8 @@ export var urduSurveyStrings = {
   loadingPage: "لوڈنگ...",
   // [Auto-translated] "Loading..."
   loadingData: "لوڈنگ...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "ابھی تک کوئی اندراج نہیں ہے۔\\nایک نیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن کو کلک کریں۔",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "ابھی تک کوئی اندراج نہیں.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "کوئی اندراج نہیں",
   // [Auto-translated] "New Panel"

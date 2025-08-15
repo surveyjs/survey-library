@@ -213,8 +213,8 @@ export var welshSurveyStrings = {
   loadingPage: "Llwytho...",
   // [Auto-translated] "Loading..."
   loadingData: "Llwytho...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Dim cofnodion eto.\\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Dim cofnodion eto.\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Dim cofnodion",
   // [Auto-translated] "New Panel"

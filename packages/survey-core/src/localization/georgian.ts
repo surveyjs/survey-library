@@ -213,8 +213,8 @@ export var georgianSurveyStrings = {
   loadingPage: "იტვირთება...",
   // [Auto-translated] "Loading..."
   loadingData: "იტვირთება...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "ჯერ არ არის ჩანაწერები.\\nდააკლის ღილაკი ქვემოთ, რომ დაამატოთ ახალი ჩანაწერი.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "ჯერ არ არის ჩანაწერები.\nდააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ დაამატოთ ახალი ჩანაწერი.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "ჩანაწერები არ არის",
   // [Auto-translated] "New Panel"

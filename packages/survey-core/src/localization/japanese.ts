@@ -213,8 +213,8 @@ export var japaneseSurveyStrings = {
   loadingPage: "積載。。。",
   // [Auto-translated] "Loading..."
   loadingData: "積載。。。",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "エントリーはまだありません。\\n下のボタンをクリックして、新しいエントリーを追加します。",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "まだエントリーはありません。\n下のボタンをクリックして、新しいエントリを追加します。",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "エントリなし",
   // [Auto-translated] "New Panel"

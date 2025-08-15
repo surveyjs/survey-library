@@ -213,8 +213,8 @@ export var indonesianStrings = {
   loadingPage: "Loading...",
   // [Auto-translated] "Loading..."
   loadingData: "Loading...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Belum ada entri.\\nKlik tombol di bawah ini untuk menambahkan entri baru.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Belum ada entri.\nKlik tombol di bawah ini untuk menambahkan entri baru.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Tidak ada entri",
   // [Auto-translated] "New Panel"

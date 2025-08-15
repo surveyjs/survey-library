@@ -213,8 +213,8 @@ export var romanianSurveyStrings = {
   loadingPage: "Încărcare...",
   // [Auto-translated] "Loading..."
   loadingData: "Încărcare...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Nu există încă intrări.\\nFaceți clic pe butonul de mai jos pentru a adăuga o nouă intrare.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Încă nu există înscrieri.\nFaceți clic pe butonul de mai jos pentru a adăuga o nouă intrare.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Fără intrări",
   // [Auto-translated] "New Panel"

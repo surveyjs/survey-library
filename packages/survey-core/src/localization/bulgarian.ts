@@ -213,8 +213,8 @@ export var bulgarianStrings = {
   loadingPage: "Зареждане...",
   // [Auto-translated] "Loading..."
   loadingData: "Зареждане...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Все още няма записи.\\nЩракнете върху бутона по-долу, за да добавите нов запис.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Все още няма записи.\nЩракнете върху бутона по-долу, за да добавите нов запис.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Няма записи",
   // [Auto-translated] "New Panel"

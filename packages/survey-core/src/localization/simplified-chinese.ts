@@ -213,8 +213,8 @@ export var simplifiedChineseSurveyStrings = {
   loadingPage: "装载。。。",
   // [Auto-translated] "Loading..."
   loadingData: "装载。。。",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "尚无条目。\\n单击下面的按钮添加新条目。",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "还没有条目。\n单击下面的按钮添加新条目。",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "暂无条目",
   // [Auto-translated] "New Panel"

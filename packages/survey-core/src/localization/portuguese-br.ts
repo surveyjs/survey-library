@@ -215,8 +215,8 @@ export var portugueseBrSurveyStrings = {
   loadingPage: "Carregamento...",
   // [Auto-translated] "Loading..."
   loadingData: "Carregamento...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Ainda não há entradas.\\nClique no botão abaixo para adicionar uma nova entrada.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Ainda não há entradas.\nClique no botão abaixo para adicionar uma nova entrada.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Sem entradas",
   // [Auto-translated] "New Panel"

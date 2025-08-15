@@ -213,8 +213,8 @@ export var ukrainianSurveyStrings = {
   loadingPage: "Завантаження...",
   // [Auto-translated] "Loading..."
   loadingData: "Завантаження...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Поки що немає записів.\\nНатисніть кнопку нижче, щоб додати новий запис.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Записів поки що немає.\nНатисніть кнопку нижче, щоб додати новий запис.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Записів немає",
   // [Auto-translated] "New Panel"

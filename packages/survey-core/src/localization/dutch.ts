@@ -213,8 +213,8 @@ export var dutchSurveyStrings = {
   loadingPage: "Laden...",
   // [Auto-translated] "Loading..."
   loadingData: "Laden...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Nog geen inzendingen.\\nKlik op de knop hieronder om een nieuw artikel toe te voegen.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Nog geen inschrijvingen.\nKlik op de onderstaande knop om een nieuw item toe te voegen.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Geen inzendingen",
   // [Auto-translated] "New Panel"

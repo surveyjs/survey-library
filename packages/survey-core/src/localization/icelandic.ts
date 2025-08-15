@@ -213,8 +213,8 @@ export var icelandicSurveyStrings = {
   loadingPage: "Hleðsla...",
   // [Auto-translated] "Loading..."
   loadingData: "Hleðsla...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Engar færslur ennþá.\\nSmelltu á hnappinn hér fyrir neðan til að bæta við nýrri færslu.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Engar færslur ennþá.\nSmelltu á hnappinn hér að neðan til að bæta við nýrri færslu.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Engar færslur",
   // [Auto-translated] "New Panel"

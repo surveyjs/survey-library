@@ -213,8 +213,8 @@ export var czechSurveyStrings = {
   loadingPage: "Nakládka...",
   // [Auto-translated] "Loading..."
   loadingData: "Nakládka...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "Zatím žádné záznamy.\\nKlikněte na tlačítko níže pro přidání nového záznamu.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "Zatím žádné záznamy.\nKliknutím na tlačítko níže přidáte novou položku.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "Žádné vstupy",
   // [Auto-translated] "New Panel"

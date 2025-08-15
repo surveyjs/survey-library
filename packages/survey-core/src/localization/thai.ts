@@ -213,8 +213,8 @@ export var thaiStrings = {
   loadingPage: "การโหลด   ",
   // [Auto-translated] "Loading..."
   loadingData: "การโหลด   ",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "ยังไม่มีรายการ\\n คลิกปุ่มด้านล่างเพื่อเพิ่มรายการใหม่",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "ยังไม่มีรายการ\nคลิกปุ่มด้านล่างเพื่อเพิ่มรายการใหม่",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "ไม่มีรายการ",
   // [Auto-translated] "New Panel"

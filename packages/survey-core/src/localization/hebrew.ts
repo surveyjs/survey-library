@@ -213,8 +213,8 @@ export var hebrewSurveyStrings = {
   loadingPage: "טעינת...",
   // [Auto-translated] "Loading..."
   loadingData: "טעינת...",
-  // [Auto-translated] "No entries yet.\\nClick the button below to add a new entry."
-  noEntriesText: "עדיין אין רשומות.\\nלחץ על הכפתור למטה כדי להוסיף ערך חדש.",
+  // [Auto-translated] "No entries yet.\nClick the button below to add a new entry."
+  noEntriesText: "עדיין אין כניסות.\nלחץ על הכפתור למטה כדי להוסיף ערך חדש.",
   // [Auto-translated] "No entries"
   noEntriesReadonlyText: "אין כניסות",
   // [Auto-translated] "New Panel"

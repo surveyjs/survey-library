@@ -76,6 +76,7 @@ jobs:
 
     steps:
       - checkout: self
+        persistCredentials: true
       - checkout: Service
         persistCredentials: true
         clean: true

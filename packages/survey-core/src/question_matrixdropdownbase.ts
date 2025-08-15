@@ -537,7 +537,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   getEditingSurveyElement(): Base { return undefined; }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
-    if (this.isSettingValue) return;
+    if (this.isSettingValue || this.isCreatingDetailPanel) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newColumnValue);

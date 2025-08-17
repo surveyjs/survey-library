@@ -63,6 +63,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getCss(): any;
   isPageStarted(page: IPage): boolean;
   getQuestionByName(name: string): IQuestion;
+  getQuestionsByValueName(valueName: string): IQuestion[];
   pageVisibilityChanged(page: IPage, newValue: boolean): any;
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean, resetIndexes: boolean): any;

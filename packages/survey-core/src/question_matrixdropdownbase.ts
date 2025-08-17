@@ -65,10 +65,8 @@ export interface IMatrixDropdownData extends IObjectValueContext {
   getRendererContext(locStr: LocalizableString): any;
   getProcessedText(text: string): string;
   getParentTextProcessor(): ITextProcessor;
-  getSharedQuestionByName(
-    columnName: string,
-    row: MatrixDropdownRowModelBase
-  ): Question;
+  getSharedQuestionByName(columnName: string, row: MatrixDropdownRowModelBase): Question;
+  runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void;
   onTotalValueChanged(): any;
   getSurvey(): ISurvey;
   isMatrixReadOnly(): boolean;
@@ -566,11 +564,12 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
     const rowName = settings.expressionVariables.row;
     if (changedName) {
-      this.runTriggers(rowName + "." + changedName, newValue);
+      const runName = rowName + "." + changedName;
+      this.runTriggers(runName, newValue);
+      this.data.runTriggersInRow(this, runName, newValue);
     }
     this.onAnyValueChanged(rowName, "");
   }
-
   private updateQuestionsValue(
     name: string,
     newColumnValue: any,
@@ -2759,6 +2758,17 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         index
       )
     );
+  }
+  runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void {
+    if (!this.survey || !this.valueName) return;
+    var index = this.getRowIndex(row);
+    if (index < 0) return;
+    this.survey.getQuestionsByValueName(this.valueName).forEach((q: any) => {
+      const rows = q.visibleRows;
+      if (Array.isArray(rows) && index < rows.length && rows[0] instanceof MatrixDropdownRowModelBase) {
+        rows[index].runTriggers(runName, newValue);
+      }
+    });
   }
   onTotalValueChanged(): any {
     if (

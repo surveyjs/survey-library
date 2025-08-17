@@ -2521,7 +2521,12 @@ export class SurveyModel extends SurveyElementCore
     if (!val.innerCss) {
       val.innerCss = this.cssSurveyNavigationButton;
     }
-    return this.navigationBar.addAction(val);
+    const newAction = {
+      action: () => {
+        this.taskManager.waitAndExecute(() => val.action());
+      }
+    };
+    return this.navigationBar.addAction({ ...val, ...newAction });
   }
   /**
    * Gets or sets a caption for the Start button.

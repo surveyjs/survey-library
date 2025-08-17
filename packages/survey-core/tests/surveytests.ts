@@ -16737,6 +16737,89 @@ QUnit.test("Check addNavigationItem", function (assert) {
   assert.equal(action3.component, "custom-component");
 });
 
+QUnit.test("Check addNavigationItem with taskManager.waitAndExecute", function (assert) {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  setOldTheme(survey);
+
+  let actionExecuted = false;
+  let actionExecutionOrder: string[] = [];
+
+  const action = survey.addNavigationItem({
+    id: "test-btn",
+    action: () => {
+      actionExecutionOrder.push("action-executed");
+      actionExecuted = true;
+    }
+  });
+  assert.ok(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar");
+  assert.equal(action.id, "test-btn", "Action should have correct id");
+  assert.equal(action.component, "sv-nav-btn", "Action should have default component");
+  assert.equal(action.innerCss, "sv_nav_btn", "Action should have default innerCss");
+
+  survey["taskManager"].runTask("test-task", (completed) => {
+    actionExecutionOrder.push("task-started");
+    setTimeout(() => {
+      actionExecutionOrder.push("task-completed");
+      completed();
+    }, 10);
+  });
+
+  assert.notOk(actionExecuted, "Action should not be executed immediately when there are active tasks");
+  assert.equal(actionExecutionOrder.length, 1, "Only task-started should be in execution order");
+  assert.equal(actionExecutionOrder[0], "task-started", "First should be task-started");
+
+  action.action();
+
+  setTimeout(() => {
+    assert.ok(actionExecuted, "Action should be executed after task completion");
+    assert.equal(actionExecutionOrder.length, 3, "Should have 3 execution steps");
+    assert.equal(actionExecutionOrder[0], "task-started", "First should be task-started");
+    assert.equal(actionExecutionOrder[1], "task-completed", "Second should be task-completed");
+    assert.equal(actionExecutionOrder[2], "action-executed", "Third should be action-executed");
+    done();
+  }, 50);
+});
+
+QUnit.test("Check addNavigationItem without active tasks", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  setOldTheme(survey);
+
+  let actionExecuted = false;
+  let actionExecutionOrder: string[] = [];
+
+  const action = survey.addNavigationItem({
+    id: "test-btn-2",
+    action: () => {
+      actionExecutionOrder.push("action-executed");
+      actionExecuted = true;
+    }
+  });
+  assert.ok(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar");
+  assert.equal(action.id, "test-btn-2", "Action should have correct id");
+
+  action.action();
+
+  assert.ok(actionExecuted, "Action should be executed immediately when there are no active tasks");
+  assert.equal(actionExecutionOrder.length, 1, "Should have 1 execution step");
+  assert.equal(actionExecutionOrder[0], "action-executed", "Should be action-executed");
+
+});
+
 QUnit.test("Check default navigation items relevance", function (assert) {
   const survey = new SurveyModel({
     "elements": [

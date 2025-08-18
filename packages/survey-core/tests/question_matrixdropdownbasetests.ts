@@ -2338,3 +2338,47 @@ QUnit.test("question valueName vs two matrices & question triggers", function (a
   assert.equal(rows3[0].getQuestionByName("col5").isEmpty(), true, "Check value for matrix3, row1, col5");
   assert.equal(rows3[1].getQuestionByName("col5").isEmpty(), true, "Check value for matrix3, row2, col5");
 });
+QUnit.test("Do not send data notification on creating detail panel, Bug#10253", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "isRequired": true
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "isRequired": true
+          }
+        ],
+        "detailPanelMode": "underRowSingle"
+      }
+    ],
+    "checkErrorsMode": "onValueChanged"
+  });
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => { counter ++; });
+  survey.data = {
+    "matrix": [
+      { "col1": "val1", "q1": "q1-val1", "q2": "q2-val1" },
+      { "col1": "val2", "q1": "q1-val2", "q2": "q2-val2" }
+    ]
+  };
+  const row = <MatrixDropdownRowModel>survey.getQuestionByName("matrix").visibleRows[0];
+  row.showDetailPanel();
+  assert.equal(counter, 0, "#1");
+  survey.tryComplete();
+  assert.equal(survey.state, "completed", "survey.state");
+  assert.equal(counter, 0, "#2");
+});

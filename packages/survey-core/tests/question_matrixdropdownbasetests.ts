@@ -2285,6 +2285,59 @@ QUnit.test("Process text for question with value, no value and non existing for 
   const q4 = row.detailPanel.getQuestionByName("q4");
   assert.equal(q4.locTitle.textOrHtml, "val++{q3}", "show value, show empty string, show as it is");
 });
+QUnit.test("question valueName vs two matrices & question triggers", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { type: "matrixdropdown",
+        name: "matrix1",
+        valueName: "matrixA",
+        rows: ["row1", "row2"],
+        columns: [
+          { name: "col1", cellType: "text", resetValueIf: "{row.col2} = 'a'" },
+          { name: "col2", cellType: "radiogroup", choices: ["a", "b"] }
+        ]
+      },
+      { type: "matrixdropdown",
+        name: "matrix2",
+        valueName: "matrixA",
+        rows: ["row1", "row2"],
+        columns: [
+          { name: "col2", cellType: "radiogroup", choices: ["a", "b"] },
+          { name: "col3", cellType: "text", resetValueIf: "{row.col2} = 'a'" },
+          { name: "col4", cellType: "text" }
+        ]
+      },
+      { type: "matrixdropdown",
+        name: "matrix3",
+        valueName: "matrixA",
+        rows: ["row1", "row2"],
+        columns: [
+          { name: "col5", cellType: "text", resetValueIf: "{row.col2} = 'a'" }
+        ]
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix2");
+  const matrix3 = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix3");
+  const rows1 = matrix1.visibleRows;
+  const rows2 = matrix2.visibleRows;
+  const rows3 = matrix3.visibleRows;
+  rows1[0].getQuestionByName("col1").value = "m1_r1_col1";
+  rows1[1].getQuestionByName("col1").value = "m1_r2_col1";
+  rows2[0].getQuestionByName("col3").value = "m2_r1_col2";
+  rows2[1].getQuestionByName("col3").value = "m2_r2_col2";
+  rows3[0].getQuestionByName("col5").value = "m3_r1_col5";
+  rows3[1].getQuestionByName("col5").value = "m3_r2_col5";
+  rows1[0].getQuestionByName("col2").value = "a";
+  rows2[1].getQuestionByName("col2").value = "a";
+  assert.equal(rows1[0].getQuestionByName("col1").isEmpty(), true, "Check value for matrix1, row1, col1");
+  assert.equal(rows1[1].getQuestionByName("col1").isEmpty(), true, "Check value for matrix1, row2, col1");
+  assert.equal(rows2[0].getQuestionByName("col3").isEmpty(), true, "Check value for matrix2, row1, col3");
+  assert.equal(rows2[1].getQuestionByName("col3").isEmpty(), true, "Check value for matrix2, row2, col3");
+  assert.equal(rows3[0].getQuestionByName("col5").isEmpty(), true, "Check value for matrix3, row1, col5");
+  assert.equal(rows3[1].getQuestionByName("col5").isEmpty(), true, "Check value for matrix3, row2, col5");
+});
 QUnit.test("Do not send data notification on creating detail panel, Bug#10253", (assert) => {
   const survey = new SurveyModel({
     "elements": [

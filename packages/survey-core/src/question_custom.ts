@@ -1048,17 +1048,14 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   }
   public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
-    if (path.length > 0) {
+    if (path.length > 0 && (path.length > 1 || !isRoot)) {
       const isCompPrefix = path[0].name === settings.expressionVariables.composite;
-      if (isCompPrefix || !isRoot) {
-        if (isCompPrefix) {
-          path.shift();
-        }
-        const res = new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index, createObjects);
-        if (res && res.isFound) return res;
+      if (isCompPrefix) {
+        path.shift();
       }
+      return new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index, createObjects);
     }
-    return super.getValue(path, isRoot, index, createObjects);
+    return { isFound: false };
   }
 }
 

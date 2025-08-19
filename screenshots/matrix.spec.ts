@@ -773,7 +773,7 @@ frameworks.forEach(framework => {
                 "rows": [
                   {
                     "value": "Row 1",
-                    "text": "АБВГД"
+                    "text": "АБВГД" // eslint-disable-line i18n/no-russian-character
                   },
                   "Row 2"
                 ]
@@ -783,7 +783,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sv-string-viewer").filter({ hasText: "АБВГД" });
+      const questionRoot = page.locator(".sv-string-viewer").filter({ hasText: "АБВГД" }); // eslint-disable-line i18n/no-russian-character
       await compareScreenshot(page, questionRoot, "question-matrix-non-latin.png");
     });
 

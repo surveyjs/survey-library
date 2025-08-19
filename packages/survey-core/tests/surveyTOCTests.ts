@@ -510,7 +510,7 @@ QUnit.test("updateStickyTOCSize", function (assert) {
     set: function(value) {
       _scrollTop = value;
     },
-    configurable: true // Чтобы можно было позже изменить это свойство
+    configurable: true // to be able to change this word
   });
 
   const mockRootEl: any = {

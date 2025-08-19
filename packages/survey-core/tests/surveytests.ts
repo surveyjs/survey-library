@@ -69,6 +69,7 @@ import { DomWindowHelper } from "../src/global_variables_utils";
 import { ListModel } from "../src/list";
 import { _setIsTouch } from "../src/utils/devices";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { Action } from "../src/actions/action";
 
 export default QUnit.module("Survey");
 
@@ -16809,6 +16810,38 @@ QUnit.test("Check addNavigationItem without active tasks", function (assert) {
       actionExecuted = true;
     }
   });
+  assert.ok(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar");
+  assert.equal(action.id, "test-btn-2", "Action should have correct id");
+
+  action.action();
+
+  assert.ok(actionExecuted, "Action should be executed immediately when there are no active tasks");
+  assert.equal(actionExecutionOrder.length, 1, "Should have 1 execution step");
+  assert.equal(actionExecutionOrder[0], "action-executed", "Should be action-executed");
+
+});
+
+QUnit.test("Check addNavigationItem for Action instance", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  setOldTheme(survey);
+
+  let actionExecuted = false;
+  let actionExecutionOrder: string[] = [];
+
+  const action = survey.addNavigationItem(new Action({
+    id: "test-btn-2",
+    action: () => {
+      actionExecutionOrder.push("action-executed");
+      actionExecuted = true;
+    }
+  }));
   assert.ok(action === survey.navigationBar.actions[survey.navigationBar.actions.length - 1], "Action should be added to navigationBar");
   assert.equal(action.id, "test-btn-2", "Action should have correct id");
 

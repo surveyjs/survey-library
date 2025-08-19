@@ -9,6 +9,7 @@ import { EventBase } from "./base";
 import { DropdownListModel } from "./dropdownListModel";
 import { settings } from "./settings";
 import { updateListCssValues } from "./utils/utils";
+import { Helpers } from "./helpers";
 
 /**
  * A class that describes the Dropdown question type.
@@ -394,6 +395,18 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
       this.dropdownListModel.loadQuestionChoices();
     }
+  }
+
+  protected valueFromData(val: any): any {
+    const value = super.valueFromData(val);
+    if (!!value && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
+      const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.text, value, false, false))[0];
+      if (!item) {
+        const newChoice = new ItemValue(value);
+        this.customChoices.push(newChoice);
+      }
+    }
+    return value;
   }
 
   public setIsChoicesLoading(value: boolean) {

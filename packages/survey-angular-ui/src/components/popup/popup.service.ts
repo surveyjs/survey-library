@@ -11,7 +11,7 @@ export class PopupService {
 
   createComponent(popupViewModel: PopupBaseViewModel): DomPortalOutlet {
     let portalHost: DomPortalOutlet;
-    if (Number.parseInt(VERSION.major) > 18) {
+    if (Number.parseInt(VERSION.major) > 19) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-ignore
       portalHost = new DomPortalOutlet(popupViewModel.container, this.applicationRef, this.injector);

@@ -1090,41 +1090,6 @@
 //     });
 //   });
 
-//   test("Matrix fonts", async (t) => {
-//     await wrapVisualTest(t, async (t, comparer) => {
-//       await t.resizeWindow(800, 600);
-//       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
-//         "logoPosition": "right",
-//         "pages": [
-//           {
-//             "name": "page1",
-//             "elements": [
-//               {
-//                 "type": "matrix",
-//                 "name": "question1",
-//                 "columns": [
-//                   "Column 1",
-//                   "Column 2",
-//                   "Column 3"
-//                 ],
-//                 "rows": [
-//                   {
-//                     "value": "Row 1",
-//                     "text": "АБВГД"
-//                   },
-//                   "Row 2"
-//                 ]
-//               }
-//             ]
-//           }
-//         ]
-//       });
-
-//       await takeElementScreenshot("question-matrix-non-latin.png", Selector(".sv-string-viewer").withText("АБВГД"), t, comparer);
-//     });
-//   });
-
 //   test("Matrix columns and row width", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);

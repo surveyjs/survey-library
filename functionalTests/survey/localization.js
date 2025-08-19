@@ -107,23 +107,6 @@
 //     }
 //   );
 
-//   test("next", async t => {
-//     await setRu();
-//     await t.hover("input[value=Далее]");
-
-//     await setEn();
-//     await t.hover("input[value=Next]");
-
-//     await setDe();
-//     await t.hover("input[value=Weiter]");
-
-//     await setFi();
-//     await t.hover("input[value=Seuraava]");
-
-//     await setFr();
-//     await t.hover("input[value=Suivant]");
-//   });
-
 //   test("check dropdown localization", async t => {
 //     const questionDropdownSelect = Selector(".sd-dropdown");
 //     await t

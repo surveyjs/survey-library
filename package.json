@@ -28,6 +28,7 @@
     "lint-staged": "^15.4.3",
     "eslint": "^8.57.0",
     "eslint-plugin-surveyjs": "file:eslint-surveyjs",
+    "eslint-plugin-i18n": "^2.4.0",
     "eslint-plugin-react": "^7.33.0",
     "eslint-plugin-vue": "^9.3.0",
     "get-func-name": "2.0.0",

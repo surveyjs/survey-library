@@ -92,6 +92,7 @@ frameworks.forEach(async framework => {
       ]
     });
     await focusQuestion("panel1_q1", false);
+    await t.wait(1000);
     await t.expect(panel1_q1Sel.filter(filterIsInViewport).exists).ok()
       .pressKey("a");
     await focusQuestion("q1", false);
@@ -99,11 +100,14 @@ frameworks.forEach(async framework => {
     await t.expect(q1Sel.filter(filterIsInViewport).exists).ok()
       .pressKey("b");
     await focusQuestion("panel1_q1", true);
+    await t.wait(1000);
     await t.expect(panel1_q1Sel.filter(filterIsInViewport).exists).ok()
       .expect(q1Sel.filter(filterIsInViewport).exists).notOk();
 
     await t.click("input[value=Complete]");
+    await t.wait(1000);
     let surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ q1: "b", panel1_q1: "a" });
   });
+
 });

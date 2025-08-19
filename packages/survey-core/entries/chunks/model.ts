@@ -26,7 +26,11 @@ export function slk(key: string): void {
   _slk(key, lic, ReleaseDate);
 }
 export function hasLicense(index: number): boolean {
-  return lic[index.toString()] === true;
+  return glc(index) === true;
+}
+export function glc(index: number): any {
+  const res = lic[index.toString()];
+  return !res ? false : res;
 }
 const lic: any = {};
 function _slk(k: any, lh: any, rd: any) {
@@ -50,7 +54,8 @@ function _slk(k: any, lh: any, rd: any) {
   v.split(",").forEach(s => {
     let i = s.indexOf("=");
     if (i > 0) {
-      lh[s.substring(0, i)] = new Date(rd) <= new Date(s.substring(i + 1));
+      const sd = new Date(s.substring(i + 1));
+      lh[s.substring(0, i)] = new Date(rd) <= sd ? true : sd;
     }
   });
 }

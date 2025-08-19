@@ -1350,6 +1350,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return res;
   }
   protected childVisibilityChanged() {
+    if (this.isRunningConditions) return;
     var newIsVisibleValue = this.getIsPageVisible(null);
     var oldIsVisibleValue = this.getPropertyValue("isVisible", true);
     if (newIsVisibleValue !== oldIsVisibleValue) {
@@ -1955,13 +1956,21 @@ export class PanelModelBase extends SurveyElement<Question>
   public removeQuestion(question: Question) {
     this.removeElement(question);
   }
+  private isRunningConditions: boolean;
   runCondition(values: HashTable<any>, properties: HashTable<any>) {
     if (this.isDesignMode || this.isLoadingFromJson) return;
     var elements = this.elements.slice();
+    const prevContentVisibility = this.getIsPageVisible();
+    this.isRunningConditions = true;
     for (var i = 0; i < elements.length; i++) {
       elements[i].runCondition(values, properties);
     }
     this.runConditionCore(values, properties);
+    const newContentVisibility = this.getIsPageVisible();
+    this.isRunningConditions = false;
+    if (prevContentVisibility !== newContentVisibility) {
+      this.childVisibilityChanged();
+    }
   }
   onAnyValueChanged(name: string, questionName: string): void {
     var els = this.elements;

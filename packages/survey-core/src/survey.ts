@@ -6044,6 +6044,9 @@ export class SurveyModel extends SurveyElementCore
     this.onValueChanging.fire(this, options);
     return options.value;
   }
+  private getLocNotification(loc: boolean, value: any, oldValue: any): boolean {
+    return loc || Helpers.isTwoValueEquals(value, oldValue, false, true, false);
+  }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueName(valueName);
@@ -6899,6 +6902,7 @@ export class SurveyModel extends SurveyElementCore
       newValue = this.getUnbindValue(newValue);
       this.setDataValueCore(this.valuesHash, name, newValue);
     }
+    locNotification = this.getLocNotification(locNotification, newValue, oldValue);
     this.updateOnSetValue(
       name,
       newValue,
@@ -7050,6 +7054,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     const commentName = name + this.commentSuffix;
     newValue = this.questionOnValueChanging(commentName, newValue, name);
+    locNotification = this.getLocNotification(locNotification, newValue, this.getComment(name));
     if (this.isValueEmpty(newValue)) {
       this.deleteDataValueCore(this.valuesHash, commentName);
     } else {
@@ -7909,7 +7914,7 @@ export class SurveyModel extends SurveyElementCore
       const processor = new ProcessValue();
       value = processor.getValue(fromName, this.getFilteredValues());
     }
-    this.setTriggerValue(name, value, false);
+    this.setTriggerValue(name, Helpers.getUnbindValue(value), false);
   }
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });

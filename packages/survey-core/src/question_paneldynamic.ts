@@ -1711,7 +1711,7 @@ export class QuestionPanelDynamicModel extends Question
     var isChanged = false;
     for (var key in values) {
       if (this.getSharedQuestionFromArray(key, index)) continue;
-      var q = panel.getQuestionByName(key);
+      var q = panel.getQuestionByValueName(key);
       if (!!q) continue;
       if (
         this.iscorrectValueWithPostPrefix(panel, key, settings.commentSuffix) ||

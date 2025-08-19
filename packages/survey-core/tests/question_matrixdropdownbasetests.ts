@@ -1985,3 +1985,47 @@ QUnit.test("Update rowValue on changing cellType, Bug#10038", function(assert) {
   matrix.columns[1].cellType = "file";
   assert.equal(matrix.defaultRowValue, undefined, "defaultRowValue, #2");
 });
+QUnit.test("Do not send data notification on creating detail panel, Bug#10253", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "isRequired": true
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "isRequired": true
+          }
+        ],
+        "detailPanelMode": "underRowSingle"
+      }
+    ],
+    "checkErrorsMode": "onValueChanged"
+  });
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => { counter ++; });
+  survey.data = {
+    "matrix": [
+      { "col1": "val1", "q1": "q1-val1", "q2": "q2-val1" },
+      { "col1": "val2", "q1": "q1-val2", "q2": "q2-val2" }
+    ]
+  };
+  const row = <MatrixDropdownRowModel>survey.getQuestionByName("matrix").visibleRows[0];
+  row.showDetailPanel();
+  assert.equal(counter, 0, "#1");
+  survey.tryComplete();
+  assert.equal(survey.state, "completed", "survey.state");
+  assert.equal(counter, 0, "#2");
+});

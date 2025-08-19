@@ -8736,6 +8736,19 @@ QUnit.test("Undefined variables in text processing, Bug#9417", function (assert)
   assert.equal(q1.locTitle.renderedHtml, "Hi ", "q1.title #3");
   assert.equal(q2.locTitle.renderedHtml, "", "q2.title #3");
 });
+QUnit.test("Question name is one symbol in text processing, Bug#10164", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "radiogroup", name: "a", choices: [{ value: 1, text: "Item1" }, { value: 2, text: "Item2" }] },
+      { type: "text", name: "q1", title: "test:{a}" }
+    ]
+  });
+  const qa = survey.getQuestionByName("a");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.locTitle.renderedHtml, "test:", "q1.title #1");
+  qa.value = 1;
+  assert.equal(q1.locTitle.renderedHtml, "test:Item1", "q1.title #2");
+});
 
 QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function (
   assert
@@ -19176,6 +19189,29 @@ QUnit.test("Check onPopupVisibleChanged events #2", function (assert) {
   });
   q.value = "abc";
   assert.equal(q.value, "ABC", "Convert to upper case");
+});
+QUnit.test("survey onValueChaging & trigger, Bug#10219", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { "type": "text", "name": "q1" },
+    { "type": "text", "name": "q2" }
+  ],
+  triggers: [
+    { type: "setvalue", setToName: "q2", expression: "{q1} = 'a'", setValue: "b" }
+  ] });
+  survey.onValueChanging.add((sender, options) => {
+    if (options.name === "q1" && options.value !== "a") {
+      options.value = "a";
+    }
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "a";
+  assert.equal(q1.value, "a", "q1.value is #1");
+  assert.equal(q2.value, "b", "q2.value is #1");
+  q2.value = "";
+  q1.value = "c";
+  assert.equal(q1.value, "a", "q1.value is #2");
+  assert.equal(q2.value, "", "q2.value #2");
 });
 
 QUnit.test("Check onOpenDropdownMenu events", function (assert) {

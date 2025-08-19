@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.49](https://github.com/surveyjs/survey-library/compare/v1.12.48...v1.12.49) (2025-08-13)
+
+## [1.12.48](https://github.com/surveyjs/survey-library/compare/v1.12.47...v1.12.48) (2025-08-06)
+
+## [1.12.47](https://github.com/surveyjs/survey-library/compare/v1.12.46...v1.12.47) (2025-07-30)
+
+## [1.12.46](https://github.com/surveyjs/survey-library/compare/v1.12.45...v1.12.46) (2025-07-22)
+
+## [1.12.45](https://github.com/surveyjs/survey-library/compare/v1.12.44...v1.12.45) (2025-07-15)
+
+## [1.12.44](https://github.com/surveyjs/survey-library/compare/v1.12.43...v1.12.44) (2025-07-09)
+
 ## [1.12.43](https://github.com/surveyjs/survey-library/compare/v1.12.42...v1.12.43) (2025-07-03)
 
 ## [1.12.42](https://github.com/surveyjs/survey-library/compare/v1.12.41...v1.12.42) (2025-06-25)

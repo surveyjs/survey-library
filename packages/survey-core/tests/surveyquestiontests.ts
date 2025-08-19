@@ -6625,7 +6625,48 @@ QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearIn
   survey.setValue("q1", 1);
   assert.deepEqual(survey.data, { q1: 1 }, "q2 is invisible");
 });
-
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearInvisibleValues='none', Bug#10035", function (assert) {
+  const survey = new SurveyModel({
+    validationType: "none",
+    elements: [
+      {
+        type: "text",
+        name: "status",
+        defaultValueExpression: "'completed'",
+      },
+      {
+        type: "panel",
+        name: "panel_b",
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+            visibleIf: "{status} = 'completed'",
+            clearIfInvisible: "none",
+          },
+          {
+            type: "panel",
+            name: "panel_c",
+            visibleIf: "{q2} notempty",
+            title: "panel_c",
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                clearIfInvisible: "onHiddenContainer",
+              },
+            ],
+          }] }
+    ]
+  });
+  survey.data = { status: "completed-non", q2: "abc", q1: "def" };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.visible, true, "q1 is visible");
+  assert.equal(q2.visible, false, "q2 is invisible");
+  assert.equal(q1.value, "def", "q1 value is not cleared");
+  assert.equal(q2.value, "abc", "q2 value is not cleared");
+});
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.inputType, "text");
@@ -7798,6 +7839,39 @@ QUnit.test("Test", function (assert) {
   survey.data = data2;
   assert.deepEqual(survey.data, data2, "#2");
   assert.equal(counter, 0, "#2");
+});
+QUnit.test("question.onReadyChanged should be called for async in setValueExpression", function (assert) {
+  let funcRes: (res: any) => void = (res: any) => void {};
+  function asyncFunc(params: any): any {
+    funcRes = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        setValueExpression: "asyncFunc({q2})",
+      },
+      {
+        type: "text",
+        name: "q2"
+      }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setValue("q2", "test");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  let counter = 0;
+  q1.onReadyChanged.add((sender, options) => {
+    counter ++;
+  });
+  assert.equal(counter, 0, "#1");
+  funcRes(1);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #2");
+  assert.equal(counter, 1, "#2");
+  FunctionFactory.Instance.unregister("asyncFunc");
 });
 
 QUnit.test("QuestionHtmlModel hide some properties", function (assert) {

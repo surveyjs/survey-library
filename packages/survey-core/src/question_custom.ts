@@ -817,6 +817,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected getElement(): SurveyElement {
     return this.contentQuestion;
   }
+  supportGoNextPageAutomatic(): boolean {
+    return !!this.contentQuestion && this.contentQuestion.supportGoNextPageAutomatic();
+  }
   onAnyValueChanged(name: string, questionName: string): void {
     super.onAnyValueChanged(name, questionName);
     if (!!this.contentQuestion) {

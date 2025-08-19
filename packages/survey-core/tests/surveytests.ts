@@ -16761,7 +16761,6 @@ QUnit.test("Check addNavigationItem with taskManager.waitAndExecute", function (
       }
     ]
   });
-  setOldTheme(survey);
 
   let actionExecuted = false;
   let actionExecutionOrder: string[] = [];
@@ -16811,7 +16810,6 @@ QUnit.test("Check addNavigationItem without active tasks", function (assert) {
       }
     ]
   });
-  setOldTheme(survey);
 
   let actionExecuted = false;
   let actionExecutionOrder: string[] = [];
@@ -16843,7 +16841,6 @@ QUnit.test("Check addNavigationItem for Action instance", function (assert) {
       }
     ]
   });
-  setOldTheme(survey);
 
   let actionExecuted = false;
   let actionExecutionOrder: string[] = [];

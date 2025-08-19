@@ -6,7 +6,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 import { Helpers } from "../src/helpers";
-import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { MatrixDropdownRowModel, QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";

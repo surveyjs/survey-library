@@ -2489,3 +2489,35 @@ QUnit.test("TagBox becomes unresponsive when 0 is selected", (assert) => {
   assert.deepEqual(question.value, [0], "#3");
   assert.equal(list.actions.filter(item => list.isItemSelected(item)).length, 1, "#4");
 });
+
+QUnit.test("allowCustomChoices: custom choices from survey.data", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox", name: "q1", allowCustomChoices: true, choices: [
+        "Long battery life",
+        "Plenty of storage capacity",
+        "High-quality camera",
+        "Powerful CPU",
+        "Large screen size",
+        "High durability",
+        "Low price",
+      ],
+    },]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const listModel: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const customValue = "test";
+  const questionValue = ["Powerful CPU", "Low price", customValue];
+  const data = { q1: questionValue };
+  survey.data = data;
+
+  assert.equal(question.value.length, 3, "#1 question.value.length");
+  assert.deepEqual(question.value, questionValue);
+  assert.equal(question.selectedItems.length, 3, "#1 question.selectedItems.length");
+  assert.equal(question.selectedItems[2].id, customValue, "#1 question.selectedItem");
+  assert.equal(question.visibleChoices.length, 8, "#1 question.visibleChoices");
+  assert.equal(listModel.actions.length, 9, "listModel.actions.length");
+  assert.equal(listModel.actions[0].id, customValue, "#1 new custom item");
+  assert.equal(listModel.actions[0].visible, true, "#1 new custom item visible");
+  assert.deepEqual(survey.data, data, "#1 survey.data");
+});

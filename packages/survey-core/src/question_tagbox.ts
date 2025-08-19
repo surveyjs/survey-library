@@ -9,6 +9,7 @@ import { EventBase } from "./base";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { updateListCssValues } from "./utils/utils";
+import { Helpers } from "./helpers";
 
 /**
  * A class that describes the Multi-Select Dropdown (Tag Box) question type.
@@ -254,6 +255,20 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if (!!this.dropdownListModel && this.choicesLazyLoadEnabled) {
       this.dropdownListModel.loadQuestionChoices();
     }
+  }
+
+  protected valueFromData(val: any): any {
+    const value = super.valueFromData(val);
+    if (!!value && value.length > 0 && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
+      value.forEach(v => {
+        const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.text, v, false, false))[0];
+        if (!item) {
+          const newChoice = new ItemValue(v);
+          this.customChoices.push(newChoice);
+        }
+      });
+    }
+    return value;
   }
 
   public setIsChoicesLoading(value: boolean) {

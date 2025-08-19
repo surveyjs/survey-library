@@ -860,6 +860,38 @@ QUnit.test("Composite: expression, {composite} prefix", function (assert) {
   assert.equal(lastName.isVisible, true, "lastName is showing now");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: expression, visibleIf without {composite} prefix, Bug#10257", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName" },
+      {
+        type: "text",
+        name: "lastName",
+        visibleIf: "{composite.firstName} = 'Jon'",
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "text", name: "firstName" }, { type: "customerinfo", name: "q1", isRequired: true, visibleIf: "{firstName} = 'Jon'" }],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[1];
+  var firstName = q.contentPanel.getQuestionByName("firstName");
+  var lastName = q.contentPanel.getQuestionByName("lastName");
+  assert.equal(lastName.isVisible, false, "lastName is hidden by default");
+  firstName.value = "Jon";
+  assert.equal(lastName.isVisible, true, "lastName is showing now");
+  assert.equal(q.isVisible, false, "Composite question visibilty, #1");
+  survey.setValue("firstName", "Jon");
+  assert.equal(q.isVisible, true, "Composite question visibilty, #2");
+  firstName.value = "Not Jon";
+  assert.equal(lastName.isVisible, false, "lastName is not showing now");
+  assert.equal(q.isVisible, true, "Composite question visibilty, #3");
+  survey.setValue("firstName", "Not Jon");
+  assert.equal(q.isVisible, false, "Composite question visibilty, #4");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: remove invisible values", function (assert) {
   var json = {
     name: "customerinfo",

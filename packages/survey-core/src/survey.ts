@@ -2686,12 +2686,11 @@ export class SurveyModel extends SurveyElementCore
     if (!val.innerCss) {
       val.innerCss = this.cssSurveyNavigationButton;
     }
-    const newAction = {
-      action: () => {
-        this.taskManager.waitAndExecute(() => val.action());
-      }
+    const originalActionFunc = val.action;
+    val.action = () => {
+      this.taskManager.waitAndExecute(() => originalActionFunc());
     };
-    return this.navigationBar.addAction({ ...val, ...newAction });
+    return this.navigationBar.addAction(val);
   }
   private removeNavigationItem(id: string): void {
     const action = this.navigationBar.getActionById(id);

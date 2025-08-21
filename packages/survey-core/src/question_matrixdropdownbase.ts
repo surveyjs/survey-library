@@ -2809,7 +2809,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   protected isRowsFiltered(): boolean {
-    return super.isRowsFiltered() || (this.visibleRows !== this.generatedVisibleRows);
+    return this.visibleRows !== this.generatedVisibleRows;
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
     if (index >= this.visibleRows.length) return null;

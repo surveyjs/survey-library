@@ -309,7 +309,7 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
   return React.createElement(Survey, props);
 });
 
-export function attachKey2click(element: React.JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }): React.JSX.Element {
+export function attachKey2click(element: React.JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }, tabIndex: number = 0): React.JSX.Element {
   if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
     return React.cloneElement(element, { tabIndex: -1 });
   }
@@ -317,7 +317,7 @@ export function attachKey2click(element: React.JSX.Element, viewModel?: any, opt
   return React.cloneElement(
     element,
     {
-      tabIndex: 0,
+      tabIndex,
       onKeyUp: (evt: KeyboardEvent) => {
         evt.preventDefault();
         evt.stopPropagation();

@@ -793,13 +793,16 @@ export class Base implements IObjectValueContext {
     return res;
   }
   private runExpressionHash: HashTable<any>;
+  protected getExpressionFromSurvey(propName: string): string {
+    let expression = this[propName];
+    if (!expression) return "";
+    const survey = this.getSurvey();
+    return !!survey ? survey.beforeExpressionRunning(this, propName, expression) : expression;
+  }
   protected runExpressionByProperty(propName: string, properties: HashTable<any>,
     onExecute: (value: any) => void, canRun?: (runner: ExpressionRunner) => boolean): boolean {
-    let expression = this[propName];
-    if (!expression) return false;
-    if (!!expression && !!this.getSurvey()) {
-      expression = this.getSurvey().beforeExpressionRunning(this, propName, expression);
-    }
+    if (!this[propName]) return false;
+    const expression = this.getExpressionFromSurvey(propName);
     if (!!expression) {
       if (!this.runExpressionHash) {
         this.runExpressionHash = {};

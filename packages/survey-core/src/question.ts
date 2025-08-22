@@ -756,7 +756,7 @@ export class Question extends SurveyElement<Question>
     return info;
   }
   private runTriggerInfo(info: TriggerExpressionInfo, keys: any): void {
-    const expression = this[info.name];
+    const expression = this.getExpressionFromSurvey(info.name);
     if (!expression && !info.getSecondRunner() || info.isRunning || !info.canRun()) {
       return;
     }
@@ -2530,15 +2530,6 @@ export class Question extends SurveyElement<Question>
   }
   protected isDefaultValueEmpty(): boolean {
     return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue, !this.allowSpaceAsAnswer);
-  }
-  protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
-    if (!runner && !!expression) {
-      runner = this.createExpressionRunner(expression);
-    }
-    if (!!runner) {
-      runner.expression = expression;
-    }
-    return runner;
   }
   protected setDefaultValue(): void {
     this.setDefaultValueCore((val: any): void => {

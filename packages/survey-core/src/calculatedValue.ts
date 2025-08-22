@@ -126,11 +126,7 @@ export class CalculatedValue extends Base {
     }
   }
   private ensureExpression(): boolean {
-    let expression = this.expression;
-    const survey = this.getSurvey();
-    if (expression && survey) {
-      expression = survey.beforeExpressionRunning(this, "expression", expression);
-    }
+    const expression = this.getExpressionFromSurvey("expression");
     if (!expression) return false;
     if (!!this.expressionRunner) {
       this.expressionRunner.expression = expression;

@@ -7,7 +7,6 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
-import { ExpressionRunner } from "./conditions";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
@@ -26,8 +25,6 @@ import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
  */
 export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
-  private minValueRunner: ExpressionRunner;
-  private maxValueRunner: ExpressionRunner;
   private maskInputAdapter: InputElementAdapter;
 
   private createMaskAdapter() {
@@ -526,30 +523,31 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.isDateInputType ? this.createDate(minMax) : minMax;
   }
   private setRenderedMinMax(properties: HashTable<any> = null) {
-    this.minValueRunner = this.getDefaultRunner(this.minValueRunner, this.minValueExpression);
-    this.setValueAndRunExpression(
-      this.minValueRunner,
-      this.min,
-      (val) => {
-        if (!val && this.isDateInputType && !!settings.minDate) {
-          val = settings.minDate;
-        }
-        this.setPropertyValue("renderedMin", val);
-      },
-      properties
-    );
-    this.maxValueRunner = this.getDefaultRunner(this.maxValueRunner, this.maxValueExpression);
-    this.setValueAndRunExpression(
-      this.maxValueRunner,
-      this.max,
-      (val) => {
-        if (!val && this.isDateInputType) {
-          val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
-        }
-        this.setPropertyValue("renderedMax", val);
-      },
-      properties
-    );
+    const setProp = (name: string, val: any) => {
+      this.setPropertyValue(name, this.convertFuncValuetoQuestionValue(val));
+    };
+    const setMin = (val: any) => {
+      if (!val && this.isDateInputType && !!settings.minDate) {
+        val = settings.minDate;
+      }
+      setProp("renderedMin", val);
+    };
+    const setMax = (val: any) => {
+      if (!val && this.isDateInputType) {
+        val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
+      }
+      setProp("renderedMax", val);
+    };
+    if (!this.runExpressionByProperty("minValueExpression", properties, (val: any) => {
+      setMin(val);
+    })) {
+      setMin(this.min);
+    }
+    if (!this.runExpressionByProperty("maxValueExpression", properties, (val: any) => {
+      setMax(val);
+    })) {
+      setMax(this.max);
+    }
   }
 
   /**

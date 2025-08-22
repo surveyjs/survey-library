@@ -173,7 +173,6 @@ export class Question extends SurveyElement<Question>
   displayValueCallback: (text: string) => string;
   hasCssErrorCallback: () => boolean = (): boolean => false;
 
-  private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
@@ -2020,8 +2019,7 @@ export class Question extends SurveyElement<Question>
     properties["question"] = this;
     this.runConditionCore(properties);
     if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
-      this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
-      this.runDefaultValueExpression(this.defaultValueRunner, properties);
+      this.runDefaultValueExpression(properties);
     }
   }
   public get isInDesignMode(): boolean {
@@ -2553,13 +2551,13 @@ export class Question extends SurveyElement<Question>
   protected setDefaultIntoValue(val: any): void {
     this.value = val;
   }
-  private setDefaultValueCore(func: (val: any) => void): void {
-    this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
-    this.setValueAndRunExpression(
-      this.defaultValueRunner,
-      this.getUnbindValue(this.defaultValue),
-      (val) => func(val)
-    );
+  private setDefaultValueCore(setFunc: (val: any) => void): void {
+    const func = (val: any) => {
+      this.runExpressionSetValueCore(val, setFunc);
+    };
+    if (!this.runDefaultValueExpression(undefined, func)) {
+      func(this.getUnbindValue(this.defaultValue));
+    }
   }
   protected updateValueWithDefaultsOrClear(): void {
     if (this.isDesignMode || this.isLoadingFromJson) return;
@@ -2571,19 +2569,6 @@ export class Question extends SurveyElement<Question>
   }
   protected isValueExpression(val: any): boolean {
     return !!val && typeof val == "string" && val.length > 0 && val[0] == "=";
-  }
-  protected setValueAndRunExpression(
-    runner: ExpressionRunner,
-    defaultValue: any,
-    setFunc: (val: any) => void,
-    properties: HashTable<any> = null
-  ): void {
-    const func = (val: any) => {
-      this.runExpressionSetValueCore(val, setFunc);
-    };
-    if (!this.runDefaultValueExpression(runner, properties, func)) {
-      func(defaultValue);
-    }
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     return Helpers.convertValToQuestionVal(val);
@@ -2606,8 +2591,8 @@ export class Question extends SurveyElement<Question>
   protected finishSetValueOnExpression(): void {
     this.survey?.finishSetValueOnExpression();
   }
-  private runDefaultValueExpression(runner: ExpressionRunner, properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
-    if (!runner || !this.data) return false;
+  private runDefaultValueExpression(properties: HashTable<any> = null, setFunc?: (val: any) => void): boolean {
+    if (!this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val);
@@ -2617,16 +2602,12 @@ export class Question extends SurveyElement<Question>
       properties = this.defaultValueExpression ? this.data.getFilteredProperties() : {};
       properties["question"] = this;
     }
-    if (!!runner && runner.canRun) {
-      runner.onRunComplete = (res) => {
-        if (res == undefined) res = this.defaultValue;
-        this.isChangingViaDefaultValue = true;
-        setFunc(res);
-        this.isChangingViaDefaultValue = false;
-      };
-      runner.runContext(this.getValueGetterContext(), properties);
-    }
-    return true;
+    return this.runExpressionByProperty("defaultValueExpression", properties, (res: any) => {
+      if (res == undefined) res = this.defaultValue;
+      this.isChangingViaDefaultValue = true;
+      setFunc(res);
+      this.isChangingViaDefaultValue = false;
+    });
   }
   /**
    * A comment to the selected question value. Enable the `showCommentArea` property to allow users to leave comments.

@@ -73,7 +73,8 @@ import {
   LoadChoicesFromServerEvent,
   ProcessTextValueEvent,
   CreateCustomChoiceItemEvent,
-  MatrixRowDragOverEvent
+  MatrixRowDragOverEvent,
+  ExpressionRunningEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -913,6 +914,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
   public onMatrixRowDragOver: EventBase<SurveyModel, MatrixRowDragOverEvent> = this.addEvent<SurveyModel, MatrixRowDragOverEvent>();
+  public onExpressionRunning: EventBase<SurveyModel, ExpressionRunningEvent> = this.addEvent<SurveyModel, ExpressionRunningEvent>();
   /**
    * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */
@@ -2593,6 +2595,11 @@ export class SurveyModel extends SurveyElementCore
       callback && callback(res);
     };
     return exp.runContext(this.getValueGetterContext(), properties) || onCompleteRes;
+  }
+  beforeExpressionRunning(obj: Base, propertyName: string, expression: string): string {
+    const opt: ExpressionRunningEvent = { obj: obj, propertyName: propertyName, expression: expression, allow: true };
+    this.onExpressionRunning.fire(this, opt);
+    return opt.allow ? opt.expression : "";
   }
   private setValueOnExpressionCounter: number = 0;
   public get isSettingValueOnExpression(): boolean { return this.setValueOnExpressionCounter > 0; }

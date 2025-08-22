@@ -11,16 +11,10 @@ import { ExpressionRunner } from "./conditions";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-expression/ (linkStyle))
  */
 export class QuestionExpressionModel extends Question {
-  private expressionIsRunning: boolean;
-  private expressionRunner: ExpressionRunner;
+  private isExecutionLocked: boolean;
   constructor(name: string) {
     super(name);
     this.createLocalizableString("format", this);
-    this.registerPropertyChangedHandlers(["expression"], () => {
-      if (this.expressionRunner) {
-        this.expressionRunner = this.createRunner();
-      }
-    });
     this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
       this.updateFormatedValue();
     });
@@ -58,38 +52,23 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("expression", val);
   }
   public locCalculation() {
-    this.expressionIsRunning = true;
+    this.isExecutionLocked = true;
   }
   public unlocCalculation() {
-    this.expressionIsRunning = false;
+    this.isExecutionLocked = false;
   }
   protected runConditionCore(properties: HashTable<any>) {
     super.runConditionCore(properties);
-    if (
-      !this.expression ||
-      this.expressionIsRunning ||
-      (!this.runIfReadOnly && this.isReadOnly)
-    )
-      return;
-    this.locCalculation();
-    if (!this.expressionRunner) {
-      this.expressionRunner = this.createRunner();
-    }
-    this.expressionRunner.runContext(this.getValueGetterContext(), properties);
+    if (this.isExecutionLocked || !this.runIfReadOnly && this.isReadOnly) return;
+    this.runExpressionByProperty("expression", properties, (val: any) => {
+      this.value = this.roundValue(val);
+    });
   }
   protected canCollectErrors(): boolean {
     return true;
   }
   public hasRequiredError(): boolean {
     return false;
-  }
-  private createRunner(): ExpressionRunner {
-    const res = this.createExpressionRunner(this.expression);
-    res.onRunComplete = (newValue) => {
-      this.value = this.roundValue(newValue);
-      this.unlocCalculation();
-    };
-    return res;
   }
   /**
    * The maximum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.

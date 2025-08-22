@@ -1019,6 +1019,12 @@ export interface MatrixRowDragOverEvent {
   toMatrix: QuestionMatrixDynamicModel;
   allow: boolean;
 }
+export interface ExpressionRunningEvent {
+  obj: Base;
+  allow: boolean;
+  expression: string;
+  propertyName: string;
+}
 export interface ScrollingElementToTopEvent {
   /**
    * A survey element that will be scrolled to the top.

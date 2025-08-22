@@ -355,3 +355,37 @@ QUnit.test("minimumFractionDigits/maximumFractionDigits  onSettingValue property
   assert.equal(q.minimumFractionDigits, 2, "min #4");
   assert.equal(q.maximumFractionDigits, 3, "max #4");
 });
+QUnit.test("survey.onExpressionRunning, #10258", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "expression", name: "q1", expression: "{q2} + 1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  let allow = true;
+  let expression = "{q2} + 1";
+  let counter = 0;
+  survey.data = { q2: 1 };
+  survey.onExpressionRunning.add((sender, options) => {
+    if ((<any>options.obj).name === "q1" && options.propertyName === "expression") {
+      options.allow = allow;
+      options.expression = expression;
+      counter ++;
+    }
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.value, 2, "q1.value #1");
+  assert.equal(counter, 0, "counter #1");
+  survey.setValue("q2", 2);
+  assert.equal(q1.value, 3, "q1.value #2");
+  assert.equal(counter, 2, "counter #2");
+  allow = false;
+  survey.setValue("q2", 3);
+  assert.equal(q1.value, 3, "q1.value #3");
+  assert.equal(counter, 3, "counter #3");
+  allow = true;
+  expression = "{q2} + 2";
+  survey.setValue("q2", 4);
+  assert.equal(q1.value, 6, "q1.value #4");
+  assert.equal(counter, 5, "counter #4");
+});

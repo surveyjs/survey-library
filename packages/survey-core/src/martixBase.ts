@@ -10,7 +10,6 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  * A base class for all matrix question types.
  */
 export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
-  protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
   protected generatedTotalRow: TRow = null;
   public visibleRowsChangedCallback: () => void;
@@ -182,7 +181,6 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       this.onRowsChanged();
     }
   }
-  protected isRowsFiltered(): boolean { return !!this.filteredRows; }
   protected clearGeneratedRows(): void {
     this.generatedVisibleRows = null;
   }
@@ -190,16 +188,9 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   private runConditionsForRows(properties: HashTable<any>): boolean {
     const showInvisibile = !!this.survey && this.survey.areInvisibleElementsShowing;
     const runner = !showInvisibile ? this.createRowsVisibleIfRunner() : null;
-    this.filteredRows = [];
-    const hasChanged = ItemValue.runConditionsForItems(this.rows, this.filteredRows, runner,
+    const hasChanged = ItemValue.runConditionsForItems(this.rows, undefined, runner,
       properties, !showInvisibile);
     ItemValue.runEnabledConditionsForItems(this.rows, undefined, properties);
-    if (this.filteredRows.length === this.rows.length) {
-      this.filteredRows = null;
-      if (!!this.generatedVisibleRows && this.generatedVisibleRows.length !== this.rows.length) {
-        this.generatedVisibleRows = null;
-      }
-    }
     return hasChanged;
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {

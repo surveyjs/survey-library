@@ -77,6 +77,7 @@ export class MatrixRowModel extends Base {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
+  public get isVisible(): boolean { return this.item.isVisible; }
   public get value(): any {
     return this.getPropertyValue("value");
   }
@@ -297,7 +298,7 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const rows = this.question.visibleRows;
+    const rows = this.question.getMatrixRows();
     name = name.toLocaleLowerCase();
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -561,12 +562,12 @@ export class QuestionMatrixModel
     this.clearGeneratedRows();
     super.onRowsChanged();
   }
-  protected getVisibleRows(): Array<MatrixRowModel> {
+  public getMatrixRows(): Array<MatrixRowModel> {
     if (!!this.generatedVisibleRows) return this.generatedVisibleRows;
     const result = new Array<MatrixRowModel>();
     let val = this.value;
     if (!val) val = {};
-    const rows = this.filteredRows || this.rows;
+    const rows = this.rows;
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       if (this.isValueEmpty(row.value)) continue;
@@ -575,6 +576,15 @@ export class QuestionMatrixModel
     }
     this.generatedVisibleRows = result;
     return result;
+  }
+  protected getVisibleRows(): Array<MatrixRowModel> {
+    const rows = [];
+    this.getMatrixRows().forEach(row => {
+      if (row.isVisible) {
+        rows.push(row);
+      }
+    });
+    return rows;
   }
   private nestedQuestionsValue: Array<Question>;
   private getRowByName(name: string): MatrixRowModel {

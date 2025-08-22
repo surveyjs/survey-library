@@ -109,8 +109,7 @@ export class CalculatedValue extends Base {
     this.runExpression(this.data.getFilteredProperties());
   }
   private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
-    if (!this.canRunExpression) return;
-    this.ensureExpression();
+    if (!this.canRunExpression || !this.ensureExpression()) return;
     this.locCalculation();
     if (!!calculatedValues) {
       this.runDependentExpressions(calculatedValues, properties);
@@ -126,18 +125,25 @@ export class CalculatedValue extends Base {
       calcItem.doCalculation(calculatedValues, properties);
     }
   }
-  private ensureExpression() {
-    if (!!this.expressionRunner) {
-      this.expressionRunner.expression = this.expression;
-      return;
+  private ensureExpression(): boolean {
+    let expression = this.expression;
+    const survey = this.getSurvey();
+    if (expression && survey) {
+      expression = survey.beforeExpressionRunning(this, "expression", expression);
     }
-    this.expressionRunner = new ExpressionRunner(this.expression);
-    this.expressionRunner.onRunComplete = newValue => {
-      if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
-        this.setValue(newValue);
-      }
-      this.unlocCalculation();
-    };
+    if (!expression) return false;
+    if (!!this.expressionRunner) {
+      this.expressionRunner.expression = expression;
+    } else {
+      this.expressionRunner = this.createExpressionRunner(expression);
+      this.expressionRunner.onRunComplete = newValue => {
+        if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
+          this.setValue(newValue);
+        }
+        this.unlocCalculation();
+      };
+    }
+    return true;
   }
 }
 

@@ -793,8 +793,9 @@ export class Base implements IObjectValueContext {
     return res;
   }
   private runExpressionHash: HashTable<any>;
-  protected runExpressionByProperty(propName: string, properties: HashTable<any>, onExecute: (value: any) => void): boolean {
-    let expression = this.getPropertyValue(propName);
+  protected runExpressionByProperty(propName: string, properties: HashTable<any>,
+    onExecute: (value: any) => void, canRun?: (runner: ExpressionRunner) => boolean): boolean {
+    let expression = this[propName];
     if (!expression) return false;
     if (!!expression && !!this.getSurvey()) {
       expression = this.getSurvey().beforeExpressionRunning(this, propName, expression);
@@ -811,6 +812,7 @@ export class Base implements IObjectValueContext {
           info = { runner: runner };
           this.runExpressionHash[propName] = info;
         }
+        if (!!canRun && !canRun(runner)) return true;
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
           onExecute(value);

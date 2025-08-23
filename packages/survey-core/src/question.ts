@@ -11,11 +11,11 @@ import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
-import { PanelModel, PanelModelBase } from "./panel";
+import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
+import { getElementWidth, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
@@ -46,11 +46,11 @@ export interface IQuestionPlainData {
   [key: string]: any;
 }
 
-class TriggerExpressionInfo {
-  runner: ExpressionRunner;
-  isRunning: boolean;
-  constructor(public name: string, public canRun: () => boolean, public doComplete: () => void) { }
-  getSecondRunner: () => ExpressionRunner = () => undefined;
+interface ITriggerExpressionInfo {
+  name: string;
+  canRun: () => boolean;
+  doComplete: (res: any, properties: HashTable<any>) => void;
+  secondName?: string;
 }
 
 export class QuestionValueGetterContext implements IValueGetterContext {
@@ -173,6 +173,7 @@ export class Question extends SurveyElement<Question>
   displayValueCallback: (text: string) => string;
   hasCssErrorCallback: () => boolean = (): boolean => false;
 
+  private triggersInfo: Array<ITriggerExpressionInfo> = [];
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
   valueChangedCallback: () => void;
@@ -258,13 +259,7 @@ export class Question extends SurveyElement<Question>
     this.createLocalizableString("requiredErrorText", this);
     this.createLocalizableString("commentPlaceholder", this);
     this.createLocalizableString("defaultDisplayValue", this);
-    this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
-      this.startSetValueOnExpression();
-      this.updateValueWithDefaultsOrClear();
-      this.finishSetValueOnExpression();
-    });
-    const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
-    setValueIfInfo.getSecondRunner = () => this.getSetValueExpressionRunner();
+    this.addTriggersInfo();
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -726,59 +721,13 @@ export class Question extends SurveyElement<Question>
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
   }
-  private setValueExpressionRunner: ExpressionRunner;
-  private ensureSetValueExpressionRunner(): void {
-    if (!this.setValueExpressionRunner) {
-      this.setValueExpressionRunner = this.createExpressionRunner(this.setValueExpression);
-      this.setValueExpressionRunner.onRunComplete = (res: any): void => {
-        this.runExpressionSetValue(res);
-      };
-    } else {
-      this.setValueExpressionRunner.expression = this.setValueExpression;
-    }
-  }
-  private runSetValueExpression(): void {
-    if (!this.setValueExpression) {
-      this.clearValue();
-    } else {
-      this.ensureSetValueExpressionRunner();
-      this.setValueExpressionRunner.runContext(this.getValueGetterContext(), this.getDataFilteredProperties());
-    }
-  }
-  private getSetValueExpressionRunner(): ExpressionRunner {
-    this.ensureSetValueExpressionRunner();
-    return this.setValueExpressionRunner;
-  }
-  private triggersInfo: Array<TriggerExpressionInfo> = [];
-  private addTriggerInfo(name: string, canRun: () => boolean, doComplete: () => void): TriggerExpressionInfo {
-    const info = new TriggerExpressionInfo(name, canRun, doComplete);
-    this.triggersInfo.push(info);
-    return info;
-  }
-  private runTriggerInfo(info: TriggerExpressionInfo, keys: any): void {
-    const expression = this.getExpressionFromSurvey(info.name);
-    if (!expression && !info.getSecondRunner() || info.isRunning || !info.canRun()) {
-      return;
-    }
-    if (!info.runner) {
-      info.runner = this.createExpressionRunner(expression);
-      info.runner.onRunComplete = (res: any): void => {
-        if (res === true) {
-          info.doComplete();
-        }
-        info.isRunning = false;
-      };
-    } else {
-      info.runner.expression = expression;
-    }
-    if (!this.canExecuteTriggerByKeys(keys, info.runner, info.getSecondRunner())) return;
-    info.isRunning = true;
-    if (!expression && info.getSecondRunner()) {
-      info.doComplete();
-      info.isRunning = false;
-    } else {
-      info.runner.runContext(this.getValueGetterContext(), this.getDataFilteredProperties());
-    }
+  private runTriggerInfo(info: ITriggerExpressionInfo, keys: any, properties: any): void {
+    this.runExpressionByProperty(info.name, properties, (value: any) => {
+      info.doComplete(value, properties);
+    }, (runner: ExpressionRunner): boolean => {
+      if (!info.canRun()) return false;
+      return !keys || this.canExecuteTriggerByKeys(keys, runner, this.getExpressionByProperty(info.secondName));
+    });
   }
   private canExecuteTriggerByKeys(keys: any, runner: ExpressionRunner, secondRunner?: ExpressionRunner): boolean {
     if (!runner && !!secondRunner) {
@@ -803,14 +752,55 @@ export class Question extends SurveyElement<Question>
   public getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext {
     return new QuestionValueGetterContext(this, isUnwrapped);
   }
+  private addTriggersInfo(): void {
+    this.addTriggerInfo({
+      name: "resetValueIf",
+      canRun: (): boolean => !this.isEmpty(),
+      doComplete: (res: any, properties: HashTable<any>): void => {
+        if (res === true) {
+          this.startSetValueOnExpression();
+          this.updateValueWithDefaultsOrClear();
+          this.finishSetValueOnExpression();
+        }
+      }
+    });
+    this.addTriggerInfo({
+      name: "setValueIf",
+      secondName: "setValueExpression",
+      canRun: (): boolean => true,
+      doComplete: (res: any, properties: HashTable<any>): void => {
+        if (res) {
+          if (!this.setValueExpression) {
+            this.clearValue();
+          } else {
+            const info = {
+              name: "setValueExpression",
+              canRun: (): boolean => true,
+              doComplete: (res: any, properties: HashTable<any>): void => this.runExpressionSetValue(res)
+            };
+            this.runTriggerInfo(info, undefined, properties);
+          }
+        }
+      }
+    });
+    this.addTriggerInfo({
+      name: "setValueExpression",
+      canRun: (): boolean => !this.setValueIf,
+      doComplete: (res: any, properties: HashTable<any>): void => this.runExpressionSetValue(res)
+    });
+  }
+  protected addTriggerInfo(info: ITriggerExpressionInfo): void {
+    this.triggersInfo.push(info);
+  }
   public runTriggers(name: string, value: any, keys?: any): void {
     if (this.isSettingQuestionValue || (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
     if (!keys) {
       keys = {};
       keys[name] = value;
     }
+    const properties = this.getDataFilteredProperties();
     this.triggersInfo.forEach(info => {
-      this.runTriggerInfo(info, keys);
+      this.runTriggerInfo(info, keys, properties);
     });
   }
   private runConditions() {

@@ -804,18 +804,9 @@ export class Base implements IObjectValueContext {
     if (!this[propName]) return false;
     const expression = this.getExpressionFromSurvey(propName);
     if (!!expression) {
-      if (!this.runExpressionHash) {
-        this.runExpressionHash = {};
-      }
-      let info = this.runExpressionHash[propName];
-      if (!info || !info.isRunning) {
-        const runner = !!info ? info.runner : this.createExpressionRunner(expression);
-        runner.expression = expression;
-        if (!info) {
-          info = { runner: runner };
-          this.runExpressionHash[propName] = info;
-        }
-        if (!!canRun && !canRun(runner)) return true;
+      const info = this.getExpressionInfoByProperty(propName, expression);
+      const runner = info.runner;
+      if (!info.isRunning && (!canRun || canRun(runner))) {
         info.isRunning = true;
         runner.onRunComplete = (value: any) => {
           onExecute(value);
@@ -825,6 +816,24 @@ export class Base implements IObjectValueContext {
       }
     }
     return true;
+  }
+  protected getExpressionByProperty(propName: string): ExpressionRunner {
+    const expression = this.getExpressionFromSurvey(propName);
+    if (!expression) return null;
+    return this.getExpressionInfoByProperty(propName, expression).runner;
+  }
+  private getExpressionInfoByProperty(propName: string, expression: string): any {
+    if (!this.runExpressionHash) {
+      this.runExpressionHash = {};
+    }
+    let info = this.runExpressionHash[propName];
+    if (!info) {
+      info = { runner: this.createExpressionRunner(expression) };
+      this.runExpressionHash[propName] = info;
+    } else {
+      info.runner.expression = expression;
+    }
+    return info;
   }
   /**
    * Registers a single value change handler for one or multiple properties.

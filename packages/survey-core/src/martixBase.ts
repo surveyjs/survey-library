@@ -195,7 +195,8 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {
     const useColumnsExpression = !!this.survey && !this.survey.areInvisibleElementsShowing;
-    const runner = useColumnsExpression && !!this.columnsVisibleIf ? new ConditionRunner(this.columnsVisibleIf) : null;
+    const expression = this.getExpressionFromSurvey("columnsVisibleIf");
+    const runner = useColumnsExpression && !!expression ? new ConditionRunner(expression) : null;
     return ItemValue.runConditionsForItems(this.columns, undefined, runner, properties, this.shouldRunColumnExpression());
   }
   protected clearInvisibleColumnValues(): void {}

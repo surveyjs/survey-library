@@ -647,25 +647,23 @@ export class QuestionSelectBase extends Question {
     return [];
   }
   private setConditionalChoicesRunner() {
-    if (this.choicesVisibleIf) {
+    const expression = this.getExpressionFromSurvey("choicesVisibleIf");
+    if (expression) {
       if (!this.conditionChoicesVisibleIfRunner) {
-        this.conditionChoicesVisibleIfRunner = new ConditionRunner(
-          this.choicesVisibleIf
-        );
+        this.conditionChoicesVisibleIfRunner = new ConditionRunner(expression);
       }
-      this.conditionChoicesVisibleIfRunner.expression = this.choicesVisibleIf;
+      this.conditionChoicesVisibleIfRunner.expression = expression;
     } else {
       this.conditionChoicesVisibleIfRunner = null;
     }
   }
   private setConditionalEnableChoicesRunner() {
-    if (this.choicesEnableIf) {
+    const expression = this.getExpressionFromSurvey("choicesEnableIf");
+    if (expression) {
       if (!this.conditionChoicesEnableIfRunner) {
-        this.conditionChoicesEnableIfRunner = new ConditionRunner(
-          this.choicesEnableIf
-        );
+        this.conditionChoicesEnableIfRunner = new ConditionRunner(expression);
       }
-      this.conditionChoicesEnableIfRunner.expression = this.choicesEnableIf;
+      this.conditionChoicesEnableIfRunner.expression = expression;
     } else {
       this.conditionChoicesEnableIfRunner = null;
     }

@@ -556,7 +556,8 @@ export class QuestionMatrixModel
     super.runConditionCore(properties);
   }
   protected createRowsVisibleIfRunner(): ConditionRunner {
-    return !!this.rowsVisibleIf ? new ConditionRunner(this.rowsVisibleIf) : null;
+    const expression = this.getExpressionFromSurvey("rowsVisibleIf");
+    return !!expression ? new ConditionRunner(expression) : null;
   }
   protected onRowsChanged(): void {
     this.clearGeneratedRows();

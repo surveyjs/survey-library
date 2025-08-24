@@ -109,8 +109,7 @@ export class CalculatedValue extends Base {
     this.runExpression(this.data.getFilteredProperties());
   }
   private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
-    if (!this.canRunExpression) return;
-    this.ensureExpression();
+    if (!this.canRunExpression || !this.ensureExpression()) return;
     this.locCalculation();
     if (!!calculatedValues) {
       this.runDependentExpressions(calculatedValues, properties);
@@ -126,18 +125,21 @@ export class CalculatedValue extends Base {
       calcItem.doCalculation(calculatedValues, properties);
     }
   }
-  private ensureExpression() {
+  private ensureExpression(): boolean {
+    const expression = this.getExpressionFromSurvey("expression");
+    if (!expression) return false;
     if (!!this.expressionRunner) {
-      this.expressionRunner.expression = this.expression;
-      return;
+      this.expressionRunner.expression = expression;
+    } else {
+      this.expressionRunner = this.createExpressionRunner(expression);
+      this.expressionRunner.onRunComplete = newValue => {
+        if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
+          this.setValue(newValue);
+        }
+        this.unlocCalculation();
+      };
     }
-    this.expressionRunner = new ExpressionRunner(this.expression);
-    this.expressionRunner.onRunComplete = newValue => {
-      if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
-        this.setValue(newValue);
-      }
-      this.unlocCalculation();
-    };
+    return true;
   }
 }
 

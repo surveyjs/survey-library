@@ -18,7 +18,6 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGette
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
-  runner?: ExpressionRunner;
 }
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
@@ -762,14 +761,9 @@ export class Base implements IObjectValueContext {
     const expression = this.getPropertyValue(propName);
     if (!expression) return;
     if (!!info.canRun && !info.canRun(this)) return;
-    if (!info.runner) {
-      info.runner = this.createExpressionRunner(expression);
-      info.runner.onRunComplete = (res: any) => {
-        info.onExecute(this, res);
-      };
-    }
-    info.runner.expression = expression;
-    info.runner.runContext(this.getValueGetterContext(), properties);
+    this.runExpressionByProperty(propName, properties, (res) => {
+      info.onExecute(this, res);
+    });
   }
   private asynExpressionHash: any;
   private doBeforeAsynRun(id: number): void {
@@ -797,6 +791,49 @@ export class Base implements IObjectValueContext {
     res.onBeforeAsyncRun = (id: number): void => { this.doBeforeAsynRun(id); };
     res.onAfterAsyncRun = (id: number): void => { this.doAfterAsynRun(id); };
     return res;
+  }
+  private runExpressionHash: HashTable<any>;
+  protected getExpressionFromSurvey(propName: string): string {
+    let expression = this[propName];
+    if (!expression) return "";
+    const survey = this.getSurvey();
+    return !!survey ? survey.beforeExpressionRunning(this, propName, expression) : expression;
+  }
+  protected runExpressionByProperty(propName: string, properties: HashTable<any>,
+    onExecute: (value: any) => void, canRun?: (runner: ExpressionRunner) => boolean): boolean {
+    if (!this[propName]) return false;
+    const expression = this.getExpressionFromSurvey(propName);
+    if (!!expression) {
+      const info = this.getExpressionInfoByProperty(propName, expression);
+      const runner = info.runner;
+      if (!info.isRunning && (!canRun || canRun(runner))) {
+        info.isRunning = true;
+        runner.onRunComplete = (value: any) => {
+          onExecute(value);
+          info.isRunning = false;
+        };
+        runner.runContext(this.getValueGetterContext(), properties);
+      }
+    }
+    return true;
+  }
+  protected getExpressionByProperty(propName: string): ExpressionRunner {
+    const expression = this.getExpressionFromSurvey(propName);
+    if (!expression) return null;
+    return this.getExpressionInfoByProperty(propName, expression).runner;
+  }
+  private getExpressionInfoByProperty(propName: string, expression: string): any {
+    if (!this.runExpressionHash) {
+      this.runExpressionHash = {};
+    }
+    let info = this.runExpressionHash[propName];
+    if (!info) {
+      info = { runner: this.createExpressionRunner(expression) };
+      this.runExpressionHash[propName] = info;
+    } else {
+      info.runner.expression = expression;
+    }
+    return info;
   }
   /**
    * Registers a single value change handler for one or multiple properties.

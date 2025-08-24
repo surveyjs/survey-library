@@ -437,17 +437,19 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return this.getEnableConditionRunner();
   }
   private getVisibleConditionRunner(): ConditionRunner {
-    if (!this.visibleIf) return null;
+    const expression = this.getExpressionFromSurvey("visibleIf");
+    if (!expression) return null;
     if (!this.visibleConditionRunner)
-      this.visibleConditionRunner = new ConditionRunner(this.visibleIf);
-    this.visibleConditionRunner.expression = this.visibleIf;
+      this.visibleConditionRunner = new ConditionRunner(expression);
+    this.visibleConditionRunner.expression = expression;
     return this.visibleConditionRunner;
   }
   private getEnableConditionRunner(): ConditionRunner {
-    if (!this.enableIf) return null;
+    const expression = this.getExpressionFromSurvey("enableIf");
+    if (!expression) return null;
     if (!this.enableConditionRunner)
-      this.enableConditionRunner = new ConditionRunner(this.enableIf);
-    this.enableConditionRunner.expression = this.enableIf;
+      this.enableConditionRunner = new ConditionRunner(expression);
+    this.enableConditionRunner.expression = expression;
     return this.enableConditionRunner;
   }
   public originalItem: any;

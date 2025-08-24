@@ -4472,6 +4472,73 @@ QUnit.test("defaultValueExpression for boolean question", function (
   const q1 = survey.getQuestionByName("q1");
   assert.strictEqual(q1.value, true, "initial value set correctly");
 });
+QUnit.test("Question defaultValueExpression && onExpressionRunning #10258", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValueExpression: "{q2} + 1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  let allow = true;
+  let expression = "{q2} + 1";
+  let counter = 0;
+  survey.onExpressionRunning.add((sender, options) => {
+    if ((<any>options.obj).name === "q1" && options.propertyName === "defaultValueExpression") {
+      options.allow = allow;
+      options.expression = expression;
+      counter ++;
+    }
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.value, 1, "q1.value #1");
+  assert.equal(counter, 0, "counter #1");
+  survey.setValue("q2", 2);
+  assert.equal(q1.value, 3, "q1.value #2");
+  assert.equal(counter, 2, "counter #2");
+  allow = false;
+  survey.setValue("q2", 3);
+  assert.equal(q1.value, 3, "q1.value #3");
+  assert.equal(counter, 3, "counter #3");
+  allow = true;
+  expression = "{q2} + 2";
+  survey.setValue("q2", 4);
+  assert.equal(q1.value, 6, "q1.value #4");
+  assert.equal(counter, 5, "counter #4");
+});
+QUnit.test("Question minValueExpression && onExpressionRunning #10258", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", minValueExpression: "{q2} + 1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  let allow = true;
+  let expression = "{q2} + 1";
+  let counter = 0;
+  survey.data = { q2: 1 };
+  survey.onExpressionRunning.add((sender, options) => {
+    if ((<any>options.obj).name === "q1" && options.propertyName === "minValueExpression") {
+      options.allow = allow;
+      options.expression = expression;
+      counter ++;
+    }
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderedMin, 2, "q1.min #1");
+  assert.equal(counter, 0, "counter #1");
+  survey.setValue("q2", 2);
+  assert.equal(q1.renderedMin, 3, "q1.min #2");
+  assert.equal(counter, 1, "counter #2");
+  allow = false;
+  survey.setValue("q2", 3);
+  assert.equal(q1.renderedMin, 3, "q1.min #3");
+  assert.equal(counter, 2, "counter #3");
+  allow = true;
+  expression = "{q2} + 2";
+  survey.setValue("q2", 4);
+  assert.equal(q1.renderedMin, 6, "q1.min #4");
+  assert.equal(counter, 3, "counter #4");
+});
 
 QUnit.test("QuestionRating rateStep less than 1", function (assert) {
   var question = new QuestionRatingModel("q");
@@ -7768,11 +7835,13 @@ QUnit.test("question.isReady & async functions in expression", function (assert)
   runResults(returnResult1, 1);
   runResults(returnResult2, 2);
   assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q2.isAsyncExpressionRunning, true, "q2 is running async");
   assert.equal(q1.isReady, true, "q1 is ready #3");
   assert.equal(q2.isReady, false, "q2 is not ready #3");
   runResults(returnResult3, 3);
   runResults(returnResult2, 2);
   runResults(returnResult1, 1);
+  assert.equal(q2.isAsyncExpressionRunning, false, "q2 is not running async");
   assert.equal(q1.isReady, true, "q1 is ready #4");
   assert.equal(q2.isReady, true, "q2 is ready #4");
   assert.equal(q1.value, 2, "q1.value");
@@ -8372,4 +8441,40 @@ QUnit.test("question.validateValueCallback", function (assert) {
   q1.value = "b";
   assert.equal(q1.errors.length, 0, "There is no errors #3");
   assert.equal(counter, 2, "validateValueCallback is called #3");
+});
+QUnit.test("Question visibleIf && onExpressionRunning #10258", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "{q2} = 1" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  let allow = true;
+  let expression = "{q2} = 1";
+  let counter = 0;
+  survey.onExpressionRunning.add((sender, options) => {
+    if ((<any>options.obj).name === "q1" && options.propertyName === "visibleIf") {
+      options.allow = allow;
+      options.expression = expression;
+      counter ++;
+    }
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.isVisible, false, "q1.visible #1");
+  assert.equal(counter, 0, "counter #1");
+  survey.setValue("q2", 1);
+  assert.equal(q1.isVisible, true, "q1.visible #2");
+  assert.equal(counter, 1, "counter #2");
+  allow = false;
+  survey.setValue("q2", 3);
+  assert.equal(q1.isVisible, true, "q1.isVisible #3");
+  assert.equal(counter, 2, "counter #3");
+  allow = true;
+  expression = "{q2} = 2";
+  survey.setValue("q2", 4);
+  assert.equal(q1.isVisible, false, "q1.visible #4");
+  assert.equal(counter, 3, "counter #4");
+  survey.setValue("q2", 2);
+  assert.equal(q1.isVisible, true, "q1.visible #5");
+  assert.equal(counter, 4, "counter #5");
 });

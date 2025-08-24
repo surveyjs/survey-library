@@ -480,11 +480,12 @@ export class ExpressionValidator extends SurveyValidator {
     return this.getLocalizationFormatString("invalidExpression", this.expression);
   }
   private ensureConditionRunner(reNew: boolean): boolean {
-    if (!this.expression) return false;
+    const expression = this.getExpressionFromSurvey("expression");
+    if (!expression) return false;
     if (reNew || !this.conditionRunner) {
-      this.conditionRunner = new ConditionRunner(this.expression);
+      this.conditionRunner = new ConditionRunner(expression);
     } else {
-      this.conditionRunner.expression = this.expression;
+      this.conditionRunner.expression = expression;
     }
     return true;
   }

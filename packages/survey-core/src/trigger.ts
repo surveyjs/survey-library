@@ -57,10 +57,6 @@ export class Trigger extends Base {
   private idValue: number = (Trigger.idCounter ++);
   constructor() {
     super();
-    this.registerPropertyChangedHandlers(["operator", "value", "name"], () => {
-      this.oldPropertiesChanged();
-    });
-    this.registerPropertyChangedHandlers(["expression"], () => { this.onExpressionChanged(); });
   }
   public get id(): number { return this.idValue; }
   public getType(): string {
@@ -68,7 +64,7 @@ export class Trigger extends Base {
   }
   public toString(): string {
     var res = this.getType().replace("trigger", "");
-    var exp = !!this.expression ? this.expression : this.buildExpression();
+    var exp = this.expression;
     if (exp) {
       res += ", " + exp;
     }
@@ -101,7 +97,7 @@ export class Trigger extends Base {
   }
 
   public get expression(): string {
-    return this.getPropertyValue("expression", "");
+    return this.getPropertyValue("expression", this.buildExpression());
   }
   public set expression(val: string) {
     this.setPropertyValue("expression", val);
@@ -120,14 +116,16 @@ export class Trigger extends Base {
     this.isExecutingOnNavigation = options.isOnNavigation || options.isOnNextPage;
     if (!this.canBeExecuted(options.isOnNextPage)) return;
     if (options.isOnComplete && !this.canBeExecutedOnComplete()) return;
-    if (!this.isCheckRequired(options.keys)) return;
     const keys = Object.keys(options.keys);
     if (Array.isArray(keys) && !this.canBeExecuteOnKeysChange(keys)) return;
-    if (!!this.conditionRunner) {
-      this.perform(options.properties || null);
-    } else {
-      if (this.canSuccessOnEmptyExpression()) {
-        this.triggerResult(true, options.properties || null);
+    const props = options.properties || null;
+    if (!this.runExpressionByProperty("expression", props, (val: any) => {
+      this.triggerResult(val === true, props);
+    }, (runner: ExpressionRunner): boolean => {
+      return this.isCheckRequired(runner, options.keys);
+    })) {
+      if (this.isCheckRequired(null, options.keys) && this.canSuccessOnEmptyExpression()) {
+        this.triggerResult(true, props);
       }
     }
   }
@@ -144,12 +142,6 @@ export class Trigger extends Base {
     }
   }
   public get requireValidQuestion(): boolean { return false; }
-  private perform(properties: HashTable<any>) {
-    this.conditionRunner.onRunComplete = (res: boolean) => {
-      this.triggerResult(res, properties);
-    };
-    this.conditionRunner.runContext(this.getValueGetterContext(), properties);
-  }
   private triggerResult(res: boolean, properties: HashTable<any>
   ) {
     if (res) {
@@ -162,17 +154,7 @@ export class Trigger extends Base {
   protected onSuccess(properties: HashTable<any>): void {}
   protected onFailure(): void {}
   protected onSuccessExecuted(): void {}
-  endLoadingFromJson() {
-    super.endLoadingFromJson();
-    this.oldPropertiesChanged();
-  }
-  private oldPropertiesChanged() {
-    this.onExpressionChanged();
-  }
-  private onExpressionChanged() {
-    this.conditionRunner = null;
-  }
-  public buildExpression(): string {
+  private buildExpression(): string {
     if (!this.name) return "";
     if (this.isValueEmpty(this.value) && this.isRequireValue) return "";
     return (
@@ -184,15 +166,14 @@ export class Trigger extends Base {
       OperandMaker.toOperandString(this.value)
     );
   }
-  private isCheckRequired(keys: any): boolean {
+  private isCheckRequired(runner: ExpressionRunner, keys: any): boolean {
     if (!keys) return false;
-    this.createConditionRunner();
-    if (this.conditionRunner && this.conditionRunner.hasFunction() === true) return true;
-    return new ValueGetter().isAnyKeyChanged(keys, this.getUsedVariables());
+    if (runner?.hasFunction() === true) return true;
+    return new ValueGetter().isAnyKeyChanged(keys, this.getUsedVariables(runner));
   }
-  protected getUsedVariables(): string[] {
-    if (!this.conditionRunner) return [];
-    const res = this.conditionRunner.getVariables();
+  protected getUsedVariables(runner: ExpressionRunner): string[] {
+    if (!runner) return [];
+    const res = runner.getVariables();
     if (Array.isArray(res)) {
       const unw = settings.expressionVariables.unwrapPostfix;
       for (let i = res.length - 1; i >= 0; i--) {
@@ -203,15 +184,6 @@ export class Trigger extends Base {
       }
     }
     return res;
-  }
-  private createConditionRunner() {
-    if (!!this.conditionRunner) return;
-    var expression = this.expression;
-    if (!expression) {
-      expression = this.buildExpression();
-    }
-    if (!expression) return;
-    this.conditionRunner = new ConditionRunner(expression);
   }
   private get isRequireValue(): boolean {
     return this.operator !== "empty" && this.operator != "notempty";
@@ -414,18 +386,13 @@ export class SurveyTriggerRunExpression extends SurveyTrigger {
     return !isOnNextPage;
   }
   protected onSuccess(properties: HashTable<any>): boolean {
-    if (!this.owner || !this.runExpression) return;
-    var expression = new ExpressionRunner(this.runExpression);
-    if (expression.canRun) {
-      expression.onRunComplete = (res) => {
-        this.onCompleteRunExpression(res);
-      };
-      expression.runContext(this.getValueGetterContext(), properties);
-    }
+    if (!this.owner) return;
+    this.runExpressionByProperty("runExpression", properties, (res) => {
+      this.onCompleteRunExpression(res);
+    });
   }
   private onCompleteRunExpression(newValue: any) {
     if (!!this.setToName && newValue !== undefined) {
-
       this.owner.setTriggerValue(this.setToName, Helpers.convertValToQuestionVal(newValue), false);
     }
   }
@@ -471,8 +438,8 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
     this.owner.copyTriggerValue(this.setToName, this.fromName, this.copyDisplayValue);
   }
   protected canSuccessOnEmptyExpression(): boolean { return true; }
-  protected getUsedVariables(): string[] {
-    const res = super.getUsedVariables();
+  protected getUsedVariables(runner: ExpressionRunner): string[] {
+    const res = super.getUsedVariables(runner);
     if (res.length === 0 && !!this.fromName) {
       res.push(this.fromName);
     }

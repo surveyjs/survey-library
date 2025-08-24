@@ -258,6 +258,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     onScolledCallback?: () => void
   ): any;
   runExpression(expression: string, callback?: (res: any) => void): any;
+  beforeExpressionRunning(obj: Base, propertyName: string, expression: string): string;
   startSetValueOnExpression(): void;
   finishSetValueOnExpression(): void;
 

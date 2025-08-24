@@ -11,6 +11,7 @@ import { settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { FunctionFactory } from "../src/functionsfactory";
+import { ExpressionRunner } from "../src/conditions";
 
 export default QUnit.module("Triggers");
 
@@ -892,8 +893,8 @@ QUnit.test("copyvalue & custom function, Bug#10192, #1", function(assert) {
 });
 QUnit.test("copyvalue & custom function, Bug#10192, #2", function(assert) {
   class SurveyTriggerCopyValueEx extends SurveyTriggerCopyValue {
-    protected getUsedVariables(): string[] {
-      const res = super.getUsedVariables();
+    protected getUsedVariables(runner: ExpressionRunner): string[] {
+      const res = super.getUsedVariables(runner);
       res.push(this.fromName);
       return res;
     }
@@ -937,4 +938,45 @@ QUnit.test("copyvalue & custom function, Bug#10192, #2", function(assert) {
   copyClassInfo.creator = () => {
     return new SurveyTriggerCopyValue();
   };
+});
+QUnit.test("triggers & survey.onExpressionRunning #10259", (assert) => {
+  const survey = new SurveyModel({
+    pages: [{ elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+    ],
+    }, { elements: [
+      {
+        type: "text",
+        name: "q2",
+      },
+    ],
+    }],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  let counter = 0;
+  let expression = "{q1} = 3";
+  let allow = false;
+  survey.onExpressionRunning.add((sender, options) => {
+    if (options.obj.getType() === "completetrigger" && options.propertyName === "expression") {
+      options.expression = expression;
+      options.allow = allow;
+      counter++;
+    }
+  });
+  survey.setValue("q1", 3);
+  assert.equal(survey.isCompleteButtonVisible, false, "Survey complete button visibility #1");
+  assert.equal(counter, 1, "onExpressionRunning event call counter #1");
+  allow = true;
+  expression = "{q1} = 2";
+  survey.setValue("q1", 2);
+  assert.equal(survey.isCompleteButtonVisible, true, "Survey complete button visibility #2");
+  assert.equal(counter, 2, "onExpressionRunning event call counter #2");
 });

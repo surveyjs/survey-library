@@ -1635,21 +1635,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   protected runCellsCondition(properties: HashTable<any>): void {
     if (this.isDesignMode) return;
+    const rowsVisibleIf = this.getExpressionFromSurvey("rowsVisibleIf");
     const rows = this.generatedVisibleRows;
     if (!!rows) {
       for (var i = 0; i < rows.length; i++) {
-        rows[i].runCondition(properties, this.rowsVisibleIf);
+        rows[i].runCondition(properties, rowsVisibleIf);
       }
     }
     this.checkColumnsVisibility();
     this.checkColumnsRenderedRequired();
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {
+    const expression = this.getExpressionFromSurvey("columnsVisibleIf");
     this.columns.forEach(column => {
-      if (!this.columnsVisibleIf) {
+      if (!expression) {
         column.isColumnsVisibleIf = true;
       } else {
-        const condition = new ConditionRunner(this.columnsVisibleIf);
+        const condition = new ConditionRunner(expression);
         column.isColumnsVisibleIf = condition.runContext(column.getValueGetterContext(), properties) === true;
       }
     });

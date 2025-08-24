@@ -735,24 +735,13 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
-    this.runMinMaxCondition(this.maxValueExpression, properties, (value: number) => {
+    this.runExpressionByProperty("maxValueExpression", properties, (value: number) => {
       this.max = value ?? this.renderedMax;
     });
-    this.runMinMaxCondition(this.minValueExpression, properties, (value: number) => {
+    this.runExpressionByProperty("minValueExpression", properties, (value: number) => {
       this.min = value ?? this.renderedMin;
     });
   }
-  private runMinMaxCondition(expression: string, properties: HashTable<any>, setter: (value: number) => void): void {
-    if (!expression) return;
-    const runner: ExpressionRunner = this.getDefaultRunner(this.defaultExpressionRunner, expression);
-    if (!!runner && runner.canRun) {
-      runner.onRunComplete = (res) => {
-        setter(res);
-      };
-      runner.runContext(this.getValueGetterContext(), properties);
-    }
-  }
-
   protected initPropertyDependencies() {
     // this.registerSychProperties(["segmentCount"],
     //   () => {

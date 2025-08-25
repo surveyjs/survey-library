@@ -2948,7 +2948,7 @@ QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: f
   checkFunc("q1", false, 1);
   checkFunc("q2", false, 2);
   checkFunc("q3", true, 3);
-  checkFunc("q4", true, 4);
+  checkFunc("q4", false, 4);
 });
 QUnit.test("Create multiple choice item for checkbox", (assert) => {
   const survey = new SurveyModel({
@@ -3443,4 +3443,32 @@ QUnit.test("checkbox choices vs showComment & selection, Bug#10243", (assert) =>
   assert.deepEqual(q1.value, [{ value: "item1", comment: "abc" }, "item2"], "q1.value, #1");
   assert.deepEqual(q1.renderedValue, ["item1", "item2"], "q1.renderedValue, #1");
   assert.equal(q1.getCommentTextAreaModel(q1.choices[0]).getTextValue(), "abc", "comment text area value, #1");
+});
+QUnit.test("radiogroup choices vs showComment & showOther & question showComment , Bug#10272", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [{ value: "item1", showCommentArea: true }, "item2"],
+        "showOtherItem": true,
+        "showCommentArea": true
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.clickItemHandler(q1.otherItem);
+  q1.getCommentTextAreaModel(q1.otherItem).onTextAreaBlur({ target: { value: "abc" } });
+  q1.comment = "edf";
+  assert.equal(q1.value, "abc", "q1.value #1");
+  assert.equal(q1.comment, "edf", "q1.comment #1");
+  q1.value = "abc2";
+  assert.equal(q1.value, "abc2", "q1.value #2");
+  assert.equal(q1.comment, "edf", "q1.comment #2");
+  assert.deepEqual(survey.data, { q1: "abc2", "q1-Comment": "edf" }, "survey.data #1");
+  q1.clickItemHandler(q1.choices[0]);
+  q1.getCommentTextAreaModel(q1.choices[0]).onTextAreaBlur({ target: { value: "xyz" } });
+  assert.deepEqual(q1.value, { value: "item1", comment: "xyz" }, "q1.value #3");
+  assert.equal(q1.comment, "edf", "q1.comment #3");
+  assert.deepEqual(survey.data, { q1: { value: "item1", comment: "xyz" }, "q1-Comment": "edf" }, "survey.data #2");
 });

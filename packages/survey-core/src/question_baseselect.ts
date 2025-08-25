@@ -1650,8 +1650,8 @@ export class QuestionSelectBase extends Question {
     }
   }
   public getStoreOthersAsComment(): boolean {
-    if (this.checkHasChoicesComments()) return true;
     if (this.showCommentArea) return false;
+    if (this.checkHasChoicesComments()) return true;
     return (
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&

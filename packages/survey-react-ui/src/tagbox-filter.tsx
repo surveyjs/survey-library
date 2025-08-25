@@ -35,8 +35,8 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     }
   }
   onChange(e: any) {
-    const { root } = settings.environment;
-    if (e.target === root.activeElement) {
+    const activeElement = e.target.getRootNode()?.activeElement;
+    if (e.target === activeElement) {
       this.model.inputStringRendered = e.target.value;
     }
   }

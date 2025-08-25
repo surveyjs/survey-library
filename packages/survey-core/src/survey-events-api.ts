@@ -1021,7 +1021,7 @@ export interface MatrixRowDragOverEvent {
 }
 export interface ExpressionRunningEvent {
   /**
-   * A survey element (question, panel, page, or the survey itself) for which the event is raised.
+   * A survey element (question, panel, page, choice option, matrix row, column, trigger, validator, survey, etc.) for which the event is raised.
    */
   element: Base;
   /**

@@ -1020,10 +1020,22 @@ export interface MatrixRowDragOverEvent {
   allow: boolean;
 }
 export interface ExpressionRunningEvent {
-  obj: Base;
-  allow: boolean;
-  expression: string;
+  /**
+   * A survey element (question, panel, page, choice option, matrix row, column, trigger, validator, survey, etc.) for which the event is raised.
+   */
+  element: Base;
+  /**
+   * The name of the survey element property that contains the expression (for example, `visibleIf`).
+   */
   propertyName: string;
+  /**
+   * The expression being evaluated.
+   */
+  expression: string;
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel the expression eveluation.
+   */
+  allow: boolean;
 }
 export interface ScrollingElementToTopEvent {
   /**

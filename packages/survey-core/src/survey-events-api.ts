@@ -1029,7 +1029,8 @@ export interface ExpressionRunningEvent {
    */
   propertyName: string;
   /**
-   * The expression being evaluated.
+   * The expression being evaluated.\
+   * You can modify this value to substitute a different expression for evaluation. The original expression property remains unchanged.
    */
   expression: string;
   /**

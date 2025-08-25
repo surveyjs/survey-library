@@ -367,7 +367,7 @@ QUnit.test("survey.onExpressionRunning, #10258", function (assert) {
   let counter = 0;
   survey.data = { q2: 1 };
   survey.onExpressionRunning.add((sender, options) => {
-    if ((<any>options.obj).name === "q1" && options.propertyName === "expression") {
+    if ((<any>options.element).name === "q1" && options.propertyName === "expression") {
       options.allow = allow;
       options.expression = expression;
       counter ++;

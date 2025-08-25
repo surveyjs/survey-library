@@ -965,7 +965,7 @@ QUnit.test("triggers & survey.onExpressionRunning #10259", (assert) => {
   let expression = "{q1} = 3";
   let allow = false;
   survey.onExpressionRunning.add((sender, options) => {
-    if (options.obj.getType() === "completetrigger" && options.propertyName === "expression") {
+    if (options.element.getType() === "completetrigger" && options.propertyName === "expression") {
       options.expression = expression;
       options.allow = allow;
       counter++;

@@ -4483,7 +4483,7 @@ QUnit.test("Question defaultValueExpression && onExpressionRunning #10258", func
   let expression = "{q2} + 1";
   let counter = 0;
   survey.onExpressionRunning.add((sender, options) => {
-    if ((<any>options.obj).name === "q1" && options.propertyName === "defaultValueExpression") {
+    if ((<any>options.element).name === "q1" && options.propertyName === "defaultValueExpression") {
       options.allow = allow;
       options.expression = expression;
       counter ++;
@@ -4517,7 +4517,7 @@ QUnit.test("Question minValueExpression && onExpressionRunning #10258", function
   let counter = 0;
   survey.data = { q2: 1 };
   survey.onExpressionRunning.add((sender, options) => {
-    if ((<any>options.obj).name === "q1" && options.propertyName === "minValueExpression") {
+    if ((<any>options.element).name === "q1" && options.propertyName === "minValueExpression") {
       options.allow = allow;
       options.expression = expression;
       counter ++;
@@ -8453,7 +8453,7 @@ QUnit.test("Question visibleIf && onExpressionRunning #10258", function (assert)
   let expression = "{q2} = 1";
   let counter = 0;
   survey.onExpressionRunning.add((sender, options) => {
-    if ((<any>options.obj).name === "q1" && options.propertyName === "visibleIf") {
+    if ((<any>options.element).name === "q1" && options.propertyName === "visibleIf") {
       options.allow = allow;
       options.expression = expression;
       counter ++;

@@ -914,6 +914,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
   public onMatrixRowDragOver: EventBase<SurveyModel, MatrixRowDragOverEvent> = this.addEvent<SurveyModel, MatrixRowDragOverEvent>();
+  /**
+   * An event that is raised when an [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) is about to be evaluated. Use this event to intercept or cancel the evaluation.
+   */
   public onExpressionRunning: EventBase<SurveyModel, ExpressionRunningEvent> = this.addEvent<SurveyModel, ExpressionRunningEvent>();
   /**
    * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
@@ -2597,7 +2600,7 @@ export class SurveyModel extends SurveyElementCore
     return exp.runContext(this.getValueGetterContext(), properties) || onCompleteRes;
   }
   beforeExpressionRunning(obj: Base, propertyName: string, expression: string): string {
-    const opt: ExpressionRunningEvent = { obj: obj, propertyName: propertyName, expression: expression, allow: true };
+    const opt: ExpressionRunningEvent = { element: obj, propertyName: propertyName, expression: expression, allow: true };
     this.onExpressionRunning.fire(this, opt);
     return opt.allow ? opt.expression : "";
   }

@@ -5,7 +5,7 @@ import {
   QuestionCompositeModel,
   ComponentCollection,
 } from "../src/question_custom";
-import { Serializer } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { QuestionTextModel } from "../src/question_text";
@@ -3954,5 +3954,29 @@ QUnit.test("Single: supportAutoAdvance, bug#10149", function (assert) {
   assert.equal(q1.supportAutoAdvance(), true, "supportAutoAdvance #2");
   q1.contentQuestion.value = "other";
   assert.equal(q1.supportAutoAdvance(), false, "supportAutoAdvance #3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: survey instance in onLoad method", function (assert) {
+  let surveyInstance;
+  let onLoadCallCount = 0;
+  ComponentCollection.Instance.add({
+    name: "ordertabledynamic",
+    questionJSON: {
+      type: "matrixdynamic",
+    },
+    onLoaded (question) {
+      onLoadCallCount++;
+      surveyInstance = question.survey;
+    },
+  });
+  const survey = new SurveyModel({ pages: [{ "name": "p1" }] });
+  const json = { type: "ordertabledynamic" };
+  const question = Serializer.createClass(json["type"]);
+  new JsonObject().toObject(json, question);
+  assert.equal(onLoadCallCount, 0);
+  assert.ok(!surveyInstance);
+  survey.pages[0].addQuestion(question);
+  assert.equal(onLoadCallCount, 1);
+  assert.ok(!!surveyInstance);
   ComponentCollection.Instance.clear();
 });

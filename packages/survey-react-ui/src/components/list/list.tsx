@@ -104,8 +104,8 @@ export class List extends SurveyElementBase<IListProps, any> {
     if (!this.model.showFilter) return null;
     else {
       const onChange = (e: any) => {
-        const { root } = settings.environment;
-        if (e.target === root.activeElement) {
+        const activeElement = e.target.getRootNode()?.activeElement;
+        if (e.target === activeElement) {
           this.model.filterString = e.target.value;
         }
       };

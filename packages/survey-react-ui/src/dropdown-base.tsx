@@ -84,10 +84,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
   protected renderInput(dropdownListModel: DropdownListModel): React.JSX.Element {
     let valueElement: React.JSX.Element | null = this.renderValueElement(dropdownListModel);
-    const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
-      if (e.target === root.activeElement) {
+      const activeElement = e.target.getRootNode()?.activeElement;
+      if (e.target === activeElement) {
         dropdownListModel.inputStringRendered = e.target.value;
       }
     };

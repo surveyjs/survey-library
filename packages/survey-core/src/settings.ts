@@ -625,7 +625,7 @@ export var settings = {
     row: "row",
     totalRow: "totalRow",
     rowIndex: "rowIndex",
-    rowVisibleIndex: "rowVisibleIndex",
+    visibleRowIndex: "visibleRowIndex",
     rowValue: "rowValue",
     rowName: "rowName",
     rowTitle: "rowTitle",

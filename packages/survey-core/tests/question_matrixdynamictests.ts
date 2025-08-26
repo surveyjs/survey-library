@@ -4279,7 +4279,7 @@ QUnit.test("matrix.rowsVisibleIf + renderedTable", function (assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.renderedTable.rows.length, 4 * 2, "there is no filter");
 });
-QUnit.test("matrix.rowsVisibleIf + rowVisibleIndex variable, #10279", function (assert) {
+QUnit.test("matrix.rowsVisibleIf + visibleRowIndex variable, #10279", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qCars = new QuestionCheckboxModel("cars");
@@ -4288,7 +4288,7 @@ QUnit.test("matrix.rowsVisibleIf + rowVisibleIndex variable, #10279", function (
   var qBestCar = new QuestionMatrixDropdownModel("bestCar");
   const col = qBestCar.addColumn("col1");
   col.cellType = "expression";
-  (<any>col).expression = "{rowVisibleIndex}";
+  (<any>col).expression = "{visibleRowIndex}";
   qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
   qBestCar.rowsVisibleIf = "{cars} contains {item}";
   page.addElement(qBestCar);

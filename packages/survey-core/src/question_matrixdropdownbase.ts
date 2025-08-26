@@ -250,7 +250,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     if (name === setVar.rowIndex.toLocaleLowerCase()) {
       return this.row.rowIndex;
     }
-    if (name === setVar.rowVisibleIndex.toLocaleLowerCase()) {
+    if (name === setVar.visibleRowIndex.toLocaleLowerCase()) {
       return this.getQuestionData().visibleRows.indexOf(this.row) + 1;
     }
     if ([setVar.item, setVar.rowName.toLocaleLowerCase(), setVar.rowValue.toLocaleLowerCase()].indexOf(name) > -1) {
@@ -1831,6 +1831,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * The template can contain the following placeholders:
    *
    * - `{rowIndex}` - A row index within the collection of all rows. Starts with 1.
+   * - `{visibleRowIndex}` - A row index within the collection of visible rows. Starts with 1.
    * - `{rowName}` - A row name (the `value` property within objects in the [`rows`](#rows) array). Use this placeholder if you need to distinguish between matrix rows.
    * - `{rowTitle}` - A row title (the `text` property within objects in the `rows` array).
    * - `{row.columnname}` - The value of a cell in the same row.

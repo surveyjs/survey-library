@@ -211,7 +211,7 @@ To render a survey, add a `<survey>` element to your component template and bind
 
 If you replicate the code correctly, you should see the following survey:
 
-![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
+<img src="./images/get-started-primitive-survey.png" alt="Get Started with SurveyJS - Primitive Survey" width="772" height="513">
 
 <details>
     <summary>View Full Code</summary>  
@@ -351,7 +351,8 @@ export class AppComponent implements OnInit {
   }
 }
 ```
-![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
+
+<img src="./images/get-started-primitive-survey-alert.png" alt="Get Started with SurveyJS - Survey Results" width="772" height="516">
 
 As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 

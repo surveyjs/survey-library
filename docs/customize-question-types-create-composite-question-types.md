@@ -130,11 +130,11 @@ The steps below summarize how to add a custom property to your composite questio
 
 [Expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) and [triggers](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#conditional-survey-logic-triggers) help you build conditional logic in a survey. Let us consider a survey example in which respondents should enter their business and shipping addresses. For the case when the addresses are the same, the survey has a "Shipping address same as business address" question that displays a Yes/No toggle switch. When the switch is set to Yes, the Shipping Address field is disabled and its value is copied from the Business Address field:
 
-![Composite question type - Shipping Address](../images/composite-question-shipping-address-disabled.png)
+<img src="../images/composite-question-shipping-address-disabled.png" alt="Composite question type - Shipping Address field disabled" width="772" height="658">
 
 When respondents set the switch to No, Shipping Address becomes enabled and its value is cleared:
 
-![Composite question type - Shipping Address](../images/composite-question-shipping-address-enabled.png)
+<img src="../images/composite-question-shipping-address-disabled.png" alt="Composite question type - Shipping Address field enabled" width="772" height="658">
 
 The following code shows how you can use expressions and triggers to implement this logic in code:
 

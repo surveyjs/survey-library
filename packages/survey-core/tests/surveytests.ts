@@ -22585,3 +22585,22 @@ QUnit.test("Warn in console if the expression is invalide in a question, #981", 
   assert.equal(reportText, "Invalid expression: '{a} ++'. It is used in the question: 'q1'.", "show warnings with the quesiton info");
   ConsoleWarnings.warn = prev;
 });
+QUnit.test("Do not serialize mode:display property, #10281", function (assert) {
+  const survey1 = new SurveyModel({ readOnly: true });
+  assert.equal(survey1.mode, "display", "mode #1");
+  assert.equal(survey1.readOnly, true, "readOnly #1");
+  const survey2 = new SurveyModel({ mode: "display" });
+  assert.equal(survey2.mode, "display", "mode #2");
+  assert.equal(survey2.readOnly, true, "readOnly #2");
+  const survey3 = new SurveyModel();
+  survey3.readOnly = true;
+  assert.equal(survey3.mode, "display", "mode #3");
+  assert.equal(survey3.readOnly, true, "readOnly #3");
+  survey3.mode = "edit";
+  assert.equal(survey3.mode, "edit", "mode #4");
+  assert.equal(survey3.readOnly, false, "readOnly #4");
+  survey3.mode = "display";
+  assert.deepEqual(survey3.toJSON(), {
+    readOnly: true
+  }, "survey3 is serialized correctly");
+});

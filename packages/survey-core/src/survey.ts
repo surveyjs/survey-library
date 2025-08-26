@@ -8768,8 +8768,8 @@ Serializer.addClass("survey", [
     dependsOn: ["showTOC"],
     visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },
-  { name: "readOnly:boolean", default: false },
-  { name: "mode", default: "edit", choices: ["edit", "display"], visible: false },
+  { name: "readOnly:boolean" },
+  { name: "mode", visible: false, isSerializable: false },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },
   { name: "maxCommentLength:number", default: 0, minValue: 0, alternativeName: "maxOthersLength" },

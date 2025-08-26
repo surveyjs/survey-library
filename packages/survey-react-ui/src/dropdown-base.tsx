@@ -140,7 +140,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     const { root } = settings.environment;
     const dropdownListModel = this.dropdownListModel;
     const onInputChange = (e: any) => {
-      if (e.target === root.activeElement) {
+      const activeElement = e.target.getRootNode()?.activeElement;
+      if (e.target === activeElement) {
         dropdownListModel.inputStringRendered = e.target.value;
       }
     };

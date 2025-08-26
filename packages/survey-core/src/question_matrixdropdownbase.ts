@@ -250,6 +250,9 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     if (name === setVar.rowIndex.toLocaleLowerCase()) {
       return this.row.rowIndex;
     }
+    if (name === setVar.rowVisibleIndex.toLocaleLowerCase()) {
+      return this.getQuestionData().visibleRows.indexOf(this.row) + 1;
+    }
     if ([setVar.item, setVar.rowName.toLocaleLowerCase(), setVar.rowValue.toLocaleLowerCase()].indexOf(name) > -1) {
       return this.row.rowName;
     }
@@ -2890,7 +2893,9 @@ Serializer.addClass(
   [
     {
       name: "columns:matrixdropdowncolumns",
-      className: "matrixdropdowncolumn", isArray: true
+      uniqueProperty: "name",
+      className: "matrixdropdowncolumn",
+      isArray: true
     },
     {
       name: "columnLayout",

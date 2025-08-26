@@ -4279,6 +4279,39 @@ QUnit.test("matrix.rowsVisibleIf + renderedTable", function (assert) {
   qBestCar.rowsVisibleIf = "";
   assert.equal(qBestCar.renderedTable.rows.length, 4 * 2, "there is no filter");
 });
+QUnit.test("matrix.rowsVisibleIf + rowVisibleIndex variable, #10279", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  var qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  const col = qBestCar.addColumn("col1");
+  col.cellType = "expression";
+  (<any>col).expression = "{rowVisibleIndex}";
+  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.rowsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(
+    qBestCar.renderedTable.rows.length,
+    0,
+    "cars are not selected yet"
+  );
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleRows.length, 1, "BMW is selected");
+  assert.equal(qBestCar.visibleRows[0].cells[0].question.value, 1, "rows[0] #1");
+  qCars.value = ["BMW", "Volkswagen"];
+  let rows = qBestCar.visibleRows;
+  assert.equal(rows.length, 2, "2 cars are selected");
+  assert.equal(rows[0].cells[0].question.value, 1, "rows[0] #2");
+  assert.equal(rows[1].cells[0].question.value, 2, "rows[1] #2");
+  qBestCar.rowsVisibleIf = "";
+  assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
+  rows = qBestCar.visibleRows;
+  for (let i = 0; i < 4; i++) {
+    assert.equal(rows[i].cells[0].question.value, i + 1, "rows[" + i + "] #2");
+  }
+});
 QUnit.test(
   "Matrixdynamic column.visibleIf, hide column if all cells are invisible + rendered table",
   function (assert) {

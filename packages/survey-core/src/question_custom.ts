@@ -612,11 +612,25 @@ export abstract class QuestionCustomModelBase extends Question
     this.initElement(this.getElement());
     this.isSettingValOnLoading = false;
   }
-  public onSurveyLoad() {
+  private isLoadedCalled: boolean;
+  private onCustomQuestionLoaded(): void {
+    if (!this.isLoadedCalled && !!this.customQuestion && !!this.survey) {
+      this.customQuestion.onLoaded(this);
+      this.isLoadedCalled = true;
+    }
+  }
+  public onSurveyLoad(): void {
     super.onSurveyLoad();
+    this.isLoadedCalled = false;
     if (!!this.getElement()) {
       this.getElement().onSurveyLoad();
-      this.customQuestion.onLoaded(this);
+    }
+    this.onCustomQuestionLoaded();
+  }
+  public setSurveyCore(value: ISurvey): void {
+    super.setSurveyCore(value);
+    if (this.isLoadedCalled === false && value) {
+      this.onCustomQuestionLoaded();
     }
   }
   public afterRenderQuestionElement(el: HTMLElement) {

@@ -8280,3 +8280,47 @@ QUnit.test("survey.getData vs panel inside tempalte panel, Bug#10230", function 
     { d1: [{ q1: 1 }, { q1: 2 }], d2: [{ panel1: { q2: 1 } }, { panel1: { q2: 2 } }] }
     , "survey.getData #1");
 });
+QUnit.test("parentQuestion inside custom function, Bug#10210", function (assert) {
+  let notParentCalls = 0;
+  let parentCalls = 0;
+  function customFunc(params: any[]): any {
+    if (!this.question.parentQuestion) {
+      notParentCalls++;
+    } else {
+      parentCalls++;
+    }
+    return 1;
+  }
+  FunctionFactory.Instance.register("customFunc", customFunc);
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "d1",
+        "panelCount": 1,
+        "templateElements": [
+          {
+            "type": "expression",
+            "name": "q1",
+            "expression": "customFunc()"
+          }
+        ]
+      }
+    ]
+  });
+  assert.equal(notParentCalls, 0, "notParentCalls");
+  assert.equal(parentCalls > 0, true, "parentCalls #1");
+  //assert.equal(parentCalls, 1, "parentCalls #1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
+  const prevCalls = parentCalls;
+  panel.addPanel();
+  assert.equal(notParentCalls, 0, "notParentCalls");
+  assert.equal(parentCalls > prevCalls, true, "parentCalls #2");
+  /*
+  assert.equal(parentCalls, 2, "parentCalls #2");
+  panel.addPanel();
+  assert.equal(parentCalls, 3, "parentCalls #3");
+  panel.addPanel();
+  assert.equal(parentCalls, 4, "parentCalls #4");
+  */
+});

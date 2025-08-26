@@ -905,7 +905,7 @@ export class Question extends SurveyElement<Question>
     this.resetSingleInputCore();
   }
   private resetSingleInputCore(): void {
-    const prev = this.singleInputQuestion;
+    const prev = this.getPropertyValue("singleInputQuestion");
     this.resetPropertyValue("singleInputQuestion");
     if (!!prev) {
       this.onSingleInputChanged();

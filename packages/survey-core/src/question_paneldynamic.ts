@@ -1543,13 +1543,11 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isLoadingFromJson) return;
     this.prepareValueForPanelCreating();
     var panels = [];
-    let panel: any;
     if (this.useTemplatePanel) {
-      panel = new QuestionPanelDynamicItem(this, this.template);
+      new QuestionPanelDynamicItem(this, this.template);
       panels.push(this.template);
     } else {
       for (var i = 0; i < this.panelCount; i++) {
-        panel = this.createNewPanel();
         panels.push(this.createNewPanel());
       }
     }
@@ -2337,14 +2335,8 @@ export class QuestionPanelDynamicModel extends Question
     new JsonObject().toObject(json, panel);
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
+    panel.questions.forEach(q => q.setParentQuestion(this));
     new QuestionPanelDynamicItem(this, panel);
-    if (!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
-      this.runPanelsCondition([panel], this.getDataFilteredProperties());
-    }
-    var questions = panel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].setParentQuestion(this);
-    }
     if (this.wasRendered) {
       panel.onFirstRendering();
       panel.locStrsChanged();

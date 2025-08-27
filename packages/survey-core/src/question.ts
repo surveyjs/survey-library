@@ -2869,8 +2869,12 @@ export class Question extends SurveyElement<Question>
   private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
+    if (this.survey) {
+      newValue = this.survey.questionValueChanging(this, newValue);
+    }
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
+    const oldValue = this.value;
     this.isOldAnswered = this.isAnswered;
     this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
@@ -2883,7 +2887,11 @@ export class Question extends SurveyElement<Question>
     if (this.parent) {
       this.parent.onQuestionValueChanged(this);
     }
+    if (this.survey) {
+      this.survey.questionValueChanged(this, oldValue);
+    }
   }
+  public getValueChangingOptions(childQuestion: Question): any { return undefined; }
   private checkIsValueCorrect(val: any): boolean {
     const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);
     if (!res) {

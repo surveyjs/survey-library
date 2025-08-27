@@ -218,6 +218,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
   getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void;
+  questionValueChanging(question: IQuestion, newValue: any): any;
+  questionValueChanged(question: IQuestion, oldValue: any): void;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {
@@ -241,8 +243,6 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelAdded(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel, updateIndexes: boolean): void;
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
-  dynamicPanelItemValueChanged(question: IQuestion, options: any): void;
-  dynamicPanelItemValueChanging(question: IQuestion, options: any): void;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 

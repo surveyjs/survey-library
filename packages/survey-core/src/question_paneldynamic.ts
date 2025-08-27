@@ -2441,6 +2441,18 @@ export class QuestionPanelDynamicModel extends Question
   protected isNewValueCorrect(val: any): boolean {
     return Array.isArray(val);
   }
+  public getValueChangingOptions(childQuestion: Question): any {
+    const panel = childQuestion.parent;
+    const panelIndex = this.panels.indexOf(<PanelModel>panel);
+    return {
+      question: this,
+      panel: panel,
+      name: childQuestion.name,
+      panelIndex: panelIndex,
+      panelData: this.getPanelItemDataByIndex(panelIndex),
+      oldValue: childQuestion.value
+    };
+  }
   //IQuestionPanelDynamicData
   getItemIndex(item: ISurveyData): number {
     var res = this.items.indexOf(item);
@@ -2454,8 +2466,10 @@ export class QuestionPanelDynamicModel extends Question
     return visPanels.length;
   }
   getPanelItemData(item: ISurveyData): any {
-    var items = this.items;
-    var index = items.indexOf(item);
+    return this.getPanelItemDataByIndex(this.items.indexOf(item));
+  }
+  private getPanelItemDataByIndex(index: number): any {
+    const items = this.items;
     var qValue = this.value;
     if (index < 0 && Array.isArray(qValue) && qValue.length > items.length) {
       index = items.length;
@@ -2497,22 +2511,8 @@ export class QuestionPanelDynamicModel extends Question
         name
       );
     }
-    const options = {
-      panel: (<QuestionPanelDynamicItem>item).panel,
-      name: name,
-      panelIndex: index,
-      panelData: qValue[index],
-      value: val,
-      oldValue: oldVal
-    };
-    if (this.survey) {
-      this.survey.dynamicPanelItemValueChanging(this, options);
-    }
     this.value = qValue;
     this.changingValueQuestion = null;
-    if (this.survey) {
-      this.survey.dynamicPanelItemValueChanged(this, options);
-    }
     this.isSetPanelItemData[name]--;
     if (this.isSetPanelItemData[name] - 1) {
       delete this.isSetPanelItemData[name];

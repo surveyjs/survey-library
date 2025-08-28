@@ -453,11 +453,10 @@ export class ExpressionValidator extends SurveyValidator {
     return this.isRunningValue;
   }
   public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
-    if (!this.expression) return null;
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
-    this.ensureConditionRunner(true);
+    if (!this.ensureConditionRunner(true)) return null;
     this.conditionRunner.onRunComplete = (res) => {
       this.isRunningValue = false;
       if (!!this.onAsyncCompleted) {

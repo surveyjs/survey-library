@@ -600,3 +600,39 @@ QUnit.test("Async expression validators creates several errors", function(assert
   assert.equal(q1.errors.length, 1, "#3.1");
   assert.equal(q2.errors.length, 1, "#3.2");
 });
+QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", function(assert) {
+  let counter = 0;
+  function customFunc(params) {
+    counter++;
+  }
+  FunctionFactory.Instance.register("customFunc", customFunc, false);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        validators: [{ type: "expression", expression: "customFunc({question1})" }]
+      },
+      {
+        type: "text",
+        name: "q2",
+        validators: [{ type: "expression", expression: "customFunc({question1})" }]
+      }
+    ]
+  });
+  let allow = false;
+  survey.onExpressionRunning.add((survey, options) => {
+    if (options.element.getType() === "expressionvalidator") {
+      options.allow = allow;
+    }
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "a";
+  q1.valule = "b";
+  survey.validate(true);
+  assert.equal(counter, 0, "#1");
+  allow = true;
+  survey.validate(true);
+  assert.equal(counter, 2, "#2");
+});

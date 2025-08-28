@@ -19,7 +19,7 @@ import { QuestionMatrixModel } from "../src/question_matrix";
 import { AnimationGroup, AnimationTab } from "../src/utils/animation";
 import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
-import { DynamicPanelValueChangingEvent } from "../src/survey-events-api";
+import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
 import { ValueGetter } from "../src/conditionProcessValue";
@@ -4549,7 +4549,36 @@ QUnit.test("survey.onDynamicPanelValueChanging event", function(assert) {
       { name: "q2", panelIndex: 1, value: "4", oldValue: "2" }],
     "Check event calls");
 });
+QUnit.test("survey.onDynamicPanelValueChanging event, correct value Bug#10216", function(assert) {
+  const survey = new SurveyModel({ elements: [{
+    type: "paneldynamic",
+    name: "panel",
+    templateElements: [
+      { type: "text", name: "q1" },
+    ]
+  }] });
+  const opt = new Array<any>();
+  survey.onDynamicPanelValueChanging.add((sender, options: DynamicPanelValueChangingEvent) => {
+    options.value = options.value + "!";
+  });
+  survey.onDynamicPanelValueChanged.add((sender, options: DynamicPanelValueChangedEvent) => {
+    opt.push({ name: options.name, question: options.question.name, panelIndex: options.panelIndex, value: options.value, oldValue: (<any>options).oldValue });
+  });
 
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  question.panelCount = 1;
+  const q1 = question.panels[0].getQuestionByName("q1");
+  q1.value = "1";
+  assert.equal(q1.value, "1!", "check value after event, #1");
+  assert.deepEqual(survey.data, { panel: [{ q1: "1!" }] }, "check survey.data, #2");
+  q1.value = "2";
+  assert.equal(q1.value, "2!", "check value after event, #2");
+  assert.deepEqual(survey.data, { panel: [{ q1: "2!" }] }, "check survey.data, #2");
+  assert.deepEqual(opt, [
+    { name: "q1", question: "panel", panelIndex: 0, value: "1!", oldValue: undefined },
+    { name: "q1", question: "panel", panelIndex: 0, value: "2!", oldValue: "1!" }
+  ], "check event calls");
+});
 QUnit.test("getPanelWrapperCss", function(assert) {
   var survey = new SurveyModel({
     elements: [

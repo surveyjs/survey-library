@@ -5855,14 +5855,6 @@ export class SurveyModel extends SurveyElementCore
     this.onDynamicPanelRemoving.fire(this, options);
     return options.allow;
   }
-  dynamicPanelItemValueChanged(question: IQuestion, options: any): void {
-    options.question = question;
-    this.onDynamicPanelValueChanged.fire(this, options);
-  }
-  dynamicPanelItemValueChanging(question: IQuestion, options: any): void {
-    options.question = question;
-    this.onDynamicPanelValueChanging.fire(this, options);
-  }
   dynamicPanelGetTabTitle(question: IQuestion, options: any): void {
     options.question = question;
     this.onGetDynamicPanelTabTitle.fire(this, options);
@@ -7143,6 +7135,34 @@ export class SurveyModel extends SurveyElementCore
       allowNotifyValueChanged,
       questionName
     );
+  }
+  questionValueChanging(question: IQuestion, newValue: any): any {
+    const q = <Question>question;
+    const parentQ = q.parentQuestion;
+    if (!parentQ) return newValue;
+    if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanging.isEmpty) {
+      const options: any = parentQ.getValueChangingOptions(q);
+      if (options) {
+        options.value = newValue;
+        this.onDynamicPanelValueChanging.fire(this, options);
+        return options.value;
+      }
+    }
+    return newValue;
+  }
+  questionValueChanged(question: IQuestion, oldValue: any): void {
+    const q = <Question>question;
+    const parentQ = q.parentQuestion;
+    if (!!parentQ) {
+      if (parentQ.isDescendantOf("paneldynamic") && !this.onDynamicPanelValueChanged.isEmpty) {
+        const options: any = parentQ.getValueChangingOptions(q);
+        if (options) {
+          options.value = q.value;
+          options.oldValue = oldValue;
+          this.onDynamicPanelValueChanged.fire(this, options);
+        }
+      }
+    }
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
     if (!this.isValueEmpty(val, false)) return false;

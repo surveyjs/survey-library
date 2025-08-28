@@ -210,6 +210,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected valueFromData(val: any): any {
     if (this.minRowCount < 1 || this.isEmpty()) return super.valueFromData(val);
+    return this.correctValueForMinMaxRows(val);
+  }
+  protected correctValueForMinMaxRows(val: any): any {
     if (!Array.isArray(val)) val = [];
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;

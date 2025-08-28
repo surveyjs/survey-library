@@ -2874,7 +2874,7 @@ export class Question extends SurveyElement<Question>
     }
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
-    const oldValue = this.value;
+    const oldValue = this.getUnbindValue(this.value);
     this.isOldAnswered = this.isAnswered;
     this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);

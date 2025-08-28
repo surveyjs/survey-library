@@ -4554,7 +4554,7 @@ QUnit.test("survey.onDynamicPanelValueChanging event, correct value Bug#10216", 
     type: "paneldynamic",
     name: "panel",
     templateElements: [
-      { type: "text", name: "q1" },
+      { type: "panel", name: "pnl", elements: [{ type: "text", name: "q1" }] },
     ]
   }] });
   const opt = new Array<any>();
@@ -4562,7 +4562,8 @@ QUnit.test("survey.onDynamicPanelValueChanging event, correct value Bug#10216", 
     options.value = options.value + "!";
   });
   survey.onDynamicPanelValueChanged.add((sender, options: DynamicPanelValueChangedEvent) => {
-    opt.push({ name: options.name, question: options.question.name, panelIndex: options.panelIndex, value: options.value, oldValue: (<any>options).oldValue });
+    const pnlIndex = options.question.panels.indexOf(options.panel);
+    opt.push({ name: options.name, question: options.question.name, panelIndex: options.panelIndex, pnlIndex: pnlIndex, value: options.value, oldValue: (<any>options).oldValue });
   });
 
   const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
@@ -4575,8 +4576,8 @@ QUnit.test("survey.onDynamicPanelValueChanging event, correct value Bug#10216", 
   assert.equal(q1.value, "2!", "check value after event, #2");
   assert.deepEqual(survey.data, { panel: [{ q1: "2!" }] }, "check survey.data, #2");
   assert.deepEqual(opt, [
-    { name: "q1", question: "panel", panelIndex: 0, value: "1!", oldValue: undefined },
-    { name: "q1", question: "panel", panelIndex: 0, value: "2!", oldValue: "1!" }
+    { name: "q1", question: "panel", panelIndex: 0, pnlIndex: 0, value: "1!", oldValue: undefined },
+    { name: "q1", question: "panel", panelIndex: 0, pnlIndex: 0, value: "2!", oldValue: "1!" }
   ], "check event calls");
 });
 QUnit.test("getPanelWrapperCss", function(assert) {

@@ -2442,7 +2442,11 @@ export class QuestionPanelDynamicModel extends Question
     return Array.isArray(val);
   }
   public getValueChangingOptions(childQuestion: Question): any {
-    const panel = childQuestion.parent;
+    let pnl = childQuestion.parent;
+    while(pnl.parent) {
+      pnl = pnl.parent;
+    }
+    const panel = pnl;
     const panelIndex = this.panels.indexOf(<PanelModel>panel);
     return {
       question: this,

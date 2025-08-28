@@ -2529,8 +2529,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (this.isObject(rowValue) && Object.keys(rowValue).length === 0) {
       newValue = this.deleteRowValue(newValue, row);
     }
+    newValue = this.correctValueForMinMaxRows(newValue);
     return { value: newValue, rowValue: rowValue };
   }
+  protected correctValueForMinMaxRows(newValue: any): any { return newValue; }
   getRowIndex(row: MatrixDropdownRowModelBase): number {
     if (!Array.isArray(this.generatedVisibleRows)) return -1;
     return this.generatedVisibleRows.indexOf(row);

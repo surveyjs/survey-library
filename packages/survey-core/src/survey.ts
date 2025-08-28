@@ -6679,13 +6679,15 @@ export class SurveyModel extends SurveyElementCore
   }
   private questionTriggersKeys: any;
   private runConditionOnValueChanged(name: string, value: any) {
+    if (this.questionTriggersKeys) {
+      this.questionTriggersKeys[name] = value;
+    }
     if (this.isRunningConditions) {
-      if (this.questionTriggersKeys) {
-        this.questionTriggersKeys[name] = value;
-      }
       this.isValueChangedOnRunningCondition = true;
     } else {
-      this.questionTriggersKeys = {};
+      if (!this.questionTriggersKeys) {
+        this.questionTriggersKeys = {};
+      }
       this.questionTriggersKeys[name] = value;
       this.runConditions();
       this.runQuestionsTriggers(name, value);

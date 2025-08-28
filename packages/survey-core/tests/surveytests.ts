@@ -22005,8 +22005,8 @@ QUnit.test("onValueChanged event & isExpressionRunning parameter", function (ass
   assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3 }, "survey.data #1");
   assert.deepEqual(logs, [
     { name: "q3", val: 3, reason: "expression" },
-    { name: "q2", val: 2, reason: "expression" },
     { name: "q4", val: undefined, reason: "expression" },
+    { name: "q2", val: 2, reason: "expression" },
     { name: "q1", val: 1, reason: undefined }], "logs #1");
 
   logs.splice(0, logs.length);

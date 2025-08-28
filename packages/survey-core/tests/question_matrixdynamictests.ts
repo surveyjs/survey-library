@@ -22,6 +22,7 @@ import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedR
 import { AnimationGroup } from "../src/utils/animation";
 import { setOldTheme } from "./oldTheme";
 import { ValueGetter } from "../src/conditionProcessValue";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
 QUnit.test("Matrixdropdown cells tests", function (assert) {
@@ -10869,4 +10870,47 @@ QUnit.test("matrixdynamic.getValueGetterContext()", function (assert) {
   assert.equal(getter.getDisplayValue("row.col1", rowContext), "item1", "row text #1");
   assert.equal(getter.getValue("var1", rowContext), "b", "row #2");
   assert.equal(getter.getValue("matrix[0].col1", rowContext), 1, "row #3");
+});
+QUnit.test("visibleIf, column resetIf & minRowCount and it is in dynamic panel, Bug#10289", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateElements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            visibleIf: "{q1}!='a'",
+            minRowCount: 2,
+            columns: [
+              { cellType: "text", name: "col1", resetValueIf: "{q1}='a'" },
+              { cellType: "text", name: "col2", resetValueIf: "{q1}='a'" }
+            ]
+          }
+        ]
+      },
+    ]
+  });
+  const panels = (<QuestionPanelDynamicModel>survey.getQuestionByName("panel")).panels;
+  const matrix1 = panels[0].getQuestionByName("matrix");
+  const matrix2 = panels[1].getQuestionByName("matrix");
+  assert.equal(matrix1.isVisible, true, "matrix1.isVisible #1");
+  assert.equal(matrix2.isVisible, true, "matrix2.isVisible #1");
+  assert.equal(matrix1.visibleRows.length, 2, "matrix1.visibleRows.length #1");
+  assert.equal(matrix2.visibleRows.length, 2, "matrix2.visibleRows.length #1");
+  matrix1.value = [{ col1: "Value 1", col2: "Value 2" }, { col1: "Value 1", col2: "Value 2" }];
+  matrix2.value = [{ col1: "Value 3", col2: "Value 4" }, { col1: "Value 3", col2: "Value 4" }];
+  survey.setValue("q1", "a");
+  assert.equal(matrix1.isVisible, false, "matrix1.isVisible #2");
+  assert.equal(matrix2.isVisible, false, "matrix2.isVisible #2");
+  assert.equal(matrix1.visibleRows.length, 2, "matrix1.visibleRows.length #2");
+  assert.equal(matrix2.visibleRows.length, 2, "matrix2.visibleRows.length #2");
+  survey.setValue("q1", "b");
+  assert.equal(matrix1.isVisible, true, "matrix1.isVisible #3");
+  assert.equal(matrix2.isVisible, true, "matrix2.isVisible #3");
+  assert.equal(matrix1.visibleRows.length, 2, "matrix1.visibleRows.length #3");
+  assert.equal(matrix2.visibleRows.length, 2, "matrix2.visibleRows.length #3");
 });

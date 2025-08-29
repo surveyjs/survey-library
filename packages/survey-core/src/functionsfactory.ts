@@ -184,13 +184,13 @@ function convertToNumber(val: any): number {
   return val;
 }
 function processItemInArray(item: any, name: string, res: number,
-  func: (res: number, val: number) => number, needToConvert: boolean, condition: ConditionRunner): number {
+  func: (res: number, val: number) => number, needToConvert: boolean, condition: ConditionRunner, properties: any): number {
   if (!item || Helpers.isValueEmpty(item[name])) return res;
-  if (condition && !condition.runValues(item)) return res;
+  if (condition && !condition.runValues(item, properties)) return res;
   const val = needToConvert ? convertToNumber(item[name]) : 1;
   return func(res, val);
 }
-function calcInArray(
+function calcInArray(properties: any,
   params: any[], originalParams: any[],
   func: (res: number, val: number) => number, needToConvert: boolean = true
 ): any {
@@ -203,18 +203,24 @@ function calcInArray(
   var res = undefined;
   if (Array.isArray(v.data)) {
     for (var i = 0; i < v.data.length; i++) {
-      res = processItemInArray(v.data[i], v.name, res, func, needToConvert, condition);
+      res = processItemInArray(v.data[i], v.name, res, func, needToConvert, condition, properties);
     }
   } else {
     for (var key in v.data) {
-      res = processItemInArray(v.data[key], v.name, res, func, needToConvert, condition);
+      res = processItemInArray(v.data[key], v.name, res, func, needToConvert, condition, properties);
     }
   }
   return res;
 }
-
+function getProperties(self: any): any {
+  return {
+    survey: self.survey,
+    question: self.question,
+    context: self.survey?.getValueGetterContext()
+  };
+}
 function sumInArray(params: any[], originalParams: any[]): any {
-  var res = calcInArray(params, originalParams, function(res: number, val: number): number {
+  var res = calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     if (val == undefined || val == null) return res;
     return Helpers.correctAfterPlusMinis(res, val, res + val);
@@ -224,7 +230,7 @@ function sumInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("sumInArray", sumInArray);
 
 function minInArray(params: any[], originalParams: any[]): any {
-  return calcInArray(params, originalParams, function(res: number, val: number): number {
+  return calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
     if (res == undefined) return val;
     if (val == undefined || val == null) return res;
     return res < val ? res : val;
@@ -233,7 +239,7 @@ function minInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("minInArray", minInArray);
 
 function maxInArray(params: any[], originalParams: any[]): any {
-  return calcInArray(params, originalParams, function(res: number, val: number): number {
+  return calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
     if (res == undefined) return val;
     if (val == undefined || val == null) return res;
     return res > val ? res : val;
@@ -242,7 +248,7 @@ function maxInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("maxInArray", maxInArray);
 
 function countInArray(params: any[], originalParams: any[]): any {
-  var res = calcInArray(params, originalParams, function(res: number, val: number): number {
+  var res = calcInArray(getProperties(this), params, originalParams, function(res: number, val: number): number {
     if (res == undefined) res = 0;
     if (val == undefined || val == null) return res;
     return res + 1;
@@ -252,9 +258,11 @@ function countInArray(params: any[], originalParams: any[]): any {
 FunctionFactory.Instance.register("countInArray", countInArray);
 
 function avgInArray(params: any[], originalParams: any[]): any {
-  var count = countInArray(params, originalParams);
+  const properties = getProperties(this);
+  const funcCall = (name: string): any => FunctionFactory.Instance.run(name, params, properties, originalParams);
+  const count = funcCall("countInArray");
   if (count == 0) return 0;
-  return sumInArray(params, originalParams) / count;
+  return funcCall("sumInArray") / count;
 }
 FunctionFactory.Instance.register("avgInArray", avgInArray);
 

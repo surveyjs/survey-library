@@ -10914,3 +10914,30 @@ QUnit.test("visibleIf, column resetIf & minRowCount and it is in dynamic panel, 
   assert.equal(matrix1.visibleRows.length, 2, "matrix1.visibleRows.length #3");
   assert.equal(matrix2.visibleRows.length, 2, "matrix2.visibleRows.length #3");
 });
+QUnit.test("defaultValueExpression should work correctly with non-existing columns, Bug#10303", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "question1",
+        "templateElements": [
+          {
+            "type": "matrixdynamic",
+            "name": "question2",
+            "columns": [
+              {
+                "name": "a"
+              },
+              {
+                "name": "b",
+                "defaultValueExpression": "iif({row.aa} empty, 0, 1)"
+              }
+            ],
+            "cellType": "text"
+          }
+        ],
+        "panelCount": 1
+      }
+    ] });
+  assert.deepEqual(survey.data, { question1: [{ question2: [{ b: 0 }, { b: 0 }] }] }, "The default value is correct");
+});

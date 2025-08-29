@@ -7794,6 +7794,47 @@ QUnit.test("question.setValueIf call it on any value change if there is func wit
   FunctionFactory.Instance.unregister("func1");
   FunctionFactory.Instance.unregister("func2");
 });
+QUnit.test("question.setValueExpression in several questions, Bug#10297", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "radiogroup",
+        "name": "question2",
+        "setValueExpression": "iif({total_score} > 0, 'yes', 'no')",
+        "choices": [
+          "yes",
+          "no"
+        ]
+      },
+      {
+        "type": "text",
+        "name": "total_score",
+        "defaultValueExpression": "sum({question3_score})"
+      },
+      {
+        "type": "radiogroup",
+        "name": "question3",
+        "choices": [
+          "yes",
+          "no"
+        ]
+      },
+      {
+        "type": "text",
+        "name": "question3_score",
+        "defaultValueExpression": "iif({question3}  = 'yes', 5, 0)"
+      },
+      {
+        "type": "text",
+        "name": "total_copy",
+        "setValueExpression": "{total_score}"
+      }
+    ] });
+  assert.equal(survey.getValue("total_score"), 0, "total_score.value");
+  survey.setValue("question3", "yes");
+  assert.equal(survey.getValue("question2"), "yes", "question2.value");
+  assert.equal(survey.getValue("total_copy"), 5, "total_copy.value");
+});
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1 = new Array<(res: any) => void>();
   var returnResult2 = new Array<(res: any) => void>();

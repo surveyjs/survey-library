@@ -101,6 +101,7 @@ export var matrixDropdownColumnTypes: any = {
   },
   expression: {},
   rating: {},
+  slider: {}
 };
 
 /**

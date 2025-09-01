@@ -128,11 +128,13 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
     return res;
   }
   private fillQuestions(qs: Array<Question>, q: Question, res: Array<Question>): void {
-    qs.forEach((question) => {
-      if (question !== q) {
-        res.push(question);
-      }
-    });
+    if (Array.isArray(qs)) {
+      qs.forEach((question) => {
+        if (question !== q) {
+          res.push(question);
+        }
+      });
+    }
   }
   getRootObj(): any { return this.getQuestionData(); }
 }

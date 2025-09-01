@@ -6459,7 +6459,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    var res = !question.validate(true, {
+    var res = !question.validate(true, undefined, {
       isOnValueChanged: !this.isValidateOnValueChanging,
     });
     if (

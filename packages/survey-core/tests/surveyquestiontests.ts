@@ -8519,3 +8519,53 @@ QUnit.test("Question visibleIf && onExpressionRunning #10258", function (assert)
   assert.equal(q1.isVisible, true, "q1.visible #5");
   assert.equal(counter, 4, "counter #5");
 });
+QUnit.test("Question.validate vs callback function as a parameter #10307", function (assert) {
+  let returnResults = new Array<any>();
+  function asyncFunc(params: any): any {
+    returnResults.push(this.returnResult);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "expression", expression: "asyncFunc({q2})" }] },
+      { type: "text", name: "q2", validators: [{ type: "expression", expression: "asyncFunc({q1}) && asyncFunc({q3})" }] },
+      { type: "text", name: "q3", validators: [{ type: "expression", expression: "{q2} > {q1}" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const callbackResults = new Array<any>();
+  q1.value = 1;
+  q2.value = 2;
+  q3.value = 3;
+  const callbackValidators = (res: boolean, question: Question): void => {
+    callbackResults.push({ res: res, name: question.name });
+  };
+  const q3Res = q3.validate(true, callbackValidators);
+  assert.equal(q3Res, true, "q3Res");
+  assert.equal(returnResults.length, 0, "returnResults, #1");
+  assert.deepEqual(callbackResults, [{ res: true, name: "q3" }], "callbackResults, #1");
+  callbackResults.splice(0, callbackResults.length);
+
+  const q1Res = q1.validate(true, callbackValidators);
+  assert.equal(q1Res, true, "q1Res");
+  assert.equal(returnResults.length, 1, "returnResults, #2");
+  assert.deepEqual(callbackResults, [], "callbackResults, #2");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [{ res: true, name: "q1" }], "callbackResults, #2");
+  returnResults.splice(0, returnResults.length);
+  callbackResults.splice(0, callbackResults.length);
+
+  const q2Res = q2.validate(true, callbackValidators);
+  assert.equal(q2Res, true, "q2Res");
+  assert.equal(returnResults.length, 2, "returnResults, #3");
+  assert.deepEqual(callbackResults, [], "callbackResults, #3");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [], "callbackResults, #3.1");
+  returnResults[1](true);
+  assert.deepEqual(callbackResults, [{ res: true, name: "q2" }], "callbackResults, #3");
+
+  FunctionFactory.Instance.unregister("asyncFunc");
+});

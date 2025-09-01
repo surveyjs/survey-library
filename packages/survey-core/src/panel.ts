@@ -1039,7 +1039,7 @@ export class PanelModelBase extends SurveyElement<Question>
         (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
       } else {
         var question = <Question>element;
-        if (!question.validate(rec.fireCallback, rec)) {
+        if (!question.validate(rec.fireCallback, undefined, rec)) {
           if (!firstErroredEl) {
             firstErroredEl = question;
           }

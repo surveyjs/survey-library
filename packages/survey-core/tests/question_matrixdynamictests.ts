@@ -3629,6 +3629,32 @@ QUnit.test("Test matrix.totalValue, expression question", (assert) => {
   assert.deepEqual(matrix.totalValue, { col1: 7, col2: 70, col3: 77 }, "Total value calculated correctly");
   assert.deepEqual(survey.getValue("q1-total"), { col1: 7, col2: 70, col3: 77 }, "Total value set into survey correctly");
 });
+QUnit.test("sumInArray vs conditional logic, #10305", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: 0 },
+      { type: "matrixdynamic", name: "q2",
+        columns: [{ cellType: "text", name: "col1", totalExpression: "sumInArray({matrix}, 'col1', '{col2} > {q1}')" },
+          { cellType: "text", name: "col2" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  matrix.value = [
+    { col1: 1, col2: 10 },
+    { col1: 2, col2: 20 },
+    { col1: 3, col2: 30 },
+    { col1: 4, col2: 40 },
+  ];
+  assert.deepEqual(matrix.totalValue, { col1: 10 }, "Total value #1");
+  survey.setValue("q1", 15);
+  assert.deepEqual(matrix.totalValue, { col1: 9 }, "Total value #2");
+  survey.setValue("q1", 35);
+  assert.deepEqual(matrix.totalValue, { col1: 4 }, "Total value #3");
+  survey.setValue("q1", 1);
+  assert.deepEqual(matrix.totalValue, { col1: 10 }, "Total value #4");
+});
 
 QUnit.test("Test totals, different value types", function (assert) {
   var survey = new SurveyModel();

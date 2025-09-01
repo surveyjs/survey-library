@@ -14,6 +14,11 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
   assert.notOk(schema.properties.isSinglePage, "isSinglePage is not seriazable");
   assert.equal(
+    schema.properties.showPreviewBeforeComplete.type,
+    "boolean",
+    "showPreviewBeforeComplete is boolean"
+  );
+  assert.equal(
     schema.properties.partialSendEnabled.type,
     "boolean",
     "partialSendEnabled is boolean"

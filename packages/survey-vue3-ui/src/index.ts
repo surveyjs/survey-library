@@ -45,6 +45,7 @@ import BooleanRadio from "./BooleanRadio.vue";
 import BooleanRadioItem from "./BooleanRadioItem.vue";
 import BooleanCheckbox from "./BooleanCheckbox.vue";
 import MultipleText from "./Multipletext.vue";
+import MultipleTextRow from "./MultipleTextRow.vue";
 import MultipletextItem from "./MultipletextItem.vue";
 import Breadcrumbs from "./components/breadcrumbs/Breadcrumbs.vue";
 import SingleInputSummary from "./components/SingleInputSummary.vue";
@@ -52,7 +53,7 @@ import Slider from "./Slider.vue";
 import SliderLabelItem from "./components/slider/SliderLabelItem.vue";
 
 import Matrix from "./Matrix.vue";
-import MatrixRow from "./MatrixRow.vue";
+import MatrixDropdownRow from "./MatrixDropdownRow.vue";
 import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
@@ -140,6 +141,7 @@ import { ComponentFactory } from "./component-factory";
 import { key2ClickDirective } from "./directives/key2click";
 import FilePage from "./components/file/FilePage.vue";
 import FileItem from "./components/file/FileItem.vue";
+import MatrixRow from "./MatrixRow.vue";
 
 export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 export { ComponentFactory };
@@ -221,6 +223,7 @@ function registerComponents(
   registerComponent("sv-boolean-radio-item", BooleanRadioItem);
   registerComponent("sv-boolean-checkbox", BooleanCheckbox);
   registerComponent("survey-multipletext", MultipleText);
+  registerComponent("sv-multipletext-row", MultipleTextRow);
   registerComponent("survey-multipletext-item", MultipletextItem);
   registerComponent("sv-breadcrumbs", Breadcrumbs);
   registerComponent("sv-single-input-summary", SingleInputSummary);
@@ -228,7 +231,8 @@ function registerComponents(
   registerComponent("sv-slider-label-item", SliderLabelItem);
 
   registerComponent("survey-matrix", Matrix);
-  registerComponent("survey-matrix-row", MatrixRow);
+  registerComponent("sv-matrix-row", MatrixRow);
+  registerComponent("survey-matrix-row", MatrixDropdownRow);
   registerComponent("survey-matrix-cell", MatrixCell);
   registerComponent("survey-matrixdropdown", MatrixDropdown);
   registerComponent("survey-matrixtable", MatrixTable);

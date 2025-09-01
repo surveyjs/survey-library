@@ -95,6 +95,7 @@ const props = defineProps<{
 const surveyWindow =
   shallowRef<PopupSurveyModel>() as ShallowRef<PopupSurveyModel>;
 
+
 const doExpand = () => {
   surveyWindow.value.changeExpandCollapse();
 };
@@ -119,7 +120,6 @@ const cssHeaderRoot = () => {
   return headerCss;
 };
 
-useBase(() => surveyWindow.value);
 
 const stopWatch = watch(
   () => props.survey,
@@ -144,6 +144,7 @@ const stopWatch = watch(
     immediate: true,
   }
 );
+useBase(() => surveyWindow.value);
 onUnmounted(() => {
   stopWatch();
 });

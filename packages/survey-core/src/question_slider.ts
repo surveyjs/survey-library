@@ -434,6 +434,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public handleRangeOnChange = (event: InputEvent): void => {
     if (!this.isRangeMoving) return;
+    if (!this.isAllowToChange()) return;
     const { renderedMax: max, renderedMin: min, renderedValue, ensureMaxRangeBorders, ensureMinRangeBorders } = this;
     const inputNode = <HTMLInputElement>event.target;
     const diff = this.oldInputValue - +inputNode.value;
@@ -530,7 +531,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public setSliderValue = (newValue: number | number[]) => { // TODO move to setNewValue
-    if (!this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle) {
+    if (this.isAllowToChange()) {
       let result;
       if (this.sliderType === "single") {
         result = Array.isArray(newValue) ? newValue[0] : newValue;
@@ -553,7 +554,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.setValueByClick(newValue, event.target as HTMLInputElement);
   };
 
-  public setValueByClick = (newValue: number, inputNode: HTMLInputElement) => {
+  public setValueByClick = (newValue: number, inputNode?: HTMLInputElement) => {
     const { step, getClosestToStepValue, ensureMaxRangeBorders, ensureMinRangeBorders, renderedValue, refreshInputRange, setSliderValue } = this;
 
     this.animatedThumb = true;
@@ -600,6 +601,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   };
 
   public handleOnChange = (event: InputEvent, inputNumber: number): void => {
+    if (!this.isAllowToChange()) return;
     if (this.oldValue === null) return; // Firefox raise one more OnChange after PointerUp and break the value
     const { allowSwap, ensureMaxRangeBorders, ensureMinRangeBorders, renderedValue } = this;
     const inputNode = <HTMLInputElement>event.target;
@@ -886,6 +888,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       });
     }
     return value;
+  }
+
+  private isAllowToChange():boolean {
+    return !this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle;
   }
 }
 

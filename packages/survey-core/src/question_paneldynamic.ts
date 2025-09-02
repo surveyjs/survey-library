@@ -2126,37 +2126,17 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateContainsErrors();
   }
-  public hasErrors(fireCallback: boolean = true, rec?: any): boolean {
+  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
     if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return false;
     var res = false;
-    let els: Array<any> = [this];
-    const prevCallback = rec?.callbackResult;
-    const callbackFunc = prevCallback ? (curRes: boolean, el: any) => {
-      const index = els.indexOf(el);
-      if (index > -1) {
-        els.splice(index, 1);
-      }
-      if (els.length === 0) {
-        prevCallback(res, this);
-      }
-    } : undefined;
-    if (!rec) {
-      rec = { fireCallback: fireCallback };
-    }
     if (!!this.changingValueQuestion) {
-      els.push(this.changingValueQuestion);
-      rec.callbackResult = callbackFunc;
       var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
       res = this.hasKeysDuplicated(fireCallback, rec) || res;
       this.updatePanelsContainsErrors();
     } else {
-      const panels = this.visiblePanels;
-      els = els.concat(panels);
-      res = this.hasErrorInPanels(panels, fireCallback, rec);
+      res = this.hasErrorInPanels(fireCallback, rec);
     }
-    rec.callbackResult = callbackFunc;
-    res = super.hasErrors(fireCallback, rec) || res;
-    return res;
+    return super.hasErrors(fireCallback, rec) || res;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -2268,16 +2248,15 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  private hasErrorInPanels(panels: Array<PanelModel>, fireCallback: boolean, rec: any): boolean {
+  private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;
+    var panels = this.visiblePanels;
     var keyValues: Array<any> = [];
     for (var i = 0; i < panels.length; i++) {
       this.setOnCompleteAsyncInPanel(panels[i]);
     }
-    const prevCallback = rec.callbackResult;
     const focusOnError = !!rec && rec.focusOnFirstError;
     for (let i = 0; i < panels.length; i++) {
-      rec.callbackResult = prevCallback;
       let pnlError = panels[i].hasErrors(fireCallback, focusOnError, rec);
       pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
       if (!this.isRenderModeList && pnlError && !res && focusOnError) {

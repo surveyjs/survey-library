@@ -4353,43 +4353,46 @@ QUnit.test(
   }
 );
 
-QUnit.test("Matrix validation in cells and async functions in expression", function (assert) {
-  const returnResult = new Array<any>();
-  function asyncFunc(params: any): any {
-    returnResult.push(this.returnResult);
-    return false;
+QUnit.test(
+  "Matrix validation in cells and async functions in expression",
+  function (assert) {
+    var returnResult: (res: any) => void;
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+    var question = new QuestionMatrixDynamicModel("q1");
+    question.rowCount = 1;
+    var column = question.addColumn("col1");
+    column.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+    var rows = question.visibleRows;
+    question.hasErrors();
+    var onCompletedAsyncValidatorsCounter = 0;
+    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
+      onCompletedAsyncValidatorsCounter++;
+    };
+    assert.equal(
+      question.isRunningValidators,
+      true,
+      "We have one running validator"
+    );
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      0,
+      "onCompletedAsyncValidators is not called yet"
+    );
+    returnResult(1);
+    assert.equal(question.isRunningValidators, false, "We are fine now");
+    assert.equal(
+      onCompletedAsyncValidatorsCounter,
+      1,
+      "onCompletedAsyncValidators is called"
+    );
+
+    FunctionFactory.Instance.unregister("asyncFunc");
   }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
-
-  var question = new QuestionMatrixDynamicModel("q1");
-  question.rowCount = 2;
-  var column = question.addColumn("col1");
-  column.validators.push(new ExpressionValidator("asyncFunc() = 1"));
-  var rows = question.visibleRows;
-  const callbackResult = new Array<any>();
-  question.validate(false, (res, question) => {
-    callbackResult.push({ res: res, name: question.name });
-  });
-  var onCompletedAsyncValidatorsCounter = 0;
-  question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-    onCompletedAsyncValidatorsCounter++;
-  };
-  assert.equal(
-    question.isRunningValidators,
-    true,
-    "We have one running validator"
-  );
-  assert.equal(onCompletedAsyncValidatorsCounter, 0, "onCompletedAsyncValidators is not called yet");
-  assert.deepEqual(callbackResult, [], "We don't have the result yet");
-  assert.equal(returnResult.length, 2, "asyncFunc is called two times");
-  returnResult[0](1);
-  returnResult[1](1);
-  assert.equal(question.isRunningValidators, false, "We are fine now");
-  assert.equal(onCompletedAsyncValidatorsCounter, 1, "onCompletedAsyncValidators is called");
-  assert.deepEqual(callbackResult, [{ res: true, name: "q1" }], "We have the result now");
-
-  FunctionFactory.Instance.unregister("asyncFunc");
-}
 );
 
 QUnit.test(

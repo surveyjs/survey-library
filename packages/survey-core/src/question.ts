@@ -2742,9 +2742,8 @@ export class Question extends SurveyElement<Question>
     if (!rec) {
       rec = { isOnValueChanged: false, fireCallback: fireCallback };
     }
-    if (callbackResult) {
-      rec.callbackResult = callbackResult;
-    }
+    rec.callbackResult = callbackResult;
+
     return !this.hasErrors(fireCallback, rec);
   }
   public get currentErrorCount(): number {
@@ -2862,12 +2861,13 @@ export class Question extends SurveyElement<Question>
     this.raiseOnCompletedAsyncValidators(callbackResult);
   }
   protected raiseOnCompletedAsyncValidators(callbackResult?: (res: boolean, question: Question) => void): void {
-    if (!!this.onCompletedAsyncValidators && !this.isRunningValidators) {
+    if (this.isRunningValidators) return;
+    if (!!this.onCompletedAsyncValidators) {
       this.onCompletedAsyncValidators(this.getAllErrors().length > 0);
       this.onCompletedAsyncValidators = null;
     }
-    if (!!callbackResult && !this.validatorRunner) {
-      callbackResult(this.errors.length === 0, this);
+    if (!!callbackResult) {
+      callbackResult(this.getAllErrors().length === 0, this);
     }
   }
   public allowSpaceAsAnswer: boolean;

@@ -948,8 +948,8 @@ export class PanelModelBase extends SurveyElement<Question>
       (<Base>(<any>this.elements[i])).searchText(text, founded);
     }
   }
-  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec?: any): boolean {
-    return !this.validate(fireCallback, focusOnFirstError, undefined, rec);
+  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
+    return !this.validate(fireCallback, focusOnFirstError, rec);
   }
   /**
    * Validates questions within this panel or page and returns `false` if the validation fails.
@@ -957,7 +957,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, panel: PanelModelBase) => void, rec: any = null): boolean {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
     rec = rec || {
       fireCallback: fireCallback,
       focusOnFirstError: focusFirstError,
@@ -965,7 +965,7 @@ export class PanelModelBase extends SurveyElement<Question>
       result: false,
     };
     if (rec.result !== true) rec.result = false;
-    this.hasErrorsCore(rec, callbackResult || rec?.callbackResult);
+    this.hasErrorsCore(rec);
     return !rec.result;
   }
   public validateContainerOnly(): void {
@@ -1022,53 +1022,24 @@ export class PanelModelBase extends SurveyElement<Question>
       rec.firstErrorQuestion = visQuestions[0];
     }
   }
-  protected hasErrorsCore(rec: any, callbackResult?: (res: boolean, panel: PanelModelBase) => void): void {
+  protected hasErrorsCore(rec: any): void {
     let singleQ = <Question>this.survey?.currentSingleQuestion;
     if (singleQ && this.questions.indexOf(singleQ) < 0) {
       singleQ = undefined;
     }
     const elements = singleQ ? [singleQ] : this.elements;
+    let element = null;
     let firstErroredEl = null;
-    const visElements = <Array<IElement>>elements.filter(el => el.isVisible);
-    const nonProcessedElements = [].concat(visElements);
-    const onFinishing = (): void => {
-      if (nonProcessedElements.length > 0) return;
-      callbackResult?.(!rec.firstErrorQuestion, this);
-      if (!singleQ) {
-        this.hasErrorsInPanels(rec);
-        this.updateContainsErrors();
-      }
-      if (!firstErroredEl && this.errors.length > 0) {
-        firstErroredEl = this.getFirstQuestionToFocus(false, true);
-        if (!rec.firstErrorQuestion) {
-          rec.firstErrorQuestion = firstErroredEl;
-        }
-      }
-      if (rec.fireCallback && firstErroredEl) {
-        const selQ = singleQ ? (rec.firstErrorQuestion || firstErroredEl) : firstErroredEl;
-        if (rec.focusOnFirstError) {
-          selQ.focus(true);
-        } else {
-          selQ.expandAllParents();
-        }
-      }
-    };
-    const onCallbackResult = (res: boolean, el: any) => {
-      const index = nonProcessedElements.indexOf(el);
-      if (index > -1) {
-        nonProcessedElements.splice(index, 1);
-      }
-      onFinishing();
-    };
-    if (rec) {
-      rec.callbackResult = undefined;
-    }
-    visElements.forEach(el => {
-      if (el.isPanel) {
-        (<PanelModelBase>(<any>el)).hasErrorsCore(rec, onCallbackResult);
+    for (var i = 0; i < elements.length; i++) {
+      element = elements[i];
+
+      if (!element.isVisible) continue;
+
+      if (element.isPanel) {
+        (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
       } else {
-        const question = <Question>el;
-        if (!question.validate(rec.fireCallback, onCallbackResult, rec)) {
+        var question = <Question>element;
+        if (!question.validate(rec.fireCallback, undefined, rec)) {
           if (!firstErroredEl) {
             firstErroredEl = question;
           }
@@ -1078,8 +1049,25 @@ export class PanelModelBase extends SurveyElement<Question>
           rec.result = true;
         }
       }
-    });
-    onFinishing();
+    }
+    if (!singleQ) {
+      this.hasErrorsInPanels(rec);
+      this.updateContainsErrors();
+    }
+    if (!firstErroredEl && this.errors.length > 0) {
+      firstErroredEl = this.getFirstQuestionToFocus(false, true);
+      if (!rec.firstErrorQuestion) {
+        rec.firstErrorQuestion = firstErroredEl;
+      }
+    }
+    if (rec.fireCallback && firstErroredEl) {
+      const selQ = singleQ ? (rec.firstErrorQuestion || firstErroredEl) : firstErroredEl;
+      if (rec.focusOnFirstError) {
+        selQ.focus(true);
+      } else {
+        selQ.expandAllParents();
+      }
+    }
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();

@@ -4482,7 +4482,7 @@ export class SurveyModel extends SurveyElementCore
     var res = true;
     const rec = { fireCallback: fireCallback, focusOnFirstError: focusFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, focusFirstError, undefined, rec)) {
+      if (!visPages[i].validate(fireCallback, focusFirstError, rec)) {
         res = false;
       }
     }

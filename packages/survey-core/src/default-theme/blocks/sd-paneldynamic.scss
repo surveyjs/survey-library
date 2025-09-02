@@ -70,6 +70,10 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+
+    .sd-paneldynamic__btn {
+        align-self: flex-end;
+    }
 }
 
 .sd-paneldynamic__footer {

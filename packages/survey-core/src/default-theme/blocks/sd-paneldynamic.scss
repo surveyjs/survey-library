@@ -72,10 +72,6 @@
     align-items: center;
     position: relative;
 
-    .sd-paneldynamic__btn {
-        align-self: flex-end;
-    }
-
     &:before {
         top: 0;
         left: calc(-1 * var(--sd-base-padding));

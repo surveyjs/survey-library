@@ -4339,6 +4339,69 @@ QUnit.test("matrix.rowsVisibleIf + visibleRowIndex variable, #10279", function (
     assert.equal(rows[i].cells[0].question.value, i + 1, "rows[" + i + "] #2");
   }
 });
+QUnit.test("matrix.rowsVisibleIf + visibleRowIndex variable & defaultValueExpression, #10279.2", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const qCars = new QuestionCheckboxModel("cars");
+  qCars.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  page.addElement(qCars);
+  const qBestCar = new QuestionMatrixDropdownModel("bestCar");
+  const col = qBestCar.addColumn("col1");
+  col.cellType = "text";
+  (<any>col).defaultValueExpression = "{visibleRowIndex}";
+  qBestCar.rows = ["Audi", "BMW", "Mercedes", "Volkswagen"];
+  qBestCar.rowsVisibleIf = "{cars} contains {item}";
+  page.addElement(qBestCar);
+  assert.equal(
+    qBestCar.renderedTable.rows.length,
+    0,
+    "cars are not selected yet"
+  );
+  qCars.value = ["BMW"];
+  assert.equal(qBestCar.visibleRows.length, 1, "BMW is selected");
+  assert.equal(qBestCar.visibleRows[0].cells[0].question.value, 1, "rows[0] #1");
+  qCars.value = ["BMW", "Volkswagen"];
+  let rows = qBestCar.visibleRows;
+  assert.equal(rows.length, 2, "2 cars are selected");
+  assert.equal(rows[0].cells[0].question.value, 1, "rows[0] #2");
+  assert.equal(rows[1].cells[0].question.value, 2, "rows[1] #2");
+  qBestCar.rowsVisibleIf = "";
+  assert.equal(qBestCar.visibleRows.length, 4, "there is no filter");
+  rows = qBestCar.visibleRows;
+  for (let i = 0; i < 4; i++) {
+    assert.equal(rows[i].cells[0].question.value, i + 1, "rows[" + i + "] #2");
+  }
+});
+QUnit.test("matrix.rowsVisibleIf + visibleRowIndex variable & setValueExpression, #10313", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix",
+        rowsVisibleIf: "{row.col2} empty",
+        rowCount: 3,
+        columns: [{ cellType: "text", name: "col1", setValueExpression: "{visibleRowIndex}" },
+          { cellType: "text", name: "col2" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const checkRows = (count: number, num: number) => {
+    assert.equal(matrix.visibleRows.length, count, "visible rows #" + num);
+    for (let i = 0; i < count; i ++) {
+      assert.equal(matrix.visibleRows[i].cells[0].question.value, i + 1, "row " + i + " col1, #" + num);
+    }
+  };
+  checkRows(3, 1);
+  matrix.addRow();
+  matrix.addRow();
+  checkRows(5, 2);
+  matrix.visibleRows[0].cells[1].question.value = "a";
+  checkRows(4, 3);
+  matrix.removeRow(1);
+  checkRows(3, 4);
+  matrix.removeRow(0);
+  checkRows(2, 5);
+});
 QUnit.test(
   "Matrixdynamic column.visibleIf, hide column if all cells are invisible + rendered table",
   function (assert) {

@@ -15,6 +15,7 @@ import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Helpers } from "../src/helpers";
+import { FunctionFactory } from "../src/functionsfactory";
 export default QUnit.module("Panel");
 
 QUnit.test("questions-elements synhronization", function (assert) {
@@ -3635,4 +3636,43 @@ QUnit.test("Add element into non rendered page, bug#10103", assert => {
   assert.equal(page2.elements.length, 3, "There are 3 questions");
   survey.nextPage();
   assert.equal(page2.rows.length, 3, "page2 has 3 rows");
+});
+QUnit.test("Panel/Page.validate vs callback function as a parameter #10307", function (assert) {
+  let returnResults = new Array<any>();
+  function asyncFunc(params: any): any {
+    returnResults.push(this.returnResult);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "p1", elements: [
+        { type: "text", name: "q1", validators: [{ type: "expression", expression: "asyncFunc({q2})" }] },
+        { type: "text", name: "q2", validators: [{ type: "expression", expression: "asyncFunc({q1}) && asyncFunc({q3})" }] }
+      ] },
+      { type: "text", name: "q3", validators: [{ type: "expression", expression: "{q2} > {q1}" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const callbackResults = new Array<any>();
+  q1.value = 1;
+  q2.value = 2;
+  q3.value = 3;
+  const callbackValidators = (res: boolean, panel: any): void => {
+    callbackResults.push({ res: res, name: panel.name });
+  };
+  const res = survey.pages[0].validate(true, true, callbackValidators);
+  assert.equal(res, true, "res");
+  assert.equal(returnResults.length, 3, "returnResults, #1");
+  assert.deepEqual(callbackResults, [], "callbackResults, #1");
+  assert.equal(returnResults.length, 3, "returnResults, #1");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [], "callbackResults, #2");
+  returnResults[1](true);
+  assert.deepEqual(callbackResults, [], "callbackResults, #3");
+  returnResults[2](true);
+  assert.deepEqual(callbackResults, [{ res: true, name: "page1" }], "callbackResults, #4");
+  FunctionFactory.Instance.unregister("asyncFunc");
 });

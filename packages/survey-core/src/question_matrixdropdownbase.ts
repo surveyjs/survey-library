@@ -2346,11 +2346,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!rec) rec = {};
     if (!rows) return rec;
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
+    const callbackResult = !!rec && rec.callbackResult;
+    const raiseCallback = () => {
+      this.raiseOnCompletedAsyncValidators(callbackResult);
+    };
+    rec.callbackResult = undefined;
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
-        res = rows[i].hasErrors(fireCallback, rec, () => {
-          this.raiseOnCompletedAsyncValidators();
-        }) || res;
+        res = rows[i].hasErrors(fireCallback, rec, raiseCallback) || res;
       }
     }
     return res;

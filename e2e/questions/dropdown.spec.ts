@@ -53,5 +53,28 @@ frameworks.forEach(framework => {
       expect(await page.locator(".sd-dropdown").textContent()).toEqual("PeugeotSelect");
       await expect(page.locator(".sv-list__item").filter({ visible: true })).toHaveCount(2);
     });
+
+    test("Dropdown with lazyLoadEnabled and onGetChoicesDisplayValue event - #10302", async({ page }) => {
+      const json = {
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "test",
+            "title": "test",
+            "isRequired": true,
+            "defaultValue": "test",
+            "choicesLazyLoadEnabled": true,
+          }
+        ]
+      };
+      await initSurvey(page, framework, json, undefined, undefined, async () => {
+        await page.evaluate(() => {
+          (window as any).survey.onGetChoiceDisplayValue.add((_, options) => {
+            setTimeout(() => options.setItems(["Test"]));
+          });
+        });
+      });
+      expect(await page.locator(".sd-dropdown__value", { hasText: "Test" }).isVisible()).toBeTruthy();
+    });
   });
 });

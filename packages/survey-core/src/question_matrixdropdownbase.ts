@@ -1397,6 +1397,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - [`"boolean"`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model)
    * - [`"expression"`](https://surveyjs.io/form-library/documentation/api-reference/expression-model)
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
+   * - [`"slider"`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel)
    *
    * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    *

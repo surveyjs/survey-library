@@ -201,6 +201,7 @@ export class MatrixDropdownColumn extends Base
    * - [`"boolean"`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model)
    * - [`"expression"`](https://surveyjs.io/form-library/documentation/api-reference/expression-model)
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
+   * - [`"slider"`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel)
    * - `"default"` (default) - Inherits the input type from the [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#cellType) property specified for the parent matrix.
    *
    * The input types are based upon standalone question types. Depending on the selected input type, the matrix column can have additional configuration properties inherited from the corresponding question type. For instance, Dropdown, Checkboxes, Radio Button Group, and Tag Box columns can specify the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model#choices) array, similar to the question types upon which they are based. Refer to the API Reference of these question types for a full list of available properties.

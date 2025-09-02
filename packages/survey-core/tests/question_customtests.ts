@@ -2420,6 +2420,77 @@ QUnit.test("Composite: with setValueIf & setValueExpression, bug#7888", function
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with enableIf", function (assert) {
+  const json = {
+    name: "comp1",
+    elementsJSON: [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "enableIf": "{composite.q1} notempty"
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "comp1", name: "question1" }] });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isReadOnly, true, "readOnly - #1");
+  q1.value = 1;
+  assert.equal(q2.isReadOnly, false, "readOnly - #2");
+  q1.clearValue();
+  assert.equal(q2.isReadOnly, true, "readOnly - #3");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: with enableIf & survey editing object", function (assert) {
+  class TestNested extends Base {
+    public get prop1(): string { return this.getPropertyValue("prop1"); }
+    public set prop1(val: string) { this.setPropertyValue("prop1", val); }
+    public get prop2(): string { return this.getPropertyValue("prop2"); }
+    public set prop2(val: string) { this.setPropertyValue("prop2", val); }
+  }
+  class TestRoot extends Base {
+    public nested: TestNested;
+    constructor() {
+      super();
+      this.nested = new TestNested();
+    }
+  }
+  const json = {
+    name: "comp1",
+    elementsJSON: [
+      {
+        "type": "text",
+        "name": "prop1"
+      },
+      {
+        "type": "text",
+        "name": "prop2",
+        "enableIf": "{composite.prop1} notempty"
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "comp1", name: "nested" }] });
+  const obj = new TestRoot();
+  survey.editingObj = obj;
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("prop1");
+  const q2 = q.contentPanel.getQuestionByName("prop2");
+  assert.equal(q2.isReadOnly, true, "readOnly - #1");
+  q1.value = 1;
+  assert.equal(q2.isReadOnly, false, "readOnly - #2");
+  q1.clearValue();
+  assert.equal(q2.isReadOnly, true, "readOnly - #3");
+
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: check valueToData and valueFromData callbacks", function (assert) {
   const json = {
     name: "test",

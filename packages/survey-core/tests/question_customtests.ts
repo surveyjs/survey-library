@@ -21,8 +21,6 @@ import { ConsoleWarnings } from "../src/console-warnings";
 import { setOldTheme } from "./oldTheme";
 import { SurveyElement } from "../src/survey-element";
 import { ValueGetter } from "../src/conditionProcessValue";
-import { FunctionFactory } from "../src/functionsfactory";
-import { property } from "lodash";
 
 export default QUnit.module("custom questions");
 

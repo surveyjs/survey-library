@@ -1268,6 +1268,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
     this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
+    if (this.isEditingSurveyElement) {
+      this.runCondition(this.getFilteredProperties());
+    }
   }
   setComment(name: string, newValue: string, locNotification: any): any {
     let val = this.getUnbindValue(this.value);

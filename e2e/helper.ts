@@ -53,7 +53,7 @@ export const applyTheme = async (page: Page, theme: string) => {
     // window["Survey"].StylesManager.applyTheme(theme);
   }, theme);
 };
-export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any) => {
+export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
   if (!!props) {
     Object.keys(props).forEach(name => {
       if (typeof props[name] == "function") {
@@ -62,7 +62,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     });
   }
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.evaluate(([framework, json, isDesignMode, props]) => {
+  await page.evaluate(([json, isDesignMode, props]) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -75,7 +75,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     console.log("surveyjs console.error and console.warn override");
 
     window["Survey"].settings.animationEnabled = false;
-    const self: any = window;
     const model = new window["Survey"].Model(json);
     model.allowResizeComment = false;
     model.setDesignMode(isDesignMode);
@@ -91,7 +90,12 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       }
     }
     model.onComplete.add(surveyComplete);
-
+    window["survey"] = model;
+  }, [json, isDesignMode, props]);
+  afterInitializeModelCallback && await afterInitializeModelCallback();
+  await page.evaluate(([framework]) => {
+    const self: any = window;
+    const model = self.survey;
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
       surveyElement.innerHTML = "";
@@ -103,24 +107,11 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
-        self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
+        self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
       );
     } else if (framework === "angular" || framework == "vue3") {
       self.window.setSurvey(model);
     }
-
-    // if (framework === "react") {
-    //   if (!!window.root) {
-    //     window.root.unmount();
-    //   }
-    //   const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
-    //   window["root"] = root;
-    //   root.render(
-    //     React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.Survey, { model: model, onComplete: surveyComplete }) }),
-    //   );
-    // }
-
-    window["survey"] = model;
   }, [framework, json, isDesignMode, props]);
 };
 

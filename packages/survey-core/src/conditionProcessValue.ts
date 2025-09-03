@@ -247,6 +247,15 @@ export class VariableGetterContext extends ValueGetterContextCore {
     return undefined;
   }
 }
+export class VariableGetterContextEx extends VariableGetterContext {
+  constructor(variables: HashTable<any>, private second: IValueGetterContext) {
+    super(variables);
+  }
+  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    const res = super.getValue(path, isRoot, index, createObjects);
+    return !this.second || res?.isFound ? res : this.second.getValue(path, isRoot, index, createObjects);
+  }
+}
 
 export class ProcessValue {
   private contextValue: IValueGetterContext;

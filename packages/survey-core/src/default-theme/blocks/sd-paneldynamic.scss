@@ -66,10 +66,17 @@
     display: none;
 }
 
-.sd-paneldynamic__panel-wrapper--in-row {
+.sd-paneldynamic__panel-wrapper--in-row.sd-paneldynamic__panel-wrapper--in-row {
     display: flex;
     flex-direction: row;
     align-items: center;
+    position: relative;
+
+    &:before {
+        top: 0;
+        left: calc(-1 * var(--sd-base-padding));
+        right: calc(-1 * var(--sd-base-padding));
+    }
 }
 
 .sd-paneldynamic__footer {

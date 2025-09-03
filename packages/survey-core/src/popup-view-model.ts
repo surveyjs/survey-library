@@ -267,6 +267,9 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     this.hidePopup();
     event?.stopPropagation();
   }
+  public blur(event?: Event): void {
+    this.model.onBlur();
+  }
   public cancel(): void {
     this.model.onCancel();
     this.hidePopup();

@@ -3,6 +3,7 @@
 const webpackCommonConfig = require("./webpack.config");
 const { merge } = require("webpack-merge");
 var path = require("path");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 const config = {
   output: {
@@ -51,6 +52,16 @@ const config = {
     "contrast-dark-panelless": path.resolve(__dirname, "./src/themes/contrast-dark-panelless.ts"),
     "index": path.resolve(__dirname, "./src/themes/index.ts"),
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, "./sjs-design-tokens/build/"),
+          to: path.resolve(__dirname, "./build/themes/v3/"),
+        },
+      ],
+    }),
+  ],
 };
 function patchEntries(config) {
   Object.keys(config.entry).forEach(key => {

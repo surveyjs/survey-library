@@ -1,0 +1,3 @@
+[submodule "packages/survey-core/sjs-design-tokens"]
+	path = packages/survey-core/sjs-design-tokens
+	url = https://github.com/surveyjs/sjs-design-tokens.git

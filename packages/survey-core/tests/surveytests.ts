@@ -14639,7 +14639,7 @@ QUnit.test("Expand question on validation error", function (assert) {
   q1.isRequired = true;
   q1.collapse();
   assert.equal(q1.isCollapsed, true, "Question1 is collapsed");
-  q1.hasErrors(true, true);
+  q1.hasErrors(true);
   assert.equal(q1.isCollapsed, false, "Question1 is not collapsed");
   assert.equal(q1.isExpanded, true, "Question1 is expanded");
 });

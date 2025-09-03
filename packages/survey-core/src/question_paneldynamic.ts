@@ -32,6 +32,7 @@ import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IA
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IValidationParams } from "./validator";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -2107,12 +2108,12 @@ export class QuestionPanelDynamicModel extends Question
       this.panelsCore[i].onAnyValueChanged(settings.expressionVariables.panel, "");
     }
   }
-  private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {
+  private hasKeysDuplicated(params: IValidationParams): boolean {
     var keyValues: Array<any> = [];
     var res;
     for (var i = 0; i < this.panelsCore.length; i++) {
       res =
-        this.isValueDuplicated(this.panelsCore[i], keyValues, rec, fireCallback) ||
+        this.isValueDuplicated(this.panelsCore[i], keyValues, params) ||
         res;
     }
     return res;
@@ -2126,17 +2127,17 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateContainsErrors();
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return false;
-    var res = false;
+  protected validateElementCore(params: IValidationParams): boolean {
+    if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return true;
+    let res = true;
     if (!!this.changingValueQuestion) {
-      var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
-      res = this.hasKeysDuplicated(fireCallback, rec) || res;
+      const qRes = this.changingValueQuestion.validateElement(params);
+      res = !this.hasKeysDuplicated(params) && qRes;
       this.updatePanelsContainsErrors();
     } else {
-      res = this.hasErrorInPanels(fireCallback, rec);
+      res = !this.hasErrorInPanels(params);
     }
-    return super.hasErrors(fireCallback, rec) || res;
+    return super.validateElementCore(params) && res;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -2248,17 +2249,17 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
+  private hasErrorInPanels(params: IValidationParams): boolean {
     var res = false;
     var panels = this.visiblePanels;
     var keyValues: Array<any> = [];
     for (var i = 0; i < panels.length; i++) {
       this.setOnCompleteAsyncInPanel(panels[i]);
     }
-    const focusOnError = !!rec && rec.focusOnFirstError;
+    const focusOnError = params.focusOnFirstError === true;
     for (let i = 0; i < panels.length; i++) {
-      let pnlError = panels[i].hasErrors(fireCallback, focusOnError, rec);
-      pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
+      let pnlError = panels[i].hasErrors(params.fireCallback, focusOnError, params);
+      pnlError = this.isValueDuplicated(panels[i], keyValues, params) || pnlError;
       if (!this.isRenderModeList && pnlError && !res && focusOnError) {
         this.currentIndex = i;
       }
@@ -2274,12 +2275,7 @@ export class QuestionPanelDynamicModel extends Question
       };
     }
   }
-  private isValueDuplicated(
-    panel: PanelModel,
-    keyValues: Array<any>,
-    rec: any,
-    fireCallback: boolean
-  ): boolean {
+  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, params: IValidationParams): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
@@ -2288,17 +2284,17 @@ export class QuestionPanelDynamicModel extends Question
       !!this.changingValueQuestion &&
       question != this.changingValueQuestion
     ) {
-      question.hasErrors(fireCallback, rec);
+      question.validateElement(params);
     }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        if (fireCallback) {
+        if (params.fireCallback) {
           question.addError(
             new KeyDuplicationError(this.keyDuplicationError, this)
           );
         }
-        if (!!rec && !rec.firstErrorQuestion) {
-          rec.firstErrorQuestion = question;
+        if (!params.firstErrorQuestion) {
+          params.firstErrorQuestion = question;
         }
         return true;
       }

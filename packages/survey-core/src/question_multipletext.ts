@@ -10,7 +10,7 @@ import {
   IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { SurveyValidator, IValidatorOwner } from "./validator";
+import { SurveyValidator, IValidatorOwner, IValidationParams } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
@@ -741,23 +741,19 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var res = false;
+  protected validateElementCore(params: IValidationParams): boolean {
+    let res = true;
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.onCompletedAsyncValidators = (
         hasErrors: boolean
       ) => {
         this.raiseOnCompletedAsyncValidators();
       };
-      if (
-        !!rec &&
-        rec.isOnValueChanged === true &&
-        this.items[i].editor.isEmpty()
-      )
+      if (params.isOnValueChanged && this.items[i].editor.isEmpty())
         continue;
-      res = this.items[i].editor.hasErrors(fireCallback, rec) || res;
+      res = this.items[i].editor.validateElement(params) && res;
     }
-    return super.hasErrors(fireCallback) || res;
+    return super.validateElementCore(params) && res;
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();

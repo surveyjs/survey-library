@@ -760,7 +760,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (checkDynamic) {
       for (let i = 0; i < rows.length; i ++) {
         const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || row.hasErrors(false, {}, () => {})) {
+        if (!row.hasValueAnyQuestion(true) || row.hasErrors({}, () => {})) {
           this.fillSingleInputQuestionsByRow(res, row);
         }
       }

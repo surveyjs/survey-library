@@ -21,6 +21,7 @@ import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, 
 import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IValidationParams } from "./validator";
 
 export interface IMatrixDropdownData extends IObjectValueContext {
   value: any;
@@ -798,16 +799,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  public hasErrors(
-    fireCallback: boolean,
-    rec: any,
-    raiseOnCompletedAsyncValidators: () => void
-  ): boolean {
+  public hasErrors(rec: any, raiseOnCompletedAsyncValidators: () => void): boolean {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
     const focusOnFirstError = rec?.focusOnFirstError;
-    //firstErrorQuestion: <any>null,
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
@@ -817,15 +813,15 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       };
       if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
         continue;
-      res = question.hasErrors(fireCallback, rec) || res;
+      res = question.hasErrors(rec.fireCallback, rec) || res;
       if (res && focusOnFirstError && !rec.firstErrorQuestion) {
         rec.firstErrorQuestion = question;
       }
     }
     if (this.hasPanel) {
       this.ensureDetailPanel();
-      var panelHasError = this.detailPanel.hasErrors(fireCallback, false, rec);
-      if (!rec.hideErroredPanel && panelHasError && fireCallback) {
+      var panelHasError = this.detailPanel.hasErrors(rec.fireCallback, false, rec);
+      if (!rec.hideErroredPanel && panelHasError && rec.fireCallback) {
         if (rec.isSingleDetailPanel) {
           rec.hideErroredPanel = true;
         }
@@ -2301,10 +2297,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return every ? true : false;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var errosInRows = this.hasErrorInRows(fireCallback, rec);
+  protected validateElementCore(params: IValidationParams): boolean {
+    var errosInRows = this.hasErrorInRows(params);
     var isDuplicated = this.isValueDuplicated();
-    return super.hasErrors(fireCallback, rec) || errosInRows || isDuplicated;
+    return super.validateElementCore(params) && !errosInRows && !isDuplicated;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -2337,18 +2333,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return result;
   }
-  private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
+  private hasErrorInRows(params: IValidationParams): boolean {
     let rows = this.generatedVisibleRows;
     if (!this.generatedVisibleRows) {
       rows = this.visibleRows;
     }
     var res = false;
-    if (!rec) rec = {};
-    if (!rows) return rec;
-    rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
+    (<any>params).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
-        res = rows[i].hasErrors(fireCallback, rec, () => {
+        res = rows[i].hasErrors(params, () => {
           this.raiseOnCompletedAsyncValidators();
         }) || res;
       }

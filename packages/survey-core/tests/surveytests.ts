@@ -15906,33 +15906,54 @@ QUnit.test("getDefaultPropertyValue for comment properties autoGrow & allowResiz
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
-    scrollHeight: 50,
-    offsetHeight: 50,
-    style: { height: "50px" }
+    scrollHeight: 103,
+    get offsetHeight() {
+      return this.style.height ? parseFloat(this.style.height) : 79;
+    },
+    style: { height: null as any },
+    getAttribute: (attr: string) => "2"
   };
   let getComputedStyle = () => {
     return {
       "lineHeight": "24px",
-      "minHeight": "48px",
       "borderTopWidth": "2px",
+      "paddingTop": "12px",
+      "paddingBottom": "14px",
       "borderBottomWidth": "3px",
     };
   };
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-  assert.equal(element.style.height, "55px");
+  assert.equal(element.style.height, "103px");
 
-  element.scrollHeight = 90;
-  element.offsetHeight = 90;
-  getComputedStyle = () => {
-    return {
-      "lineHeight": "24px",
-      "minHeight": "71px",
-      "borderTopWidth": "2px",
-      "borderBottomWidth": "3px",
-    };
+  element = {
+    getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
+    get scrollHeight() {
+      return this.style.height ? parseFloat(this.style.height) : 103;
+    },
+    get offsetHeight() {
+      return this.style.height ? parseFloat(this.style.height) : 103;
+    },
+    style: { height: null as any },
+    getAttribute: (attr: string) => "2"
   };
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);
-  assert.equal(element.style.height, "95px");
+  assert.equal(element.style.height, "79px");
+
+  element = {
+    getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
+    get scrollHeight() {
+      const height = this.style.height ? parseFloat(this.style.height) : 127;
+      return Math.max(height, 103);
+    },
+    get offsetHeight() {
+      return this.style.height ? parseFloat(this.style.height) : 127;
+    },
+    style: { height: null as any },
+    getAttribute: (attr: string) => "2"
+  };
+  increaseHeightByContent(<HTMLElement>element, getComputedStyle);
+  assert.equal(element.style.height, "103px");
+
 });
 QUnit.test("test titleTagName, survey.cssTitle properties and getTitleOwner", assert => {
   const survey = new SurveyModel({

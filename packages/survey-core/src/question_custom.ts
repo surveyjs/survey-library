@@ -1226,7 +1226,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public setVisibleIndex(val: number): number {
     var res = super.setVisibleIndex(val);
     if (this.isVisible && !!this.contentPanel) {
-      res += this.contentPanel.setVisibleIndex(val);
+      res += this.contentPanel.setVisibleIndex(val + 1);
     }
     return res;
   }

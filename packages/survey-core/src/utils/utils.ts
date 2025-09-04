@@ -487,9 +487,22 @@ function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: 
   if (!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
 
   const style = getComputedStyle(element);
-  element.style.height = "auto";
+  const oldOverlow = style.overflowY;
+  const minHeight = parseFloat(style.minHeight);
+  const lineHeight = parseFloat(style.lineHeight);
   if (!!element.scrollHeight) {
-    element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+    let height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth));
+    element.style.height = height + "px";
+    while(element.scrollHeight <= element.offsetHeight && height > minHeight) {
+      element.style.overflowY = "hidden";
+      height -= lineHeight;
+      element.style.height = height + "px";
+    }
+    element.style.overflowY = oldOverlow;
+    height += lineHeight;
+    element.style.height = height + "px";
+  } else {
+    element.style.height = "auto";
   }
 }
 function getOriginalEvent(event: any) {

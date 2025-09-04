@@ -15907,10 +15907,13 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
     scrollHeight: 50,
+    offsetHeight: 50,
     style: { height: "50px" }
   };
   let getComputedStyle = () => {
     return {
+      "lineHeight": "24px",
+      "minHeight": "48px",
       "borderTopWidth": "2px",
       "borderBottomWidth": "3px",
     };
@@ -15919,6 +15922,15 @@ QUnit.test("utils.increaseHeightByContent", assert => {
   assert.equal(element.style.height, "55px");
 
   element.scrollHeight = 90;
+  element.offsetHeight = 90;
+  getComputedStyle = () => {
+    return {
+      "lineHeight": "24px",
+      "minHeight": "71px",
+      "borderTopWidth": "2px",
+      "borderBottomWidth": "3px",
+    };
+  };
   increaseHeightByContent(<HTMLElement>element, getComputedStyle);
   assert.equal(element.style.height, "95px");
 });

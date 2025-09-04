@@ -6,6 +6,7 @@ import {
   ValidatorResult,
   ExpressionValidator,
   RegexValidator,
+  AsyncElementsRunner,
 } from "../src/validator";
 import { CustomError, ExceedSizeError, MinRowCountError } from "../src/error";
 import { SurveyModel } from "../src/survey";
@@ -495,7 +496,7 @@ QUnit.test("question with async validators", function(assert) {
   FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
 
   var question = new Question("q1");
-  question.validators.push(new ExpressionValidator("2 = 1)"));
+  question.validators.push(new ExpressionValidator("2 = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
   assert.equal(question.validators[1].isAsync, true, "The validator is async");
@@ -635,4 +636,32 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
   allow = true;
   survey.validate(true);
   assert.equal(counter, 2, "#2");
+});
+
+QUnit.test("AsyncElementsRunner", function(assert) {
+  let isCompleted = false;
+  let asyncRunner = new AsyncElementsRunner(() => {
+    isCompleted = true;
+  });
+  asyncRunner.addElement("element1");
+  asyncRunner.addElement("element2");
+  asyncRunner.removeElement("element1");
+  assert.notOk(isCompleted, "onCompleted is not called #1.1");
+  asyncRunner.removeElement("element2");
+  assert.notOk(isCompleted, "onCompleted is not called #1.2");
+  asyncRunner.finish();
+  assert.ok(isCompleted, "onCompleted is called, #1.1");
+
+  isCompleted = false;
+  asyncRunner = new AsyncElementsRunner(() => {
+    isCompleted = true;
+  });
+  asyncRunner.addElement("element1");
+  asyncRunner.addElement("element2");
+  asyncRunner.removeElement("element1");
+  assert.notOk(isCompleted, "onCompleted is not called #1.1");
+  assert.notOk(isCompleted, "onCompleted is not called #1.2");
+  asyncRunner.finish();
+  asyncRunner.removeElement("element2");
+  assert.ok(isCompleted, "onCompleted is called, #1.1");
 });

@@ -5,7 +5,7 @@ import { CustomError, RequreNumericError } from "./error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
-import { Helpers } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { IValueGetterContext } from "./conditionProcessValue";
 
 export interface IValidationParams {
@@ -15,7 +15,30 @@ export interface IValidationParams {
   firstErrorQuestion?: IQuestion;
   callbackResult?: (res: boolean, element: IElement) => void;
 }
-
+export class AsyncElementsRunner {
+  private asyncElements: HashTable<boolean>;
+  private isRunning: boolean;
+  constructor (private onCompleted: () => void) {
+    this.asyncElements = {};
+    this.isRunning = true;
+  }
+  public addElement(id: string) {
+    this.asyncElements[id] = true;
+  }
+  public removeElement(id: string) {
+    delete this.asyncElements[id];
+    this.tryComplete();
+  }
+  public finish(): void {
+    this.isRunning = false;
+    this.tryComplete();
+  }
+  private tryComplete(): void {
+    if (!this.isRunning && Object.keys(this.asyncElements).length === 0) {
+      this.onCompleted();
+    }
+  }
+}
 export class ValidatorResult {
   constructor(public value: any, public error: SurveyError = null) {}
 }
@@ -25,12 +48,14 @@ export class ValidatorResult {
  * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class SurveyValidator extends Base {
+  private static idCounter = 0;
+  private idValue: string = "svd" + SurveyValidator.idCounter++;
   public errorOwner: ISurveyErrorOwner;
-  public onAsyncCompleted: (result: ValidatorResult) => void;
   constructor() {
     super();
     this.createLocalizableString("text", this, true);
   }
+  public get id(): string { return this.idValue; }
   public get isValidator(): boolean { return true; }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.errorOwner && !!(<any>this.errorOwner)["getSurvey"]
@@ -59,7 +84,12 @@ export class SurveyValidator extends Base {
   protected getDefaultErrorText(name: string): string {
     return "";
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any, callback?: (result: ValidatorResult) => void): ValidatorResult {
+    const res = this.validateCore(value, name, properties);
+    if (res !== undefined && callback) callback(res);
+    return res;
+  }
+  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
     return null;
   }
   public get isRunning(): boolean {
@@ -105,49 +135,34 @@ export interface IValidatorOwner {
   getDataFilteredProperties(): any;
 }
 export class ValidatorRunner {
-  private asyncValidators: Array<SurveyValidator>;
   public onAsyncCompleted: (errors: Array<SurveyError>) => void;
-  public run(owner: IValidatorOwner): Array<SurveyError> {
-    var res = [];
-    var properties = null;
-    this.prepareAsyncValidators();
-    var asyncResults: Array<SurveyError> = [];
-    var validators = owner.getValidators();
-    for (var i = 0; i < validators.length; i++) {
-      var validator = validators[i];
-      properties = owner.getDataFilteredProperties();
-      if (validator.isAsync) {
-        this.asyncValidators.push(validator);
-        validator.onAsyncCompleted = (result: ValidatorResult) => {
-          if (!!result && !!result.error) asyncResults.push(result.error);
-          if (!this.onAsyncCompleted) return;
-          for (var i = 0; i < this.asyncValidators.length; i++) {
-            if (this.asyncValidators[i].isRunning) return;
-          }
-          this.onAsyncCompleted(asyncResults);
-        };
-      }
-    }
-    validators = owner.getValidators();
-    for (var i = 0; i < validators.length; i++) {
-      var validator = validators[i];
 
-      var validatorResult = validator.validate(owner.validatedValue, owner.getValidatorTitle(), properties);
-      if (!!validatorResult && !!validatorResult.error) {
-        res.push(validatorResult.error);
+  public run(owner: IValidatorOwner): Array<SurveyError> {
+    const validators = owner.getValidators();
+    const errors = new Array<SurveyError>();
+    const asyncRunner = new AsyncElementsRunner(() => {
+      if (this.onAsyncCompleted) {
+        this.onAsyncCompleted(errors);
       }
+    });
+    if (validators.length > 0) {
+      const properties = owner.getDataFilteredProperties();
+      const value = owner.validatedValue;
+      const title = owner.getValidatorTitle();
+      validators.forEach(validator => {
+        asyncRunner.addElement(validator.id);
+        validator.validate(value, title, properties, (valRes: ValidatorResult): void => {
+          if (!!valRes && !!valRes.error) {
+            errors.push(valRes.error);
+          }
+          asyncRunner.removeElement(validator.id);
+        });
+      });
     }
-    if (this.asyncValidators.length == 0 && !!this.onAsyncCompleted)
-      this.onAsyncCompleted([]);
+    const res = [].concat(...errors);
+    errors.length = 0;
+    asyncRunner.finish();
     return res;
-  }
-  private prepareAsyncValidators() {
-    if (!!this.asyncValidators) {
-      for (var i = 0; i < this.asyncValidators.length; i++) {
-        this.asyncValidators[i].onAsyncCompleted = null;
-      }
-    }
-    this.asyncValidators = [];
   }
 }
 /**
@@ -164,7 +179,7 @@ export class NumericValidator extends SurveyValidator {
   public getType(): string {
     return "numericvalidator";
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
@@ -172,7 +187,7 @@ export class NumericValidator extends SurveyValidator {
         new RequreNumericError(this.text, this.errorOwner)
       );
     }
-    var result = new ValidatorResult(Helpers.getNumber(value));
+    const result = new ValidatorResult(Helpers.getNumber(value));
     if (this.minValue !== null && this.minValue > result.value) {
       result.error = this.createCustomError(name);
       return result;
@@ -231,7 +246,7 @@ export class TextValidator extends SurveyValidator {
   public getType(): string {
     return "textvalidator";
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /\d+$/;
@@ -308,7 +323,7 @@ export class AnswerCountValidator extends SurveyValidator {
   public getType(): string {
     return "answercountvalidator";
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
     if (value == null || value.constructor != Array) return null;
     var count = value.length;
     if (count == 0) return null;
@@ -367,12 +382,12 @@ export class RegexValidator extends SurveyValidator {
   public getType(): string {
     return "regexvalidator";
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
     if (!this.regex || this.isValueEmpty(value)) return null;
-    var re = this.createRegExp();
+    const re = this.createRegExp();
     if (Array.isArray(value)) {
-      for (var i = 0; i < value.length; i++) {
-        var res = this.hasError(re, value[i], name);
+      for (let i = 0; i < value.length; i++) {
+        const res = this.hasError(re, value[i], name);
         if (res) return res;
       }
     }
@@ -425,7 +440,7 @@ export class EmailValidator extends SurveyValidator {
   public getType(): string {
     return "emailvalidator";
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
     if (!value) return null;
     if (this.re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
@@ -460,22 +475,29 @@ export class ExpressionValidator extends SurveyValidator {
   public get isRunning(): boolean {
     return this.isRunningValue;
   }
-  public validate(value: any, name: string = null, properties: any = null): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any, callback?: (res: ValidatorResult) => void): ValidatorResult {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
     if (!this.ensureConditionRunner(true)) return null;
-    this.conditionRunner.onRunComplete = (res) => {
+    let errorResult: ValidatorResult = null;
+    const doCallBack = (res: boolean) => {
       this.isRunningValue = false;
-      if (!!this.onAsyncCompleted) {
-        this.onAsyncCompleted(this.generateError(res, value, name));
-      }
+      errorResult = this.generateError(res, value, name);
+      !!callback && callback(errorResult);
     };
+    this.conditionRunner.onRunComplete = (res) => {
+      doCallBack(res);
+    };
+    if (!this.conditionRunner.canRun()) {
+      doCallBack(res);
+      return errorResult;
+    }
     this.isRunningValue = true;
     var res = this.conditionRunner.runContext(this.getValueGetterContext(), properties);
     if (this.conditionRunner.isAsync) return null;
     this.isRunningValue = false;
-    return this.generateError(res, value, name);
+    return errorResult || this.generateError(res, value, name);
   }
   protected generateError(res: boolean, value: any, name: string): ValidatorResult {
     if (!res) {

@@ -747,7 +747,7 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].editor.onCompletedAsyncValidators = (
         hasErrors: boolean
       ) => {
-        this.raiseOnCompletedAsyncValidators();
+        this.raiseOnCompletedAsyncValidators(hasErrors);
       };
       if (params.isOnValueChanged && this.items[i].editor.isEmpty())
         continue;

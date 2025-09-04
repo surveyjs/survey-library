@@ -614,11 +614,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
-    if (
-      question.hasErrors(true, {
-        isOnValueChanged: !this.data.isValidateOnValueChanging,
-      })
-    )
+    if (!question.validateElement({ fireCallback: true, isOnValueChanged: !this.data.isValidateOnValueChanging }))
       return true;
     if (question.isEmpty()) return false;
     var cell = this.getCellByColumnName(question.name);
@@ -799,7 +795,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  public hasErrors(rec: any, raiseOnCompletedAsyncValidators: () => void): boolean {
+  public hasErrors(rec: any, raiseOnCompletedAsyncValidators: (hasErrors: boolean) => void): boolean {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
@@ -809,11 +805,11 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       var question = cells[colIndex].question;
       if (!question || !question.visible) continue;
       question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-        raiseOnCompletedAsyncValidators();
+        raiseOnCompletedAsyncValidators(hasErrors);
       };
       if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
         continue;
-      res = question.hasErrors(rec.fireCallback, rec) || res;
+      res = !question.validateElement(rec) || res;
       if (res && focusOnFirstError && !rec.firstErrorQuestion) {
         rec.firstErrorQuestion = question;
       }
@@ -2309,9 +2305,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return every ? true : false;
   }
   protected validateElementCore(params: IValidationParams): boolean {
-    var errosInRows = this.hasErrorInRows(params);
-    var isDuplicated = this.isValueDuplicated();
-    return super.validateElementCore(params) && !errosInRows && !isDuplicated;
+    const rowsValidation = this.validateRows(params);
+    const isDuplicated = this.isValueDuplicated();
+    return super.validateElementCore(params) && rowsValidation && !isDuplicated;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -2344,18 +2340,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return result;
   }
-  private hasErrorInRows(params: IValidationParams): boolean {
+  private validateRows(params: IValidationParams): boolean {
     let rows = this.generatedVisibleRows;
     if (!this.generatedVisibleRows) {
       rows = this.visibleRows;
     }
-    var res = false;
+    var res = true;
     (<any>params).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
-        res = rows[i].hasErrors(params, () => {
-          this.raiseOnCompletedAsyncValidators();
-        }) || res;
+        res = !rows[i].hasErrors(params, (hasErrors: boolean) => {
+          this.raiseOnCompletedAsyncValidators(hasErrors);
+        }) && res;
       }
     }
     return res;

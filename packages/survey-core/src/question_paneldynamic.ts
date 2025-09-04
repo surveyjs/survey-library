@@ -2271,7 +2271,7 @@ export class QuestionPanelDynamicModel extends Question
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
-        this.raiseOnCompletedAsyncValidators();
+        this.raiseOnCompletedAsyncValidators(hasErrors);
       };
     }
   }

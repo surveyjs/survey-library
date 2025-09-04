@@ -1240,7 +1240,7 @@ export class Question extends SurveyElement<Question>
   protected getIsTitleRenderedAsString(): boolean { return this.titleLocation === "hidden"; }
   protected notifySurveyOnChildrenVisibilityChanged(): boolean { return false; }
   private notifySurveyVisibilityChanged(): void {
-    if (!this.survey || this.isLoadingFromJson) return;
+    if (!this.canUpdateValueOnVisibleChanged()) return;
     this.survey.questionVisibilityChanged(this, this.isVisible,
       !this.parentQuestion || this.parentQuestion.notifySurveyOnChildrenVisibilityChanged());
     const isClearOnHidden = this.isClearValueOnHidden;
@@ -2500,8 +2500,9 @@ export class Question extends SurveyElement<Question>
   }
   public updateValueWithDefaults(): void {
     if (this.isLoadingFromJson || (!this.isDesignMode && this.isDefaultValueEmpty())) return;
-    if (!this.isDesignMode && !this.isEmpty()) return;
-    if (this.isEmpty() && this.isDefaultValueEmpty()) return;
+    const isEmpty = this.isEmpty();
+    if (!this.isDesignMode && !isEmpty) return;
+    if (isEmpty && this.isDefaultValueEmpty()) return;
     if (this.isClearValueOnHidden && !this.isVisible) return;
     if (this.isDesignMode && this.isContentElement && this.isDefaultValueEmpty()) return;
     this.setDefaultValue();

@@ -221,7 +221,23 @@ QUnit.test("Support camel names in validators, Bug#994", function(assert) {
   assert.equal(qLow.validators.length, 1, "low case - validtor is here");
   assert.equal(qUpper.validators.length, 1, "upper case - validtor is here");
 });
-
+QUnit.test("Support camel names in validators, Bug#994", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        validators: [{ type: "camelcasevalidator" }],
+      }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "some text";
+  survey.tryComplete();
+  assert.equal(q1.errors.length, 1, "There is an error");
+  q1.value = "some CamelCase text";
+  assert.equal(q1.errors.length, 0, "There is no error");
+});
 QUnit.test(
   "Validators and isRequired in multipletext items, Bug#1055",
   function(assert) {

@@ -21,6 +21,7 @@ import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, 
 import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IValidationParams } from "./validator";
 
 export interface IMatrixDropdownData extends IObjectValueContext {
   value: any;
@@ -613,11 +614,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
-    if (
-      question.hasErrors(true, {
-        isOnValueChanged: !this.data.isValidateOnValueChanging,
-      })
-    )
+    if (!question.validateElement({ fireCallback: true, isOnValueChanged: !this.data.isValidateOnValueChanging }))
       return true;
     if (question.isEmpty()) return false;
     var cell = this.getCellByColumnName(question.name);
@@ -798,34 +795,29 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  public hasErrors(
-    fireCallback: boolean,
-    rec: any,
-    raiseOnCompletedAsyncValidators: () => void
-  ): boolean {
+  public hasErrors(rec: any, raiseOnCompletedAsyncValidators: (hasErrors: boolean) => void): boolean {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
     const focusOnFirstError = rec?.focusOnFirstError;
-    //firstErrorQuestion: <any>null,
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
       if (!question || !question.visible) continue;
       question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-        raiseOnCompletedAsyncValidators();
+        raiseOnCompletedAsyncValidators(hasErrors);
       };
       if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
         continue;
-      res = question.hasErrors(fireCallback, rec) || res;
+      res = !question.validateElement(rec) || res;
       if (res && focusOnFirstError && !rec.firstErrorQuestion) {
         rec.firstErrorQuestion = question;
       }
     }
     if (this.hasPanel) {
       this.ensureDetailPanel();
-      var panelHasError = this.detailPanel.hasErrors(fireCallback, false, rec);
-      if (!rec.hideErroredPanel && panelHasError && fireCallback) {
+      var panelHasError = this.detailPanel.hasErrors(rec.fireCallback, false, rec);
+      if (!rec.hideErroredPanel && panelHasError && rec.fireCallback) {
         if (rec.isSingleDetailPanel) {
           rec.hideErroredPanel = true;
         }
@@ -2312,10 +2304,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return every ? true : false;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var errosInRows = this.hasErrorInRows(fireCallback, rec);
-    var isDuplicated = this.isValueDuplicated();
-    return super.hasErrors(fireCallback, rec) || errosInRows || isDuplicated;
+  protected validateElementCore(params: IValidationParams): boolean {
+    const rowsValidation = this.validateRows(params);
+    const isDuplicated = this.isValueDuplicated();
+    return super.validateElementCore(params) && rowsValidation && !isDuplicated;
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -2348,20 +2340,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return result;
   }
-  private hasErrorInRows(fireCallback: boolean, rec: any): boolean {
+  private validateRows(params: IValidationParams): boolean {
     let rows = this.generatedVisibleRows;
     if (!this.generatedVisibleRows) {
       rows = this.visibleRows;
     }
-    var res = false;
-    if (!rec) rec = {};
-    if (!rows) return rec;
-    rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
+    var res = true;
+    (<any>params).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
-        res = rows[i].hasErrors(fireCallback, rec, () => {
-          this.raiseOnCompletedAsyncValidators();
-        }) || res;
+        res = !rows[i].hasErrors(params, (hasErrors: boolean) => {
+          this.raiseOnCompletedAsyncValidators(hasErrors);
+        }) && res;
       }
     }
     return res;

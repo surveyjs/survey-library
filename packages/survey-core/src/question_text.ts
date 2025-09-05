@@ -482,7 +482,7 @@ export class QuestionTextModel extends QuestionTextBase {
     const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
     if ((!isValid || this.errors.length > 0) && !!this.survey &&
       (this.survey.isValidateOnValueChanging || this.survey.isValidateOnValueChanged)) {
-      this.hasErrors();
+      this.validate();
     }
     return isValid;
   }

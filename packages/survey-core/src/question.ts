@@ -1,10 +1,10 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, Serializer, property } from "./jsonobject";
+import { JsonObject, Serializer } from "./jsonobject";
 import { Base, EventBase } from "./base";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { AnswerRequiredError, CustomError } from "./error";
-import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
+import { SurveyValidator, IValidatorOwner, ValidatorRunner, IValidationParams } from "./validator";
 import { LocalizableString } from "./localizablestring";
 import { ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
@@ -935,7 +935,7 @@ export class Question extends SurveyElement<Question>
       firstErrorQuestion: <any>null,
       result: false,
     };
-    const res = q.validate(fireCallback, rec);
+    const res = q.validate(fireCallback, undefined, rec);
     if (!res && rec.focusOnFirstError && !!rec.firstErrorQuestion) {
       rec.firstErrorQuestion.focus(true);
     }
@@ -2717,32 +2717,45 @@ export class Question extends SurveyElement<Question>
     json["type"] = this.getType();
     return json;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true, fireCallback);
-    if (fireCallback) {
-      this.errors = errors;
-      if (this.errors !== errors) {
-        this.errors.forEach(er => er.locText.strChanged());
-      }
+  public hasErrors(fireCallback: boolean = true, rec?: any): boolean {
+    if (!rec) {
+      rec = { isOnValueChanged: false };
     }
-    this.updateContainsErrors();
-    if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
-      this.expand();
-    }
-    return errors.length > 0;
+    rec.fireCallback = fireCallback;
+    return !this.validateElementCore(rec);
   }
   /**
    * Validates this question and returns `false` if the validation fails.
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, rec: any = null): boolean {
-    if (!!rec && rec.isOnValueChanged) {
-      if (!!this.parent) {
-        this.parent.validateContainerOnly();
+  public validate(fireCallback: boolean = true, callbackResult?: (res: boolean, question: Question) => void, rec?: any): boolean {
+    if (!rec) {
+      rec = { isOnValueChanged: false };
+    }
+    rec.callbackResult = callbackResult;
+    rec.fireCallback = fireCallback;
+    if (rec.isOnValueChanged === true && !!this.parent) {
+      this.parent.validateContainerOnly();
+    }
+    return this.validateElement(rec);
+  }
+  public validateElement(params: IValidationParams): boolean {
+    return this.validateElementCore(params);
+  }
+  protected validateElementCore(params: IValidationParams): boolean {
+    const errors = this.checkForErrors(params.isOnValueChanged, params.fireCallback, params.callbackResult);
+    if (params.fireCallback) {
+      this.errors = errors;
+      if (this.errors !== errors) {
+        this.errors.forEach(er => er.locText.strChanged());
       }
     }
-    return !this.hasErrors(fireCallback, rec);
+    this.updateContainsErrors();
+    if (this.isCollapsed && params.fireCallback && errors.length > 0) {
+      this.expand();
+    }
+    return errors.length === 0;
   }
   public get currentErrorCount(): number {
     return this.errors.length;
@@ -2783,10 +2796,10 @@ export class Question extends SurveyElement<Question>
     if (index !== -1) errors.splice(index, 1);
     return index !== -1;
   }
-  private checkForErrors(isOnValueChanged: boolean, fireCallback: boolean): Array<SurveyError> {
+  private checkForErrors(isOnValueChanged: boolean, fireCallback: boolean, callbackResult?: (res: boolean, question: IElement) => void): Array<SurveyError> {
     var qErrors = new Array<SurveyError>();
     if (this.isVisible && this.canCollectErrors()) {
-      this.collectErrors(qErrors, isOnValueChanged, fireCallback);
+      this.collectErrors(qErrors, isOnValueChanged, fireCallback, callbackResult);
     }
     if (!!this.survey) {
       if (this.validateValueCallback && qErrors.length === 0) {
@@ -2802,10 +2815,10 @@ export class Question extends SurveyElement<Question>
   protected canCollectErrors(): boolean {
     return !this.isReadOnly || settings.readOnly.enableValidation;
   }
-  private collectErrors(qErrors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+  private collectErrors(qErrors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean, callbackResult?: (res: boolean, question: Question) => void): void {
     this.onCheckForErrors(qErrors, isOnValueChanged, fireCallback);
     if (qErrors.length > 0 || !this.canRunValidators(isOnValueChanged)) return;
-    var errors = this.runValidators();
+    const errors = this.runValidators(fireCallback, callbackResult);
     if (errors.length > 0) {
       //validators may change the question value.
       qErrors.length = 0;
@@ -2834,36 +2847,41 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;
-  private isRunningValidatorsValue = false;
   public onCompletedAsyncValidators: (hasErrors: boolean) => void;
   public get isRunningValidators(): boolean {
     return this.getIsRunningValidators();
   }
   protected getIsRunningValidators(): boolean {
-    return this.isRunningValidatorsValue;
+    return !!this.validatorRunner;
   }
-  protected runValidators(): Array<SurveyError> {
+  private runValidators(fireCallback?: boolean, callbackResult?: (res: boolean, question: Question) => void): Array<SurveyError> {
     if (!!this.validatorRunner) {
       this.validatorRunner.onAsyncCompleted = null;
     }
     this.validatorRunner = new ValidatorRunner();
-    this.isRunningValidatorsValue = true;
     this.validatorRunner.onAsyncCompleted = (errors: Array<SurveyError>) => {
-      this.doOnAsyncCompleted(errors);
+      this.doOnAsyncCompleted(fireCallback, errors, callbackResult);
     };
     return this.validatorRunner.run(this);
   }
-  private doOnAsyncCompleted(errors: Array<SurveyError>) {
-    for (var i = 0; i < errors.length; i++) {
-      this.errors.push(errors[i]);
+  private doOnAsyncCompleted(fireCallback: boolean, errors: Array<SurveyError>, callbackResult?: (res: boolean, question: Question) => void) {
+    if (fireCallback) {
+      errors.forEach(er => {
+        if (this.errors.indexOf(er) < 0) {
+          this.errors.push(er);
+        }
+      });
     }
-    this.isRunningValidatorsValue = false;
-    this.raiseOnCompletedAsyncValidators();
+    this.validatorRunner = null;
+    this.raiseOnCompletedAsyncValidators(errors.length > 0, callbackResult);
   }
-  protected raiseOnCompletedAsyncValidators(): void {
-    if (!!this.onCompletedAsyncValidators && !this.isRunningValidators) {
-      this.onCompletedAsyncValidators(this.getAllErrors().length > 0);
+  protected raiseOnCompletedAsyncValidators(hasErrors: boolean, callbackResult?: (res: boolean, question: Question) => void): void {
+    if (!this.isRunningValidators && !!this.onCompletedAsyncValidators) {
+      this.onCompletedAsyncValidators(hasErrors || this.getAllErrors().length > 0);
       this.onCompletedAsyncValidators = null;
+    }
+    if (!this.validatorRunner && !!callbackResult) {
+      callbackResult(!hasErrors && this.errors.length === 0, this);
     }
   }
   public allowSpaceAsAnswer: boolean;

@@ -552,7 +552,7 @@ QUnit.test("Mask datetime with defaultValue as date", function (assert) {
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   q1.value = "test";
-  q1.validate(true, true);
+  q1.validate(true);
   assert.equal(q1.errors.length, 1, "There is an error");
   assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch");
 });

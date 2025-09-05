@@ -339,6 +339,8 @@ export class QuestionBooleanModel extends Question {
     return super.createActionContainer(this.renderAs !== "checkbox");
   }
 
+  protected getIsTitleRenderedAsString(): boolean { return false; }
+
   //a11y
   public get isNewA11yStructure(): boolean {
     return true;

@@ -400,7 +400,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   protected valueFromData(val: any): any {
     const value = super.valueFromData(val);
     if (!!value && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
-      const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.text, value, false, false))[0];
+      const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
       if (!item) {
         const newChoice = new ItemValue(value);
         this.customChoices.push(newChoice);

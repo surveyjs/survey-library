@@ -261,7 +261,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     const value = super.valueFromData(val);
     if (!!value && value.length > 0 && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
       value.forEach(v => {
-        const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.text, v, false, false))[0];
+        const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.id, v, false, false))[0];
         if (!item) {
           const newChoice = new ItemValue(v);
           this.customChoices.push(newChoice);

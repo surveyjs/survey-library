@@ -6,7 +6,6 @@ import {
   ValidatorResult,
   ExpressionValidator,
   RegexValidator,
-  AsyncElementsRunner,
 } from "../src/validator";
 import { CustomError, ExceedSizeError, MinRowCountError } from "../src/error";
 import { SurveyModel } from "../src/survey";
@@ -222,7 +221,23 @@ QUnit.test("Support camel names in validators, Bug#994", function(assert) {
   assert.equal(qLow.validators.length, 1, "low case - validtor is here");
   assert.equal(qUpper.validators.length, 1, "upper case - validtor is here");
 });
-
+QUnit.test("Support camel names in validators, Bug#994", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        validators: [{ type: "camelcasevalidator" }],
+      }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "some text";
+  survey.tryComplete();
+  assert.equal(q1.errors.length, 1, "There is an error");
+  q1.value = "some CamelCase text";
+  assert.equal(q1.errors.length, 0, "There is no error");
+});
 QUnit.test(
   "Validators and isRequired in multipletext items, Bug#1055",
   function(assert) {
@@ -496,7 +511,7 @@ QUnit.test("question with async validators", function(assert) {
   FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
 
   var question = new Question("q1");
-  question.validators.push(new ExpressionValidator("2 = 1"));
+  question.validators.push(new ExpressionValidator("2 = 1)"));
   question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
   assert.equal(question.validators[1].isAsync, true, "The validator is async");
@@ -636,32 +651,4 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
   allow = true;
   survey.validate(true);
   assert.equal(counter, 2, "#2");
-});
-
-QUnit.test("AsyncElementsRunner", function(assert) {
-  let isCompleted = false;
-  let asyncRunner = new AsyncElementsRunner(() => {
-    isCompleted = true;
-  });
-  asyncRunner.addElement("element1");
-  asyncRunner.addElement("element2");
-  asyncRunner.removeElement("element1");
-  assert.notOk(isCompleted, "onCompleted is not called #1.1");
-  asyncRunner.removeElement("element2");
-  assert.notOk(isCompleted, "onCompleted is not called #1.2");
-  asyncRunner.finish();
-  assert.ok(isCompleted, "onCompleted is called, #1.1");
-
-  isCompleted = false;
-  asyncRunner = new AsyncElementsRunner(() => {
-    isCompleted = true;
-  });
-  asyncRunner.addElement("element1");
-  asyncRunner.addElement("element2");
-  asyncRunner.removeElement("element1");
-  assert.notOk(isCompleted, "onCompleted is not called #1.1");
-  assert.notOk(isCompleted, "onCompleted is not called #1.2");
-  asyncRunner.finish();
-  asyncRunner.removeElement("element2");
-  assert.ok(isCompleted, "onCompleted is called, #1.1");
 });

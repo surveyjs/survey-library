@@ -84,12 +84,12 @@ export class SurveyValidator extends Base {
   protected getDefaultErrorText(name: string): string {
     return "";
   }
-  public validate(value: any, name?: string, properties?: any, callback?: (result: ValidatorResult) => void): ValidatorResult {
-    const res = this.validateCore(value, name, properties);
+  public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
+    const res = this.validate(value, name, properties);
     if (res !== undefined && callback) callback(res);
     return res;
   }
-  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any): ValidatorResult {
     return null;
   }
   public get isRunning(): boolean {
@@ -151,12 +151,12 @@ export class ValidatorRunner {
       const title = owner.getValidatorTitle();
       validators.forEach(validator => {
         asyncRunner.addElement(validator.id);
-        validator.validate(value, title, properties, (valRes: ValidatorResult): void => {
+        validator.validateOnCallback(value, (valRes: ValidatorResult): void => {
           if (!!valRes && !!valRes.error) {
             errors.push(valRes.error);
           }
           asyncRunner.removeElement(validator.id);
-        });
+        }, title, properties);
       });
     }
     const res = [].concat(...errors);
@@ -179,7 +179,7 @@ export class NumericValidator extends SurveyValidator {
   public getType(): string {
     return "numericvalidator";
   }
-  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
@@ -246,7 +246,7 @@ export class TextValidator extends SurveyValidator {
   public getType(): string {
     return "textvalidator";
   }
-  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any): ValidatorResult {
     if (this.isValueEmpty(value)) return null;
     if (!this.allowDigits) {
       var reg = /\d+$/;
@@ -323,7 +323,7 @@ export class AnswerCountValidator extends SurveyValidator {
   public getType(): string {
     return "answercountvalidator";
   }
-  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any): ValidatorResult {
     if (value == null || value.constructor != Array) return null;
     var count = value.length;
     if (count == 0) return null;
@@ -382,7 +382,7 @@ export class RegexValidator extends SurveyValidator {
   public getType(): string {
     return "regexvalidator";
   }
-  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any): ValidatorResult {
     if (!this.regex || this.isValueEmpty(value)) return null;
     const re = this.createRegExp();
     if (Array.isArray(value)) {
@@ -440,7 +440,7 @@ export class EmailValidator extends SurveyValidator {
   public getType(): string {
     return "emailvalidator";
   }
-  protected validateCore(value: any, name?: string, properties?: any): ValidatorResult {
+  public validate(value: any, name?: string, properties?: any): ValidatorResult {
     if (!value) return null;
     if (this.re.test(value)) return null;
     return new ValidatorResult(value, this.createCustomError(name));
@@ -475,7 +475,7 @@ export class ExpressionValidator extends SurveyValidator {
   public get isRunning(): boolean {
     return this.isRunningValue;
   }
-  public validate(value: any, name?: string, properties?: any, callback?: (res: ValidatorResult) => void): ValidatorResult {
+  public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }

@@ -2719,6 +2719,33 @@ QUnit.test("allowCustomChoices: custom choices from survey.data", function (asse
   assert.deepEqual(survey.data, data, "#1 survey.data");
 });
 
+QUnit.test("allowCustomChoices: choices with displayName from survey.data", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown", name: "q1", allowCustomChoices: true, choices: [
+        { value: "LBL", text: "Long battery life" },
+        { value: "PSC", text: "Plenty of storage capacity" },
+        { value: "HQC", text: "High-quality camera" },
+        { value: "PCPU", text: "Powerful CPU" },
+        { value: "LSS", text: "Large screen size" },
+        { value: "HDUR", text: "High durability" },
+        { value: "LP", text: "Low price" },
+      ],
+    },]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  const value = "LSS";
+  const data = { q1: value };
+  survey.data = data;
+
+  assert.equal(question.value, value, "#1 question.value");
+  assert.equal(question.selectedItem.id, value, "#1 question.selectedItem");
+  assert.equal(question.selectedItem.title, "Large screen size", "#1 question.selectedItem");
+  assert.equal(listModel.actions.length, 7, "listModel.actions.length");
+  assert.deepEqual(survey.data, data, "#1 survey.data");
+});
+
 QUnit.test("lazy loading + isReady", assert => {
   const done = assert.async();
   const survey = new SurveyModel({ questions: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }] });

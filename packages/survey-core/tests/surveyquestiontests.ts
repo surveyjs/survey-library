@@ -8585,3 +8585,22 @@ QUnit.test("Question visibleIf && onExpressionRunning #10258", function (assert)
   assert.equal(q1.isVisible, true, "q1.visible #5");
   assert.equal(counter, 4, "counter #5");
 });
+QUnit.test("Question visibleIf && case-sensitive #10338", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "Q1" },
+      { type: "text", name: "q2", visibleIf: "{Q1} = 'a'" }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const Q1 = <QuestionTextModel>survey.getQuestionByName("Q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2.visible #1");
+  Q1.value = "a";
+  assert.equal(q2.isVisible, true, "q2.visible #2");
+  Q1.value = "b";
+  assert.equal(q2.isVisible, false, "q2.visible #3");
+  q1.value = "a";
+  assert.equal(q2.isVisible, false, "q2.visible #4");
+});

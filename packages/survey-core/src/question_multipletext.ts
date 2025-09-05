@@ -32,11 +32,9 @@ export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const items = this.question.items;
-    name = name.toLocaleLowerCase();
     for (let i = 0; i < items.length; i++) {
       const q = items[i].question;
-      const qName = q.getValueName();
-      if (qName.toLocaleLowerCase() === name) {
+      if (q.getValueName() === name) {
         res.isFound = true;
         res.context = q.getValueGetterContext();
         return;

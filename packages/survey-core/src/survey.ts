@@ -3290,6 +3290,7 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
+  private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
       this.valuesHash = {};
@@ -3300,12 +3301,15 @@ export class SurveyModel extends SurveyElementCore
         this.setDataValueCore(this.valuesHash, dataKey, data[key]);
       }
     }
+    this.isSettingDataValue = true;
     this.updateAllQuestionsValue(clearData);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.isSettingDataValue = false;
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
   }
+  public isSettingData(): boolean { return this.isSettingDataValue === true; }
   public get isSurvey(): boolean { return true; }
   /**
    * Returns an object with survey results.

@@ -470,32 +470,6 @@ QUnit.test("Regex load caseInsensitve", function(assert) {
   assert.equal(q.errors.length, 0, "#5");
 });
 
-QUnit.test("validator.isAsync", function(assert) {
-  function asyncFunc(params: any): any {
-    this.returnResult(params[0] * 3);
-    return false;
-  }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
-
-  var regValidator = new RegexValidator("^0*(?:[2-9]|[1-9]dd*)$");
-  assert.equal(regValidator.isAsync, false, "Regex is not async validator");
-  var expValidator = new ExpressionValidator();
-  expValidator.expression = "age({q1}) + {q2}";
-  assert.equal(
-    expValidator.isAsync,
-    false,
-    "There is no async function in expression"
-  );
-  expValidator.expression = "asyncFunc({q1}) + {q2}";
-  assert.equal(
-    expValidator.isAsync,
-    true,
-    "There is an async function in expression"
-  );
-
-  FunctionFactory.Instance.unregister("asyncFunc");
-});
-
 QUnit.test("question with async validators", function(assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;
@@ -514,7 +488,6 @@ QUnit.test("question with async validators", function(assert) {
   question.validators.push(new ExpressionValidator("2 = 1)"));
   question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
-  assert.equal(question.validators[1].isAsync, true, "The validator is async");
   var hasErrorsCounter = 0;
   question.onCompletedAsyncValidators = (hasErrors: boolean) => {
     if (hasErrors) hasErrorsCounter++;

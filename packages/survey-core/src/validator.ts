@@ -92,12 +92,6 @@ export class SurveyValidator extends Base {
   public validate(value: any, name?: string, properties?: any): ValidatorResult {
     return null;
   }
-  public get isRunning(): boolean {
-    return false;
-  }
-  public get isAsync(): boolean {
-    return false;
-  }
   getLocale(): string {
     return !!this.errorOwner ? this.errorOwner.getLocale() : "";
   }
@@ -457,7 +451,6 @@ export class EmailValidator extends SurveyValidator {
  */
 export class ExpressionValidator extends SurveyValidator {
   private conditionRunner: ConditionRunner = null;
-  private isRunningValue: boolean = false;
   constructor(expression: string = null) {
     super();
     this.expression = expression;
@@ -468,13 +461,6 @@ export class ExpressionValidator extends SurveyValidator {
   public get isValidateAllValues(): boolean {
     return true;
   }
-  public get isAsync(): boolean {
-    if (!this.ensureConditionRunner(false)) return false;
-    return this.conditionRunner.isAsync;
-  }
-  public get isRunning(): boolean {
-    return this.isRunningValue;
-  }
   public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
@@ -482,7 +468,6 @@ export class ExpressionValidator extends SurveyValidator {
     if (!this.ensureConditionRunner(true)) return null;
     let errorResult: ValidatorResult = null;
     const doCallBack = (res: boolean) => {
-      this.isRunningValue = false;
       errorResult = this.generateError(res, value, name);
       !!callback && callback(errorResult);
     };
@@ -493,10 +478,7 @@ export class ExpressionValidator extends SurveyValidator {
       doCallBack(res);
       return errorResult;
     }
-    this.isRunningValue = true;
     var res = this.conditionRunner.runContext(this.getValueGetterContext(), properties);
-    if (this.conditionRunner.isAsync) return null;
-    this.isRunningValue = false;
     return errorResult || this.generateError(res, value, name);
   }
   protected generateError(res: boolean, value: any, name: string): ValidatorResult {

@@ -10,8 +10,8 @@ import {
   IProgressInfo
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { SurveyValidator, IValidatorOwner, IValidationParams } from "./validator";
-import { Question, IConditionObject } from "./question";
+import { SurveyValidator, IValidatorOwner } from "./validator";
+import { Question, IConditionObject, ValidationParamsRunner } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -23,7 +23,7 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {
@@ -741,13 +741,13 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  protected validateElementCore(params: IValidationParams): boolean {
+  protected validateElementCore(params: ValidationParamsRunner): boolean {
     let res = true;
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].editor.onCompletedAsyncValidators = (
         hasErrors: boolean
       ) => {
-        this.raiseOnCompletedAsyncValidators(hasErrors);
+        this.raiseOnCompletedAsyncValidators();
       };
       if (params.isOnValueChanged && this.items[i].editor.isEmpty())
         continue;

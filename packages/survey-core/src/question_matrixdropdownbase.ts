@@ -18,10 +18,9 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
-import { mergeValues } from "./utils/utils";
 import { ConditionRunner } from "./conditions";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
-import { IValidationParams } from "./validator";
+import { ValidationParamsRunner } from "./question";
 
 export interface IMatrixDropdownData extends IObjectValueContext {
   value: any;
@@ -614,7 +613,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   }
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
-    if (!question.validateElement({ fireCallback: true, isOnValueChanged: !this.data.isValidateOnValueChanging }))
+    if (!question.validateElement(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: !this.data.isValidateOnValueChanging })))
       return true;
     if (question.isEmpty()) return false;
     var cell = this.getCellByColumnName(question.name);
@@ -795,11 +794,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  public hasErrors(rec: any, raiseOnCompletedAsyncValidators: (hasErrors: boolean) => void): boolean {
+  public hasErrors(params: ValidationParamsRunner, raiseOnCompletedAsyncValidators: (hasErrors: boolean) => void): boolean {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
-    const focusOnFirstError = rec?.focusOnFirstError;
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
@@ -807,17 +805,18 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       question.onCompletedAsyncValidators = (hasErrors: boolean) => {
         raiseOnCompletedAsyncValidators(hasErrors);
       };
-      if (!!rec && rec.isOnValueChanged === true && question.isEmpty())
+      if (!!params && params.isOnValueChanged === true && question.isEmpty())
         continue;
-      res = !question.validateElement(rec) || res;
-      if (res && focusOnFirstError && !rec.firstErrorQuestion) {
-        rec.firstErrorQuestion = question;
+      res = !question.validateElement(params) || res;
+      if (res) {
+        params.setError(question);
       }
     }
     if (this.hasPanel) {
       this.ensureDetailPanel();
-      var panelHasError = this.detailPanel.hasErrors(rec.fireCallback, false, rec);
-      if (!rec.hideErroredPanel && panelHasError && rec.fireCallback) {
+      const panelHasError = this.detailPanel.validateElement(params);
+      const rec = <any>params;
+      if (!rec.hideErroredPanel && panelHasError && params.fireCallback) {
         if (rec.isSingleDetailPanel) {
           rec.hideErroredPanel = true;
         }
@@ -2304,9 +2303,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return every ? true : false;
   }
-  protected validateElementCore(params: IValidationParams): boolean {
+  protected validateElementCore(params: ValidationParamsRunner): boolean {
     const rowsValidation = this.validateRows(params);
-    const isDuplicated = this.isValueDuplicated();
+    const isDuplicated = this.isValueDuplicated(params);
     return super.validateElementCore(params) && rowsValidation && !isDuplicated;
   }
   protected getIsRunningValidators(): boolean {
@@ -2340,9 +2339,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return result;
   }
-  private validateRows(params: IValidationParams): boolean {
+  private validateRows(params: ValidationParamsRunner): boolean {
     let rows = this.generatedVisibleRows;
-    if (!this.generatedVisibleRows) {
+    if (!rows) {
       rows = this.visibleRows;
     }
     var res = true;
@@ -2350,18 +2349,22 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
         res = !rows[i].hasErrors(params, (hasErrors: boolean) => {
-          this.raiseOnCompletedAsyncValidators(hasErrors);
+          this.raiseOnCompletedAsyncValidators();
         }) && res;
       }
     }
     return res;
   }
-  private isValueDuplicated(): boolean {
+  private isValueDuplicated(params: ValidationParamsRunner): boolean {
     if (!this.generatedVisibleRows) return false;
     var names = this.getUniqueColumnsNames();
     var res = false;
     for (var i = 0; i < names.length; i++) {
-      res = this.isValueInColumnDuplicated(names[i], true) || res;
+      const rows = this.getDuplicatedRowAndShowErrors(names[i], true);
+      if (!!rows && rows.length > 0) {
+        params.setError(rows[0].getQuestionByColumnName(names[i]));
+        res = true;
+      }
     }
     return res;
   }
@@ -2375,12 +2378,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return res;
   }
   private isValueInColumnDuplicated(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): boolean {
+    const rows = this.getDuplicatedRowAndShowErrors(columnName, showErrors, row);
+    return !!row ? rows.indexOf(row) > -1 : rows.length > 0;
+  }
+  private getDuplicatedRowAndShowErrors(columnName: string, showErrors: boolean, row?: MatrixDropdownRowModelBase): Array<MatrixDropdownRowModelBase> {
     const rows = this.getDuplicatedRows(columnName);
     if (showErrors) {
       this.showDuplicatedErrorsInRows(rows, columnName);
     }
     this.removeDuplicatedErrorsInRows(rows, columnName);
-    return !!row ? rows.indexOf(row) > -1 : rows.length > 0;
+    return rows;
   }
   private getDuplicatedRows(columnName: string): Array<MatrixDropdownRowModelBase> {
     const keyValues: HashTable<Array<MatrixDropdownRowModelBase>> = {};

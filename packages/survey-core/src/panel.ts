@@ -30,6 +30,7 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
+import { ValidationParamsRunner } from "./question";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -960,16 +961,23 @@ export class PanelModelBase extends SurveyElement<Question>
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
     rec = rec || {
       fireCallback: fireCallback,
-      focusOnFirstError: focusFirstError,
-      firstErrorQuestion: <any>null,
-      result: false,
+      focusOnFirstError: focusFirstError
     };
-    if (rec.result !== true) rec.result = false;
-    this.hasErrorsCore(rec);
-    return !rec.result;
+    const params = new ValidationParamsRunner(rec);
+    this.validateCore(params);
+    params.finish();
+    if (params.fireCallback && params.firstErrorQuestion) {
+      const selQ = <Question>params.firstErrorQuestion;
+      if (params.focusOnFirstError) {
+        selQ.focus(true);
+      } else {
+        selQ.expandAllParents();
+      }
+    }
+    return params.result;
   }
   public validateContainerOnly(): void {
-    this.hasErrorsInPanels({ fireCallback: true });
+    this.hasErrorsInPanels(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: false }));
     if (!!this.parent) {
       this.parent.validateContainerOnly();
     }
@@ -989,16 +997,16 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  private hasErrorsInPanels(rec: any): void {
+  private hasErrorsInPanels(params: ValidationParamsRunner): void {
     var errors = <Array<any>>[];
-    this.hasRequiredError(rec, errors);
+    this.hasRequiredError(params, errors);
     if (this.survey) {
-      this.survey.validatePanel(this, errors, rec.fireCallback);
+      this.survey.validatePanel(this, errors, params.fireCallback);
       if (errors.length > 0) {
-        rec.result = true;
+        params.setError(this);
       }
     }
-    if (!!rec.fireCallback) {
+    if (!!params.fireCallback) {
       this.errors = errors;
     }
   }
@@ -1008,7 +1016,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return text;
   }
 
-  private hasRequiredError(rec: any, errors: Array<SurveyError>): void {
+  private hasRequiredError(params: ValidationParamsRunner, errors: Array<SurveyError>): void {
     if (!this.isRequired) return;
     var visQuestions = <Array<any>>[];
     this.addQuestionsToList(visQuestions, true);
@@ -1016,57 +1024,34 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < visQuestions.length; i++) {
       if (!visQuestions[i].isEmpty()) return;
     }
-    rec.result = true;
     errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    if (rec.focusOnFirstError && !rec.firstErrorQuestion) {
-      rec.firstErrorQuestion = visQuestions[0];
-    }
+    params.setError(visQuestions[0]);
   }
-  protected hasErrorsCore(rec: any): void {
+  public validateElement(params: ValidationParamsRunner): boolean {
+    const errorCount = params.errorCount;
+    this.validateCore(params);
+    return params.errorCount > errorCount;
+  }
+  protected validateCore(params: ValidationParamsRunner): void {
     let singleQ = <Question>this.survey?.currentSingleQuestion;
     if (singleQ && this.questions.indexOf(singleQ) < 0) {
       singleQ = undefined;
     }
     const elements = singleQ ? [singleQ] : this.elements;
     let element = null;
-    let firstErroredEl = null;
     for (var i = 0; i < elements.length; i++) {
       element = elements[i];
-
       if (!element.isVisible) continue;
-
       if (element.isPanel) {
-        (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
+        (<PanelModelBase>(<any>element)).validateCore(params);
       } else {
         var question = <Question>element;
-        if (!question.validate(rec.fireCallback, undefined, rec)) {
-          if (!firstErroredEl) {
-            firstErroredEl = question;
-          }
-          if (!rec.firstErrorQuestion) {
-            rec.firstErrorQuestion = question;
-          }
-          rec.result = true;
-        }
+        question.validateElement(params);
       }
     }
     if (!singleQ) {
-      this.hasErrorsInPanels(rec);
+      this.hasErrorsInPanels(params);
       this.updateContainsErrors();
-    }
-    if (!firstErroredEl && this.errors.length > 0) {
-      firstErroredEl = this.getFirstQuestionToFocus(false, true);
-      if (!rec.firstErrorQuestion) {
-        rec.firstErrorQuestion = firstErroredEl;
-      }
-    }
-    if (rec.fireCallback && firstErroredEl) {
-      const selQ = singleQ ? (rec.firstErrorQuestion || firstErroredEl) : firstErroredEl;
-      if (rec.focusOnFirstError) {
-        selQ.focus(true);
-      } else {
-        selQ.expandAllParents();
-      }
     }
   }
   protected getContainsErrors(): boolean {

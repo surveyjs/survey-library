@@ -14,7 +14,7 @@ import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { TextContextProcessor } from "./textPreProcessor";
 import { Base } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationParamsRunner } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -32,7 +32,6 @@ import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IA
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
-import { IValidationParams } from "./validator";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -2108,7 +2107,7 @@ export class QuestionPanelDynamicModel extends Question
       this.panelsCore[i].onAnyValueChanged(settings.expressionVariables.panel, "");
     }
   }
-  private hasKeysDuplicated(params: IValidationParams): boolean {
+  private hasKeysDuplicated(params: ValidationParamsRunner): boolean {
     var keyValues: Array<any> = [];
     var res;
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -2127,7 +2126,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateContainsErrors();
   }
-  protected validateElementCore(params: IValidationParams): boolean {
+  protected validateElementCore(params: ValidationParamsRunner): boolean {
     if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return true;
     let res = true;
     if (!!this.changingValueQuestion) {
@@ -2249,7 +2248,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  private hasErrorInPanels(params: IValidationParams): boolean {
+  private hasErrorInPanels(params: ValidationParamsRunner): boolean {
     var res = false;
     var panels = this.visiblePanels;
     var keyValues: Array<any> = [];
@@ -2258,7 +2257,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     const focusOnError = params.focusOnFirstError === true;
     for (let i = 0; i < panels.length; i++) {
-      let pnlError = panels[i].hasErrors(params.fireCallback, focusOnError, params);
+      let pnlError = panels[i].validateElement(params);
       pnlError = this.isValueDuplicated(panels[i], keyValues, params) || pnlError;
       if (!this.isRenderModeList && pnlError && !res && focusOnError) {
         this.currentIndex = i;
@@ -2271,11 +2270,11 @@ export class QuestionPanelDynamicModel extends Question
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
-        this.raiseOnCompletedAsyncValidators(hasErrors);
+        this.raiseOnCompletedAsyncValidators();
       };
     }
   }
-  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, params: IValidationParams): boolean {
+  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, params: ValidationParamsRunner): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
@@ -2293,9 +2292,7 @@ export class QuestionPanelDynamicModel extends Question
             new KeyDuplicationError(this.keyDuplicationError, this)
           );
         }
-        if (!params.firstErrorQuestion) {
-          params.firstErrorQuestion = question;
-        }
+        params.setError(question);
         return true;
       }
     }

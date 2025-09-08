@@ -35,7 +35,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, Question } from "./question";
+import { IQuestionPlainData, Question, ValidationParamsRunner } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -4469,37 +4469,21 @@ export class SurveyModel extends SurveyElementCore
    * @see validateCurrentPage
    * @see validatePage
    */
-  public validate(
-    fireCallback: boolean = true,
-    focusFirstError: boolean = false,
-    onAsyncValidation?: (hasErrors: boolean) => void,
-    changeCurrentPage?: boolean
-  ): boolean {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
     if (!!onAsyncValidation) {
       fireCallback = true;
     }
     var visPages = this.visiblePages;
-    var res = true;
-    const rec = { fireCallback: fireCallback, focusOnFirstError: focusFirstError, firstErrorQuestion: <any>null, result: false };
+    const params = new ValidationParamsRunner({ fireCallback: fireCallback, focusOnFirstError: focusFirstError });
+    params.changeCurrentPage = !!changeCurrentPage;
+    if (onAsyncValidation) {
+      params.callbackResult = (res: boolean) => { onAsyncValidation(!res); };
+    }
     for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, focusFirstError, rec)) {
-        res = false;
-      }
+      visPages[i].validateElement(params);
     }
-    if (!!rec.firstErrorQuestion && (focusFirstError || changeCurrentPage)) {
-      if (focusFirstError) {
-        rec.firstErrorQuestion.focus(true);
-      } else {
-        this.currentPage = rec.firstErrorQuestion.page;
-      }
-    }
-    if (!res || !onAsyncValidation) return res;
-    return this.checkForAsyncQuestionValidation(
-      this.getAllQuestions(),
-      (hasErrors: boolean) => onAsyncValidation(hasErrors)
-    )
-      ? undefined
-      : true;
+    params.finish();
+    return !params.isRunning || !params.result ? params.result : undefined;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {

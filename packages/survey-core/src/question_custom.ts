@@ -24,7 +24,7 @@ import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
-import { IValidationParams } from "./validator";
+import { ValidationParamsRunner } from "./question";
 
 /**
  * An interface used to create custom question types.
@@ -869,7 +869,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
     }
   }
-  protected validateElementCore(params: IValidationParams): boolean {
+  protected validateElementCore(params: ValidationParamsRunner): boolean {
     if (!this.contentQuestion) return true;
     var res = this.contentQuestion.validateElement(params);
     this.errors = [];
@@ -1094,10 +1094,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
-  protected validateElementCore(params: IValidationParams): boolean {
+  protected validateElementCore(params: ValidationParamsRunner): boolean {
     const res = super.validateElementCore(params);
     const pnl = this.contentPanel;
-    return !!pnl ? pnl.validate(params.fireCallback, params.focusOnFirstError === true, params) && res : res;
+    return !!pnl ? pnl.validateElement(params) && res : res;
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);

@@ -1,7 +1,6 @@
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, ValidationParamsRunner } from "./question";
 import { Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { IValidationParams } from "./validator";
 
 /**
  * A base class for question types that cannot have a value ([Html](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel)).
@@ -27,7 +26,7 @@ export class QuestionNonValue extends Question {
   public get hasComment(): boolean {
     return false;
   }
-  protected validateElementCore(params: IValidationParams): boolean {
+  protected validateElementCore(params: ValidationParamsRunner): boolean {
     return true;
   }
   public getAllErrors(): Array<SurveyError> {

@@ -1,6 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
-import { Question } from "../src/question";
+import { Question, ValidationParamsRunner } from "../src/question";
 import { PanelModel, QuestionRowModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, Serializer } from "../src/jsonobject";
@@ -307,7 +307,6 @@ QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", functi
   q2.value = "abc";
   assert.equal(panel2.errors.length, 0, "There is no errors in panel, #6");
 });
-
 QUnit.test("Panel with paneldynamic error focus", function (assert) {
   const json = {
     elements: [
@@ -328,22 +327,14 @@ QUnit.test("Panel with paneldynamic error focus", function (assert) {
     ],
   };
   const survey = new SurveyModel(json);
-  const rec = {
-    focusOnFirstError: true,
-    firstErrorQuestion: <any>null,
-  };
+  const params = new ValidationParamsRunner({ fireCallback: true, focusOnFirstError: true });
   const panel = survey.getPanelByName("p1");
 
   survey.isCurrentPageHasErrors;
-  panel["hasErrorsCore"](rec);
+  panel.validateElement(params);
 
-  assert.equal(
-    rec.firstErrorQuestion.name,
-    "textinpd",
-    "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
-  );
+  assert.equal(params.firstErrorQuestion?.name, "textinpd", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
 });
-
 QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page has error", function (assert) {
   var focusedQuestionId = "";
   const oldFunc = SurveyElement.FocusElement;
@@ -372,20 +363,16 @@ QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page 
     ],
   };
   const survey = new SurveyModel(json);
-  const page = survey.currentPage;
+  const page = <PageModel>survey.currentPage;
 
-  const rec: any = {
-    fireCallback: true,
-    focusOnFirstError: true
-  };
-  page.hasErrors(true, true, rec);
-  assert.equal(rec.firstErrorQuestion.name, "chk1", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
-  assert.equal(focusedQuestionId, rec.firstErrorQuestion.inputId, "focus the question");
+  let params = new ValidationParamsRunner({ fireCallback: true, focusOnFirstError: true });
+  page.validateElement(params);
+  assert.equal(params.firstErrorQuestion.name, "chk1", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
+  assert.equal(focusedQuestionId, params.firstErrorQuestion.inputId, "focus the question");
 
   focusedQuestionId = "";
-  rec.focusOnFirstError = false;
-  rec.firstErrorQuestion = null;
-  page.hasErrors(true, false, rec);
+  params = new ValidationParamsRunner({ fireCallback: true, focusOnFirstError: false });
+  page.validateElement(params);
   assert.notOk(focusedQuestionId, "don't scroll to question - T3101 - Stop focus when page has error");
   SurveyElement.FocusElement = oldFunc;
 });

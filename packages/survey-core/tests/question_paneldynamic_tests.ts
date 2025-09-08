@@ -7940,7 +7940,7 @@ QUnit.test("A dynamic matrix cell value is reset when adding a new outer dynanic
   assert.equal(matrix1.visibleRows[0].getQuestionByName("col1").value, "main1_detail1", "Last row value, matrix1");
   assert.equal(matrix2.visibleRows[0].getQuestionByName("col1").value, "main1_detail2", "Last row value, matrix2");
 });
-QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937", function (assert) {
+QUnit.test("Validation doesn't work if a user doesn't visit the page, Bug#8937", function (assert) {
   const survey = new SurveyModel({
     logoPosition: "right",
     pages: [

@@ -10,17 +10,16 @@ import { IValueGetterContext } from "./conditionProcessValue";
 
 export interface IValidationParams {
   fireCallback: boolean;
-  isOnValueChanged: boolean;
+  isOnValueChanged?: boolean;
   focusOnFirstError?: boolean;
   firstErrorQuestion?: IQuestion;
   callbackResult?: (res: boolean, element: IElement) => void;
 }
 export class AsyncElementsRunner {
-  private asyncElements: HashTable<boolean>;
-  private isRunning: boolean;
+  private asyncElements: HashTable<boolean> = {};
+  private isRunningValue: boolean;
   constructor (private onCompleted: () => void) {
-    this.asyncElements = {};
-    this.isRunning = true;
+    this.isRunningValue = true;
   }
   public addElement(id: string) {
     this.asyncElements[id] = true;
@@ -30,12 +29,20 @@ export class AsyncElementsRunner {
     this.tryComplete();
   }
   public finish(): void {
-    this.isRunning = false;
+    this.isRunningValue = false;
     this.tryComplete();
   }
-  private tryComplete(): void {
-    if (!this.isRunning && Object.keys(this.asyncElements).length === 0) {
+  public get isRunning(): boolean {
+    return this.isRunningValue || Object.keys(this.asyncElements).length > 0;
+  }
+  protected doCompleted() {
+    if (this.onCompleted) {
       this.onCompleted();
+    }
+  }
+  private tryComplete(): void {
+    if (!this.isRunning) {
+      this.doCompleted();
     }
   }
 }

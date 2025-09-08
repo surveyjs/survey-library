@@ -14377,12 +14377,6 @@ QUnit.test(
   }
 );
 QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel required", function (assert) {
-  var focusedQuestionId = "";
-  const oldFunc = SurveyElement.FocusElement;
-  SurveyElement.FocusElement = function (elId: string): boolean {
-    focusedQuestionId = elId;
-    return true;
-  };
   const survey = new SurveyModel({
     checkErrorsMode: "onComplete",
     pages: [
@@ -14402,12 +14396,23 @@ QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel re
       },
     ],
   });
+  let focusedQuestionName = "";
+  let counter = 0;
+  let isOnError = false;
+  const oldQuestion = survey.focusQuestionByInstance;
+  survey.focusQuestionByInstance = (question: Question, onError: boolean = false): boolean => {
+    counter ++;
+    focusedQuestionName = question.name;
+    isOnError = onError;
+    return oldQuestion.call(survey, question, onError);
+  };
   survey.nextPage();
   survey.nextPage();
   survey.tryComplete();
   assert.equal(survey.currentPageNo, 0, "comeback to the first page");
-  assert.equal(survey.getQuestionByName("q1").inputId, focusedQuestionId, "panel is required");
-  SurveyElement.FocusElement = oldFunc;
+  assert.equal(survey.getQuestionByName("q1").name, focusedQuestionName, "panel is required");
+  assert.equal(counter, 1, "focusQuestion called one time");
+  assert.equal(isOnError, true, "focusQuestion called with onError = true");
 });
 QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + focusOnFirstError = false, Bug#8322", function (assert) {
   var focusedQuestionId = "";
@@ -14436,7 +14441,9 @@ QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + f
     ],
   });
   survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "survey.currentPageNo = 1");
   survey.nextPage();
+  assert.equal(survey.currentPageNo, 2, "survey.currentPageNo = 2");
   focusedQuestionId = "";
   survey.tryComplete();
   survey.afterRenderPage(<HTMLElement>{});

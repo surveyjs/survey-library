@@ -327,10 +327,7 @@ QUnit.test("Matrixdynamic duplicationError", function (assert) {
     "There is no errors, row[0].column1=val1"
   );
   question.value = [{ column1: "val1" }, { column1: "val1" }];
-  assert.equal(
-    question.hasErrors(),
-    true,
-    "There is the error, row[0].column1=val1 and row[1].column2=val1"
+  assert.equal(question.hasErrors(), true, "There is the error, row[0].column1=val1 and row[1].column2=val1"
   );
   assert.equal(question.visibleRows[0].getQuestionByColumnName("column1").errors.length,
     1, "There is an error in the first row: errors.length");
@@ -10678,7 +10675,7 @@ QUnit.test("minRowCount vs rowCount, Bug#8899", function (assert) {
   assert.equal(matrix4.visibleRows.length, 4, "matrix4 rowCount: 4");
   assert.deepEqual(matrix4.value, [{ col1: 1 }, { col1: 1 }, { col1: 1 }, { col1: 1 }], "matrix4 value");
 });
-QUnit.test("Validation doesn't work if a user doensn't visit the page, Bug#8937", function (assert) {
+QUnit.test("Validation doesn't work if a user doesn't visit the page, Bug#8937", function (assert) {
   const survey = new SurveyModel({
     logoPosition: "right",
     pages: [

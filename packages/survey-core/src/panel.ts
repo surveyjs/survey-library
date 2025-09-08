@@ -958,10 +958,11 @@ export class PanelModelBase extends SurveyElement<Question>
    * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false): boolean {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
     const params = new ValidationParamsRunner({
       fireCallback: fireCallback,
-      focusOnFirstError: focusFirstError
+      focusOnFirstError: focusFirstError,
+      callbackResult: callbackResult
     });
     this.validateCore(params);
     params.finish();

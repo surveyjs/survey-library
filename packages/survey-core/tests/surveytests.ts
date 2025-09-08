@@ -21576,9 +21576,9 @@ QUnit.test("questionsOnPageMode & validationEnabled , Bug#9558", function (asser
   };
   const survey = new SurveyModel(json);
   survey.validationEnabled = false;
-  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion");
+  assert.equal(survey.currentSingleQuestion.name, "q1", "currentSingleQuestion #1");
   assert.equal(survey.performNext(), true, "Can go futher");
-  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion");
+  assert.equal(survey.currentSingleQuestion.name, "q2", "currentSingleQuestion #2");
   assert.equal(survey.tryComplete(), true, "Survey is completed");
 });
 QUnit.test("questionsOnPageMode & visibility questions, Bug#9641", function (assert) {

@@ -4293,17 +4293,17 @@ export class SurveyModel extends SurveyElementCore
         return true;
       }
     }
-    if (this.validationEnabled && !q.validate(true)) return false;
+    if (!this.validationEnabled) {
+      this.performNextAfterValidation(q);
+      return true;
+    }
     const questions = q.isQuestion ? [q] : q.visibleQuestions;
-    const onHasErrors = (hasErrors: boolean) => {
-      this.clearAsyncValidationQuesitons();
+    const res = this.validateElements(questions, true, false, (hasErrors: boolean) => {
       if (!hasErrors) {
         this.performNextAfterValidation(q);
       }
-    };
-    if (this.checkForAsyncQuestionValidation(questions, onHasErrors)) return false;
-    this.performNextAfterValidation(q);
-    return true;
+    });
+    return res === true;
   }
   private performNextAfterValidation(q: Question): boolean {
     this.sendPartialResult();

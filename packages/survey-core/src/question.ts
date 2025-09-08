@@ -988,11 +988,7 @@ export class Question extends SurveyElement<Question>
   public validateSingleInput(): boolean {
     const q = this.currentSingleInputQuestion;
     if (!q) return true;
-    const rec = {
-      fireCallback: true,
-      focusOnFirstError: true
-    };
-    return q.validate(true, undefined, rec);
+    return q.validate(true, true);
   }
   public getSingleInputElementPos(): number {
     if (this.singleInputQuestion === this) return 0;
@@ -2765,27 +2761,27 @@ export class Question extends SurveyElement<Question>
     json["type"] = this.getType();
     return json;
   }
-  public hasErrors(fireCallback: boolean = true, rec?: any): boolean {
-    return !this.validateCore(fireCallback, false, undefined, rec);
+  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false): boolean {
+    return !this.validateCore(fireCallback, false, focusOnFirstError);
   }
   /**
    * Validates this question and returns `false` if the validation fails.
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, callbackResult?: (res: boolean, question: Question) => void, rec?: any): boolean {
-    return this.validateCore(fireCallback, true, callbackResult, rec);
+  public validate(fireCallback: boolean = true, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+    return this.validateCore(fireCallback, true, focusOnFirstError, isOnValueChanged, callbackResult);
   }
-  private validateCore(fireCallback: boolean, isRoot: boolean, callbackResult?: (res: boolean, question: Question) => void, rec?: any): boolean {
-    if (!rec) {
-      rec = { isOnValueChanged: false };
-    }
-    rec.callbackResult = callbackResult;
-    rec.fireCallback = fireCallback;
-    if (isRoot && rec.isOnValueChanged === true && !!this.parent) {
+  private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+    if (isRoot && isOnValueChanged && !!this.parent) {
       this.parent.validateContainerOnly();
     }
-    const params = new ValidationParamsRunner(rec);
+    const params = new ValidationParamsRunner({
+      isOnValueChanged: isOnValueChanged,
+      focusOnFirstError: focusOnFirstError,
+      fireCallback: fireCallback,
+      callbackResult: callbackResult
+    });
     this.validateElement(params);
     params.finish();
     return params.result;

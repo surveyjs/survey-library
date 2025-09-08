@@ -1180,7 +1180,7 @@ QUnit.test("PanelDynamic, renderMode is not list + hasError", function(assert) {
   panel.renderMode = "progressTop";
   panel.currentIndex = 1;
   assert.equal(panel.currentIndex, 1, "go to the second panel");
-  panel.hasErrors(true, { focusOnFirstError: true });
+  panel.hasErrors(true, true);
   assert.equal(panel.currentIndex, 0, "it should show the first panel where the error happened");
 });
 QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {

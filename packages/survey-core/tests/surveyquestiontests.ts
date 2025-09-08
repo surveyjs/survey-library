@@ -8609,13 +8609,13 @@ QUnit.test("Question.validate vs callback function as a parameter #10307", funct
   const callbackValidators = (res: boolean, question: Question): void => {
     callbackResults.push({ res: res, name: question?.name || "" });
   };
-  const q3Res = q3.validate(true, callbackValidators);
+  const q3Res = q3.validate(true, false, false, callbackValidators);
   assert.equal(q3Res, true, "q3Res");
   assert.equal(returnResults.length, 0, "returnResults, #1");
   assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #1");
   callbackResults.splice(0, callbackResults.length);
 
-  const q1Res = q1.validate(true, callbackValidators);
+  const q1Res = q1.validate(true, false, false, callbackValidators);
   assert.equal(q1Res, true, "q1Res");
   assert.equal(returnResults.length, 1, "returnResults, #2");
   assert.deepEqual(callbackResults, [], "callbackResults, #2");
@@ -8624,7 +8624,7 @@ QUnit.test("Question.validate vs callback function as a parameter #10307", funct
   returnResults.splice(0, returnResults.length);
   callbackResults.splice(0, callbackResults.length);
 
-  const q2Res = q2.validate(true, callbackValidators);
+  const q2Res = q2.validate(true, false, false, callbackValidators);
   assert.equal(q2Res, true, "q2Res");
   assert.equal(returnResults.length, 2, "returnResults, #3");
   assert.deepEqual(callbackResults, [], "callbackResults, #3");
@@ -8662,7 +8662,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
   const callbackValidators = (res: boolean, question: Question): void => {
     callbackResults.push({ res: res, name: question?.name || "" });
   };
-  let q3Res = q3.validate(true, callbackValidators);
+  let q3Res = q3.validate(true, false, false, callbackValidators);
   assert.equal(q3Res, true, "q3Res, #1");
   assert.equal(returnResults.length, 1, "returnResults, #1");
   assert.deepEqual(callbackResults, [], "callbackResults, #1");
@@ -8673,7 +8673,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
   returnResults.splice(0, returnResults.length);
 
   q2.value = 4;
-  q3Res = q3.validate(true, callbackValidators);
+  q3Res = q3.validate(true, false, false, callbackValidators);
   assert.equal(q3Res, true, "q3Res, #2");
   assert.equal(returnResults.length, 1, "returnResults, #2");
   assert.deepEqual(callbackResults, [], "callbackResults, #2");
@@ -8687,7 +8687,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
   q1.value = 10;
   returnResults[0](true);
   returnResults.splice(0, returnResults.length);
-  q3Res = q3.validate(true, callbackValidators);
+  q3Res = q3.validate(true, false, false, callbackValidators);
   assert.equal(q3Res, false, "q3Res, #3");
   assert.equal(returnResults.length, 1, "returnResults, #3");
   assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #3");
@@ -8701,7 +8701,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
   returnResults[0](true);
   returnResults.splice(0, returnResults.length);
 
-  q3Res = q3.validate(true, callbackValidators);
+  q3Res = q3.validate(true, false, false, callbackValidators);
   assert.equal(q3Res, false, "q3Res, #4");
   assert.equal(returnResults.length, 1, "returnResults, #4");
   assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #4");

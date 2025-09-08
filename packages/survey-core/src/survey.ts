@@ -4436,10 +4436,7 @@ export class SurveyModel extends SurveyElementCore
    * @see validate
    * @see validateCurrentPage
    */
-  public validatePage(
-    page?: PageModel,
-    onAsyncValidation?: (hasErrors: boolean) => void
-  ): boolean {
+  public validatePage(page?: PageModel, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     if (!page) {
       page = this.activePage;
     }

@@ -985,20 +985,14 @@ export class Question extends SurveyElement<Question>
     this.singleInputSummary?.dispose();
     this.resetPropertyValue("singleInputSummary");
   }
-  public validateSingleInput(fireCallback: boolean = true, rec: any = null): boolean {
+  public validateSingleInput(): boolean {
     const q = this.currentSingleInputQuestion;
     if (!q) return true;
-    rec = rec || {
-      fireCallback: fireCallback,
-      focusOnFirstError: fireCallback,
-      firstErrorQuestion: <any>null,
-      result: false,
+    const rec = {
+      fireCallback: true,
+      focusOnFirstError: true
     };
-    const res = q.validate(fireCallback, undefined, rec);
-    if (!res && rec.focusOnFirstError && !!rec.firstErrorQuestion) {
-      rec.firstErrorQuestion.focus(true);
-    }
-    return res;
+    return q.validate(true, undefined, rec);
   }
   public getSingleInputElementPos(): number {
     if (this.singleInputQuestion === this) return 0;
@@ -1068,12 +1062,7 @@ export class Question extends SurveyElement<Question>
     return !!q && !!q.singleInputSummary ? q.getSingleInputAddTextCore() : undefined;
   }
   public singleInputAddItem(checkErrors?: boolean): void {
-    const rec: any = { fireCallback: true, focusOnFirstError: true };
-    if (checkErrors && !this.validateSingleInput(true, rec)) {
-      if (rec.firstErrorQuestion) {
-        rec.firstErrorQuestion.focus(true);
-      }
-    } else {
+    if (!checkErrors || this.validateSingleInput()) {
       this.currentSingleInputQuestion.singleInputAddItemCore();
     }
   }

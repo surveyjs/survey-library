@@ -949,8 +949,8 @@ export class PanelModelBase extends SurveyElement<Question>
       (<Base>(<any>this.elements[i])).searchText(text, founded);
     }
   }
-  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, rec: any = null): boolean {
-    return !this.validate(fireCallback, focusOnFirstError, rec);
+  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false): boolean {
+    return !this.validate(fireCallback, focusOnFirstError);
   }
   /**
    * Validates questions within this panel or page and returns `false` if the validation fails.
@@ -958,22 +958,13 @@ export class PanelModelBase extends SurveyElement<Question>
    * @param focusFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, rec: any = null): boolean {
-    rec = rec || {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false): boolean {
+    const params = new ValidationParamsRunner({
       fireCallback: fireCallback,
       focusOnFirstError: focusFirstError
-    };
-    const params = new ValidationParamsRunner(rec);
+    });
     this.validateCore(params);
     params.finish();
-    if (params.fireCallback && params.firstErrorQuestion) {
-      const selQ = <Question>params.firstErrorQuestion;
-      if (params.focusOnFirstError) {
-        selQ.focus(true);
-      } else {
-        selQ.expandAllParents();
-      }
-    }
     return params.result;
   }
   public validateContainerOnly(): void {

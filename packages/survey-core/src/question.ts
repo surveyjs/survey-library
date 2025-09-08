@@ -175,6 +175,9 @@ export class ValidationParamsRunner extends AsyncElementsRunner implements IVali
     this.callbackResult = params?.callbackResult || null;
   }
   public get result(): boolean { return this.res; }
+  public get runningResult(): boolean {
+    return !this.res || !this.isRunning || !this.callbackResult ? this.res : undefined;
+  }
   public setError(element: ISurveyElement): void {
     this.errorCountValue ++;
     this.res = false;
@@ -2784,7 +2787,7 @@ export class Question extends SurveyElement<Question>
     });
     this.validateElement(params);
     params.finish();
-    return params.result;
+    return params.runningResult;
   }
   public validateElement(params: ValidationParamsRunner): boolean {
     return this.validateElementCore(params);

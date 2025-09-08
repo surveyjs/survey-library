@@ -3650,7 +3650,7 @@ QUnit.test("Panel.validate vs callback function as a parameter #10307", function
     callbackResults.push({ res: res, name: question?.name || "" });
   };
   let res = page.validate(true, false, callbackValidators);
-  assert.equal(res, true, "res #1");
+  assert.equal(res, undefined, "res #1");
   assert.equal(returnResults.length, 1, "returnResults, #1");
   assert.deepEqual(callbackResults, [], "callbackResults, #1");
   assert.equal(q1.errors.length, 0, "q1.errors #1");
@@ -3676,7 +3676,7 @@ QUnit.test("Panel.validate vs callback function as a parameter #10307", function
   returnResults.splice(0, returnResults.length);
   callbackResults.splice(0, callbackResults.length);
   res = page.validate(true, false, callbackValidators);
-  assert.equal(res, true, "res #5");
+  assert.equal(res, undefined, "res #5");
   assert.equal(returnResults.length, 1, "returnResults, #5");
   assert.deepEqual(callbackResults, [], "callbackResults, #5");
   assert.equal(q1.errors.length, 0, "q1.errors #5");

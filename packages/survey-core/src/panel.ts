@@ -966,7 +966,7 @@ export class PanelModelBase extends SurveyElement<Question>
     });
     this.validateCore(params);
     params.finish();
-    return params.result;
+    return params.runningResult;
   }
   public validateContainerOnly(): void {
     this.hasErrorsInPanels(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: false }));

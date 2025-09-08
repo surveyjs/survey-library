@@ -4470,20 +4470,22 @@ export class SurveyModel extends SurveyElementCore
    * @see validatePage
    */
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
+    return this.validateElements(this.visiblePages, fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
+  }
+  private validateElements(elements: Array<PanelModelBase| Question>, fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
     if (!!onAsyncValidation) {
       fireCallback = true;
     }
-    var visPages = this.visiblePages;
     const params = new ValidationParamsRunner({ fireCallback: fireCallback, focusOnFirstError: focusFirstError });
     params.changeCurrentPage = !!changeCurrentPage;
     if (onAsyncValidation) {
       params.callbackResult = (res: boolean) => { onAsyncValidation(!res); };
     }
-    for (var i = 0; i < visPages.length; i++) {
-      visPages[i].validateElement(params);
+    for (const element of elements) {
+      element.validateElement(params);
     }
     params.finish();
-    return !params.isRunning || !params.result ? params.result : undefined;
+    return params.runningResult;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {

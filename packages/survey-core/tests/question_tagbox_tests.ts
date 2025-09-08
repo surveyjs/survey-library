@@ -2521,3 +2521,40 @@ QUnit.test("allowCustomChoices: custom choices from survey.data", function (asse
   assert.equal(listModel.actions[0].visible, true, "#1 new custom item visible");
   assert.deepEqual(survey.data, data, "#1 survey.data");
 });
+
+QUnit.test("allowCustomChoices: custom choices with displayName from survey.data", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox", name: "q1", allowCustomChoices: true, choices: [
+        { value: "LBL", text: "Long battery life" },
+        { value: "PSC", text: "Plenty of storage capacity" },
+        { value: "HQC", text: "High-quality camera" },
+        { value: "PCPU", text: "Powerful CPU" },
+        { value: "LSS", text: "Large screen size" },
+        { value: "HDUR", text: "High durability" },
+        { value: "LP", text: "Low price" },
+      ],
+    },]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const listModel: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  const customValue = "test";
+  const questionValue = ["PCPU", "LP", customValue];
+  const data = { q1: questionValue };
+  survey.data = data;
+
+  assert.equal(question.value.length, 3, "#1 question.value.length");
+  assert.deepEqual(question.value, questionValue);
+  assert.equal(question.selectedItems.length, 3, "#1 question.selectedItems.length");
+  assert.equal(question.selectedItems[0].id, "PCPU", "#1 question.selectedItem 0");
+  assert.equal(question.selectedItems[0].title, "Powerful CPU", "#1 question.selectedItem 0");
+  assert.equal(question.selectedItems[1].id, "LP", "#1 question.selectedItem 1");
+  assert.equal(question.selectedItems[1].title, "Low price", "#1 question.selectedItem 1");
+  assert.equal(question.selectedItems[2].id, customValue, "#1 question.selectedItem 2");
+  assert.equal(question.selectedItems[2].title, customValue, "#1 question.selectedItem 2");
+  assert.equal(question.visibleChoices.length, 8, "#1 question.visibleChoices");
+  assert.equal(listModel.actions.length, 9, "listModel.actions.length");
+  assert.equal(listModel.actions[0].id, customValue, "#1 new custom item");
+  assert.equal(listModel.actions[0].visible, true, "#1 new custom item visible");
+  assert.deepEqual(survey.data, data, "#1 survey.data");
+});

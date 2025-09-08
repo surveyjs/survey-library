@@ -6,6 +6,7 @@ import { calculateIsTablet, IsTouch } from "./utils/devices";
 
 type DisplayPopupMode = "modal-popup" | "modal-overlay" | "menu-overlay" | "menu-popup-overlay" | "menu-popup";
 export interface IPopupOptionsBase {
+  onBlur?: () => void;
   onHide?: () => void;
   /**
    * A callback function executed when the dialog is opened.
@@ -68,6 +69,7 @@ export class PopupModel<T = any> extends Base implements IPopupOptionsBase {
   public onApply: () => boolean = () => { return true; };
   public onHide: () => void = () => { };
   public onShow: () => void = () => { };
+  public onBlur: () => void = () => { };
   public onDispose: () => void = () => { };
   public getTargetCallback?: (container: HTMLElement) => HTMLElement;
   public getAreaCallback?: (container: HTMLElement) => HTMLElement;

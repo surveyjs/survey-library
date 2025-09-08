@@ -6754,6 +6754,72 @@ QUnit.test("Test question.clearIfInvisible='onHiddenContainer' vs survey.clearIn
   assert.equal(q1.value, "def", "q1 value is not cleared");
   assert.equal(q2.value, "abc", "q2 value is not cleared");
 });
+QUnit.test("survey.clearInvisibleValues='onHiddenContainer' & defaultValueExpression in panel vs visibleIf, Bug#10330", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "checkbox",
+            name: "q2",
+            visibleIf:
+            "{q1} notempty",
+            choices: ["a", "b", "c"],
+          },
+          {
+            type: "paneldynamic",
+            name: "pnl1",
+            visibleIf: "{q2} contains 'c'",
+            templateElements: [
+              {
+                type: "text",
+                name: "pnl1_q1"
+              },
+            ],
+            displayMode: "tab",
+          },
+          {
+            type: "panel",
+            name: "pnl2",
+            visibleIf: "{q2} notempty",
+            elements: [
+              {
+                type: "checkbox",
+                name: "q3",
+                defaultValueExpression: "[a]",
+                choices: ["a", "b", "c"],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+    clearInvisibleValues: "onHiddenContainer",
+  });
+  const data = {
+    q1: "a",
+    q2: ["a", "c"],
+    pnl1: [
+      { pnl1_q1: "a" },
+      { pnl1_q1: "b" },
+    ],
+    q3: ["a", "b", "c"],
+  };
+
+  survey.data = data;
+  const q3 = survey.getQuestionByName("q3");
+  assert.deepEqual(q3.value, ["a", "b", "c"], "caseSelection value is set correctly");
+  assert.deepEqual(survey.data, data, "data is set correctly");
+});
+
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.inputType, "text");
@@ -8645,4 +8711,23 @@ QUnit.test("Question.validate vs callback function and two different validates #
   assert.equal(q3.errors.length, 2, "There is two errors, #4");
 
   FunctionFactory.Instance.unregister("asyncFunc");
+});
+QUnit.test("Question visibleIf && case-sensitive #10338", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "Q1" },
+      { type: "text", name: "q2", visibleIf: "{Q1} = 'a'" }
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const Q1 = <QuestionTextModel>survey.getQuestionByName("Q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "q2.visible #1");
+  Q1.value = "a";
+  assert.equal(q2.isVisible, true, "q2.visible #2");
+  Q1.value = "b";
+  assert.equal(q2.isVisible, false, "q2.visible #3");
+  q1.value = "a";
+  assert.equal(q2.isVisible, false, "q2.visible #4");
 });

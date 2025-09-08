@@ -182,5 +182,28 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-slider", "slider-theme.png");
     });
 
+    test("Slider: Inside MatrixDropdown", async ({ page }) => {
+      const json = {
+        "elements": [
+          {
+            "type": "matrixdropdown",
+            "name": "matrix-with-sliders",
+            "columns": [
+              {
+                "name": "slider",
+                "cellType": "slider",
+              }
+            ],
+            "rows": [
+              "Row 1"
+            ],
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.locator(".sd-slider__thumb-container").nth(0).hover({ force: true });
+      await compareScreenshot(page, ".sd-matrixdropdown", "slider-inside-matrix-dropdown.png");
+    });
+
   });
 });

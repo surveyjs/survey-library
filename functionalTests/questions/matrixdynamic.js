@@ -526,6 +526,40 @@ frameworks.forEach((framework) => {
 
     await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
   });
+  test("Focus remove or add button removing - no header", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
+      elements: [
+        {
+          type: "matrixdynamic",
+          name: "matrix",
+          "showHeader": false,
+          rowCount: 3,
+          columns: [
+            {
+              cellType: "text",
+              name: "name",
+              defaultValue: "abc"
+            },
+          ],
+        }
+      ]
+    });
+
+    await t.pressKey("tab tab tab")
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .wait(200)
+      .pressKey("space")
+      .pressKey("1 2 3")
+      .click(completeButton);
+
+    await t.expect(await getSurveyResult()).eql({ matrix: [{ name: "abc123" }] });
+  });
   test("Focus remove or add button removing for horizontal columns layout", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {

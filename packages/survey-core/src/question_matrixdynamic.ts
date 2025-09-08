@@ -655,7 +655,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getActionCellIndex(row: MatrixDropdownRowModelBase): number {
     const headerShift = this.showHeader ? 1 : 0;
     if (this.isColumnLayoutHorizontal) {
-      return row.cells.length - 1 + headerShift;
+      return row.cells.length;
     }
     return this.visibleRows.indexOf(row) + headerShift;
   }

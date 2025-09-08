@@ -252,6 +252,15 @@ jobs:
 
       - task: CopyFiles@2
         inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
+          Contents: |
+            surveyjs_definition.json
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+          OverWrite: true
+          CleanTargetFolder: false
+        displayName: "put surveyjs_definition.json into build"
+      - task: CopyFiles@2
+        inputs:
           SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
           TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
 

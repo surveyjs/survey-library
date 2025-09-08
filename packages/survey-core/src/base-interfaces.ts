@@ -60,6 +60,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   currentPage: IPage;
   activePage: IPage;
   pages: Array<IPage>;
+  isSettingData(): boolean;
   getCss(): any;
   isPageStarted(page: IPage): boolean;
   getQuestionByName(name: string): IQuestion;

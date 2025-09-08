@@ -1892,6 +1892,9 @@ export class QuestionSelectBase extends Question {
   protected onVisibleChoicesChanged(): void {
     if (this.isLoadingFromJson || this.isLockVisibleChoices) return;
     this.updateVisibleChoices();
+    if (this.renderedValue === this.otherItem.value) {
+      this.setRenderedValue(this.rendredValueFromData(this.value), false);
+    }
     this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();

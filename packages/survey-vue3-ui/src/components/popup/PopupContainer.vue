@@ -9,6 +9,11 @@
         model.onKeyDown(event);
       }
     "
+    v-on:focusout="
+      (event) => {
+        model.blur(event);
+      }
+    "
     v-on:click="
       (event) => {
         model.clickOutside(event);

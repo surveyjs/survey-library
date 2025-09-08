@@ -438,6 +438,36 @@ QUnit.test("Composite: content questions numbering", function (assert) {
   assert.equal(lastName.no, "b.", "second question, no is 'b.'");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: content questions numbering, continues, Bug#10324", function (assert) {
+  var json = {
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "text", name: "firstName", isRequired: true },
+      { type: "text", name: "lastName" },
+    ],
+    onCreated: function (question) {
+      question.contentPanel.showQuestionNumbers = "default";
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    showQuestionNumbers: true,
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "customerinfo", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+  });
+  const q = <QuestionCompositeModel>survey.getQuestionByName("q2");
+  const firstName = q.contentPanel.getQuestionByName("firstName");
+  const lastName = q.contentPanel.getQuestionByName("lastName");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q.no, "2.", "q no is '2.'");
+  assert.equal(firstName.no, "3.", "first question, no is '3.'");
+  assert.equal(lastName.no, "4.", "second question, no is '4.'");
+  assert.equal(q3.no, "5.", "q3 no is '5.'");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: content questions recursive numbering, Bug#10218", function (assert) {
   ComponentCollection.Instance.add({
     name: "customerinfo",

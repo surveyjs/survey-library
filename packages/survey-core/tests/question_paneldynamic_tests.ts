@@ -3383,7 +3383,50 @@ QUnit.test(
     );
   }
 );
-
+QUnit.test("clear values in panel dynamic with valueName set, Bug#10345", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "valueName": "name"
+      },
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "radiogroup",
+            "name": "q2",
+            "choices": [
+              "a",
+              "b"
+            ]
+          },
+          {
+            "type": "text",
+            "name": "q3",
+            "visibleIf": "{panel.q2} = 'a'",
+            "valueName": "name",
+            "clearIfInvisible": "onHidden"
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    q1: "name1",
+    panel: [
+      { q2: "a", name: "name2" },
+      { q2: "a", name: "name3" }
+    ]
+  };
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q2").value = "b";
+  assert.deepEqual(survey.data, { q1: "name1", panel: [{ q2: "b" }, { q2: "a", name: "name3" }] }, "values are cleared correctly, #1");
+  panel.panels[1].getQuestionByName("q2").value = "b";
+  assert.deepEqual(survey.data, { q1: "name1", panel: [{ q2: "b" }, { q2: "b" }] }, "values are cleared correctly, #2");
+});
 QUnit.test("goToNextPanel method", function(assert) {
   var json = {
     elements: [
@@ -3860,9 +3903,9 @@ QUnit.test("Panel dynamic, clearInvisibleValues='onHidden' & question valueName,
     ]
   };
   const survey = new SurveyModel(json);
-  assert.equal(survey.hasVisibleQuestionByValueName("q2_val"), false, "It is in templates");
   const pDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const panel = pDynamic.panels[0];
+  assert.equal(survey.hasVisibleQuestionByValueName(panel.getQuestionByName("q2")), false, "It is in templates");
   panel.getQuestionByName("q1").value = "a";
   panel.getQuestionByName("q2").value = "b";
   assert.deepEqual(survey.data, { panel: [{ q1_val: "a", q2_val: "b" }] }, "#1");

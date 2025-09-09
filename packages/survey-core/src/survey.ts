@@ -6765,12 +6765,13 @@ export class SurveyModel extends SurveyElementCore
     this.clearInvisibleQuestionValues();
     this.isClearingUnsedValues = false;
   }
-  hasVisibleQuestionByValueName(valueName: string): boolean {
-    var questions = this.getQuestionsByValueName(valueName);
-    if (!questions) return false;
-    for (var i: number = 0; i < questions.length; i++) {
-      const q = questions[i];
-      if (q.isVisible && q.isParentVisible && !q.parentQuestion) return true;
+  hasVisibleQuestionByValueName(question: IQuestion): boolean {
+    const checkQ = <Question>question;
+    var qs = this.getQuestionsByValueName(checkQ.getValueName());
+    if (!Array.isArray(qs) || qs.length < 2) return false;
+    for (var i: number = 0; i < qs.length; i++) {
+      const q = qs[i];
+      if (q !== checkQ && q.isVisible && q.isParentVisible && !q.parentQuestion && q.parentQuestion === checkQ.parentQuestion) return true;
     }
     return false;
   }

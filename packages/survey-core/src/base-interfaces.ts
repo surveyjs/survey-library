@@ -94,7 +94,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
-  hasVisibleQuestionByValueName(valueName: string): boolean;
+  hasVisibleQuestionByValueName(question: IQuestion): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;

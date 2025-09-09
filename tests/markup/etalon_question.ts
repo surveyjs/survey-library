@@ -39,7 +39,7 @@ registerMarkupTest(
     },
     snapshot: "question-errors-v2-top",
 
-    initSurvey: survey => survey.hasErrors(),
+    initSurvey: survey => survey.validate(),
     event: "onAfterRenderPage"
   },
 );
@@ -60,7 +60,7 @@ registerMarkupTest(
     },
     snapshot: "question-errors-v2-bottom",
 
-    initSurvey: survey => survey.hasErrors(),
+    initSurvey: survey => survey.validate(),
     event: "onAfterRenderPage"
   },
 );

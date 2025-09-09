@@ -1468,7 +1468,7 @@ QUnit.test("singleInput & two nested elements & actions 2", assert => {
   survey.performNext();
   assert.equal(panelDynamic.singleInputQuestion?.name, "endDate", "singleInputQuestion.name, #7");
   panel.getQuestionByName("endDate").value = "2023-05-01";
-  assert.equal(panel.getQuestionByName("endDate").hasErrors(false, false), false, "There is not errors, #7");
+  assert.equal(panel.getQuestionByName("endDate").validate(false, false), true, "There is not errors, #7");
   survey.performNext();
   panel = panelDynamic.panels[1];
   assert.equal(panelDynamic.singleInputQuestion?.name, "city", "singleInputQuestion.name, #8");

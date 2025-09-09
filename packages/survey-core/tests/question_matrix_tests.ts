@@ -8,9 +8,9 @@ QUnit.test("Matrix Question eachRowRequired property", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
-  assert.equal(matrix.hasErrors(), false, "There is no errors by default");
+  assert.equal(matrix.validate(), true, "There is no errors by default");
   matrix.eachRowRequired = true;
-  assert.equal(matrix.hasErrors(), true, "There is no errors by default");
+  assert.equal(matrix.validate(), false, "There is no errors by default");
 });
 QUnit.test(
   "Matrix Question eachRowRequired property, value is zero, Bug#2332",
@@ -38,9 +38,9 @@ QUnit.test(
       eachRowRequired: true,
     });
     var rows = matrix.visibleRows;
-    assert.equal(matrix.hasErrors(), true, "is Required error");
+    assert.equal(matrix.validate(), false, "is Required error");
     rows[0].value = 0;
-    assert.equal(matrix.hasErrors(), true, "eachRowRequired error");
+    assert.equal(matrix.validate(), false, "eachRowRequired error");
     rows[1].value = 0;
     assert.deepEqual(
       matrix.value,
@@ -49,7 +49,7 @@ QUnit.test(
     );
     assert.equal(rows[0].value, 0, "First row value set correctly");
     assert.equal(rows[1].value, 0, "Second row value set correctly");
-    assert.equal(matrix.hasErrors(), false, "There is no errors");
+    assert.equal(matrix.validate(), true, "There is no errors");
   }
 );
 QUnit.test("Matrix Question eachRowUnique property", function (assert) {

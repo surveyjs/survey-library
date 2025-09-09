@@ -277,11 +277,7 @@ QUnit.test(
       survey.getQuestionByName("pricelimit")
     );
     question.items[1].value = 3;
-    assert.equal(
-      question.hasErrors(),
-      false,
-      "Everything is fine, there is no errors"
-    );
+    assert.equal(question.validate(), true, "Everything is fine, there is no errors");
   }
 );
 
@@ -316,8 +312,8 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     assert.equal(
-      survey.currentPage.hasErrors(),
-      false,
+      survey.currentPage.validate(),
+      true,
       "There is no errors, values are empty"
     );
   }
@@ -343,17 +339,13 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var q = survey.getQuestionByName("q1");
     assert.equal(q.isEmpty(), true, "value is empty");
-    assert.equal(q.hasErrors(), false, "There is no errors, values are empty");
+    assert.equal(q.validate(), true, "There is no errors, values are empty");
     survey.setValue("q1", "abc");
     assert.equal(q.isEmpty(), false, "value is not empty");
-    assert.equal(q.hasErrors(), true, "There is an error");
+    assert.equal(q.validate(), false, "There is an error");
     survey.setValue("q1", "");
     assert.equal(q.isEmpty(), true, "value is empty #2");
-    assert.equal(
-      q.hasErrors(),
-      false,
-      "There is no error, again value is empty #2"
-    );
+    assert.equal(q.validate(), true, "There is no error, again value is empty #2");
   }
 );
 
@@ -387,10 +379,10 @@ QUnit.test("Expression validator", function(assert) {
   );
   question.items[0].value = 5;
   question.items[1].value = 3;
-  assert.equal(question.hasErrors(), true, "5 <= 3");
+  assert.equal(question.validate(), false, "5 <= 3");
   question.items[0].value = 3;
   question.items[1].value = 5;
-  assert.equal(question.hasErrors(), false, "5 >= 3");
+  assert.equal(question.validate(), true, "5 >= 3");
 });
 
 QUnit.test("Expression validator #2", function(assert) {

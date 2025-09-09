@@ -260,10 +260,10 @@ QUnit.test("Single: hasError", function (assert) {
     elements: [{ type: "newquestion", name: "q1" }],
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  assert.equal(q.hasErrors(), true, "contentQuestion is required");
+  assert.equal(q.validate(), false, "contentQuestion is required");
   assert.equal(q.errors.length, 1, "There is one error");
   q.contentQuestion.value = 1;
-  assert.equal(q.hasErrors(), false, "contentQuestion has value");
+  assert.equal(q.validate(), true, "contentQuestion has value");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: hasError/isRequired", function (assert) {
@@ -279,13 +279,13 @@ QUnit.test("Single: hasError/isRequired", function (assert) {
     elements: [{ type: "newquestion", name: "q1", isRequired: true }],
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  assert.equal(q.hasErrors(), true, "contentQuestion is required");
+  assert.equal(q.validate(), false, "contentQuestion is required");
   assert.equal(q.errors.length, 1, "There is one error");
   q.contentQuestion.value = 1;
-  assert.equal(q.hasErrors(), false, "contentQuestion has value");
+  assert.equal(q.validate(), true, "contentQuestion has value");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: hasErrors", function (assert) {
+QUnit.test("Composite: validate", function (assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -299,12 +299,12 @@ QUnit.test("Composite: hasErrors", function (assert) {
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var firstName = q.contentPanel.getQuestionByName("firstName");
-  assert.equal(q.hasErrors(), true, "firstName is required");
+  assert.equal(q.validate(), false, "firstName is required");
   firstName.value = "abc";
-  assert.equal(q.hasErrors(), false, "firstName has value");
+  assert.equal(q.validate(), true, "firstName has value");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: hasErrors/isRequired", function (assert) {
+QUnit.test("Composite: validate/errors/isRequired", function (assert) {
   var json = {
     name: "customerinfo",
     elementsJSON: [
@@ -318,9 +318,9 @@ QUnit.test("Composite: hasErrors/isRequired", function (assert) {
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
   var firstName = q.contentPanel.getQuestionByName("firstName");
-  assert.equal(q.hasErrors(), true, "question is empty");
+  assert.equal(q.validate(), false, "question is empty");
   firstName.value = "abc";
-  assert.equal(q.hasErrors(), false, "question is not empty");
+  assert.equal(q.validate(), true, "question is not empty");
   ComponentCollection.Instance.clear();
 });
 

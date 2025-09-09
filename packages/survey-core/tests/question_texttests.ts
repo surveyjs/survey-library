@@ -129,7 +129,7 @@ QUnit.test("min date error text, bug #4596", function(assert) {
     elements: [{ type: "text", name: "q1", inputType: "date", min: "2000-10-10" }]
   });
   survey.setValue("q1", "2000-09-09");
-  assert.equal(survey.hasErrors(), true, "there is an error");
+  assert.equal(survey.validate(), false, "there is an error");
   const errorText = survey.getQuestionByName("q1").errors[0].text;
   assert.equal(errorText.indexOf(":"), -1, "There is no time in the error text");
 });

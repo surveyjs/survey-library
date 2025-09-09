@@ -186,7 +186,7 @@ QUnit.test("Expand panel on validation error", function (assert) {
   question.isRequired = true;
   assert.equal(panel1.isCollapsed, true, "Panel1 is collapsed");
   assert.equal(panel2.isCollapsed, true, "Panel2 is collapsed");
-  page.hasErrors(true, true);
+  page.validate(true, true);
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collapsed");
 });
@@ -223,21 +223,17 @@ QUnit.test("Panel.isRequired", function (assert) {
   const panel2 = page.addNewPanel("p2");
   const q1 = <Question>panel.addNewQuestion("text", "q1");
   const q2 = <Question>panel.addNewQuestion("text", "q2");
-  assert.equal(panel.hasErrors(), false, "There is no errors");
+  assert.equal(panel.validate(), true, "There is no errors");
   assert.equal(panel.hasVisibleErrors, false, "There is no visible errors");
   panel.isRequired = true;
-  assert.equal(panel.hasErrors(), true, "All questions are empty");
+  assert.equal(panel.validate(), false, "All questions are empty");
   assert.equal(panel.errors.length, 1, "One error");
   assert.equal(panel.hasVisibleErrors, true, "There is visible errors");
   q1.value = "1";
-  assert.equal(panel.hasErrors(), false, "The first question is not empty");
+  assert.equal(panel.validate(), true, "The first question is not empty");
   assert.equal(panel.hasVisibleErrors, false, "There no visible errors");
   panel2.isRequired = true;
-  assert.equal(
-    panel.hasErrors(),
-    false,
-    "There is no visible questions in the panel"
-  );
+  assert.equal(panel.validate(), true, "There is no visible questions in the panel");
   assert.equal(panel.hasVisibleErrors, false, "There no visible errors");
 });
 QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
@@ -249,7 +245,7 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
   panel.addNewQuestion("text", "q1");
   panel.isRequired = true;
   survey.hideRequiredErrors = true;
-  assert.equal(panel.hasErrors(), true, "All questions are empty");
+  assert.equal(panel.validate(), false, "All questions are empty");
   assert.equal(panel.errors.length, 1, "One error");
   assert.equal(panel.errors[0].visible, false, "error is invisible");
   assert.equal(
@@ -295,7 +291,7 @@ QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", functi
   const panel1 = survey.getPanelByName("panel1");
   const q1 = survey.getQuestionByName("q1");
   assert.equal(panel1.errors.length, 0, "There is no errors in panel, #1");
-  panel1.hasErrors();
+  panel1.validate();
   assert.equal(panel1.errors.length, 1, "There is an error in panel, #2");
   q1.value = "abc";
   assert.equal(panel1.errors.length, 0, "There is no errors in panel, #3");
@@ -303,7 +299,7 @@ QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", functi
   const panel2 = survey.getPanelByName("panel2");
   const q2 = survey.getQuestionByName("q2");
   assert.equal(panel2.errors.length, 0, "There is no errors in panel, #4");
-  panel2.hasErrors();
+  panel2.validate();
   assert.equal(panel2.errors.length, 1, "There is an error in panel, #5");
   q2.value = "abc";
   assert.equal(panel2.errors.length, 0, "There is no errors in panel, #6");
@@ -566,7 +562,7 @@ QUnit.test("Get first focused question correctly, Bug#1417", function (assert) {
     ],
   });
   const page = survey.pages[0];
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(
     page.getFirstQuestionToFocus().name,
     "q6",
@@ -596,7 +592,7 @@ QUnit.test("Get first focused error question for matrix cell", function (assert)
     ],
   });
   const page = survey.pages[0];
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "col1", "The first question for focusing is matrix cell question");
 });
 QUnit.test("Get first focused error question for panel dynamic question", function (assert) {
@@ -617,7 +613,7 @@ QUnit.test("Get first focused error question for panel dynamic question", functi
     ],
   });
   const page = survey.pages[0];
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "question1", "The first question for focusing is in matrix dynamic");
 });
 QUnit.test("Get first focused question on collapsed panel", function (assert) {
@@ -635,7 +631,7 @@ QUnit.test("Get first focused question on collapsed panel", function (assert) {
   const page = survey.pages[0];
   assert.equal(page.getFirstQuestionToFocus().name, "q2", "q1 is in collapsed panel");
   assert.equal(page.getFirstQuestionToFocus(false, true).name, "q1", "ignore collapsed state");
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
 });
 QUnit.test("Flow Panel, add new element/remove element", function (assert) {

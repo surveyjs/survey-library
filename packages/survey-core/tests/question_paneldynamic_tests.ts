@@ -363,11 +363,11 @@ QUnit.test("Has errors", function(assert) {
   (<Question>question.template.questions[0]).isRequired = true;
   question.isRequired = true;
   question.value = [];
-  assert.equal(question.hasErrors(), true, "main question requires a value");
+  assert.equal(question.validate(), false, "main question requires a value");
   question.value = [{ q1: "item1_1" }, {}];
-  assert.equal(question.hasErrors(), true, "q1 on the second row is not set");
+  assert.equal(question.validate(), false, "q1 on the second row is not set");
   question.value = [{ q1: "item1_1" }, { q1: "item2_1" }];
-  assert.equal(question.hasErrors(), false, "There is no errors now");
+  assert.equal(question.validate(), true, "There is no errors now");
 });
 QUnit.test("Update panels elements on changing template panel", function(
   assert
@@ -1180,7 +1180,7 @@ QUnit.test("PanelDynamic, renderMode is not list + hasError", function(assert) {
   panel.renderMode = "progressTop";
   panel.currentIndex = 1;
   assert.equal(panel.currentIndex, 1, "go to the second panel");
-  panel.hasErrors(true, true);
+  panel.validate(true, true);
   assert.equal(panel.currentIndex, 0, "it should show the first panel where the error happened");
 });
 QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
@@ -1193,17 +1193,17 @@ QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
   panel.template.addNewQuestion("text", "panelq2");
   panel.panelCount = 2;
   panel.keyName = "panelq1";
-  assert.equal(panel.hasErrors(true), false, "There is no errors");
+  assert.equal(panel.validate(true), true, "There is no errors");
   (<Question>panel.panels[0].questions[0]).value = "val1";
   assert.equal(
-    panel.hasErrors(true),
-    false,
+    panel.validate(true),
+    true,
     "There is no errors panel[0].q1 = val1"
   );
   (<Question>panel.panels[1].questions[0]).value = "val1";
   assert.equal(
-    panel.hasErrors(true),
-    true,
+    panel.validate(true),
+    false,
     "There is the error panel[0].q1 = val1 and panel[1].q1 = val1"
   );
   assert.equal(
@@ -1223,8 +1223,8 @@ QUnit.test("PanelDynamic, keyName + hasError + getAllErrors", function(assert) {
   );
   (<Question>panel.panels[1].questions[0]).value = "val2";
   assert.equal(
-    panel.hasErrors(true),
-    false,
+    panel.validate(true),
+    true,
     "There is no error panel[0].q1 = val1 and panel[1].q1 = val2"
   );
   assert.equal(
@@ -1269,8 +1269,8 @@ QUnit.test("PanelDynamic, keyName + hasError, Bug #1820", function(assert) {
     { relativeType: "father" },
   ]);
   assert.equal(
-    survey.currentPage.hasErrors(true),
-    true,
+    survey.currentPage.validate(true),
+    false,
     "There are two 'father' in keyName property"
   );
 });
@@ -2403,12 +2403,12 @@ QUnit.test(
     panel.panelCount = 1;
     panel.panels[0].questions[0].value = {};
 
-    assert.equal(page.hasErrors(), true, "There are errors items are empty");
+    assert.equal(page.validate(), false, "There are errors items are empty");
 
     panel.panels[0].questions[0].value = { item1: 5, item2: 5 };
-    assert.equal(page.hasErrors(), true, "There is error item2 less than 10");
+    assert.equal(page.validate(), false, "There is error item2 less than 10");
     panel.panels[0].questions[0].value = { item1: 5, item2: 11 };
-    assert.equal(page.hasErrors(), false, "There is no errors");
+    assert.equal(page.validate(), true, "There is no errors");
   }
 );
 QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
@@ -3493,10 +3493,10 @@ QUnit.test("goToNextPanel method", function(assert) {
     0,
     "first panel is current because of validation errors"
   );
-  assert.equal(panelDynamic.currentPanel.hasErrors(), true);
+  assert.equal(panelDynamic.currentPanel.validate(), false);
 
   survey.data = { pd: [{ q1: "a" }, { q1: "b" }] };
-  assert.equal(panelDynamic.currentPanel.hasErrors(), false);
+  assert.equal(panelDynamic.currentPanel.validate(), true);
 
   panelDynamic.goToNextPanel();
   assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
@@ -3530,10 +3530,10 @@ QUnit.test("do not add new panel for list", function(assert) {
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current because of validation errors");
   assert.equal(panelDynamic.panelCount, 1, "There is still one panel");
   assert.equal(panelDynamic.canAddPanel, true, "You still can show buttons");
-  assert.equal(panelDynamic.currentPanel.hasErrors(), true);
+  assert.equal(panelDynamic.currentPanel.validate(), false);
 
   survey.data = { pd: [{ q1: "a" }] };
-  assert.equal(panelDynamic.currentPanel.hasErrors(), false);
+  assert.equal(panelDynamic.currentPanel.validate(), true);
 
   panelDynamic.addPanelUI();
   assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
@@ -3706,7 +3706,7 @@ QUnit.test("paneldynamic isRequired + survey.checkErrorsMode='onValueChanged', B
   });
   var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
-  survey.hasErrors();
+  survey.validate();
   assert.equal(panel.errors.length, 1, "There is one error in panel dynamic, #1");
   q1.value = "test";
   assert.equal(panel.errors.length, 0, "There is no error in panel dynamic, #2");
@@ -3788,9 +3788,9 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     panel.panels[0].getQuestionByName("pq1").value = "val1";
     survey.getQuestionByName("q1").value = "val";
-    assert.equal(panel.hasErrors(), true, "There is an error");
+    assert.equal(panel.validate(), false, "There is an error");
     panel.panels[0].getQuestionByName("pq1").value = "val";
-    assert.equal(panel.hasErrors(), false, "There is no errors");
+    assert.equal(panel.validate(), true, "There is no errors");
   }
 );
 
@@ -4050,7 +4050,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Paneldynamic duplicate key value error adds several times into cell question.errors on calling hasErrors(false), Bug #3869",
+  "Paneldynamic duplicate key value error adds several times into cell question.errors on calling validate(false), Bug #3869",
   function(assert) {
     var survey = new SurveyModel({
       elements: [
@@ -4076,13 +4076,13 @@ QUnit.test(
     var question2 = panelDynamic.panels[1].questions[0];
     question1.value = "1";
     question2.value = "1";
-    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #1");
-    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #2");
-    assert.equal(survey.hasErrors(false), true, "There is a duplication error, #2");
+    assert.equal(survey.validate(false), false, "There is a duplication error, #1");
+    assert.equal(survey.validate(false), false, "There is a duplication error, #2");
+    assert.equal(survey.validate(false), false, "There is a duplication error, #2");
     assert.equal(question2.errors.length, 0, "There is no errors, fireCallback parameter is false");
-    assert.equal(survey.hasErrors(), true, "There is a duplication error, #3");
-    assert.equal(survey.hasErrors(), true, "There is a duplication error, #4");
-    assert.equal(survey.hasErrors(), true, "There is a duplication error, #5");
+    assert.equal(survey.validate(), false, "There is a duplication error, #3");
+    assert.equal(survey.validate(), false, "There is a duplication error, #4");
+    assert.equal(survey.validate(), false, "There is a duplication error, #5");
     assert.equal(question2.errors.length, 1, "There is one error");
   }
 );

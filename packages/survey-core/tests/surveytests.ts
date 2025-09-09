@@ -626,11 +626,11 @@ QUnit.test("Do not show required error for readOnly questions", function (
   var page = survey.pages[0];
   var q1 = <Question>(<Question>page.questions[0]);
   q1.isRequired = true;
-  assert.equal(page.hasErrors(), true, "There is a required error");
+  assert.equal(page.validate(), false, "There is a required error");
   q1.readOnly = true;
   assert.equal(
-    page.hasErrors(),
-    false,
+    page.validate(),
+    true,
     "There is no errors, the question is readOnly"
   );
 });
@@ -641,9 +641,9 @@ QUnit.test("DO not change errors array on fireCallback = false", function (
   var page = survey.pages[0];
   var q1 = <Question>(<Question>page.questions[0]);
   q1.isRequired = true;
-  assert.equal(page.hasErrors(false), true, "There is a required error");
+  assert.equal(page.validate(false), false, "There is a required error");
   assert.equal(q1.errors.length, 0, "The errors array is empty");
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(q1.errors.length, 1, "The errors array is not empty now");
 });
 QUnit.test("Do not show required error for value 0 and false, #345", function (
@@ -653,25 +653,25 @@ QUnit.test("Do not show required error for value 0 and false, #345", function (
   var page = survey.pages[0];
   var q1 = <Question>(<Question>page.questions[0]);
   q1.isRequired = true;
-  assert.equal(page.hasErrors(), true, "There is a required error");
+  assert.equal(page.validate(), false, "There is a required error");
   survey.setValue("question1", 0);
   assert.equal(q1.value, 0, "question1.value == 0");
   assert.equal(
-    page.hasErrors(),
-    false,
+    page.validate(),
+    true,
     "There is no errors, the question value is 0"
   );
   survey.setValue("question1", false);
   assert.equal(q1.value, false, "question1.value == false");
   assert.equal(
-    page.hasErrors(),
-    false,
+    page.validate(),
+    true,
     "There is no errors, the question value is false"
   );
   survey.setValue("question1", null);
   assert.equal(
-    page.hasErrors(),
-    true,
+    page.validate(),
+    false,
     "There is a required error, the question value is null"
   );
 });
@@ -1394,24 +1394,24 @@ QUnit.test(
 
     assert.equal(survey.nextPage(), false, "Can not go to the next page");
     assert.equal(
-      survey.pages[0].questions[0].hasErrors(),
-      true,
+      survey.pages[0].questions[0].validate(),
+      false,
       "The question is not filled out."
     );
     assert.equal(
-      survey.pages[0].hasErrors(),
-      true,
+      survey.pages[0].validate(),
+      false,
       "The page is not filled out."
     );
     (<Question>survey.pages[0].questions[0]).value = "Test";
 
     assert.equal(survey.nextPage(), true, "Can go to the next page");
     assert.equal(
-      survey.pages[0].questions[0].hasErrors(),
-      false,
+      survey.pages[0].questions[0].validate(),
+      true,
       "The question is filled out."
     );
-    assert.equal(survey.pages[0].hasErrors(), false, "The page is filled out.");
+    assert.equal(survey.pages[0].validate(), true, "The page is filled out.");
   }
 );
 QUnit.test("survey.checkErrorsMode = 'onValueChanged'", function (assert) {
@@ -2078,14 +2078,14 @@ QUnit.test("Multiple Text required items", function (assert) {
   assert.equal(item1.fullTitle, "item1", "Add isRequired Text");
   assert.equal(item2.fullTitle, "item2", "there is no isRequired Text");
   assert.equal(
-    multiTextQuestion.hasErrors(),
-    true,
+    multiTextQuestion.validate(),
+    false,
     "item1 is required and it is empty"
   );
   item1.value = 1;
   assert.equal(
-    multiTextQuestion.hasErrors(),
-    false,
+    multiTextQuestion.validate(),
+    true,
     "item1 is required and it has a value"
   );
 });
@@ -4893,9 +4893,9 @@ QUnit.test(
     var page1 = survey.getPageByName("page1");
     var q1 = <Question>(<Question>page1.questions[0]);
     q1.value = [];
-    assert.equal(page1.hasErrors(), true, "There is a required error");
+    assert.equal(page1.validate(), false, "There is a required error");
     q1.value = ["yes"];
-    assert.equal(page1.hasErrors(), false, "There is no required error");
+    assert.equal(page1.validate(), true, "There is no required error");
   }
 );
 
@@ -6046,7 +6046,7 @@ QUnit.test("Survey Markdown - question.validators", function (assert) {
   validator.text = "errormarkdown";
   question1.validators.push(validator);
   survey.setValue("q1", "val");
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(validator.locText.renderedHtml, "error!", "Markdown is working");
   assert.equal(
     question1.errors[0].locText.renderedHtml,
@@ -6774,7 +6774,7 @@ QUnit.test("Dublicate errors", function (assert) {
   var valueChangedCounter = 0;
   survey.onValueChanged.add(function (s, options) {
     valueChangedCounter++;
-    options.question.hasErrors(true);
+    options.question.validate(true);
   });
   assert.equal(q.errors.length, 0, "There is no errors so far");
   q.value = "26";
@@ -11181,7 +11181,7 @@ QUnit.test("Show several errors based on validation", function (assert) {
   });
   var question = <Question>survey.getQuestionByValueName("q1");
   question.value = { Field1: 51, Field2: 60 };
-  question.hasErrors(true);
+  question.validate(true);
   assert.equal(question.errors.length, 4, "There are 4 errors should be shown");
 });
 
@@ -11202,7 +11202,7 @@ QUnit.test("getCustomErrorText for error", function (assert) {
     }
   });
   var question = survey.currentPage.questions[0];
-  survey.pages[0].hasErrors(true);
+  survey.pages[0].validate(true);
   assert.equal(
     question.errors[0].getText(),
     "!!!Question Name",
@@ -11689,7 +11689,7 @@ QUnit.test("page.clearErrors function", function (assert) {
     true,
     "The matrix cell question is required."
   );
-  page.hasErrors();
+  page.validate();
   assert.equal(
     question.errors.length,
     1,
@@ -12136,7 +12136,7 @@ QUnit.test("hasCurrentPageErrors with async", function (assert) {
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
-QUnit.test("hasErrors with async", function (assert) {
+QUnit.test("validate with async", function (assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;
   function asyncFunc1(params: any): any {
@@ -12163,16 +12163,12 @@ QUnit.test("hasErrors with async", function (assert) {
   var func = (hasErrors: boolean) => {
     asyncHasErrors = hasErrors;
   };
-  assert.equal(
-    survey.hasErrors(false, false, func),
-    undefined,
-    "We don't know, we return undefined"
-  );
+  assert.equal(survey.validate(false, false, func), undefined, "We don't know, we return undefined");
   assert.equal(asyncHasErrors, undefined, "It is not executed yet");
   returnResult1(0);
   assert.equal(asyncHasErrors, true, "Has errors");
   asyncHasErrors = undefined;
-  survey.hasErrors(false, false, func);
+  survey.validate(false, false, func);
   assert.equal(asyncHasErrors, undefined, "It is not executed yet, #2");
   returnResult1(1);
   assert.equal(asyncHasErrors, undefined, "Not all executed, #2");
@@ -12843,12 +12839,12 @@ QUnit.test("Question css classes", function (assert) {
     defaultQuestionRoot,
     "titleLocation = default and remove small"
   );
-  survey.hasErrors();
+  survey.validate();
   var addError = " " + survey.css.question.hasError;
   assert.equal(q1.cssRoot, defaultQuestionRoot + addError, "has error");
   assert.equal(q1.cssTitle, "title onError", "question title, on error");
   q1.value = "somevalue";
-  survey.hasErrors();
+  survey.validate();
   assert.equal(q1.cssRoot, defaultQuestionRoot, "no errors");
   assert.equal(q1.cssTitle, "title onAnswer", "question title, on answer");
   q1.clearValue();
@@ -14054,10 +14050,10 @@ QUnit.test("Add this.question into custom function for validators", function (
   });
   var q1 = survey.getQuestionByName("q1");
   q1.value = 3;
-  assert.equal(q1.hasErrors(), true, "value < 5");
+  assert.equal(q1.validate(), false, "value < 5");
   assert.equal(hasQuestion, true, "this.question is not undefined");
   q1.value = 10;
-  assert.equal(q1.hasErrors(), false, "value > 5");
+  assert.equal(q1.validate(), true, "value > 5");
   FunctionFactory.Instance.unregister("getCustValue");
   assert.equal(hasQuestion, true, "this.question is not undefined#2");
 });
@@ -14642,7 +14638,7 @@ QUnit.test("Expand question on validation error", function (assert) {
   q1.isRequired = true;
   q1.collapse();
   assert.equal(q1.isCollapsed, true, "Question1 is collapsed");
-  q1.hasErrors(true);
+  q1.validate(true);
   assert.equal(q1.isCollapsed, false, "Question1 is not collapsed");
   assert.equal(q1.isExpanded, true, "Question1 is expanded");
 });
@@ -17817,7 +17813,7 @@ QUnit.test("Get first focused question on collapsed question", function (assert)
   const page = survey.pages[0];
   assert.equal(page.getFirstQuestionToFocus().name, "q2", "q1 is in collapsed panel");
   assert.equal(page.getFirstQuestionToFocus(false, true).name, "q1", "ignore collapsed state");
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
 });
 QUnit.test("Check getProgressCssClasses method", function (assert) {

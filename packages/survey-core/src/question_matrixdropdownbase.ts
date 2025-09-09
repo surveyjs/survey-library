@@ -561,7 +561,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.isSettingValue = false;
       newValue = this.value;
     }
-    if (this.data.isValidateOnValueChanging && this.hasQuestonError(changedQuestion)) return;
+    if (this.data.isValidateOnValueChanging && !this.validateCellQuestion(changedQuestion)) return;
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
@@ -611,14 +611,14 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (!name && !keys) return;
     this.questions.forEach(q => q.runTriggers(name, value, keys));
   }
-  private hasQuestonError(question: Question): boolean {
-    if (!question) return false;
+  private validateCellQuestion(question: Question): boolean {
+    if (!question) return true;
     if (!question.validateElement(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: !this.data.isValidateOnValueChanging })))
-      return true;
-    if (question.isEmpty()) return false;
+      return false;
+    if (question.isEmpty()) return true;
     var cell = this.getCellByColumnName(question.name);
-    if (!cell || !cell.column || !cell.column.isUnique) return false;
-    return this.data.checkIfValueInRowDuplicated(this, question);
+    if (!cell || !cell.column || !cell.column.isUnique) return true;
+    return !this.data.checkIfValueInRowDuplicated(this, question);
   }
   public get isEmpty() {
     var val = this.value;

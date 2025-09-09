@@ -106,11 +106,11 @@ QUnit.test(
     var question = new Question("q1");
     question.isRequired = true;
 
-    question.hasErrors();
+    question.validate();
     assert.equal(question.ariaInvalid, "true", "aria-invalid is TRUE because we have errors");
 
     question.value = "test";
-    question.hasErrors();
+    question.validate();
     assert.equal(question.ariaInvalid, "false", "aria-invalid is FALSE because we don't have any errors");
   }
 );
@@ -121,11 +121,11 @@ QUnit.test(
     var question = new Question("q1");
     question.isRequired = true;
 
-    question.hasErrors();
+    question.validate();
     assert.equal(question.ariaErrormessage, question.id + "_errors", "aria-errormessage is NOT NULL because we have errors");
 
     question.value = "test";
-    question.hasErrors();
+    question.validate();
     assert.equal(question.ariaErrormessage, null, "aria-errormessage is NULL because we don't have any errors");
   }
 );

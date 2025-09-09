@@ -969,7 +969,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return params.runningResult;
   }
   public validateContainerOnly(): void {
-    this.hasErrorsInPanels(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: false }));
+    this.validateInPanels(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: false }));
     if (!!this.parent) {
       this.parent.validateContainerOnly();
     }
@@ -989,9 +989,9 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  private hasErrorsInPanels(params: ValidationParamsRunner): void {
+  private validateInPanels(params: ValidationParamsRunner): void {
     var errors = <Array<any>>[];
-    this.hasRequiredError(params, errors);
+    this.validateRequired(params, errors);
     if (this.survey) {
       this.survey.validatePanel(this, errors, params.fireCallback);
       if (errors.length > 0) {
@@ -1008,7 +1008,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return text;
   }
 
-  private hasRequiredError(params: ValidationParamsRunner, errors: Array<SurveyError>): void {
+  private validateRequired(params: ValidationParamsRunner, errors: Array<SurveyError>): void {
     if (!this.isRequired) return;
     var visQuestions = <Array<any>>[];
     this.addQuestionsToList(visQuestions, true);
@@ -1042,7 +1042,7 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     if (!singleQ) {
-      this.hasErrorsInPanels(params);
+      this.validateInPanels(params);
       this.updateContainsErrors();
     }
   }

@@ -1716,7 +1716,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private canLeaveCurrentPanel(): boolean {
-    return !(this.displayMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
+    return this.displayMode === "list" || !this.currentPanel || this.currentPanel.validate(true, true);
   }
   private copyValue(dest: any, src: any) {
     for (var key in src) {
@@ -2134,7 +2134,7 @@ export class QuestionPanelDynamicModel extends Question
       res = !this.hasKeysDuplicated(params) && qRes;
       this.updatePanelsContainsErrors();
     } else {
-      res = !this.hasErrorInPanels(params);
+      res = this.validateInPanels(params);
     }
     return super.validateElementCore(params) && res;
   }
@@ -2248,18 +2248,18 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  private hasErrorInPanels(params: ValidationParamsRunner): boolean {
-    var res = false;
-    var panels = this.visiblePanels;
-    var keyValues: Array<any> = [];
+  private validateInPanels(params: ValidationParamsRunner): boolean {
+    let res = true;
+    const panels = this.visiblePanels;
+    const keyValues: Array<any> = [];
     const focusOnError = params.focusOnFirstError === true;
     for (let i = 0; i < panels.length; i++) {
-      let pnlError = !panels[i].validateElement(params);
-      pnlError = this.isValueDuplicated(panels[i], keyValues, params) || pnlError;
-      if (!this.isRenderModeList && pnlError && !res && focusOnError) {
+      let isPnlValid = panels[i].validateElement(params);
+      isPnlValid = !this.isValueDuplicated(panels[i], keyValues, params) && isPnlValid;
+      if (!this.isRenderModeList && !isPnlValid && res && focusOnError) {
         this.currentIndex = i;
       }
-      res = pnlError || res;
+      res = isPnlValid && res;
     }
     return res;
   }

@@ -1022,7 +1022,7 @@ export class PanelModelBase extends SurveyElement<Question>
   public validateElement(params: ValidationParamsRunner): boolean {
     const errorCount = params.errorCount;
     this.validateCore(params);
-    return params.errorCount > errorCount;
+    return params.errorCount <= errorCount;
   }
   protected validateCore(params: ValidationParamsRunner): void {
     let singleQ = <Question>this.survey?.currentSingleQuestion;

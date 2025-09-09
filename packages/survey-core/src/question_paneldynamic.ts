@@ -1228,7 +1228,7 @@ export class QuestionPanelDynamicModel extends Question
     if (checkDynamic) {
       for (let i = 0; i < panels.length; i ++) {
         const panel = panels[i];
-        if (!panel.hasValueAnyQuestion(true) || panel.hasErrors(false, false)) {
+        if (!panel.hasValueAnyQuestion(true) || !panel.validate(false, false)) {
           this.fillSingleInputQuestionsByPanel(res, panel);
         }
       }
@@ -2254,7 +2254,7 @@ export class QuestionPanelDynamicModel extends Question
     var keyValues: Array<any> = [];
     const focusOnError = params.focusOnFirstError === true;
     for (let i = 0; i < panels.length; i++) {
-      let pnlError = panels[i].validateElement(params);
+      let pnlError = !panels[i].validateElement(params);
       pnlError = this.isValueDuplicated(panels[i], keyValues, params) || pnlError;
       if (!this.isRenderModeList && pnlError && !res && focusOnError) {
         this.currentIndex = i;

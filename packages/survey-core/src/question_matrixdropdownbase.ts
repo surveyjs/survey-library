@@ -794,32 +794,29 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  public hasErrors(params: ValidationParamsRunner): boolean {
-    var res = false;
-    var cells = this.cells;
+  public validate(params: ValidationParamsRunner): boolean {
+    let res = true;
+    const cells = this.cells;
     if (!cells) return res;
-    for (var colIndex = 0; colIndex < cells.length; colIndex++) {
+    for (let colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
-      var question = cells[colIndex].question;
+      const question = cells[colIndex].question;
       if (!question || !question.visible) continue;
       if (!!params && params.isOnValueChanged === true && question.isEmpty())
         continue;
-      res = !question.validateElement(params) || res;
-      if (res) {
-        params.setError(question);
-      }
+      res = question.validateElement(params) && res;
     }
     if (this.hasPanel) {
       this.ensureDetailPanel();
-      const panelHasError = this.detailPanel.validateElement(params);
+      const isValid = this.detailPanel.validateElement(params);
       const rec = <any>params;
-      if (!rec.hideErroredPanel && panelHasError && params.fireCallback) {
+      if (!rec.hideErroredPanel && !isValid && params.fireCallback) {
         if (rec.isSingleDetailPanel) {
           rec.hideErroredPanel = true;
         }
         this.showDetailPanel();
       }
-      res = panelHasError || res;
+      res = isValid && res;
     }
     return res;
   }
@@ -2345,7 +2342,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     (<any>params).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
-        res = !rows[i].hasErrors(params) && res;
+        res = rows[i].validate(params) && res;
       }
     }
     return res;

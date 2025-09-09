@@ -654,7 +654,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getActionCellIndex(row: MatrixDropdownRowModelBase): number {
     const headerShift = this.showHeader ? 1 : 0;
     if (this.isColumnLayoutHorizontal) {
-      return row.cells.length - 1 + headerShift;
+      return row.cells.length;
     }
     return this.visibleRows.indexOf(row) + headerShift;
   }
@@ -724,9 +724,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.onEndRowRemoving(row);
   }
   private removeRowCore(index: number) {
-    var row = this.generatedVisibleRows
-      ? this.generatedVisibleRows[index]
+    var row = this.visibleRows
+      ? this.visibleRows[index]
       : null;
+    index = this.generatedVisibleRows.indexOf(row);
+    if (index < 0) return;
     if (this.generatedVisibleRows && index < this.generatedVisibleRows.length) {
       this.generatedVisibleRows.splice(index, 1);
     }

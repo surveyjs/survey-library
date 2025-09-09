@@ -112,7 +112,6 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     return new VariableGetterContext(this.valuesHash).getValue(path, isRoot, index, createObjects);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    name = name.toLowerCase();
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
     const isUnwrapped = name.endsWith(unWrappedNameSuffix);
     if (isUnwrapped) {
@@ -3290,6 +3289,7 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
+  private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
       this.valuesHash = {};
@@ -3300,12 +3300,15 @@ export class SurveyModel extends SurveyElementCore
         this.setDataValueCore(this.valuesHash, dataKey, data[key]);
       }
     }
+    this.isSettingDataValue = true;
     this.updateAllQuestionsValue(clearData);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
+    this.isSettingDataValue = false;
     this.runConditions();
     this.updateAllQuestionsValue(clearData);
   }
+  public isSettingData(): boolean { return this.isSettingDataValue === true; }
   public get isSurvey(): boolean { return true; }
   /**
    * Returns an object with survey results.
@@ -6192,20 +6195,9 @@ export class SurveyModel extends SurveyElementCore
    * @see getAllQuestions
    * @see getQuestionByValueName
    */
-  public getQuestionByName(
-    name: string,
-    caseInsensitive: boolean = false
-  ): Question {
-    if (!name) return null;
-    if (caseInsensitive) {
-      name = name.toLowerCase();
-    }
-    var hash: HashTable<any> = !!caseInsensitive
-      ? this.questionHashes.namesInsensitive
-      : this.questionHashes.names;
-    var res = hash[name];
-    if (!res) return null;
-    return res[0];
+  public getQuestionByName(name: string, caseInsensitive: boolean = false): Question {
+    const res = this.getQuestionsFromHash(this.questionHashes.names, this.questionHashes.namesInsensitive, name, caseInsensitive);
+    return !!res ? res[0] : null;
   }
   findQuestionByName(name: string): IQuestion {
     return this.getQuestionByName(name);
@@ -6220,10 +6212,7 @@ export class SurveyModel extends SurveyElementCore
    * @see getAllQuestions
    * @see getQuestionByName
    */
-  public getQuestionByValueName(
-    valueName: string,
-    caseInsensitive: boolean = false
-  ): Question {
+  public getQuestionByValueName(valueName: string, caseInsensitive: boolean = false): Question {
     var res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return !!res ? res[0] : null;
   }
@@ -6234,21 +6223,24 @@ export class SurveyModel extends SurveyElementCore
    * @see getAllQuestions
    * @see getQuestionByName
    */
-  public getQuestionsByValueName(
-    valueName: string,
-    caseInsensitive: boolean = false
-  ): Array<Question> {
-    var hash: HashTable<any> = !!caseInsensitive
-      ? this.questionHashes.valueNamesInsensitive
-      : this.questionHashes.valueNames;
-    var res = hash[valueName];
-    if (!res) return null;
-    return res;
+  public getQuestionsByValueName(valueName: string, caseInsensitive: boolean = false): Array<Question> {
+    return this.getQuestionsFromHash(this.questionHashes.valueNames, this.questionHashes.valueNamesInsensitive, valueName, caseInsensitive);
   }
   public getCalculatedValueByName(name: string): CalculatedValue {
     for (var i = 0; i < this.calculatedValues.length; i++) {
       if (name == this.calculatedValues[i].name)
         return this.calculatedValues[i];
+    }
+    return null;
+  }
+  private getQuestionsFromHash(hash: HashTable<any>, hashInsensative: HashTable<any>, name: string, caseInsensitive: boolean): any {
+    if (!name) return null;
+    let res = hash[name];
+    if (!!res) return res;
+    if (caseInsensitive) {
+      name = name.toLowerCase();
+      res = hashInsensative[name];
+      if (!!res) return res;
     }
     return null;
   }
@@ -6989,12 +6981,13 @@ export class SurveyModel extends SurveyElementCore
     this.clearInvisibleQuestionValues();
     this.isClearingUnsedValues = false;
   }
-  hasVisibleQuestionByValueName(valueName: string): boolean {
-    var questions = this.getQuestionsByValueName(valueName);
-    if (!questions) return false;
-    for (var i: number = 0; i < questions.length; i++) {
-      const q = questions[i];
-      if (q.isVisible && q.isParentVisible && !q.parentQuestion) return true;
+  hasVisibleQuestionByValueName(question: IQuestion): boolean {
+    const checkQ = <Question>question;
+    var qs = this.getQuestionsByValueName(checkQ.getValueName());
+    if (!Array.isArray(qs) || qs.length < 2) return false;
+    for (var i: number = 0; i < qs.length; i++) {
+      const q = qs[i];
+      if (q !== checkQ && q.isVisible && q.isParentVisible && !q.parentQuestion && q.parentQuestion === checkQ.parentQuestion) return true;
     }
     return false;
   }

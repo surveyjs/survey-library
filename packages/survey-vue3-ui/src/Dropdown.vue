@@ -3,9 +3,9 @@
     <SvComponent :is="'sv-dropdown'" :question="question"></SvComponent>
     <SvComponent
       :is="'survey-other-choice'"
-      v-if="question.isShowingChoiceComment"
+      v-if="isShowingChoiceComment"
       :question="question"
-      :item="question.selectedItem"
+      :item="selectedItem"
     />
   </div>
 </template>
@@ -14,9 +14,11 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionDropdownModel } from "survey-core";
 import { useQuestion } from "./base";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionDropdownModel }>();
 const root = ref(null);
 useQuestion(props, root);
+const selectedItem = computed(() => props.question.selectedItem );
+const isShowingChoiceComment = computed(() => props.question.isShowingChoiceComment);
 </script>

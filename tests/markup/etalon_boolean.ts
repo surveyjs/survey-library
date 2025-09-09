@@ -93,6 +93,22 @@ registerMarkupTests(
     snapshot: "boolean-checkbox-defaultV2",
   },
   {
+    name: "Test Boolean Checkbox question markup: Required",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "boolean",
+          title: "Question title",
+          titleLocation: "hidden",
+          isRequired: true,
+          renderAs: "checkbox"
+        },
+      ]
+    },
+    snapshot: "boolean-checkbox-defaultV2-required",
+  },
+  {
     name: "Test Boolean Checkbox question markup: Readonly",
     json: {
       questions: [

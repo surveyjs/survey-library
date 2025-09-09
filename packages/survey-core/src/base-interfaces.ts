@@ -60,6 +60,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   currentPage: IPage;
   activePage: IPage;
   pages: Array<IPage>;
+  isSettingData(): boolean;
   getCss(): any;
   isPageStarted(page: IPage): boolean;
   getQuestionByName(name: string): IQuestion;
@@ -95,7 +96,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
   validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
-  hasVisibleQuestionByValueName(valueName: string): boolean;
+  hasVisibleQuestionByValueName(question: IQuestion): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string, item?: any): string;

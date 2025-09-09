@@ -873,7 +873,7 @@ export class QuestionSelectBase extends Question {
         val = val.value;
       }
     }
-    if (this.getStoreOthersAsComment()) return val;
+    if (this.getStoreOthersAsComment() || !this.showOtherItem) return val;
     return this.renderedValueFromDataCore(val);
   }
   private getValueFromValueWithComment(val: any): any {
@@ -1891,6 +1891,9 @@ export class QuestionSelectBase extends Question {
   protected onVisibleChoicesChanged(): void {
     if (this.isLoadingFromJson || this.isLockVisibleChoices) return;
     this.updateVisibleChoices();
+    if (this.renderedValue === this.otherItem.value) {
+      this.setRenderedValue(this.rendredValueFromData(this.value), false);
+    }
     this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();

@@ -458,5 +458,27 @@ frameworks.forEach(framework => {
       const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
       await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-comment.png");
     });
+
+    test("Paneldynamic: removePanelButtonLocation=right", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      const json = {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q2",
+              }
+            ],
+            "panelCount": 2,
+            "removePanelButtonLocation": "right"
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      const paneldynamicRoot = page.locator(".sd-question--paneldynamic");
+      await compareScreenshot(page, paneldynamicRoot, "panel-dynamic-removepanelbuttonlocation-right.png");
+    });
   });
 });

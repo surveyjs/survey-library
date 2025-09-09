@@ -937,3 +937,23 @@ QUnit.test("setValueExpression", (assert) => {
   assert.deepEqual(qMin.value, 10, "min value from slider");
   assert.deepEqual(qMax.value, 80, "max value from slider");
 });
+
+QUnit.test("Preview", (assert) => {
+  let json:any = {
+    "elements": [
+      {
+        "type": "slider",
+        "name": "slider",
+      },
+    ]
+  };
+  let survey = new SurveyModel(json);
+  survey.showPreview();
+  let slider = <QuestionSliderModel>survey.getQuestionByName("slider");
+  assert.deepEqual(slider.renderedValue, [0], "default value");
+
+  slider["oldValue"] = [0];
+  const event: any = { target: { value: 50 } };
+  slider.handleOnChange(event, 0);
+  assert.deepEqual(slider.renderedValue, [0], "the value doesn't changed");
+});

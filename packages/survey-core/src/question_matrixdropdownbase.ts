@@ -1270,9 +1270,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.clearVisibleRows();
     this.resetRenderedTable();
     super.onRowsChanged();
+    this.updateRowsVisibleIndexes();
+  }
+  private updateRowsVisibleIndexes(): void {
     const rows = this.visibleRows;
+    if (!Array.isArray(rows)) return;
+    const vriName = settings.expressionVariables.visibleRowIndex;
+    const keys = {};
+    keys[vriName] = 0;
     for (let i = 0; i < rows.length; i ++) {
       rows[i].visibleIndex = i;
+      keys[vriName] = i + 1;
+      rows[i].runTriggers(vriName, i + 1, keys);
     }
   }
   private lockResetRenderedTable: boolean = false;
@@ -1388,6 +1397,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - [`"boolean"`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model)
    * - [`"expression"`](https://surveyjs.io/form-library/documentation/api-reference/expression-model)
    * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
+   * - [`"slider"`](https://surveyjs.io/form-library/documentation/api-reference/questionslidermodel)
    *
    * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    *
@@ -1894,6 +1904,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!this.visibleRowsArray) return this.visibleRowsArray;
     this.generateVisibleRowsIfNeeded();
     this.visibleRowsArray = this.getVisibleFromGenerated(this.generatedVisibleRows);
+    this.updateRowsVisibleIndexes();
     return this.visibleRowsArray;
   }
   public get allRows(): Array<MatrixDropdownRowModelBase> {

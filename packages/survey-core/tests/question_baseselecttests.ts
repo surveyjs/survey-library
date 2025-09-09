@@ -267,7 +267,7 @@ QUnit.test("settings.noneItemValue", function (assert) {
   settings.noneItemValue = "none";
 });
 
-QUnit.test("Set ", function (assert) {
+QUnit.test("Set choicesByUrl for checkbox", function (assert) {
   var json = {
     questions: [
       {
@@ -295,6 +295,63 @@ QUnit.test("Set ", function (assert) {
   assert.equal(q2.choicesByUrl.path, "path1", "path set correctly");
   assert.equal(q2.choicesByUrl.valueName, "val1", "valueName set correctly");
   assert.equal(q2.choicesByUrl.titleName, "", "titleName is cleard");
+});
+QUnit.test("Bind two checkboxes by valueName, Bug#10344", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        valueName: "data",
+        choices: ["a"]
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        valueName: "data",
+        choices: ["b"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.deepEqual(survey.data, { data: ["a"] }, "check q1");
+  q2.clickItemHandler(q2.choices[0], true);
+  assert.deepEqual(survey.data, { data: ["a", "b"] }, "check q2");
+  assert.deepEqual(q1.value, ["a", "b"], "q1 value is correct");
+  assert.deepEqual(q2.value, ["a", "b"], "q2 value is correct");
+  assert.equal(q1.isItemSelected(q1.choices[0]), true, "q1 item is selected");
+  assert.equal(q2.isItemSelected(q2.choices[0]), true, "q2 item is selected");
+});
+QUnit.test("Bind two checkboxes by valueName & storeOthersAsComment= false, Bug#10344", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "checkbox",
+        name: "q1",
+        valueName: "data",
+        choices: ["a"]
+      },
+      {
+        type: "checkbox",
+        name: "q2",
+        valueName: "data",
+        choices: ["b"]
+      },
+    ],
+    storeOthersAsComment: false
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.deepEqual(survey.data, { data: ["a"] }, "check q1");
+  q2.clickItemHandler(q2.choices[0], true);
+  assert.deepEqual(survey.data, { data: ["a", "b"] }, "check q2");
+  assert.deepEqual(q1.value, ["a", "b"], "q1 value is correct");
+  assert.deepEqual(q2.value, ["a", "b"], "q2 value is correct");
+  assert.equal(q1.isItemSelected(q1.choices[0]), true, "q1 item is selected");
+  assert.equal(q2.isItemSelected(q2.choices[0]), true, "q2 item is selected");
 });
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -2949,6 +3006,43 @@ QUnit.test("Radiogroup question and choices has comment, storeOthersAsComment: f
   checkFunc("q2", false, 2);
   checkFunc("q3", true, 3);
   checkFunc("q4", false, 4);
+});
+QUnit.test("storeOthersAsComment: false, add dynamic question vs survey.data, Bug#10327", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    "elements": [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choices": [1, 2, 3]
+      }
+    ]
+  });
+  survey.data = {
+    q1: 2,
+    q2: 2,
+    q3: 3
+  };
+  const page = survey.pages[0];
+  const q1 = survey.getQuestionByName("q1");
+  survey.onValueChanged.add((sender, options) => {
+    if (options.name === "q1" && options.value === 1) {
+      const q2 = page.addNewQuestion("radiogroup", "q2");
+      q2.fromJSON({ choices: [1, 2, 3] });
+      const q3 = page.addNewQuestion("radiogroup", "q3");
+      q3.fromJSON({ choices: [1, 2, 3] });
+    }
+  });
+  q1.value = 1;
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.value, 1, "q1 is correct");
+  assert.equal(q2.value, 2, "q2 is correct");
+  assert.equal(q3.value, 3, "q3 is correct");
+  assert.equal(q2.selectedItem.value, 2, "q2 selectedItem.value is correct");
+  assert.equal(q2.renderedValue, 2, "q2 renderedValue is correct");
+  assert.equal(q2.isItemSelected(q2.choices[1]), true, "q2 isItemSelected(1) is correct");
+  assert.equal(q2.isOtherSelected, false, "q2 isOtherSelected is correct");
 });
 QUnit.test("Create multiple choice item for checkbox", (assert) => {
   const survey = new SurveyModel({

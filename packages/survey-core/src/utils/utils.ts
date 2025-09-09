@@ -485,11 +485,27 @@ export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOpt
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
   if (!getComputedStyle) getComputedStyle = (elt: Element) => { return DomDocumentHelper.getComputedStyle(elt); };
-
+  const rows = parseFloat(element.getAttribute("rows") || "2");
   const style = getComputedStyle(element);
-  element.style.height = "auto";
+  const oldOverlow = style.overflowY;
+  const lineHeight = parseFloat(style.lineHeight);
   if (!!element.scrollHeight) {
-    element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+    const paddingBorderWidth = (parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth) + parseFloat(style.paddingBottom) + parseFloat(style.paddingTop));
+    let currentLinesCount = (element.scrollHeight - paddingBorderWidth) / lineHeight;
+    const setHeight = (linesCount: number) => { element.style.height = linesCount * lineHeight + paddingBorderWidth + "px"; };
+    setHeight(currentLinesCount);
+    element.style.overflowY = "hidden";
+    while(element.scrollHeight <= element.offsetHeight && currentLinesCount > rows) {
+      currentLinesCount--;
+      setHeight(currentLinesCount);
+    }
+    element.style.overflowY = oldOverlow;
+    if (element.scrollHeight > element.offsetHeight) {
+      currentLinesCount++;
+      setHeight(currentLinesCount);
+    }
+  } else {
+    element.style.height = "auto";
   }
 }
 function getOriginalEvent(event: any) {

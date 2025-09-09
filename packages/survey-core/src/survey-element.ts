@@ -338,7 +338,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return "sv-skeleton";
   }
-
+  protected canUpdateValueOnVisibleChanged(): boolean {
+    return !this.isLoadingFromJson && !!this.survey && !this.survey.isSettingData();
+  }
   private parentQuestionValue: E = null;
   /**
    * A Dynamic Panel, Dynamic Matrix, or Dropdown Matrix that includes the current question.

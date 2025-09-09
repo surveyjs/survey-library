@@ -82,6 +82,30 @@ frameworks.forEach((framework) => {
       await expect(popupSelector).not.toBeVisible();
     });
 
+    test("check popup blur callback", async ({ page }) => {
+      await initSurvey(page, framework, {});
+      await page.evaluate((json) => {
+        window["survey"].onGetQuestionTitleActions.add((_, opt) => {
+          const item = window["Survey"].createDropdownActionModel(
+            { title: "Click", showTitle: true },
+            { onBlur: () => { window["testVariable"] = "ok"; }, items: [new window["Survey"].Action({ title: "Item 1" })] }
+          );
+          opt.titleActions = [item];
+        });
+        window["survey"].fromJSON(json);
+      }, json);
+
+      const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
+      const clickButton = page.locator(".sd-action").first();
+
+      await expect(popupSelector).not.toBeVisible();
+      await clickButton.click();
+      await expect(popupSelector).toBeVisible();
+      await page.locator("body").click();
+      const testVariable = await page.evaluate(() => window["testVariable"]);
+      expect(testVariable).toBe("ok");
+    });
+
     test("check ordinary popup when isVisible is changed twice", async ({ page }) => {
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {

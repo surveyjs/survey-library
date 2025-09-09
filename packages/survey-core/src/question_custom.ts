@@ -1226,7 +1226,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public setVisibleIndex(val: number): number {
     var res = super.setVisibleIndex(val);
     if (this.isVisible && !!this.contentPanel) {
-      res += this.contentPanel.setVisibleIndex(val);
+      res += this.contentPanel.setVisibleIndex(val + 1);
     }
     return res;
   }
@@ -1269,6 +1269,9 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
     this.runPanelTriggers(settings.expressionVariables.composite + "." + name, newValue);
+    if (this.isEditingSurveyElement) {
+      this.runCondition(this.getFilteredProperties());
+    }
   }
   setComment(name: string, newValue: string, locNotification: any): any {
     let val = this.getUnbindValue(this.value);

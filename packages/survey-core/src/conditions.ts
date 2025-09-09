@@ -1,5 +1,5 @@
-import { HashTable, Helpers } from "./helpers";
-import { IValueGetterContext, ProcessValue, VariableGetterContext } from "./conditionProcessValue";
+import { HashTable } from "./helpers";
+import { IValueGetterContext, ProcessValue, VariableGetterContextEx } from "./conditionProcessValue";
 import { ConsoleWarnings } from "./console-warnings";
 import { Operand, FunctionOperand, AsyncFunctionItem } from "./expressions/expressions";
 import { ConditionsParser } from "./conditionsParser";
@@ -170,8 +170,8 @@ export class ExpressionExecutor implements IExpresionExecutor {
     return !!this.operand;
   }
 
-  public run(values: HashTable<any>, properties: HashTable<any> = null, id: number): any {
-    return this.runContext(new VariableGetterContext(values), properties, id);
+  public run(values: HashTable<any>, properties?: HashTable<any>, id?: number): any {
+    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties, id);
   }
   public runContext(context: IValueGetterContext, properties: HashTable<any> = null, id: number): any {
     if (!this.operand) {
@@ -244,8 +244,8 @@ export class ExpressionRunnerBase {
 
 export class ConditionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: boolean) => void;
-  public runValues(values: HashTable<any>, properties: HashTable<any> = null): boolean {
-    return this.runContext(new VariableGetterContext(values), properties);
+  public runValues(values: HashTable<any>, properties?: HashTable<any>): boolean {
+    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties);
   }
   public runContext(context: IValueGetterContext, properties?: HashTable<any>): boolean {
     return this.runContextCore(context, properties) == true;
@@ -258,8 +258,8 @@ export class ConditionRunner extends ExpressionRunnerBase {
 
 export class ExpressionRunner extends ExpressionRunnerBase {
   public onRunComplete: (result: any) => void;
-  public runValues(values: HashTable<any>, properties: HashTable<any> = null): any {
-    return this.runContext(new VariableGetterContext(values), properties);
+  public runValues(values: HashTable<any>, properties?: HashTable<any>): any {
+    return this.runContext(new VariableGetterContextEx(values, properties?.context), properties);
   }
   public runContext(context: IValueGetterContext, properties?: HashTable<any>): any {
     return this.runContextCore(context, properties);

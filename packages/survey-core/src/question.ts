@@ -2899,7 +2899,6 @@ export class Question extends SurveyElement<Question>
     return this.isRequired && this.isEmpty();
   }
   private validatorRunner: ValidatorRunner;
-  public onCompletedAsyncValidators: (hasErrors: boolean) => void;
   public get isRunningValidators(): boolean {
     return this.getIsRunningValidators();
   }
@@ -2930,13 +2929,6 @@ export class Question extends SurveyElement<Question>
       });
     }
     this.validatorRunner = null;
-    this.raiseOnCompletedAsyncValidators();
-  }
-  protected raiseOnCompletedAsyncValidators(): void {
-    if (!this.isRunningValidators && !!this.onCompletedAsyncValidators) {
-      this.onCompletedAsyncValidators(this.getAllErrors().length > 0);
-      this.onCompletedAsyncValidators = null;
-    }
   }
   public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;

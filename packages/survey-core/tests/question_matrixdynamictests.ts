@@ -4439,47 +4439,31 @@ QUnit.test(
   }
 );
 
-QUnit.test(
-  "Matrix validation in cells and async functions in expression",
-  function (assert) {
-    var returnResult: (res: any) => void;
-    function asyncFunc(params: any): any {
-      returnResult = this.returnResult;
-      return false;
-    }
-    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
-
-    var question = new QuestionMatrixDynamicModel("q1");
-    question.rowCount = 1;
-    var column = question.addColumn("col1");
-    column.validators.push(new ExpressionValidator("asyncFunc() = 1"));
-    var rows = question.visibleRows;
-    question.hasErrors();
-    var onCompletedAsyncValidatorsCounter = 0;
-    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-      onCompletedAsyncValidatorsCounter++;
-    };
-    assert.equal(
-      question.isRunningValidators,
-      true,
-      "We have one running validator"
-    );
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      0,
-      "onCompletedAsyncValidators is not called yet"
-    );
-    returnResult(1);
-    assert.equal(question.isRunningValidators, false, "We are fine now");
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      1,
-      "onCompletedAsyncValidators is called"
-    );
-
-    FunctionFactory.Instance.unregister("asyncFunc");
+QUnit.test("Matrix validation in cells and async functions in expression", (assert) => {
+  var returnResults = new Array<any>();
+  function asyncFunc(params: any): any {
+    returnResults.push(this.returnResult);
+    return false;
   }
-);
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+
+  const question = new QuestionMatrixDynamicModel("q1");
+  question.rowCount = 1;
+  const column = question.addColumn("col1");
+  column.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+  const cellQuestion = question.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion.errors.length, 0, "There is no errors by default");
+  assert.equal(question.validate(), true);
+  assert.equal(returnResults.length, 1, "Has called asyncFunc");
+  returnResults[0](2);
+  assert.equal(cellQuestion.errors.length, 1, "There is one error by default");
+  assert.equal(question.validate(), true);
+  assert.equal(returnResults.length, 2, "Has called asyncFunc one more time");
+  returnResults[0](1);
+  assert.equal(cellQuestion.errors.length, 0, "Error is gone");
+
+  FunctionFactory.Instance.unregister("asyncFunc");
+});
 
 QUnit.test(
   "onValueChanged doesn't called on adding new row with calculated column, #1845",

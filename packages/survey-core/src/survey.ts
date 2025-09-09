@@ -4355,55 +4355,6 @@ export class SurveyModel extends SurveyElementCore
     return this.validateCurrentPage(func) !== true;
   }
   private canGoTroughValidation(): boolean { return !this.isEditMode || !this.validationEnabled; }
-  private asyncValidationQuesitons: Array<Question>;
-  private checkForAsyncQuestionValidation(
-    questions: Array<Question>,
-    func: (hasErrors: boolean) => void
-  ): boolean {
-    this.clearAsyncValidationQuesitons();
-    for (var i = 0; i < questions.length; i++) {
-      if (questions[i].isRunningValidators) {
-        let q = questions[i];
-        q.onCompletedAsyncValidators = (hasErrors: boolean) => {
-          this.onCompletedAsyncQuestionValidators(q, func, hasErrors);
-        };
-        this.asyncValidationQuesitons.push(questions[i]);
-      }
-    }
-    return this.asyncValidationQuesitons.length > 0;
-  }
-  private clearAsyncValidationQuesitons() {
-    if (!!this.asyncValidationQuesitons) {
-      var asynQuestions = this.asyncValidationQuesitons;
-      for (var i = 0; i < asynQuestions.length; i++) {
-        asynQuestions[i].onCompletedAsyncValidators = null;
-      }
-    }
-    this.asyncValidationQuesitons = [];
-  }
-  private onCompletedAsyncQuestionValidators(
-    question: Question,
-    func: (hasErrors: boolean) => void,
-    hasErrors: boolean
-  ) {
-    if (hasErrors) {
-      this.clearAsyncValidationQuesitons();
-      func(true);
-      if (this.autoFocusFirstError && !!question && !!question.page && question.page === this.currentPage) {
-        const questions: Array<Question> = this.currentPage.questions;
-        for (let i = 0; i < questions.length; i++) {
-          if (questions[i] !== question && questions[i].errors.length > 0) return;
-        }
-        question.focus(true);
-      }
-      return;
-    }
-    var asynQuestions = this.asyncValidationQuesitons;
-    for (var i = 0; i < asynQuestions.length; i++) {
-      if (asynQuestions[i].isRunningValidators) return;
-    }
-    func(false);
-  }
   public get isCurrentPageHasErrors(): boolean {
     return this.checkIsCurrentPageHasErrors();
   }

@@ -3832,47 +3832,30 @@ QUnit.test(
     );
   }
 );
-QUnit.test(
-  "Matrix validation in cells and async functions in expression",
-  function(assert) {
-    var returnResult: (res: any) => void;
-    function asyncFunc(params: any): any {
-      returnResult = this.returnResult;
-      return false;
-    }
-    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
-
-    var question = new QuestionPanelDynamicModel("q1");
-    question.panelCount = 1;
-    var textQuestion = question.template.addNewQuestion("text", "q1");
-    textQuestion.validators.push(new ExpressionValidator("asyncFunc() = 1"));
-    question.hasErrors();
-    var onCompletedAsyncValidatorsCounter = 0;
-    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-      onCompletedAsyncValidatorsCounter++;
-    };
-    assert.equal(
-      question.isRunningValidators,
-      true,
-      "We have one running validator"
-    );
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      0,
-      "onCompletedAsyncValidators is not called yet"
-    );
-    returnResult(1);
-    assert.equal(question.isRunningValidators, false, "We are fine now");
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      1,
-      "onCompletedAsyncValidators is called"
-    );
-
-    FunctionFactory.Instance.unregister("asyncFunc");
+QUnit.test("Matrix validation in cells and async functions in expression", (assert) => {
+  let returnResult: (res: any) => void = (res: any) => {};
+  function asyncFunc(params: any): any {
+    returnResult = this.returnResult;
+    return false;
   }
-);
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 
+  const question = new QuestionPanelDynamicModel("q1");
+  question.panelCount = 1;
+  const textQuestion = question.template.addNewQuestion("text", "q1");
+  textQuestion.validators.push(new ExpressionValidator("asyncFunc() = 1"));
+  let callbackRes: any = undefined;
+  assert.equal(question.validate(false, false, false, (res: boolean) => {
+    callbackRes = res;
+  }), undefined, "The result is not ready");
+  assert.equal(question.isRunningValidators, true, "We have one running validator");
+  assert.equal(callbackRes, undefined, "We don't have the result yet");
+  returnResult(1);
+  assert.equal(question.isRunningValidators, false, "We are fine now");
+  assert.equal(callbackRes, true, "The result is here");
+
+  FunctionFactory.Instance.unregister("asyncFunc");
+});
 QUnit.test(
   "Nested panel, setting survey.data when survey.clearInvisibleValues='onHidden', Bug# 1866",
   function(assert) {

@@ -794,7 +794,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       this.detailPanel.readOnly = parentIsReadOnly || !this.isRowEnabled();
     }
   }
-  public hasErrors(params: ValidationParamsRunner, raiseOnCompletedAsyncValidators: (hasErrors: boolean) => void): boolean {
+  public hasErrors(params: ValidationParamsRunner): boolean {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
@@ -802,9 +802,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
       if (!question || !question.visible) continue;
-      question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-        raiseOnCompletedAsyncValidators(hasErrors);
-      };
       if (!!params && params.isOnValueChanged === true && question.isEmpty())
         continue;
       res = !question.validateElement(params) || res;
@@ -2348,9 +2345,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     (<any>params).isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].isVisible) {
-        res = !rows[i].hasErrors(params, (hasErrors: boolean) => {
-          this.raiseOnCompletedAsyncValidators();
-        }) && res;
+        res = !rows[i].hasErrors(params) && res;
       }
     }
     return res;

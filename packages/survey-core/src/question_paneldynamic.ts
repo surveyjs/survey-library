@@ -2252,9 +2252,6 @@ export class QuestionPanelDynamicModel extends Question
     var res = false;
     var panels = this.visiblePanels;
     var keyValues: Array<any> = [];
-    for (var i = 0; i < panels.length; i++) {
-      this.setOnCompleteAsyncInPanel(panels[i]);
-    }
     const focusOnError = params.focusOnFirstError === true;
     for (let i = 0; i < panels.length; i++) {
       let pnlError = panels[i].validateElement(params);
@@ -2265,14 +2262,6 @@ export class QuestionPanelDynamicModel extends Question
       res = pnlError || res;
     }
     return res;
-  }
-  private setOnCompleteAsyncInPanel(panel: PanelModel) {
-    var questions = panel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
-        this.raiseOnCompletedAsyncValidators();
-      };
-    }
   }
   private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, params: ValidationParamsRunner): boolean {
     if (!this.keyName) return false;

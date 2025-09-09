@@ -471,8 +471,8 @@ QUnit.test("Regex load caseInsensitve", function(assert) {
 });
 
 QUnit.test("question with async validators", function(assert) {
-  var returnResult1: (res: any) => void;
-  var returnResult2: (res: any) => void;
+  let returnResult1: (res: any) => void = (res: boolean) => {};
+  let returnResult2: (res: any) => void = (res: boolean) => {};
   function asyncFunc1(params: any): any {
     returnResult1 = this.returnResult;
     return false;
@@ -488,38 +488,15 @@ QUnit.test("question with async validators", function(assert) {
   question.validators.push(new ExpressionValidator("2 = 1)"));
   question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
-  var hasErrorsCounter = 0;
-  question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-    if (hasErrors) hasErrorsCounter++;
-  };
-  assert.equal(
-    question.isRunningValidators,
-    false,
-    "We do not run validators yet"
-  );
-  question.hasErrors();
+  assert.equal(question.isRunningValidators, false, "We do not run validators yet");
+  assert.equal(question.validate(), false, "There is an error");
   assert.equal(question.errors.length, 1, "There is one error");
-  assert.equal(
-    question.isRunningValidators,
-    true,
-    "func1 and func2 are not completed"
-  );
-  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
+  assert.equal(question.isRunningValidators, true, "func1 and func2 are not completed");
   returnResult1(11);
   assert.equal(question.isRunningValidators, true, "func2 is not completed");
-  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
   returnResult2(22);
-  assert.equal(
-    hasErrorsCounter,
-    1,
-    "onCompletedAsyncValidators is  called one time"
-  );
   assert.equal(question.errors.length, 3, "There are three errors now");
-  assert.equal(
-    question.isRunningValidators,
-    false,
-    "func1 and func2 are completed"
-  );
+  assert.equal(question.isRunningValidators, false, "func1 and func2 are completed");
 
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");

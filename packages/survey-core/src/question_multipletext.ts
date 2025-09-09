@@ -742,11 +742,6 @@ export class QuestionMultipleTextModel extends Question
   protected validateElementCore(params: ValidationParamsRunner): boolean {
     let res = true;
     for (var i = 0; i < this.items.length; i++) {
-      this.items[i].editor.onCompletedAsyncValidators = (
-        hasErrors: boolean
-      ) => {
-        this.raiseOnCompletedAsyncValidators();
-      };
       if (params.isOnValueChanged && this.items[i].editor.isEmpty())
         continue;
       res = this.items[i].editor.validateElement(params) && res;

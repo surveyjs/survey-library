@@ -3970,66 +3970,40 @@ QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
   q5.value = 2;
   assert.equal(q5.getDisplayValue(true), "two", "imagepicker displayvalue works, single value");
 });
-
-QUnit.test(
-  "Multiple text question validation and async functions in expression",
-  function (assert) {
-    var returnResult1: (res: any) => void;
-    var returnResult2: (res: any) => void;
-    function asyncFunc1(params: any): any {
-      returnResult1 = this.returnResult;
-      return false;
-    }
-    function asyncFunc2(params: any): any {
-      returnResult2 = this.returnResult;
-      return false;
-    }
-    FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
-    FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
-
-    var question = new QuestionMultipleTextModel("q1");
-    var item1 = question.addItem("item1");
-    var item2 = question.addItem("item2");
-    item1.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
-    item2.validators.push(new ExpressionValidator("asyncFunc2() = 1"));
-    question.hasErrors();
-    var onCompletedAsyncValidatorsCounter = 0;
-    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-      onCompletedAsyncValidatorsCounter++;
-    };
-    assert.equal(
-      question.isRunningValidators,
-      true,
-      "We have two running validators"
-    );
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      0,
-      "onCompletedAsyncValidators is not called yet"
-    );
-    returnResult1(1);
-    assert.equal(
-      question.isRunningValidators,
-      true,
-      "We have one running validator"
-    );
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      0,
-      "onCompletedAsyncValidators is not called yet, 2"
-    );
-    returnResult2(1);
-    assert.equal(question.isRunningValidators, false, "We are fine now");
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      1,
-      "onCompletedAsyncValidators is called"
-    );
-
-    FunctionFactory.Instance.unregister("asyncFunc1");
-    FunctionFactory.Instance.unregister("asyncFunc2");
+QUnit.test("Multiple text question validation and async functions in expression", (assert) => {
+  let returnResult1: (res: any) => void = (res: boolean) => { };
+  let returnResult2: (res: any) => void = (res: boolean) => { };
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
   }
-);
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+
+  const question = new QuestionMultipleTextModel("q1");
+  const item1 = question.addItem("item1");
+  const item2 = question.addItem("item2");
+  item1.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
+  item2.validators.push(new ExpressionValidator("asyncFunc2() = 1"));
+  let callbackRes: any = undefined;
+  assert.equal(question.validate(false, false, false, (res: boolean) => {
+    callbackRes = res;
+  }), undefined, "There is no errors by default");
+  assert.equal(question.isRunningValidators, true, "We have two running validators");
+  assert.equal(callbackRes, undefined, "The callback is not called yet, #1");
+  returnResult1(1);
+  assert.equal(question.isRunningValidators, true, "We have one running validator");
+  assert.equal(callbackRes, undefined, "The callback is not called yet, #2");
+  returnResult2(1);
+  assert.equal(question.isRunningValidators, false, "We are fine now");
+  assert.equal(callbackRes, true, "The callback is called yet");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
 QUnit.test("question.getSupportedValidators", function (assert) {
   assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), [
     "expression",

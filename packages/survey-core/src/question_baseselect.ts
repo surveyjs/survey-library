@@ -873,7 +873,7 @@ export class QuestionSelectBase extends Question {
         val = val.value;
       }
     }
-    if (this.getStoreOthersAsComment()) return val;
+    if (this.getStoreOthersAsComment() || !this.showOtherItem) return val;
     return this.renderedValueFromDataCore(val);
   }
   private getValueFromValueWithComment(val: any): any {

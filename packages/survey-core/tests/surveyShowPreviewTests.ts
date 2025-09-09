@@ -195,10 +195,10 @@ QUnit.test(
     survey.currentPageNo = 1;
     survey.showPreview();
     assert.equal(survey.state, "preview");
-    survey.tryComplete();
+    assert.equal(survey.tryComplete(), false, "can't complete");
     assert.equal(survey.state, "preview", "Keep showing preview");
     allowComplete = true;
-    survey.tryComplete();
+    assert.equal(survey.tryComplete(), true, "can complete");
     assert.equal(survey.state, "completed");
   }
 );

@@ -12121,11 +12121,7 @@ QUnit.test("hasCurrentPageErrors with async", function (assert) {
   var func = (hasErrors: boolean) => {
     asyncHasErrors = hasErrors;
   };
-  assert.equal(
-    survey.hasCurrentPageErrors(func),
-    undefined,
-    "We don't know, we return undefined"
-  );
+  assert.equal(survey.hasCurrentPageErrors(func), undefined, "We don't know, we return undefined");
   assert.equal(asyncHasErrors, undefined, "It is not executed yet");
   returnResult1(0);
   assert.equal(asyncHasErrors, true, "Has errors");

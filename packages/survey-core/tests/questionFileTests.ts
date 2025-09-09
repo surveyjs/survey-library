@@ -2290,3 +2290,44 @@ QUnit.test("QuestionFile remove file by preview value with confirmation", functi
     image1: [{ name: "f1", content: "data" }],
   });
 });
+
+QUnit.test("QuestionFile show loading indicator remove file", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        showPreview: true,
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  survey.data = {
+    image1: [
+      { name: "f1", content: "data" },
+      { name: "f2", content: "data" },
+      { name: "f3", content: "data" },
+    ],
+  };
+  let callback!: () => void;
+  survey.onClearFiles.add((survey, options) => {
+    callback = () => {
+      options.callback("success");
+    };
+  });
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  q1.doRemoveFile(q1.previewValue[1], { stopPropagation: () => { } });
+  assert.ok(q1.showLoadingIndicator);
+  assert.deepEqual(q1.value.map(f => f.name), ["f1", "f2", "f3"]);
+  callback();
+  assert.deepEqual(q1.value.map(f => f.name), ["f1", "f3"]);
+  assert.notOk(q1.showLoadingIndicator);
+  q1.clear();
+  assert.deepEqual(q1.value.map(f => f.name), ["f1", "f3"]);
+  assert.ok(q1.showLoadingIndicator);
+  callback();
+  assert.deepEqual(q1.value.map(f => f.name), []);
+  assert.notOk(q1.showLoadingIndicator);
+});

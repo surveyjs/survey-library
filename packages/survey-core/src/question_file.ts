@@ -230,20 +230,20 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public actionsContainer: ActionContainer;
 
   get fileNavigatorVisible(): boolean {
-    const isUploading = this.isUploading;
+    const showLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
     const containsMultipleFiles = this.containsMultiplyFiles;
     const needToShowFileNavigator = this.pageSize < this.previewValue.length;
-    return !isUploading && !isPlayingVideo && containsMultipleFiles && needToShowFileNavigator;
+    return !showLoadingIndicator && !isPlayingVideo && containsMultipleFiles && needToShowFileNavigator;
   }
   private get pagesCount() {
     return Math.ceil(this.previewValue.length / this.pageSize);
   }
 
   get actionsContainerVisible(): boolean {
-    const isUploading = this.isUploading;
+    const showLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
-    return !isUploading && !isPlayingVideo;
+    return !showLoadingIndicator && !isPlayingVideo;
   }
 
   constructor(name: string) {
@@ -702,9 +702,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.isEmpty() || this.allowMultiple ? this.chooseButtonCaption : this.replaceButtonCaption;
   }
 
+  @property() isClearingFiles: boolean = false;
+
   public clear(doneCallback?: () => void) {
     if (!this.survey) return;
     this.containsMultiplyFiles = false;
+    this.isClearingFiles = true;
     this.survey.clearFiles(
       this,
       this.name,
@@ -717,6 +720,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           !!doneCallback && doneCallback();
           this.indexToShow = 0;
           this.fileIndexAction.title = this.getFileIndexCaption();
+          this.isClearingFiles = false;
         }
       }
     );
@@ -735,6 +739,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public get showDragAreaPlaceholder() {
     return !this.isAnswered;
+  }
+  public get showLoadingIndicator(): boolean {
+    return this.isUploading || this.isClearingFiles;
   }
   public get allowShowPreview(): boolean {
     const isShowLoadingIndicator = this.showLoadingIndicator;
@@ -756,6 +763,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected removeFileByContent(content: any) {
     if (!this.survey) return;
+    this.isClearingFiles = true;
     this.survey.clearFiles(
       this,
       this.name,
@@ -769,6 +777,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           } else {
             this.value = undefined;
           }
+          this.isClearingFiles = false;
         }
       }
     );

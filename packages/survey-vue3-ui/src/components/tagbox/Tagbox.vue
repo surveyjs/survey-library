@@ -23,7 +23,7 @@
       <div :class="question.cssClasses.controlValue">
         <SvComponent
           :is="'sv-tagbox-item'"
-          v-for="(item, index) in selectedChoices"
+          v-for="(item, index) in question.selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
@@ -69,7 +69,7 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { useBase, useComputedArray } from "@/base";
+import { useBase } from "@/base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 import { computed } from "vue";
 
@@ -90,7 +90,5 @@ const keyhandler = (event: any) => {
 const blur = (event: any) => {
   model.value?.onBlur(event);
 };
-const selectedChoices = useComputedArray(() => props.question.selectedChoices);
-
 useBase(() => model.value);
 </script>

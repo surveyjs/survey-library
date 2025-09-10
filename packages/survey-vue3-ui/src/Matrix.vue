@@ -30,56 +30,9 @@
           </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(row, rowIndex) in visibleRows"
-            :key="'row_' + row.name + '_' + rowIndex"
-            :class="row.rowClasses || undefined"
-          >
-            <td
-              :class="row.rowTextClasses"
-              v-show="question.hasRows"
-              :style="{
-                minWidth: question.rowTitleWidth,
-                width: question.rowTitleWidth,
-              }"
-            >
-              <SvComponent
-                :is="question.getRowHeaderWrapperComponentName(row)"
-                :componentData="question.getRowHeaderWrapperComponentData(row)"
-              >
-                <SvComponent :is="'survey-string'" :locString="row.locText" />
-              </SvComponent>
-            </td>
-            <template v-if="question.hasCellText">
-              <td
-                v-for="(column, columnIndex) in question.visibleColumns"
-                :key="columnIndex"
-                :class="question.getItemClass(row, column)"
-                v-on:click="cellClick(row, column)"
-              >
-                <SvComponent
-                  :is="'survey-string'"
-                  :locString="question.getCellDisplayLocText(row.name, column)"
-                ></SvComponent>
-              </td>
-            </template>
-            <template v-if="!question.hasCellText">
-              <td
-                v-for="(column, columnIndex) in question.visibleColumns"
-                :key="columnIndex"
-                :data-responsive-title="column.locText.renderedHtml"
-                :class="question.cssClasses.cell"
-              >
-                <SvComponent
-                  :is="question.cellComponent"
-                  :question="question"
-                  :row="row"
-                  :column="column"
-                  :columnIndex="columnIndex"
-                ></SvComponent>
-              </td>
-            </template>
-          </tr>
+          <template v-for="(row, rowIndex) in visibleRows" :key="'row_' + row.name + '_' + rowIndex">
+            <SvComponent :is="'sv-matrix-row'" :question="question" :row="row"/>
+          </template>
         </tbody>
       </table>
     </fieldset>
@@ -88,7 +41,7 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import type { QuestionMatrixModel } from "survey-core";
+import { MatrixRowModel, type QuestionMatrixModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref, shallowRef } from "vue";
 defineOptions({
@@ -96,7 +49,7 @@ defineOptions({
 });
 const props = defineProps<{ question: QuestionMatrixModel }>();
 const root = ref(null);
-const visibleRows = shallowRef();
+const visibleRows = shallowRef<Array<MatrixRowModel>>();
 useQuestion<QuestionMatrixModel>(
   props,
   root,
@@ -110,8 +63,4 @@ useQuestion<QuestionMatrixModel>(
     value.visibleRowsChangedCallback = () => {};
   }
 );
-
-const cellClick = (row: any, column: any) => {
-  row.cellClick(column);
-};
 </script>

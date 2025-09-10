@@ -1,4 +1,4 @@
-import { Question, IConditionObject, ValidationParamsRunner } from "./question";
+import { Question, IConditionObject, ValidationContext } from "./question";
 import { Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 
@@ -26,7 +26,7 @@ export class QuestionNonValue extends Question {
   public get hasComment(): boolean {
     return false;
   }
-  protected validateElementCore(params: ValidationParamsRunner): boolean {
+  protected validateElementCore(context: ValidationContext): boolean {
     return true;
   }
   public getAllErrors(): Array<SurveyError> {

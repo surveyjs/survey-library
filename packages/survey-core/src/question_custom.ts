@@ -24,7 +24,7 @@ import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
-import { ValidationParamsRunner } from "./question";
+import { ValidationContext } from "./question";
 
 /**
  * An interface used to create custom question types.
@@ -869,14 +869,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
     }
   }
-  protected validateElementCore(params: ValidationParamsRunner): boolean {
+  protected validateElementCore(context: ValidationContext): boolean {
     if (!this.contentQuestion) return true;
-    var res = this.contentQuestion.validateElement(params);
+    var res = this.contentQuestion.validateElement(context);
     this.errors = [];
     for (var i = 0; i < this.contentQuestion.errors.length; i++) {
       this.errors.push(this.contentQuestion.errors[i]);
     }
-    res = res && super.validateElementCore(params);
+    res = res && super.validateElementCore(context);
     this.updateElementCss();
     return res;
   }
@@ -1094,10 +1094,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
-  protected validateElementCore(params: ValidationParamsRunner): boolean {
-    const res = super.validateElementCore(params);
+  protected validateElementCore(context: ValidationContext): boolean {
+    const res = super.validateElementCore(context);
     const pnl = this.contentPanel;
-    return !!pnl ? pnl.validateElement(params) && res : res;
+    return !!pnl ? pnl.validateElement(context) && res : res;
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);

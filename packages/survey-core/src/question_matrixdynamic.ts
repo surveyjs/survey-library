@@ -21,7 +21,7 @@ import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
-import { ValidationParamsRunner } from "./question";
+import { ValidationContext } from "./question";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -763,7 +763,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (checkDynamic) {
       for (let i = 0; i < rows.length; i ++) {
         const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationParamsRunner())) {
+        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
           this.fillSingleInputQuestionsByRow(res, row);
         }
       }

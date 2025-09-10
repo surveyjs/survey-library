@@ -35,7 +35,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, Question, ValidationParamsRunner } from "./question";
+import { IQuestionPlainData, Question, ValidationContext } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -4423,16 +4423,13 @@ export class SurveyModel extends SurveyElementCore
     if (!!onAsyncValidation) {
       fireCallback = true;
     }
-    const params = new ValidationParamsRunner({ fireCallback: fireCallback, focusOnFirstError: focusFirstError });
-    params.changeCurrentPage = !!changeCurrentPage;
-    if (onAsyncValidation) {
-      params.callbackResult = (res: boolean) => { onAsyncValidation(!res); };
-    }
+    const callbackResult = !!onAsyncValidation ? (res: boolean) => { onAsyncValidation(!res); } : undefined;
+    const context = new ValidationContext({ fireCallback: fireCallback, focusOnFirstError: focusFirstError, callbackResult: callbackResult, changeCurrentPage: !!changeCurrentPage });
     for (const element of elements) {
-      element.validateElement(params);
+      element.validateElement(context);
     }
-    params.finish();
-    return params.runningResult;
+    context.finish();
+    return context.runningResult;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {

@@ -14,7 +14,7 @@ import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { TextContextProcessor } from "./textPreProcessor";
 import { Base } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationParamsRunner } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -2107,12 +2107,12 @@ export class QuestionPanelDynamicModel extends Question
       this.panelsCore[i].onAnyValueChanged(settings.expressionVariables.panel, "");
     }
   }
-  private hasKeysDuplicated(params: ValidationParamsRunner): boolean {
+  private hasKeysDuplicated(context: ValidationContext): boolean {
     var keyValues: Array<any> = [];
     var res;
     for (var i = 0; i < this.panelsCore.length; i++) {
       res =
-        this.isValueDuplicated(this.panelsCore[i], keyValues, params) ||
+        this.isValueDuplicated(this.panelsCore[i], keyValues, context) ||
         res;
     }
     return res;
@@ -2126,17 +2126,17 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateContainsErrors();
   }
-  protected validateElementCore(params: ValidationParamsRunner): boolean {
+  protected validateElementCore(context: ValidationContext): boolean {
     if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return true;
     let res = true;
     if (!!this.changingValueQuestion) {
-      const qRes = this.changingValueQuestion.validateElement(params);
-      res = !this.hasKeysDuplicated(params) && qRes;
+      const qRes = this.changingValueQuestion.validateElement(context);
+      res = !this.hasKeysDuplicated(context) && qRes;
       this.updatePanelsContainsErrors();
     } else {
-      res = this.validateInPanels(params);
+      res = this.validateInPanels(context);
     }
-    return super.validateElementCore(params) && res;
+    return super.validateElementCore(context) && res;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -2248,22 +2248,21 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  private validateInPanels(params: ValidationParamsRunner): boolean {
+  private validateInPanels(context: ValidationContext): boolean {
     let res = true;
     const panels = this.visiblePanels;
     const keyValues: Array<any> = [];
-    const focusOnError = params.focusOnFirstError === true;
     for (let i = 0; i < panels.length; i++) {
-      let isPnlValid = panels[i].validateElement(params);
-      isPnlValid = !this.isValueDuplicated(panels[i], keyValues, params) && isPnlValid;
-      if (!this.isRenderModeList && !isPnlValid && res && focusOnError) {
+      let isPnlValid = panels[i].validateElement(context);
+      isPnlValid = !this.isValueDuplicated(panels[i], keyValues, context) && isPnlValid;
+      if (!this.isRenderModeList && !isPnlValid && res && context.focusOnFirstError) {
         this.currentIndex = i;
       }
       res = isPnlValid && res;
     }
     return res;
   }
-  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, params: ValidationParamsRunner): boolean {
+  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, context: ValidationContext): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
@@ -2272,16 +2271,16 @@ export class QuestionPanelDynamicModel extends Question
       !!this.changingValueQuestion &&
       question != this.changingValueQuestion
     ) {
-      question.validateElement(params);
+      question.validateElement(context);
     }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        if (params.fireCallback) {
+        if (context.fireCallback) {
           question.addError(
             new KeyDuplicationError(this.keyDuplicationError, this)
           );
         }
-        params.setError(question);
+        context.setError(question);
         return true;
       }
     }

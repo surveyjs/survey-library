@@ -8,13 +8,6 @@ import { ConditionRunner } from "./conditions";
 import { HashTable, Helpers } from "./helpers";
 import { IValueGetterContext } from "./conditionProcessValue";
 
-export interface IValidationParams {
-  fireCallback: boolean;
-  isOnValueChanged?: boolean;
-  focusOnFirstError?: boolean;
-  firstErrorQuestion?: IQuestion;
-  callbackResult?: (res: boolean, element: IElement) => void;
-}
 export class AsyncElementsRunner {
   private asyncElements: HashTable<boolean> = {};
   private isRunningValue: boolean;

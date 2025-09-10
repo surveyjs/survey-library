@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject, ValidationParamsRunner } from "./question";
+import { Question, IConditionObject, ValidationContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -739,14 +739,14 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  protected validateElementCore(params: ValidationParamsRunner): boolean {
+  protected validateElementCore(context: ValidationContext): boolean {
     let res = true;
     for (var i = 0; i < this.items.length; i++) {
-      if (params.isOnValueChanged && this.items[i].editor.isEmpty())
+      if (context.isOnValueChanged && this.items[i].editor.isEmpty())
         continue;
-      res = this.items[i].editor.validateElement(params) && res;
+      res = this.items[i].editor.validateElement(context) && res;
     }
-    return super.validateElementCore(params) && res;
+    return super.validateElementCore(context) && res;
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();

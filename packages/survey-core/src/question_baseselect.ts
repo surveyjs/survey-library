@@ -17,7 +17,7 @@ import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
-import { ValidationParamsRunner } from "./question";
+import { ValidationContext } from "./question";
 
 export class ChoiceItem extends ItemValue {
   private locCommentPlaceholderValue: LocalizableString;
@@ -235,11 +235,11 @@ export class QuestionSelectBase extends Question {
     if (!!text) res.text = text;
     return res;
   }
-  protected validateElementCore(params: ValidationParamsRunner): boolean {
-    if (params.isOnValueChanged !== true) {
+  protected validateElementCore(context: ValidationContext): boolean {
+    if (context.isOnValueChanged !== true) {
       this.clearIncorrectValues();
     }
-    return super.validateElementCore(params);
+    return super.validateElementCore(context);
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;

@@ -30,7 +30,7 @@ import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
-import { ValidationParamsRunner } from "./question";
+import { ValidationContext } from "./question";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -959,17 +959,17 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, focusFirstError: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    const params = new ValidationParamsRunner({
+    const context = new ValidationContext({
       fireCallback: fireCallback,
       focusOnFirstError: focusFirstError,
       callbackResult: callbackResult
     });
-    this.validateCore(params);
-    params.finish();
-    return params.runningResult;
+    this.validateCore(context);
+    context.finish();
+    return context.runningResult;
   }
   public validateContainerOnly(): void {
-    this.validateInPanels(new ValidationParamsRunner({ fireCallback: true, isOnValueChanged: false }));
+    this.validateInPanels(new ValidationContext({ fireCallback: true, isOnValueChanged: false }));
     if (!!this.parent) {
       this.parent.validateContainerOnly();
     }
@@ -989,16 +989,16 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  private validateInPanels(params: ValidationParamsRunner): void {
+  private validateInPanels(context: ValidationContext): void {
     var errors = <Array<any>>[];
-    this.validateRequired(params, errors);
+    this.validateRequired(context, errors);
     if (this.survey) {
-      this.survey.validatePanel(this, errors, params.fireCallback);
+      this.survey.validatePanel(this, errors, context.fireCallback);
       if (errors.length > 0) {
-        params.setError(this);
+        context.setError(this);
       }
     }
-    if (!!params.fireCallback) {
+    if (!!context.fireCallback) {
       this.errors = errors;
     }
   }
@@ -1008,7 +1008,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return text;
   }
 
-  private validateRequired(params: ValidationParamsRunner, errors: Array<SurveyError>): void {
+  private validateRequired(context: ValidationContext, errors: Array<SurveyError>): void {
     if (!this.isRequired) return;
     var visQuestions = <Array<any>>[];
     this.addQuestionsToList(visQuestions, true);
@@ -1017,14 +1017,14 @@ export class PanelModelBase extends SurveyElement<Question>
       if (!visQuestions[i].isEmpty()) return;
     }
     errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    params.setError(visQuestions[0]);
+    context.setError(visQuestions[0]);
   }
-  public validateElement(params: ValidationParamsRunner): boolean {
-    const errorCount = params.errorCount;
-    this.validateCore(params);
-    return params.errorCount <= errorCount;
+  public validateElement(context: ValidationContext): boolean {
+    const errorCount = context.errorCount;
+    this.validateCore(context);
+    return context.errorCount <= errorCount;
   }
-  protected validateCore(params: ValidationParamsRunner): void {
+  protected validateCore(context: ValidationContext): void {
     let singleQ = <Question>this.survey?.currentSingleQuestion;
     if (singleQ && this.questions.indexOf(singleQ) < 0) {
       singleQ = undefined;
@@ -1035,14 +1035,14 @@ export class PanelModelBase extends SurveyElement<Question>
       element = elements[i];
       if (!element.isVisible) continue;
       if (element.isPanel) {
-        (<PanelModelBase>(<any>element)).validateCore(params);
+        (<PanelModelBase>(<any>element)).validateCore(context);
       } else {
         var question = <Question>element;
-        question.validateElement(params);
+        question.validateElement(context);
       }
     }
     if (!singleQ) {
-      this.validateInPanels(params);
+      this.validateInPanels(context);
       this.updateContainsErrors();
     }
   }

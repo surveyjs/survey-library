@@ -3280,6 +3280,31 @@ QUnit.test(
     FunctionFactory.Instance.unregister("abort");
   }
 );
+QUnit.test("Add propertyName into function properties, #10323", (assert) => {
+  function getValueByProperty(params) {
+    if (this.propName === "visibleIf") return 10;
+    if (this.propName === "enableIf") return 20;
+    if (this.propName === "expression") return 25;
+    if (this.propName === "defaultValueExpression") return 30;
+    return 0;
+  }
+  FunctionFactory.Instance.register("getValueByProperty",
+    getValueByProperty
+  );
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "getValueByProperty() = 10", enableIf: "getValueByProperty() = 20", defaultValueExpression: "getValueByProperty()" },
+      { type: "expression", name: "q2", expression: "getValueByProperty()" }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isVisible, true, "visibleIf works");
+  assert.equal(q1.isReadOnly, false, "enableIf works");
+  assert.equal(q1.value, 30, "defaultValueExpression works");
+  assert.equal(q2.value, 25, "expression works");
+
+  FunctionFactory.Instance.unregister("getValueByProperty");
+});
 
 QUnit.test("Copy value trigger test", function (assert) {
   var survey = twoPageSimplestSurvey();

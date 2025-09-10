@@ -779,32 +779,32 @@ QUnit.test(
 
 QUnit.test("Validators for text question + getAllErrors", function (assert) {
   var mText = new QuestionTextModel("");
-  assert.equal(mText.hasErrors(), false, "There is no error by default");
+  assert.equal(mText.validate(), true, "There is no error by default");
   mText.validators.push(new NumericValidator(10, 20));
   assert.equal(
-    mText.hasErrors(),
-    false,
+    mText.validate(),
+    true,
     "There is no error since the value is empty"
   );
   assert.equal(mText.getAllErrors().length, 0, "There is no error at all");
   mText.value = "ss";
-  assert.equal(mText.hasErrors(), true, "The value should be numeric");
+  assert.equal(mText.validate(), false, "The value should be numeric");
   assert.equal(mText.getAllErrors().length, 1, "There is an error");
   mText.value = 25;
   assert.equal(
-    mText.hasErrors(),
-    true,
+    mText.validate(),
+    false,
     "The value should be between 10 and 20"
   );
   mText.value = "15";
-  assert.equal(mText.hasErrors(), false, "The value is fine now.");
+  assert.equal(mText.validate(), true, "The value is fine now.");
   assert.equal(mText.value, 15, "Convert to numeric");
 });
 QUnit.test("Numeric validation and with 0, Bug #462", function (assert) {
   var mText = new QuestionTextModel("");
   mText.validators.push(new NumericValidator(1, 100));
   mText.value = 0;
-  assert.equal(mText.hasErrors(), true, "0 is less than 1");
+  assert.equal(mText.validate(), false, "0 is less than 1");
 });
 QUnit.test("Use Email validator for inputType = email", function (assert) {
   var mText = new QuestionTextModel("");
@@ -812,46 +812,46 @@ QUnit.test("Use Email validator for inputType = email", function (assert) {
   mText.inputType = "email";
   mText.value = "1";
   assert.equal(mText.validators.length, 0, "There is no validators");
-  assert.equal(mText.hasErrors(), true, "Email is wrong");
+  assert.equal(mText.validate(), false, "Email is wrong");
 });
 
 QUnit.test("Validators for multiple text question", function (assert) {
   var mText = new QuestionMultipleTextModel("q1");
   mText.items.push(new MultipleTextItemModel("t1"));
-  assert.equal(mText.hasErrors(), false, "There is no error by default");
+  assert.equal(mText.validate(), true, "There is no error by default");
   assert.equal(mText.getAllErrors().length, 0, "There is no error at all");
   mText.items[0].validators.push(new NumericValidator(10, 20));
   mText.value = { t1: "ss" };
-  assert.equal(mText.hasErrors(), true, "The value should be numeric");
+  assert.equal(mText.validate(), false, "The value should be numeric");
   assert.equal(mText.getAllErrors().length, 1, "There is error in one item");
   mText.value = { t1: 25 };
   assert.equal(
-    mText.hasErrors(),
-    true,
+    mText.validate(),
+    false,
     "The value should be between 10 and 20"
   );
   mText.value = { t1: 15 };
-  assert.equal(mText.hasErrors(), false, "The value is fine now.");
+  assert.equal(mText.validate(), true, "The value is fine now.");
   assert.equal(mText.items[0].value, 15, "Convert to numeric");
 });
 QUnit.test("Validators for array value question", function (assert) {
   var question = new QuestionCheckboxModel("q1");
   question.choices = ["item1", "item2", "item3", "item4", "item5"];
   question.value = ["item1"];
-  assert.equal(question.hasErrors(), false, "There is no error by default");
+  assert.equal(question.validate(), true, "There is no error by default");
   question.validators.push(new AnswerCountValidator(2, 3));
   question.value = ["item1"];
   assert.equal(
-    question.hasErrors(),
-    true,
+    question.validate(),
+    false,
     "It should be at least two items selected"
   );
   question.value = ["item1", "item2", "item3"];
-  assert.equal(question.hasErrors(), false, "There is one item in value");
+  assert.equal(question.validate(), true, "There is one item in value");
   question.value = ["item1", "item2", "item3", "item4"];
-  assert.equal(question.hasErrors(), true, "It should be less than 3 items");
+  assert.equal(question.validate(), false, "It should be less than 3 items");
   question.value = ["item1", "item3"];
-  assert.equal(question.hasErrors(), false, "There is two items in value");
+  assert.equal(question.validate(), true, "There is two items in value");
 });
 QUnit.test("validator.toString()", function (assert) {
   var validator = new RegexValidator("[0-9]+");
@@ -871,18 +871,18 @@ QUnit.test("Validators for other values - dropdown, Bug #722", function (
   question.choices = ["1", "2", "3", "4", "5"];
   question.hasOther = true;
   question.value = "1";
-  assert.equal(question.hasErrors(), false, "There is no validators");
+  assert.equal(question.validate(), true, "There is no validators");
   question.validators.push(new RegexValidator("[0-9]+"));
-  assert.equal(question.hasErrors(), false, "There is no error, 1 is fine");
+  assert.equal(question.validate(), true, "There is no error, 1 is fine");
   question.value = question.otherItem.value;
   question.otherValue = "aaa";
   assert.equal(
-    question.hasErrors(),
-    true,
+    question.validate(),
+    false,
     "The comment doesn't math the regex"
   );
   question.otherValue = "222";
-  assert.equal(question.hasErrors(), false, "The comment math the regex");
+  assert.equal(question.validate(), true, "The comment math the regex");
 });
 QUnit.test("Validators for other values - checkbox, Bug #722", function (
   assert
@@ -895,21 +895,21 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function (
   assert.equal(question.isOtherSelected, true, "Other is selected");
   question.validators.push(new RegexValidator("[0-9]+"));
   question.validators.push(new AnswerCountValidator(2, 3));
-  assert.equal(question.hasErrors(), false, "validation pass correctly");
+  assert.equal(question.validate(), true, "validation pass correctly");
   question.otherValue = "aaa";
-  assert.equal(question.hasErrors(), true, "'aaa' is not a number");
+  assert.equal(question.validate(), false, "'aaa' is not a number");
   question.otherValue = "11";
-  assert.equal(question.hasErrors(), false, "it is fine again");
+  assert.equal(question.validate(), true, "it is fine again");
   question.value = [question.otherItem.value];
   assert.equal(
-    question.hasErrors(),
-    true,
+    question.validate(),
+    false,
     "There should be at least 2 values selected"
   );
   question.value = [];
-  assert.equal(question.hasErrors(), false, "We do not check the empty array");
+  assert.equal(question.validate(), true, "We do not check the empty array");
   question.value = undefined;
-  assert.equal(question.hasErrors(), false, "We do not check the empty value");
+  assert.equal(question.validate(), true, "We do not check the empty value");
 });
 QUnit.test(
   "other values in choices, hasOther=false, Bug(Editor) #242",
@@ -918,11 +918,11 @@ QUnit.test(
     question.choices = ["1", "2", "3", "other"];
     question.isRequired = true;
     question.value = "1";
-    assert.equal(question.hasErrors(), false, "Everything is fine");
+    assert.equal(question.validate(), true, "Everything is fine");
     question.value = "other";
     assert.equal(
-      question.hasErrors(),
-      false,
+      question.validate(),
+      true,
       "Everything is still fine, hasOther = false"
     );
   }
@@ -976,11 +976,11 @@ QUnit.test("Show errors if others value is selected, but not entered", function 
   new SurveyModel().addNewPage("p1").addQuestion(radio);
   radio.choices = ["one"];
   radio.hasOther = true;
-  assert.equal(radio.hasErrors(), false, "There is no error by default");
+  assert.equal(radio.validate(), true, "There is no error by default");
   radio.value = radio.otherItem.value;
-  assert.equal(radio.hasErrors(), true, "The other comment should be entered");
+  assert.equal(radio.validate(), false, "The other comment should be entered");
   radio.otherValue = "Many";
-  assert.equal(radio.hasErrors(), false, "We have entered the comment");
+  assert.equal(radio.validate(), true, "We have entered the comment");
 });
 
 QUnit.test("dropdown properties: choicesMin, choicesMax, choicesStep", function (
@@ -1644,22 +1644,22 @@ QUnit.test("Text questions spaces is not a valid answer for required", function 
 ) {
   var question = new QuestionTextModel("text");
   question.isRequired = true;
-  assert.equal(question.hasErrors(), true, "Question is empty");
+  assert.equal(question.validate(), false, "Question is empty");
   assert.equal(
     question.errors[0].locText.textOrHtml,
     "Response required.",
     "error has correct text"
   );
   question.value = "  ";
-  assert.equal(question.hasErrors(), true, "spaces is not an answer");
+  assert.equal(question.validate(), false, "spaces is not an answer");
   question.value = " 1 ";
-  assert.equal(question.hasErrors(), false, "got the answer");
+  assert.equal(question.validate(), true, "got the answer");
 });
 QUnit.test("Custom text in required error", function (assert) {
   var question = new QuestionTextModel("text");
   question.requiredErrorText = "Custom required error";
   question.isRequired = true;
-  assert.equal(question.hasErrors(), true, "Question is empty");
+  assert.equal(question.validate(), false, "Question is empty");
   assert.equal(question.errors.length, 1, "There is one error");
   assert.equal(
     question.errors[0].locText.textOrHtml,
@@ -2142,7 +2142,7 @@ QUnit.test("Clear errors on making question invisible, bug#846", function (
 ) {
   var question = new QuestionTextModel("q1");
   question.isRequired = true;
-  question.hasErrors(true);
+  question.validate(true);
   assert.equal(question.errors.length, 1, "There is an error");
   question.visible = false;
   question.visible = true;
@@ -2153,13 +2153,13 @@ QUnit.test("Clear errors on making question readOnly, bug#950", function (
 ) {
   var question = new QuestionTextModel("q1");
   question.isRequired = true;
-  question.hasErrors(true);
+  question.validate(true);
   assert.equal(question.errors.length, 1, "There is an error");
   question.readOnly = true;
-  question.hasErrors(true);
+  question.validate(true);
   assert.equal(question.errors.length, 0, "There is no error now");
   question.readOnly = false;
-  question.hasErrors(true);
+  question.validate(true);
   assert.equal(question.errors.length, 1, "There is an error again");
 });
 QUnit.test("displayValue and choice value as object, bug#952", function (
@@ -2905,12 +2905,12 @@ QUnit.test("space in others does not work correctly , bug #1214", function (
   var q = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   q.value = q.otherItem.value;
   assert.equal(q.isOtherSelected, true, "other is selected");
-  assert.equal(q.hasErrors(), true, "other is not entered");
+  assert.equal(q.validate(), false, "other is not entered");
   q.otherValue = " ";
   assert.equal(q.isOtherSelected, true, "other is still selected");
   assert.equal(
-    q.hasErrors(),
-    true,
+    q.validate(),
+    false,
     "other is not entered, whitespace doesn't count"
   );
 });
@@ -3165,8 +3165,8 @@ QUnit.test(
     item.inputType = "number";
     item.value = 0;
     assert.equal(
-      question.hasErrors(),
-      false,
+      question.validate(),
+      true,
       "There is no errors, 0 is a valid value"
     );
   }
@@ -3196,11 +3196,11 @@ QUnit.test(
       "Editor is requried"
     );
     assert.equal(
-      question.items[0].editor.hasErrors(),
-      true,
+      question.items[0].editor.validate(),
+      false,
       "item editor is required"
     );
-    assert.equal(question.hasErrors(), true, "question is required");
+    assert.equal(question.validate(), false, "question is required");
   }
 );
 
@@ -3970,66 +3970,40 @@ QUnit.test("test question.getDisplayValue(key, value)", function (assert) {
   q5.value = 2;
   assert.equal(q5.getDisplayValue(true), "two", "imagepicker displayvalue works, single value");
 });
-
-QUnit.test(
-  "Multiple text question validation and async functions in expression",
-  function (assert) {
-    var returnResult1: (res: any) => void;
-    var returnResult2: (res: any) => void;
-    function asyncFunc1(params: any): any {
-      returnResult1 = this.returnResult;
-      return false;
-    }
-    function asyncFunc2(params: any): any {
-      returnResult2 = this.returnResult;
-      return false;
-    }
-    FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
-    FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
-
-    var question = new QuestionMultipleTextModel("q1");
-    var item1 = question.addItem("item1");
-    var item2 = question.addItem("item2");
-    item1.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
-    item2.validators.push(new ExpressionValidator("asyncFunc2() = 1"));
-    question.hasErrors();
-    var onCompletedAsyncValidatorsCounter = 0;
-    question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-      onCompletedAsyncValidatorsCounter++;
-    };
-    assert.equal(
-      question.isRunningValidators,
-      true,
-      "We have two running validators"
-    );
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      0,
-      "onCompletedAsyncValidators is not called yet"
-    );
-    returnResult1(1);
-    assert.equal(
-      question.isRunningValidators,
-      true,
-      "We have one running validator"
-    );
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      0,
-      "onCompletedAsyncValidators is not called yet, 2"
-    );
-    returnResult2(1);
-    assert.equal(question.isRunningValidators, false, "We are fine now");
-    assert.equal(
-      onCompletedAsyncValidatorsCounter,
-      1,
-      "onCompletedAsyncValidators is called"
-    );
-
-    FunctionFactory.Instance.unregister("asyncFunc1");
-    FunctionFactory.Instance.unregister("asyncFunc2");
+QUnit.test("Multiple text question validation and async functions in expression", (assert) => {
+  let returnResult1: (res: any) => void = (res: boolean) => { };
+  let returnResult2: (res: any) => void = (res: boolean) => { };
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
   }
-);
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+
+  const question = new QuestionMultipleTextModel("q1");
+  const item1 = question.addItem("item1");
+  const item2 = question.addItem("item2");
+  item1.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
+  item2.validators.push(new ExpressionValidator("asyncFunc2() = 1"));
+  let callbackRes: any = undefined;
+  assert.equal(question.validate(false, false, false, (res: boolean) => {
+    callbackRes = res;
+  }), undefined, "There is no errors by default");
+  assert.equal(question.isRunningValidators, true, "We have two running validators");
+  assert.equal(callbackRes, undefined, "The callback is not called yet, #1");
+  returnResult1(1);
+  assert.equal(question.isRunningValidators, true, "We have one running validator");
+  assert.equal(callbackRes, undefined, "The callback is not called yet, #2");
+  returnResult2(1);
+  assert.equal(question.isRunningValidators, false, "We are fine now");
+  assert.equal(callbackRes, true, "The callback is called yet");
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
 QUnit.test("question.getSupportedValidators", function (assert) {
   assert.deepEqual(new QuestionMatrixModel("q").getSupportedValidators(), [
     "expression",
@@ -4293,7 +4267,7 @@ QUnit.test(
       0,
       "There is no errors on setting invalid value"
     );
-    assert.equal(q1.hasErrors(), true, "has errors on calling hasErrors");
+    assert.equal(q1.validate(), false, "has errors on calling validate");
     assert.equal(q1.errors.length, 1, "We have one error now");
     assert.equal(
       q1.errors[0].text,
@@ -4308,7 +4282,7 @@ QUnit.test(
       0,
       "There is no errors on setting valid value"
     );
-    assert.equal(q1.hasErrors(), false, "hasErrors return false");
+    assert.equal(q1.validate(), true, "validate return false");
     q1.value = 3;
     assert.equal(q1.value, 3, "Value 3 is set into question");
     assert.equal(survey.getValue("q1"), 3, "Value 3 is set into survey");
@@ -5189,11 +5163,11 @@ QUnit.test("select items and then set minSelectedChoices in checkbox", function 
   question.minSelectedChoices = 3;
   question.value = [2, 3];
   question.validate();
-  assert.equal(question.hasErrors(), true, "has errors");
+  assert.equal(question.validate(), false, "has errors");
 
   question.value = [2, 3, 4];
   question.validate();
-  assert.equal(question.hasErrors(), false, "has no errors");
+  assert.equal(question.validate(), true, "has no errors");
 });
 
 QUnit.test("Matrix Question: columns with true/false values", function (assert) {
@@ -6183,10 +6157,10 @@ QUnit.test("QuestionExpression expression validator", function (assert) {
   survey.setValue("q1", 5);
   survey.setValue("q2", 4);
   var question = <QuestionTextModel>survey.getQuestionByName("q3");
-  assert.ok(question.hasErrors(), "There is an error");
+  assert.notOk(question.validate(), "There is an error");
   survey.setValue("q2", 5);
   assert.equal(question.value, 10);
-  assert.notOk(question.hasErrors(), "There is no errors");
+  assert.ok(question.validate(), "There is no errors");
 });
 QUnit.test("Check isAnswered property", function (assert) {
   const survey = new SurveyModel({
@@ -7277,7 +7251,7 @@ QUnit.test("numeric validator, use custom text, bug#6588", function (assert) {
   const q2 = survey.getQuestionByName("q2");
   q1.value = "aa";
   q2.value = "aa";
-  survey.hasErrors();
+  survey.validate();
   assert.equal(q1.errors.length, 1, "One error");
   assert.equal(q1.errors[0].getText(), "Enter only numbers", "Customer error");
   assert.equal(q2.errors.length, 1, "One error, #2");
@@ -8584,6 +8558,133 @@ QUnit.test("Question visibleIf && onExpressionRunning #10258", function (assert)
   survey.setValue("q2", 2);
   assert.equal(q1.isVisible, true, "q1.visible #5");
   assert.equal(counter, 4, "counter #5");
+});
+QUnit.test("Question.validate vs callback function as a parameter #10307", function (assert) {
+  let returnResults = new Array<any>();
+  function asyncFunc(params: any): any {
+    returnResults.push(this.returnResult);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "expression", expression: "asyncFunc({q2})" }] },
+      { type: "text", name: "q2", validators: [{ type: "expression", expression: "asyncFunc({q1}) && asyncFunc({q3})" }] },
+      { type: "text", name: "q3", validators: [{ type: "expression", expression: "{q2} > {q1}" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const callbackResults = new Array<any>();
+  q1.value = 1;
+  q2.value = 2;
+  q3.value = 3;
+  const callbackValidators = (res: boolean, question: Question): void => {
+    callbackResults.push({ res: res, name: question?.name || "" });
+  };
+  const q3Res = q3.validate(true, false, false, callbackValidators);
+  assert.equal(q3Res, true, "q3Res");
+  assert.equal(returnResults.length, 0, "returnResults, #1");
+  assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #1");
+  callbackResults.splice(0, callbackResults.length);
+
+  const q1Res = q1.validate(true, false, false, callbackValidators);
+  assert.equal(q1Res, undefined, "q1Res");
+  assert.equal(returnResults.length, 1, "returnResults, #2");
+  assert.deepEqual(callbackResults, [], "callbackResults, #2");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #2");
+  returnResults.splice(0, returnResults.length);
+  callbackResults.splice(0, callbackResults.length);
+
+  const q2Res = q2.validate(true, false, false, callbackValidators);
+  assert.equal(q2Res, undefined, "q2Res");
+  assert.equal(returnResults.length, 2, "returnResults, #3");
+  assert.deepEqual(callbackResults, [], "callbackResults, #3");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [], "callbackResults, #3.1");
+  returnResults[1](true);
+  assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #3");
+
+  FunctionFactory.Instance.unregister("asyncFunc");
+});
+QUnit.test("Question.validate vs callback function and two different validates #10307", function (assert) {
+  let returnResults = new Array<any>();
+  function asyncFunc(params: any): any {
+    returnResults.push(this.returnResult);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3",
+        validators: [
+          { type: "expression", expression: "{q2} > {q1}" },
+          { type: "expression", expression: "asyncFunc({q1})" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const callbackResults = new Array<any>();
+  q1.value = 1;
+  q2.value = 2;
+  q3.value = 3;
+  const callbackValidators = (res: boolean, question: Question): void => {
+    callbackResults.push({ res: res, name: question?.name || "" });
+  };
+  let q3Res = q3.validate(true, false, false, callbackValidators);
+  assert.equal(q3Res, undefined, "q3Res, #1");
+  assert.equal(returnResults.length, 1, "returnResults, #1");
+  assert.deepEqual(callbackResults, [], "callbackResults, #1");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #1");
+  assert.equal(q3.errors.length, 0, "There is no errors, #1");
+  callbackResults.splice(0, callbackResults.length);
+  returnResults.splice(0, returnResults.length);
+
+  q2.value = 4;
+  q3Res = q3.validate(true, false, false, callbackValidators);
+  assert.equal(q3Res, undefined, "q3Res, #2");
+  assert.equal(returnResults.length, 1, "returnResults, #2");
+  assert.deepEqual(callbackResults, [], "callbackResults, #2");
+  assert.equal(q3.errors.length, 0, "There is no errors, #2");
+  returnResults[0](false);
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #2");
+  assert.equal(q3.errors.length, 1, "There is one error, #2");
+  callbackResults.splice(0, callbackResults.length);
+  returnResults.splice(0, returnResults.length);
+
+  q1.value = 10;
+  returnResults[0](true);
+  returnResults.splice(0, returnResults.length);
+  q3Res = q3.validate(true, false, false, callbackValidators);
+  assert.equal(q3Res, false, "q3Res, #3");
+  assert.equal(returnResults.length, 1, "returnResults, #3");
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #3");
+  assert.equal(q3.errors.length, 1, "There is one error, #3");
+  returnResults[0](true);
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #3");
+  assert.equal(q3.errors.length, 1, "There is one error, #3.2");
+  callbackResults.splice(0, callbackResults.length);
+
+  q1.value = 20;
+  returnResults[0](true);
+  returnResults.splice(0, returnResults.length);
+
+  q3Res = q3.validate(true, false, false, callbackValidators);
+  assert.equal(q3Res, false, "q3Res, #4");
+  assert.equal(returnResults.length, 1, "returnResults, #4");
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #4");
+  assert.equal(q3.errors.length, 1, "There is one error, #4");
+  returnResults[0](false);
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #4");
+  assert.equal(q3.errors.length, 2, "There is two errors, #4");
+
+  FunctionFactory.Instance.unregister("asyncFunc");
 });
 QUnit.test("Question visibleIf && case-sensitive #10338", function (assert) {
   const survey = new SurveyModel({

@@ -1,4 +1,4 @@
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, ValidationContext } from "./question";
 import { Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
 
@@ -26,8 +26,8 @@ export class QuestionNonValue extends Question {
   public get hasComment(): boolean {
     return false;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    return false;
+  protected validateElementCore(context: ValidationContext): boolean {
+    return true;
   }
   public getAllErrors(): Array<SurveyError> {
     return [];

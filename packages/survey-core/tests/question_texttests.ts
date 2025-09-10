@@ -129,7 +129,7 @@ QUnit.test("min date error text, bug #4596", function(assert) {
     elements: [{ type: "text", name: "q1", inputType: "date", min: "2000-10-10" }]
   });
   survey.setValue("q1", "2000-09-09");
-  assert.equal(survey.hasErrors(), true, "there is an error");
+  assert.equal(survey.validate(), false, "there is an error");
   const errorText = survey.getQuestionByName("q1").errors[0].text;
   assert.equal(errorText.indexOf(":"), -1, "There is no time in the error text");
 });
@@ -552,7 +552,7 @@ QUnit.test("Mask datetime with defaultValue as date", function (assert) {
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
   q1.value = "test";
-  q1.validate(true, true);
+  q1.validate(true);
   assert.equal(q1.errors.length, 1, "There is an error");
   assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch");
 });

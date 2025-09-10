@@ -11,7 +11,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, ValidationContext } from "./question";
 import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -23,7 +23,7 @@ import { settings } from "./settings";
 import { InputMaskBase } from "./mask/mask_base";
 import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { getAvailableMaskTypeChoices } from "./mask/mask_utils";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, ValueGetterContextCore } from "./conditionProcessValue";
 
 export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMultipleTextModel) {
@@ -739,23 +739,14 @@ export class QuestionMultipleTextModel extends Question
     }
     return false;
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var res = false;
+  protected validateElementCore(context: ValidationContext): boolean {
+    let res = true;
     for (var i = 0; i < this.items.length; i++) {
-      this.items[i].editor.onCompletedAsyncValidators = (
-        hasErrors: boolean
-      ) => {
-        this.raiseOnCompletedAsyncValidators();
-      };
-      if (
-        !!rec &&
-        rec.isOnValueChanged === true &&
-        this.items[i].editor.isEmpty()
-      )
+      if (context.isOnValueChanged && this.items[i].editor.isEmpty())
         continue;
-      res = this.items[i].editor.hasErrors(fireCallback, rec) || res;
+      res = this.items[i].editor.validateElement(context) && res;
     }
-    return super.hasErrors(fireCallback) || res;
+    return super.validateElementCore(context) && res;
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();

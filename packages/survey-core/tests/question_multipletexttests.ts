@@ -214,7 +214,7 @@ QUnit.test("min/maxValueExpression executing", (assert) => {
   const q1 = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
   q1.items[0].value = 10;
   q1.items[1].value = 5;
-  assert.equal(q1.items[1].editor.hasErrors(), true);
+  assert.equal(q1.items[1].editor.validate(), false, "min is 10");
 });
 QUnit.test("defaultValueExpression executing", (assert) => {
   const survey = new SurveyModel({

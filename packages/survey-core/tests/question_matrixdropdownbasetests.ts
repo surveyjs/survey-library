@@ -1943,7 +1943,7 @@ QUnit.test("scroll on error", function (assert) {
     errorName = options.element.name;
   });
   assert.equal(survey.tryComplete(), false, "can't complete");
-  assert.equal(errorName, "q1", "focus on question");
+  assert.equal(errorName, "col2", "focus on question");
 });
 QUnit.test("survey.onAfterRenderMatrixCell event", function (assert) {
   const survey = new SurveyModel({

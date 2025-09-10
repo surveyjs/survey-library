@@ -1,6 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { PageModel } from "../src/page";
-import { Question } from "../src/question";
+import { Question, ValidationContext } from "../src/question";
 import { PanelModel, QuestionRowModel } from "../src/panel";
 import { QuestionTextModel } from "../src/question_text";
 import { JsonObject, Serializer } from "../src/jsonobject";
@@ -15,6 +15,7 @@ import { SurveyElement } from "../src/survey-element";
 import { setOldTheme } from "./oldTheme";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { Helpers } from "../src/helpers";
+import { FunctionFactory } from "../src/functionsfactory";
 export default QUnit.module("Panel");
 
 QUnit.test("questions-elements synhronization", function (assert) {
@@ -185,7 +186,7 @@ QUnit.test("Expand panel on validation error", function (assert) {
   question.isRequired = true;
   assert.equal(panel1.isCollapsed, true, "Panel1 is collapsed");
   assert.equal(panel2.isCollapsed, true, "Panel2 is collapsed");
-  page.hasErrors(true, true);
+  page.validate(true, true);
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collapsed");
 });
@@ -222,21 +223,17 @@ QUnit.test("Panel.isRequired", function (assert) {
   const panel2 = page.addNewPanel("p2");
   const q1 = <Question>panel.addNewQuestion("text", "q1");
   const q2 = <Question>panel.addNewQuestion("text", "q2");
-  assert.equal(panel.hasErrors(), false, "There is no errors");
+  assert.equal(panel.validate(), true, "There is no errors");
   assert.equal(panel.hasVisibleErrors, false, "There is no visible errors");
   panel.isRequired = true;
-  assert.equal(panel.hasErrors(), true, "All questions are empty");
+  assert.equal(panel.validate(), false, "All questions are empty");
   assert.equal(panel.errors.length, 1, "One error");
   assert.equal(panel.hasVisibleErrors, true, "There is visible errors");
   q1.value = "1";
-  assert.equal(panel.hasErrors(), false, "The first question is not empty");
+  assert.equal(panel.validate(), true, "The first question is not empty");
   assert.equal(panel.hasVisibleErrors, false, "There no visible errors");
   panel2.isRequired = true;
-  assert.equal(
-    panel.hasErrors(),
-    false,
-    "There is no visible questions in the panel"
-  );
+  assert.equal(panel.validate(), true, "There is no visible questions in the panel");
   assert.equal(panel.hasVisibleErrors, false, "There no visible errors");
 });
 QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
@@ -248,7 +245,7 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
   panel.addNewQuestion("text", "q1");
   panel.isRequired = true;
   survey.hideRequiredErrors = true;
-  assert.equal(panel.hasErrors(), true, "All questions are empty");
+  assert.equal(panel.validate(), false, "All questions are empty");
   assert.equal(panel.errors.length, 1, "One error");
   assert.equal(panel.errors[0].visible, false, "error is invisible");
   assert.equal(
@@ -294,7 +291,7 @@ QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", functi
   const panel1 = survey.getPanelByName("panel1");
   const q1 = survey.getQuestionByName("q1");
   assert.equal(panel1.errors.length, 0, "There is no errors in panel, #1");
-  panel1.hasErrors();
+  panel1.validate();
   assert.equal(panel1.errors.length, 1, "There is an error in panel, #2");
   q1.value = "abc";
   assert.equal(panel1.errors.length, 0, "There is no errors in panel, #3");
@@ -302,12 +299,11 @@ QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", functi
   const panel2 = survey.getPanelByName("panel2");
   const q2 = survey.getQuestionByName("q2");
   assert.equal(panel2.errors.length, 0, "There is no errors in panel, #4");
-  panel2.hasErrors();
+  panel2.validate();
   assert.equal(panel2.errors.length, 1, "There is an error in panel, #5");
   q2.value = "abc";
   assert.equal(panel2.errors.length, 0, "There is no errors in panel, #6");
 });
-
 QUnit.test("Panel with paneldynamic error focus", function (assert) {
   const json = {
     elements: [
@@ -328,22 +324,14 @@ QUnit.test("Panel with paneldynamic error focus", function (assert) {
     ],
   };
   const survey = new SurveyModel(json);
-  const rec = {
-    focusOnFirstError: true,
-    firstErrorQuestion: <any>null,
-  };
+  const context = new ValidationContext({ fireCallback: true, focusOnFirstError: true });
   const panel = survey.getPanelByName("p1");
 
   survey.isCurrentPageHasErrors;
-  panel["hasErrorsCore"](rec);
+  panel.validateElement(context);
 
-  assert.equal(
-    rec.firstErrorQuestion.name,
-    "textinpd",
-    "scroll to first question in the dynamicpanel instead of dynamicpanel itself"
-  );
+  assert.equal(context.firstErrorQuestion?.name, "textinpd", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
 });
-
 QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page has error", function (assert) {
   var focusedQuestionId = "";
   const oldFunc = SurveyElement.FocusElement;
@@ -372,20 +360,16 @@ QUnit.test("Required panel error focus/not focus - T3101 - Stop focus when page 
     ],
   };
   const survey = new SurveyModel(json);
-  const page = survey.currentPage;
+  const page = <PageModel>survey.currentPage;
 
-  const rec: any = {
-    fireCallback: true,
-    focusOnFirstError: true
-  };
-  page.hasErrors(true, true, rec);
-  assert.equal(rec.firstErrorQuestion.name, "chk1", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
-  assert.equal(focusedQuestionId, rec.firstErrorQuestion.inputId, "focus the question");
+  let context = new ValidationContext({ fireCallback: true, focusOnFirstError: true });
+  page.validateElement(context);
+  assert.equal(context.firstErrorQuestion.name, "chk1", "scroll to first question in the dynamicpanel instead of dynamicpanel itself");
+  assert.equal(focusedQuestionId, context.firstErrorQuestion.inputId, "focus the question");
 
   focusedQuestionId = "";
-  rec.focusOnFirstError = false;
-  rec.firstErrorQuestion = null;
-  page.hasErrors(true, false, rec);
+  context = new ValidationContext({ fireCallback: true, focusOnFirstError: false });
+  page.validateElement(context);
   assert.notOk(focusedQuestionId, "don't scroll to question - T3101 - Stop focus when page has error");
   SurveyElement.FocusElement = oldFunc;
 });
@@ -578,7 +562,7 @@ QUnit.test("Get first focused question correctly, Bug#1417", function (assert) {
     ],
   });
   const page = survey.pages[0];
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(
     page.getFirstQuestionToFocus().name,
     "q6",
@@ -608,7 +592,7 @@ QUnit.test("Get first focused error question for matrix cell", function (assert)
     ],
   });
   const page = survey.pages[0];
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "col1", "The first question for focusing is matrix cell question");
 });
 QUnit.test("Get first focused error question for panel dynamic question", function (assert) {
@@ -629,7 +613,7 @@ QUnit.test("Get first focused error question for panel dynamic question", functi
     ],
   });
   const page = survey.pages[0];
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "question1", "The first question for focusing is in matrix dynamic");
 });
 QUnit.test("Get first focused question on collapsed panel", function (assert) {
@@ -647,7 +631,7 @@ QUnit.test("Get first focused question on collapsed panel", function (assert) {
   const page = survey.pages[0];
   assert.equal(page.getFirstQuestionToFocus().name, "q2", "q1 is in collapsed panel");
   assert.equal(page.getFirstQuestionToFocus(false, true).name, "q1", "ignore collapsed state");
-  page.hasErrors(true);
+  page.validate(true);
   assert.equal(page.getFirstQuestionToFocus(true).name, "q1", "q1 has error");
 });
 QUnit.test("Flow Panel, add new element/remove element", function (assert) {
@@ -3635,4 +3619,68 @@ QUnit.test("Add element into non rendered page, bug#10103", assert => {
   assert.equal(page2.elements.length, 3, "There are 3 questions");
   survey.nextPage();
   assert.equal(page2.rows.length, 3, "page2 has 3 rows");
+});
+QUnit.test("Panel.validate vs callback function as a parameter #10307", function (assert) {
+  let returnResults = new Array<any>();
+  function asyncFunc(params: any): any {
+    returnResults.push(this.returnResult);
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "expression", expression: "asyncFunc({q2})" }] },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3", validators: [{ type: "expression", expression: "{q2} > {q1}" }] }
+    ]
+  });
+  const page = survey.pages[0];
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const callbackResults = new Array<any>();
+  q1.value = 1;
+  q2.value = 2;
+  q3.value = 3;
+  const callbackValidators = (res: boolean, question: Question): void => {
+    callbackResults.push({ res: res, name: question?.name || "" });
+  };
+  let res = page.validate(true, false, callbackValidators);
+  assert.equal(res, undefined, "res #1");
+  assert.equal(returnResults.length, 1, "returnResults, #1");
+  assert.deepEqual(callbackResults, [], "callbackResults, #1");
+  assert.equal(q1.errors.length, 0, "q1.errors #1");
+  returnResults[0](false);
+  assert.equal(q1.errors.length, 1, "q1.errors #2");
+  assert.deepEqual(callbackResults, [{ res: false, name: "q1" }], "callbackResults, #2");
+
+  q1.value = 3;
+  returnResults.splice(0, returnResults.length);
+  callbackResults.splice(0, callbackResults.length);
+  res = page.validate(true, false, callbackValidators);
+  assert.equal(res, false, "res #3");
+  assert.equal(returnResults.length, 1, "returnResults, #3");
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #3");
+  assert.equal(q1.errors.length, 0, "q1.errors #3");
+  assert.equal(q3.errors.length, 1, "q3.errors #3");
+  returnResults[0](false);
+  assert.equal(q1.errors.length, 1, "q1.errors #4");
+  assert.equal(q3.errors.length, 1, "q3.errors #4");
+  assert.deepEqual(callbackResults, [{ res: false, name: "q3" }], "callbackResults, #4");
+
+  q2.value = 30;
+  returnResults.splice(0, returnResults.length);
+  callbackResults.splice(0, callbackResults.length);
+  res = page.validate(true, false, callbackValidators);
+  assert.equal(res, undefined, "res #5");
+  assert.equal(returnResults.length, 1, "returnResults, #5");
+  assert.deepEqual(callbackResults, [], "callbackResults, #5");
+  assert.equal(q1.errors.length, 0, "q1.errors #5");
+  assert.equal(q3.errors.length, 0, "q3.errors #5");
+  returnResults[0](true);
+  assert.equal(q1.errors.length, 0, "q1.errors #6");
+  assert.equal(q3.errors.length, 0, "q3.errors #6");
+  assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #6");
+
+  FunctionFactory.Instance.unregister("asyncFunc");
 });

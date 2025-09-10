@@ -221,7 +221,23 @@ QUnit.test("Support camel names in validators, Bug#994", function(assert) {
   assert.equal(qLow.validators.length, 1, "low case - validtor is here");
   assert.equal(qUpper.validators.length, 1, "upper case - validtor is here");
 });
-
+QUnit.test("Support camel names in validators, Bug#994", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        validators: [{ type: "camelcasevalidator" }],
+      }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "some text";
+  survey.tryComplete();
+  assert.equal(q1.errors.length, 1, "There is an error");
+  q1.value = "some CamelCase text";
+  assert.equal(q1.errors.length, 0, "There is no error");
+});
 QUnit.test(
   "Validators and isRequired in multipletext items, Bug#1055",
   function(assert) {
@@ -261,11 +277,7 @@ QUnit.test(
       survey.getQuestionByName("pricelimit")
     );
     question.items[1].value = 3;
-    assert.equal(
-      question.hasErrors(),
-      false,
-      "Everything is fine, there is no errors"
-    );
+    assert.equal(question.validate(), true, "Everything is fine, there is no errors");
   }
 );
 
@@ -300,8 +312,8 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     assert.equal(
-      survey.currentPage.hasErrors(),
-      false,
+      survey.currentPage.validate(),
+      true,
       "There is no errors, values are empty"
     );
   }
@@ -327,17 +339,13 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var q = survey.getQuestionByName("q1");
     assert.equal(q.isEmpty(), true, "value is empty");
-    assert.equal(q.hasErrors(), false, "There is no errors, values are empty");
+    assert.equal(q.validate(), true, "There is no errors, values are empty");
     survey.setValue("q1", "abc");
     assert.equal(q.isEmpty(), false, "value is not empty");
-    assert.equal(q.hasErrors(), true, "There is an error");
+    assert.equal(q.validate(), false, "There is an error");
     survey.setValue("q1", "");
     assert.equal(q.isEmpty(), true, "value is empty #2");
-    assert.equal(
-      q.hasErrors(),
-      false,
-      "There is no error, again value is empty #2"
-    );
+    assert.equal(q.validate(), true, "There is no error, again value is empty #2");
   }
 );
 
@@ -371,10 +379,10 @@ QUnit.test("Expression validator", function(assert) {
   );
   question.items[0].value = 5;
   question.items[1].value = 3;
-  assert.equal(question.hasErrors(), true, "5 <= 3");
+  assert.equal(question.validate(), false, "5 <= 3");
   question.items[0].value = 3;
   question.items[1].value = 5;
-  assert.equal(question.hasErrors(), false, "5 >= 3");
+  assert.equal(question.validate(), true, "5 >= 3");
 });
 
 QUnit.test("Expression validator #2", function(assert) {
@@ -454,35 +462,9 @@ QUnit.test("Regex load caseInsensitve", function(assert) {
   assert.equal(q.errors.length, 0, "#5");
 });
 
-QUnit.test("validator.isAsync", function(assert) {
-  function asyncFunc(params: any): any {
-    this.returnResult(params[0] * 3);
-    return false;
-  }
-  FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
-
-  var regValidator = new RegexValidator("^0*(?:[2-9]|[1-9]dd*)$");
-  assert.equal(regValidator.isAsync, false, "Regex is not async validator");
-  var expValidator = new ExpressionValidator();
-  expValidator.expression = "age({q1}) + {q2}";
-  assert.equal(
-    expValidator.isAsync,
-    false,
-    "There is no async function in expression"
-  );
-  expValidator.expression = "asyncFunc({q1}) + {q2}";
-  assert.equal(
-    expValidator.isAsync,
-    true,
-    "There is an async function in expression"
-  );
-
-  FunctionFactory.Instance.unregister("asyncFunc");
-});
-
 QUnit.test("question with async validators", function(assert) {
-  var returnResult1: (res: any) => void;
-  var returnResult2: (res: any) => void;
+  let returnResult1: (res: any) => void = (res: boolean) => {};
+  let returnResult2: (res: any) => void = (res: boolean) => {};
   function asyncFunc1(params: any): any {
     returnResult1 = this.returnResult;
     return false;
@@ -498,39 +480,15 @@ QUnit.test("question with async validators", function(assert) {
   question.validators.push(new ExpressionValidator("2 = 1)"));
   question.validators.push(new ExpressionValidator("asyncFunc1() = 1"));
   question.validators.push(new ExpressionValidator("asyncFunc2() = 2"));
-  assert.equal(question.validators[1].isAsync, true, "The validator is async");
-  var hasErrorsCounter = 0;
-  question.onCompletedAsyncValidators = (hasErrors: boolean) => {
-    if (hasErrors) hasErrorsCounter++;
-  };
-  assert.equal(
-    question.isRunningValidators,
-    false,
-    "We do not run validators yet"
-  );
-  question.hasErrors();
+  assert.equal(question.isRunningValidators, false, "We do not run validators yet");
+  assert.equal(question.validate(), false, "There is an error");
   assert.equal(question.errors.length, 1, "There is one error");
-  assert.equal(
-    question.isRunningValidators,
-    true,
-    "func1 and func2 are not completed"
-  );
-  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
+  assert.equal(question.isRunningValidators, true, "func1 and func2 are not completed");
   returnResult1(11);
   assert.equal(question.isRunningValidators, true, "func2 is not completed");
-  assert.equal(hasErrorsCounter, 0, "onCompletedAsyncValidators is not called");
   returnResult2(22);
-  assert.equal(
-    hasErrorsCounter,
-    1,
-    "onCompletedAsyncValidators is  called one time"
-  );
   assert.equal(question.errors.length, 3, "There are three errors now");
-  assert.equal(
-    question.isRunningValidators,
-    false,
-    "func1 and func2 are completed"
-  );
+  assert.equal(question.isRunningValidators, false, "func1 and func2 are completed");
 
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");

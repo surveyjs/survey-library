@@ -24,6 +24,7 @@ import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
 import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { ValidationContext } from "./question";
 
 /**
  * An interface used to create custom question types.
@@ -868,16 +869,14 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
     }
   }
-  public hasErrors(fireCallback = true, rec: any = null): boolean {
-    if (!this.contentQuestion) return false;
-    var res = this.contentQuestion.hasErrors(fireCallback, rec);
+  protected validateElementCore(context: ValidationContext): boolean {
+    if (!this.contentQuestion) return true;
+    var res = this.contentQuestion.validateElement(context);
     this.errors = [];
     for (var i = 0; i < this.contentQuestion.errors.length; i++) {
       this.errors.push(this.contentQuestion.errors[i]);
     }
-    if (!res) {
-      res = super.hasErrors(fireCallback, rec);
-    }
+    res = res && super.validateElementCore(context);
     this.updateElementCss();
     return res;
   }
@@ -1095,10 +1094,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   public get contentPanel(): PanelModel {
     return this.panelWrapper;
   }
-  public hasErrors(fireCallback = true, rec: any = null): boolean {
-    var res = super.hasErrors(fireCallback, rec);
-    if (!this.contentPanel) return res;
-    return this.contentPanel.hasErrors(fireCallback, false, rec) || res;
+  protected validateElementCore(context: ValidationContext): boolean {
+    const res = super.validateElementCore(context);
+    const pnl = this.contentPanel;
+    return !!pnl ? pnl.validateElement(context) && res : res;
   }
   public updateElementCss(reNew?: boolean) {
     super.updateElementCss(reNew);

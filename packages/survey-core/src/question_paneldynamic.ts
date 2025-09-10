@@ -14,7 +14,7 @@ import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { TextContextProcessor } from "./textPreProcessor";
 import { Base } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -1228,7 +1228,7 @@ export class QuestionPanelDynamicModel extends Question
     if (checkDynamic) {
       for (let i = 0; i < panels.length; i ++) {
         const panel = panels[i];
-        if (!panel.hasValueAnyQuestion(true) || panel.hasErrors(false, false)) {
+        if (!panel.hasValueAnyQuestion(true) || !panel.validate(false, false)) {
           this.fillSingleInputQuestionsByPanel(res, panel);
         }
       }
@@ -1716,7 +1716,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   private canLeaveCurrentPanel(): boolean {
-    return !(this.displayMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
+    return this.displayMode === "list" || !this.currentPanel || this.currentPanel.validate(true, true);
   }
   private copyValue(dest: any, src: any) {
     for (var key in src) {
@@ -2107,12 +2107,12 @@ export class QuestionPanelDynamicModel extends Question
       this.panelsCore[i].onAnyValueChanged(settings.expressionVariables.panel, "");
     }
   }
-  private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {
+  private hasKeysDuplicated(context: ValidationContext): boolean {
     var keyValues: Array<any> = [];
     var res;
     for (var i = 0; i < this.panelsCore.length; i++) {
       res =
-        this.isValueDuplicated(this.panelsCore[i], keyValues, rec, fireCallback) ||
+        this.isValueDuplicated(this.panelsCore[i], keyValues, context) ||
         res;
     }
     return res;
@@ -2126,17 +2126,17 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.updateContainsErrors();
   }
-  public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return false;
-    var res = false;
+  protected validateElementCore(context: ValidationContext): boolean {
+    if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return true;
+    let res = true;
     if (!!this.changingValueQuestion) {
-      var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
-      res = this.hasKeysDuplicated(fireCallback, rec) || res;
+      const qRes = this.changingValueQuestion.validateElement(context);
+      res = !this.hasKeysDuplicated(context) && qRes;
       this.updatePanelsContainsErrors();
     } else {
-      res = this.hasErrorInPanels(fireCallback, rec);
+      res = this.validateInPanels(context);
     }
-    return super.hasErrors(fireCallback, rec) || res;
+    return super.validateElementCore(context) && res;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -2248,38 +2248,21 @@ export class QuestionPanelDynamicModel extends Question
     }
     return val;
   }
-  private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
-    var res = false;
-    var panels = this.visiblePanels;
-    var keyValues: Array<any> = [];
-    for (var i = 0; i < panels.length; i++) {
-      this.setOnCompleteAsyncInPanel(panels[i]);
-    }
-    const focusOnError = !!rec && rec.focusOnFirstError;
+  private validateInPanels(context: ValidationContext): boolean {
+    let res = true;
+    const panels = this.visiblePanels;
+    const keyValues: Array<any> = [];
     for (let i = 0; i < panels.length; i++) {
-      let pnlError = panels[i].hasErrors(fireCallback, focusOnError, rec);
-      pnlError = this.isValueDuplicated(panels[i], keyValues, rec, fireCallback) || pnlError;
-      if (!this.isRenderModeList && pnlError && !res && focusOnError) {
+      let isPnlValid = panels[i].validateElement(context);
+      isPnlValid = !this.isValueDuplicated(panels[i], keyValues, context) && isPnlValid;
+      if (!this.isRenderModeList && !isPnlValid && res && context.focusOnFirstError) {
         this.currentIndex = i;
       }
-      res = pnlError || res;
+      res = isPnlValid && res;
     }
     return res;
   }
-  private setOnCompleteAsyncInPanel(panel: PanelModel) {
-    var questions = panel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      questions[i].onCompletedAsyncValidators = (hasErrors: boolean) => {
-        this.raiseOnCompletedAsyncValidators();
-      };
-    }
-  }
-  private isValueDuplicated(
-    panel: PanelModel,
-    keyValues: Array<any>,
-    rec: any,
-    fireCallback: boolean
-  ): boolean {
+  private isValueDuplicated(panel: PanelModel, keyValues: Array<any>, context: ValidationContext): boolean {
     if (!this.keyName) return false;
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
@@ -2288,18 +2271,16 @@ export class QuestionPanelDynamicModel extends Question
       !!this.changingValueQuestion &&
       question != this.changingValueQuestion
     ) {
-      question.hasErrors(fireCallback, rec);
+      question.validateElement(context);
     }
     for (var i = 0; i < keyValues.length; i++) {
       if (value == keyValues[i]) {
-        if (fireCallback) {
+        if (context.fireCallback) {
           question.addError(
             new KeyDuplicationError(this.keyDuplicationError, this)
           );
         }
-        if (!!rec && !rec.firstErrorQuestion) {
-          rec.firstErrorQuestion = question;
-        }
+        context.setError(question);
         return true;
       }
     }

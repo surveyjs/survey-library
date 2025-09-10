@@ -64,7 +64,7 @@ frameworks.forEach((framework) => {
         ]
       });
       await page.evaluate(() => {
-        (window as any).survey.hasErrors();
+        (window as any).survey.validate();
       });
       await checkA11y(page, axeContext, { axeOptions });
     });

@@ -21,6 +21,7 @@ import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { ValidationContext } from "./question";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -762,7 +763,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (checkDynamic) {
       for (let i = 0; i < rows.length; i ++) {
         const row = rows[i];
-        if (!row.hasValueAnyQuestion(true) || row.hasErrors(false, {}, () => {})) {
+        if (!row.hasValueAnyQuestion(true) || !row.validate(new ValidationContext())) {
           this.fillSingleInputQuestionsByRow(res, row);
         }
       }
@@ -969,23 +970,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
-    if (!isOnValueChanged && this.hasErrorInMinRows()) {
+    if (!isOnValueChanged && !this.validateMinRows()) {
       errors.push(new MinRowCountError(this.minRowCount, this));
     }
   }
-  private hasErrorInMinRows(): boolean {
+  private validateMinRows(): boolean {
     if (this.minRowCount <= 0 || !this.isRequired || !this.generatedVisibleRows)
-      return false;
-    var setRowCount = 0;
-    for (
-      var rowIndex = 0;
-      rowIndex < this.generatedVisibleRows.length;
-      rowIndex++
-    ) {
-      var row = this.generatedVisibleRows[rowIndex];
+      return true;
+    let setRowCount = 0;
+    this.generatedVisibleRows.forEach(row => {
       if (!row.isEmpty) setRowCount++;
-    }
-    return setRowCount < this.minRowCount;
+    });
+    return setRowCount >= this.minRowCount;
   }
   protected getUniqueColumnsNames(): Array<string> {
     var res = super.getUniqueColumnsNames();

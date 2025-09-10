@@ -661,13 +661,9 @@ QUnit.test(
       ],
     });
     var q1 = survey.getQuestionByName("q1");
-    assert.equal(q1.hasErrors(), false, "html question doesn't have errors");
+    assert.equal(q1.validate(), true, "html question doesn't have errors");
     var q2 = survey.getQuestionByName("q2");
-    assert.equal(
-      q2.hasErrors(),
-      false,
-      "expression question doesn't have isRequired errors"
-    );
+    assert.equal(q2.validate(), true, "expression question doesn't have isRequired errors");
   }
 );
 QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {

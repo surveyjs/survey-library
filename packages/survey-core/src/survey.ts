@@ -35,7 +35,7 @@ import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
 // import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
-import { IQuestionPlainData, Question } from "./question";
+import { IQuestionPlainData, Question, ValidationContext } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
 import { ItemValue } from "./itemvalue";
 import { PanelModelBase, PanelModel, QuestionRowModel } from "./panel";
@@ -4293,17 +4293,17 @@ export class SurveyModel extends SurveyElementCore
         return true;
       }
     }
-    if (this.validationEnabled && !q.validate(true)) return false;
+    if (!this.validationEnabled) {
+      this.performNextAfterValidation(q);
+      return true;
+    }
     const questions = q.isQuestion ? [q] : q.visibleQuestions;
-    const onHasErrors = (hasErrors: boolean) => {
-      this.clearAsyncValidationQuesitons();
+    const res = this.validateElements(questions, true, false, (hasErrors: boolean) => {
       if (!hasErrors) {
         this.performNextAfterValidation(q);
       }
-    };
-    if (this.checkForAsyncQuestionValidation(questions, onHasErrors)) return false;
-    this.performNextAfterValidation(q);
-    return true;
+    });
+    return res === true;
   }
   private performNextAfterValidation(q: Question): boolean {
     this.sendPartialResult();
@@ -4326,83 +4326,46 @@ export class SurveyModel extends SurveyElementCore
   public performPrevious(): boolean {
     return this.prevPage();
   }
-  private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (this.canGoTroughValidation()) return false;
-    const skipValidation = doComplete && this.validationAllowComplete || !doComplete && this.validationAllowSwitchPages;
-    const func = (hasErrors: boolean) => {
-      if (!hasErrors || skipValidation) {
+  private validateOnNavigate(doComplete: boolean, isPreview?: boolean): boolean {
+    const skipValidation = this.canGoTroughValidation() || doComplete && this.validationAllowComplete
+    || !doComplete && (this.validationAllowSwitchPages || this.isValidateOnComplete) || isPreview && this.isValidateOnComplete;
+    const doFunc = (): void => {
+      if (isPreview) {
+        this.showPreviewCore();
+      } else {
         this.doCurrentPageCompleteCore(doComplete);
       }
     };
-    if (this.isValidateOnComplete) {
-      if (!this.isLastPage) return false;
-      return this.validate(true, this.autoFocusFirstError, func, true) !== true && !skipValidation;
+    if (skipValidation) {
+      doFunc();
+      return true;
     }
-    return this.validateCurrentPage(func) !== true && !skipValidation;
+    const func = (hasErrors: boolean) => {
+      if (!hasErrors) {
+        doFunc();
+      }
+    };
+    if (this.isValidateOnComplete) {
+      if (!this.isLastPage) {
+        doFunc();
+        return true;
+      }
+      return this.validate(true, this.autoFocusFirstError, func, true) !== true;
+    }
+    return this.validateCurrentPage(func) !== false;
   }
   private canGoTroughValidation(): boolean { return !this.isEditMode || !this.validationEnabled; }
-  private asyncValidationQuesitons: Array<Question>;
-  private checkForAsyncQuestionValidation(
-    questions: Array<Question>,
-    func: (hasErrors: boolean) => void
-  ): boolean {
-    this.clearAsyncValidationQuesitons();
-    for (var i = 0; i < questions.length; i++) {
-      if (questions[i].isRunningValidators) {
-        let q = questions[i];
-        q.onCompletedAsyncValidators = (hasErrors: boolean) => {
-          this.onCompletedAsyncQuestionValidators(q, func, hasErrors);
-        };
-        this.asyncValidationQuesitons.push(questions[i]);
-      }
-    }
-    return this.asyncValidationQuesitons.length > 0;
-  }
-  private clearAsyncValidationQuesitons() {
-    if (!!this.asyncValidationQuesitons) {
-      var asynQuestions = this.asyncValidationQuesitons;
-      for (var i = 0; i < asynQuestions.length; i++) {
-        asynQuestions[i].onCompletedAsyncValidators = null;
-      }
-    }
-    this.asyncValidationQuesitons = [];
-  }
-  private onCompletedAsyncQuestionValidators(
-    question: Question,
-    func: (hasErrors: boolean) => void,
-    hasErrors: boolean
-  ) {
-    if (hasErrors) {
-      this.clearAsyncValidationQuesitons();
-      func(true);
-      if (this.autoFocusFirstError && !!question && !!question.page && question.page === this.currentPage) {
-        const questions: Array<Question> = this.currentPage.questions;
-        for (let i = 0; i < questions.length; i++) {
-          if (questions[i] !== question && questions[i].errors.length > 0) return;
-        }
-        question.focus(true);
-      }
-      return;
-    }
-    var asynQuestions = this.asyncValidationQuesitons;
-    for (var i = 0; i < asynQuestions.length; i++) {
-      if (asynQuestions[i].isRunningValidators) return;
-    }
-    func(false);
-  }
   public get isCurrentPageHasErrors(): boolean {
-    return this.checkIsCurrentPageHasErrors();
+    return this.validateActivePage() === false;
   }
   /**
    * Returns `true` if the current page does not contain errors.
    * @see currentPage
    */
   public get isCurrentPageValid(): boolean {
-    return !this.checkIsCurrentPageHasErrors();
+    return this.validateActivePage();
   }
-  public hasCurrentPageErrors(
-    onAsyncValidation?: (hasErrors: boolean) => void
-  ): boolean {
+  public hasCurrentPageErrors(onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     return this.hasPageErrors(undefined, onAsyncValidation);
   }
   /**
@@ -4414,15 +4377,10 @@ export class SurveyModel extends SurveyElementCore
    * @see validate
    * @see validateCurrentPage
    */
-  public validateCurrentPage(
-    onAsyncValidation?: (hasErrors: boolean) => void
-  ): boolean {
+  public validateCurrentPage(onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     return this.validatePage(undefined, onAsyncValidation);
   }
-  public hasPageErrors(
-    page?: PageModel,
-    onAsyncValidation?: (hasErrors: boolean) => void
-  ): boolean {
+  public hasPageErrors(page?: PageModel, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     const res = this.validatePage(page, onAsyncValidation);
     if (res === undefined) return res;
     return !res;
@@ -4436,28 +4394,14 @@ export class SurveyModel extends SurveyElementCore
    * @see validate
    * @see validateCurrentPage
    */
-  public validatePage(
-    page?: PageModel,
-    onAsyncValidation?: (hasErrors: boolean) => void
-  ): boolean {
+  public validatePage(page?: PageModel, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     if (!page) {
       page = this.activePage;
     }
     if (!page) return true;
-    if (this.checkIsPageHasErrors(page)) return false;
-    if (!onAsyncValidation) return true;
-    return this.checkForAsyncQuestionValidation(
-      page.questions,
-      (hasErrors: boolean) => onAsyncValidation(hasErrors)
-    )
-      ? undefined
-      : true;
+    return this.validatePageCore(page, true, onAsyncValidation);
   }
-  public hasErrors(
-    fireCallback: boolean = true,
-    focusOnFirstError: boolean = false,
-    onAsyncValidation?: (hasErrors: boolean) => void
-  ): boolean {
+  public hasErrors(fireCallback: boolean = true, focusOnFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     const res = this.validate(fireCallback, focusOnFirstError, onAsyncValidation);
     if (res === undefined) return res;
     return !res;
@@ -4472,37 +4416,20 @@ export class SurveyModel extends SurveyElementCore
    * @see validateCurrentPage
    * @see validatePage
    */
-  public validate(
-    fireCallback: boolean = true,
-    focusFirstError: boolean = false,
-    onAsyncValidation?: (hasErrors: boolean) => void,
-    changeCurrentPage?: boolean
-  ): boolean {
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
+    return this.validateElements(this.visiblePages, fireCallback, focusFirstError, onAsyncValidation, changeCurrentPage);
+  }
+  private validateElements(elements: Array<PanelModelBase| Question>, fireCallback: boolean = true, focusFirstError: boolean = false, onAsyncValidation?: (hasErrors: boolean) => void, changeCurrentPage?: boolean): boolean {
     if (!!onAsyncValidation) {
       fireCallback = true;
     }
-    var visPages = this.visiblePages;
-    var res = true;
-    const rec = { fireCallback: fireCallback, focusOnFirstError: focusFirstError, firstErrorQuestion: <any>null, result: false };
-    for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, focusFirstError, rec)) {
-        res = false;
-      }
+    const callbackResult = !!onAsyncValidation ? (res: boolean) => { onAsyncValidation(!res); } : undefined;
+    const context = new ValidationContext({ fireCallback: fireCallback, focusOnFirstError: focusFirstError, callbackResult: callbackResult, changeCurrentPage: !!changeCurrentPage });
+    for (const element of elements) {
+      element.validateElement(context);
     }
-    if (!!rec.firstErrorQuestion && (focusFirstError || changeCurrentPage)) {
-      if (focusFirstError) {
-        rec.firstErrorQuestion.focus(true);
-      } else {
-        this.currentPage = rec.firstErrorQuestion.page;
-      }
-    }
-    if (!res || !onAsyncValidation) return res;
-    return this.checkForAsyncQuestionValidation(
-      this.getAllQuestions(),
-      (hasErrors: boolean) => onAsyncValidation(hasErrors)
-    )
-      ? undefined
-      : true;
+    context.finish();
+    return context.runningResult;
   }
   public ensureUniqueNames(element: ISurveyElement = null): void {
     if (element == null) {
@@ -4578,20 +4505,19 @@ export class SurveyModel extends SurveyElementCore
     num++;
     return base + num;
   }
-  private checkIsCurrentPageHasErrors(
-    isFocuseOnFirstError: boolean = undefined
-  ): boolean {
-    return this.checkIsPageHasErrors(this.activePage, isFocuseOnFirstError);
+  private validateActivePage(isFocuseOnFirstError?: boolean): boolean {
+    return this.validatePageCore(this.activePage, isFocuseOnFirstError);
   }
-  private checkIsPageHasErrors(
-    page: PageModel,
-    isFocuseOnFirstError: boolean = undefined
-  ): boolean {
+  private validatePageCore(page: PageModel, isFocuseOnFirstError?: boolean, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
     if (isFocuseOnFirstError === undefined) {
       isFocuseOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
-    const res = !page.validate(true, isFocuseOnFirstError);
+    let callback = undefined;
+    if (onAsyncValidation) {
+      callback = (res: boolean) => { onAsyncValidation(!res); };
+    }
+    const res = page.validate(true, isFocuseOnFirstError, callback);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }
@@ -4680,10 +4606,7 @@ export class SurveyModel extends SurveyElementCore
       this.cancelPreview();
     }
     let res = this.doCurrentPageComplete(true);
-    if (res) {
-      this.cancelPreview();
-    }
-    return res;
+    return this.isCompleted;
   }
   /**
    * @deprecated Use the [`tryComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#tryComplete) method instead.
@@ -4718,11 +4641,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
-    if (!this.isValidateOnComplete) {
-      if (this.hasErrorsOnNavigate(true)) return false;
-      if (this.doServerValidation(true, true)) return false;
-    }
-    this.showPreviewCore();
+    if (!this.isValidateOnComplete && this.doServerValidation(true, true)) return false;
+    if (!this.validateOnNavigate(true, true)) return false;
     return this.isShowingPreview;
   }
   private showPreviewCore(): void {
@@ -4754,14 +4674,17 @@ export class SurveyModel extends SurveyElementCore
   protected doCurrentPageComplete(doComplete: boolean): boolean {
     if (this.isValidatingOnServer) return false;
     this.resetNavigationButton();
-    if (this.hasErrorsOnNavigate(doComplete)) return false;
-    return this.doCurrentPageCompleteCore(doComplete);
+    return this.validateOnNavigate(doComplete) === true;
   }
   private doCurrentPageCompleteCore(doComplete: boolean): boolean {
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
+      const res = this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
+      if (res) {
+        this.cancelPreview();
+      }
+      return res;
     }
     this.doNextPage();
     return true;
@@ -5283,7 +5206,7 @@ export class SurveyModel extends SurveyElementCore
   public start(): boolean {
     if (!this.firstPageIsStartPage) return false;
     this.isCurrentPageRendering = true;
-    if (this.checkIsPageHasErrors(this.startPage, true)) return false;
+    if (!this.validatePageCore(this.startPage, true)) return false;
     this.isStartedState = false;
     this.notifyQuestionsOnHidingContent(this.pages[0]);
     this.startTimerFromUI();
@@ -5358,13 +5281,13 @@ export class SurveyModel extends SurveyElementCore
     this.setIsValidatingOnServer(false);
     if (!options && !options.survey) return;
     var self = options.survey;
-    var hasErrors = false;
+    let isValid = true;
     if (options.errors) {
       var hasToFocus = this.autoFocusFirstError;
       for (var name in options.errors) {
         var question = self.getQuestionByName(name);
         if (question && question["errors"]) {
-          hasErrors = true;
+          isValid = false;
           question.addError(new CustomError(options.errors[name], this));
           if (hasToFocus) {
             hasToFocus = false;
@@ -5377,7 +5300,7 @@ export class SurveyModel extends SurveyElementCore
       }
       this.fireValidatedErrorsOnPage(this.currentPage);
     }
-    if (!hasErrors) {
+    if (isValid) {
       if (isPreview) {
         this.showPreviewCore();
       } else {
@@ -6440,20 +6363,18 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  private checkQuestionErrorOnValueChanged(question: Question) {
+  private validateQuestionOnValueChanged(question: Question) {
     if (
       !this.isNavigationButtonPressed &&
       (this.isValidateOnValueChanged ||
         question.getAllErrors().length > 0)
     ) {
-      this.checkQuestionErrorOnValueChangedCore(question);
+      this.validateQuestionOnValueChangedCore(question);
     }
   }
-  private checkQuestionErrorOnValueChangedCore(question: Question): boolean {
+  private validateQuestionOnValueChangedCore(question: Question): boolean {
     var oldErrorCount = question.getAllErrors().length;
-    var res = !question.validate(true, {
-      isOnValueChanged: !this.isValidateOnValueChanging,
-    });
+    let res = question.validate(true, false, !this.isValidateOnValueChanging);
     if (
       !!question.page && this.isValidateOnValueChange &&
       (oldErrorCount > 0 || question.getAllErrors().length > 0)
@@ -6462,21 +6383,17 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  private checkErrorsOnValueChanging(
-    valueName: string,
-    newValue: any
-  ): boolean {
+  private validateOnValueChanging(valueName: string, newValue: any): boolean {
     if (this.isLoadingFromJson) return false;
-    var questions = this.getQuestionsByValueName(valueName);
+    const questions = this.getQuestionsByValueName(valueName);
     if (!questions) return false;
-    var res = false;
-    for (var i: number = 0; i < questions.length; i++) {
-      var q = questions[i];
+    let res = true;
+    for (let i: number = 0; i < questions.length; i++) {
+      const q = questions[i];
       if (!this.isTwoValueEquals(q.valueForSurvey, newValue)) {
         q.value = newValue;
       }
-      if (this.checkQuestionErrorOnValueChangedCore(q)) res = true;
-      res = res || q.errors.length > 0;
+      res = this.validateQuestionOnValueChangedCore(q) && res && q.errors.length == 0;
     }
     return res;
   }
@@ -6494,7 +6411,7 @@ export class SurveyModel extends SurveyElementCore
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         var question = questions[i];
-        this.checkQuestionErrorOnValueChanged(question);
+        this.validateQuestionOnValueChanged(question);
         question.onSurveyValueChanged(newValue);
       }
     }
@@ -7100,11 +7017,7 @@ export class SurveyModel extends SurveyElementCore
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
     }
-    if (
-      this.isValidateOnValueChanging &&
-      this.checkErrorsOnValueChanging(name, newValue)
-    )
-      return;
+    if (this.isValidateOnValueChanging && !this.validateOnValueChanging(name, newValue)) return;
     if (
       !this.editingObj &&
       this.isValueEqual(name, newValue) &&
@@ -7252,7 +7165,7 @@ export class SurveyModel extends SurveyElementCore
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
     if (this.isLastPage && (this.autoAdvanceEnabled !== true || !this.autoAdvanceAllowComplete)) return;
-    if (this.checkIsCurrentPageHasErrors(false)) return;
+    if (!this.validateActivePage(false)) return;
     const curPage = this.currentPage;
     const goNextPage = () => {
       if (curPage !== this.currentPage) return;
@@ -7303,7 +7216,7 @@ export class SurveyModel extends SurveyElementCore
     if (!!questions) {
       for (var i: number = 0; i < questions.length; i++) {
         questions[i].updateCommentFromSurvey(newValue);
-        this.checkQuestionErrorOnValueChanged(questions[i]);
+        this.validateQuestionOnValueChanged(questions[i]);
       }
     }
     if (!locNotification) {

@@ -150,9 +150,9 @@ import {
   toRaw,
   ref,
   computed,
-  getCurrentInstance,
   onMounted,
   onUnmounted,
+  triggerRef
 } from "vue";
 import { useBase } from "./base";
 const props = defineProps<
@@ -191,7 +191,7 @@ const setupSurvey = (model: SurveyModel) => {
   if (el) model.afterRenderSurvey(el);
   model.renderCallback = () => {
     updater.value++;
-    getCurrentInstance()?.proxy?.$forceUpdate();
+    triggerRef(vueSurvey);
   };
   model.startTimerFromUI();
 };

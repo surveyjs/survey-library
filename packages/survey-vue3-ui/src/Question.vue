@@ -112,6 +112,7 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
+useBase(() => props.element);
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };
@@ -119,7 +120,6 @@ const getRootStyle: () => any = () => props.element.getRootStyle();
 const singleQuestion = computed(() => {
   return props.element.singleInputQuestion;
 });
-useBase(() => props.element);
 
 const afterRender = () => {
   if (root.value) {

@@ -63,7 +63,7 @@
     >
       <SvComponent
         :is="'sv-list-item'"
-        v-for="item in renderedActions"
+        v-for="item in model.renderedActions"
         :item="item"
         :model="model"
         :key="item.id"
@@ -75,7 +75,7 @@
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { useBase, useComputedArray } from "@/base";
+import { useBase } from "@/base";
 import type { ListModel } from "survey-core";
 import { onMounted, ref, onUnmounted } from "vue";
 
@@ -94,7 +94,6 @@ const keyup = (event: any) => {
 const mouseMove = (event: any) => {
   props.model.onMouseMove(event);
 };
-const renderedActions = useComputedArray(() => props.model.renderedActions);
 
 useBase(() => props.model);
 

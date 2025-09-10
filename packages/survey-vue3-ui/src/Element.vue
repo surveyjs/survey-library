@@ -21,6 +21,7 @@
 import SvComponent from "@/SvComponent.vue";
 import type { QuestionRowModel, SurveyElement, SurveyModel } from "survey-core";
 import { computed, onMounted, watch, ref, onUnmounted } from "vue";
+import { useBase } from "./base";
 
 const props = defineProps<{
   element: SurveyElement;
@@ -29,6 +30,7 @@ const props = defineProps<{
 }>();
 
 const root = ref<HTMLElement>();
+useBase(() => props.element);
 
 const getElementComponentName = (element: SurveyElement) => {
   return element.isPanel ? "survey-panel" : "survey-question";

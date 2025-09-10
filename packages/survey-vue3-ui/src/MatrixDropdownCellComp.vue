@@ -115,7 +115,7 @@ import type {
   QuestionMatrixDropdownRenderedCell,
   SurveyModel,
 } from "survey-core";
-import { getComponentName as getComponent } from "./base";
+import { getComponentName as getComponent, useBase } from "./base";
 import { ref, onMounted, type StyleValue, computed } from "vue";
 
 const props = defineProps<{
@@ -124,6 +124,7 @@ const props = defineProps<{
 }>();
 const isVisible = ref(false);
 const root = ref<HTMLElement>();
+useBase(() => props.cell.column);
 
 const getCellStyle = () => {
   if (!!props.cell.width || !!props.cell.minWidth)

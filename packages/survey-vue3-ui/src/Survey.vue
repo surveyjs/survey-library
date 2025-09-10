@@ -94,7 +94,7 @@
           ></SvComponent>
           <div v-if="hasCompletedPage">
             <div
-              v-html="getProcessedCompletedHtml()"
+              v-html="vueSurvey.processedCompletedHtml"
               :class="vueSurvey.completedCss"
             ></div>
             <SvComponent
@@ -138,7 +138,7 @@ SvgRegistry.registerIcons(iconsV1);
 
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
-import { settings, type SurveyModel } from "survey-core";
+import { type SurveyModel } from "survey-core";
 import {
   toRaw,
   ref,
@@ -159,7 +159,6 @@ const props = defineProps<
     }
 >();
 const root = ref<HTMLElement>();
-const processedCompletedHtmlValue = ref("");
 const updater = ref(1);
 const vueSurvey = computed((): SurveyModel => {
   const survey = props.survey ? props.survey : props.model;
@@ -178,14 +177,6 @@ const hasCompletedPage = computed(
 );
 const css = computed(() => vueSurvey.value.css);
 const pageKey = computed(() => "page" + getActivePageId());
-
-const getProcessedCompletedHtml = () => {
-  if (!hasCompletedPage.value) return "";
-  if (!processedCompletedHtmlValue.value) {
-    processedCompletedHtmlValue.value = vueSurvey.value.processedCompletedHtml;
-  }
-  return processedCompletedHtmlValue.value;
-};
 
 const setupSurvey = (model: SurveyModel) => {
   if (!model) return;

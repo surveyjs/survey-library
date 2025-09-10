@@ -3282,10 +3282,10 @@ QUnit.test(
 );
 QUnit.test("Add propertyName into function properties, #10323", (assert) => {
   function getValueByProperty(params) {
-    if (this.propName === "visibleIf") return 10;
-    if (this.propName === "enableIf") return 20;
-    if (this.propName === "expression") return 25;
-    if (this.propName === "defaultValueExpression") return 30;
+    if (this.propertyName === "visibleIf") return 10;
+    if (this.propertyName === "enableIf") return 20;
+    if (this.propertyName === "expression") return 25;
+    if (this.propertyName === "defaultValueExpression") return 30;
     return 0;
   }
   FunctionFactory.Instance.register("getValueByProperty",

@@ -823,7 +823,7 @@ export class Base implements IObjectValueContext {
       copy[key] = properties[key];
     }
     if (propName) {
-      copy.propName = propName;
+      copy.propertyName = propName;
     }
     return copy;
   }

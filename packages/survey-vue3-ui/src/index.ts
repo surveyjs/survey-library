@@ -143,7 +143,7 @@ import FilePage from "./components/file/FilePage.vue";
 import FileItem from "./components/file/FileItem.vue";
 import MatrixRow from "./MatrixRow.vue";
 
-export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
+export { useBase, useLocString, useQuestion } from "./base";
 export { ComponentFactory };
 export { key2ClickDirective } from "./directives/key2click";
 export { default as SvComponent } from "./SvComponent.vue";

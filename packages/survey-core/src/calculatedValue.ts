@@ -114,7 +114,7 @@ export class CalculatedValue extends Base {
     if (!!calculatedValues) {
       this.runDependentExpressions(calculatedValues, properties);
     }
-    this.expressionRunner.runContext(this.getValueGetterContext(), properties);
+    this.expressionRunner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, "expression"));
   }
   private runDependentExpressions(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     var variables = this.expressionRunner.getVariables();

@@ -812,10 +812,20 @@ export class Base implements IObjectValueContext {
           onExecute(value);
           info.isRunning = false;
         };
-        runner.runContext(this.getValueGetterContext(), properties);
+        runner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, propName));
       }
     }
     return true;
+  }
+  protected getPropertiesCopy(properties: HashTable<any>, propName?: string): HashTable<any> {
+    const copy: HashTable<any> = {};
+    for (const key in properties) {
+      copy[key] = properties[key];
+    }
+    if (propName) {
+      copy.propName = propName;
+    }
+    return copy;
   }
   protected getExpressionByProperty(propName: string): ExpressionRunner {
     const expression = this.getExpressionFromSurvey(propName);

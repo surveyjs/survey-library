@@ -2354,7 +2354,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     for (var i = 0; i < names.length; i++) {
       const rows = this.getDuplicatedRowAndShowErrors(names[i], true);
       if (!!rows && rows.length > 0) {
-        context.setError(rows[0].getQuestionByColumnName(names[i]));
+        context.setErrorElement(rows[0].getQuestionByColumnName(names[i]));
         res = true;
       }
     }

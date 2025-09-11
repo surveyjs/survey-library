@@ -5,6 +5,7 @@ import { getLocaleString } from "./surveyStrings";
 export class SurveyError {
   private locTextValue: LocalizableString;
   public visible: boolean = true;
+  public isWarning: boolean = false;
   constructor(
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null

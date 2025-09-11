@@ -44,7 +44,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return "";
   }
   public get dropdownListModel(): DropdownMultiSelectListModel {
-    if (!this.dropdownListModelValue) {
+    if (!this.isDisposed && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownMultiSelectListModel(this);
     }
     return this.dropdownListModelValue;

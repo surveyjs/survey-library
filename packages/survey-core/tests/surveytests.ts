@@ -19514,6 +19514,22 @@ QUnit.test("SurveyModel: Check that popups inside survey are closed when scrolli
   assert.notOk(model["onScrollCallback"]);
   model.onScroll();
 });
+QUnit.test("Do not create dropdownListModel for disposed questions", (assert): any => {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] },
+    { type: "rating", name: "q2", renderAs: "dropdown" },
+    { type: "tagbox", name: "q3", choices: ["Item1", "Item2", "Item3"] }
+  ] });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  survey.dispose();
+  assert.notOk(q1.dropdownListModel, "dropdownListModel dropdown q1");
+  assert.notOk(q2.dropdownListModel, "dropdownListModel rating q2");
+  assert.notOk(q3.dropdownListModel, "dropdownListModel tagbox q3");
+});
 QUnit.test("Copy panel with invisible questions at design-time", (assert): any => {
   const survey = new SurveyModel();
   survey.setDesignMode(true);

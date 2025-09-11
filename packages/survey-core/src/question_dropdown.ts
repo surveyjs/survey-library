@@ -310,7 +310,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   private get useDropdownList(): boolean { return this.renderAs !== "select"; }
   public get dropdownListModel(): DropdownListModel {
-    if (this.useDropdownList && !this.dropdownListModelValue) {
+    if (!this.isDisposed && this.useDropdownList && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
     }
     return this.dropdownListModelValue;

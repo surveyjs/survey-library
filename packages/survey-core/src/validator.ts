@@ -465,7 +465,7 @@ export class ExpressionValidator extends SurveyValidator {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
-    if (!this.ensureConditionRunner(true)) return null;
+    if (!this.ensureConditionRunner()) return null;
     let errorResult: ValidatorResult = null;
     const doCallBack = (res: boolean) => {
       errorResult = this.generateError(res, value, name);
@@ -478,7 +478,7 @@ export class ExpressionValidator extends SurveyValidator {
       doCallBack(res);
       return errorResult;
     }
-    var res = this.conditionRunner.runContext(this.getValueGetterContext(), properties);
+    var res = this.conditionRunner.runContext(this.getValueGetterContext(), this.getPropertiesCopy(properties, "expression"));
     return errorResult || this.generateError(res, value, name);
   }
   protected generateError(res: boolean, value: any, name: string): ValidatorResult {
@@ -490,14 +490,10 @@ export class ExpressionValidator extends SurveyValidator {
   protected getDefaultErrorText(name: string): string {
     return this.getLocalizationFormatString("invalidExpression", this.expression);
   }
-  private ensureConditionRunner(reNew: boolean): boolean {
+  private ensureConditionRunner(): boolean {
     const expression = this.getExpressionFromSurvey("expression");
     if (!expression) return false;
-    if (reNew || !this.conditionRunner) {
-      this.conditionRunner = new ConditionRunner(expression);
-    } else {
-      this.conditionRunner.expression = expression;
-    }
+    this.conditionRunner = new ConditionRunner(expression);
     return true;
   }
   /**

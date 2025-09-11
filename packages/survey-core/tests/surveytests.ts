@@ -3280,6 +3280,31 @@ QUnit.test(
     FunctionFactory.Instance.unregister("abort");
   }
 );
+QUnit.test("Add propertyName into function properties, #10323", (assert) => {
+  function getValueByProperty(params) {
+    if (this.propertyName === "visibleIf") return 10;
+    if (this.propertyName === "enableIf") return 20;
+    if (this.propertyName === "expression") return 25;
+    if (this.propertyName === "defaultValueExpression") return 30;
+    return 0;
+  }
+  FunctionFactory.Instance.register("getValueByProperty",
+    getValueByProperty
+  );
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "getValueByProperty() = 10", enableIf: "getValueByProperty() = 20", defaultValueExpression: "getValueByProperty()" },
+      { type: "expression", name: "q2", expression: "getValueByProperty()" }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isVisible, true, "visibleIf works");
+  assert.equal(q1.isReadOnly, false, "enableIf works");
+  assert.equal(q1.value, 30, "defaultValueExpression works");
+  assert.equal(q2.value, 25, "expression works");
+
+  FunctionFactory.Instance.unregister("getValueByProperty");
+});
 
 QUnit.test("Copy value trigger test", function (assert) {
   var survey = twoPageSimplestSurvey();
@@ -19541,6 +19566,25 @@ QUnit.test("SurveyModel: Check that popups inside survey are closed when scrolli
   assert.notOk(question.dropdownListModel.popupModel.isVisible);
   assert.notOk(model["onScrollCallback"]);
   model.onScroll();
+});
+QUnit.test("Do not create dropdownListModel for disposed questions", (assert): any => {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] },
+    { type: "rating", name: "q2", renderAs: "dropdown" },
+    { type: "tagbox", name: "q3", choices: ["Item1", "Item2", "Item3"] },
+    { type: "buttongroup", name: "q4", choices: ["Item1", "Item2", "Item3"] },
+  ] });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  survey.dispose();
+  assert.notOk(q1.dropdownListModel, "dropdownListModel dropdown q1");
+  assert.notOk(q2.dropdownListModel, "dropdownListModel rating q2");
+  assert.notOk(q3.dropdownListModel, "dropdownListModel tagbox q3");
+  assert.equal(q4.getType(), "buttongroup", "buttongroup q4");
+  assert.notOk(q4.dropdownListModel, "dropdownListModel buttongroup q4");
 });
 QUnit.test("Copy panel with invisible questions at design-time", (assert): any => {
   const survey = new SurveyModel();

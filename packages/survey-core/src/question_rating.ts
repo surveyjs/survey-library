@@ -924,7 +924,7 @@ export class QuestionRatingModel extends Question {
     return !this.inMatrixMode;
   }
   protected onBeforeSetCompactRenderer(): void {
-    if (!this.dropdownListModelValue) {
+    if (!this.isDisposed && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
     }
   }

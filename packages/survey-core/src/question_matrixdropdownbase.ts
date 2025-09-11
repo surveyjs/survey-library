@@ -1329,7 +1329,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return !!this.renderedTableValue;
   }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
-    if (!this.renderedTableValue) {
+    if (!this.renderedTableValue && !this.isDisposed) {
       this.renderedTableValue = this.createRenderedTable();
       if (!!this.onRenderedTableCreatedCallback) {
         this.onRenderedTableCreatedCallback(this.renderedTableValue);

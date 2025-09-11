@@ -17,9 +17,11 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
     return "expressionitem";
   }
   public runCondition(properties: any): boolean {
-    const expression = this.getExpressionFromSurvey("expression");
-    if (!expression) return false;
-    return new ConditionRunner(expression).runContext(this.getValueGetterContext(), properties);
+    let res = false;
+    this.runExpressionByProperty("expression", properties, (val: any) => {
+      res = val === true;
+    });
+    return res;
   }
   /**
    * The expression property. If this expression returns true, then survey will use html property to show on complete page.

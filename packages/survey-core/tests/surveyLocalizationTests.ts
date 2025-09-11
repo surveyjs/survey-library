@@ -248,7 +248,7 @@ QUnit.test("Ukraine locale is 'uk', but support the old one 'ua', Bug #9908",
     assert.equal(surveyLocalization.currentLocale, "uk", "ua => uk, current");
     surveyLocalization.defaultLocale = "ua";
     assert.equal(surveyLocalization.defaultLocale, "uk", "ua => uk, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly"); // eslint-disable-line i18n/no-russian-character
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly"); // eslint-disable-line i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }

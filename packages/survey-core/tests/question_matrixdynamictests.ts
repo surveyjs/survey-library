@@ -10076,6 +10076,26 @@ QUnit.test("matrix dynamic & detail panel, add a new row when the last row is ex
   assert.equal(rendredTable.rows[6].isErrorsRow, true, "The 7th row is an error row");
   assert.equal(rendredTable.rows[6].isDetailRow, false, "The 7th row is not a detail row");
 });
+QUnit.test("Do not create rendredTable for dispose matrix", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        errorLocation: "bottom",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  survey.dispose();
+  assert.equal(matrix.renderedTable, undefined, "There is no rendered table");
+});
 QUnit.test("matrix dynamic & detail panel, add a new row when the last row is expanded, errorLocation: 'top' (default), Bug9147", function (assert) {
   const survey = new SurveyModel({
     elements: [

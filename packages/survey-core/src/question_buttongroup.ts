@@ -159,7 +159,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return ".sd-button-group-scrollable-container";
   }
   protected onBeforeSetCompactRenderer(): void {
-    if (!this.dropdownListModelValue) {
+    if (!this.isDisposed && !this.dropdownListModelValue) {
       this.dropdownListModelValue = new DropdownListModel(this);
     }
   }

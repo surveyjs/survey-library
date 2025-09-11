@@ -15,7 +15,6 @@ import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { Serializer } from "../src/jsonobject";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
-import { max } from "lodash";
 
 export default QUnit.module("Validators");
 
@@ -586,7 +585,6 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
     }
   });
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q2");
   q1.value = "a";
   q1.valule = "b";
   survey.validate(true);

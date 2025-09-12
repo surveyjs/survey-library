@@ -464,6 +464,51 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   assert.strictEqual(question.renderedTable.rows[1].row, question.visibleRows[0]);
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
 });
+QUnit.test("rows: check matrixdynamic d&d with expanded detail panel", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q",
+        columns: ["Col1"],
+        rowCount: 3,
+        choices: ["item1", "item2", "item3"],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            type: "text",
+            name: "q1_detail",
+          }
+        ]
+      },
+    ]
+  });
+  const question: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q")
+  );
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  let draggedRow = question.visibleRows[1];
+  let dropRow = question.visibleRows[2];
+
+  ddHelper["parentElement"] = question;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 1);
+  assert.ok(question.renderedTable.rows[3].isGhostRow);
+
+  ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = true;
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 3);
+
+  dropRow.showDetailPanel();
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 2);
+});
 
 QUnit.test("rows: check matrixdynamic d&d between different matrices", function (assert) {
   const survey = new SurveyModel({

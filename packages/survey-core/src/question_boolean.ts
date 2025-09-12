@@ -30,9 +30,6 @@ export class QuestionBooleanModel extends Question {
   public get isIndeterminate(): boolean {
     return this.isEmpty();
   }
-  public get hasTitle(): boolean {
-    return true;
-  }
   /**
    * Gets or sets the question value as a Boolean value.
    *

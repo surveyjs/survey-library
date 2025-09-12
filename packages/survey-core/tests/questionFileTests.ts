@@ -1383,6 +1383,16 @@ QUnit.test("Check file question processResponsiveness method", (assert) => {
   question["calculatedItemWidth"] = 50;
   question["processResponsiveness"](0, 250);
   assert.equal(question.pageSize, 4);
+
+  question["calculatedGapBetweenItems"] = 8;
+  question["calculatedItemWidth"] = 50;
+  question["processResponsiveness"](0, 58);
+  assert.equal(question.pageSize, 1);
+
+  question["calculatedGapBetweenItems"] = 8;
+  question["calculatedItemWidth"] = 50;
+  question["processResponsiveness"](0, 40);
+  assert.equal(question.pageSize, 1);
 });
 
 QUnit.test("QuestionFile download file content on preview, #2", function (assert) {

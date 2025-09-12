@@ -13,11 +13,10 @@ export class QuestionErrorComponent extends React.Component<IQuestionErrorCompon
   render(): React.JSX.Element | null {
     const error = this.props.error;
     const classes = this.props.cssClasses;
-    const cssError = classes.error;
     return (
       <div>
-        <span className={cssError.icon || undefined} aria-hidden="true" />
-        <span className={cssError.item || undefined}>
+        <span className={error.getCssIcon(classes)} aria-hidden="true" />
+        <span className={error.getCssItem(classes)}>
           <SurveyLocStringViewer locStr={error.locText} />
         </span>
       </div>

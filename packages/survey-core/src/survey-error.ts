@@ -23,6 +23,20 @@ export class SurveyError {
     }
     return this.locTextValue;
   }
+  public getCssIcon(cssClasses: any): string {
+    const error = this.getCssError(cssClasses);
+    const icon = this.isWarning ? error.warningIcon : error.icon;
+    return icon || error.icon || undefined;
+  }
+  public getCssItem(cssClasses: any): string {
+    const error = this.getCssError(cssClasses);
+    const item = this.isWarning ? error.warningItem : error.item;
+    return item || error.item || undefined;
+  }
+  private getCssError(cssClasses: any): any {
+    cssClasses = cssClasses || {};
+    return cssClasses.error || {};
+  }
 
   public getText(): string {
     var res = this.text;

@@ -157,7 +157,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     if (!this.dropTarget) return;
     const dropTargetMatrix = this.matrixRowMap[this.dropTarget.id].matrix;
     const dropTargetRow = this.matrixRowMap[this.dropTarget.id].row;
-    const bottomOffset = this.isBottom ? 1 : 0;
+    const bottomOffset = this.isBottom && !dropTargetRow.isDetailPanelShowing ? 1 : 0;
     let toIndex = 0;
     const options: MatrixRowDragOverEvent = {
       allow: dropTargetMatrix == this.parentElement,

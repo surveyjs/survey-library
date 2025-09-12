@@ -198,8 +198,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       this.parentElement.moveRowByIndex(this.fromIndex, this.toIndex);
     } else if (this.toMatrix) {
       const row = { ...this.parentElement.value[this.fromIndex] };
-      this.toMatrix.addRowByIndex(row, this.toIndex);
       this.parentElement.removeRowByIndex(this.fromIndex);
+      this.toMatrix.addRowByIndex(row, this.toIndex);
     }
     return this.parentElement;
   };

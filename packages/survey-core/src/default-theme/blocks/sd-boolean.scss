@@ -106,7 +106,6 @@
 }
 
 .sd-boolean--exchanged {
-
   &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
   &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
     color: $font-editorfont-placeholdercolor;
@@ -175,4 +174,10 @@
 
 .sd-boolean--error {
   background-color: $red-light;
+}
+
+.sd-question--boolean {
+  .sd-item__control-label {
+    display: flex;
+  }
 }

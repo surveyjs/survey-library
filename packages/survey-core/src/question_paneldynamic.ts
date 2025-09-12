@@ -1241,7 +1241,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private fillSingleInputQuestionsByPanel(res: Array<Question>, panel: PanelModel): void {
     if (panel) {
-      panel.questions.forEach(q => q.addNestedQuestion(res, true, false, false));
+      panel.visibleQuestions.forEach(q => q.addNestedQuestion(res, true, false, false));
     }
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {

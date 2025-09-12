@@ -2285,6 +2285,49 @@ QUnit.test("singleInput navigattion & errors for nested matrix #4, Bug#9982", as
   assert.equal(matrix.singleInputQuestion.name, "employee-name", "singleInputQuestion is employee-name, #5");
   assert.equal(matrix.singleInputQuestion.errors.length, 1, "singleInputQuestion show errors, #5");
 });
+QUnit.test("singleInput visibleIf in the container in dynamic panel, Bug#10360", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", panelCount: 2, templateElements: [
+        { type: "text", name: "q1", isRequired: true, defaultValue: "a" },
+        { type: "panel", name: "p1", visibleIf: "{panel.q1} = 'a'",
+          elements: [{ type: "text", name: "q2", isRequired: true }]
+        }
+      ]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #1");
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion is q1, #1");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "q2", "singleInputQuestion is q2, #2");
+  survey.performPrevious();
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion is q1, #3");
+  assert.equal(panel.panels[0].getElementByName("p1").isVisible, true, "p1 is visible, #3");
+  panel.singleInputQuestion.value = "b";
+  assert.equal(panel.panels[0].getElementByName("p1").isVisible, false, "p1 is not visible, #4");
+  assert.equal(panel.panels[0].getQuestionByName("q2").isVisibleInSurvey, false, "q2 is not visible, #4");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion is q1, #4");
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "q2", "singleInputQuestion is q2, #5");
+  panel.singleInputQuestion.value = "val1";
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "panel", "singleInputQuestion is panel - summary, #6");
+  panel.singleInputSummary?.items[1].btnEdit.action();
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion is q1, #7");
+  panel.singleInputQuestion.value = "b";
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "panel", "singleInputQuestion is panel, #8");
+  panel.singleInputSummary?.items[1].btnEdit.action();
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion is q1, #9");
+  panel.singleInputQuestion.value = "a";
+  survey.performNext();
+  assert.equal(panel.singleInputQuestion.name, "q2", "singleInputQuestion is q2, #10");
+});
+
 //TODO re-think this test. We need to include summaries into brasdscrum navigation
 QUnit.skip("singleInput bradscrum navigation for 3 level dynamic panels", assert => {
   const survey = new SurveyModel({

@@ -7758,7 +7758,7 @@ export class SurveyModel extends SurveyElementCore
   public calculateWidthMode(): string {
     if (this.widthMode == "auto") {
       let isResponsive = false;
-      if (this.questionsOnPageMode != "inputPerPage") {
+      if (!this.isSingleVisibleInput) {
         this.pages.forEach((page) => {
           if (page.needResponsiveWidth())
             isResponsive = true;

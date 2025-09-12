@@ -6104,6 +6104,30 @@ QUnit.test(
     assert.equal(q2.value, "abc", "default value is set, text");
   }
 );
+QUnit.test("boolean question vs hidden title & no, bug #10320", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: true,
+    elements: [
+      {
+        type: "boolean",
+        name: "q1",
+        titleLocation: "hidden",
+        title: "My title",
+      },
+      {
+        type: "text",
+        name: "q2",
+        defaultValue: "abc",
+        readOnly: true,
+      },
+    ],
+  });
+  var q1 = survey.getQuestionByName("q1");
+  var q2 = survey.getQuestionByName("q2");
+  assert.notOk(q1.no, "boolean question no is empty");
+  assert.equal(q2.no, "1.", "next question no is set to 1.");
+}
+);
 QUnit.test("Use empty string as a valid value", function (assert) {
   var json = {
     elements: [

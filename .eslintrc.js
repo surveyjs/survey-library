@@ -101,7 +101,7 @@ module.exports = {
     // "@typescript-eslint/no-inferrable-types": "off",
     // "@typescript-eslint/no-empty-interface": "off",
     // "@typescript-eslint/no-empty-function": "off",
-    "i18n/no-russian-character": [
+    "i18n/only-english-or-code": [
       "error",
       {
         "includeIdentifier": true,
@@ -122,7 +122,7 @@ module.exports = {
     {
       "files": ["packages/survey-core/src/localization/*.ts"],
       "rules": {
-        "i18n/no-russian-character": "off"
+        "i18n/only-english-or-code": "off"
       }
     }
   ]

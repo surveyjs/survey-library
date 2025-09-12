@@ -207,8 +207,8 @@ QUnit.test("Action title", (assert) => {
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
   assert.equal(action1.getLocale(), "de", "locale de");
-  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
-  assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
+  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(action1.title, "Alles auswählen", "Update action title de localization"); // eslint-disable-line i18n/only-english-or-code
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
   survey.locale = "";
 });
@@ -227,8 +227,8 @@ QUnit.test("Action title in list model", (assert) => {
   assert.equal(action1.tooltip, "Preview", "take tooltip from en localization");
   survey.locale = "de";
   assert.equal(action1.getLocale(), "de");
-  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization");
-  assert.equal(action1.title, "Alles auswählen", "Update action title de localization");
+  assert.equal(action1.locTitle.text, "Alles auswählen", "take text from de localization"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(action1.title, "Alles auswählen", "Update action title de localization"); // eslint-disable-line i18n/only-english-or-code
   assert.equal(action1.tooltip, "Vorschau", "take tooltip from de localization");
   survey.locale = "";
 });

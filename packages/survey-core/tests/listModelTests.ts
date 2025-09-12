@@ -419,9 +419,9 @@ QUnit.test("allow show selected item with disabled selection", (assert) => {
   assert.equal(list.selectedItem, items[0], "first item selected");
   assert.equal(list.isItemSelected(items[0] as any), true, "selected item is true");
 });
-QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", function (assert) {
+QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", function (assert) { // eslint-disable-line i18n/only-english-or-code
   const items: Array<IAction> = [];
-  items.push(<IAction>{ id: "test1", title: "brouillé" });
+  items.push(<IAction>{ id: "test1", title: "brouillé" }); // eslint-disable-line i18n/only-english-or-code
   items.push(<IAction>{ id: "test1", title: "lle" });
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   list.flushUpdates();
@@ -434,7 +434,7 @@ QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", 
   };
   list.filterString = "lle";
   filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
-  assert.equal(filteredActions.length, 2, "include brouillé");
+  assert.equal(filteredActions.length, 2, "include brouillé"); // eslint-disable-line i18n/only-english-or-code
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });
 QUnit.test("ListModel search in subitems", function (assert) {

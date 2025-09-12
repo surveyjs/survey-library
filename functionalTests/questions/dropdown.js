@@ -1271,7 +1271,7 @@ frameworks.forEach((framework) => {
     });
     await t.expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
     await changeLocale();
-    await t.expect(questionValueInput.getAttribute("placeholder")).eql("Bitte auswählen...");
+    await t.expect(questionValueInput.getAttribute("placeholder")).eql("Bitte auswählen..."); // eslint-disable-line i18n/only-english-or-code
   });
 
   test("Check popup scroll", async (t) => {

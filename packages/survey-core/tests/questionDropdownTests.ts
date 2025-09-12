@@ -470,7 +470,7 @@ QUnit.test("readOnlyText on changing locale", assert => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   assert.equal(question.readOnlyText, "Select...", "english locale");
   survey.locale = "de";
-  assert.equal(question.readOnlyText, "Bitte auswählen...", "de locale");
+  assert.equal(question.readOnlyText, "Bitte auswählen...", "de locale"); // eslint-disable-line i18n/only-english-or-code
   survey.locale = "";
   assert.equal(new QuestionDropdownModel("q1").readOnlyText, "Select...", "English by default");
 });

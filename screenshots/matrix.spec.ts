@@ -773,7 +773,7 @@ frameworks.forEach(framework => {
                 "rows": [
                   {
                     "value": "Row 1",
-                    "text": "АБВГД" // eslint-disable-line i18n/no-russian-character
+                    "text": "АБВГД" // eslint-disable-line i18n/only-english-or-code
                   },
                   "Row 2"
                 ]
@@ -783,7 +783,7 @@ frameworks.forEach(framework => {
         ]
       });
 
-      const questionRoot = page.locator(".sv-string-viewer").filter({ hasText: "АБВГД" }); // eslint-disable-line i18n/no-russian-character
+      const questionRoot = page.locator(".sv-string-viewer").filter({ hasText: "АБВГД" }); // eslint-disable-line i18n/only-english-or-code
       await compareScreenshot(page, questionRoot, "question-matrix-non-latin.png");
     });
 

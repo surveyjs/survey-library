@@ -3,7 +3,7 @@
 // const title = "options";
 
 // const change_question_required_text = ClientFunction(() => {
-//   window["survey"].requiredText = "😱";
+//   window["survey"].requiredText = "some";  //
 //   window["survey"].render();
 // });
 
@@ -131,7 +131,7 @@
 
 //     await t.expect(requiredElement.textContent).eql("*");
 //     await change_question_required_text();
-//     await t.expect(requiredElement.textContent).eql("😱");
+//     await t.expect(requiredElement.textContent).eql("some");
 //   });
 
 //   test("set question numbers on page", async t => {

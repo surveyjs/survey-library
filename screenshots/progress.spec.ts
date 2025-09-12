@@ -17,7 +17,7 @@ const testedPages = [{
 const json = {
   showQuestionNumbers: "on",
   focusFirstQuestionAutomatic: true,
-  "title": "Minimum data reporting form – for suspected and probable cases of COVID-19",
+  "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
   "pages": [{
     "name": "page1",
     "navigationTitle": "Sign In",

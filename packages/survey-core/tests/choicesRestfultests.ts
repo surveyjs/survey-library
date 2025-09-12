@@ -1969,8 +1969,8 @@ function getCountries(): any {
           alpha3_code: "AFG",
         },
         {
-          name: "Åland Islands",
-          locName: { en: "Åland Islands" },
+          name: "Åland Islands", // eslint-disable-line i18n/only-english-or-code
+          locName: { en: "Åland Islands" }, // eslint-disable-line i18n/only-english-or-code
           alpha2_code: "AX",
           alpha3_code: "ALA",
         },

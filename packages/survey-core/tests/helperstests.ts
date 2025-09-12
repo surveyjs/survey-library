@@ -129,11 +129,11 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
   settings.comparator.caseSensitive = false;
 });
 QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function(assert) {
-  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), false, "#1");
+  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), false, "#1"); // eslint-disable-line i18n/only-english-or-code
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
     return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
   };
-  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2");
+  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2"); // eslint-disable-line i18n/only-english-or-code
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });
 
@@ -499,7 +499,7 @@ QUnit.test("Check compareStrings function", function(assert) {
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
     return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
   };
-  assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
+  assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17"); // eslint-disable-line i18n/only-english-or-code
   settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });
 QUnit.test("getUnbindValue function", function(assert) {

@@ -15,6 +15,7 @@ import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { Serializer } from "../src/jsonobject";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
+import { SurveyError } from "../src/survey-error";
 
 export default QUnit.module("Validators");
 
@@ -585,7 +586,6 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
     }
   });
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q2");
   q1.value = "a";
   q1.valule = "b";
   survey.validate(true);
@@ -593,4 +593,68 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
   allow = true;
   survey.validate(true);
   assert.equal(counter, 2, "#2");
+});
+QUnit.test("SurveyError.getCssIcon, Issue#9085", function(assert) {
+  const surveyError = new SurveyError("ErrorText");
+  assert.equal(surveyError.getCssIcon(undefined), undefined, "getCssIcon #1");
+  assert.equal(surveyError.getCssIcon({}), undefined, "getCssIcon #2");
+  assert.equal(surveyError.getCssIcon({ error: {} }), undefined, "getCssIcon #3");
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon" } }), "icon", "getCssIcon #4");
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon", warningIcon: "warningIcon" } }), "icon", "getCssIcon #4.1");
+  surveyError.isWarning = true;
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon" } }), "icon", "getCssIcon #5");
+  assert.equal(surveyError.getCssIcon({ error: { warningIcon: "warningIcon", icon: "warningIcon" } }), "warningIcon", "getCssIcon #6");
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon", warningIcon: "warningIcon" } }), "warningIcon", "getCssIcon #7");
+  assert.equal(surveyError.getCssIcon(undefined), undefined, "getCssIcon #8");
+  assert.equal(surveyError.getCssIcon({}), undefined, "getCssIcon #9");
+  assert.equal(surveyError.getCssIcon({ error: {} }), undefined, "getCssIcon #10");
+});
+QUnit.test("SurveyError.getCssItem, Issue#9085", function(assert) {
+  const surveyError = new SurveyError("ErrorText");
+  assert.equal(surveyError.getCssItem(undefined), undefined, "getCssItem #1");
+  assert.equal(surveyError.getCssItem({}), undefined, "getCssItem #2");
+  assert.equal(surveyError.getCssItem({ error: {} }), undefined, "getCssItem #3");
+  assert.equal(surveyError.getCssItem({ error: { item: "item" } }), "item", "getCssItem #4");
+  assert.equal(surveyError.getCssItem({ error: { item: "item", warningItem: "warningItem" } }), "item", "getCssItem #4.1");
+  surveyError.isWarning = true;
+  assert.equal(surveyError.getCssItem({ error: { item: "item" } }), "item", "getCssItem #5");
+  assert.equal(surveyError.getCssItem({ error: { warningItem: "warningItem", item: "item" } }), "warningItem", "getCssItem #6");
+  assert.equal(surveyError.getCssItem({ error: { item: "item", warningItem: "warningItem" } }), "warningItem", "getCssItem #7");
+  assert.equal(surveyError.getCssItem(undefined), undefined, "getCssItem #8");
+  assert.equal(surveyError.getCssItem({}), undefined, "getCssItem #9");
+  assert.equal(surveyError.getCssItem({ error: {} }), undefined, "getCssItem #10");
+});
+QUnit.test("SurveyError.isWarning, Issue#9085", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, isWarning: true }] },
+      { type: "text", name: "q2", validators: [{ type: "numeric", maxValue: 5 }] }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  q1.value = 10;
+  q2.value = 10;
+  survey.validate(true);
+  assert.equal(q1.errors.length, 1, "There is an error, q1");
+  assert.equal(q1.errors[0].isWarning, true, "isWarning property is set true, q1");
+  assert.equal(q2.errors.length, 1, "There is an error, q2");
+  assert.equal(q2.errors[0].isWarning, false, "isWarning property is set false, q2");
+});
+QUnit.test("SurveyError.isWarning & validate returns, Issue#9085", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, isWarning: true }, { type: "numeric", maxValue: 10 }] }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = 7;
+  assert.equal(survey.validate(true), true, "One error as warning");
+  assert.equal(q1.errors.length, 1, "There is no error, q1");
+  assert.equal(q1["hasCssError"](), false, "There is no css error, q1");
+  assert.equal(q1["hasCssError"](true), true, "There is a warning, q1");
+  q1.value = 12;
+  assert.equal(q1.errors.length, 2, "There is no error, q1");
+  assert.equal(survey.validate(true), false, "One error as warning and one as error");
+  assert.equal(q1["hasCssError"](), true, "There is css error, q1");
 });

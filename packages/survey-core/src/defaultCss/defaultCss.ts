@@ -284,6 +284,7 @@ export var defaultCss = {
     root: "sd-error",
     icon: "",
     item: "",
+    warningItem: "sd-error--warning-item",
     locationTop: "",
     locationBottom: ""
   },

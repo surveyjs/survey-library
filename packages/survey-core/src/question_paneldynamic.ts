@@ -2280,7 +2280,7 @@ export class QuestionPanelDynamicModel extends Question
             new KeyDuplicationError(this.keyDuplicationError, this)
           );
         }
-        context.setError(question);
+        context.setErrorElement(question);
         return true;
       }
     }

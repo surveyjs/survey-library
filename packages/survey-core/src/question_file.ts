@@ -1101,7 +1101,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
     }
     if (this.calculatedGapBetweenItems && this.calculatedItemWidth) {
-      this.pageSize = this.calcAvailableItemsCount(availableWidth, this.calculatedItemWidth, this.calculatedGapBetweenItems);
+      this.pageSize = Math.max(this.calcAvailableItemsCount(availableWidth, this.calculatedItemWidth, this.calculatedGapBetweenItems), 1);
       return true;
     }
     return false;

@@ -329,6 +329,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public set renderedRows(val: Array<QuestionMatrixDropdownRenderedRow>) {
     this.renderedRowsAnimation.sync(val);
   }
+  public get lastRenderedRow() {
+    return this.renderedRows[this.renderedRows.length - 1];
+  }
 
   public constructor(public matrix: QuestionMatrixDropdownModelBase) {
     super();

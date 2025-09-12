@@ -15,7 +15,7 @@
   padding-left: calcSize(2);
 }
 
-.sd-multipletext__item-container.sd-input:focus-within {
+.sd-multipletext__item-container:has(.sd-input:focus) {
   box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 

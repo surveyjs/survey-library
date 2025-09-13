@@ -2,6 +2,7 @@
   <div
     :style="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' as any }"
     :class="question.cssClasses.tableWrapper"
+    :data-sv-drop-target-matrix-row="question.renderedTable.wrapperDropTargetId"
   >
     <table :class="question.getTableCss()">
       <thead v-if="table.showHeader">

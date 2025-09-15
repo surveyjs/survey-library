@@ -988,6 +988,7 @@ export class QuestionMatrixModel
   private getValueOnCellClick(row: MatrixRowModel, column: MatrixColumn): any {
     if (this.isMultiSelect) {
       if (column.isExclusive) {
+        if (this.isCellChecked(row, column)) return undefined;
         return [column.value];
       }
       let val = Array.isArray(row.value) ? [].concat(row.value) : [];
@@ -1003,6 +1004,12 @@ export class QuestionMatrixModel
         if (!Array.isArray(val)) {
           val = [];
         }
+        this.columns.forEach(col => {
+          if (col.isExclusive) {
+            const index = val.indexOf(col.value);
+            if (index > -1) val.splice(index, 1);
+          }
+        });
         val.push(column.value);
       }
       return val;

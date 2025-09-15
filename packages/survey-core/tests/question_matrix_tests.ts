@@ -925,12 +925,26 @@ QUnit.test("isExclusive property for the column in single matrix, Issue#10357", 
     }]
   });
   const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  const col1 = matrix.columns[0];
   const col2 = matrix.columns[1];
+  const col3 = matrix.columns[2];
   assert.equal(col2.isExclusive, true, "isExclusive #1");
   matrix.value = { row1: ["col1", "col3"], row2: ["col3"] };
   matrix.cellClick(matrix.visibleRows[0], col2);
   matrix.cellClick(matrix.visibleRows[1], col2);
-  assert.deepEqual(matrix.value, { row1: ["col2"], row2: ["col2"] }, "value after click on exclusive column");
+  assert.deepEqual(matrix.value, { row1: ["col2"], row2: ["col2"] }, "value after click on exclusive column, #1");
+  matrix.cellClick(matrix.visibleRows[0], col2);
+  matrix.cellClick(matrix.visibleRows[1], col2);
+  assert.deepEqual(matrix.value, { }, "value after click on exclusive column, #2");
+  matrix.cellClick(matrix.visibleRows[0], col2);
+  matrix.cellClick(matrix.visibleRows[1], col2);
+  assert.deepEqual(matrix.value, { row1: ["col2"], row2: ["col2"] }, "value after click on exclusive column, #3");
+  matrix.cellClick(matrix.visibleRows[0], col1);
+  matrix.cellClick(matrix.visibleRows[0], col3);
+  matrix.cellClick(matrix.visibleRows[1], col1);
+  matrix.cellClick(matrix.visibleRows[1], col3);
+  assert.deepEqual(matrix.value, { row1: ["col1", "col3"], row2: ["col1", "col3"] }, "value after click on exclusive column, #4");
+
   col2.isExclusive = false;
   matrix.value = { row1: ["col1", "col3"], row2: ["col3"] };
   matrix.cellClick(matrix.visibleRows[0], col2);

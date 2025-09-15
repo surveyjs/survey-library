@@ -724,5 +724,5 @@ QUnit.test("Show error if number is not valid because of step, #10348", (assert)
   const q1 = survey.getQuestionByName("q1");
   q1.value = 10;
   assert.equal(q1.validate(), false, "10 is not valid");
-  assert.equal(q1.errors[0].getText(), "Value is not a valid multiple of 3.", "error text #1");
+  assert.equal(q1.errors[0].getText(), "Please enter a value that matches the step size of 3.", "error text #1");
 });

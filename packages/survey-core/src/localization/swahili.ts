@@ -65,6 +65,8 @@ export var swahiliStrings = {
   numericError: "Thamani inapaswa kuwa ya nambari.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Thamani haipaswi kuwa chini ya {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Tafadhali ingiza thamani inayolingana na saizi ya hatua ya {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Thamani haipaswi kuwa kubwa kuliko {0}",
   // [Auto-translated] "Numbers are not allowed."

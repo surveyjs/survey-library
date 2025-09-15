@@ -65,6 +65,8 @@ export var finnishSurveyStrings = {
   numericError: "Arvon tulee olla numeerinen.",
   // "The value should not be less than {0}"
   minError: "Arvo ei saa olla pienempi kuin {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Syötä arvo, joka vastaa {0} askelkokoa.",
   // "The value should not be greater than {0}"
   maxError: "Arvo ei saa olla suurempi kuin {0}",
   // [Auto-translated] "Numbers are not allowed."

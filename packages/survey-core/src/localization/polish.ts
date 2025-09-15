@@ -65,6 +65,8 @@ export var polishSurveyStrings = {
   numericError: "W tym polu można wpisać tylko liczby.",
   // "The value should not be less than {0}"
   minError: "Wartość nie powinna być mniejsza niż {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Wprowadź wartość odpowiadającą rozmiarowi kroku {0}.",
   // "The value should not be greater than {0}"
   maxError: "Wartość nie powinna być większa niż {0}",
   // [Auto-translated] "Numbers are not allowed."

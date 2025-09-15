@@ -65,6 +65,8 @@ export var czechSurveyStrings = {
   numericError: "V tomto poli lze zadat pouze čísla.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Hodnota by neměla být menší než {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Zadejte hodnotu, která odpovídá velikosti kroku {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Hodnota by neměla být větší než {0}",
   // [Auto-translated] "Numbers are not allowed."

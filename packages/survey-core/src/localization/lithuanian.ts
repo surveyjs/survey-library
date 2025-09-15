@@ -65,6 +65,8 @@ export var lithuaniaSurveyStrings = {
   numericError: "Turi būti skaičiai.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Vertė neturėtų būti mažesnė nei {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Įveskite reikšmę, atitinkančią {0} žingsnio dydį.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Vertė neturėtų būti didesnė nei {0}",
   // [Auto-translated] "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var romanianSurveyStrings = {
   numericError: "Răspunsul trebuie să fie numeric.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Valoarea nu trebuie să fie mai mică de {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Introduceți o valoare care se potrivește cu dimensiunea pasului {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Valoarea nu trebuie să fie mai mare de {0}",
   // [Auto-translated] "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var indonesianStrings = {
   numericError: "Nilai harus berupa angka.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Nilainya tidak boleh kurang dari {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Masukkan nilai yang cocok dengan ukuran langkah {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Nilai tidak boleh lebih besar dari {0}",
   // [Auto-translated] "Numbers are not allowed."

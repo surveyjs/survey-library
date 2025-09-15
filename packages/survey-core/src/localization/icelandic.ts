@@ -65,6 +65,8 @@ export var icelandicSurveyStrings = {
   numericError: "Þetta gildi verður að vera tala.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Gildið má ekki vera lægra en {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Vinsamlegast sláðu inn gildi sem passar við þrepastærð {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Gildið má ekki vera hærra en {0}",
   // [Auto-translated] "Numbers are not allowed."

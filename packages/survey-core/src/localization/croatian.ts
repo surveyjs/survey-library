@@ -65,6 +65,8 @@ export var croatianStrings = {
   numericError: "Vrijednost bi trebala biti brojčana.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Vrijednost ne smije biti manja od {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Unesite vrijednost koja odgovara veličini koraka {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Vrijednost ne smije biti veća od {0}",
   // [Auto-translated] "Numbers are not allowed."

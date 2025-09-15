@@ -65,6 +65,8 @@ export var hungarianSurveyStrings = {
   numericError: "Az érték szám kell, hogy legyen!",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Az érték nem lehet kisebb, mint {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Kérjük, adjon meg egy értéket, amely megfelel a {0} lépésméretének.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Az érték nem lehet nagyobb, mint {0}",
   // [Auto-translated] "Numbers are not allowed."

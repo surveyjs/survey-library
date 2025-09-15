@@ -65,6 +65,8 @@ export var danishSurveyStrings = {
   numericError: "Angiv et tal.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Værdien bør ikke være mindre end {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Indtast en værdi, der matcher trinstørrelsen på {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Værdien bør ikke være større end {0}",
   // [Auto-translated] "Numbers are not allowed."

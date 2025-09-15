@@ -65,6 +65,8 @@ export var vietnameseSurveyStrings = {
   numericError: "Giá trị nên là kiểu số.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Giá trị không được nhỏ hơn {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Vui lòng nhập giá trị khớp với kích thước bước của {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Giá trị không được lớn hơn {0}",
   // [Auto-translated] "Numbers are not allowed."

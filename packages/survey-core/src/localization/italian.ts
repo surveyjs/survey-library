@@ -65,6 +65,8 @@ export var italianSurveyStrings = {
   numericError: "Il valore deve essere numerico",
   // "The value should not be less than {0}"
   minError: "Il valore non deve essere inferiore a {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Inserisci un valore che corrisponda alla dimensione del passo di {0}.",
   // "The value should not be greater than {0}"
   maxError: "Il valore non deve essere maggiore di {0}",
   // [Auto-translated] "Numbers are not allowed."

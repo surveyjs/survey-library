@@ -710,3 +710,19 @@ QUnit.test("inputType email &  checkErrorsMode = `onValueChanged`, #10173", func
   q1.value = "test_test";
   assert.equal(q1.errors.length, 0, "Do not show email error if textUpdateMode is onTyping");
 });
+QUnit.test("Show error if number is not valid because of step, #10348", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "inputType": "number",
+        "step": 3
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 10;
+  assert.equal(q1.validate(), false, "10 is not valid");
+  assert.equal(q1.errors[0].getText(), "Value is not a valid multiple of 3.", "error text #1");
+});

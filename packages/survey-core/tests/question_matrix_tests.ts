@@ -1,6 +1,7 @@
 import { Helpers } from "../src/helpers";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { SurveyModel } from "../src/survey";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("Survey_QuestionMatrix");
 
@@ -950,4 +951,27 @@ QUnit.test("isExclusive property for the column in single matrix, Issue#10357", 
   matrix.cellClick(matrix.visibleRows[0], col2);
   matrix.cellClick(matrix.visibleRows[1], col2);
   assert.deepEqual(matrix.value, { row1: ["col1", "col3", "col2"], row2: ["col3", "col2"] }, "value after click on non-exclusive column");
+});
+QUnit.test("Show isExclusive property when matrix cellType is checkbox, Issue#10357", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "matrix",
+      columns: [
+        { value: "col1" },
+        { value: "col2", isExclusive: true },
+        { value: "col3" }
+      ],
+      rows: ["row1", "row2"],
+      cellType: "checkbox"
+    }]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  const prop = Serializer.findProperty("matrixcolumn", "isExclusive");
+  assert.ok(prop, "isExclusive property is here");
+  assert.equal(prop.isVisible("", matrix.columns[0]), true, "isExclusive is visible for checkbox");
+  matrix.cellType = "radio";
+  assert.equal(prop.isVisible("", matrix.columns[0]), false, "isExclusive is invisible for radio");
+  matrix.cellType = "checkbox";
+  assert.equal(prop.isVisible("", matrix.columns[0]), true, "isExclusive is visible for checkbox again");
 });

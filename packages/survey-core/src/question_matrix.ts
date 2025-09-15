@@ -1078,7 +1078,7 @@ export class QuestionMatrixModel
   }
 }
 Serializer.addClass("matrixcolumn",
-  [{ name: "isExclusive:boolean", locationInTable: "detail" }],
+  [{ name: "isExclusive:boolean", visibleIf: (obj) => obj.locOwner?.cellType === "checkbox", locationInTable: "detail" }],
   (value: any) => new MatrixColumn(value), "itemvalue");
 
 Serializer.addClass(

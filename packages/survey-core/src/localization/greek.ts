@@ -65,6 +65,8 @@ export var greekSurveyStrings = {
   numericError: "Η τιμή πρέπει να είναι αριθμητική.",
   // "The value should not be less than {0}"
   minError: "Η τιμή δεν πρέπει να είναι μικρότερη από {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Εισαγάγετε μια τιμή που ταιριάζει με το μέγεθος του βήματος του {0}.",
   // "The value should not be greater than {0}"
   maxError: "Η τιμή δεν πρέπει να είναι μεγαλύτερη από {0}",
   // [Auto-translated] "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var norwegianSurveyStrings = {
   numericError: "Verdien skal være numerisk.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Verdien bør ikke være mindre enn {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Angi en verdi som samsvarer med trinnstørrelsen på {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Verdien bør ikke være større enn {0}",
   // [Auto-translated] "Numbers are not allowed."

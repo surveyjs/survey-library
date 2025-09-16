@@ -65,6 +65,8 @@ export var catalanSurveyStrings = {
   numericError: "L'estimació ha de ser numèrica.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "El valor no ha de ser inferior a {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Introduïu un valor que coincideixi amb la mida del pas de {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "El valor no ha de ser superior a {0}",
   // [Auto-translated] "Numbers are not allowed."

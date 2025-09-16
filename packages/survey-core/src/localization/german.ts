@@ -65,6 +65,8 @@ export var germanSurveyStrings = {
   numericError: "Der Wert muss eine Zahl sein.",
   // "The value should not be less than {0}"
   minError: "Der Wert sollte nicht kleiner als {0} sein",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Geben Sie einen Wert ein, der der Schrittweite von {0} entspricht.",
   // "The value should not be greater than {0}"
   maxError: "Der Wert sollte nicht größer als {0} sein",
   // [Auto-translated] "Numbers are not allowed."

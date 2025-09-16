@@ -65,6 +65,8 @@ export var teluguStrings = {
   numericError: "విలువను సంఖ్యలలో తెలియజేయండి",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "విలువ {0} కంటే తక్కువగా ఉండకూడదు.",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "{0} యొక్క దశ సైజుకు జత అయ్యే విలువను దయచేసి నమోదు చేయండి.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
   // [Auto-translated] "Numbers are not allowed."

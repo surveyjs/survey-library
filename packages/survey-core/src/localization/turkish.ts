@@ -65,6 +65,8 @@ export var turkishSurveyStrings = {
   numericError: "Değer sayısal olmalıdır.",
   // "The value should not be less than {0}"
   minError: "Değer {0}'den küçük olmamalıdır",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Lütfen {0} adım boyutuyla eşleşen bir değer girin.",
   // "The value should not be greater than {0}"
   maxError: "Değer {0}'dan büyük olmamalıdır",
   // [Auto-translated] "Numbers are not allowed."

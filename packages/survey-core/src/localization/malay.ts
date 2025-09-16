@@ -65,6 +65,8 @@ export var malaySurveyStrings = {
   numericError: "Nilai mestilah numerik.",
   // "The value should not be less than {0}"
   minError: "Nilai tidak boleh kurang daripada {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Sila masukkan nilai yang sepadan dengan saiz langkah {0}.",
   // "The value should not be greater than {0}"
   maxError: "Nilai tidak boleh lebih besar daripada {0}",
   // [Auto-translated] "Numbers are not allowed."

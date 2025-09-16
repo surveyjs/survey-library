@@ -65,6 +65,8 @@ export var swedishSurveyStrings = {
   numericError: "Värdet ska vara numeriskt.",
   // "The value should not be less than {0}"
   minError: "Värdet får inte vara mindre än {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Ange ett värde som matchar stegstorleken för {0}.",
   // "The value should not be greater than {0}"
   maxError: "Värdet får inte vara större än {0}",
   // [Auto-translated] "Numbers are not allowed."

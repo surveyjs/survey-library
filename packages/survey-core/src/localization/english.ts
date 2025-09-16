@@ -34,6 +34,7 @@ export var englishStrings = {
   eachRowUniqueError: "Each row must have a unique value.",
   numericError: "The value should be numeric.",
   minError: "The value should not be less than {0}",
+  stepError: "Please enter a value that matches the step size of {0}.",
   maxError: "The value should not be greater than {0}",
   textNoDigitsAllow: "Numbers are not allowed.",
   textMinLength: "Please enter at least {0} character(s).",

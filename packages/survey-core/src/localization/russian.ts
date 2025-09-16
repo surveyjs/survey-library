@@ -65,6 +65,8 @@ export var russianSurveyStrings = {
   numericError: "Ответ должен быть числом.",
   // "The value should not be less than {0}"
   minError: "Значение не должно быть меньше {0}.",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Пожалуйста, введите значение, которое соответствует размеру шага {0}.",
   // "The value should not be greater than {0}"
   maxError: "Значение не должно превышать {0}.",
   // [Auto-translated] "Numbers are not allowed."

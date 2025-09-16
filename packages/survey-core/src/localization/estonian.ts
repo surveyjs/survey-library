@@ -65,6 +65,8 @@ export var estonianSurveyStrings = {
   numericError: "See peaks olema numbriline väärtus.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Väärtus ei tohiks olla väiksem kui {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Sisestage väärtus, mis vastab {0} sammu suurusele.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Väärtus ei tohiks olla suurem kui {0}",
   // [Auto-translated] "Numbers are not allowed."

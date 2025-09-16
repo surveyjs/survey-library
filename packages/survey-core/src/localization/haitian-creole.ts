@@ -67,6 +67,8 @@ export var haitianCreoleStrings = {
   numericError: "Valè a ta dwe nimerik.",
   // "The value should not be less than {0}"
   minError: "Valè a pa ta dwe mwens pase {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Tanpri antre yon valè ki matche ak gwosè a etap nan {0}.",
   // "The value should not be greater than {0}"
   maxError: "Valè a pa ta dwe pi gran pase {0}",
   // "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var dutchSurveyStrings = {
   numericError: "Het antwoord moet een getal zijn",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "De waarde mag niet lager zijn dan {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Voer een waarde in die overeenkomt met de stapgrootte van {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "De waarde mag niet groter zijn dan {0}",
   // [Auto-translated] "Numbers are not allowed."

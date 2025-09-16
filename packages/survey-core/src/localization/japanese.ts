@@ -65,6 +65,8 @@ export var japaneseSurveyStrings = {
   numericError: "数字でご記入下さい",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "値は {0} 以上である必要があります",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "{0}のステップサイズに一致する値を入力してください。",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "値は {0} 以下である必要があります",
   // [Auto-translated] "Numbers are not allowed."

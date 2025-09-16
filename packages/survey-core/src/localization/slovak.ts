@@ -65,6 +65,8 @@ export var slovakSurveyStrings = {
   numericError: "Hodnota má byť číselná.",
   // "The value should not be less than {0}"
   minError: "Hodnota nemá byť nižšia než {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Zadajte hodnotu, ktorá zodpovedá veľkosti kroku {0}.",
   // "The value should not be greater than {0}"
   maxError: "Hodnota nemá byť vyššia než {0}",
   // [Auto-translated] "Numbers are not allowed."

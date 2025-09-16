@@ -65,6 +65,8 @@ export var latvianSurveyStrings = {
   numericError: "Atbildei ir jābūt skaitlim.",
   // "The value should not be less than {0}"
   minError: "Vērtība nedrīkst būt mazāka par {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Lūdzu, ievadiet vērtību, kas atbilst {0} soļa lielumam.",
   // "The value should not be greater than {0}"
   maxError: "Vērtība nedrīkst būt lielāka par {0}",
   // [Auto-translated] "Numbers are not allowed."

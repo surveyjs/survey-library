@@ -181,6 +181,7 @@ export {
   MatrixRowModel,
   MatrixCells,
   QuestionMatrixModel,
+  MatrixColumn,
   IMatrixData
 } from "../../src/question_matrix";
 export { QuestionMatrixBaseModel } from "../../src/martixBase";
@@ -204,9 +205,10 @@ export { QuestionNonValue } from "../../src/questionnonvalue";
 export { QuestionEmptyModel } from "../../src/question_empty";
 export {
   QuestionCheckboxBase,
-  QuestionSelectBase
+  QuestionSelectBase,
+  ChoiceItem
 } from "../../src/question_baseselect";
-export { QuestionCheckboxModel } from "../../src/question_checkbox";
+export { QuestionCheckboxModel, CheckboxItem } from "../../src/question_checkbox";
 export { QuestionTagboxModel } from "../../src/question_tagbox";
 export { QuestionRankingModel } from "../../src/question_ranking";
 export { QuestionCommentModel } from "../../src/question_comment";

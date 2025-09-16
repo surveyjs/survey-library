@@ -699,28 +699,29 @@ export class PanelModelBase extends SurveyElement<Question>
    */
   public get questions(): Array<Question> {
     if (!this.isQuestionsReady) {
-      this.questionsValue = [];
-      for (var i = 0; i < this.elements.length; i++) {
-        var el = this.elements[i];
-        if (el.isPanel) {
-          var qs = (<PanelModel>el).questions;
-          for (var j = 0; j < qs.length; j++) {
-            this.questionsValue.push(qs[j]);
-          }
-        } else {
-          this.questionsValue.push(<Question>el);
-        }
-      }
+      this.questionsValue = this.getQuestionsCore(false);
       this.isQuestionsReady = true;
     }
 
     return this.questionsValue;
   }
   public get visibleQuestions(): Array<Question> {
+    return this.getQuestionsCore(true);
+  }
+  private getQuestionsCore(isVisible: boolean): Array<Question> {
     const res = new Array<Question>();
-    this.questions.forEach(q => {
-      if (q.isVisible) res.push(q);
-    });
+    for (let i = 0; i < this.elements.length; i++) {
+      const el = this.elements[i];
+      if (isVisible && !el.isVisible) continue;
+      if (el.isPanel) {
+        var qs = (<PanelModel>el).getQuestionsCore(isVisible);
+        for (let j = 0; j < qs.length; j++) {
+          res.push(qs[j]);
+        }
+      } else {
+        res.push(<Question>el);
+      }
+    }
     return res;
   }
   public getQuestions(includeNested: boolean): Array<Question> {

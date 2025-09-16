@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         window["survey"].locale = "ru";
       });
-      await page.hover('input[value="Далее"]'); // eslint-disable-line i18n/no-russian-character
+      await page.hover('input[value="Далее"]'); // eslint-disable-line i18n/only-english-or-code
 
       await page.evaluate(() => {
         window["survey"].locale = "en";

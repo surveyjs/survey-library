@@ -554,7 +554,7 @@ QUnit.test("Mask datetime with defaultValue as date", function (assert) {
   q1.value = "test";
   q1.validate(true);
   assert.equal(q1.errors.length, 1, "There is an error");
-  assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch");
+  assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch"); // eslint-disable-line i18n/only-english-or-code
 });
 QUnit.test("Mask pattern default inputValue", function (assert) {
   const survey = new SurveyModel({

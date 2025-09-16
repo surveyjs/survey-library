@@ -86,11 +86,11 @@ frameworks.forEach(framework => {
       await expect(requiredElement).toHaveText("*");
 
       await page.evaluate(() => {
-        window["survey"].requiredText = "😱"; // eslint-disable-line i18n/only-english-or-code
+        window["survey"].requiredText = "😱"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
         window["survey"].render();
       });
 
-      await expect(requiredElement).toHaveText("😱"); // eslint-disable-line i18n/only-english-or-code
+      await expect(requiredElement).toHaveText("😱"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     });
 
     test("set question numbers on page", async ({ page }) => {

@@ -802,7 +802,7 @@ QUnit.test("base.resetPropertyValue() for localization string, #2, bug#7388", fu
   survey.completeText = "test de";
   assert.equal(survey.completeText, "test de", "set value de");
   survey.resetPropertyValue("completeText");
-  assert.equal(survey.completeText, "Abschließen", "default value de"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(survey.completeText, "Abschließen", "default value de"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   survey.locale = "";
   assert.equal(survey.completeText, "Complete", "default value en");
 });

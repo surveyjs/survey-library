@@ -93,22 +93,22 @@ QUnit.test(
     document.body.appendChild(element);
     element.contentEditable = "true";
 
-    var res = checkSanitizer(element, "พุธ", 0, 2, false); // eslint-disable-line i18n/only-english-or-code
+    var res = checkSanitizer(element, "พุธ", 0, 2, false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     assert.equal(res.plainText.length, 3);
-    assert.equal(res.plainText, "พุธ");// eslint-disable-line i18n/only-english-or-code
+    assert.equal(res.plainText, "พุธ");// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     assert.equal(res.offset, 2);
-    assert.equal(res.nodeText, "พุธ"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(res.nodeText, "พุธ"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
-    var res = checkSanitizer(element, "sพุธe", 0, 3, false); // eslint-disable-line i18n/only-english-or-code
+    var res = checkSanitizer(element, "sพุธe", 0, 3, false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     assert.equal(res.plainText.length, 5);
-    assert.equal(res.plainText, "sพุธe"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(res.plainText, "sพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     assert.equal(res.offset, 3);
-    assert.equal(res.nodeText, "sพุธe"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(res.nodeText, "sพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
-    var res = checkSanitizer(element, "พุธs<br/>พุธe", 2, 2, false); // eslint-disable-line i18n/only-english-or-code
-    assert.equal(res.plainText, "พุธs\nพุธe"); // eslint-disable-line i18n/only-english-or-code
+    var res = checkSanitizer(element, "พุธs<br/>พุธe", 2, 2, false); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+    assert.equal(res.plainText, "พุธs\nพุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     assert.equal(res.offset, 2);
-    assert.equal(res.nodeText, "พุธe"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(res.nodeText, "พุธe"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
     element.remove();
   }

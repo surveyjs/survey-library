@@ -2254,14 +2254,14 @@ export class SurveyModel extends SurveyElementCore
   public getRendererContext(locStr: LocalizableString) {
     return this.getRendererContextForString(this, locStr);
   }
-  public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string): string {
-    let renderAs = this.getBuiltInRendererForString(element, name);
+  public getRendererForString(element: Question | PanelModel | PageModel | SurveyModel, name: string, item?: ItemValue): string {
+    let renderAs = this.getBuiltInRendererForString(element, name, item);
     renderAs = this.elementWrapperComponentNameCore(renderAs, element, "string", name);
     const options: TextRenderAsEvent = { element: element, name: name, renderAs: renderAs };
     this.onTextRenderAs.fire(this, options);
     return options.renderAs;
   }
-  public getRendererContextForString(element: Base, locStr: LocalizableString): any {
+  public getRendererContextForString(element: Base, locStr: LocalizableString, item?: ItemValue): any {
     return this.elementWrapperDataCore(locStr, element, "string");
   }
   getExpressionDisplayValue(
@@ -2277,7 +2277,7 @@ export class SurveyModel extends SurveyElementCore
     this.onGetExpressionDisplayValue.fire(this, options);
     return options.displayValue;
   }
-  private getBuiltInRendererForString(element: Base, name: string): string {
+  private getBuiltInRendererForString(element: Base, name: string, item?: ItemValue): string {
     if (this.isDesignMode) return LocalizableString.editableRenderer;
     return undefined;
   }

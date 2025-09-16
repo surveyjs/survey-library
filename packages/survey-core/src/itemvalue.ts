@@ -51,10 +51,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return !!this.locOwner ? this.locOwner.getMarkdownHtml(text, name, item || this) : undefined;
   }
   public getRenderer(name: string): string {
-    return !!this.locOwner ? this.locOwner.getRenderer(name) : null;
+    return !!this.locOwner ? this.locOwner.getRenderer(name, this) : null;
   }
   public getRendererContext(locStr: LocalizableString): any {
-    return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
+    return !!this.locOwner ? this.locOwner.getRendererContext(locStr, this) : locStr;
   }
   public getProcessedText(text: string): string {
     return this.locOwner ? this.locOwner.getProcessedText(text) : text;

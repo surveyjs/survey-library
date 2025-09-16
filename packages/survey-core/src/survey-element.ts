@@ -26,6 +26,7 @@ import { classesToSelector, cleanHtmlElementAfterAnimation, prepareElementForVer
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { PanelModel } from "./panel";
 import { IObjectValueContext, IValueGetterContext } from "./conditionProcessValue";
+import { ItemValue } from "./itemvalue";
 
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
@@ -837,16 +838,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         ? this.locOwner.getMarkdownHtml(text, name, item)
         : undefined;
   }
-  public getRenderer(name: string): string {
+  public getRenderer(name: string, item?: ItemValue): string {
     return this.survey && typeof this.survey.getRendererForString === "function"
-      ? this.survey.getRendererForString(this, name)
+      ? this.survey.getRendererForString(this, name, item)
       : this.locOwner && typeof this.locOwner.getRenderer === "function"
         ? this.locOwner.getRenderer(name)
         : null;
   }
-  public getRendererContext(locStr: LocalizableString): any {
+  public getRendererContext(locStr: LocalizableString, item?: ItemValue): any {
     return this.survey && typeof this.survey.getRendererContextForString === "function"
-      ? this.survey.getRendererContextForString(this, locStr)
+      ? this.survey.getRendererContextForString(this, locStr, item)
       : this.locOwner && typeof this.locOwner.getRendererContext === "function"
         ? this.locOwner.getRendererContext(locStr)
         : locStr;

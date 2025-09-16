@@ -15587,6 +15587,44 @@ QUnit.test("Skip trigger and 'other' value", function (assert) {
   survey.getQuestionByName("q1").otherValue = "abc";
   assert.equal(survey.currentPage.name, "page3", "We moved to another page");
 });
+QUnit.test("Skip trigger and calculated values, Bug#10376", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }, { type: "text", name: "q3" }
+        ]
+      },
+      { elements: [{ type: "text", name: "q4" }] },
+      { elements: [{ type: "text", name: "q5" }] },
+    ],
+    calculatedValues: [
+      { name: "var1", expression: "iif({q1} empty, 0, 1)" },
+      { name: "var2", expression: "iif({q2} empty, 0, 1)" },
+      { name: "var3", expression: "{var1} + {var2}" },
+      { name: "var4", expression: "{var3} > 1" }
+    ],
+    triggers: [
+      {
+        type: "skip",
+        expression: "{var4} = true",
+        gotoName: "q5",
+      },
+    ],
+  });
+  assert.equal(survey.currentPage.visibleIndex, 0, "We are on the first page");
+  let counter = 0;
+  survey.onCurrentPageChanged.add((sender, options) => {
+    counter++;
+  });
+  survey.getQuestionByName("q1").value = "a";
+  survey.getQuestionByName("q2").value = "b";
+  assert.equal(survey.getVariable("var1"), 1, "var1 value");
+  assert.equal(survey.getVariable("var2"), 1, "var2 value");
+  assert.equal(survey.getVariable("var3"), 2, "var3 value");
+  assert.equal(survey.getVariable("var4"), true, "var4 value");
+  assert.equal(survey.currentPage.visibleIndex, 2, "We are on the last page");
+  assert.equal(counter, 1, "We changed the page only one time");
+});
 QUnit.test(
   "Test SurveyElement isPage, isPanel and isQuestion properties",
   function (assert) {
@@ -16845,7 +16883,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";
-  assert.equal(action.title, "Начать"); // eslint-disable-line i18n/no-russian-character
+  assert.equal(action.title, "Начать"); // eslint-disable-line i18n/only-english-or-code
   survey.locale = "en";
   assert.equal(action.title, "Start");
   survey.startSurveyText = "custom-text";

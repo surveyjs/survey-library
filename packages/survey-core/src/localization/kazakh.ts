@@ -65,6 +65,8 @@ export var kazakhStrings = {
   numericError: "Жауап сан түрінде болуы керек.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Мәні {0} кем болмауы тиіс",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Қадам өлшеміне сәйкес келетін мәнді {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Мән {0} артық болмауы тиіс",
   // [Auto-translated] "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var frenchSurveyStrings = {
   numericError: "La réponse doit être un nombre.",
   // "The value should not be less than {0}"
   minError: "La valeur ne doit pas être inférieure à {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Entrez une valeur qui correspond à la taille du pas de {0}.",
   // "The value should not be greater than {0}"
   maxError: "La valeur ne doit pas être supérieure à {0}",
   // [Auto-translated] "Numbers are not allowed."

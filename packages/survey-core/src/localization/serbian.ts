@@ -65,6 +65,8 @@ export var serbianStrings = {
   numericError: "Vrednost bi trebalo da bude numerička.",
   // "The value should not be less than {0}"
   minError: "Vrednost ne bi trebalo da bude manja od {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Unesite vrednost koja odgovara veličini koraka {0}.",
   // "The value should not be greater than {0}"
   maxError: "Vrednost ne bi trebalo da bude veća od {0}",
   // [Auto-translated] "Numbers are not allowed."

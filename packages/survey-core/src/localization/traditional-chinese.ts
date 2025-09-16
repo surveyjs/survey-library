@@ -65,6 +65,8 @@ export var traditionalChineseSurveyStrings = {
   numericError: "答案必須是個數字",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "該值不應小於 {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "請輸入與步長相符的值{0}。",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "該值不應大於 {0}",
   // [Auto-translated] "Numbers are not allowed."

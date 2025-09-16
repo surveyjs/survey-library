@@ -65,6 +65,8 @@ export var persianSurveyStrings = {
   numericError: "مقدار باید عددی باشد",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "ارزش نباید کمتر از {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "لطفا مقداری را وارد کنید که با اندازه گام {0} مطابقت داشته باشد.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "ارزش نباید بیشتر از {0}",
   // [Auto-translated] "Numbers are not allowed."

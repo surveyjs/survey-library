@@ -65,6 +65,8 @@ export var koreanStrings = {
   numericError: "값은 숫자여야 합니다.",
   // "The value should not be less than {0}"
   minError: "값은 {0}보다 작으면 안됩니다.",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "{0}의 스텝 크기와 일치하는 값을 입력하십시오.",
   // "The value should not be greater than {0}"
   maxError: "값은 {0}보다 클 수 없습니다.",
   // [Auto-translated] "Numbers are not allowed."

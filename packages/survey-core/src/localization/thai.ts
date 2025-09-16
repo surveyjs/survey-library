@@ -65,6 +65,8 @@ export var thaiStrings = {
   numericError: "ข้อมูลที่ใส่ต้องเป็นตัวเลข",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "ค่าไม่ควรน้อยกว่า {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "โปรดป้อนค่าที่ตรงกับขนาดขั้นตอนของ {0}",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "ค่าไม่ควรเกิน{0}",
   // [Auto-translated] "Numbers are not allowed."

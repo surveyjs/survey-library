@@ -48,12 +48,12 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       const titleLocator = page.locator("div[id$=ariaTitle][id^=sq]");
       // Check first title
-      let text = "A. Please type your name (*)";
+      let text = "A. Please type your name (*)"; // eslint-disable-line i18n/only-english-or-code
       await expect(titleLocator.first()).toBeVisible();
       await expect(await titleLocator.first().textContent()).toBe(text);
 
       // Check second title
-      text = "B. Please type your e-mail (*)";
+      text = "B. Please type your e-mail (*)";// eslint-disable-line i18n/only-english-or-code
       await expect(titleLocator.nth(1)).toBeVisible();
       await expect(await titleLocator.nth(1).textContent()).toBe(text);
 
@@ -63,7 +63,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[value='Next']").click();
 
       // Check third title
-      text = "C. wombat, please tell us what is on your mind";
+      text = "C. wombat, please tell us what is on your mind";// eslint-disable-line i18n/only-english-or-code
       await expect(titleLocator.first()).toBeVisible();
       await expect(await titleLocator.first().textContent()).toBe(text);
 

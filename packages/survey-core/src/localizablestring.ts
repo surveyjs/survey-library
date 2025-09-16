@@ -4,13 +4,14 @@ import { settings } from "./settings";
 import { Base, EventBase } from "./base";
 import { Serializer } from "./jsonobject";
 import { SurveyElementCore } from "./survey-element";
+import { ItemValue } from "./itemvalue";
 
 export interface ILocalizableOwner {
   getLocale(): string;
   getMarkdownHtml(text: string, name: string, item?: any): string;
   getProcessedText(text: string): string;
-  getRenderer(name: string): string;
-  getRendererContext(locStr: LocalizableString): any;
+  getRenderer(name: string, item?: ItemValue): string;
+  getRendererContext(locStr: LocalizableString, item?: ItemValue): any;
 }
 export interface ILocalizableString {
   getLocaleText(loc: string): string;

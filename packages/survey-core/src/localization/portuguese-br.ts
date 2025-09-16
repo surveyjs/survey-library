@@ -67,6 +67,8 @@ export var portugueseBrSurveyStrings = {
   numericError: "O valor deve ser numérico.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "O valor não deve ser inferior a {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Insira um valor que corresponda ao tamanho da etapa de {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "O valor não deve ser maior que {0}",
   // [Auto-translated] "Numbers are not allowed."

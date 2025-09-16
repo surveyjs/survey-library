@@ -554,7 +554,7 @@ QUnit.test("Mask datetime with defaultValue as date", function (assert) {
   q1.value = "test";
   q1.validate(true);
   assert.equal(q1.errors.length, 1, "There is an error");
-  assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch");
+  assert.equal(q1.errors[0].text, "Bitte geben Sie eine gültige E-Mail-Adresse ein.", "Error in Deutsch"); // eslint-disable-line i18n/only-english-or-code
 });
 QUnit.test("Mask pattern default inputValue", function (assert) {
   const survey = new SurveyModel({
@@ -709,4 +709,20 @@ QUnit.test("inputType email &  checkErrorsMode = `onValueChanged`, #10173", func
   assert.equal(q1.errors.length, 0, "No errors #2");
   q1.value = "test_test";
   assert.equal(q1.errors.length, 0, "Do not show email error if textUpdateMode is onTyping");
+});
+QUnit.test("Show error if number is not valid because of step, #10348", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1",
+        "inputType": "number",
+        "step": 3
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 10;
+  assert.equal(q1.validate(), false, "10 is not valid");
+  assert.equal(q1.errors[0].getText(), "Please enter a value that matches the step size of 3.", "error text #1");
 });

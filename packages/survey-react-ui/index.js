@@ -1029,6 +1029,30 @@ var json = {
   ]
 };
 
+json = {
+        showQuestionNumbers: "on",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "q1",
+            "titleLocation": "hidden",
+            "isRequired": true,
+            "renderAs": "checkbox"
+          }
+        ]
+};
+
+// json = {
+//       questions: [
+//         {
+//           name: "name",
+//           type: "boolean",
+//           title: "Question title",
+//           titleLocation: "hidden"
+//         }
+//       ]
+//     };
+
 // Survey.StylesManager.applyTheme("default");
 // Survey.StylesManager.applyTheme("modern");
 // Survey.StylesManager.applyTheme("defaultV2");

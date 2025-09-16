@@ -65,6 +65,8 @@ export var macedonianSurveyStrings = {
   numericError: "Вредноста треба да биде нумеричка.",
   // "The value should not be less than {0}"
   minError: "Вредноста не треба да биде помала од {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Молиме внесете вредност која одговара на големината на чекорот на {0}.",
   // "The value should not be greater than {0}"
   maxError: "Вредноста не треба да биде поголема од {0}",
   // [Auto-translated] "Numbers are not allowed."

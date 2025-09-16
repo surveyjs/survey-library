@@ -9,7 +9,7 @@
 //   width: "900px",
 //   questions: [{
 //     type: "file",
-//     title: "Upload everything what you’d like to.",
+//     title: "Upload everything what you'd like to.",
 //     name: "file_question",
 //     minWidth: "704px",
 //     width: "704px",
@@ -233,7 +233,7 @@
 //         showQuestionNumbers: "off",
 //         questions: [{
 //           type: "file",
-//           title: "Upload everything what you’d like to.",
+//           title: "Upload everything what you'd like to.",
 //           name: "file_question",
 //         }, { onOpenFileChooser: onOpenFileChooserHandler }]
 //       });

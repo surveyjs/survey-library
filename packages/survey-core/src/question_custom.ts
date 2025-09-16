@@ -66,6 +66,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
+  /* eslint-disable */
   /**
    * A default title for questions created with this question type. Survey authors can change the default title in the JSON object or in Survey Creator's Property Grid.
    *
@@ -89,6 +90,7 @@ export interface ICustomQuestionTypeConfiguration {
    * });
    * ```
    */
+  /* eslint-enable */
   defaultQuestionTitle?: any;
   /**
    * An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.

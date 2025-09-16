@@ -8,7 +8,7 @@ const input = { "survey-core": path.resolve(__dirname, "./entries/index.ts") };
 
 const banner = [
   "surveyjs - Survey JavaScript library v" + VERSION,
-  "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/",
+  "Copyright (c) 2015-" + new Date().getFullYear() + " Devsoft Baltic OÜ  - http://surveyjs.io/", // eslint-disable-line i18n/only-english-or-code
   "License: MIT (http://www.opensource.org/licenses/mit-license.php)",
 ].join("\n");
 

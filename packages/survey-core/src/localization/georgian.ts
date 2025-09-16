@@ -65,6 +65,8 @@ export var georgianSurveyStrings = {
   numericError: "პასუხი უნდა იყოს რიცხვი.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "ღირებულება არ უნდა იყოს ნაკლები {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "გთხოვთ, შეიყვანოთ მნიშვნელობა, რომელიც შეესაბამება ნაბიჯის ზომას {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "ღირებულება არ უნდა იყოს {0}",
   // [Auto-translated] "Numbers are not allowed."

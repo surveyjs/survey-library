@@ -65,6 +65,8 @@ export var ukrainianSurveyStrings = {
   numericError: "Відповідь повинна бути числом.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Значення не повинно бути менше {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Введіть значення, яке відповідає розміру кроку {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Значення не повинно бути більше {0}",
   // [Auto-translated] "Numbers are not allowed."

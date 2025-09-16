@@ -65,6 +65,8 @@ export var hebrewSurveyStrings = {
   numericError: "התשובה צריכה להיות מספר.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "הערך לא צריך להיות קטן מ {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "הזן ערך התואם לגודל הצעד של {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "הערך לא צריך להיות גדול מ- {0}",
   // [Auto-translated] "Numbers are not allowed."

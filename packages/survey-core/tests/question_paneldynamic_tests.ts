@@ -5950,7 +5950,7 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
                       "Tuberculosis",
                       "Anesthesia Complications",
                       "Genetic Disorder",
-                      "Other – describe"
+                      "Other - describe"
                     ],
                     isRequired: true
                   },

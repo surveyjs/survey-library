@@ -120,7 +120,7 @@ const json = {
                         "Tuberculosis",
                         "Anesthesia Complications",
                         "Genetic Disorder",
-                        "Other – describe",
+                        "Other - describe",
                       ],
                       isRequired: true,
                     },

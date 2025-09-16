@@ -464,6 +464,51 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   assert.strictEqual(question.renderedTable.rows[1].row, question.visibleRows[0]);
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
 });
+QUnit.test("rows: check matrixdynamic d&d with expanded detail panel", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q",
+        columns: ["Col1"],
+        rowCount: 3,
+        choices: ["item1", "item2", "item3"],
+        detailPanelMode: "underRow",
+        detailElements: [
+          {
+            type: "text",
+            name: "q1_detail",
+          }
+        ]
+      },
+    ]
+  });
+  const question: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q")
+  );
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  let draggedRow = question.visibleRows[1];
+  let dropRow = question.visibleRows[2];
+
+  ddHelper["parentElement"] = question;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 1);
+  assert.ok(question.renderedTable.rows[3].isGhostRow);
+
+  ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = true;
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 3);
+
+  dropRow.showDetailPanel();
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 2);
+});
 
 QUnit.test("rows: check matrixdynamic d&d between different matrices", function (assert) {
   const survey = new SurveyModel({
@@ -538,42 +583,85 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
   assert.deepEqual(question2.value, [{ "Col1": "item4" }, { "Col1": "item5" }, { "Col1": "item2" }, { "Col1": "item6" }], "Dragged row is now in second matrix");
 });
 
-QUnit.test("rows: check matrixdynamic d&d between different matrices in detail panels", function (assert) {
+QUnit.test("rows: check events matrixdynamic d&d between different matrices in detail panels", function (assert) {
   const survey = new SurveyModel({
-    elements: [
+    "pages": [
       {
-        type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
-        name: "q1",
-        columns: ["Col1"],
-        defaultValue: [{ Col1: "item1" }, { Col1: "item2" }],
-        rowCount: 1,
-        choices: ["item1"],
-        detailPanelMode: "underRow",
-        detailElements: [
+        "name": "page1",
+        "elements": [
           {
-            type: "matrixdynamic",
-            allowRowsDragAndDrop: true,
-            name: "q1_detail",
-            columns: ["Col1"],
-            defaultValue: [{ Col1: "detail1" }, { Col1: "detail2" }],
-            rowCount: 2,
-            choices: ["detail1", "detail2"]
+            "type": "matrixdynamic",
+            "name": "q1",
+            "defaultValue": [
+              {
+                "Col1": "1",
+                "q_detail": [
+                  {
+                    "Col1": "detail1"
+                  },
+                  {
+                    "Col1": "detail2"
+                  }
+                ]
+              },
+              {
+                "Col1": "2",
+                "q_detail": [
+                  {
+                    "Col1": "detail3"
+                  },
+                  {
+                    "Col1": "detail4"
+                  }
+                ]
+              }
+            ],
+            "columns": [
+              {
+                "name": "Col1"
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "matrixdynamic",
+                "name": "q_detail",
+                "columns": [
+                  {
+                    "name": "Col1"
+                  }
+                ],
+                "choices": [
+                  "detail1",
+                  "detail2"
+                ],
+                "cellType": "text",
+                "allowRowReorder": true
+              }
+            ],
+            "detailPanelMode": "underRow",
+            "choices": [
+              "item1"
+            ],
+            "cellType": "text",
+            "allowRowReorder": true
           }
         ]
       }
     ]
   });
 
+  const changes: string[] = [];
+  survey.onValueChanged.add((_, o) => changes.push(o.value));
+
   const q = survey.getQuestionByName("q1");
   q.visibleRows[0].showDetailPanel();
   q.visibleRows[1].showDetailPanel();
 
   const question1Detail: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
-    q.visibleRows[0].detailPanel.getQuestionByName("q1_detail")
+    q.visibleRows[0].detailPanel.getQuestionByName("q_detail")
   );
   const question2Detail: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
-    q.visibleRows[1].detailPanel.getQuestionByName("q1_detail")
+    q.visibleRows[1].detailPanel.getQuestionByName("q_detail")
   );
 
   let allowDragDrop = false;
@@ -601,6 +689,23 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices in detail p
 
   assert.ok(matrixRowMap[row1id].matrix == question1Detail, "question1Detail should be in matrixRowMap");
   assert.ok(matrixRowMap[row2id].matrix == question2Detail, "question2Detail should be in matrixRowMap");
+
+  allowDragDrop = true;
+  ddHelper.isBottom = true;
+  ddHelper["afterDragOver"](<any>undefined);
+
+  ddHelper["doDrop"]();
+  ddHelper.clear();
+
+  assert.deepEqual(question1Detail.value, [{ "Col1": "detail2" }], "Dragged row is gone from first matrix");
+  assert.deepEqual(question2Detail.value, [{ "Col1": "detail3" }, { "Col1": "detail4" }, { "Col1": "detail1" }], "Dragged row is now in second matrix");
+
+  const firstEvent = changes[0];
+  const lastEvent = changes[changes.length - 1];
+  assert.equal(firstEvent[0]["q_detail"].length, 1, "first delete (source changed)");
+  assert.equal(firstEvent[1]["q_detail"].length, 2, "first delete (target not changed)");
+  assert.equal(lastEvent[0]["q_detail"].length, 1, "second insert (source not changed)");
+  assert.equal(lastEvent[1]["q_detail"].length, 3, "second insert (target changed)");
 });
 
 QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {

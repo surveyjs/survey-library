@@ -65,6 +65,8 @@ export var bulgarianStrings = {
   numericError: "Стойността следва да бъде число.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Стойността не трябва да бъде по-малка от {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Моля, въведете стойност, която съответства на размера на стъпката на {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Стойността не трябва да бъде по-голяма от {0}",
   // [Auto-translated] "Numbers are not allowed."

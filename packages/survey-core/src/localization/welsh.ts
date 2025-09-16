@@ -65,6 +65,8 @@ export var welshSurveyStrings = {
   numericError: "Dylai’r gwerth fod yn rhif.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "Ni ddylai'r gwerth fod yn llai na {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Rhowch werth sy'n cyfateb i faint cam {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "Ni ddylai'r gwerth fod yn fwy na {0}",
   // [Auto-translated] "Numbers are not allowed."

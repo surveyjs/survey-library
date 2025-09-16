@@ -201,5 +201,25 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "ltr");
       });
     });
+
+    test("Check boolean as checkbox requred asterisk", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "q1",
+            "titleLocation": "hidden",
+            "isRequired": true,
+            "renderAs": "checkbox"
+          }
+        ]
+      });
+
+      const questionRoot = page.locator(".sd-question--boolean");
+      await compareScreenshot(page, questionRoot, "boolean-question-checkbox-asterisk.png");
+    });
   });
 });

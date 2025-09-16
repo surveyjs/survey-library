@@ -62,8 +62,8 @@ export class SurveyValidator extends Base {
       ? (<any>this.errorOwner).getSurvey()
       : null;
   }
-  public get isWarning(): boolean { return this.getPropertyValue("isWarning"); }
-  public set isWarning(val: boolean) { this.setPropertyValue("isWarning", val); }
+  public get notificationType(): string { return this.getPropertyValue("notificationType"); }
+  public set notificationType(val: string) { this.setPropertyValue("notificationType", val); }
   /**
    * An error message to display when a value fails validation.
    */
@@ -146,7 +146,7 @@ export class ValidatorRunner {
         asyncRunner.addElement(validator.id);
         validator.validateOnCallback(value, (valRes: ValidatorResult): void => {
           if (!!valRes && !!valRes.error) {
-            valRes.error.isWarning = validator.isWarning;
+            valRes.error.notificationType = validator.notificationType;
             errors.push(valRes.error);
           }
           asyncRunner.removeElement(validator.id);
@@ -513,7 +513,7 @@ export class ExpressionValidator extends SurveyValidator {
 
 Serializer.addClass("surveyvalidator", [
   { name: "text", serializationProperty: "locText" },
-  { name: "isWarning:boolean", visible: false }
+  { name: "notificationType", choices: ["error", "warning", "info"], default: "error", visible: false, category: "general" }
 ]);
 Serializer.addClass(
   "numericvalidator",

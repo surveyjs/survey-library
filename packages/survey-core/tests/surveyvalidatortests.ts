@@ -601,7 +601,7 @@ QUnit.test("SurveyError.getCssIcon, Issue#9085", function(assert) {
   assert.equal(surveyError.getCssIcon({ error: {} }), undefined, "getCssIcon #3");
   assert.equal(surveyError.getCssIcon({ error: { icon: "icon" } }), "icon", "getCssIcon #4");
   assert.equal(surveyError.getCssIcon({ error: { icon: "icon", warningIcon: "warningIcon" } }), "icon", "getCssIcon #4.1");
-  surveyError.isWarning = true;
+  surveyError.notificationType = "warning";
   assert.equal(surveyError.getCssIcon({ error: { icon: "icon" } }), "icon", "getCssIcon #5");
   assert.equal(surveyError.getCssIcon({ error: { warningIcon: "warningIcon", icon: "warningIcon" } }), "warningIcon", "getCssIcon #6");
   assert.equal(surveyError.getCssIcon({ error: { icon: "icon", warningIcon: "warningIcon" } }), "warningIcon", "getCssIcon #7");
@@ -616,7 +616,7 @@ QUnit.test("SurveyError.getCssItem, Issue#9085", function(assert) {
   assert.equal(surveyError.getCssItem({ error: {} }), undefined, "getCssItem #3");
   assert.equal(surveyError.getCssItem({ error: { item: "item" } }), "item", "getCssItem #4");
   assert.equal(surveyError.getCssItem({ error: { item: "item", warningItem: "warningItem" } }), "item", "getCssItem #4.1");
-  surveyError.isWarning = true;
+  surveyError.notificationType = "warning";
   assert.equal(surveyError.getCssItem({ error: { item: "item" } }), "item", "getCssItem #5");
   assert.equal(surveyError.getCssItem({ error: { warningItem: "warningItem", item: "item" } }), "warningItem", "getCssItem #6");
   assert.equal(surveyError.getCssItem({ error: { item: "item", warningItem: "warningItem" } }), "warningItem", "getCssItem #7");
@@ -624,10 +624,10 @@ QUnit.test("SurveyError.getCssItem, Issue#9085", function(assert) {
   assert.equal(surveyError.getCssItem({}), undefined, "getCssItem #9");
   assert.equal(surveyError.getCssItem({ error: {} }), undefined, "getCssItem #10");
 });
-QUnit.test("SurveyError.isWarning, Issue#9085", function(assert) {
+QUnit.test("SurveyError.notificationType, Issue#9085", function(assert) {
   const survey = new SurveyModel({
     elements: [
-      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, isWarning: true }] },
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }] },
       { type: "text", name: "q2", validators: [{ type: "numeric", maxValue: 5 }] }
     ],
   });
@@ -644,7 +644,7 @@ QUnit.test("SurveyError.isWarning, Issue#9085", function(assert) {
 QUnit.test("SurveyError.isWarning & validate returns, Issue#9085", function(assert) {
   const survey = new SurveyModel({
     elements: [
-      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, isWarning: true }, { type: "numeric", maxValue: 10 }] }
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] }
     ],
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");

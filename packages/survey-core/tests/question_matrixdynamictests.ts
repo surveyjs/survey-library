@@ -11031,12 +11031,12 @@ QUnit.test("defaultValueExpression should work correctly with non-existing colum
     ] });
   assert.deepEqual(survey.data, { question1: [{ question2: [{ b: 0 }, { b: 0 }] }] }, "The default value is correct");
 });
-QUnit.test("SurveyError.isWarning & validate in matrices,Issue#9085", function(assert) {
+QUnit.test("SurveyError.notificationType & validate in matrices,Issue#9085", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "matrixdynamic", name: "matrix", rowCount: 2,
         columns: [
-          { name: "col1", cellType: "text", validators: [{ type: "numeric", maxValue: 5, isWarning: true }, { type: "numeric", maxValue: 10 }] },
+          { name: "col1", cellType: "text", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] },
           { name: "col2", cellType: "text" }
         ]
       }

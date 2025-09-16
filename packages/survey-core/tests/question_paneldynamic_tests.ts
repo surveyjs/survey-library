@@ -8381,12 +8381,12 @@ QUnit.test("parentQuestion inside custom function, Bug#10210", function (assert)
   assert.equal(parentCalls, 4, "parentCalls #4");
   */
 });
-QUnit.test("SurveyError.isWarning & validate in panel dynamic,Issue#9085", function(assert) {
+QUnit.test("SurveyError.notificationType & validate in panel dynamic,Issue#9085", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic", name: "panel", panelCount: 2,
         templateElements: [
-          { name: "q1", type: "text", validators: [{ type: "numeric", maxValue: 5, isWarning: true }, { type: "numeric", maxValue: 10 }] },
+          { name: "q1", type: "text", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] },
           { name: "q2", type: "text" }
         ]
       }

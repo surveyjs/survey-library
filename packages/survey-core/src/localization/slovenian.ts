@@ -65,6 +65,8 @@ export var slovenianStrings = {
   numericError: "Vrednost mora biti številčna.",
   // "The value should not be less than {0}"
   minError: "Vrednost ne sme biti manjša od {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Vnesite vrednost, ki se ujema z velikostjo koraka {0}.",
   // "The value should not be greater than {0}"
   maxError: "Vrednost ne sme biti večja od {0}",
   // "Numbers are not allowed."

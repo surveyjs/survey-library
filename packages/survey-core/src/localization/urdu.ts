@@ -65,6 +65,8 @@ export var urduSurveyStrings = {
   numericError: "اس کا جواب عدد میں ہونا چاہئے۔",
   // "The value should not be less than {0}"
   minError: "عدد صفر سے کم نہیں ہونی چاہئے",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "براہ کرم کوئی قدر درج کریں جو {0} کے مرحلہ کے سائز سے مماثل ہو۔",
   // "The value should not be greater than {0}"
   maxError: "عدد صفر سے زیادہ نہیں ہونی چاہیے",
   // [Auto-translated] "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var philippinesStrings = {
   numericError: "Ang halaga ay dapat na numero.",
   // "The value should not be less than {0}"
   minError: "Ang halaga ay hindi dapat mas mababa sa {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Mangyaring magpasok ng isang halaga na tumutugma sa laki ng hakbang ng {0}.",
   // "The value should not be greater than {0}"
   maxError: "Ang halaga ay hindi dapat mas malaki sa {0}",
   // [Auto-translated] "Numbers are not allowed."

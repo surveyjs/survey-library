@@ -65,6 +65,8 @@ export var arabicSurveyStrings = {
   numericError: "يجب أن تكون القيمة رقمية.",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "يجب ألا تقل القيمة عن {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "الرجاء إدخال قيمة تطابق حجم الخطوة {0}.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "يجب ألا تزيد القيمة عن {0}",
   // [Auto-translated] "Numbers are not allowed."

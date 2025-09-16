@@ -461,6 +461,9 @@ export class QuestionTextModel extends QuestionTextBase {
         };
         errors.push(maxError);
       }
+      if (this.isStepNumberIncorrect) {
+        errors.push(new CustomError(this.getStepErrorText(), this));
+      }
       if (!!this.dateValidationMessage) {
         errors.push(new CustomError(this.dateValidationMessage, this));
       }
@@ -498,6 +501,10 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return errorText.replace("{0}", errorValue);
   }
+  private getStepErrorText(): string {
+    const text = this.getLocalizationString("stepError");
+    return text.replace("{0}", this.renderedStep);
+  }
   private get isValueLessMin(): boolean {
     return (
       !this.isValueEmpty(this.renderedMin) && !this.isEmpty() &&
@@ -511,6 +518,13 @@ export class QuestionTextModel extends QuestionTextBase {
       this.getCalculatedMinMax(this.value) >
         this.getCalculatedMinMax(this.renderedMax)
     );
+  }
+  private get isStepNumberIncorrect() : boolean {
+    if (this.inputType !== "number" || this.isEmpty()
+      || !Helpers.isNumber(this.renderedStep) || !Helpers.isNumber(this.value)) return false;
+    const val = Helpers.getNumber(this.value);
+    const step = Helpers.getNumber(this.renderedStep);
+    return step > 0 && (val % step) !== 0;
   }
   private get isDateInputType(): boolean {
     return this.inputType === "date" || this.isDateTimeLocaleType();

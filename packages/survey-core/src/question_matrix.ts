@@ -43,6 +43,11 @@ class MatrixRowValueGetterContext implements IValueGetterContext {
     return this.row.getDisplayValue(value);
   }
 }
+export class MatrixColumn extends ItemValue {
+  protected getBaseType(): string { return "matrixcolumn"; }
+  public get isExclusive(): boolean { return this.getPropertyValue("isExclusive", false); }
+  public set isExclusive(val: boolean) { this.setPropertyValue("isExclusive", val); }
+}
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
 
@@ -318,7 +323,7 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
   */
 export class QuestionMatrixModel
-  extends QuestionMatrixBaseModel<MatrixRowModel, ItemValue>
+  extends QuestionMatrixBaseModel<MatrixRowModel, MatrixColumn>
   implements IMatrixData, IMatrixCellsOwner {
   private isRowChanging = false;
   private cellsValue: MatrixCells;
@@ -463,8 +468,8 @@ export class QuestionMatrixModel
   getColumns(): Array<any> {
     return this.visibleColumns;
   }
-  public addColumn(value: any, text?: string): ItemValue {
-    var col = new ItemValue(value, text);
+  public addColumn(value: any, text?: string): MatrixColumn {
+    var col = new MatrixColumn(value, text);
     this.columns.push(col);
     return col;
   }
@@ -976,9 +981,16 @@ export class QuestionMatrixModel
     if (col) return col.text;
     return value !== null && value !== undefined ? value.toString() : "";
   }
-  cellClick(row: MatrixRowModel, column: ItemValue): void {
+  cellClick(row: MatrixRowModel, column: MatrixColumn): void {
     if (this.isReadOnly || this.isDisabledAttr) return;
+    row.value = this.getValueOnCellClick(row, column);
+  }
+  private getValueOnCellClick(row: MatrixRowModel, column: MatrixColumn): any {
     if (this.isMultiSelect) {
+      if (column.isExclusive) {
+        if (this.isCellChecked(row, column)) return undefined;
+        return [column.value];
+      }
       let val = Array.isArray(row.value) ? [].concat(row.value) : [];
       if (this.isCellChecked(row, column)) {
         const index = this.getRowValueIndex(row, column);
@@ -992,12 +1004,17 @@ export class QuestionMatrixModel
         if (!Array.isArray(val)) {
           val = [];
         }
+        this.columns.forEach(col => {
+          if (col.isExclusive) {
+            const index = val.indexOf(col.value);
+            if (index > -1) val.splice(index, 1);
+          }
+        });
         val.push(column.value);
       }
-      row.value = val;
-    } else {
-      row.value = column.value;
+      return val;
     }
+    return column.value;
   }
   isCellChecked(row: MatrixRowModel, column: ItemValue): boolean {
     if (this.isMultiSelect) {
@@ -1060,13 +1077,16 @@ export class QuestionMatrixModel
     );
   }
 }
+Serializer.addClass("matrixcolumn",
+  [{ name: "isExclusive:boolean", visibleIf: (obj) => obj.locOwner?.cellType === "checkbox", locationInTable: "detail" }],
+  (value: any) => new MatrixColumn(value), "itemvalue");
 
 Serializer.addClass(
   "matrix",
   [
     "rowTitleWidth",
     {
-      name: "columns:itemvalue[]", uniqueProperty: "value",
+      name: "columns:matrixcolumn[]", uniqueProperty: "value",
       baseValue: function () {
         return getLocaleString("matrix_column");
       },

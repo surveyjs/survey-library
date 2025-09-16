@@ -65,6 +65,8 @@ export var spanishSurveyStrings = {
   numericError: "La estimación debe ser numérica.",
   // "The value should not be less than {0}"
   minError: "La estimación no debe ser menor que {0}",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Introduzca un valor que coincida con el tamaño del paso de {0}.",
   // "The value should not be greater than {0}"
   maxError: "La estimación no debe ser mayor que {0}",
   // [Auto-translated] "Numbers are not allowed."

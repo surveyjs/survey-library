@@ -65,6 +65,8 @@ export var hindiStrings = {
   numericError: "मूल्य संख्यात्मक होना चाहिए",
   // [Auto-translated] "The value should not be less than {0}"
   minError: "मान {0} से कम नहीं होना चाहिए",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "कृपया कोई मान दर्ज करें जो {0} के चरण आकार से मेल खाता हो.",
   // [Auto-translated] "The value should not be greater than {0}"
   maxError: "मान {0} से अधिक नहीं होना चाहिए",
   // [Auto-translated] "Numbers are not allowed."

@@ -65,6 +65,8 @@ export var basqueSurveyStrings = {
   numericError: "Estimazioa zenbakizkoa izan behar du.",
   // "The value should not be less than {0}"
   minError: "Balioa ez da {0} baino txikiagoa izan behar",
+  // [Auto-translated] "Please enter a value that matches the step size of {0}."
+  stepError: "Sartu {0} urratsaren tamainarekin bat datorren balioa.",
   // "The value should not be greater than {0}"
   maxError: "Balioa ez da {0} baino handiagoa izan behar",
   // [Auto-translated] "Numbers are not allowed."

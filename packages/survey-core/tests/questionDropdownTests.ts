@@ -2742,7 +2742,7 @@ QUnit.test("allowCustomChoices: choices with displayName from survey.data", func
   assert.equal(question.value, value, "#1 question.value");
   assert.equal(question.selectedItem.id, value, "#1 question.selectedItem");
   assert.equal(question.selectedItem.title, "Large screen size", "#1 question.selectedItem");
-  assert.equal(listModel.actions.length, 7, "listModel.actions.length");
+  assert.equal(listModel.actions.length, 8, "listModel.actions.length");
   assert.deepEqual(survey.data, data, "#1 survey.data");
 });
 

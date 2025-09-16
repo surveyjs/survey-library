@@ -6561,9 +6561,7 @@ export class SurveyModel extends SurveyElementCore
       return;
     this.isRunningConditionsValue = true;
     var properties = this.getFilteredProperties();
-    var oldCurrentPageIndex = this.pages.indexOf(this.currentPage);
     this.runConditionsCore(properties);
-    this.checkIfNewPagesBecomeVisible(oldCurrentPageIndex);
     this.isRunningConditionsValue = false;
     if (
       this.isValueChangedOnRunningCondition &&
@@ -6619,16 +6617,6 @@ export class SurveyModel extends SurveyElementCore
     questions.forEach(q => {
       q.runTriggers(name, value, this.questionTriggersKeys);
     });
-  }
-  private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
-    var newCurrentPageIndex = this.pages.indexOf(this.currentPage);
-    if (newCurrentPageIndex <= oldCurrentPageIndex + 1) return;
-    for (var i = oldCurrentPageIndex + 1; i < newCurrentPageIndex; i++) {
-      if (this.pages[i].isVisible) {
-        this.currentPage = this.pages[i];
-        break;
-      }
-    }
   }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).

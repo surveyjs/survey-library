@@ -8,8 +8,7 @@ module.exports = {
   "plugins": [
     "@typescript-eslint",
     "surveyjs",
-    "surveyjs/eslint-plugin-i18n"
-    // "i18n"
+    "surveyjs/eslint-plugin-i18n",
   ],
   "extends": [
     "eslint:recommended",

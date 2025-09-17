@@ -75,6 +75,7 @@ export class ChoiceItem extends ItemValue {
     if (this.showCommentArea && !this.supportComment) {
       this.showCommentArea = false;
     }
+    this.setPanelSurvey(this.panelValue);
   }
   public get hasElements(): boolean {
     const pnl = this.panelValue;
@@ -82,12 +83,35 @@ export class ChoiceItem extends ItemValue {
   }
   public get panel(): PanelModel {
     if (!this.panelValue) {
-      this.panelValue = Serializer.createClass("panel");
+      this.panelValue = this.createPanel();
     }
     return this.panelValue;
   }
   public get elements(): Array<IElement> {
     return this.panel.elements;
+  }
+  protected createPanel(): PanelModel {
+    const res = Serializer.createClass("panel");
+    res.selectedElementInDesign = this;
+    res.renderWidth = "100%";
+    res.isInteractiveDesignElement = false;
+    res.showTitle = false;
+    this.setPanelSurvey(res);
+    return res;
+  }
+  private setPanelSurvey(pnl: PanelModel) {
+    if (!!pnl) {
+      const survey = (this.locOwner && (<any>this.locOwner).survey);
+      if (!!survey) {
+        pnl.setSurveyImpl(survey);
+        //pnl.onFirstRendering();
+      }
+    }
+  }
+  public dispose(): void {
+    super.dispose();
+    this.panelValue?.dispose();
+    this.panelValue = undefined;
   }
 }
 

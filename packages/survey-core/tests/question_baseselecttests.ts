@@ -3568,6 +3568,7 @@ QUnit.test("radiogroup choices vs showComment & showOther & question showComment
 });
 QUnit.test("choice item & elements , Issue#10384", (assert) => {
   const survey = new SurveyModel({
+    "title": "ttt",
     "elements": [
       {
         "type": "radiogroup",
@@ -3583,8 +3584,14 @@ QUnit.test("choice item & elements , Issue#10384", (assert) => {
   const item2 = q1.choices[1];
   assert.equal(item2.hasElements, true, "There are elements in item2");
   assert.ok(item2["panelValue"], "item2, panelValue is not null");
+  assert.equal(item2.panel.getSurvey().title, "ttt", "item2, panel.survey is not null");
+  assert.equal(item2.panel.elements.length, 1, "item2, panel has one element");
+  assert.equal(item2.panel.elements[0].name, "q1_1", "item2, panel has element q1_1");
+  assert.equal(item2.panel.elements[0].survey?.title, "ttt", "item2, panel has element q1_1 with survey");
+  assert.equal(item2.panel.elements[0].parent.getType(), "panel", "item2, panel has element q1_1 of parent panel");
   const item3 = q1.choices[2];
   item3.panel.addNewQuestion("text", "q1_3");
+  assert.ok(item3.panel.getSurvey(), "item3, panel.survey is not null");
   assert.deepEqual(q1.toJSON(), { name: "q1", choices: [
     "item1",
     { value: "item2", elements: [{ type: "text", name: "q1_1" }] },

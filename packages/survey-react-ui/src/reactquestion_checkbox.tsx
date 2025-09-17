@@ -8,6 +8,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { Base, ItemValue, SurveyModel, QuestionCheckboxModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
+import { SurveyPanel } from "./panel";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -123,6 +124,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       textStyle: this.textStyle,
       index: index,
       isFirst: isFirst,
+      creator: this.props.creator,
     });
     const survey = this.question.survey as SurveyModel;
     let wrappedItem: React.JSX.Element | null = null;
@@ -190,8 +192,10 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderElement(): React.JSX.Element {
     const isChecked = this.question.isItemSelected(this.item);
+    const panel = isChecked ? this.renderPanel() : null;
     return <>
       {this.renderCheckbox(isChecked, null)}
+      {panel}
       {this.renderComment()}
     </>;
   }
@@ -253,6 +257,21 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         {otherItem}
       </div>
     );
+  }
+  protected renderPanel(): React.JSX.Element | null {
+    if (this.item.hasElements) {
+      const panel = this.item.panel;
+      return (
+        <SurveyPanel
+          key={panel.id}
+          element={panel}
+          survey={this.question.survey}
+          cssClasses={this.props.cssClasses}
+          isDisplayMode={this.isDisplayMode}
+          creator={this.props.creator}
+        />);
+    }
+    return null;
   }
   componentDidMount(): void {
     super.componentDidMount();

@@ -1,6 +1,6 @@
 import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -18,9 +18,11 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
+import { PanelModel } from "entries";
 
 export class ChoiceItem extends ItemValue {
   private locCommentPlaceholderValue: LocalizableString;
+  private panelValue: PanelModel;
   protected getBaseType(): string { return "choiceitem"; }
   public get showCommentArea(): boolean {
     return this.getPropertyValue("showCommentArea");
@@ -73,6 +75,43 @@ export class ChoiceItem extends ItemValue {
     if (this.showCommentArea && !this.supportComment) {
       this.showCommentArea = false;
     }
+    this.setPanelSurvey(this.panelValue);
+  }
+  public get hasElements(): boolean {
+    const pnl = this.panelValue;
+    return !!pnl && pnl.elements.length > 0;
+  }
+  public get panel(): PanelModel {
+    if (!this.panelValue) {
+      this.panelValue = this.createPanel();
+    }
+    return this.panelValue;
+  }
+  public get elements(): Array<IElement> {
+    return this.panel.elements;
+  }
+  protected createPanel(): PanelModel {
+    const res = Serializer.createClass("panel");
+    res.selectedElementInDesign = this;
+    res.renderWidth = "100%";
+    res.isInteractiveDesignElement = false;
+    res.showTitle = false;
+    this.setPanelSurvey(res);
+    return res;
+  }
+  private setPanelSurvey(pnl: PanelModel) {
+    if (!!pnl) {
+      const survey = (this.locOwner && (<any>this.locOwner).survey);
+      if (!!survey) {
+        pnl.setSurveyImpl(survey);
+        //pnl.onFirstRendering();
+      }
+    }
+  }
+  public dispose(): void {
+    super.dispose();
+    this.panelValue?.dispose();
+    this.panelValue = undefined;
   }
 }
 
@@ -2374,7 +2413,8 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 Serializer.addClass("choiceitem",
   [{ name: "showCommentArea:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
     { name: "isCommentRequired:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
-    { name: "commentPlaceholder", locationInTable: "detail", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } }
+    { name: "commentPlaceholder", locationInTable: "detail", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
+    { name: "elements", baseClassName: "question", visible: false, isLightSerializable: false, isSerializableFunc: (obj) => obj.hasElements }
   ],
   (value) => new ChoiceItem(value),
   "itemvalue"

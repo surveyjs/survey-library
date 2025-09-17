@@ -1065,6 +1065,29 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
   assert.equal(question.readOnlyText, "i3", "readOnlyText #3");
 });
 
+QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (assert) {
+  const json = {
+    questions: [
+      {
+        name: "q1",
+        type: "dropdown",
+        choicesLazyLoadEnabled: true,
+        defaultValue: "FRA",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    options.setItems(["France"]);
+  });
+
+  assert.equal(question.value, "FRA");
+  assert.equal(question.selectedItem.value, "FRA");
+  assert.equal(question.selectedItem.text, "France");
+  assert.equal(question.readOnlyText, "France", "readOnlyText");
+});
+
 QUnit.test("min page size", assert => {
   const survey = new SurveyModel({
     questions: [{

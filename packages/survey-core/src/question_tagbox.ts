@@ -40,6 +40,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   private updateReadOnlyText(): void {
     this.readOnlyText = this.displayValue || this.placeholder;
   }
+  protected onSelectedItemValuesUpdated(): void {
+    super.onSelectedItemValuesUpdated();
+    this.updateReadOnlyText();
+  }
   protected getDefaultItemComponent(): string {
     return "";
   }

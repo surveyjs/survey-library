@@ -42,6 +42,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   private updateReadOnlyText(): void {
     this.readOnlyText = this.calculateReadOnlyText();
   }
+  protected onSelectedItemValuesUpdated(): void {
+    super.onSelectedItemValuesUpdated();
+    this.updateReadOnlyText();
+  }
+
   private updateInputPlaceholder(val: string) {
     if (!!this.dropdownListModelValue) {
       this.dropdownListModel.setInputPlaceholder(val);

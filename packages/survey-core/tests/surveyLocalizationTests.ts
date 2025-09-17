@@ -54,7 +54,7 @@ QUnit.test("make german as a default location", function(assert) {
   surveyLocalization.defaultLocale = "de";
   assert.equal(
     surveyLocalization.getString("pagePrevText"),
-    "Zurück", // eslint-disable-line i18n/only-english-or-code
+    "Zurück", // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     "Get German string"
   );
   surveyLocalization.defaultLocale = "en";
@@ -73,7 +73,7 @@ QUnit.test("set german localization", function(assert) {
   var survey = new SurveyModel();
   assert.equal(survey.completeText, "Complete");
   survey.locale = "de";
-  assert.equal(survey.completeText, "Abschließen"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(survey.completeText, "Abschließen"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   survey.locale = "";
   assert.equal(survey.completeText, "Complete");
 });
@@ -96,7 +96,7 @@ QUnit.test("set swedish localization", function(assert) {
 QUnit.test("set swedish localization", function(assert) {
   var survey = new SurveyModel();
   survey.locale = "sv";
-  assert.equal(survey.completeText, "Slutför"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(survey.completeText, "Slutför"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   surveyLocalization.currentLocale = "";
 });
 QUnit.test("Supported locales + removeDefaultLoc", function(assert) {
@@ -222,7 +222,7 @@ QUnit.test(
     assert.equal(surveyLocalization.currentLocale, "cs", "sz => sc, current");
     surveyLocalization.defaultLocale = "cz";
     assert.equal(surveyLocalization.defaultLocale, "cs", "sz => sc, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Předchozí", "Set locale correctly"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Předchozí", "Set locale correctly"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }
@@ -248,7 +248,7 @@ QUnit.test("Ukraine locale is 'uk', but support the old one 'ua', Bug #9908",
     assert.equal(surveyLocalization.currentLocale, "uk", "ua => uk, current");
     surveyLocalization.defaultLocale = "ua";
     assert.equal(surveyLocalization.defaultLocale, "uk", "ua => uk, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Назад", "Set locale correctly"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }
@@ -261,7 +261,7 @@ QUnit.test("Greek locale is 'el', but support the old one 'gr', Bug #10156",
     assert.equal(surveyLocalization.currentLocale, "el", "gr => el, current");
     surveyLocalization.defaultLocale = "gr";
     assert.equal(surveyLocalization.defaultLocale, "el", "gr => el, default");
-    assert.equal(surveyLocalization.getString("pagePrevText"), "Προηγούμενο", "Set locale correctly"); // eslint-disable-line i18n/only-english-or-code
+    assert.equal(surveyLocalization.getString("pagePrevText"), "Προηγούμενο", "Set locale correctly"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
     surveyLocalization.defaultLocale = oldDl;
     surveyLocalization.currentLocale = oldCl;
   }

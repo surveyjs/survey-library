@@ -1155,7 +1155,7 @@ QUnit.test("DropdownListModel buttons", (assert) => {
   assert.equal(clearButton.enabled, true, "clearButton enabled #4");
   assert.equal(clearButton.visible, true, "clearButton visible #4");
 
-  assert.equal(chevronButton.locTitle.text, "Auswählen", "chevronButton title #4"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(chevronButton.locTitle.text, "Auswählen", "chevronButton title #4"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   assert.equal(chevronButton.enabled, true, "chevronButton enabled #4");
   assert.equal(chevronButton.visible, true, "chevronButton visible #4");
 

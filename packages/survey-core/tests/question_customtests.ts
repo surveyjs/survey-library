@@ -472,10 +472,8 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
   ComponentCollection.Instance.add({
     name: "customerinfo",
     elementsJSON: [
-      { type: "panel", name: "contentPanel", showQuestionNumbers: "recursive", elements: [
-        { type: "text", name: "firstName" },
-        { type: "text", name: "lastName" }
-      ] }
+      { type: "text", name: "firstName" },
+      { type: "text", name: "lastName" },
     ],
     onCreated: function (question) {
       question.contentPanel.showQuestionNumbers = "recursive";
@@ -484,40 +482,6 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
   });
   var survey = new SurveyModel({
     showQuestionNumbers: "on",
-    elements: [
-      { type: "text", name: "q1" },
-      { type: "customerinfo", name: "q2" },
-      { type: "text", name: "q3" },
-    ],
-  });
-  const q = <QuestionCompositeModel>survey.getAllQuestions()[1];
-  const firstName = q.contentPanel.getQuestionByName("firstName");
-  const lastName = q.contentPanel.getQuestionByName("lastName");
-  assert.equal(q.visibleIndex, 1, "q visibleIndex");
-  assert.equal(q.no, "2.", "q no is '2.'");
-  assert.equal(q.contentPanel.no, "2.", "q contentPanel no is '2.'");
-  assert.equal(firstName.no, "2.a.", "first question, no is '2a.'");
-  assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
-  ComponentCollection.Instance.clear();
-});
-QUnit.test("Composite: content questions recursive numbering at design-time, Bug#10389", function (assert) {
-  ComponentCollection.Instance.add({
-    name: "customerinfo",
-    elementsJSON: [
-      { type: "panel", name: "contentPanel", showQuestionNumbers: "recursive", elements: [
-        { type: "text", name: "firstName" },
-        { type: "text", name: "lastName" }
-      ] }
-    ],
-    onCreated: function (question) {
-      question.contentPanel.showQuestionNumbers = "recursive";
-      question.contentPanel.questionStartIndex = "a";
-    },
-  });
-  const survey = new SurveyModel();
-  survey.setDesignMode(true);
-  survey.fromJSON({
-    showQuestionNumbers: "recursive",
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },

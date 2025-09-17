@@ -3566,3 +3566,29 @@ QUnit.test("radiogroup choices vs showComment & showOther & question showComment
   assert.equal(q1.comment, "edf", "q1.comment #3");
   assert.deepEqual(survey.data, { q1: { value: "item1", comment: "xyz" }, "q1-Comment": "edf" }, "survey.data #2");
 });
+QUnit.test("choice item & elements , Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const item1 = q1.choices[0];
+  assert.equal(item1.hasElements, false, "There is no elements in item1");
+  assert.notOk(item1["panelValue"], "item1, panelValue is null");
+  const item2 = q1.choices[1];
+  assert.equal(item2.hasElements, true, "There are elements in item2");
+  assert.ok(item2["panelValue"], "item2, panelValue is not null");
+  const item3 = q1.choices[2];
+  item3.panel.addNewQuestion("text", "q1_3");
+  assert.deepEqual(q1.toJSON(), { name: "q1", choices: [
+    "item1",
+    { value: "item2", elements: [{ type: "text", name: "q1_1" }] },
+    { value: "item3", elements: [{ type: "text", name: "q1_3" }] }
+  ] }, "toJSON is correct");
+  assert.notOk(item1["panelValue"], "item1, panelValue is null after serialization");
+});

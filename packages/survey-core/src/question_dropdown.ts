@@ -42,6 +42,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   private updateReadOnlyText(): void {
     this.readOnlyText = this.calculateReadOnlyText();
   }
+  protected onSelectedItemValuesUpdated(): void {
+    super.onSelectedItemValuesUpdated();
+    this.updateReadOnlyText();
+  }
+
   private updateInputPlaceholder(val: string) {
     if (!!this.dropdownListModelValue) {
       this.dropdownListModel.setInputPlaceholder(val);
@@ -397,16 +402,27 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
 
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
+    this.updateCustomChoices(this.value, array);
+    super.onLoadChoicesFromUrl(array);
+  }
+
   protected valueFromData(val: any): any {
     const value = super.valueFromData(val);
-    if (!!value && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
-      const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
-      if (!item) {
-        const newChoice = new ItemValue(value);
-        this.customChoices.push(newChoice);
-      }
+    if (!!this.survey && this.survey.isSettingData()) {
+      this.updateCustomChoices(value, this.visibleChoices);
     }
     return value;
+  }
+
+  private updateCustomChoices(value: any, items: Array<ItemValue>) {
+    if (value !== undefined && value !== null && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
+      this.customChoices.splice(0, this.customChoices.length);
+      const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, value, false, false))[0];
+      if (!item) {
+        this.customChoices.splice(0, this.customChoices.length, new ItemValue(value));
+      }
+    }
   }
 
   public setIsChoicesLoading(value: boolean) {

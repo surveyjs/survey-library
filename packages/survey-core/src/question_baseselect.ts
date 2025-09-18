@@ -931,10 +931,12 @@ export class QuestionSelectBase extends Question {
             this.selectedItemValues = items[0];
           }
           this.updateIsReady();
+          this.onSelectedItemValuesUpdated();
         }
       });
     }
   }
+  protected onSelectedItemValuesUpdated(): void {}
   private setCustomValuesIntoItems(items: Array<ItemValue>, customValues: Array<IValueItemCustomPropValues>): void {
     if (!Array.isArray(customValues) || customValues.length === 0) return;
     customValues.forEach(customValue => {

@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.3.7](https://github.com/surveyjs/survey-library/compare/v2.3.6...v2.3.7) (2025-09-17)
+
 ## [2.3.6](https://github.com/surveyjs/survey-library/compare/v2.3.5...v2.3.6) (2025-09-09)
 
 ## [2.3.5](https://github.com/surveyjs/survey-library/compare/v2.3.4...v2.3.5) (2025-09-03)

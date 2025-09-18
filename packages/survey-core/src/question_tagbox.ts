@@ -40,6 +40,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   private updateReadOnlyText(): void {
     this.readOnlyText = this.displayValue || this.placeholder;
   }
+  protected onSelectedItemValuesUpdated(): void {
+    super.onSelectedItemValuesUpdated();
+    this.updateReadOnlyText();
+  }
   protected getDefaultItemComponent(): string {
     return "";
   }
@@ -257,18 +261,33 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     }
   }
 
-  protected valueFromData(val: any): any {
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
+    this.updateCustomChoices(this.value, array);
+    super.onLoadChoicesFromUrl(array);
+  }
+
+  protected valueFromData(val: any, items?: Array<ItemValue>): any {
     const value = super.valueFromData(val);
-    if (!!value && value.length > 0 && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
-      value.forEach(v => {
-        const item = this.visibleChoices.filter(ch => Helpers.isTwoValueEquals(ch.id, v, false, false))[0];
-        if (!item) {
-          const newChoice = new ItemValue(v);
-          this.customChoices.push(newChoice);
-        }
-      });
+    if (!!this.survey && this.survey.isSettingData()) {
+      this.updateCustomChoices(value, this.visibleChoices);
     }
     return value;
+  }
+
+  private updateCustomChoices(value: any, items: Array<ItemValue>) {
+    if (value !== undefined && value !== null && value.length > 0 && this.allowCustomChoices && !this.choicesLazyLoadEnabled) {
+      this.customChoices.splice(0, this.customChoices.length);
+      const newArr = [];
+      value.forEach(v => {
+        const item = items.filter(ch => Helpers.isTwoValueEquals(ch.id, v, false, false))[0];
+        if (!item) {
+          newArr.push(new ItemValue(v));
+        }
+      });
+      if (newArr.length > 0) {
+        this.customChoices.splice(0, this.customChoices.length, ...newArr);
+      }
+    }
   }
 
   public setIsChoicesLoading(value: boolean) {

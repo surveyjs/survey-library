@@ -470,7 +470,7 @@ QUnit.test("readOnlyText on changing locale", assert => {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   assert.equal(question.readOnlyText, "Select...", "english locale");
   survey.locale = "de";
-  assert.equal(question.readOnlyText, "Bitte auswählen...", "de locale"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(question.readOnlyText, "Bitte auswählen...", "de locale"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   survey.locale = "";
   assert.equal(new QuestionDropdownModel("q1").readOnlyText, "Select...", "English by default");
 });
@@ -1063,6 +1063,29 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
   assert.equal(question.readOnlyText, "Select...", "readOnlyText #2");
   question.choices = ["i1", "i2", "i3"];
   assert.equal(question.readOnlyText, "i3", "readOnlyText #3");
+});
+
+QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (assert) {
+  const json = {
+    questions: [
+      {
+        name: "q1",
+        type: "dropdown",
+        choicesLazyLoadEnabled: true,
+        defaultValue: "FRA",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    options.setItems(["France"]);
+  });
+
+  assert.equal(question.value, "FRA");
+  assert.equal(question.selectedItem.value, "FRA");
+  assert.equal(question.selectedItem.text, "France");
+  assert.equal(question.readOnlyText, "France", "readOnlyText");
 });
 
 QUnit.test("min page size", assert => {
@@ -2742,7 +2765,7 @@ QUnit.test("allowCustomChoices: choices with displayName from survey.data", func
   assert.equal(question.value, value, "#1 question.value");
   assert.equal(question.selectedItem.id, value, "#1 question.selectedItem");
   assert.equal(question.selectedItem.title, "Large screen size", "#1 question.selectedItem");
-  assert.equal(listModel.actions.length, 7, "listModel.actions.length");
+  assert.equal(listModel.actions.length, 8, "listModel.actions.length");
   assert.deepEqual(survey.data, data, "#1 survey.data");
 });
 

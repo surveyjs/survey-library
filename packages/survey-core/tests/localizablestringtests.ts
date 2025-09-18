@@ -889,7 +889,7 @@ QUnit.test("Support defaultValue for localizable strings", function (assert) {
   owner.locale = "de";
   assert.equal(locStr1.text, "new str1", "str1 #3");
   assert.equal(locStr2.text, "str2", "str2 #3");
-  assert.equal(locStr3.text, "Abschließen", "str3 #3"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(locStr3.text, "Abschließen", "str3 #3"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 });
 QUnit.test("getJSON should copy values", function (assert) {
   const owner = new LocalizableOwnerTester("");

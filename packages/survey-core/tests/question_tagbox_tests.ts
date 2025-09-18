@@ -1254,6 +1254,31 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
   assert.equal(q.readOnlyText, "en-sel", "Empty en, #3");
   assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
 });
+
+QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (assert) {
+  const json = {
+    questions: [
+      {
+        name: "q1",
+        type: "tagbox",
+        choicesLazyLoadEnabled: true,
+        defaultValue: ["FRA"],
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    options.setItems(["France"]);
+  });
+
+  assert.deepEqual(question.value, ["FRA"]);
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0].value, "FRA");
+  assert.equal(question.selectedItems[0].text, "France");
+  assert.equal(question.readOnlyText, "France", "readOnlyText");
+});
+
 QUnit.test("question.showClearButton", assert => {
   const json = {
     questions: [

@@ -48,6 +48,7 @@ import type {
   QuestionMatrixModel,
 } from "survey-core";
 import { computed } from "vue";
+import { useBase } from "./base";
 
 defineOptions({
   inheritAttrs: false,
@@ -58,6 +59,7 @@ const props = defineProps<{
   column: ItemValue;
   columnIndex: number;
 }>();
+useBase(() => props.column);
 const changed = () => {
   const row = props.row;
   const column = props.column;

@@ -8,7 +8,7 @@
   >
     <SvComponent
       :is="'sv-action'"
-      v-for="item in renderedActions"
+      v-for="item in model.renderedActions"
       :key="item.renderedId"
       :item="item"
     ></SvComponent>
@@ -18,7 +18,7 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import type { ActionContainer } from "survey-core";
-import { useBase, useComputedArray } from "@/base";
+import { useBase } from "@/base";
 import { onMounted, onUpdated, ref } from "vue";
 
 const props = withDefaults(
@@ -41,10 +41,6 @@ const onClick = (event: MouseEvent) => {
 
 useBase(() => props.model, undefined, (value) => {
   value.resetResponsivityManager();
-});
-
-const renderedActions = useComputedArray(() => {
-  return props.model.renderedActions;
 });
 function initResponsivityManager() {
   if (!props.model.hasVisibleActions) return;

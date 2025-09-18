@@ -1,51 +1,63 @@
 <template>
-  <tr
-    :data-sv-drop-target-matrix-row="row.dropTargetId"
-    @pointerdown="question.onPointerDown($event, row.row)"
-    :class="row.className"
-    v-if="row.visible"
-    ref="root"
-  >
-    <SvComponent
-      :is="'survey-matrixdropdown-cell'"
-      :cell="cell"
-      :question="question"
-      v-for="cell in row.cells"
-      :key="row.id + '_' + cell.id"
-    />
+  <tr :class="row.rowClasses || undefined">
+    <td
+      :class="row.rowTextClasses"
+      v-show="question.hasRows"
+      :style="{
+        minWidth: question.rowTitleWidth,
+        width: question.rowTitleWidth,
+      }"
+    >
+      <SvComponent
+        :is="question.getRowHeaderWrapperComponentName(row as any)"
+        :componentData="question.getRowHeaderWrapperComponentData(row as any)"
+      >
+        <SvComponent :is="'survey-string'" :locString="row.locText" />
+      </SvComponent>
+    </td>
+    <template v-if="question.hasCellText">
+      <td
+        v-for="(column, columnIndex) in question.visibleColumns"
+        :key="columnIndex"
+        :class="question.getItemClass(row, column)"
+        v-on:click="cellClick(row, column)"
+      >
+        <SvComponent
+          :is="'survey-string'"
+          :locString="question.getCellDisplayLocText(row.name, column)"
+        ></SvComponent>
+      </td>
+    </template>
+    <template v-if="!question.hasCellText">
+      <td
+        v-for="(column, columnIndex) in question.visibleColumns"
+        :key="columnIndex"
+        :data-responsive-title="column.locText.renderedHtml"
+        :class="question.cssClasses.cell"
+      >
+        <SvComponent
+          :is="question.cellComponent"
+          :question="question"
+          :row="row"
+          :column="column"
+          :columnIndex="columnIndex"
+        ></SvComponent>
+      </td>
+    </template>
   </tr>
 </template>
-<script lang="ts" setup>
-import SvComponent from "@/SvComponent.vue";
-import type {
-  QuestionMatrixDropdownRenderedRow,
-  QuestionMatrixDropdownModel,
-} from "survey-core";
+
+<script setup lang="ts">
+import SvComponent from "./SvComponent.vue";
+import type { MatrixRowModel, QuestionMatrixModel } from "survey-core";
 import { useBase } from "./base";
-import { watch, onMounted, onUnmounted, ref } from "vue";
 const props = defineProps<{
-  question: QuestionMatrixDropdownModel;
-  row: QuestionMatrixDropdownRenderedRow;
+  question: QuestionMatrixModel;
+  row: MatrixRowModel;
 }>();
-const root = ref<HTMLElement>();
-
 useBase(() => props.row);
-
-const stopWatch = watch(
-  () => props.row,
-  (newValue, oldValue) => {
-    if (oldValue) {
-      oldValue.setRootElement(undefined as any);
-    }
-    newValue.setRootElement(root.value as any);
-  }
-);
-
-onMounted(() => {
-  props.row.setRootElement(root.value as any);
-});
-onUnmounted(() => {
-  props.row.setRootElement(undefined as any);
-  stopWatch();
-});
+useBase(() => props.row.item);
+const cellClick = (row: any, column: any) => {
+  row.cellClick(column);
+};
 </script>

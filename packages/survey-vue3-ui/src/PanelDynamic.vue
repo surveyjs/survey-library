@@ -64,31 +64,13 @@ import type {
   SurveyModel,
 } from "survey-core";
 import { useQuestion } from "./base";
-import { getCurrentInstance, ref } from "vue";
+import { ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionPanelDynamicModel; css?: any }>();
 const root = ref(null);
-const instance = getCurrentInstance();
-
 useQuestion(
   props,
-  root,
-  (value) => {
-    value.panelCountChangedCallback = () => {
-      instance?.proxy?.$forceUpdate();
-    };
-    value.currentIndexChangedCallback = () => {
-      instance?.proxy?.$forceUpdate();
-    };
-    value.renderModeChangedCallback = () => {
-      instance?.proxy?.$forceUpdate();
-    };
-  },
-  (value) => {
-    value.panelCountChangedCallback = undefined as any;
-    value.currentIndexChangedCallback = undefined as any;
-    value.renderModeChangedCallback = undefined as any;
-  }
+  root
 );
 
 const getPanelComponentName = (panel: PanelModel): string => {

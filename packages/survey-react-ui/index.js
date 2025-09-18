@@ -1030,28 +1030,60 @@ var json = {
 };
 
 json = {
-        showQuestionNumbers: "on",
-        "elements": [
-          {
-            "type": "boolean",
-            "name": "q1",
-            "titleLocation": "hidden",
-            "isRequired": true,
-            "renderAs": "checkbox"
-          }
-        ]
+  "elements": [{
+    name: "some",
+    type: "text",
+    isRequired: true
+  },{
+      "name": "numericvalidator",
+      "type": "text",
+      "title": "Numeric Validator",
+      "validators": [{
+        "type": "numeric",
+        "text": "Value must be within the range of 0 to 100",
+        "minValue": 0,
+        "maxValue": 100,
+        "notificationType": "warning"
+      }]
+    }]
 };
 
-// json = {
-//       questions: [
-//         {
-//           name: "name",
-//           type: "boolean",
-//           title: "Question title",
-//           titleLocation: "hidden"
-//         }
-//       ]
-//     };
+json = {
+      "elements": [
+        {
+          "type": "text",
+          "name": "q1",
+          "inputType": "number",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "numeric",
+              "text": "Error: >150",
+              "maxValue": 150,
+              "notificationType": "error"
+            },
+            {
+              "type": "numeric",
+              "text": "Error: >100",
+              "maxValue": 100,
+              "notificationType": "error"
+            },
+            {
+              "type": "numeric",
+              "text": "Warning: >75",
+              "maxValue": 75,
+              "notificationType": "warning"
+            },
+            {
+              "type": "numeric",
+              "text": "Info: >50",
+              "maxValue": 50,
+              "notificationType": "info"
+            }
+          ],
+        }
+      ]
+};
 
 // Survey.StylesManager.applyTheme("default");
 // Survey.StylesManager.applyTheme("modern");

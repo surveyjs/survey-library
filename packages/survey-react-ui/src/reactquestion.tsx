@@ -263,10 +263,10 @@ export class SurveyElementErrors extends ReactSurveyElement {
   }
   protected renderElement(): React.JSX.Element {
     const errors: Array<React.JSX.Element> = [];
-    for (let i = 0; i < this.element.errors.length; i++) {
+    for (let i = 0; i < this.element.renderedErrors.length; i++) {
       const key: string = "error" + i;
       errors.push(
-        this.creator.renderError(key, this.element.errors[i], this.cssClasses, this.element)
+        this.creator.renderError(key, this.element.renderedErrors[i], this.cssClasses, this.element)
       );
     }
 

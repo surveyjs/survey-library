@@ -756,6 +756,31 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set errors(val: Array<SurveyError>) {
     this.setPropertyValue("errors", val);
   }
+  public get renderedErrors(): Array<SurveyError> {
+    let result = [];
+    const types = ["info", "warning", "error"];
+    for (let i = 0; i < this.errors.length; i++) {
+      const newError = this.errors[i];
+      if (!newError.visible) continue;
+      if (result.length === 0) {
+        result.push(newError);
+      } else {
+        const newErrorTypeIndex = types.indexOf(newError.notificationType);
+        const currentTypeIndex = types.indexOf(result[0].notificationType);
+        if (newErrorTypeIndex > currentTypeIndex) {
+          result = [];
+          result.push(newError);
+        } else if (newErrorTypeIndex === currentTypeIndex) {
+          result.push(newError);
+        }
+      }
+    }
+    return result;
+  }
+  public get renderedErrorsType(): string {
+    if (this.renderedErrors.length === 0) return "";
+    return this.renderedErrors[0].notificationType;
+  }
   @property({ defaultValue: false }) hasVisibleErrors: boolean;
   private updateVisibleErrors() {
     var counter = 0;

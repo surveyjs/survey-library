@@ -175,8 +175,7 @@ export var portugueseBrSurveyStrings = {
   timerLimitPage: "Você gastou {0} de {1} nesta página.",
   // [Auto-translated] "You have spent {0} of {1} in total."
   timerLimitSurvey: "Gastou {0} de {1} no total.",
-  // [Auto-translated] "Clear"
-  clearCaption: "Claro",
+  clearCaption: "Excluir tudo",
   // [Auto-translated] "Select"
   selectCaption: "Selecionar",
   // [Auto-translated] "Sign here"

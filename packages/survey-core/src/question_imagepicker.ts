@@ -295,7 +295,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.multiSelect ? "checkbox" : "radio";
   }
 
-  protected isBuiltInChoice(item: ItemValue): boolean {
+  public isBuiltInChoice(item: ItemValue): boolean {
     return false;
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {

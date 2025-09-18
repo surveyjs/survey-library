@@ -118,7 +118,6 @@ export class ChoiceItem extends ItemValue {
   }
   protected createPanel(): PanelModel {
     const res = Serializer.createClass("panel");
-    res.selectedElementInDesign = this;
     res.renderWidth = "100%";
     res.isInteractiveDesignElement = false;
     res.showTitle = false;
@@ -127,6 +126,7 @@ export class ChoiceItem extends ItemValue {
   }
   private setPanelSurvey(pnl: PanelModel) {
     if (!!pnl) {
+      pnl.selectedElementInDesign = <any>this.choiceOwner;
       const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
         pnl.setSurveyImpl(survey);
@@ -1632,7 +1632,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return false;
   }
-  protected isBuiltInChoice(item: ItemValue): boolean {
+  public isBuiltInChoice(item: ItemValue): boolean {
     return [this.otherItem, this.noneItem, this.refuseItem, this.dontKnowItem, this.newItemValue].indexOf(item) > -1;
   }
   public isNoneItem(item: ItemValue): boolean {

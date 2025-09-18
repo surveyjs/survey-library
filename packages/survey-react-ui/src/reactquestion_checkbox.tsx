@@ -192,10 +192,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   }
   protected renderElement(): React.JSX.Element {
     const isChecked = this.question.isItemSelected(this.item);
-    const panel = isChecked ? this.renderPanel() : null;
     return <>
       {this.renderCheckbox(isChecked, null)}
-      {panel}
+      {this.renderPanel()}
       {this.renderComment()}
     </>;
   }
@@ -259,7 +258,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     );
   }
   protected renderPanel(): React.JSX.Element | null {
-    if (this.item.hasElements) {
+    if (this.item.isPanelShowing) {
       const panel = this.item.panel;
       return (
         <SurveyPanel

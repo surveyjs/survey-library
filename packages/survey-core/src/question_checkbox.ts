@@ -49,6 +49,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.onItemHasCommentChanged();
     });
   }
+  supportElementsInChoice(): boolean { return true; }
   protected getDefaultItemComponent(): string {
     return "survey-checkbox-item";
   }

@@ -3571,13 +3571,13 @@ QUnit.test("choice item & elements , Issue#10384", (assert) => {
     "title": "ttt",
     "elements": [
       {
-        "type": "radiogroup",
+        "type": "checkbox",
         "name": "q1",
         "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
       }
     ]
   });
-  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   const item1 = q1.choices[0];
   assert.equal(item1.hasElements, false, "There is no elements in item1");
   assert.notOk(item1["panelValue"], "item1, panelValue is null");
@@ -3598,4 +3598,57 @@ QUnit.test("choice item & elements , Issue#10384", (assert) => {
     { value: "item3", elements: [{ type: "text", name: "q1_3" }] }
   ] }, "toJSON is correct");
   assert.notOk(item1["panelValue"], "item1, panelValue is null after serialization");
+});
+QUnit.test("choice item & supportElements , Issue#10384", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  q1.choices = ["item1"];
+  assert.equal(q1.choices[0].supportElements, true, "checkbox: item supportElements");
+  const q2 = new QuestionRadiogroupModel("q2");
+  q2.choices = ["item1"];
+  //TOOD
+  //assert.equal(q2.choices[0].supportElements, true, "radiogroup: item1 supportElements");
+  const q3 = new QuestionDropdownModel("q3");
+  q3.choices = ["item1"];
+  assert.equal(q3.choices[0].supportElements, false, "dropdown: item supportElements");
+});
+QUnit.test("choice item & isPanelShowing, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": ["item1", "item2", "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  const item1 = q1.choices[0];
+  const item2 = q1.choices[1];
+  const item3 = q2.choices[0];
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false");
+  assert.equal(item2.isPanelShowing, false, "item2: isPanelShowing false");
+  assert.equal(item3.isPanelShowing, false, "item3: isPanelShowing false");
+  q1.clickItemHandler(item1, true);
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #2");
+  assert.equal(item2.isPanelShowing, false, "item2: isPanelShowing false #2");
+  q1.clickItemHandler(item2, true);
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #3");
+  assert.equal(item2.isPanelShowing, true, "item2: isPanelShowing true #1");
+  q1.clickItemHandler(item2, false);
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #5");
+  q1.clearValue();
+  item1.showPanel = true;
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing true #6");
+  survey.setDesignMode(true);
+  assert.equal(item1.isPanelShowing, true, "item1: isPanelShowing true #7");
+  q1.clickItemHandler(item2, true);
+  assert.equal(item2.isPanelShowing, false, "item2: isPanelShowing true #8");
+  item2.showPanel = true;
+  assert.equal(item2.isPanelShowing, true, "item2: isPanelShowing true #9");
 });

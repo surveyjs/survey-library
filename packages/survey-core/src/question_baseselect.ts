@@ -7,7 +7,7 @@ import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
-import { LocalizableString } from "./localizablestring";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
@@ -20,13 +20,22 @@ import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel } from "entries";
 
+export interface IChoiceOwner extends ILocalizableOwner {
+  supportElementsInChoice(): boolean;
+  getSurvey(): ISurvey;
+  isItemSelected(item: ItemValue): boolean;
+  isDesignMode: boolean;
+}
+
 export class ChoiceItem extends ItemValue {
   private locCommentPlaceholderValue: LocalizableString;
   private panelValue: PanelModel;
   protected getBaseType(): string { return "choiceitem"; }
+  public get choiceOwner(): IChoiceOwner { return this.locOwner as IChoiceOwner; }
   public get showCommentArea(): boolean {
     return this.getPropertyValue("showCommentArea");
   }
+  public get supportElements(): boolean { return this.choiceOwner?.supportElementsInChoice() === true; }
   public set showCommentArea(val: boolean) {
     if (val && !this.supportComment) {
       val = false;
@@ -77,6 +86,23 @@ export class ChoiceItem extends ItemValue {
     }
     this.setPanelSurvey(this.panelValue);
   }
+  public get showPanel(): boolean {
+    return this.getPropertyValue("showPanel", false);
+  }
+  public set showPanel(val: boolean) {
+    if (!this.supportElements) {
+      val = false;
+    }
+    if (val && !this.panelValue) {
+      this.panelValue = this.createPanel();
+    }
+    this.setPropertyValue("showPanel", val);
+  }
+  public get isPanelShowing(): boolean {
+    if (!this.panelValue && !this.showPanel || !this.choiceOwner) return false;
+    if (this.choiceOwner.isDesignMode) return this.showPanel;
+    return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
+  }
   public get hasElements(): boolean {
     const pnl = this.panelValue;
     return !!pnl && pnl.elements.length > 0;
@@ -101,7 +127,7 @@ export class ChoiceItem extends ItemValue {
   }
   private setPanelSurvey(pnl: PanelModel) {
     if (!!pnl) {
-      const survey = (this.locOwner && (<any>this.locOwner).survey);
+      const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
         pnl.setSurveyImpl(survey);
         //pnl.onFirstRendering();
@@ -118,7 +144,7 @@ export class ChoiceItem extends ItemValue {
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
-export class QuestionSelectBase extends Question {
+export class QuestionSelectBase extends Question implements IChoiceOwner {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
@@ -212,6 +238,9 @@ export class QuestionSelectBase extends Question {
     if (!!dist) {
       Object.keys(dist).forEach((key) => { dist[key].dispose(); });
     }
+  }
+  public supportElementsInChoice(): boolean {
+    return false;
   }
   public get otherTextAreaModel(): TextAreaModel {
     return this.getCommentTextAreaModel(this.otherItem);

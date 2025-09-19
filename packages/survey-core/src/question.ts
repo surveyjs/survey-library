@@ -382,6 +382,9 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+    this.registerPropertyChangedHandlers(["renderedErrorsType"], () => {
+      this.updateQuestionCss();
+    });
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {

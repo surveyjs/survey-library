@@ -757,6 +757,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("errors", val);
   }
   public get renderedErrors(): Array<SurveyError> {
+    return this.getPropertyValue("renderedErrors", undefined, () => this.calcRenderedErrors());
+  }
+  public set renderedErrors(val: Array<SurveyError>) {
+    this.setPropertyValue("renderedErrors", val);
+  }
+  public calcRenderedErrors(): Array<SurveyError> {
     let result = [];
     const types = ["info", "warning", "error"];
     for (let i = 0; i < this.errors.length; i++) {
@@ -778,6 +784,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return result;
   }
   public get renderedErrorsType(): string {
+    return this.getPropertyValue("renderedErrorsType", undefined, () => this.calcRenderedErrorsType());
+  }
+  public set renderedErrorsType(val: string) {
+    this.setPropertyValue("renderedErrorsType", val);
+  }
+  public calcRenderedErrorsType(): string {
     if (this.renderedErrors.length === 0) return "";
     return this.renderedErrors[0].notificationType;
   }
@@ -788,6 +800,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       if (this.errors[i].visible) counter++;
     }
     this.hasVisibleErrors = counter > 0;
+    this.setPropertyValue("renderedErrors", this.calcRenderedErrors());
+    this.renderedErrors = this.calcRenderedErrors();
+    this.setPropertyValue("renderedErrorsType", this.calcRenderedErrorsType());
+    this.renderedErrorsType = this.calcRenderedErrorsType();
   }
   /**
    * Returns `true` if the survey element or its child elements have validation errors.

@@ -6,7 +6,7 @@
     ref="root"
   >
     <SvComponent
-      v-for="(error, index) in element.errors"
+      v-for="(error, index) in element.renderedErrors"
       :is="element.survey['questionErrorComponent']"
       :element="element"
       :key="'error_' + index"

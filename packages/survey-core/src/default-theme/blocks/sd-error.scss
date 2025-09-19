@@ -1,7 +1,9 @@
 @use "../variables.scss" as *;
 
 .sd-error {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: calcSize(0.5);
   padding: calcSize(1) calcSize(1.5);
   border-radius: calcCornerRadius(1);
   line-height: calcLineHeight(1);
@@ -13,4 +15,33 @@
   width: 100%;
   background-color: $red-light;
   box-sizing: border-box;
+}
+
+.sd-slider__tooltip-value {
+  font-weight: 600;
+  line-height: var(--lbr-font-small-line-height, size(2));
+  color: var(--lbr-tooltip-text-color, $primary);
+}
+
+.sd-error--warning {
+  background: var(--sjs-semantic-yellow-background-10, $yellow-light);
+
+  .sd-error__item {
+    color: var(--sjs-semantic-yellow-background-500, $secondary);
+  }
+}
+
+.sd-error--info {
+  background: var(--sjs-semantic-blue-background-10, $blue-light);
+  .sd-error__item {
+    color: var(--sjs-semantic-blue-background-500, $blue);
+  }
+}
+
+.sd-error__item {
+  font-family: var(--lbr-font-family, $font-family);
+  font-size: var(--lbr-font-small-size, calcSize(1.5));
+  font-style: normal;
+  font-weight: 600;
+  line-height: var(--lbr-font-small-line-height, calcSize(2));
 }

@@ -11031,3 +11031,39 @@ QUnit.test("defaultValueExpression should work correctly with non-existing colum
     ] });
   assert.deepEqual(survey.data, { question1: [{ question2: [{ b: 0 }, { b: 0 }] }] }, "The default value is correct");
 });
+QUnit.test("SurveyError.notificationType & validate in matrices,Issue#9085", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 2,
+        columns: [
+          { name: "col1", cellType: "text", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] },
+          { name: "col2", cellType: "text" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  const cell1 = rows[0].getQuestionByColumnName("col1");
+  const cell2 = rows[1].getQuestionByColumnName("col1");
+  cell1.value = 7;
+  cell2.value = 12;
+  let erroredQuestionName = "";
+  const callbackFunc = (res: boolean, question: Question) => {
+    erroredQuestionName = question?.name || "";
+  };
+  assert.equal(survey.currentPage.validate(true, true, callbackFunc), false, "There is an error");
+  assert.equal(erroredQuestionName, "col1", "The matrix question is returned");
+  assert.equal(cell1.errors.length, 1, "There is no error, cell1");
+  assert.equal(cell1["hasCssError"](), false, "There is no css error, cell1");
+  assert.equal(cell1["hasCssError"](true), true, "There is a warning, cell1");
+  assert.equal(cell2.errors.length, 2, "There is an error, cell2");
+  assert.equal(cell2["hasCssError"](), true, "There is css error, cell2");
+  assert.equal(cell2["hasCssError"](true), true, "There is css error, cell2");
+  cell2.value = 8;
+  assert.equal(cell2.errors.length, 1, "There is a warning, cell2");
+  assert.equal(cell2["hasCssError"](), false, "There is css error, cell2");
+  assert.equal(cell2["hasCssError"](true), true, "There is a css warning, cell2");
+  assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
+  assert.deepEqual(survey.data, { matrix: [{ col1: 7 }, { col1: 8 }] }, "The data is correct");
+});

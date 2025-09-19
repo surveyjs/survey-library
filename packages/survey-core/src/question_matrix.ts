@@ -727,9 +727,6 @@ export class QuestionMatrixModel
     return !rowsErrors.noValue;
   }
   private checkErrorsAllRows(modifyErrors: boolean, res: { noValue: boolean, isNotUnique: boolean }, allRowsRequired?: boolean): void {
-    var rows = this.generatedVisibleRows;
-    if (!rows) rows = this.visibleRows;
-    if (!rows) return;
     const rowsRequired = this.eachRowRequired || allRowsRequired;
     const rowsUnique = this.eachRowUnique;
     res.noValue = false;
@@ -738,6 +735,8 @@ export class QuestionMatrixModel
       this.errorsInRow = undefined;
     }
     if (!rowsRequired && !rowsUnique) return;
+    const rows = this.visibleRows;
+    if (!rows) return;
     const hash: HashTable<any> = {};
     for (var i = 0; i < rows.length; i++) {
       const val = rows[i].value;

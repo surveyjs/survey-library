@@ -282,10 +282,10 @@ export var defaultCss = {
   },
   error: {
     root: "sd-error",
+    warningMode: "sd-error--warning",
+    infoMode: "sd-error--info",
     icon: "",
-    item: "",
-    warningMod: "sd-error--warning",
-    infoMod: "sd-error--info",
+    item: "sd-error__item",
     locationTop: "",
     locationBottom: ""
   },

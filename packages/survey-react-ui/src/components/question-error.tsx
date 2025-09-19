@@ -16,7 +16,7 @@ export class QuestionErrorComponent extends React.Component<IQuestionErrorCompon
     return (
       <div>
         <span className={error.getCssIcon(classes)} aria-hidden="true" />
-        <span className={error.getCssItem(classes)}>
+        <span className={this.props.cssClasses.error.item || undefined}>
           <SurveyLocStringViewer locStr={error.locText} />
         </span>
       </div>

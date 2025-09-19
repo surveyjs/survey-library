@@ -36,7 +36,7 @@ export class SurveyError {
   }
   public getCssItem(cssClasses: any): string {
     const error = this.getCssError(cssClasses);
-    const item = this.isWarning ? error.warningMod : this.isInfo ? error.infoMod : error.item;
+    const item = this.isWarning ? error.warningMode : this.isInfo ? error.infoMode : error.item;
     return item || error.item || undefined;
   }
   private getCssError(cssClasses: any): any {

@@ -1755,6 +1755,8 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
+      .append(cssClasses.error.warningMode, this.renderedErrorsType === "warning")
+      .append(cssClasses.error.infoMode, this.renderedErrorsType === "info")
       .append(cssClasses.errorsContainer)
       .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
       .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)

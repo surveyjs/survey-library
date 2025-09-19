@@ -1081,6 +1081,43 @@ json = {
               "notificationType": "info"
             }
           ],
+        },
+        {
+          type: "panel",
+          elements: [
+                    {
+          "type": "text",
+          "name": "q2",
+          "inputType": "number",
+          "isRequired": true,
+          "validators": [
+            {
+              "type": "numeric",
+              "text": "Error: >150",
+              "maxValue": 150,
+              "notificationType": "error"
+            },
+            {
+              "type": "numeric",
+              "text": "Error: >100",
+              "maxValue": 100,
+              "notificationType": "error"
+            },
+            {
+              "type": "numeric",
+              "text": "Warning: >75",
+              "maxValue": 75,
+              "notificationType": "warning"
+            },
+            {
+              "type": "numeric",
+              "text": "Info: >50",
+              "maxValue": 50,
+              "notificationType": "info"
+            }
+          ],
+        },
+          ]
         }
       ]
 };

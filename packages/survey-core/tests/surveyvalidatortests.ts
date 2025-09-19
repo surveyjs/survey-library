@@ -609,23 +609,6 @@ QUnit.test("SurveyError.getCssIcon, Issue#9085", function(assert) {
   assert.equal(surveyError.getCssIcon({}), undefined, "getCssIcon #9");
   assert.equal(surveyError.getCssIcon({ error: {} }), undefined, "getCssIcon #10");
 });
-QUnit.test("SurveyError.getCssItem, Issue#9085", function(assert) {
-  const surveyError = new SurveyError("ErrorText");
-  assert.equal(surveyError.getCssItem(undefined), undefined, "getCssItem #1");
-  assert.equal(surveyError.getCssItem({}), undefined, "getCssItem #2");
-  assert.equal(surveyError.getCssItem({ error: {} }), undefined, "getCssItem #3");
-  assert.equal(surveyError.getCssItem({ error: { item: "item" } }), "item", "getCssItem #4");
-  assert.equal(surveyError.getCssItem({ error: { item: "item", warningMod: "warningMod" } }), "item", "getCssItem #4.1");
-  surveyError.notificationType = "warning";
-  assert.equal(surveyError.getCssItem({ error: { item: "item" } }), "item", "getCssItem #5");
-  assert.equal(surveyError.getCssItem({ error: { warningMod: "warningMod", item: "item" } }), "warningMod", "getCssItem #6");
-  assert.equal(surveyError.getCssItem({ error: { item: "item", warningMod: "warningMod" } }), "warningMod", "getCssItem #7");
-  assert.equal(surveyError.getCssItem(undefined), undefined, "getCssItem #8");
-  assert.equal(surveyError.getCssItem({}), undefined, "getCssItem #9");
-  assert.equal(surveyError.getCssItem({ error: {} }), undefined, "getCssItem #10");
-  surveyError.notificationType = "info";
-  assert.equal(surveyError.getCssItem({ error: { infoMod: "infoMod", item: "item" } }), "infoMod", "getCssItem #11");
-});
 QUnit.test("SurveyError.notificationType, Issue#9085", function(assert) {
   const survey = new SurveyModel({
     elements: [

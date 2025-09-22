@@ -513,7 +513,7 @@ export class ExpressionValidator extends SurveyValidator {
 
 Serializer.addClass("surveyvalidator", [
   { name: "text", serializationProperty: "locText" },
-  { name: "notificationType", choices: ["error", "warning", "info"], default: "error", visible: false, category: "general" }
+  { name: "notificationType", choices: ["error", "warning", "info"], default: "error", visible: true, category: "general", visibleIndex: 100 }
 ]);
 Serializer.addClass(
   "numericvalidator",

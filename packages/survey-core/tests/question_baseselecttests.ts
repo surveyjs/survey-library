@@ -3577,6 +3577,7 @@ QUnit.test("choice item & elements , Issue#10384", (assert) => {
       }
     ]
   });
+  const q1_1 = survey.getQuestionByName("q1_1");
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   const item1 = q1.choices[0];
   assert.equal(item1.hasElements, false, "There is no elements in item1");
@@ -3652,3 +3653,80 @@ QUnit.test("choice item & isPanelShowing, Issue#10384", (assert) => {
   item2.showPanel = true;
   assert.equal(item2.isPanelShowing, true, "item2: isPanelShowing true #9");
 });
+
+QUnit.test("choice item elements & getAllQuestions, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  let qs = survey.getAllQuestions(false, false, true);
+  assert.equal(qs.length, 2, "There are two questions: q1 and q1_1, #1");
+  assert.equal(qs[0].name, "q1", "the first question is q1");
+  assert.equal(qs[1].name, "q1_1", "the second question is q1_1");
+  survey.setDesignMode(true);
+  qs = survey.getAllQuestions(false, true, true);
+  assert.equal(qs.length, 2, "There are two questions: q1 and q1_1, #2");
+  survey.setDesignMode(false);
+  qs = survey.getAllQuestions(true, true, true);
+  assert.equal(qs.length, 1, "There is one question: q1");
+  q1.clickItemHandler(q1.choices[1], true);
+  qs = survey.getAllQuestions(true, true, true);
+  assert.equal(qs.length, 2, "There are two questions: q1 and q1_1, #3");
+});
+QUnit.test("choice item elements & getElementsInDesign, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.choices.length, 3, "There are three choices");
+  let els = q1.getElementsInDesign(true);
+  assert.equal(els.length, 2, "There are two elements: q1, #1");
+  assert.equal(els[0].getType(), "panel", "the element is panel, #1");
+  els = q1.getElementsInDesign(false);
+  assert.equal(els.length, 2, "There are two elements, #2");
+  assert.equal(els[0].name, "q1_1", "the element is q1_1, #2");
+});
+/*
+QUnit.only("choice item & elements, survey.onQuestionCreated/Added & getQuestionByName Issue#10384", (assert) => {
+  const survey = new SurveyModel();
+  const questionCreated = new Array<string>();
+  const questionAdded = new Array<string>();
+  survey.onQuestionCreated.add((survey, options) => {
+    questionCreated.push(options.question.name);
+  });
+  survey.onQuestionAdded.add((survey, options) => {
+    questionAdded.push(options.question.name);
+  });
+  survey.fromJSON({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      }
+    ]
+  });
+  const q1_1 = survey.getQuestionByName("q1_1");
+  assert.equal(q1_1?.name, "q1_1", "getQuestionByName works correctly");
+  assert.equal(q1_1?.page.name, "page1", "The question is on the correct page");
+  assert.equal(questionCreated.length, 2, "There are two questions created");
+  assert.equal(questionCreated[0], "q1", "the first question is q1");
+  assert.equal(questionCreated[1], "q1_1", "the second question is q1_1");
+  assert.equal(questionAdded.length, 2, "There are two questions added");
+  assert.equal(questionAdded[0], "q1", "the first question is q1");
+  assert.equal(questionAdded[1], "q1_1", "the second question is q1_1");
+});
+*/

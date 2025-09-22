@@ -1,6 +1,6 @@
 import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -18,13 +18,14 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
-import { PanelModel } from "entries";
+import { PanelModel, PanelModelBase } from "./panel";
 
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
   getSurvey(): ISurvey;
   isItemSelected(item: ItemValue): boolean;
   isDesignMode: boolean;
+  parent: IPanel;
 }
 
 export class ChoiceItem extends ItemValue {
@@ -125,12 +126,12 @@ export class ChoiceItem extends ItemValue {
     return res;
   }
   private setPanelSurvey(pnl: PanelModel) {
-    if (!!pnl) {
+    if (!!pnl && !pnl.survey) {
       pnl.selectedElementInDesign = <any>this.choiceOwner;
       const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
+        pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
-        //pnl.onFirstRendering();
       }
     }
   }
@@ -241,6 +242,32 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public supportElementsInChoice(): boolean {
     return false;
+  }
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
+    if (includeItSelf) {
+      questions.push(this);
+    }
+    if (includeNested && this.supportElementsInChoice()) {
+      this.choices.forEach((item) => {
+        if (item.hasElements && (!visibleOnly || item.isPanelShowing)) {
+          item.panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+        }
+      });
+    }
+  }
+  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
+    if (!this.supportElementsInChoice()) return [];
+    const res = new Array<IElement>();
+    this.choices.forEach((item) => {
+      if (item.hasElements) {
+        if (includeHidden) {
+          res.push(item.panel);
+        } else {
+          res.push(...item.elements);
+        }
+      }
+    });
+    return res;
   }
   public get otherTextAreaModel(): TextAreaModel {
     return this.getCommentTextAreaModel(this.otherItem);

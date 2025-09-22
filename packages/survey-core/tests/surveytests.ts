@@ -16883,7 +16883,7 @@ QUnit.test("Check default navigation items relevance", function (assert) {
   const action = survey.navigationBar.actions[0];
   assert.equal(action.getActionBarItemCss(), "custom-action custom-css custom-start");
   survey.locale = "ru";
-  assert.equal(action.title, "Начать"); // eslint-disable-line i18n/only-english-or-code
+  assert.equal(action.title, "Начать"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   survey.locale = "en";
   assert.equal(action.title, "Start");
   survey.startSurveyText = "custom-text";

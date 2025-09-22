@@ -476,6 +476,57 @@ QUnit.test("matrix eachRowRequired  & getItemClass", function (assert) {
   assert.equal(question.getItemClass(row, column1).indexOf(itemError) > -1, false, "itemError doesn't exist in column 1, #1");
   assert.equal(question.getItemClass(row, column2).indexOf(itemError) > -1, false, "itemError doesn't exist in column 2, #1");
 });
+QUnit.test("matrix eachRowRequired  & row visibleIf, Bug#10395.1", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1"],
+        rows: ["row1", { value: "row2", visibleIf: "false" }],
+        eachRowRequired: true
+      },
+    ]
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(question.visibleRows.length, 1, "There is one visible row");
+  question.visibleRows[0].value = "col1";
+  assert.equal(question.validate(), true, "There is no errors");
+});
+QUnit.test("matrix eachRowRequired  & row visibleIf, Bug#10395.2", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1", { value: "row2", visibleIf: "false" }],
+        eachRowRequired: true
+      },
+    ]
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.equal(question.visibleRows.length, 1, "There is one visible row");
+  question.visibleRows[0].value = "col1";
+  assert.equal(question.validate(), true, "There is no errors");
+});
+QUnit.test("matrix eachRowRequired  & row visibleIf, Bug#10395.2", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text", isUnique: true }],
+        rows: ["row1", { value: "row2", visibleIf: "false" }],
+        eachRowRequired: true
+      },
+    ]
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  question.value = { row1: "val1", row2: "val1" };
+  assert.equal(question.visibleRows.length, 1, "There is one visible row");
+  assert.equal(question.validate(), true, "There is no errors");
+});
 QUnit.test("hideIfRowsEmpty & question visibleIf, bug#8459", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "matrix", name: "q1", visibleIf: "{a}=1", hideIfRowsEmpty: true, rows: [{ value: "row1", visibleIf: "{b}=2" }] }],

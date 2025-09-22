@@ -1,22 +1,18 @@
 import { Base, Question, LocalizableString } from "survey-core";
 import {
-  shallowReactive,
   ref,
   isRef,
   watch,
-  shallowRef,
-  triggerRef,
   unref,
   onMounted,
   type Ref,
   onBeforeUnmount,
-  watchEffect,
   nextTick,
+  customRef,
+  onBeforeUpdate,
+  onUpdated,
+  onBeforeMount,
 } from "vue";
-Base.createPropertiesHash = () => {
-  const res = shallowReactive({});
-  return res;
-};
 
 class NextRenderManager {
   constructor(private element: Base) {}
@@ -33,41 +29,83 @@ class NextRenderManager {
   }
 }
 
-export function makeReactive(surveyElement: Base) {
+function useCoreRef(options: {
+  initialValue: any;
+  isUpdateAllowed: () => boolean;
+  nextRenderManager: NextRenderManager;
+  isArray?: boolean
+}) {
+  let value = options.initialValue;
+  return customRef((tracker, trigger) => {
+    const update = () => {
+      if (options.isUpdateAllowed()) {
+        trigger();
+        options.nextRenderManager.add();
+      }
+    }
+    if (options.isArray) {
+      value["onArrayChanged"] = update;
+    }
+    return {
+      get() {
+        tracker();
+        return value;
+      },
+      set(val) {
+        const isChanged = value !== val;
+        value = val;
+        if (isChanged) {
+          update();
+        }
+      },
+    };
+  });
+}
+
+export function makeReactive(
+  surveyElement: Base) {
   if (!surveyElement) return;
-  (surveyElement as any).__vueImplemented =
-    (surveyElement as any).__vueImplemented ?? 0;
+  (surveyElement as any).__vueUpdatesLock = (surveyElement as any).__vueUpdatesLock ?? 0;
+  (surveyElement as any).__vueImplemented = (surveyElement as any).__vueImplemented ?? 0;
   if ((surveyElement as any).__vueImplemented <= 0) {
+    const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
     const nextRenderManager = new NextRenderManager(surveyElement);
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
-      const arr: any = [];
-      const arrayRef = shallowRef(arr);
-
-      arr.onArrayChanged = () => {
-        triggerRef(arrayRef);
-        nextRenderManager.add();
-      };
-      hash[key] = arrayRef;
+      hash[key] = useCoreRef({
+        initialValue: [],
+        isUpdateAllowed,
+        nextRenderManager,
+        isArray: true
+      });
       return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
-      if (Array.isArray(hash[key])) {
-        const arrayRef = shallowRef(hash[key]);
-        hash[key]["onArrayChanged"] = () => {
-          triggerRef(arrayRef);
-          nextRenderManager.add();
-        };
-        hash[key] = arrayRef;
-      }
+      hash[key] = useCoreRef({
+        initialValue: hash[key],
+        isUpdateAllowed,
+        nextRenderManager,
+        isArray: Array.isArray(hash[key])
+      });
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
+      if (!isRef(hash[key])) {
+        hash[key] = useCoreRef({
+          initialValue: hash[key],
+          isUpdateAllowed,
+          nextRenderManager,
+        });
+      }
       return unref(hash[key]);
     };
     surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
       if (isRef(hash[key])) {
         hash[key].value = val;
       } else {
-        hash[key] = val;
+        hash[key] = useCoreRef({
+          initialValue: hash[key],
+          isUpdateAllowed,
+          nextRenderManager,
+        });
       }
       nextRenderManager.add();
     };
@@ -92,12 +130,24 @@ export function unMakeReactive(surveyElement?: Base) {
         hash[key]["onArrayChanged"] = undefined;
       }
     });
+    delete (surveyElement as any).__vueUpdatesLock;
     delete (surveyElement as any).__vueImplemented;
-    surveyElement.disableOnElementRerenderedEvent();
     surveyElement.createArrayCoreHandler = undefined as any;
     surveyElement.getPropertyValueCoreHandler = undefined as any;
     surveyElement.setPropertyValueCoreHandler = undefined as any;
+    surveyElement.disableOnElementRerenderedEvent();
   }
+}
+
+function blockUpdates(model: any) {
+    if(model && model.__vueUpdatesLock !== undefined) {
+      model.__vueUpdatesLock++;
+    }
+}
+function releaseUpdates(model: any) {
+    if(model && model.__vueUpdatesLock !== undefined) {
+      model.__vueUpdatesLock--;
+    }
 }
 
 // by convention, composable function names start with "use"
@@ -106,6 +156,7 @@ export function useBase<T extends Base>(
   onModelChanged?: (newValue: T, oldValue?: T) => void,
   clean?: (model: T) => void
 ) {
+  let currentModel: T;
   const stopWatch = watch(
     getModel,
     (value, oldValue) => {
@@ -114,7 +165,7 @@ export function useBase<T extends Base>(
         unMakeReactive(oldValue);
         if (clean) clean(oldValue);
       }
-
+      currentModel = value;
       makeReactive(value);
     },
     {
@@ -122,6 +173,15 @@ export function useBase<T extends Base>(
     }
   );
   let isOnBeforeUnmountCalled = false;
+
+  onBeforeUpdate(() => {
+    blockUpdates(currentModel);
+  }) 
+  onUpdated(() => {
+    releaseUpdates(currentModel);
+  });
+  onBeforeMount(() => blockUpdates(currentModel))
+  onMounted(() => releaseUpdates(currentModel))
   onBeforeUnmount(() => {
     if (!isOnBeforeUnmountCalled) {
       const model = getModel();
@@ -188,19 +248,4 @@ export function getComponentName(question: Question): string {
   )
     return "survey-" + question.getTemplate();
   return question.getComponentName();
-}
-
-export function useComputedArray<T>(func: () => Array<T>) {
-  const ref = shallowRef();
-
-  const stopWatch = watchEffect(() => {
-    ref.value = func();
-    triggerRef(ref);
-  });
-
-  onBeforeUnmount(() => {
-    stopWatch();
-  });
-
-  return ref;
 }

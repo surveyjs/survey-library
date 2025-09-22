@@ -954,7 +954,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     return choice.value;
   }
-  protected getItemByValue(val: any, choices? : Array<ItemValue>): ItemValue {
+  public getItemByValue(val: any, choices? : Array<ItemValue>): ItemValue {
     const chs = choices || this.visibleChoices;
     if (!!val && typeof val === "object" && !Helpers.isValueEmpty(val.value)) {
       val = val.value;

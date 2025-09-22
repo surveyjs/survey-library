@@ -507,3 +507,16 @@ function substring_(params: any[]): any {
   return s.substring(start, end);
 }
 FunctionFactory.Instance.register("substring", substring_);
+
+function getComment(params: any[]): any {
+  if (params.length < 1 || !params[0] || !this.survey) return undefined;
+  const question = this.survey.getQuestionByName(params[0]);
+  if (!question) return "";
+  const val = params.length > 1 ? params[1] : undefined;
+  if (val !== undefined && val !== null) {
+    const item = question.getItemByValue(val);
+    return !!item ? question.getCommentValue(item) : undefined;
+  }
+  return question.getCommentValue(question.otherItem) || question.comment;
+}
+FunctionFactory.Instance.register("getComment", getComment);

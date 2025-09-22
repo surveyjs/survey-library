@@ -3566,6 +3566,65 @@ QUnit.test("radiogroup choices vs showComment & showOther & question showComment
   assert.equal(q1.comment, "edf", "q1.comment #3");
   assert.deepEqual(survey.data, { q1: { value: "item1", comment: "xyz" }, "q1-Comment": "edf" }, "survey.data #2");
 });
+QUnit.test("getComment function, Issue#10378", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", showCommentArea: true }, { value: "item2", showCommentArea: true }, "item3"],
+        "showOtherItem": true
+      },
+      {
+        "type": "radiogroup",
+        "name": "q2",
+        "choices": ["item1", "item2", "item3"],
+        "showOtherItem": true
+      },
+      {
+        "type": "radiogroup",
+        "name": "q3",
+        "choices": ["item1", "item2", "item3"],
+        "showComment": true
+      },
+      {
+        "type": "radiogroup",
+        "name": "q4",
+        "choices": ["item1", "item2", "item3"]
+      },
+      { type: "expression", name: "exp1", expression: "getComment('q1', 'item1')" },
+      { type: "expression", name: "exp2", expression: "getComment('q1', 'item2')" },
+      { type: "expression", name: "exp3", expression: "getComment('q1', 'item3')" },
+      { type: "expression", name: "exp4", expression: "getComment('q1', 'item4')" },
+      { type: "expression", name: "exp5", expression: "getComment('q1')" },
+      { type: "expression", name: "exp6", expression: "getComment('q2', 'item1')" },
+      { type: "expression", name: "exp7", expression: "getComment('q2', 'item4')" },
+      { type: "expression", name: "exp8", expression: "getComment('q2')" },
+      { type: "expression", name: "exp9", expression: "getComment('q3')" },
+      { type: "expression", name: "exp10", expression: "getComment('q4')" }
+    ]
+  });
+  survey.data = {
+    q1: [{ value: "item1", comment: "comment1_1" }, { value: "item2", comment: "comment1_2" }],
+    q2: "item1",
+    "q2-Comment": "comment2",
+    q3: "item2",
+    q4: "item3",
+    "q4-Comment": "comment4"
+  };
+  const q3 = survey.getQuestionByName("q3");
+  q3.otherValue = "comment3";
+  assert.equal(survey.getValue("exp1"), "comment1_1", "q1, item1");
+  assert.equal(survey.getValue("exp2"), "comment1_2", "q1, item2");
+  assert.equal(survey.getValue("exp3"), null, "q1, item3");
+  assert.equal(survey.getValue("exp4"), null, "q1, item4");
+  assert.equal(survey.getValue("exp5"), null, "q1, other");
+  assert.equal(survey.getValue("exp6"), null, "q2, item1");
+  assert.equal(survey.getValue("exp7"), null, "q2, item4");
+  assert.equal(survey.getValue("exp8"), "comment2", "q2, other");
+  assert.equal(survey.getValue("exp9"), "comment3", "q3, comment");
+  assert.equal(survey.getValue("exp10"), null, "q4, other");
+});
 QUnit.test("choice item & elements , Issue#10384", (assert) => {
   const survey = new SurveyModel({
     "title": "ttt",

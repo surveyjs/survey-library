@@ -1143,11 +1143,19 @@ frameworks.forEach(framework => {
         ]
       };
       await initSurvey(page, framework, json);
-
-      await new QuestionText(page, "q1").fill("151");
       await new QuestionText(page, "q2").fill("151");
 
-      await compareScreenshot(page, page.locator(".sd-question"), "question-text-remaining-character-counterasdsad.png");
+      await new QuestionText(page, "q1").fill("151");
+      await page.getByRole("button", { name: "Complete" }).click();
+      await compareScreenshot(page, page.locator(".sd-error").first(), "question-error-notification-type.png");
+
+      await new QuestionText(page, "q1").fill("90");
+      await page.getByRole("button", { name: "Complete" }).click();
+      await compareScreenshot(page, page.locator(".sd-error--warning").first(), "question-warning-notification-type.png");
+
+      await new QuestionText(page, "q1").fill("51");
+      await page.getByRole("button", { name: "Complete" }).click();
+      await compareScreenshot(page, page.locator(".sd-error--info").first(), "question-info-notification-type.png");
     });
   });
 });

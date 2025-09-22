@@ -31,7 +31,7 @@ export class SurveyError {
   public get isError(): boolean { return !this.isInfo && !this.isWarning; }
   public getCssIcon(cssClasses: any): string {
     const error = this.getCssError(cssClasses);
-    const icon = this.isWarning ? error.warningIcon : error.icon;
+    const icon = this.isWarning ? error.warningIcon : this.isInfo ? error.infoIcon : error.icon;
     return icon || error.icon || undefined;
   }
   public getCssItem(cssClasses: any): string {

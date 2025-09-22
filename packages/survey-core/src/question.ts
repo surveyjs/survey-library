@@ -210,7 +210,7 @@ export class ValidationContext extends AsyncElementsRunner {
   private isWarningOnlyOrEmpty(errors: Array<SurveyError>): boolean {
     for (let i = 0; i < errors.length; i++) {
       const er = errors[i];
-      if (!er.isWarning && er.visible) return false;
+      if (er.isError && er.visible) return false;
     }
     return true;
   }
@@ -1769,7 +1769,7 @@ export class Question extends SurveyElement<Question>
     const erros = this.errors;
     for (let i = 0; i < erros.length; i++) {
       const er = erros[i];
-      if (er.visible && (includeWarning || !er.isWarning)) return true;
+      if (er.visible && (includeWarning || er.isError)) return true;
     }
     return this.hasCssErrorCallback();
   }

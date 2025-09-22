@@ -629,17 +629,22 @@ QUnit.test("SurveyError.notificationType, Issue#9085", function(assert) {
 QUnit.test("SurveyError.isWarning & validate returns, Issue#9085", function(assert) {
   const survey = new SurveyModel({
     elements: [
-      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] }
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 3, notificationType: "info" }, { type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] }
     ],
   });
   const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = 4;
+  assert.equal(survey.validate(true), true, "One error as info");
+  assert.equal(q1.errors.length, 1, "There is no error, q1");
+  assert.equal(q1["hasCssError"](), false, "There is no css error, q1");
+  assert.equal(q1["hasCssError"](true), true, "There is a info, q1");
   q1.value = 7;
   assert.equal(survey.validate(true), true, "One error as warning");
-  assert.equal(q1.errors.length, 1, "There is no error, q1");
+  assert.equal(q1.errors.length, 2, "There is no error, q1");
   assert.equal(q1["hasCssError"](), false, "There is no css error, q1");
   assert.equal(q1["hasCssError"](true), true, "There is a warning, q1");
   q1.value = 12;
-  assert.equal(q1.errors.length, 2, "There is no error, q1");
+  assert.equal(q1.errors.length, 3, "There is no error, q1");
   assert.equal(survey.validate(true), false, "One error as warning and one as error");
   assert.equal(q1["hasCssError"](), true, "There is css error, q1");
 });

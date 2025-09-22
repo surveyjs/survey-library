@@ -244,9 +244,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return false;
   }
   protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
-    if (includeItSelf) {
-      questions.push(this);
-    }
+    questions.push(this);
     if (includeNested && this.supportElementsInChoice()) {
       this.choices.forEach((item) => {
         if (item.hasElements && (!visibleOnly || item.isPanelShowing)) {

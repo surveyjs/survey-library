@@ -3758,8 +3758,7 @@ QUnit.test("choice item elements & getElementsInDesign, Issue#10384", (assert) =
   assert.equal(els.length, 2, "There are two elements, #2");
   assert.equal(els[0].name, "q1_1", "the element is q1_1, #2");
 });
-/*
-QUnit.only("choice item & elements, survey.onQuestionCreated/Added & getQuestionByName Issue#10384", (assert) => {
+QUnit.test("choice item & elements, survey.onQuestionCreated/Added & getQuestionByName Issue#10384", (assert) => {
   const survey = new SurveyModel();
   const questionCreated = new Array<string>();
   const questionAdded = new Array<string>();
@@ -3788,4 +3787,3 @@ QUnit.only("choice item & elements, survey.onQuestionCreated/Added & getQuestion
   assert.equal(questionAdded[0], "q1", "the first question is q1");
   assert.equal(questionAdded[1], "q1_1", "the second question is q1_1");
 });
-*/

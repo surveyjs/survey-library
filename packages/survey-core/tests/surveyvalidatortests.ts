@@ -664,23 +664,23 @@ QUnit.test("SurveyError.notificationType & only the strongest type rendered, Iss
   q1.errors.push(createError("info"));
   assert.equal(q1.errors.length, 5, "3 errors (one hidden), 1 warning, 1 info");
   assert.equal(q1.renderedErrors.length, 2, "2 errors");
-  assert.equal(q1.renderedErrorsType, "error", "rendrered message type is 'error'");
+  assert.equal(q1.currentNotificationType, "error", "rendrered message type is 'error'");
   q1.errors = [];
 
   q1.errors.push(createError("warning"));
   q1.errors.push(createError("info"));
   assert.equal(q1.errors.length, 2, "1 warning, 1 info");
   assert.equal(q1.renderedErrors.length, 1, "1 warning");
-  assert.equal(q1.renderedErrorsType, "warning", "rendrered message type is 'warning'");
+  assert.equal(q1.currentNotificationType, "warning", "rendrered message type is 'warning'");
   q1.errors = [];
 
   q1.errors.push(createError("info"));
   assert.equal(q1.errors.length, 1, "1 info");
   assert.equal(q1.renderedErrors.length, 1, "1 info");
-  assert.equal(q1.renderedErrorsType, "info", "rendrered message type is 'info'");
+  assert.equal(q1.currentNotificationType, "info", "rendrered message type is 'info'");
   q1.errors = [];
 
   q1.errors.push(createError("info", false));
   assert.equal(q1.renderedErrors.length, 0, "no rendered errors");
-  assert.equal(q1.renderedErrorsType, "", "no rendrered message type");
+  assert.equal(q1.currentNotificationType, "", "no rendrered message type");
 });

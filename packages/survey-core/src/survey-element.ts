@@ -783,13 +783,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return result;
   }
-  public get renderedErrorsType(): string {
-    return this.getPropertyValue("renderedErrorsType", undefined, () => this.calcRenderedErrorsType());
+  public get currentNotificationType(): string {
+    return this.getPropertyValue("currentNotificationType", undefined, () => this.calcCurrentNotificationType());
   }
-  public set renderedErrorsType(val: string) {
-    this.setPropertyValue("renderedErrorsType", val);
+  public set currentNotificationType(val: string) {
+    this.setPropertyValue("currentNotificationType", val);
   }
-  public calcRenderedErrorsType(): string {
+  public calcCurrentNotificationType(): string {
     if (this.renderedErrors.length === 0) return "";
     return this.renderedErrors[0].notificationType;
   }
@@ -802,8 +802,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.hasVisibleErrors = counter > 0;
     this.setPropertyValue("renderedErrors", this.calcRenderedErrors());
     this.renderedErrors = this.calcRenderedErrors();
-    this.setPropertyValue("renderedErrorsType", this.calcRenderedErrorsType());
-    this.renderedErrorsType = this.calcRenderedErrorsType();
+    this.setPropertyValue("currentNotificationType", this.calcCurrentNotificationType());
+    this.currentNotificationType = this.calcCurrentNotificationType();
   }
   /**
    * Returns `true` if the survey element or its child elements have validation errors.

@@ -382,7 +382,7 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
-    this.registerPropertyChangedHandlers(["renderedErrorsType"], () => {
+    this.registerPropertyChangedHandlers(["currentNotificationType"], () => {
       this.updateQuestionCss();
     });
   }
@@ -1758,8 +1758,8 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.warningMode, this.renderedErrorsType === "warning")
-      .append(cssClasses.error.infoMode, this.renderedErrorsType === "info")
+      .append(cssClasses.error.warningMode, this.currentNotificationType === "warning")
+      .append(cssClasses.error.infoMode, this.currentNotificationType === "info")
       .append(cssClasses.errorsContainer)
       .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
       .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)

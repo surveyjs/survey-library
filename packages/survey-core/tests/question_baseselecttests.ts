@@ -3787,3 +3787,30 @@ QUnit.test("choice item & elements, survey.onQuestionCreated/Added & getQuestion
   assert.equal(questionAdded[0], "q1", "the first question is q1");
   assert.equal(questionAdded[1], "q1_1", "the second question is q1_1");
 });
+QUnit.test("choice item elements & item.panel.visibleRows, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel1 = q1.choices[0].panel;
+  assert.equal(panel1.wasRendered, false, "the panel was not rendered");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(panel1.wasRendered, true, "the panel was rendered");
+  assert.equal(panel1.visibleRows.length, 1, "There is one visible row");
+  assert.equal(panel1.visibleRows[0].elements.length, 1, "There is one element in the visible row");
+  const panel2 = q1.choices[1].panel;
+  assert.equal(panel2.visibleRows.length, 0, "There is no visible row in the panel2");
+  assert.equal(panel2.wasRendered, false, "the panel2 was not rendered");
+  q1.clickItemHandler(q1.choices[1], true);
+  panel2.showPanel = true;
+  assert.equal(panel2.wasRendered, true, "the panel2 was rendered");
+  assert.equal(panel2.visibleRows.length, 1, "There is one visible row in the panel2");
+  assert.equal(panel2.visibleRows[0].elements.length, 1, "There is one element in the visible row in the panel2");
+});

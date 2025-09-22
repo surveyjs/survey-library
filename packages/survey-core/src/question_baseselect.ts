@@ -87,6 +87,9 @@ export class ChoiceItem extends ItemValue {
     }
     this.setPanelSurvey(this.panelValue);
   }
+  public onItemSelected(): void {
+    this.updatePanelState();
+  }
   public get showPanel(): boolean {
     return this.getPropertyValue("showPanel", false);
   }
@@ -94,8 +97,11 @@ export class ChoiceItem extends ItemValue {
     if (!this.supportElements) {
       val = false;
     }
-    if (val && !this.panelValue) {
-      this.panelValue = this.createPanel();
+    if (val) {
+      if (!this.panelValue) {
+        this.panelValue = this.createPanel();
+      }
+      this.updatePanelState();
     }
     this.setPropertyValue("showPanel", val);
   }
@@ -103,6 +109,9 @@ export class ChoiceItem extends ItemValue {
     if (!this.panelValue && !this.showPanel || !this.choiceOwner) return false;
     if (this.choiceOwner.isDesignMode) return this.showPanel;
     return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
+  }
+  private updatePanelState(): void {
+    this.panelValue?.onFirstRendering();
   }
   public get hasElements(): boolean {
     const pnl = this.panelValue;
@@ -893,6 +902,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (item.showCommentArea) {
       this.focusOtherComment(item);
     }
+    item.onItemSelected();
   }
   protected onItemDeselected(item: ItemValue): void {
     if (item.showCommentArea) {

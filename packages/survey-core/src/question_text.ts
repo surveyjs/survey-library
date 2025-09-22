@@ -522,8 +522,14 @@ export class QuestionTextModel extends QuestionTextBase {
   private get isStepNumberIncorrect() : boolean {
     if (this.inputType !== "number" || this.isEmpty()
       || !Helpers.isNumber(this.renderedStep) || !Helpers.isNumber(this.value)) return false;
-    const val = Helpers.getNumber(this.value);
-    const step = Helpers.getNumber(this.renderedStep);
+    let val = Helpers.getNumber(this.value);
+    let step = Helpers.getNumber(this.renderedStep);
+    let pw = 1;
+    while(Math.round(step * pw) / pw !== step && pw < 1000000) {
+      pw *= 10;
+    }
+    val = val * pw;
+    step = step * pw;
     return step > 0 && (val % step) !== 0;
   }
   private get isDateInputType(): boolean {

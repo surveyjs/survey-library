@@ -4117,3 +4117,23 @@ QUnit.test("Composite: survey instance in onLoad method", function (assert) {
   assert.ok(!!surveyInstance);
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: panel dynamic & changing panel count, Bug#10403", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    elementsJSON: {
+      type: "paneldynamic",
+      name: "panel",
+      templateElements: [{ type: "text", name: "q1" }],
+      panelCount: 3
+    }
+  });
+  const survey = new SurveyModel({ elements: [{ "name": "question1", type: "newquestion" }] });
+  const question1 = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const pd = <QuestionPanelDynamicModel>question1.contentPanel.getQuestionByName("panel");
+  assert.equal(pd.panelCount, 3, "panel count #1");
+  pd.panels[0].getQuestionByName("q1").value = "val1";
+  assert.equal(pd.panelCount, 3, "panel count #2");
+  assert.deepEqual(question1.value, { panel: [{ q1: "val1" }, {}, {}] }, "question. value #1");
+
+  ComponentCollection.Instance.clear();
+});

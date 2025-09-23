@@ -11,11 +11,13 @@ export interface IQuestionErrorComponentProps {
 
 export class QuestionErrorComponent extends React.Component<IQuestionErrorComponentProps, any> {
   render(): React.JSX.Element | null {
+    const error = this.props.error;
+    const classes = this.props.cssClasses;
     return (
       <div>
-        <span className={this.props.cssClasses.error.icon || undefined} aria-hidden="true" />
+        <span className={error.getCssIcon(classes)} aria-hidden="true" />
         <span className={this.props.cssClasses.error.item || undefined}>
-          <SurveyLocStringViewer locStr={this.props.error.locText} />
+          <SurveyLocStringViewer locStr={error.locText} />
         </span>
       </div>
     );

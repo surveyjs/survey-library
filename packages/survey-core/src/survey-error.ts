@@ -4,7 +4,9 @@ import { getLocaleString } from "./surveyStrings";
 
 export class SurveyError {
   private locTextValue: LocalizableString;
+  private notificationTypeValue: string;
   public visible: boolean = true;
+
   constructor(
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null
@@ -21,6 +23,25 @@ export class SurveyError {
       this.locTextValue.text = this.getText();
     }
     return this.locTextValue;
+  }
+  public get notificationType(): string { return this.notificationTypeValue || "error"; }
+  public set notificationType(val: string) { this.notificationTypeValue = val; }
+  public get isWarning(): boolean { return this.notificationTypeValue === "warning"; }
+  public get isInfo(): boolean { return this.notificationTypeValue === "info"; }
+  public get isError(): boolean { return !this.isInfo && !this.isWarning; }
+  public getCssIcon(cssClasses: any): string {
+    const error = this.getCssError(cssClasses);
+    const icon = this.isWarning ? error.warningIcon : this.isInfo ? error.infoIcon : error.icon;
+    return icon || error.icon || undefined;
+  }
+  public getCssItem(cssClasses: any): string {
+    const error = this.getCssError(cssClasses);
+    const item = this.isWarning ? error.warningMode : this.isInfo ? error.infoMode : error.item;
+    return item || error.item || undefined;
+  }
+  private getCssError(cssClasses: any): any {
+    cssClasses = cssClasses || {};
+    return cssClasses.error || {};
   }
 
   public getText(): string {

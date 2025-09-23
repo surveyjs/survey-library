@@ -995,9 +995,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.validateRequired(context, errors);
     if (this.survey) {
       this.survey.validatePanel(this, errors, context.fireCallback);
-      if (errors.length > 0) {
-        context.setError(this);
-      }
+      context.setErrorElement(this, errors);
     }
     if (!!context.fireCallback) {
       this.errors = errors;
@@ -1017,8 +1015,9 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < visQuestions.length; i++) {
       if (!visQuestions[i].isEmpty()) return;
     }
-    errors.push(new OneAnswerRequiredError(this.requiredErrorText, this));
-    context.setError(visQuestions[0]);
+    const error = new OneAnswerRequiredError(this.requiredErrorText, this);
+    errors.push(error);
+    context.setErrorElement(visQuestions[0], [error]);
   }
   public validateElement(context: ValidationContext): boolean {
     const errorCount = context.errorCount;

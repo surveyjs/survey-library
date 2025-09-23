@@ -194,7 +194,8 @@ export class ValidationContext extends AsyncElementsRunner {
   public get runningResult(): boolean {
     return !this.res || !this.isRunning || !this.callbackResult ? this.res : undefined;
   }
-  public setError(element: ISurveyElement): void {
+  public setErrorElement(element: ISurveyElement, errors? : Array<SurveyError>): void {
+    if (Array.isArray(errors) && this.isWarningOnlyOrEmpty(errors)) return;
     this.errorCountValue ++;
     this.res = false;
     if (!element) return;
@@ -205,6 +206,13 @@ export class ValidationContext extends AsyncElementsRunner {
         element.expand();
       }
     }
+  }
+  private isWarningOnlyOrEmpty(errors: Array<SurveyError>): boolean {
+    for (let i = 0; i < errors.length; i++) {
+      const er = errors[i];
+      if (er.isError && er.visible) return false;
+    }
+    return true;
   }
   public get firstErrorQuestion(): Question {
     return this.firstErrorQuestionValue;
@@ -374,6 +382,9 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+    this.registerPropertyChangedHandlers(["currentNotificationType"], () => {
+      this.updateQuestionCss();
+    });
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
@@ -1652,7 +1663,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
-    const hasError = this.hasCssError();
+    const hasError = this.hasCssError(true);
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
@@ -1747,13 +1758,20 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
+      .append(cssClasses.error.warningMode, this.currentNotificationType === "warning")
+      .append(cssClasses.error.infoMode, this.currentNotificationType === "info")
       .append(cssClasses.errorsContainer)
       .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
       .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)
       .toString();
   }
-  protected hasCssError(): boolean {
-    return this.errors.length > 0 || this.hasCssErrorCallback();
+  protected hasCssError(includeWarning?: boolean): boolean {
+    const erros = this.errors;
+    for (let i = 0; i < erros.length; i++) {
+      const er = erros[i];
+      if (er.visible && (includeWarning || er.isError)) return true;
+    }
+    return this.hasCssErrorCallback();
   }
   private get isSingleInputQuestionMode(): boolean {
     return !!this.parentQuestion && this.survey?.isSingleVisibleInput;
@@ -2816,9 +2834,7 @@ export class Question extends SurveyElement<Question>
         this.errors.forEach(er => er.locText.strChanged());
       }
     }
-    if (errors.length > 0) {
-      context.setError(this);
-    }
+    context.setErrorElement(this, errors);
     this.updateContainsErrors();
     if (this.isCollapsed && context.fireCallback && errors.length > 0) {
       this.expand();
@@ -2928,9 +2944,7 @@ export class Question extends SurveyElement<Question>
     this.validatorRunner = new ValidatorRunner();
     this.validatorRunner.onAsyncCompleted = (errors: Array<SurveyError>) => {
       this.doOnAsyncCompleted(context.fireCallback, errors);
-      if (errors.length > 0) {
-        context.setError(this);
-      }
+      context.setErrorElement(this, errors);
       context.removeElement(this.id);
     };
     context.addElement(this.id);

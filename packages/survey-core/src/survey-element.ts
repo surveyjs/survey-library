@@ -763,25 +763,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("renderedErrors", val);
   }
   public calcRenderedErrors(): Array<SurveyError> {
-    let result = [];
-    const types = ["info", "warning", "error"];
-    for (let i = 0; i < this.errors.length; i++) {
-      const newError = this.errors[i];
-      if (!newError.visible) continue;
-      if (result.length === 0) {
-        result.push(newError);
-      } else {
-        const newErrorTypeIndex = types.indexOf(newError.notificationType);
-        const currentTypeIndex = types.indexOf(result[0].notificationType);
-        if (newErrorTypeIndex > currentTypeIndex) {
-          result = [];
-          result.push(newError);
-        } else if (newErrorTypeIndex === currentTypeIndex) {
-          result.push(newError);
-        }
-      }
-    }
-    return result;
+    const currentType = this.calcCurrentNotificationType();
+    return this.errors.filter((e=> {
+      return e.visible && e.notificationType === currentType;
+    }));
   }
   public get currentNotificationType(): string {
     return this.getPropertyValue("currentNotificationType", undefined, () => this.calcCurrentNotificationType());
@@ -790,8 +775,19 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("currentNotificationType", val);
   }
   public calcCurrentNotificationType(): string {
-    if (this.renderedErrors.length === 0) return "";
-    return this.renderedErrors[0].notificationType;
+    let currentType = "";
+    const types = ["info", "warning", "error"];
+
+    for (let i = 0; i < this.errors.length; i++) {
+      const error = this.errors[i];
+      if (!error.visible) continue;
+      const newType = error.notificationType;
+      if (!currentType) { currentType = newType; continue; }
+      const newTypeIndex = types.indexOf(newType);
+      const currentTypeIndex = types.indexOf(currentType);
+      if (newTypeIndex > currentTypeIndex) currentType = newType;
+    }
+    return currentType;
   }
   @property({ defaultValue: false }) hasVisibleErrors: boolean;
   private updateVisibleErrors() {

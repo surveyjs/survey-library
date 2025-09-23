@@ -1722,7 +1722,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   private onOtherValueChange(item: ItemValue, event: any): void {
-    this.setCommentValueCore(item, event.target.value);
+    this.setCommentValueCore(item, (event.target?.value || "").trim());
     const val = this.getCommentValueCore(item);
     if (val !== event.target.value) {
       event.target.value = val || "";

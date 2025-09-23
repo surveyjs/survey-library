@@ -2665,7 +2665,7 @@ export class Question extends SurveyElement<Question>
     return this.getQuestionComment();
   }
   public set comment(newValue: string) {
-    if (!!newValue) {
+    if (!!newValue && newValue !== this.comment) {
       const trimmedValue = newValue.toString().trim();
       if (trimmedValue !== newValue) {
         newValue = trimmedValue;

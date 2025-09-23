@@ -1,5 +1,5 @@
 <template>
-  <div :key="errorKey">
+  <div>
     <span
       :class="
         cssClasses ? cssClasses.error.icon || undefined : 'panel-error-icon'

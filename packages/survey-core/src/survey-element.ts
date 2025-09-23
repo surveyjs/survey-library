@@ -318,6 +318,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
     this.createNewArray("errors");
+    this.createNewArray("renderedErrors");
     this.createNewArray("titleActions");
     this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
     this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
@@ -757,7 +758,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("errors", val);
   }
   public get renderedErrors(): Array<SurveyError> {
-    return this.getPropertyValue("renderedErrors", undefined, () => this.calcRenderedErrors());
+    return this.getPropertyValue("renderedErrors");
   }
   public set renderedErrors(val: Array<SurveyError>) {
     this.setPropertyValue("renderedErrors", val);
@@ -796,7 +797,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       if (this.errors[i].visible) counter++;
     }
     this.hasVisibleErrors = counter > 0;
-    this.setPropertyValue("renderedErrors", this.calcRenderedErrors());
     this.renderedErrors = this.calcRenderedErrors();
     this.setPropertyValue("currentNotificationType", this.calcCurrentNotificationType());
     this.currentNotificationType = this.calcCurrentNotificationType();

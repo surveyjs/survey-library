@@ -9,8 +9,7 @@
       v-for="(error, index) in element.renderedErrors"
       :is="element.survey['questionErrorComponent']"
       :element="element"
-      :key="'error_' + index + error.notificationType + error.text + ' ' + element.errors.length"
-      :errorKey="'error_' + index + error.notificationType + error.text + ' ' + element.errors.length"
+      :key="index"
       :error="error"
       :cssClasses="element.cssClasses"
     />

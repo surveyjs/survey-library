@@ -20,7 +20,6 @@
 import SvComponent from "@/SvComponent.vue";
 import { SurveyError } from "survey-core";
 defineProps<{
-  errorKey: string;
   error: SurveyError;
   cssClasses: any;
   element: any;

@@ -77,7 +77,12 @@ export class SurveyQuestionMatrixDynamicAddButton extends ReactSurveyElement {
       }
     >
       {addRowText}
-      <span className={this.props.cssClasses.iconAdd} />
+      <span className={this.props.cssClasses.iconAdd} >
+        {
+          this.cssClasses.iconAddId && <svg><use xlinkHref={this.cssClasses.iconAdd}></use></svg>
+        }
+      </span>
+
     </button>);
     return (
       this.props.isEmptySection ? addButton : <div className={this.props.cssClasses.footer}>{addButton}</div>

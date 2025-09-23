@@ -3702,15 +3702,6 @@ QUnit.test("choice item & isPanelShowing, Issue#10384", (assert) => {
   assert.equal(item2.isPanelShowing, true, "item2: isPanelShowing true #1");
   q1.clickItemHandler(item2, false);
   assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #5");
-  q1.clearValue();
-  item1.showPanel = true;
-  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing true #6");
-  survey.setDesignMode(true);
-  assert.equal(item1.isPanelShowing, true, "item1: isPanelShowing true #7");
-  q1.clickItemHandler(item2, true);
-  assert.equal(item2.isPanelShowing, false, "item2: isPanelShowing true #8");
-  item2.showPanel = true;
-  assert.equal(item2.isPanelShowing, true, "item2: isPanelShowing true #9");
 });
 
 QUnit.test("choice item elements & getAllQuestions, Issue#10384", (assert) => {
@@ -3809,7 +3800,6 @@ QUnit.test("choice item elements & item.panel.visibleRows, Issue#10384", (assert
   assert.equal(panel2.visibleRows.length, 0, "There is no visible row in the panel2");
   assert.equal(panel2.wasRendered, false, "the panel2 was not rendered");
   q1.clickItemHandler(q1.choices[1], true);
-  panel2.showPanel = true;
   assert.equal(panel2.wasRendered, true, "the panel2 was rendered");
   assert.equal(panel2.visibleRows.length, 1, "There is one visible row in the panel2");
   assert.equal(panel2.visibleRows[0].elements.length, 1, "There is one element in the visible row in the panel2");

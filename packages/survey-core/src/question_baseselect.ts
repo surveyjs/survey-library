@@ -90,24 +90,8 @@ export class ChoiceItem extends ItemValue {
   public onItemSelected(): void {
     this.updatePanelState();
   }
-  public get showPanel(): boolean {
-    return this.getPropertyValue("showPanel", false);
-  }
-  public set showPanel(val: boolean) {
-    if (!this.supportElements) {
-      val = false;
-    }
-    if (val) {
-      if (!this.panelValue) {
-        this.panelValue = this.createPanel();
-      }
-      this.updatePanelState();
-    }
-    this.setPropertyValue("showPanel", val);
-  }
   public get isPanelShowing(): boolean {
-    if (!this.panelValue && !this.showPanel || !this.choiceOwner) return false;
-    if (this.choiceOwner.isDesignMode) return this.showPanel;
+    if (!this.panelValue || !this.choiceOwner) return false;
     return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
   }
   private updatePanelState(): void {

@@ -554,7 +554,7 @@ export class QuestionTextModel extends QuestionTextBase {
     };
     const setMax = (val: any) => {
       if (!val && this.isDateInputType) {
-        val = !!settings.maxDate ? settings.maxDate : "2999-12-31";
+        val = settings.maxDate;
       }
       setProp("renderedMax", val);
     };

@@ -23,6 +23,7 @@ import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from ".
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
 import { ValueGetter } from "../src/conditionProcessValue";
+import { template, templateSettings } from "lodash";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -8379,4 +8380,40 @@ QUnit.test("parentQuestion inside custom function, Bug#10210", function (assert)
   panel.addPanel();
   assert.equal(parentCalls, 4, "parentCalls #4");
   */
+});
+QUnit.test("SurveyError.notificationType & validate in panel dynamic,Issue#9085", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] },
+          { name: "q2", type: "text" }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionMatrixDynamicModel>survey.getQuestionByName("panel");
+  const panels = panel.panels;
+  const pnl1_q1 = panels[0].getQuestionByName("q1");
+  const pnl2_q1 = panels[1].getQuestionByName("q1");
+  pnl1_q1.value = 7;
+  pnl2_q1.value = 12;
+  let erroredQuestionName = "";
+  const callbackFunc = (res: boolean, question: Question) => {
+    erroredQuestionName = question?.name || "";
+  };
+  assert.equal(survey.currentPage.validate(true, true, callbackFunc), false, "There is an error");
+  assert.equal(erroredQuestionName, "q1", "The matrix question is returned");
+  assert.equal(pnl1_q1.errors.length, 1, "There is no error, cell1");
+  assert.equal(pnl1_q1["hasCssError"](), false, "There is no css error, cell1");
+  assert.equal(pnl1_q1["hasCssError"](true), true, "There is a warning, cell1");
+  assert.equal(pnl2_q1.errors.length, 2, "There is an error, cell2");
+  assert.equal(pnl2_q1["hasCssError"](), true, "There is css error, cell2");
+  assert.equal(pnl2_q1["hasCssError"](true), true, "There is css error, cell2");
+  pnl2_q1.value = 8;
+  assert.equal(pnl2_q1.errors.length, 1, "There is a warning, cell2");
+  assert.equal(pnl2_q1["hasCssError"](), false, "There is css error, cell2");
+  assert.equal(pnl2_q1["hasCssError"](true), true, "There is a css warning, cell2");
+  assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
+  assert.deepEqual(survey.data, { panel: [{ q1: 7 }, { q1: 8 }] }, "The data is correct");
 });

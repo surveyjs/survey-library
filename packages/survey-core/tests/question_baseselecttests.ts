@@ -3477,6 +3477,26 @@ QUnit.test("radiogroup question showOtherItem - lost focus on empty", (assert) =
   assert.strictEqual(event.target.value, "", "event.target.value is empty");
   assert.equal(textArea.getTextValue(), "", "text area is empty #2");
 });
+QUnit.test("showOtherItem & textUpdateMode = 'onTyping' , Bug#10402", (assert) => {
+  const survey = new SurveyModel({
+    "textUpdateMode": "onTyping",
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": ["item1", "item2"],
+        "showOtherItem": true
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  q1.clickItemHandler(q1.otherItem);
+  q1.getCommentTextAreaModel(q1.otherItem).onTextAreaInput({ target: { value: "abc " } });
+  assert.equal(q1.otherValue, "abc ", "q1.otherValue #1");
+  assert.equal(survey.getComment("q1"), "abc ", "survey.data #1");
+  q1.getCommentTextAreaModel(q1.otherItem).onTextAreaChange({ target: { value: "abc xy " } });
+  assert.equal(q1.otherValue, "abc xy", "q1.otherValue #2");
+});
 QUnit.test("radiogroup & checkbox questions and choices has comment - display value, Bug#10193", (assert) => {
   const survey = new SurveyModel({
     "elements": [

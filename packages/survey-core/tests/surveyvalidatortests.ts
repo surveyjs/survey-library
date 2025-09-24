@@ -15,6 +15,7 @@ import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { Serializer } from "../src/jsonobject";
 import { FunctionFactory } from "../src/functionsfactory";
 import { settings } from "../src/settings";
+import { SurveyError } from "../src/survey-error";
 
 export default QUnit.module("Validators");
 
@@ -585,7 +586,6 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
     }
   });
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q2");
   q1.value = "a";
   q1.valule = "b";
   survey.validate(true);
@@ -593,4 +593,94 @@ QUnit.test("expression validators & survey.onExpressionRunning, Bug#10294", func
   allow = true;
   survey.validate(true);
   assert.equal(counter, 2, "#2");
+});
+QUnit.test("SurveyError.getCssIcon, Issue#9085", function(assert) {
+  const surveyError = new SurveyError("ErrorText");
+  assert.equal(surveyError.getCssIcon(undefined), undefined, "getCssIcon #1");
+  assert.equal(surveyError.getCssIcon({}), undefined, "getCssIcon #2");
+  assert.equal(surveyError.getCssIcon({ error: {} }), undefined, "getCssIcon #3");
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon" } }), "icon", "getCssIcon #4");
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon", warningIcon: "warningIcon" } }), "icon", "getCssIcon #4.1");
+  surveyError.notificationType = "warning";
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon" } }), "icon", "getCssIcon #5");
+  assert.equal(surveyError.getCssIcon({ error: { warningIcon: "warningIcon", icon: "warningIcon" } }), "warningIcon", "getCssIcon #6");
+  assert.equal(surveyError.getCssIcon({ error: { icon: "icon", warningIcon: "warningIcon" } }), "warningIcon", "getCssIcon #7");
+  assert.equal(surveyError.getCssIcon(undefined), undefined, "getCssIcon #8");
+  assert.equal(surveyError.getCssIcon({}), undefined, "getCssIcon #9");
+  assert.equal(surveyError.getCssIcon({ error: {} }), undefined, "getCssIcon #10");
+});
+QUnit.test("SurveyError.notificationType, Issue#9085", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 5, notificationType: "warning" }] },
+      { type: "text", name: "q2", validators: [{ type: "numeric", maxValue: 5 }] }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  q1.value = 10;
+  q2.value = 10;
+  survey.validate(true);
+  assert.equal(q1.errors.length, 1, "There is an error, q1");
+  assert.equal(q1.errors[0].isWarning, true, "isWarning property is set true, q1");
+  assert.equal(q2.errors.length, 1, "There is an error, q2");
+  assert.equal(q2.errors[0].isWarning, false, "isWarning property is set false, q2");
+});
+QUnit.test("SurveyError.isWarning & validate returns, Issue#9085", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "numeric", maxValue: 3, notificationType: "info" }, { type: "numeric", maxValue: 5, notificationType: "warning" }, { type: "numeric", maxValue: 10 }] }
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = 4;
+  assert.equal(survey.validate(true), true, "One error as info");
+  assert.equal(q1.errors.length, 1, "There is no error, q1");
+  assert.equal(q1["hasCssError"](), false, "There is no css error, q1");
+  assert.equal(q1["hasCssError"](true), true, "There is a info, q1");
+  q1.value = 7;
+  assert.equal(survey.validate(true), true, "One error as warning");
+  assert.equal(q1.errors.length, 2, "There is no error, q1");
+  assert.equal(q1["hasCssError"](), false, "There is no css error, q1");
+  assert.equal(q1["hasCssError"](true), true, "There is a warning, q1");
+  q1.value = 12;
+  assert.equal(q1.errors.length, 3, "There is no error, q1");
+  assert.equal(survey.validate(true), false, "One error as warning and one as error");
+  assert.equal(q1["hasCssError"](), true, "There is css error, q1");
+});
+QUnit.test("SurveyError.notificationType & only the strongest type rendered, Issue#9085", function(assert) {
+  const q1 = new QuestionTextModel("q1");
+  function createError(type:string, isVisible: boolean = true) {
+    const res = new CustomError("");
+    res.notificationType = type;
+    res.visible = isVisible;
+    return res;
+  }
+
+  q1.errors.push(createError("error"));
+  q1.errors.push(createError("error"));
+  q1.errors.push(createError("error", false));
+  q1.errors.push(createError("warning"));
+  q1.errors.push(createError("info"));
+  assert.equal(q1.errors.length, 5, "3 errors (one hidden), 1 warning, 1 info");
+  assert.equal(q1.renderedErrors.length, 2, "2 errors");
+  assert.equal(q1.currentNotificationType, "error", "rendrered message type is 'error'");
+  q1.errors = [];
+
+  q1.errors.push(createError("warning"));
+  q1.errors.push(createError("info"));
+  assert.equal(q1.errors.length, 2, "1 warning, 1 info");
+  assert.equal(q1.renderedErrors.length, 1, "1 warning");
+  assert.equal(q1.currentNotificationType, "warning", "rendrered message type is 'warning'");
+  q1.errors = [];
+
+  q1.errors.push(createError("info"));
+  assert.equal(q1.errors.length, 1, "1 info");
+  assert.equal(q1.renderedErrors.length, 1, "1 info");
+  assert.equal(q1.currentNotificationType, "info", "rendrered message type is 'info'");
+  q1.errors = [];
+
+  q1.errors.push(createError("info", false));
+  assert.equal(q1.renderedErrors.length, 0, "no rendered errors");
+  assert.equal(q1.currentNotificationType, "", "no rendrered message type");
 });

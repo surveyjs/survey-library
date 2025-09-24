@@ -318,6 +318,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
     this.createNewArray("errors");
+    this.createNewArray("renderedErrors");
     this.createNewArray("titleActions");
     this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
     this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
@@ -756,6 +757,39 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set errors(val: Array<SurveyError>) {
     this.setPropertyValue("errors", val);
   }
+  public get renderedErrors(): Array<SurveyError> {
+    return this.getPropertyValue("renderedErrors");
+  }
+  public set renderedErrors(val: Array<SurveyError>) {
+    this.setPropertyValue("renderedErrors", val);
+  }
+  public calcRenderedErrors(): Array<SurveyError> {
+    const currentType = this.calcCurrentNotificationType();
+    return this.errors.filter((e=> {
+      return e.visible && e.notificationType === currentType;
+    }));
+  }
+  public get currentNotificationType(): string {
+    return this.getPropertyValue("currentNotificationType", undefined, () => this.calcCurrentNotificationType());
+  }
+  public set currentNotificationType(val: string) {
+    this.setPropertyValue("currentNotificationType", val);
+  }
+  public calcCurrentNotificationType(): string {
+    let currentType = "";
+    const types = ["info", "warning", "error"];
+
+    for (let i = 0; i < this.errors.length; i++) {
+      const error = this.errors[i];
+      if (!error.visible) continue;
+      const newType = error.notificationType;
+      if (!currentType) { currentType = newType; continue; }
+      const newTypeIndex = types.indexOf(newType);
+      const currentTypeIndex = types.indexOf(currentType);
+      if (newTypeIndex > currentTypeIndex) currentType = newType;
+    }
+    return currentType;
+  }
   @property({ defaultValue: false }) hasVisibleErrors: boolean;
   private updateVisibleErrors() {
     var counter = 0;
@@ -763,6 +797,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       if (this.errors[i].visible) counter++;
     }
     this.hasVisibleErrors = counter > 0;
+    this.renderedErrors = this.calcRenderedErrors();
+    this.setPropertyValue("currentNotificationType", this.calcCurrentNotificationType());
+    this.currentNotificationType = this.calcCurrentNotificationType();
   }
   /**
    * Returns `true` if the survey element or its child elements have validation errors.

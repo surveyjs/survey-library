@@ -62,6 +62,8 @@ export class SurveyValidator extends Base {
       ? (<any>this.errorOwner).getSurvey()
       : null;
   }
+  public get notificationType(): string { return this.getPropertyValue("notificationType"); }
+  public set notificationType(val: string) { this.setPropertyValue("notificationType", val); }
   /**
    * An error message to display when a value fails validation.
    */
@@ -70,9 +72,6 @@ export class SurveyValidator extends Base {
   }
   public set text(value: string) {
     this.setLocalizableStringText("text", value);
-  }
-  public get isValidateAllValues() {
-    return false;
   }
   get locText(): LocalizableString {
     return this.getLocalizableString("text");
@@ -147,6 +146,7 @@ export class ValidatorRunner {
         asyncRunner.addElement(validator.id);
         validator.validateOnCallback(value, (valRes: ValidatorResult): void => {
           if (!!valRes && !!valRes.error) {
+            valRes.error.notificationType = validator.notificationType;
             errors.push(valRes.error);
           }
           asyncRunner.removeElement(validator.id);
@@ -458,9 +458,6 @@ export class ExpressionValidator extends SurveyValidator {
   public getType(): string {
     return "expressionvalidator";
   }
-  public get isValidateAllValues(): boolean {
-    return true;
-  }
   public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
@@ -516,6 +513,7 @@ export class ExpressionValidator extends SurveyValidator {
 
 Serializer.addClass("surveyvalidator", [
   { name: "text", serializationProperty: "locText" },
+  { name: "notificationType", choices: ["error", "warning", "info"], default: "error", visible: true, category: "general", visibleIndex: 100 }
 ]);
 Serializer.addClass(
   "numericvalidator",

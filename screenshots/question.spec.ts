@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { QuestionText } from "../e2e/questionHelper";
 import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, setRowItemFlowDirection } from "../e2e/helper";
 
 const title = "Question Screenshot";
@@ -1040,6 +1041,121 @@ frameworks.forEach(framework => {
       });
       const question = page.locator(".sd-question");
       await compareScreenshot(page, question, "question-title-linebreak.png");
+    });
+
+    test("Error, Warning, Info notifications", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      const json = {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "inputType": "number",
+            "isRequired": true,
+            "validators": [
+              {
+                "type": "numeric",
+                "text": "Error: >150",
+                "maxValue": 150,
+                "notificationType": "error"
+              },
+              {
+                "type": "numeric",
+                "text": "Error: >100",
+                "maxValue": 100,
+                "notificationType": "error"
+              },
+              {
+                "type": "numeric",
+                "text": "Warning: >75",
+                "maxValue": 75,
+                "notificationType": "warning"
+              },
+              {
+                "type": "numeric",
+                "text": "Warning: >70",
+                "maxValue": 75,
+                "notificationType": "warning"
+              },
+              {
+                "type": "numeric",
+                "text": "Info: >50",
+                "maxValue": 50,
+                "notificationType": "info"
+              },
+              {
+                "type": "numeric",
+                "text": "Info: >45",
+                "maxValue": 50,
+                "notificationType": "info"
+              }
+            ],
+          },
+          {
+            type: "panel",
+            elements: [
+              {
+                "type": "text",
+                "name": "q2",
+                "inputType": "number",
+                "isRequired": true,
+                "validators": [
+                  {
+                    "type": "numeric",
+                    "text": "Error: >150",
+                    "maxValue": 150,
+                    "notificationType": "error"
+                  },
+                  {
+                    "type": "numeric",
+                    "text": "Error: >100",
+                    "maxValue": 100,
+                    "notificationType": "error"
+                  },
+                  {
+                    "type": "numeric",
+                    "text": "Warning: >75",
+                    "maxValue": 75,
+                    "notificationType": "warning"
+                  },
+                  {
+                    "type": "numeric",
+                    "text": "Warning: >70",
+                    "maxValue": 75,
+                    "notificationType": "warning"
+                  },
+                  {
+                    "type": "numeric",
+                    "text": "Info: >50",
+                    "maxValue": 50,
+                    "notificationType": "info"
+                  },
+                  {
+                    "type": "numeric",
+                    "text": "Info: >45",
+                    "maxValue": 50,
+                    "notificationType": "info"
+                  }
+                ],
+              },
+            ]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await new QuestionText(page, "q2").fill("151");
+
+      await new QuestionText(page, "q1").fill("151");
+      await page.getByRole("button", { name: "Complete" }).click();
+      await compareScreenshot(page, page.locator(".sd-error").first(), "question-error-notification-type.png");
+
+      await new QuestionText(page, "q1").fill("90");
+      await page.getByRole("button", { name: "Complete" }).click();
+      await compareScreenshot(page, page.locator(".sd-error--warning").first(), "question-warning-notification-type.png");
+
+      await new QuestionText(page, "q1").fill("51");
+      await page.getByRole("button", { name: "Complete" }).click();
+      await compareScreenshot(page, page.locator(".sd-error--info").first(), "question-info-notification-type.png");
     });
   });
 });

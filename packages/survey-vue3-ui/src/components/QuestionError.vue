@@ -1,5 +1,5 @@
 <template>
-  <div :key="errorKey">
+  <div>
     <span
       :class="
         cssClasses ? cssClasses.error.icon || undefined : 'panel-error-icon'
@@ -20,7 +20,6 @@
 import SvComponent from "@/SvComponent.vue";
 import { SurveyError } from "survey-core";
 defineProps<{
-  errorKey: string;
   error: SurveyError;
   cssClasses: any;
   element: any;

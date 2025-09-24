@@ -3840,7 +3840,7 @@ QUnit.test("choice item elements & getElementByName, Issue#10384", (assert) => {
   assert.equal(panel1.getElementByName("q1_1")?.name, "q1_1", "getElementByName works correctly");
   const page = survey.pages[0];
   assert.equal(page.getElementByName("q1_1")?.name, "q1_1", "page.getElementByName works correctly");
-  const name = "pnl_" + q1.id + "_item1";
+  const name = "choicePanel" + panel1.uniqueId;
   assert.equal(panel1.name, name, "panel1.name is correct");
   assert.equal(page.getElementByName(name)?.name, name, "page.getElementByName works correctly for panel1");
 });

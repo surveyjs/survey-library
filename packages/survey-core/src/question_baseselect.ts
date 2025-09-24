@@ -126,7 +126,7 @@ export class ChoiceItem extends ItemValue {
       pnl.selectedElementInDesign = <any>this.choiceOwner;
       const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
-        pnl.name = "pnl_" + (<any>this.choiceOwner).id + "_" + this.id;
+        pnl.name = "choicePanel" + pnl.uniqueId;
         pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
       }

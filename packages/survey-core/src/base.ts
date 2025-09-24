@@ -392,8 +392,9 @@ export class Base implements IObjectValueContext {
     return !this.bindingsValue || this.bindingsValue.isEmpty();
   }
   checkBindings(valueName: string, value: any): void { }
+  protected canUpdateBindings(): boolean { return true; }
   protected updateBindings(propertyName: string, value: any): void {
-    if (!this.bindingsValue) return;
+    if (!this.bindingsValue || !this.canUpdateBindings()) return;
     var valueName = this.bindings.getValueNameByPropertyName(propertyName);
     if (!!valueName) {
       this.updateBindingValue(valueName, value);

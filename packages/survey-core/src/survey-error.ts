@@ -34,11 +34,6 @@ export class SurveyError {
     const icon = this.isWarning ? error.warningIcon : this.isInfo ? error.infoIcon : error.icon;
     return icon || error.icon || undefined;
   }
-  public getCssItem(cssClasses: any): string {
-    const error = this.getCssError(cssClasses);
-    const item = this.isWarning ? error.warningMode : this.isInfo ? error.infoMode : error.item;
-    return item || error.item || undefined;
-  }
   private getCssError(cssClasses: any): any {
     cssClasses = cssClasses || {};
     return cssClasses.error || {};

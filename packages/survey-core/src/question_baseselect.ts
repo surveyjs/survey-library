@@ -107,6 +107,9 @@ export class ChoiceItem extends ItemValue {
     }
     return this.panelValue;
   }
+  public get isPanelCreated(): boolean {
+    return !!this.panelValue;
+  }
   public get elements(): Array<IElement> {
     return this.panel.elements;
   }
@@ -123,6 +126,7 @@ export class ChoiceItem extends ItemValue {
       pnl.selectedElementInDesign = <any>this.choiceOwner;
       const survey: any = this.choiceOwner?.getSurvey();
       if (!!survey) {
+        pnl.name = "pnl_" + (<any>this.choiceOwner).id + "_" + this.id;
         pnl.parent = <PanelModelBase>this.choiceOwner.parent;
         pnl.setSurveyImpl(survey);
       }
@@ -235,6 +239,16 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public supportElementsInChoice(): boolean {
     return false;
+  }
+  public getPanels(): Array<IPanel> {
+    if (!this.supportElementsInChoice()) return super.getPanels();
+    const res = new Array<IPanel>();
+    this.choices.forEach((item) => {
+      if (item.isPanelCreated) {
+        res.push(item.panel);
+      }
+    });
+    return res;
   }
   protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
     questions.push(this);

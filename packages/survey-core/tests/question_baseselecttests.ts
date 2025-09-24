@@ -3824,3 +3824,23 @@ QUnit.test("choice item elements & item.panel.visibleRows, Issue#10384", (assert
   assert.equal(panel2.visibleRows.length, 1, "There is one visible row in the panel2");
   assert.equal(panel2.visibleRows[0].elements.length, 1, "There is one element in the visible row in the panel2");
 });
+QUnit.test("choice item elements & getElementByName, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel1 = q1.choices[0].panel;
+  assert.equal(panel1.getElementByName("q1_1")?.name, "q1_1", "getElementByName works correctly");
+  const page = survey.pages[0];
+  assert.equal(page.getElementByName("q1_1")?.name, "q1_1", "page.getElementByName works correctly");
+  const name = "pnl_" + q1.id + "_item1";
+  assert.equal(panel1.name, name, "panel1.name is correct");
+  assert.equal(page.getElementByName(name)?.name, name, "page.getElementByName works correctly for panel1");
+});

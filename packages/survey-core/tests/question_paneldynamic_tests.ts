@@ -5323,7 +5323,7 @@ QUnit.test("Check needResponsiveWidth", function(assert) {
   assert.equal(panel.needResponsiveWidth(), false);
   panel.panelCount = 2;
   assert.equal(panel.needResponsiveWidth(), false);
-  panel.getPanel().elements[1].startWithNewLine = false;
+  panel.getPanels()[0].elements[1].startWithNewLine = false;
   panel.panelCount = 0;
   assert.equal(panel.needResponsiveWidth(), true);
   panel.panelCount = 2;

@@ -3844,3 +3844,31 @@ QUnit.test("choice item elements & getElementByName, Issue#10384", (assert) => {
   assert.equal(panel1.name, name, "panel1.name is correct");
   assert.equal(page.getElementByName(name)?.name, name, "page.getElementByName works correctly for panel1");
 });
+QUnit.test("choice item elements & nested elements, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [
+            { type: "checkbox", name: "q1_2",
+              choices: [{ value: "item21", elements: [{ type: "text", name: "q1_2_1" }] }, "item22"]
+            }
+          ] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel2 = q1.choices[1].panel;
+  assert.equal(panel2.wasRendered, false, "the panel2 was not rendered");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(panel2.wasRendered, true, "the panel2 was rendered");
+  const q1_2 = panel2.getQuestionByName("q1_2");
+  assert.ok(q1_2, "q1_2 is here");
+  assert.equal(q1_2.getType(), "checkbox", "q1_2 is a checkbox");
+  assert.equal(q1_2.choices.length, 2, "q1_2 has two choices");
+  assert.equal(q1_2.visibleChoices.length, 2, "q1_2 has two visible choices");
+  assert.equal(q1_2.renderedChoices.length, 2, "q1_2 has two rendered choices");
+  assert.equal(q1_2.wasRendered, true, "q1_2 was rendered");
+});

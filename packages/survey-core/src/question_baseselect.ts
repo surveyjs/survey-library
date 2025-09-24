@@ -250,6 +250,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     });
     return res;
   }
+  private doForPanels(func: (pnl: PanelModel) => void): void {
+    const pnls = this.getPanels();
+    if (Array.isArray(pnls)) {
+      pnls.forEach(func);
+    }
+  }
   protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
     questions.push(this);
     if (includeNested && this.supportElementsInChoice()) {
@@ -1773,6 +1779,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
+    this.doForPanels((p) => { p.onSurveyLoad(); });
     super.onSurveyLoad();
   }
   onAnyValueChanged(name: string, questionName: string): void {

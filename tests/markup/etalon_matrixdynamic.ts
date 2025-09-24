@@ -87,6 +87,31 @@ registerMarkupTests(
       snapshot: "matrixdynamic-totals"
     },
     {
+      name: "Test matrixdynamic addRow icon",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "titleLocation": "hidden",
+            "name": "matrix",
+            "cellType": "text",
+            "columns": [
+              {
+                "name": "Column 1"
+              }
+            ]
+          }
+        ]
+      },
+      snapshot: "matrixdynamic-add-row-icon",
+      isCorrectEvent: (options) => {
+        return options.question.name == "matrix";
+      },
+      initSurvey: (survey) => {
+        survey.css.matrixdynamic.iconAddId = "#icon-test";
+      }
+    },
+    {
       name: "Test matrixdynamic question with detail panel",
       json: {
         "elements": [

@@ -79,7 +79,7 @@ export class SurveyQuestionMatrixDynamicAddButton extends ReactSurveyElement {
       {addRowText}
       <span className={this.props.cssClasses.iconAdd} >
         {
-          this.cssClasses.iconAddId && <svg><use xlinkHref={this.cssClasses.iconAdd}></use></svg>
+          this.cssClasses.iconAddId && <svg><use xlinkHref={this.cssClasses.iconAddId}></use></svg>
         }
       </span>
 

@@ -13,7 +13,9 @@
           :is="'survey-string'"
           :locString="question.locAddRowText"
         />
-        <span :class="question.cssClasses.iconAdd"></span>
+        <span :class="question.cssClasses.iconAdd">
+          <svg v-if="question.cssClasses.iconAddId"><use :xlink:href="question.cssClasses.iconAddId"></use></svg>
+        </span>
       </button>
     </div>
     <SvComponent

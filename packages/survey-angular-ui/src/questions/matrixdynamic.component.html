@@ -13,7 +13,11 @@
   <ng-template #addRowButton>
     <button type="button" [class]="model.getAddRowButtonCss(true)" (click)="model.addRowUI()">
         <sv-ng-string [model]="model.locAddRowText" ></sv-ng-string>
-        <span [class]="model.cssClasses.iconAdd"></span>
+        <span [class]="model.cssClasses.iconAdd">
+          <svg *ngIf="model.cssClasses.iconAddId">
+            <use [attr.xlink:href]="model.cssClasses.iconAddId"></use>
+          </svg>
+        </span>
     </button>
   </ng-template>
 </ng-template>

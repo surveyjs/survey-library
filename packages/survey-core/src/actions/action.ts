@@ -592,12 +592,14 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
 
   public initLoadingIndicatorVisibilityObserver(handler: (isVisible: boolean) => void) {
-    this.intersectionVisibilityObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        const isIntersecting = entry.isIntersecting;
-        handler(isIntersecting);
-      });
-    }, ({ trackVisibility: true, delay: 100 }) as any);
+    if (typeof IntersectionObserver !== "undefined") {
+      this.intersectionVisibilityObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const isIntersecting = entry.isIntersecting;
+          handler(isIntersecting);
+        });
+      }, ({ trackVisibility: true, delay: 100 }) as any);
+    }
   }
 
   public dispose(): void {

@@ -684,3 +684,13 @@ QUnit.test("SurveyError.notificationType & only the strongest type rendered, Iss
   assert.equal(q1.renderedErrors.length, 0, "no rendered errors");
   assert.equal(q1.currentNotificationType, "", "no rendrered message type");
 });
+QUnit.test("Expression validator with empty survey, Bug#10416", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", validators: [{ type: "expression" }] }
+    ]
+  });
+  assert.equal(survey.validate(true), true, "There is no error");
+  survey.tryComplete();
+  assert.equal(survey.state, "completed", "The survey is completed");
+});

@@ -281,3 +281,10 @@ QUnit.test("Boolean in matrix dynamic", function (assert) {
   q.visibleRows[0].cells[0].value = "abc";
   assert.deepEqual(q.value, [{ col1: "abc" }], "there is not boolean value");
 });
+QUnit.test("Boolean render as checkbox: useTitleAsLabel", function (assert) {
+  const q1 = new QuestionBooleanModel("q1");
+  q1.renderAs = "checkbox";
+  q1.useTitleAsLabel = true;
+  assert.equal(q1.isLabelRendered, true);
+  assert.equal(q1.titleLocation, "hidden");
+});

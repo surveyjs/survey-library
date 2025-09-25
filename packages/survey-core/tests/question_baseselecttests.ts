@@ -3872,3 +3872,33 @@ QUnit.test("choice item elements & nested elements, Issue#10384", (assert) => {
   assert.equal(q1_2.renderedChoices.length, 2, "q1_2 has two rendered choices");
   assert.equal(q1_2.wasRendered, true, "q1_2 was rendered");
 });
+QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1", isRequired: true }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2", isRequired: true }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = q1.choices[0].panel.getQuestionByName("q1_1");
+  const q1_2 = q1.choices[1].panel.getQuestionByName("q1_2");
+  assert.equal(q1.validate(true), true, "q1 is valid, #1");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(q1.validate(true), false, "q1 is not valid, q1_1 is required, #2");
+  assert.equal(q1_1.errors.length, 1, "q1_1 errors #2");
+  assert.equal(q1_2.errors.length, 0, "q1_2 errors #2");
+  q1_1.value = "abc";
+  assert.equal(q1.validate(true), true, "q1 is valid, #3");
+  assert.equal(q1_1.errors.length, 0, "q1_1 errors #3");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1.validate(true), false, "q1 is not valid, q1_2 is required, #4");
+  assert.equal(q1_1.errors.length, 0, "q1_1 errors #4");
+  assert.equal(q1_2.errors.length, 1, "q1_2 errors #4");
+  q1_2.value = "edf";
+  assert.equal(q1.validate(true), true, "q1 is valid, #5");
+  assert.equal(q1_2.errors.length, 0, "q1_2 errors #5");
+});

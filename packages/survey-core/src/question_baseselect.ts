@@ -250,8 +250,18 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     });
     return res;
   }
-  private doForPanels(func: (pnl: PanelModel) => void): void {
-    const pnls = this.getPanels();
+  private getVisiblePanels(): Array<PanelModel> {
+    if (!this.supportElementsInChoice()) return null;
+    const res = new Array<PanelModel>();
+    this.choices.forEach((item) => {
+      if (item.isPanelShowing) {
+        res.push(item.panel);
+      }
+    });
+    return res;
+  }
+  private doForPanels(isVisible: boolean, func: (pnl: PanelModel) => void): void {
+    const pnls = isVisible ? this.getVisiblePanels() : this.getPanels();
     if (Array.isArray(pnls)) {
       pnls.forEach(func);
     }
@@ -345,7 +355,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (context.isOnValueChanged !== true) {
       this.clearIncorrectValues();
     }
-    return super.validateElementCore(context);
+    let res = true;
+    this.doForPanels(true, (p) => {
+      res &&= p.validateElement(context);
+    });
+    return super.validateElementCore(context) && res;
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -1779,7 +1793,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
-    this.doForPanels((p) => { p.onSurveyLoad(); });
+    this.doForPanels(false, (p) => { p.onSurveyLoad(); });
     super.onSurveyLoad();
   }
   onAnyValueChanged(name: string, questionName: string): void {

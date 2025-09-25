@@ -3902,3 +3902,30 @@ QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
   assert.equal(q1.validate(true), true, "q1 is valid, #5");
   assert.equal(q1_2.errors.length, 0, "q1_2 errors #5");
 });
+QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: "item1", elements: [{ type: "text", name: "q1_1" }, { type: "text", name: "q1_2", visibleIf: "{q1_1} notempty" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_3" }, { type: "text", name: "q1_4", visibleIf: "{q2} notempty" }] }, "item3"]
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  const q1_4 = survey.getQuestionByName("q1_4");
+  q1.clickItemHandler(q1.choices[1], true);
+  q1.clickItemHandler(q1.choices[2], true);
+  assert.equal(q1_2.isVisible, false, "q1_2 visibility, #1");
+  assert.equal(q1_4.isVisible, false, "q1_4 visibility, #1");
+  q1_1.value = "abc";
+  assert.equal(q1_2.isVisible, true, "q1_2 visibility, #2");
+  q1_2.value = "edf";
+  assert.equal(q1_4.isVisible, false, "q1_4 visibility, #2");
+  survey.setValue("q2", "xyz");
+  assert.equal(q1_4.isVisible, true, "q1_4 visibility, #3");
+});

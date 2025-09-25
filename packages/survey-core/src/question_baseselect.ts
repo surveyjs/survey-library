@@ -675,6 +675,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.choices.forEach(item => {
       item.runConditionCore(properties);
     });
+    this.doForPanels(false, (p) => {
+      p.runCondition(properties);
+    });
   }
   protected isTextValue(): boolean {
     return true; //for comments and others

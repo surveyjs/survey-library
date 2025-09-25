@@ -17,9 +17,9 @@ export class QuestionBooleanModel extends Question {
     super(name);
     this.createLocalizableString("labelFalse", this, true, "booleanUncheckedLabel");
     this.createLocalizableString("labelTrue", this, true, "booleanCheckedLabel");
-    if (this.useTitleAsLabel) {
-      this.setPropertyValue("titleLocation", "hidden");
-    }
+    // if (this.useTitleAsLabel) {
+    //   this.setPropertyValue("titleLocation", "hidden");
+    // }
   }
   public getType(): string {
     return "boolean";

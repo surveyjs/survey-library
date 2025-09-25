@@ -251,18 +251,18 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     });
     return res;
   }
-  private getVisiblePanels(): Array<PanelModel> {
+  private getVisiblePanels(isVisible: boolean): Array<PanelModel> {
     if (!this.supportElementsInChoice()) return null;
     const res = new Array<PanelModel>();
     this.choices.forEach((item) => {
-      if (item.isPanelShowing) {
+      if (item.isPanelShowing === isVisible) {
         res.push(item.panel);
       }
     });
     return res;
   }
-  private doForPanels(isVisible: boolean, func: (pnl: PanelModel) => void): void {
-    const pnls = isVisible ? this.getVisiblePanels() : this.getPanels();
+  private doForPanels(isVisible: boolean | undefined, func: (pnl: PanelModel) => void): void {
+    const pnls = isVisible !== undefined ? this.getVisiblePanels(isVisible) : this.getPanels();
     if (Array.isArray(pnls)) {
       pnls.forEach(func);
     }
@@ -671,7 +671,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public addUsedLocales(locales: Array<string>) {
     super.addUsedLocales(locales);
-    this.doForPanels(false, (p) => {
+    this.doForPanels(undefined, (p) => {
       p.addUsedLocales(locales);
     });
   }
@@ -682,7 +682,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.choices.forEach(item => {
       item.runConditionCore(properties);
     });
-    this.doForPanels(false, (p) => {
+    this.doForPanels(undefined, (p) => {
       p.runCondition(properties);
     });
   }
@@ -1803,7 +1803,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
-    this.doForPanels(false, (p) => { p.onSurveyLoad(); });
+    this.doForPanels(undefined, (p) => { p.onSurveyLoad(); });
     super.onSurveyLoad();
   }
   onAnyValueChanged(name: string, questionName: string): void {
@@ -2087,6 +2087,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
     this.clearIncorrectValues();
+    this.doForPanels(false, (p) => {
+      p.questions.forEach((q) => { q.clearValue(); });
+    });
   }
   /**
    * Returns `true` if a passed choice item is selected.

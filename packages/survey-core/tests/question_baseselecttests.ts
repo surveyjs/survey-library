@@ -3990,3 +3990,31 @@ QUnit.test("choice item elements & nested/withFrame styles, Issue#10384", (asser
   assert.equal(q1_1Css.indexOf("q-frame") > -1, false, "q1_1Css has q-frame, #1");
   assert.equal(q1_1Css.indexOf("q-nested") > -1, true, "q1_1Css has q-nested, #1");
 });
+QUnit.test("choice item & clearInvisible values, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  q1.clickItemHandler(q1.choices[0], true);
+  q1_1.value = "abc";
+  q1.clickItemHandler(q1.choices[0], false);
+  q1.clickItemHandler(q1.choices[1], true);
+  q1_2.value = "edf";
+  assert.equal(q1_1.value, "abc", "q1_1 value is set");
+  assert.equal(q1_2.value, "edf", "q1_2 value is set");
+  assert.equal(q1_1.value, "abc", "q1_1 value is not cleared by default");
+  assert.deepEqual(survey.data, { q1: ["item2"], "q1_1": "abc", "q1_2": "edf" }, "survey.data #1");
+  survey.doComplete();
+  assert.notOk(q1_1.value, "q1_1 value is cleared");
+  assert.equal(q1_2.value, "edf", "q1_2 value is not cleared");
+  assert.deepEqual(survey.data, { q1: ["item2"], "q1_2": "edf" }, "survey.data #2");
+});

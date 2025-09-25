@@ -3929,3 +3929,37 @@ QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
   survey.setValue("q2", "xyz");
   assert.equal(q1_4.isVisible, true, "q1_4 visibility, #3");
 });
+QUnit.test("choice item elements & nested elements, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1", title: { default: "q1_1_t", de: "q1_1_t_de" } }] },
+          { value: "item2", elements: [
+            { type: "checkbox", name: "q1_2", title: { default: "q1_2_t", de: "q1_2_t_de" },
+              choices: [{ value: "item21", elements: [{ type: "text", name: "q1_2_1", title: { default: "q1_2_1_t", de: "q1_2_1_t_de" } }] }, "item22"]
+            }
+          ] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(survey.getUsedLocales(), ["en", "de"], "There is one non-default locale");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  const q1_2_1 = survey.getQuestionByName("q1_2_1");
+  q1.clickItemHandler(q1.choices[0], true);
+  survey.locale = "de";
+  assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t_de", "q1_1 title in de, #1");
+  assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t_de", "q1_2 title in de, #1");
+  assert.equal(q1_2_1.locTitle.textOrHtml, "q1_2_1_t_de", "q1_2_1 title in de, #1");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t_de", "q1_1 title in de, #2");
+  assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t_de", "q1_2 title in de, #2");
+  q1_2.clickItemHandler(q1_2.choices[0], true);
+  assert.equal(q1_2_1.locTitle.textOrHtml, "q1_2_1_t_de", "q1_2_1 title in de, #2");
+  survey.locale = "";
+  assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t", "q1_1 title in default locale");
+  assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t", "q1_2 title in default locale");
+});

@@ -668,6 +668,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
+  public addUsedLocales(locales: Array<string>) {
+    super.addUsedLocales(locales);
+    this.doForPanels(false, (p) => {
+      p.addUsedLocales(locales);
+    });
+  }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
     this.runItemsEnableCondition(properties);

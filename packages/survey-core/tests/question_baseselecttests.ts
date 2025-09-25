@@ -3929,7 +3929,7 @@ QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
   survey.setValue("q2", "xyz");
   assert.equal(q1_4.isVisible, true, "q1_4 visibility, #3");
 });
-QUnit.test("choice item elements & nested elements, Issue#10384", (assert) => {
+QUnit.test("choice item elements & localization, Issue#10384", (assert) => {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -3962,4 +3962,32 @@ QUnit.test("choice item elements & nested elements, Issue#10384", (assert) => {
   survey.locale = "";
   assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t", "q1_1 title in default locale");
   assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t", "q1_2 title in default locale");
+});
+QUnit.test("choice item elements & nested/withFrame styles, Issue#10384", (assert) => {
+  const survey = new SurveyModel();
+  survey.css = { panel: { nested: "p-nested", withFrame: "p-frame" }, question: { nested: "q-nested", withFrame: "q-frame" } };
+  survey.fromJSON({
+    "elements": [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] }]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const panel1 = q1.choices[0].panel;
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(panel1.cssClasses.panel.nested, "p-nested", "panel nested class is here");
+  assert.equal(panel1.cssClasses.panel.withFrame, "p-frame", "panel withFrame class is here");
+  const panelCss = panel1.getContainerCss();
+  assert.equal(panelCss.indexOf("p-frame") > -1, false, "panelCss has p-frame, #1");
+  assert.equal(panelCss.indexOf("p-nested") > -1, true, "panelCss has p-nested, #1");
+
+  assert.equal(q1_1.cssClasses.nested, "q-nested", "question nested class is here");
+  assert.equal(q1_1.cssClasses.withFrame, "q-frame", "question withFrame class is here");
+  const q1_1Css = q1_1.getRootCss();
+  assert.equal(q1_1Css.indexOf("q-frame") > -1, false, "q1_1Css has q-frame, #1");
+  assert.equal(q1_1Css.indexOf("q-nested") > -1, true, "q1_1Css has q-nested, #1");
 });

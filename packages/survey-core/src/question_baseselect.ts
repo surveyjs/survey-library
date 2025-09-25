@@ -118,6 +118,7 @@ export class ChoiceItem extends ItemValue {
     res.renderWidth = "100%";
     res.isInteractiveDesignElement = false;
     res.showTitle = false;
+    res.isInternalNested = true;
     this.setPanelSurvey(res);
     return res;
   }

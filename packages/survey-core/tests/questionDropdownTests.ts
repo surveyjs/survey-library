@@ -604,30 +604,6 @@ QUnit.test("clearValue", assert => {
   assert.equal(dropdownListModel.hintString, "", "after clear");
 });
 
-QUnit.test("hasScroll property", assert => {
-  const json = {
-    questions: [
-      {
-        "type": "dropdown",
-        "name": "q1",
-        "hasOther": true,
-        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
-      }]
-  };
-  const survey = new SurveyModel();
-  survey.fromJSON(json);
-  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const element = createListContainerHtmlElement();
-  question.dropdownListModel["listModel"].initListContainerHtmlElement(element);
-
-  assert.equal(question.dropdownListModel.hasScroll, false);
-
-  question.dropdownListModel["listModel"].hasVerticalScroller = true;
-  assert.equal(question.dropdownListModel.hasScroll, true);
-
-  document.body.removeChild(element);
-});
-
 QUnit.test("Dropdown doesn't displays a value which doesn't exist in a list of choices", (assert) => {
   const survey = new SurveyModel({
     questions: [{

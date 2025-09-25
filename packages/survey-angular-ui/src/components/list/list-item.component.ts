@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, Input, ViewChild } from "@angular/core";
 import { ListModel, Action, IAction } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
@@ -13,6 +13,7 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
   @Input() element: any;
   @Input() model!: Action;
   @Input() listModel!: ListModel;
+  @ViewChild("elementRef") elementRef!: ElementRef<HTMLDivElement>;
 
   get elementId() {
     return (this.model as IAction)?.elementId;
@@ -46,7 +47,9 @@ export class ListItemComponent extends BaseAngular implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.listModel.onLastItemRended(this.model);
+    if (!!this.elementRef?.nativeElement) {
+      this.listModel.onItemRended(this.model, this.elementRef.nativeElement);
+    }
   }
 }
 

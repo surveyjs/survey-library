@@ -3071,11 +3071,13 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(name);
   }
   //IQuestion
+  private isUpdateingValueFromSurvey: boolean;
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     newValue = this.valueFromDataCore(newValue);
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
+    this.isUpdateingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
         this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
@@ -3085,9 +3087,26 @@ export class Question extends SurveyElement<Question>
       if (clearData && isEmpty) {
         this.isValueChangedDirectly = false;
       }
+      if (isEmpty) {
+        this.updateBindingsOnClearFromSurveyCore();
+      }
     }
+    this.isUpdateingValueFromSurvey = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
+  }
+  protected canUpdateBindings(): boolean { return !this.isUpdateingValueFromSurvey; }
+  private updateBindingsOnClearFromSurveyCore(): void {
+    const surveyData = this.data;
+    if (surveyData && !this.isBindingEmpty()) {
+      this.bindings.getNames().forEach(name => {
+        const valueName = this.bindings.getValueNameByPropertyName(name);
+        const val = surveyData.getValue(valueName);
+        if (!this.isValueEmpty(val)) {
+          this.updateBindingProp(name, val);
+        }
+      });
+    }
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
     this.isChangingViaDefaultValue = viaDefaultVal;

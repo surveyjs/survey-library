@@ -5305,6 +5305,31 @@ QUnit.test("Bindings to panelCount performance issue #2 reduce recalc visibleInd
   assert.equal(survey.progressText, "Page 1 of 1", "progressText");
   assert.equal(counter, 1, "update visible index calls only two times, on after binding (updateVisibleIndexes) and on value changed");
 });
+QUnit.test("Bindings to panelCount & setting survey.data, Bug#10406", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        bindings: {
+          "panelCount": "q1"
+        },
+        templateElements: [
+          { type: "text", name: "panel1_q1" }
+        ],
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  survey.data = { q1: 5, panel1: [{ panel1_q1: 1 }, { panel1_q1: 2 }, { panel1_q1: 3 }, { panel1_q1: 4 }, { panel1_q1: 5 }] };
+  assert.equal(q1.value, 5, "q1.value #1");
+  assert.equal(panel.panelCount, 5, "panelCount #1");
+  survey.data = { q1: 3 };
+  assert.equal(q1.value, 3, "q1.value #2");
+  assert.equal(panel.panelCount, 3, "panelCount #2");
+});
 QUnit.test("Check needResponsiveWidth", function(assert) {
   const survey = new SurveyModel({
     elements: [

@@ -32,6 +32,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     });
     this.updateReadOnlyText();
   }
+  supportElementsInChoice(): boolean { return false; }
   public locStrsChanged(): void {
     super.locStrsChanged();
     this.updateReadOnlyText();

@@ -3685,8 +3685,7 @@ QUnit.test("choice item & supportElements , Issue#10384", (assert) => {
   assert.equal(q1.choices[0].supportElements, true, "checkbox: item supportElements");
   const q2 = new QuestionRadiogroupModel("q2");
   q2.choices = ["item1"];
-  //TOOD
-  //assert.equal(q2.choices[0].supportElements, true, "radiogroup: item1 supportElements");
+  assert.equal(q2.choices[0].supportElements, true, "radiogroup: item1 supportElements");
   const q3 = new QuestionDropdownModel("q3");
   q3.choices = ["item1"];
   assert.equal(q3.choices[0].supportElements, false, "dropdown: item supportElements");

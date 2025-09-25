@@ -30,17 +30,6 @@ export class SurveyQuestionCheckbox extends SurveyQuestionSelectbase {
     }
     return null;
   }
-  protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
-    var renderedItems: Array<React.JSX.Element> = [];
-    for (var i = 0; i < choices.length; i++) {
-      var item = choices[i];
-      var renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i);
-      if (!!renderedItem) {
-        renderedItems.push(renderedItem);
-      }
-    }
-    return renderedItems;
-  }
 }
 export class SurveyQuestionCheckboxItem extends SurveyQuestionCheckboxBaseItem {
   constructor(props: any) {

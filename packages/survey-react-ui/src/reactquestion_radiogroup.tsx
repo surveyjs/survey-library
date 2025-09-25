@@ -30,19 +30,10 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionSelectbase {
       </div>
     );
   }
-  protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
-    var items: Array<React.JSX.Element> = [];
-    var value = this.getStateValue();
-    for (var i = 0; i < choices.length; i++) {
-      var item = choices[i];
-      var renderedItem = this.renderItem(item, false, cssClasses, "" + i, value === item.value);
-      items.push(renderedItem);
-    }
-    return items;
-  }
-  private getStateValue(): any {
+  protected getStateValue(): any {
     return !this.question.isEmpty() ? this.question.renderedValue : "";
   }
+  protected isItemChecked(item: ItemValue, value: any): boolean { return item.value === value; }
 }
 
 export class SurveyQuestionRadioItem extends SurveyQuestionCheckboxBaseItem {

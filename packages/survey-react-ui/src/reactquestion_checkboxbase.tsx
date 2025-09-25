@@ -52,6 +52,8 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     }
     return null;
   }
+  protected getStateValue(): any { return undefined; }
+  protected isItemChecked(item: ItemValue, value: any): boolean { return false; }
   protected getColumnedBody(cssClasses: any) {
     return (
       <div className={cssClasses.rootMultiColumn}>
@@ -60,14 +62,10 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     );
   }
   protected getColumns(cssClasses: any) {
+    const value = this.getStateValue();
     return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(
-          item,
-          ci === 0 && ii === 0,
-          cssClasses,
-          "" + ci + ii
-        )
+        this.renderItem(item, ci === 0 && ii === 0, cssClasses, "" + ci + ii, this.isItemChecked(item, value))
       );
       return (
         <div key={"column" + ci + this.question.getItemsColumnKey(column)} className={this.question.getColumnClass()} role="presentation">
@@ -85,7 +83,16 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     }
   }
   protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
-    return [];
+    const items: Array<React.JSX.Element> = [];
+    const value = this.getStateValue();
+    for (let i = 0; i < choices.length; i++) {
+      const item = choices[i];
+      const renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i, this.isItemChecked(item, value));
+      if (!!renderedItem) {
+        items.push(renderedItem);
+      }
+    }
+    return items;
   }
   protected get textStyle(): any {
     return null;

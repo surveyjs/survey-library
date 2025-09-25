@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
-import { QuestionCheckboxModel } from "survey-core";
+import { ItemValue, QuestionCheckboxModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyQuestionCheckboxBaseItem, SurveyQuestionSelectbase } from "./reactquestion_checkboxbase";
 
@@ -11,6 +11,35 @@ export class SurveyQuestionCheckbox extends SurveyQuestionSelectbase {
   }
   protected get question(): QuestionCheckboxModel {
     return this.questionBase as QuestionCheckboxModel;
+  }
+  protected renderHeader(): React.JSX.Element | null {
+    return <>
+      <legend className={"sv-hidden"}>{this.question.locTitle.renderedHtml}</legend>
+      {this.getHeader()}
+    </>;
+  }
+  protected getHeader() {
+    if (this.question.hasHeadItems) {
+      return this.question.headItems.map((item: any, ii: number) =>
+        this.renderItem(
+          item,
+          false,
+          this.question.cssClasses
+        )
+      );
+    }
+    return null;
+  }
+  protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
+    var renderedItems: Array<React.JSX.Element> = [];
+    for (var i = 0; i < choices.length; i++) {
+      var item = choices[i];
+      var renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i);
+      if (!!renderedItem) {
+        renderedItems.push(renderedItem);
+      }
+    }
+    return renderedItems;
   }
 }
 export class SurveyQuestionCheckboxItem extends SurveyQuestionCheckboxBaseItem {
@@ -26,16 +55,6 @@ export class SurveyQuestionCheckboxItem extends SurveyQuestionCheckboxBaseItem {
   }
   protected get inputStyle(): any {
     return null;//{ marginRight: "3px" };
-  }
-  protected renderComment(): React.JSX.Element | null {
-    if (!this.item.isCommentShowing) return null;
-    return <div className={this.question.getCommentAreaCss(true)}>
-      <SurveyQuestionCommentValueItem
-        question={this.question}
-        item={this.item}
-        cssClasses={this.question.cssClasses}
-      />
-    </div>;
   }
   protected renderCheckbox(isChecked: boolean): React.JSX.Element {
     const id = this.question.getItemId(this.item);

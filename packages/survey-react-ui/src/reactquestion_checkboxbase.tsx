@@ -30,8 +30,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
         aria-invalid={this.question.a11y_input_ariaInvalid}
         aria-errormessage={this.question.a11y_input_ariaErrormessage}
       >
-        <legend className={"sv-hidden"}>{this.question.locTitle.renderedHtml}</legend>
-        {this.getHeader()}
+        {this.renderHeader()}
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
           : this.getBody(cssClasses)}
@@ -39,28 +38,19 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
       </fieldset>
     );
   }
-
-  protected getHeader() {
-    if (this.question.hasHeadItems) {
-      return this.question.headItems.map((item: any, ii: number) =>
-        this.renderItem(
-          item,
-          false,
-          this.question.cssClasses
-        )
-      );
-    }
-  }
-  protected getFooter() {
+  protected renderHeader(): React.JSX.Element | null { return null; }
+  protected getFooter(): React.JSX.Element | null {
     if (this.question.hasFootItems) {
-      return this.question.footItems.map((item: any, ii: number) =>
+      const items = this.question.footItems.map((item: any, ii: number) =>
         this.renderItem(
           item,
           false,
           this.question.cssClasses
         )
       );
+      return <>{items}</>;
     }
+    return null;
   }
   protected getColumnedBody(cssClasses: any) {
     return (
@@ -95,15 +85,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     }
   }
   protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
-    var renderedItems: Array<React.JSX.Element> = [];
-    for (var i = 0; i < choices.length; i++) {
-      var item = choices[i];
-      var renderedItem = this.renderItem(item, i == 0, cssClasses, "" + i);
-      if (!!renderedItem) {
-        renderedItems.push(renderedItem);
-      }
-    }
-    return renderedItems;
+    return [];
   }
   protected get textStyle(): any {
     return null;
@@ -112,7 +94,8 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     item: any,
     isFirst: boolean,
     cssClasses: any,
-    index?: string
+    index?: string,
+    isChecked?: boolean
   ): React.JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
       key: item.value,
@@ -123,6 +106,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
       textStyle: this.textStyle,
       index: index,
       isFirst: isFirst,
+      isChecked: isChecked,
       creator: this.props.creator,
     });
     const survey = this.question.survey as SurveyModel;

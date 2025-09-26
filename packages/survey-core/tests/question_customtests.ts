@@ -500,7 +500,7 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
   assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: content questions recursive numbering at design-time, Bug#10389", function (assert) {
+QUnit.test("Composite: content questions recursive numbering at design-time, Bug#10389 & Bug#10418", function (assert) {
   ComponentCollection.Instance.add({
     name: "customerinfo",
     elementsJSON: [
@@ -527,11 +527,47 @@ QUnit.test("Composite: content questions recursive numbering at design-time, Bug
   const q = <QuestionCompositeModel>survey.getAllQuestions()[1];
   const firstName = q.contentPanel.getQuestionByName("firstName");
   const lastName = q.contentPanel.getQuestionByName("lastName");
+  const q3 = survey.getQuestionByName("q3");
   assert.equal(q.visibleIndex, 1, "q visibleIndex");
   assert.equal(q.no, "2.", "q no is '2.'");
   assert.equal(q.contentPanel.no, "2.", "q contentPanel no is '2.'");
   assert.equal(firstName.no, "2.a.", "first question, no is '2a.'");
   assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
+  assert.equal(q3.no, "3.", "q3 no is '3.'");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: content questions recursive numbering in run-time, Bug#10389 & Bug#10418", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "panel", name: "contentPanel", showQuestionNumbers: "recursive", elements: [
+        { type: "text", name: "firstName" },
+        { type: "text", name: "lastName" }
+      ] }
+    ],
+    onCreated: function (question) {
+      question.contentPanel.showQuestionNumbers = "recursive";
+      question.contentPanel.questionStartIndex = "a";
+    },
+  });
+  const survey = new SurveyModel({
+    showQuestionNumbers: "recursive",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "customerinfo", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[1];
+  const firstName = q.contentPanel.getQuestionByName("firstName");
+  const lastName = q.contentPanel.getQuestionByName("lastName");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q.visibleIndex, 1, "q visibleIndex");
+  assert.equal(q.no, "2.", "q no is '2.'");
+  assert.equal(q.contentPanel.no, "2.", "q contentPanel no is '2.'");
+  assert.equal(firstName.no, "2.a.", "first question, no is '2a.'");
+  assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
+  assert.equal(q3.no, "3.", "q3 no is '3.'");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {

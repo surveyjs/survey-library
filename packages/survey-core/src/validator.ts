@@ -98,7 +98,7 @@ export class SurveyValidator extends Base {
   }
   public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
     const res = this.validate(value, name, properties);
-    if (res !== undefined && callback) callback(res);
+    if (callback) callback(res);
     return res;
   }
   public validate(value: any, name?: string, properties?: any): ValidatorResult {
@@ -475,12 +475,15 @@ export class ExpressionValidator extends SurveyValidator {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
-    if (!this.ensureConditionRunner()) return null;
     let errorResult: ValidatorResult = null;
     const doCallBack = (res: boolean) => {
       errorResult = this.generateError(res, value, name);
       !!callback && callback(errorResult);
     };
+    if (!this.ensureConditionRunner()) {
+      doCallBack(true);
+      return null;
+    }
     this.conditionRunner.onRunComplete = (res) => {
       doCallBack(res);
     };

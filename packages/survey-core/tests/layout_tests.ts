@@ -1,4 +1,5 @@
 import { ArrayChanges, Base } from "../src/base";
+import { Helpers } from "../src/helpers";
 import { Serializer } from "../src/jsonobject";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
@@ -85,10 +86,10 @@ QUnit.test("columns generate - complex", function (assert) {
   assert.equal(page.columns[0].width, undefined);
   assert.equal(floorTo2Decimals(page.columns[0].effectiveWidth), 33.33);
 
-  assert.deepEqual(page.getColumsForElement(q1), [page.columns[0]]);
-  assert.deepEqual(page.getColumsForElement(q2), [page.columns[1], page.columns[1]]);
-  assert.deepEqual(page.getColumsForElement(q3), [page.columns[0], page.columns[1]]);
-  assert.deepEqual(page.getColumsForElement(q4), [page.columns[1]]);
+  assert.ok(Helpers.isTwoValueEquals(page.getColumsForElement(q1), [page.columns[0]]), "q1");
+  assert.ok(Helpers.isTwoValueEquals(page.getColumsForElement(q2), [page.columns[1], page.columns[1]]), "q2");
+  assert.ok(Helpers.isTwoValueEquals(page.getColumsForElement(q3), [page.columns[0], page.columns[1]]), "q3");
+  assert.ok(Helpers.isTwoValueEquals(page.getColumsForElement(q4), [page.columns[1]]), "q4");
 });
 
 QUnit.test("columns generate - title width", function (assert) {

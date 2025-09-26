@@ -320,7 +320,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string): void;
   registerFunctionOnPropertyValueChanged(name: string, func: any, key: string): void;
   unRegisterFunctionOnPropertyValueChanged(name: string, key: string): void;
-  getPanel(): IPanel;
+  getPanels(): Array<IPanel>;
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
   removeElement(el: IElement): boolean;

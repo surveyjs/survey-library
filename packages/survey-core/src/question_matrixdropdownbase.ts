@@ -1216,8 +1216,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get detailPanel(): PanelModel {
     return this.detailPanelValue;
   }
-  public getPanel(): IPanel {
-    return this.detailPanel;
+  public getPanels(): Array<IPanel> {
+    return [this.detailPanel];
   }
   /**
    * An array of survey elements (questions and panels) to be displayed in detail sections.

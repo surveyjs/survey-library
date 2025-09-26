@@ -183,6 +183,8 @@ export class ComputedUpdater<T = any> {
  * A base class for all SurveyJS objects.
  */
 export class Base implements IObjectValueContext {
+  private static UniqueId = 0;
+  private uniqueIdValue: number = (Base.UniqueId++);
   private static currentDependencis: Dependencies = undefined;
   public static finishCollectDependencies(): Dependencies {
     const deps = Base.currentDependencis;
@@ -336,6 +338,7 @@ export class Base implements IObjectValueContext {
   public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
+  public get uniqueId(): number { return this.uniqueIdValue; }
   public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(): EventBase<T, Options> {
     const res = new EventBase<T, Options>();

@@ -3645,3 +3645,399 @@ QUnit.test("getComment function, Issue#10378", (assert) => {
   assert.equal(survey.getValue("exp9"), "comment3", "q3, comment");
   assert.equal(survey.getValue("exp10"), null, "q4, other");
 });
+QUnit.test("choice item & elements , Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "title": "ttt",
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      }
+    ]
+  });
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const item1 = q1.choices[0];
+  assert.equal(item1.hasElements, false, "There is no elements in item1");
+  assert.notOk(item1["panelValue"], "item1, panelValue is null");
+  const item2 = q1.choices[1];
+  assert.equal(item2.hasElements, true, "There are elements in item2");
+  assert.ok(item2["panelValue"], "item2, panelValue is not null");
+  assert.equal(item2.panel.getSurvey().title, "ttt", "item2, panel.survey is not null");
+  assert.equal(item2.panel.elements.length, 1, "item2, panel has one element");
+  assert.equal(item2.panel.elements[0].name, "q1_1", "item2, panel has element q1_1");
+  assert.equal(item2.panel.elements[0].survey?.title, "ttt", "item2, panel has element q1_1 with survey");
+  assert.equal(item2.panel.elements[0].parent.getType(), "panel", "item2, panel has element q1_1 of parent panel");
+  const item3 = q1.choices[2];
+  item3.panel.addNewQuestion("text", "q1_3");
+  assert.ok(item3.panel.getSurvey(), "item3, panel.survey is not null");
+  assert.deepEqual(q1.toJSON(), { name: "q1", choices: [
+    "item1",
+    { value: "item2", elements: [{ type: "text", name: "q1_1" }] },
+    { value: "item3", elements: [{ type: "text", name: "q1_3" }] }
+  ] }, "toJSON is correct");
+  assert.notOk(item1["panelValue"], "item1, panelValue is null after serialization");
+});
+QUnit.test("choice item & supportElements , Issue#10384", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  q1.choices = ["item1"];
+  assert.equal(q1.choices[0].supportElements, true, "checkbox: item supportElements");
+  const q2 = new QuestionRadiogroupModel("q2");
+  q2.choices = ["item1"];
+  assert.equal(q2.choices[0].supportElements, true, "radiogroup: item1 supportElements");
+  const q3 = new QuestionDropdownModel("q3");
+  q3.choices = ["item1"];
+  assert.equal(q3.choices[0].supportElements, false, "dropdown: item supportElements");
+});
+QUnit.test("choice item & isPanelShowing, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      },
+      {
+        "type": "dropdown",
+        "name": "q2",
+        "choices": ["item1", "item2", "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  const item1 = q1.choices[0];
+  const item2 = q1.choices[1];
+  const item3 = q2.choices[0];
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false");
+  assert.equal(item2.isPanelShowing, false, "item2: isPanelShowing false");
+  assert.equal(item3.isPanelShowing, false, "item3: isPanelShowing false");
+  q1.clickItemHandler(item1, true);
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #2");
+  assert.equal(item2.isPanelShowing, false, "item2: isPanelShowing false #2");
+  q1.clickItemHandler(item2, true);
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #3");
+  assert.equal(item2.isPanelShowing, true, "item2: isPanelShowing true #1");
+  q1.clickItemHandler(item2, false);
+  assert.equal(item1.isPanelShowing, false, "item1: isPanelShowing false #5");
+});
+
+QUnit.test("choice item elements & getAllQuestions, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  let qs = survey.getAllQuestions(false, false, true);
+  assert.equal(qs.length, 2, "There are two questions: q1 and q1_1, #1");
+  assert.equal(qs[0].name, "q1", "the first question is q1");
+  assert.equal(qs[1].name, "q1_1", "the second question is q1_1");
+  survey.setDesignMode(true);
+  qs = survey.getAllQuestions(false, true, true);
+  assert.equal(qs.length, 2, "There are two questions: q1 and q1_1, #2");
+  survey.setDesignMode(false);
+  qs = survey.getAllQuestions(true, true, true);
+  assert.equal(qs.length, 1, "There is one question: q1");
+  q1.clickItemHandler(q1.choices[1], true);
+  qs = survey.getAllQuestions(true, true, true);
+  assert.equal(qs.length, 2, "There are two questions: q1 and q1_1, #3");
+});
+QUnit.test("choice item elements & getElementsInDesign, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.choices.length, 3, "There are three choices");
+  let els = q1.getElementsInDesign(true);
+  assert.equal(els.length, 2, "There are two elements: q1, #1");
+  assert.equal(els[0].getType(), "panel", "the element is panel, #1");
+  els = q1.getElementsInDesign(false);
+  assert.equal(els.length, 2, "There are two elements, #2");
+  assert.equal(els[0].name, "q1_1", "the element is q1_1, #2");
+});
+QUnit.test("choice item & elements, survey.onQuestionCreated/Added & getQuestionByName Issue#10384", (assert) => {
+  const survey = new SurveyModel();
+  const questionCreated = new Array<string>();
+  const questionAdded = new Array<string>();
+  survey.onQuestionCreated.add((survey, options) => {
+    questionCreated.push(options.question.name);
+  });
+  survey.onQuestionAdded.add((survey, options) => {
+    questionAdded.push(options.question.name);
+  });
+  survey.fromJSON({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1", { value: "item2", elements: [{ type: "text", name: "q1_1" }] }, "item3"]
+      }
+    ]
+  });
+  const q1_1 = survey.getQuestionByName("q1_1");
+  assert.equal(q1_1?.name, "q1_1", "getQuestionByName works correctly");
+  assert.equal(q1_1?.page.name, "page1", "The question is on the correct page");
+  assert.equal(questionCreated.length, 2, "There are two questions created");
+  assert.equal(questionCreated[0], "q1", "the first question is q1");
+  assert.equal(questionCreated[1], "q1_1", "the second question is q1_1");
+  assert.equal(questionAdded.length, 2, "There are two questions added");
+  assert.equal(questionAdded[0], "q1", "the first question is q1");
+  assert.equal(questionAdded[1], "q1_1", "the second question is q1_1");
+});
+QUnit.test("choice item elements & item.panel.visibleRows, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel1 = q1.choices[0].panel;
+  assert.equal(panel1.wasRendered, false, "the panel was not rendered");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(panel1.wasRendered, true, "the panel was rendered");
+  assert.equal(panel1.visibleRows.length, 1, "There is one visible row");
+  assert.equal(panel1.visibleRows[0].elements.length, 1, "There is one element in the visible row");
+  const panel2 = q1.choices[1].panel;
+  assert.equal(panel2.visibleRows.length, 0, "There is no visible row in the panel2");
+  assert.equal(panel2.wasRendered, false, "the panel2 was not rendered");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(panel2.wasRendered, true, "the panel2 was rendered");
+  assert.equal(panel2.visibleRows.length, 1, "There is one visible row in the panel2");
+  assert.equal(panel2.visibleRows[0].elements.length, 1, "There is one element in the visible row in the panel2");
+});
+QUnit.test("choice item elements & getElementByName, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel1 = q1.choices[0].panel;
+  assert.equal(panel1.getElementByName("q1_1")?.name, "q1_1", "getElementByName works correctly");
+  const page = survey.pages[0];
+  assert.equal(page.getElementByName("q1_1")?.name, "q1_1", "page.getElementByName works correctly");
+  const name = "choicePanel" + panel1.uniqueId;
+  assert.equal(panel1.name, name, "panel1.name is correct");
+  assert.equal(page.getElementByName(name)?.name, name, "page.getElementByName works correctly for panel1");
+});
+QUnit.test("choice item elements & nested elements, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [
+            { type: "checkbox", name: "q1_2",
+              choices: [{ value: "item21", elements: [{ type: "text", name: "q1_2_1" }] }, "item22"]
+            }
+          ] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel2 = q1.choices[1].panel;
+  assert.equal(panel2.wasRendered, false, "the panel2 was not rendered");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(panel2.wasRendered, true, "the panel2 was rendered");
+  const q1_2 = panel2.getQuestionByName("q1_2");
+  assert.ok(q1_2, "q1_2 is here");
+  assert.equal(q1_2.getType(), "checkbox", "q1_2 is a checkbox");
+  assert.equal(q1_2.choices.length, 2, "q1_2 has two choices");
+  assert.equal(q1_2.visibleChoices.length, 2, "q1_2 has two visible choices");
+  assert.equal(q1_2.renderedChoices.length, 2, "q1_2 has two rendered choices");
+  assert.equal(q1_2.wasRendered, true, "q1_2 was rendered");
+});
+QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1", isRequired: true }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2", isRequired: true }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = q1.choices[0].panel.getQuestionByName("q1_1");
+  const q1_2 = q1.choices[1].panel.getQuestionByName("q1_2");
+  assert.equal(q1.validate(true), true, "q1 is valid, #1");
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(q1.validate(true), false, "q1 is not valid, q1_1 is required, #2");
+  assert.equal(q1_1.errors.length, 1, "q1_1 errors #2");
+  assert.equal(q1_2.errors.length, 0, "q1_2 errors #2");
+  q1_1.value = "abc";
+  assert.equal(q1.validate(true), true, "q1 is valid, #3");
+  assert.equal(q1_1.errors.length, 0, "q1_1 errors #3");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1.validate(true), false, "q1 is not valid, q1_2 is required, #4");
+  assert.equal(q1_1.errors.length, 0, "q1_1 errors #4");
+  assert.equal(q1_2.errors.length, 1, "q1_2 errors #4");
+  q1_2.value = "edf";
+  assert.equal(q1.validate(true), true, "q1 is valid, #5");
+  assert.equal(q1_2.errors.length, 0, "q1_2 errors #5");
+});
+QUnit.test("choice item elements & validation, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: "item1", elements: [{ type: "text", name: "q1_1" }, { type: "text", name: "q1_2", visibleIf: "{q1_1} notempty" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_3" }, { type: "text", name: "q1_4", visibleIf: "{q2} notempty" }] }, "item3"]
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  const q1_4 = survey.getQuestionByName("q1_4");
+  q1.clickItemHandler(q1.choices[1], true);
+  q1.clickItemHandler(q1.choices[2], true);
+  assert.equal(q1_2.isVisible, false, "q1_2 visibility, #1");
+  assert.equal(q1_4.isVisible, false, "q1_4 visibility, #1");
+  q1_1.value = "abc";
+  assert.equal(q1_2.isVisible, true, "q1_2 visibility, #2");
+  q1_2.value = "edf";
+  assert.equal(q1_4.isVisible, false, "q1_4 visibility, #2");
+  survey.setValue("q2", "xyz");
+  assert.equal(q1_4.isVisible, true, "q1_4 visibility, #3");
+});
+QUnit.test("choice item elements & localization, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1", title: { default: "q1_1_t", de: "q1_1_t_de" } }] },
+          { value: "item2", elements: [
+            { type: "checkbox", name: "q1_2", title: { default: "q1_2_t", de: "q1_2_t_de" },
+              choices: [{ value: "item21", elements: [{ type: "text", name: "q1_2_1", title: { default: "q1_2_1_t", de: "q1_2_1_t_de" } }] }, "item22"]
+            }
+          ] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(survey.getUsedLocales(), ["en", "de"], "There is one non-default locale");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  const q1_2_1 = survey.getQuestionByName("q1_2_1");
+  q1.clickItemHandler(q1.choices[0], true);
+  survey.locale = "de";
+  assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t_de", "q1_1 title in de, #1");
+  assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t_de", "q1_2 title in de, #1");
+  assert.equal(q1_2_1.locTitle.textOrHtml, "q1_2_1_t_de", "q1_2_1 title in de, #1");
+  q1.clickItemHandler(q1.choices[1], true);
+  assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t_de", "q1_1 title in de, #2");
+  assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t_de", "q1_2 title in de, #2");
+  q1_2.clickItemHandler(q1_2.choices[0], true);
+  assert.equal(q1_2_1.locTitle.textOrHtml, "q1_2_1_t_de", "q1_2_1 title in de, #2");
+  survey.locale = "";
+  assert.equal(q1_1.locTitle.textOrHtml, "q1_1_t", "q1_1 title in default locale");
+  assert.equal(q1_2.locTitle.textOrHtml, "q1_2_t", "q1_2 title in default locale");
+});
+QUnit.test("choice item elements & nested/withFrame styles, Issue#10384", (assert) => {
+  const survey = new SurveyModel();
+  survey.css = { panel: { nested: "p-nested", withFrame: "p-frame" }, question: { nested: "q-nested", withFrame: "q-frame" } };
+  survey.fromJSON({
+    "elements": [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] }]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const panel1 = q1.choices[0].panel;
+  q1.clickItemHandler(q1.choices[0], true);
+  assert.equal(panel1.cssClasses.panel.nested, "p-nested", "panel nested class is here");
+  assert.equal(panel1.cssClasses.panel.withFrame, "p-frame", "panel withFrame class is here");
+  const panelCss = panel1.getContainerCss();
+  assert.equal(panelCss.indexOf("p-frame") > -1, false, "panelCss has p-frame, #1");
+  assert.equal(panelCss.indexOf("p-nested") > -1, true, "panelCss has p-nested, #1");
+
+  assert.equal(q1_1.cssClasses.nested, "q-nested", "question nested class is here");
+  assert.equal(q1_1.cssClasses.withFrame, "q-frame", "question withFrame class is here");
+  const q1_1Css = q1_1.getRootCss();
+  assert.equal(q1_1Css.indexOf("q-frame") > -1, false, "q1_1Css has q-frame, #1");
+  assert.equal(q1_1Css.indexOf("q-nested") > -1, true, "q1_1Css has q-nested, #1");
+});
+QUnit.test("choice item & clearInvisible values, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  q1.clickItemHandler(q1.choices[0], true);
+  q1_1.value = "abc";
+  q1.clickItemHandler(q1.choices[0], false);
+  q1.clickItemHandler(q1.choices[1], true);
+  q1_2.value = "edf";
+  assert.equal(q1_1.value, "abc", "q1_1 value is set");
+  assert.equal(q1_2.value, "edf", "q1_2 value is set");
+  assert.equal(q1_1.value, "abc", "q1_1 value is not cleared by default");
+  assert.deepEqual(survey.data, { q1: ["item2"], "q1_1": "abc", "q1_2": "edf" }, "survey.data #1");
+  survey.doComplete();
+  assert.notOk(q1_1.value, "q1_1 value is cleared");
+  assert.equal(q1_2.value, "edf", "q1_2 value is not cleared");
+  assert.deepEqual(survey.data, { q1: ["item2"], "q1_2": "edf" }, "survey.data #2");
+});
+QUnit.test("choice item & dispose, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const item1 = q1.choices[0];
+  const item2 = q1.choices[1];
+  const item3 = q1.choices[2];
+  assert.ok(item1.isPanelCreated, "item1 panel is here");
+  assert.ok(item2.isPanelCreated, "item2 panel is here");
+  assert.notOk(item3.isPanelCreated, "item3 panel is not here");
+  q1.dispose();
+  assert.equal(item1.panel.isDisposed, true, "item1 panel is disposed");
+  assert.equal(item2.panel.isDisposed, true, "item2 panel is disposed");
+  assert.notOk(item3.isPanelCreated, "item3 panel is not here");
+});

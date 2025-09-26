@@ -977,9 +977,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   protected get isCompact(): boolean {
     return this.survey && (<SurveyModel>this.survey)["isCompact"];
   }
-
+  public isInternalNested: boolean;
   private canHaveFrameStyles() {
     if (<any>this.survey?.currentSingleElement === this) return true;
+    if (this.isInternalNested === true) return false;
     return (this.parent !== undefined && (!this.hasParent || this.parent && (this.parent as PanelModel).showPanelAsPage));
   }
 

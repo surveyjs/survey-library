@@ -26,11 +26,11 @@ QUnit.test(" 213 123sad d213 sadsd", function (assert) {
 QUnit.test("allowAdaptiveActions", function (assert) {
   const matrix = new QuestionMatrixDropdownModelBase("q1");
   assert.equal(matrix.allowAdaptiveActions, false, "matrix.allowAdaptiveActions");
-  assert.equal(matrix.getPanel()["allowAdaptiveActions"], true, "matrix.panel.allowAdaptiveActions");
+  assert.equal(matrix.getPanels()[0]["allowAdaptiveActions"], true, "matrix.panel.allowAdaptiveActions");
 
   matrix.allowAdaptiveActions = false;
   assert.equal(matrix.allowAdaptiveActions, false, "matrix.allowAdaptiveActions");
-  assert.equal(matrix.getPanel()["allowAdaptiveActions"], false, "matrix.panel.allowAdaptiveActions");
+  assert.equal(matrix.getPanels()[0]["allowAdaptiveActions"], false, "matrix.panel.allowAdaptiveActions");
 
 });
 

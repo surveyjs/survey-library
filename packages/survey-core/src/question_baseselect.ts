@@ -237,6 +237,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!!dist) {
       Object.keys(dist).forEach((key) => { dist[key].dispose(); });
     }
+    this.doForPanels(undefined, (p) => p.dispose());
   }
   public supportElementsInChoice(): boolean {
     return false;
@@ -255,7 +256,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!this.supportElementsInChoice()) return null;
     const res = new Array<PanelModel>();
     this.choices.forEach((item) => {
-      if (item.isPanelShowing === isVisible) {
+      if (item.isPanelCreated && item.isPanelShowing === isVisible) {
         res.push(item.panel);
       }
     });

@@ -4018,3 +4018,26 @@ QUnit.test("choice item & clearInvisible values, Issue#10384", (assert) => {
   assert.equal(q1_2.value, "edf", "q1_2 value is not cleared");
   assert.deepEqual(survey.data, { q1: ["item2"], "q1_2": "edf" }, "survey.data #2");
 });
+QUnit.test("choice item & dispose, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [{ value: "item1", elements: [{ type: "text", name: "q1_1" }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] }, "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const item1 = q1.choices[0];
+  const item2 = q1.choices[1];
+  const item3 = q1.choices[2];
+  assert.ok(item1.isPanelCreated, "item1 panel is here");
+  assert.ok(item2.isPanelCreated, "item2 panel is here");
+  assert.notOk(item3.isPanelCreated, "item3 panel is not here");
+  q1.dispose();
+  assert.equal(item1.panel.isDisposed, true, "item1 panel is disposed");
+  assert.equal(item2.panel.isDisposed, true, "item2 panel is disposed");
+  assert.notOk(item3.isPanelCreated, "item3 panel is not here");
+});

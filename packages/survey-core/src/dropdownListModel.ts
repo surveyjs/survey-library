@@ -376,15 +376,15 @@ export class DropdownListModel extends Base {
 
   protected updateAfterListModelCreated(model: ListModel<ItemValue>): void {
     model.isItemSelected = (action: ItemValue) => !!action.selected;
-    model.onPropertyChanged.add((sender: any, options: any) => {
-      if (options.name == "hasVerticalScroller") {
-        this.hasScroll = options.newValue;
-      }
-    });
     model.isAllDataLoaded = !this.choicesLazyLoadEnabled;
     model.disableSearch = this.choicesLazyLoadEnabled;
     model.actions.forEach(a => a.disableTabStop = true);
     model.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
+    model.setLoadingIndicatorVisibilityObserver((isVisible: boolean) => {
+      if (isVisible) {
+        this.updateQuestionChoices();
+      }
+    });
   }
   protected getPopupCssClasses(): string { return "sv-single-select-list"; }
   public updateCssClasses(popupCssClass: string, listCssClasses: any): void {
@@ -554,17 +554,6 @@ export class DropdownListModel extends Base {
   public get listElementId(): string {
     return this.question.inputId + "_list";
   }
-
-  @property({
-    defaultValue: false,
-    onSet: (newVal: boolean, target: DropdownListModel) => {
-      if (newVal) {
-        target.listModel.addScrollEventListener((e: any) => { target.onScroll(e); });
-      } else {
-        target.listModel.removeScrollEventListener();
-      }
-    }
-  }) hasScroll: boolean;
 
   @property({ defaultValue: "" }) hintString: string;
 

@@ -423,6 +423,8 @@ export abstract class BaseAction extends Base implements IAction {
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
+  public intersectionVisibilityObserver: IntersectionObserver;
+
   public innerItem: IAction;
   constructor(innerItemData: IAction) {
     super();
@@ -588,6 +590,18 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   protected getGroupComponentName() {
     return "sv-list-item-group";
   }
+
+  public initLoadingIndicatorVisibilityObserver(handler: (isVisible: boolean) => void) {
+    if (typeof IntersectionObserver !== "undefined") {
+      this.intersectionVisibilityObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const isIntersecting = entry.isIntersecting;
+          handler(isIntersecting);
+        });
+      }, ({ trackVisibility: true, delay: 100 }) as any);
+    }
+  }
+
   public dispose(): void {
     if (!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
@@ -597,6 +611,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     super.dispose();
     if (this.popupModel) {
       this.popupModel.dispose();
+    }
+    if (this.intersectionVisibilityObserver) {
+      this.intersectionVisibilityObserver.disconnect();
+      this.intersectionVisibilityObserver = undefined;
     }
   }
   public updateDimension(mode: actionModeType, htmlElement: HTMLElement, calcDimension: (el: HTMLElement) => number): void {

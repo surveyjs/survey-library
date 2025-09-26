@@ -6,6 +6,7 @@
     v-show="model.isItemVisible(item)"
     :key="item.id"
     :id="elementId"
+    ref="elementRef"
     @pointerdown="model.onPointerDown($event, item)"
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
@@ -38,9 +39,10 @@ import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import type { ListModel, Action, IAction } from "survey-core";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const props = defineProps<{ model: ListModel; item: Action }>();
+const elementRef = ref<HTMLElement>(null as any);
 
 const elementId = computed(() => (props.item as IAction).elementId);
 const click = (event: any) => {
@@ -56,7 +58,7 @@ const itemComponent = computed(
 
 onMounted(() => {
   setTimeout(() => {
-    props.model.onLastItemRended(props.item as any);
+    props.model.onItemRended(props.item as any, elementRef.value);
   });
 });
 </script>

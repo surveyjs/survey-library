@@ -1858,3 +1858,15 @@ QUnit.test("ExpressionRunner vs context", function(assert) {
   const runner = new ExpressionRunner("{a} + {b}");
   assert.equal(runner.runContext(new VariableGetterContext({ a: 1, b: 2 })), 3, "#1");
 });
+QUnit.test("Condition vs not boolean, Bug#10412", function(assert) {
+  const exp = "(age({a}) >= 18) and !{b} and !{c}";
+  const operand = new ConditionsParser().parseExpression(exp);
+  assert.equal(operand.toString(), "((age([{a}]) >= 18) and !({b}) and ! ({c}))", "the expression is valid");
+  const runner = new ExpressionRunner(exp);
+  assert.equal(runner.runContext, "dd", "the expression is valid");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: false, c: false })), true, "#1");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: true, c: false })), false, "#3");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: "false", c: false })), true, "#5");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: "true", c: false })), false, "#6");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: true, c: true })), true, "#7");
+});

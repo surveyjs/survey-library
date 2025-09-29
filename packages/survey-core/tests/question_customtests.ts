@@ -1195,6 +1195,49 @@ QUnit.test("Complex: hide content question in designMode", function (assert) {
   assert.equal(middleName.isVisible, false, "showMiddleName is false");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Complex: hide content question in designMode inside dynamic panel, Bug#10421", function (assert) {
+  ComponentCollection.Instance.add(<any>{
+    name: "test1",
+    elementsJSON: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          {
+            type: "text",
+            name: "firstName",
+          },
+          {
+            type: "text",
+            name: "lastName",
+          },
+          {
+            type: "text",
+            name: "middleName",
+            visible: false,
+          },
+        ]
+      }
+    ]
+  });
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "test1",
+        question: "q1",
+      },
+    ],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const panel = <QuestionPanelDynamicModel>q.contentPanel.getQuestionByName("panel");
+  const middleName = panel.template.getQuestionByName("middleName");
+  assert.equal(middleName.isVisible, false, "It is invisible by default");
+  assert.equal(middleName.areInvisibleElementsShowing, false, "All invisible content elements are stay invisible");
+  assert.equal(middleName.parentQuestion?.name, "panel", "The parent question is correct");
+  assert.equal(panel.areInvisibleElementsShowing, false, "All invisible content elements are stay invisible, #2");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
   assert
 ) {

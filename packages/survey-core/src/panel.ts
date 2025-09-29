@@ -2295,7 +2295,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     return locTitleValue;
   }
   protected beforeSetVisibleIndex(index: number): number {
-    if (this.isPage) return super.beforeSetVisibleIndex(index);
+    if (this.isPage || !this.parent) return super.beforeSetVisibleIndex(index);
     let visibleIndex = -1;
     if ((this.showNumber || this.isQuestionIndexRecursive) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
       visibleIndex = index;

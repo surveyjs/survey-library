@@ -65,7 +65,7 @@
                         :needRenderWrapper="true"
                       ></SvComponent>
                       <SvComponent
-                        :is="'survey-page'"
+                        :is="vueSurvey.pageComponent || 'sv-page'"
                         :key="pageKey"
                         :survey="vueSurvey"
                         :page="vueSurvey.activePage"

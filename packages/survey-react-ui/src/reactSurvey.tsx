@@ -199,13 +199,14 @@ export class Survey extends SurveyElementBase<any, any>
     );
   }
   protected renderPage(page: PageModel): React.JSX.Element {
-    return (
-      <SurveyPage
-        survey={this.survey}
-        page={page}
-        css={this.css}
-        creator={this}
-      />
+    return ReactElementFactory.Instance.createElement(
+      this.survey.pageComponent || "sv-page",
+      {
+        survey: this.survey,
+        page: page,
+        css: this.css,
+        creator: this,
+      }
     );
   }
   protected renderEmptySurvey(): React.JSX.Element {

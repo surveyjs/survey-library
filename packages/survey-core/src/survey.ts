@@ -8499,6 +8499,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
+  public pageComponent = "sv-page";
 }
 
 function isStrCiEqual(a: string, b: string) {

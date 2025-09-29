@@ -4,6 +4,7 @@ import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyPanelBase } from "./panel-base";
 import { TitleElement } from "./components/title/title-element";
 import { SurveyElementErrors } from "./reactquestion";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
@@ -47,3 +48,7 @@ export class SurveyPage extends SurveyPanelBase {
     );
   }
 }
+
+ReactElementFactory.Instance.registerElement("sv-page", (props) => {
+  return React.createElement(SurveyPage, props);
+});

@@ -3068,7 +3068,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected getValidName(name: string): string {
-    return makeNameValid(name);
+    return makeNameValid(super.getValidName(name));
   }
   //IQuestion
   private isUpdateingValueFromSurvey: boolean;

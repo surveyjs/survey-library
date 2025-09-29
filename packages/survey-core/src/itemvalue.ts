@@ -276,9 +276,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   private setValue(newValue: any, newItem: boolean): void {
     let text: string = undefined;
     newValue = this.getCorrectValue(newValue);
-    if (!Helpers.isValueEmpty(newValue)) {
+    const sep = settings.itemValueSeparator;
+    if (!!sep && !Helpers.isValueEmpty(newValue)) {
       var str: string = newValue.toString();
-      var index = str.indexOf(settings.itemValueSeparator);
+      var index = str.indexOf(sep);
       if (index > -1) {
         newValue = str.slice(0, index);
         text = str.slice(index + 1);

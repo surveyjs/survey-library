@@ -734,10 +734,6 @@ export class PanelModelBase extends SurveyElement<Question>
     });
     return res2;
   }
-  protected getValidName(name: string): string {
-    if (!!name) return name.trim();
-    return name;
-  }
   /**
    * Returns a question with a specified `name`. This method does not find questions within nested panels.
    * @param name A question name.

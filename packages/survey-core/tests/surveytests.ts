@@ -22718,3 +22718,17 @@ QUnit.test("Do not serialize mode:display property, #10281", function (assert) {
     readOnly: true
   }, "survey3 is serialized correctly");
 });
+QUnit.test("Do not allow to set name vs |, #10424", function (assert) {
+  const page = new PageModel("p1|mode");
+  assert.equal(page.name, "p1mode", "the | is removed, #1");
+  page.name = "p2|mode";
+  assert.equal(page.name, "p2mode", "the | is removed, #2");
+  const panel = new PanelModel("p1|mode");
+  assert.equal(panel.name, "p1mode", "the | is removed, #3");
+  panel.name = "p2|mode";
+  assert.equal(panel.name, "p2mode", "the | is removed, #4");
+  const question = new QuestionTextModel("q1|mode");
+  assert.equal(question.name, "q1mode", "the | is removed, #5");
+  question.name = "q2|mode";
+  assert.equal(question.name, "q2mode", "the | is removed, #6");
+});

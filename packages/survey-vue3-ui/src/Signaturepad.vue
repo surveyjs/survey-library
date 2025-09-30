@@ -41,7 +41,7 @@
         :title="question.clearButtonCaption"
         v-on:click="
           () => {
-            question.clearValue(true);
+            question.clearValueFromUI();
           }
         "
       >

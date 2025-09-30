@@ -807,7 +807,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         {
           locTitleName: "clearCaption",
           id: `sv-clr-btn-${this.id}`,
-          action: () => { this.clearValue(true); },
+          action: () => { this.clearValueFromUI(); },
           innerCss: this.cssClasses.clearButton,
           visible: <any>new ComputedUpdater(() => this.allowClear && !this.isReadOnly)
         }

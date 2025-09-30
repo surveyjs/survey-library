@@ -11067,3 +11067,22 @@ QUnit.test("SurveyError.notificationType & validate in matrices,Issue#9085", fun
   assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
   assert.deepEqual(survey.data, { matrix: [{ col1: 7 }, { col1: 8 }] }, "The data is correct");
 });
+QUnit.test("SurveyError.notificationType & validate in matrices, Bug#10436", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 3,
+        columns: [
+          { name: "col1", cellType: "dropdown", defaultValueExpression: "1", choices: [{ value: 1, text: "item 1" }] }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  rows[0].getQuestionByColumnName("col1").clearValueFromUI();
+  rows[1].getQuestionByColumnName("col1").clearValueFromUI();
+  rows[2].getQuestionByColumnName("col1").clearValueFromUI();
+  assert.equal(rows[0].getQuestionByColumnName("col1").isEmpty(), true, "row 0 is empty");
+  assert.equal(rows[1].getQuestionByColumnName("col1").isEmpty(), true, "row 1 is empty");
+  assert.equal(rows[2].getQuestionByColumnName("col1").isEmpty(), true, "row 2 is empty");
+});

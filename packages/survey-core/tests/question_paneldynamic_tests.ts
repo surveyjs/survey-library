@@ -8442,3 +8442,26 @@ QUnit.test("SurveyError.notificationType & validate in panel dynamic,Issue#9085"
   assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");
   assert.deepEqual(survey.data, { panel: [{ q1: 7 }, { q1: 8 }] }, "The data is correct");
 });
+QUnit.test("Panel dynamic vs multiple text in expression, Bug#10230", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "d1",
+        "panelCount": 1,
+        "templateElements": [
+          { "type": "multipletext", "name": "q1", items: [{ name: "item1" }, { name: "item2" }] },
+          { type: "text", name: "q2", setValueExpression: "{panel.q1.item1} + {panel.q1.item2}" }
+        ]
+      }
+    ]
+  });
+  const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("d1");
+  const panel = dp.panels[0];
+  const q1 = <QuestionMultipleTextModel>panel.getQuestionByName("q1");
+  const q2 = <QuestionTextModel>panel.getQuestionByName("q2");
+  q1.items[0].value = 1;
+  assert.equal(q2.value, 1, "q1.item1 = 1");
+  q1.items[1].value = 2;
+  assert.equal(q2.value, 3, "q1.item1 = 1, q1.item2 = 2");
+});

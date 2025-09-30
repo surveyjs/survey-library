@@ -3485,6 +3485,10 @@ export class Question extends SurveyElement<Question>
   }
   //EO new a11y
 
+  public get dragDropMatrixAttribute(): string {
+    return null;
+  }
+
   private _syncPropertiesChanging: boolean = false;
   protected registerSychProperties(names: Array<string>, func: any) {
     this.registerFunctionOnPropertiesValueChanged(names,

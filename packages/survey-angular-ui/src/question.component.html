@@ -23,7 +23,7 @@
     <ng-template
       *ngIf="!model.singleInputSummary && !singleQuestion"
       [component]="{ name: getQuestionContentWrapperComponentName(), data: getQuestionContentWrapperComponentData() }">
-      <div [class]="model.cssContent" role="presentation" [visible]="model.renderedIsExpanded" [attr.aria-hidden]="model.contentAriaHidden">
+      <div [class]="model.cssContent" role="presentation" [visible]="model.renderedIsExpanded" [attr.aria-hidden]="model.contentAriaHidden" [attr.data-sv-drop-target-matrix-row]="model.dragDropMatrixAttribute">
         <ng-template
           [component]="{ name: getComponentName(), data: { model: model }, default: 'skeleton-question' }"></ng-template>
         <div *ngIf="model.hasComment" [class]="model.getCommentAreaCss(false)">

@@ -105,10 +105,10 @@ export class ValueGetter {
   }
   private getFirstNameByKeys(keys: any, name: string): string {
     const path = this.getPath(name);
-    let firstNaeme = "";
+    let res = "";
     for (let i = 0; i < path.length; i++) {
-      firstNaeme += (i > 0 ? "." : "") + path[i].name;
-      if (keys.hasOwnProperty(firstNaeme)) return firstNaeme;
+      res += (i > 0 ? "." : "") + path[i].name;
+      if (keys.hasOwnProperty(res)) return res;
     }
     return "";
   }

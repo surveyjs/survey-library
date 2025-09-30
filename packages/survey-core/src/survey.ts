@@ -4297,8 +4297,7 @@ export class SurveyModel extends SurveyElementCore
       this.performNextAfterValidation(q);
       return true;
     }
-    const questions = q.isQuestion ? [q] : q.visibleQuestions;
-    const res = this.validateElements(questions, true, false, (hasErrors: boolean) => {
+    const res = this.validateElements([q], true, false, (hasErrors: boolean) => {
       if (!hasErrors) {
         this.performNextAfterValidation(q);
       }
@@ -8499,7 +8498,6 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public questionErrorComponent = "sv-question-error";
-  public pageComponent = "sv-page";
 }
 
 function isStrCiEqual(a: string, b: string) {

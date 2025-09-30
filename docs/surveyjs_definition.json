@@ -3346,6 +3346,9 @@
                         "label": {
                             "type": "string"
                         },
+                        "useTitleAsLabel": {
+                            "type": "boolean"
+                        },
                         "labelTrue": {
                             "type": "string"
                         },

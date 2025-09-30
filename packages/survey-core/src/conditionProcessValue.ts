@@ -84,9 +84,8 @@ export class ValueGetter {
       const lowerName = name.toLowerCase();
       if (keys.hasOwnProperty(name)) return true;
       if (name !== lowerName && keys.hasOwnProperty(lowerName)) return true;
-      const path = this.getPath(name);
-      const firstName = path.length > 0 ? path[0].name : "";
-      if (!keys.hasOwnProperty(firstName)) continue;
+      const firstName = this.getFirstNameByKeys(keys, name);
+      if (!firstName) continue;
       if (name === firstName) return true;
       const keyValue = keys[firstName];
       if (keyValue == undefined) continue;
@@ -103,7 +102,15 @@ export class ValueGetter {
       if (!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
     }
     return false;
-
+  }
+  private getFirstNameByKeys(keys: any, name: string): string {
+    const path = this.getPath(name);
+    let res = "";
+    for (let i = 0; i < path.length; i++) {
+      res += (i > 0 ? "." : "") + path[i].name;
+      if (keys.hasOwnProperty(res)) return res;
+    }
+    return "";
   }
   private getValueFromObject(obj: any, fullName: string): any {
     const res = this.getValueInfo({ name: fullName, context: new VariableGetterContext(obj) });

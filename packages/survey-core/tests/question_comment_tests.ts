@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionCommentModel } from "../src/question_comment";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("Comment question");
 
@@ -84,4 +85,27 @@ QUnit.test("The text length validation error occurs when the minLength validator
   survey.validate(true);
   assert.equal(q1.errors.length, 1, "There are errors");
   assert.equal(q1.errors[0].text, "Numbers are not allowed.", "No digits allowing");
+});
+QUnit.test("Collapse/expand/read-only & focus Bug#10434", function(assert) {
+  const focusFunc = SurveyElement.FocusElement;
+  let focusedQuestionId = "";
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+  const survey = new SurveyModel({
+    elements: [
+      { type: "comment", name: "q1", state: "expanded", readOnly: true, defaultValue: "test" }
+    ]
+  });
+  const q1 = <QuestionCommentModel>survey.getQuestionByName("q1");
+  assert.equal(q1.isReadOnly, true, "The question is read-only");
+  assert.equal(q1.isExpanded, true, "The question is expanded");
+  q1.collapse();
+  assert.equal(q1.isCollapsed, true, "The question is collapsed");
+  q1.expand();
+  q1.focus();
+  assert.equal(q1.isExpanded, true, "The question is expanded again");
+  assert.equal(focusedQuestionId, "", "The question is not focused");
+  SurveyElement.FocusElement = focusFunc;
 });

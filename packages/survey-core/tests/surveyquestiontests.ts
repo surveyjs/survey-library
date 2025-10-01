@@ -4010,10 +4010,8 @@ QUnit.test("question.getSupportedValidators", function (assert) {
   ]);
   assert.deepEqual(new QuestionTextModel("q").getSupportedValidators(), [
     "expression",
-    "numeric",
     "text",
-    "regex",
-    "email",
+    "regex"
   ]);
   assert.deepEqual(new QuestionCommentModel("q").getSupportedValidators(), [
     "expression",

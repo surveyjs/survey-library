@@ -45,6 +45,8 @@
     "karma-webpack": "5.0.0",
     "merge-files": "^0.1.2",
     "mini-css-extract-plugin": "^2.9.0",
+    "peggy": "^5.0.6",
+    "ts-pegjs": "^4.2.1",
     "postcss": "8.4.31",
     "postcss-calc": "9.0.1",
     "postcss-cli": "10.1.0",

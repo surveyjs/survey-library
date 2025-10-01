@@ -206,8 +206,8 @@ export function createPopupModelWithListModel(listOptions: IListModel, popupOpti
   const _popupOptions = popupOptions || {};
   _popupOptions.onDispose = () => { listModel.dispose(); };
   const popupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, _popupOptions);
-  popupModel.isFocusedContent = listModel.showFilter;
   popupModel.onShow = () => {
+    popupModel.isFocusedContent = listModel.showFilter;
     if (!!_popupOptions.onShow) _popupOptions.onShow();
     listModel.scrollToSelectedItem();
   };

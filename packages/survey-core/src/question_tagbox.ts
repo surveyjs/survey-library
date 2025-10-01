@@ -330,8 +330,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModelValue = undefined;
     }
   }
-  public clearValue(keepComment?: boolean): void {
-    super.clearValue(keepComment);
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
+    super.clearValue(keepComment, fromUI);
     this.dropdownListModelValue?.clear();
   }
   public get showClearButton(): boolean {

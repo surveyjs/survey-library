@@ -53,7 +53,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
         type="button"
         className={cssClasses.clearButton}
         title={this.question.clearButtonCaption}
-        onClick={() => this.question.clearValue(true)}
+        onClick={() => this.question.clearValueFromUI()}
       >
         {this.question.cssClasses.clearButtonIconId ? <SvgIcon iconName={this.question.cssClasses.clearButtonIconId} size={"auto"}></SvgIcon> : <span>✖</span>} {/* eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code */}
       </button>

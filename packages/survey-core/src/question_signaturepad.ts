@@ -463,9 +463,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
     this.valueIsUpdatingInternally = false;
   }
-  public clearValue(keepComment?: boolean): void {
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     this.valueWasChangedFromLastUpload = false;
-    super.clearValue(keepComment);
+    super.clearValue(keepComment, fromUI);
     this._loadedData = undefined;
     this.loadPreview(this.value);
   }

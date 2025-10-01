@@ -2252,14 +2252,17 @@ export class Question extends SurveyElement<Question>
    * @see value
    * @see comment
    */
-  public clearValue(keepComment?: boolean): void {
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     if (this.value !== undefined) {
       this.value = undefined;
     }
     if (!!this.comment && keepComment !== true) {
       this.comment = undefined;
     }
-    this.setValueChangedDirectly(false);
+    this.setValueChangedDirectly(fromUI === true);
+  }
+  clearValueFromUI(): void {
+    this.clearValue(true, true);
   }
   clearValueOnly(): void {
     this.clearValue(true);

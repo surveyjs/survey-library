@@ -56,6 +56,7 @@
         :aria-hidden="element.contentAriaHidden"
         :style="{ display: !element.renderedIsExpanded ? 'none' : undefined }"
         role="presentation"
+        :data-sv-drop-target-matrix="element.dragDropMatrixAttribute"
         :data-sv-drop-target-matrix-row="element.dragDropMatrixAttribute"
       >
         <SvComponent :is="componentName" :question="element" />

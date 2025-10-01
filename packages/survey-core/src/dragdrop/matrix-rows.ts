@@ -134,7 +134,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   }
 
   protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
-    const isRootContentNode = dropTargetNode.className.indexOf("matrixdynamic__content") !== -1;
+    const isRootContentNode = !!dropTargetNode.dataset.svDropTargetMatrix;
     if (isRootContentNode) return true;
     const rect = dropTargetNode.getBoundingClientRect();
     return clientY >= rect.y + rect.height / 2;

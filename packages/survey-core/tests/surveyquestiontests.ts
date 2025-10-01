@@ -6016,7 +6016,33 @@ QUnit.test("Validate function for custom widget", function (assert) {
   assert.equal(q1.errors.length, 0, "Errors list, #8");
   CustomWidgetCollection.Instance.clear();
 });
-
+QUnit.test("Focus function for custom widget, bug#10439", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  let focusedQuestionName: string = "";
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: (question): boolean => {
+      return question.name == "question1";
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "question1"
+      },
+    ],
+  });
+  const q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  q1.focusCallback = () => {
+    focusedQuestionName = q1.name;
+  };
+  q1.focus();
+  assert.equal(focusedQuestionName, "question1", "Focus function is called");
+  CustomWidgetCollection.Instance.clear();
+});
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {

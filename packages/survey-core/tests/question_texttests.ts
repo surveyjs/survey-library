@@ -746,3 +746,25 @@ QUnit.test("Numeric Single-Line Input: step validation floating point issues, #1
   q1.value = 4.2;
   assert.equal(q1.validate(), true, "4.2 is valid");
 });
+QUnit.test("getSupportedValidators for text based on inputType, #10440", (assert) => {
+  const q = new QuestionTextModel("q1");
+  assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex"], "default inputType");
+  q.inputType = "number";
+  assert.deepEqual(q.getSupportedValidators(), ["expression", "numeric"], "inputType=number");
+  q.inputType = "email";
+  assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex", "email"], "inputType=email");
+  q.inputType = "date";
+  assert.deepEqual(q.getSupportedValidators(), ["expression"], "inputType=date");
+  q.inputType = "time";
+  assert.deepEqual(q.getSupportedValidators(), ["expression"], "inputType=time");
+  q.inputType = "datetime-local";
+  assert.deepEqual(q.getSupportedValidators(), ["expression"], "inputType=datetime-local");
+  q.inputType = "tel";
+  assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex"], "inputType=tel");
+  q.inputType = "color";
+  assert.deepEqual(q.getSupportedValidators(), ["expression"], "inputType=color");
+  q.inputType = "password";
+  assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex"], "inputType=password");
+  q.inputType = "url";
+  assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex"], "inputType=url");
+});

@@ -92,11 +92,10 @@ frameworks.forEach(framework => {
           },
         ]
       });
-
+      await page.waitForTimeout(2000);
       await page.evaluate(() => {
         window["survey"].getQuestionByName("q1").value = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
       });
-      await page.waitForTimeout(1000);
       await compareScreenshot(page, ".sd-question", "signature-data.png");
     });
 

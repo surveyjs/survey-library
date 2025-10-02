@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getListItemByText } from "../helper";
-import { Selector } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const title = "tagbox";
 
 const questionOffsetTopConst = 176;
@@ -247,10 +247,11 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, jsonCloseOnSelectIsTrue);
     await t
+      .pressKey("tab")
+      .pressKey("shift+tab")
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
-
       .pressKey("2")
       .expect(popupContainer.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
@@ -310,7 +311,6 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
-
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
@@ -334,6 +334,8 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, jsonCloseOnSelectIsDefault);
     await t
+      .pressKey("tab")
+      .pressKey("shift+tab")
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
@@ -717,6 +719,8 @@ frameworks.forEach((framework) => {
     const listItems = Selector(".sv-list__item span");
 
     await t
+      .pressKey("tab")
+      .pressKey("shift+tab")
       .resizeWindow(1280, 900)
 
       .pressKey("2")
@@ -946,7 +950,8 @@ frameworks.forEach((framework) => {
 
     await t
       .resizeWindow(1280, 900)
-
+      .pressKey("tab")
+      .pressKey("shift+tab")
       .pressKey("2")
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)

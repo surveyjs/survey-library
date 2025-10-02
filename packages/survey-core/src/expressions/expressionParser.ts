@@ -2860,7 +2860,7 @@ peg$parseUnaryFunctionOp() {
 // @ts-ignore
       s2 = peg$parse_();
 // @ts-ignore
-      s3 = peg$parseExpression();
+      s3 = peg$parseFactor();
 // @ts-ignore
       if (s3 !== peg$FAILED) {
 // @ts-ignore

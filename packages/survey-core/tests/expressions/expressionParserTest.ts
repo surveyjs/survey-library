@@ -1858,15 +1858,30 @@ QUnit.test("ExpressionRunner vs context", function(assert) {
   const runner = new ExpressionRunner("{a} + {b}");
   assert.equal(runner.runContext(new VariableGetterContext({ a: 1, b: 2 })), 3, "#1");
 });
-QUnit.skip("Condition vs not boolean, Bug#10412", function(assert) {
+QUnit.test("Condition vs not boolean, Bug#10412", function(assert) {
   const exp = "(age({a}) >= 18) and !{b} and !{c}";
   const operand = new ConditionsParser().parseExpression(exp);
-  assert.equal(operand.toString(), "((age([{a}]) >= 18) and !({b}) and ! ({c}))", "the expression is valid");
+  assert.equal(operand.toString(), "(((age([{a}]) >= 18) and ! {b}) and ! {c})", "the expression is valid");
   const runner = new ExpressionRunner(exp);
-  assert.equal(runner.runContext, "dd", "the expression is valid");
-  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: false, c: false })), true, "#1");
-  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: true, c: false })), false, "#3");
-  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: "false", c: false })), true, "#5");
-  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: "true", c: false })), false, "#6");
-  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: true, c: true })), true, "#7");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: false, c: false })), true, "#1");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: true, c: false })), false, "#2");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: "false", c: false })), true, "#3");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: "true", c: false })), false, "#4");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: true, c: true })), false, "#5");
+
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: false, c: false })), false, "#6");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: true, c: false })), false, "#7");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: "false", c: false })), false, "#8");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: "true", c: false })), false, "#9");
+  assert.equal(runner.runContext(new VariableGetterContext({ a: "2020-01-01", b: true, c: true })), false, "#10");
+});
+QUnit.test("Unary not !, Bug#10412", function(assert) {
+  const exp = "!{b} and !{c}";
+  const operand = new ConditionsParser().parseExpression(exp);
+  assert.equal(operand.toString(), "(! {b} and ! {c})", "the expression is valid");
+  const runner = new ExpressionRunner(exp);
+  assert.equal(runner.runContext(new VariableGetterContext({ b: false, c: false })), true, "#1");
+  assert.equal(runner.runContext(new VariableGetterContext({ b: true, c: false })), false, "#3");
+  assert.equal(runner.runContext(new VariableGetterContext({ b: "false", c: false })), true, "#5");
+  assert.equal(runner.runContext(new VariableGetterContext({ b: "true", c: false })), false, "#6");
 });

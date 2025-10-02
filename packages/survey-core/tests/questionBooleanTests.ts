@@ -288,7 +288,7 @@ QUnit.test("Boolean render as checkbox: useTitleAsLabel", function (assert) {
   assert.equal(q1.isLabelRendered, true);
   assert.equal(q1.titleLocation, "hidden");
 });
-QUnit.skip("Boolean in calculation vs not, Bug#10412", function (assert) {
+QUnit.test("Boolean in calculation vs not, Bug#10412", function (assert) {
   var survey = new SurveyModel({
     elements: [
       { type: "text", inputType: "date", name: "a1", defaultValue: "2000-01-01" },

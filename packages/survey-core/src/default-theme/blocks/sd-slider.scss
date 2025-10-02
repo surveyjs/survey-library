@@ -48,6 +48,10 @@
   // }
 }
 
+.sd-slider--has-tooltips {
+  margin-top: var(--lbr-slider-margin-top-tooltip, calcSize(5));
+}
+
 .sd-slider-container {
   position: relative;
   min-height: var(--sjs-postcss-fix-slider-thumb-height);

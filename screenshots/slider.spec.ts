@@ -205,5 +205,22 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-matrixdropdown", "slider-inside-matrix-dropdown.png");
     });
 
+    test("Slider: Tooltips", async ({ page }) => {
+      const json = {
+        elements: [{
+          type: "slider",
+          sliderType: "single",
+          name: "q1"
+        }],
+      };
+      const question = new Question(page, "q1");
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+
+      await compareScreenshot(page, ".sd-slider", "slider-single-1312323123.png");
+
+      await question.setPropertyValue("min", -100);
+    });
+
   });
 });

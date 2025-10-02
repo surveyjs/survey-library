@@ -281,6 +281,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .append(this.cssClasses.rootNegativeScaleMode, !!this.isNegativeScale)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
+      .append(this.cssClasses.rootHasTooltipsMode, this.tooltipVisibility !== "never")
       .toString();
   }
 

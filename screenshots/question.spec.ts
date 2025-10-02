@@ -672,7 +672,7 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-question");
       await questionRoot.click();
       await page.waitForTimeout(500);
-      await page.keyboard.press("Tab");
+      //await page.keyboard.press("Tab"); We do not focus readonly question on expand after fixing #10434 bug. So we do not need press tab to leave the comment, since it was not focused.
       await compareScreenshot(page, questionRoot, "question-comment-ajust-height.png");
     });
 

@@ -1906,7 +1906,8 @@ export class Question extends SurveyElement<Question>
   focusInputElement(onError: boolean): void {
     const id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
     const surveyRoot = (this.survey as SurveyModel)?.rootElement;
-    if (SurveyElement.FocusElement(id, false, surveyRoot)) {
+    const res = SurveyElement.FocusElement(id, false, surveyRoot);
+    if (res || !!this.customWidget) {
       this.fireCallback(this.focusCallback);
     }
   }

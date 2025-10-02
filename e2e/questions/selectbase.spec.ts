@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
-const title = "select-base";
+const title = "selectbase";
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {

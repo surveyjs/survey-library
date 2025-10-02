@@ -73,6 +73,11 @@
     "webpack-merge": "^5.8.0",
     "webpack-remove-empty-scripts": "^1.0.4"
   },
+  "overrides": {
+    "ts-pegjs": {
+      "peggy": "^5.0.6"
+    }
+  },
   "commit-and-tag-version": {
     "bumpFiles": [
       "package.json"

@@ -3,7 +3,7 @@ import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ItemValue, QuestionCheckboxModel } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyQuestionCheckboxBaseItem, SurveyQuestionSelectbase } from "./reactquestion_checkboxbase";
+import { SurveyQuestionSelectBaseItem, SurveyQuestionSelectbase } from "./reactquestion_selectbase";
 
 export class SurveyQuestionCheckbox extends SurveyQuestionSelectbase {
   constructor(props: any) {
@@ -31,7 +31,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionSelectbase {
     return null;
   }
 }
-export class SurveyQuestionCheckboxItem extends SurveyQuestionCheckboxBaseItem {
+export class SurveyQuestionCheckboxItem extends SurveyQuestionSelectBaseItem {
   constructor(props: any) {
     super(props);
   }

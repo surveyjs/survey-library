@@ -2,7 +2,7 @@ import * as React from "react";
 import { QuestionRadiogroupModel, ItemValue, Base, SurveyModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactElementFactory } from "./element-factory";
-import { SurveyQuestionCheckboxBaseItem, SurveyQuestionSelectbase } from "./reactquestion_checkboxbase";
+import { SurveyQuestionSelectBaseItem, SurveyQuestionSelectbase } from "./reactquestion_selectbase";
 
 export class SurveyQuestionRadiogroup extends SurveyQuestionSelectbase {
   constructor(props: any) {
@@ -36,7 +36,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionSelectbase {
   protected isItemChecked(item: ItemValue, value: any): boolean { return item.value === value; }
 }
 
-export class SurveyQuestionRadioItem extends SurveyQuestionCheckboxBaseItem {
+export class SurveyQuestionRadioItem extends SurveyQuestionSelectBaseItem {
   constructor(props: any) {
     super(props);
     this.handleOnMouseDown = this.handleOnMouseDown.bind(this);

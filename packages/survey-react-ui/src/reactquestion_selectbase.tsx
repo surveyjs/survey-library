@@ -5,7 +5,7 @@ import {
 } from "./reactquestion_element";
 import { SurveyQuestionCommentValueItem } from "./reactquestion_comment";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { Base, ItemValue, SurveyModel, QuestionCheckboxBase } from "survey-core";
+import { Base, ItemValue, SurveyModel, QuestionSelectBase } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 import { SurveyPanel } from "./panel";
 
@@ -13,8 +13,8 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
   constructor(props: any) {
     super(props);
   }
-  protected get question(): QuestionCheckboxBase {
-    return this.questionBase as QuestionCheckboxBase;
+  protected get question(): QuestionSelectBase {
+    return this.questionBase as QuestionSelectBase;
   }
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
@@ -124,7 +124,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     return wrappedItem ?? renderedItem;
   }
 }
-export class SurveyQuestionCheckboxBaseItem extends ReactSurveyElement {
+export class SurveyQuestionSelectBaseItem extends ReactSurveyElement {
   protected rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
@@ -133,7 +133,7 @@ export class SurveyQuestionCheckboxBaseItem extends ReactSurveyElement {
   protected getStateElement(): Base {
     return this.item;
   }
-  protected get question(): QuestionCheckboxBase {
+  protected get question(): QuestionSelectBase {
     return this.props.question;
   }
   protected get item(): ItemValue {

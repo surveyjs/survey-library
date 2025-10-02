@@ -387,6 +387,7 @@ frameworks.forEach(framework => {
       await page.keyboard.press("c");
       await page.keyboard.press("Tab");
       await page.click(".sd-paneldynamic__remove-btn");
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, page.locator(".sv-popup--confirm .sv-popup__body-content"), "paneldynamic-confirm-dialog.png");
 
       await page.evaluate(() => {

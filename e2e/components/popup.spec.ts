@@ -150,7 +150,7 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-
+      await page.waitForTimeout(1000);
       await page.evaluate(() => {
         const style = document.querySelector(".sv-popup__container").style;
         style.marginLeft = "4px";

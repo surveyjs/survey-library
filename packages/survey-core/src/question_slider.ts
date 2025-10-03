@@ -126,8 +126,9 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    *
    * Possible values:
    *
-   * - `"auto"` (default) - Displays the tooltips when the thumb or selected range is hovered over or focused.
-   * - `"never"` - Hides the tooltips entirely.
+   * - `"auto"` (default) - Tooltips appear when the thumb or selected range is hovered or focused.
+   * - `"always"`- Tooltips are always visible.
+   * - `"never"` - Tooltips are never displayed.
    * @see tooltipFormat
    */
   @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | "always" | "never";

@@ -29,6 +29,12 @@ export class SliderLabelItemValue extends ItemValue {
     }
     return this.value || 0;
   }
+  public get showValue(): boolean {
+    return this.getPropertyValue("showValue", false);
+  }
+  public set showValue(val: boolean) {
+    this.setPropertyValue("showValue", val);
+  }
 }
 
 /**
@@ -906,7 +912,8 @@ Serializer.addClass(
   [
     { name: "!value:number" },
     { name: "visibleIf", visible: false },
-    { name: "enableIf", visible: false }
+    { name: "enableIf", visible: false },
+    { name: "showValue:boolean", locationInTable: "detail", default: false }
   ],
   (value: any) => new SliderLabelItemValue(value),
   "itemvalue"

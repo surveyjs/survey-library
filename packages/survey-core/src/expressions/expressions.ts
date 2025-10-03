@@ -352,7 +352,9 @@ export class Variable extends Const {
   public evaluate(processValue?: ProcessValue): any {
     this.valueInfo.name = this.variableName;
     processValue.getValueInfo(this.valueInfo);
-    if (!this.valueInfo.hasValue) return null;
+    if (!this.valueInfo.hasValue) {
+      return this.returnJSONObject(this.variableName);
+    }
     let val = this.valueInfo.value;
     if (this.valueInfo.onProcessValue) {
       val = this.valueInfo.onProcessValue(val);
@@ -369,6 +371,14 @@ export class Variable extends Const {
   protected isContentEqual(op: Operand): boolean {
     const vOp = <Variable>op;
     return vOp.variable == this.variable;
+  }
+  private returnJSONObject(name: string): any {
+    if (!name || name.length < 2 || name.indexOf(":") < 1) return null;
+    try {
+      return JSON.parse("{" + name + "}");
+    } catch{
+      return null;
+    }
   }
 }
 

@@ -130,7 +130,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * - `"never"` - Hides the tooltips entirely.
    * @see tooltipFormat
    */
-  @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | /*"always" |*/ "never";
+  @property({ defaultValue: "auto" }) tooltipVisibility: "auto" | "always" | "never";
   /**
    * Sets the interval between selectable scale values.
    *
@@ -257,12 +257,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   public get generatedLabels(): ItemValue[] {
     return this.getPropertyValue("generatedLabels", undefined, () => this.calcGeneratedLabels());
   }
-  get tooltipVisibilityPG(): boolean {
-    return this.tooltipVisibility === "auto";
-  }
-  set tooltipVisibilityPG(newValue: boolean) {
-    this.tooltipVisibility = newValue ? "auto" : "never";
-  }
   public get renderedValue(): number[] {
     return this.getPropertyValue("renderedValue", undefined, () => this.calcRenderedValue());
   }
@@ -281,7 +275,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .append(this.cssClasses.rootNegativeScaleMode, !!this.isNegativeScale)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
-      .append(this.cssClasses.rootHasTooltipsMode, this.tooltipVisibility !== "never")
+      .append(this.cssClasses.rootTooltipsAlwaysMode, this.tooltipVisibility === "always")
       .toString();
   }
 
@@ -987,13 +981,7 @@ Serializer.addClass(
     {
       name: "tooltipVisibility:string",
       default: "auto",
-      visible: false,
-      choices: ["auto", "never"]
-    },
-    {
-      name: "tooltipVisibilityPG:boolean",
-      default: true,
-      isSerializable: false,
+      choices: ["auto", "always", "never"]
     },
     {
       name: "labelFormat:string",

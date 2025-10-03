@@ -97,7 +97,11 @@ QUnit.test("check css", (assert) => {
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionSliderModel>survey.getQuestionByName("q1");
-  assert.deepEqual(q1.rootCss, "sd-slider sd-slider--has-tooltips");
+  assert.deepEqual(q1.rootCss, "sd-slider");
+  q1.tooltipVisibility = "always";
+  assert.deepEqual(q1.rootCss, "sd-slider sd-slider--tooltips-always-mode");
+  q1.tooltipVisibility = "never";
+  assert.deepEqual(q1.rootCss, "sd-slider");
 });
 
 // QUnit.test("segmentCount", (assert) => {

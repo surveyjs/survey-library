@@ -205,21 +205,19 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-matrixdropdown", "slider-inside-matrix-dropdown.png");
     });
 
-    test("Slider: Tooltips", async ({ page }) => {
+    test("Slider: Tooltips always", async ({ page }) => {
       const json = {
         elements: [{
           type: "slider",
           sliderType: "single",
-          name: "q1"
+          name: "q1",
+          title: "question title shouldn't be overlaped by slider's tooltip with the 'always' mode",
+          tooltipVisibility: "always"
         }],
       };
-      const question = new Question(page, "q1");
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, json);
-
-      await compareScreenshot(page, ".sd-slider", "slider-single-1312323123.png");
-
-      await question.setPropertyValue("min", -100);
+      await compareScreenshot(page, ".sd-question", "slider-single-tooltips-always.png");
     });
 
   });

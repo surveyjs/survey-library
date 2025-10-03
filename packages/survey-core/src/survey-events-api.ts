@@ -1,6 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IDropdownMenuOptions, IElement, IPanel, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
+import { IDropdownMenuOptions, IElement, IPanel, IQuestion, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -1101,6 +1101,9 @@ export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueE
 }
 export interface CheckSingleInputPerPageModeEvent extends QuestionEventMixin {
   enabled: boolean;
+}
+export interface UpdateSingleInputNestedQuestionsEvent extends QuestionEventMixin {
+  nestedQuestions: Array<Question>;
 }
 
 export interface MultipleTextItemAddedEvent extends QuestionEventMixin {

@@ -288,3 +288,22 @@ QUnit.test("Boolean render as checkbox: useTitleAsLabel", function (assert) {
   assert.equal(q1.isLabelRendered, true);
   assert.equal(q1.titleLocation, "hidden");
 });
+QUnit.test("Boolean in calculation vs not, Bug#10412", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "date", name: "a1", defaultValue: "2000-01-01" },
+      { type: "boolean", name: "b1", defaultValue: true },
+      { type: "boolean", name: "b2", defaultValue: true },
+      { type: "expression", name: "exp1", expression: "age({a1}) >= 18 and !{b1} and !{b2}" },
+    ],
+
+  });
+  const b1 = <QuestionBooleanModel>survey.getQuestionByName("b1");
+  const b2 = <QuestionBooleanModel>survey.getQuestionByName("b2");
+  const exp1 = survey.getQuestionByName("exp1");
+  assert.equal(exp1.value, false, "exp1.value #1");
+  b1.value = !b1.value;
+  assert.equal(exp1.value, false, "exp1.value #2");
+  b2.value = !b2.value;
+  assert.equal(exp1.value, true, "exp1.value #3");
+});

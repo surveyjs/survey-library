@@ -1906,7 +1906,8 @@ export class Question extends SurveyElement<Question>
   focusInputElement(onError: boolean): void {
     const id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
     const surveyRoot = (this.survey as SurveyModel)?.rootElement;
-    if (SurveyElement.FocusElement(id, false, surveyRoot)) {
+    const res = SurveyElement.FocusElement(id, false, surveyRoot);
+    if (res || !!this.customWidget) {
       this.fireCallback(this.focusCallback);
     }
   }
@@ -2748,16 +2749,16 @@ export class Question extends SurveyElement<Question>
     return this.validators;
   }
   public getSupportedValidators(): Array<string> {
-    var res: Array<string> = [];
-    var className = this.getType();
+    const res: Array<string> = [];
+    let className = this.getType();
     while(!!className) {
-      var classValidators = (<any>settings.supportedValidators)[className];
+      const classValidators = (<any>settings.supportedValidators)[className];
       if (!!classValidators) {
-        for (var i = classValidators.length - 1; i >= 0; i--) {
+        for (let i = classValidators.length - 1; i >= 0; i--) {
           res.splice(0, 0, classValidators[i]);
         }
       }
-      var classInfo = Serializer.findClass(className);
+      const classInfo = Serializer.findClass(className);
       className = classInfo.parentName;
     }
     return res;
@@ -3487,6 +3488,10 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
+
+  public get dragDropMatrixAttribute(): string {
+    return null;
+  }
 
   private _syncPropertiesChanging: boolean = false;
   protected registerSychProperties(names: Array<string>, func: any) {

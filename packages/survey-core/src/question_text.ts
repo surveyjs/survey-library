@@ -188,6 +188,22 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!this.isTextInput) return null;
     return super.getMaxLength();
   }
+  public getSupportedValidators(): Array<string> {
+    const supportedHash: HashTable<Array<string>> = {};
+    const textTypes = ["text", "email", "tel", "password", "url"];
+    supportedHash["text"] = textTypes;
+    supportedHash["regex"] = textTypes;
+    supportedHash["email"] = ["email"];
+    supportedHash["numeric"] = ["number", "range"];
+    const res = super.getSupportedValidators();
+    for (let i = res.length - 1; i >= 0; i--) {
+      const v = res[i];
+      if (supportedHash[v] && supportedHash[v].indexOf(this.inputType) < 0) {
+        res.splice(i, 1);
+      }
+    }
+    return res;
+  }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
     if (!!this.minValueExpression || !!this.maxValueExpression) {

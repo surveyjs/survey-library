@@ -11,3 +11,9 @@ pegjs --plugin ./node_modules/ts-pegjs/src/tspegjs --extra-options-file src/expr
 ```
 node ./node_modules/pegjs/bin/pegjs --plugin ./node_modules/ts-pegjs/src/tspegjs --extra-options-file src/expressions/pegconfig.json -o src/expressions/expressionParser.ts --cache src/expressions/grammar.pegjs
 ```
+
+Build command for peggy
+
+```
+node ./node_modules/peggy/bin/peggy --plugin ./node_modules/ts-pegjs/dist/tspegjs.js --extra-options-file src/expressions/pegconfig.json -o src/expressions/expressionParser.ts --cache src/expressions/grammar.pegjs
+```

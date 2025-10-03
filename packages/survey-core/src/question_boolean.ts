@@ -86,9 +86,13 @@ export class QuestionBooleanModel extends Question {
    * @deprecated Use the [`title`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model#title) property instead.
    */
   @property({ localizable: true }) label: string;
-  @property({ defaultValue: true }) useTitleAsLabel: boolean;
+
+  @property({ defaultValue: false, onSet: (val: boolean, target: QuestionBooleanModel) => {
+    if (val) target.setPropertyValue("titleLocation", "hidden");
+  } }) useTitleAsLabel: boolean;
+
   get isLabelRendered(): boolean {
-    return this.titleLocation === "hidden" && this.useTitleAsLabel;
+    return this.titleLocation === "hidden" || this.useTitleAsLabel;
   }
   get canRenderLabelDescription(): boolean {
     return this.isLabelRendered && this.hasDescription && (this.hasDescriptionUnderTitle || this.hasDescriptionUnderInput);
@@ -365,6 +369,7 @@ Serializer.addClass(
     "valueFalse",
     { name: "swapOrder:boolean", category: "general" },
     { name: "renderAs", default: "default", visible: false },
+    { name: "useTitleAsLabel", default: false, visible: false },
   ],
   function () {
     return new QuestionBooleanModel("");

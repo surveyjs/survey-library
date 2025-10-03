@@ -334,7 +334,7 @@ QUnit.test("add/remove scrollHandler", function (assert) {
 
   document.body.removeChild(element);
 });
-QUnit.test("onLastItemRended & hasVerticalScroller", function (assert) {
+QUnit.test("onItemRended & hasVerticalScroller", function (assert) {
   const items = createIActionArray(12);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   const element = createListContainerHtmlElement();
@@ -342,13 +342,13 @@ QUnit.test("onLastItemRended & hasVerticalScroller", function (assert) {
 
   assert.equal(list.hasVerticalScroller, false);
 
-  list.onLastItemRended(list.actions[list.actions.length - 1]);
+  list.onItemRended(list.actions[list.actions.length - 1], undefined as any);
   assert.equal(list.hasVerticalScroller, false);
 
   document.body.removeChild(element);
 });
 
-QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function (assert) {
+QUnit.test("onItemRended & hasVerticalScroller & isAllDataLoaded", function (assert) {
   const items = createIActionArray(12);
   const list = new ListModel({ items: items, onSelectionChanged: () => { }, allowSelection: true } as any);
   const element = createListContainerHtmlElement();
@@ -357,7 +357,7 @@ QUnit.test("onLastItemRended & hasVerticalScroller & isAllDataLoaded", function 
 
   assert.equal(list.hasVerticalScroller, false);
 
-  list.onLastItemRended(list.actions[list.actions.length - 1]);
+  list.onItemRended(list.actions[list.actions.length - 1], undefined as any);
   assert.equal(list.hasVerticalScroller, true);
 
   document.body.removeChild(element);

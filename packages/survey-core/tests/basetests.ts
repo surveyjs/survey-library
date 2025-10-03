@@ -7,6 +7,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
+import { set } from "lodash";
 export * from "../src/localization/german";
 
 export default QUnit.module("Base");
@@ -64,7 +65,7 @@ QUnit.test("Do not add function with the same instance several times", function 
   assert.equal(counter, 1, "function should not be called the second time");
 });
 
-QUnit.test("Item value", function (assert) {
+QUnit.test("Item value & dynamic separator, #10424", function (assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");
   assert.equal(value.locText.renderedHtml, "Item", "get text from value");
@@ -83,11 +84,11 @@ QUnit.test("Item value", function (assert) {
   assert.equal(value.calculatedText, null, "text is null if value is null");
   value.value = "Item|Text Item";
   assert.equal(value.value, "Item", "use the text separator: value");
-  assert.equal(
-    value.calculatedText,
-    "Text Item",
-    "use the text separator: text"
-  );
+  assert.equal(value.calculatedText, "Text Item", "use the text separator: text");
+  settings.itemValueSeparator = "";
+  value.value = "Item|Text Item";
+  assert.equal(value.value, "Item|Text Item", "do not use the text separator");
+  settings.itemValueSeparator = "|";
 });
 QUnit.test("ItemValue.setData()", function (assert) {
   var items = new Array<ItemValue>();

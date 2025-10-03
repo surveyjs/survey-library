@@ -62,6 +62,19 @@ export class SurveyValidator extends Base {
       ? (<any>this.errorOwner).getSurvey()
       : null;
   }
+  /**
+   * Specifies the type of notification shown to users.
+   *
+   * Possible values:
+   *
+   * - `"error"`
+   * - `"warning"`
+   * - `"info"`
+   *
+   * Errors block survey progress until resolved. Warnings indicate potential issues but don't block respondents from continuing the survey. Informational notes provide guidance without restrictions.
+   *
+   * > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
+   */
   public get notificationType(): string { return this.getPropertyValue("notificationType"); }
   public set notificationType(val: string) { this.setPropertyValue("notificationType", val); }
   /**
@@ -85,7 +98,7 @@ export class SurveyValidator extends Base {
   }
   public validateOnCallback(value: any, callback: (res: ValidatorResult) => void, name?: string, properties?: any): ValidatorResult {
     const res = this.validate(value, name, properties);
-    if (res !== undefined && callback) callback(res);
+    if (callback) callback(res);
     return res;
   }
   public validate(value: any, name?: string, properties?: any): ValidatorResult {
@@ -462,12 +475,15 @@ export class ExpressionValidator extends SurveyValidator {
     if (!!this.conditionRunner) {
       this.conditionRunner.onRunComplete = null;
     }
-    if (!this.ensureConditionRunner()) return null;
     let errorResult: ValidatorResult = null;
     const doCallBack = (res: boolean) => {
       errorResult = this.generateError(res, value, name);
       !!callback && callback(errorResult);
     };
+    if (!this.ensureConditionRunner()) {
+      doCallBack(true);
+      return null;
+    }
     this.conditionRunner.onRunComplete = (res) => {
       doCallBack(res);
     };

@@ -81,7 +81,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
         {
           locTitleName: "clearCaption",
           id: `sv-clr-btn-${this.id}`,
-          action: () => { this.clearValue(true); },
+          action: () => { this.clearValueFromUI(); },
           innerCss: this.cssClasses.clearButton,
           visible: <any>new ComputedUpdater(() => this.canShowClearButton)
         }

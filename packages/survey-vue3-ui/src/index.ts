@@ -171,7 +171,7 @@ function registerComponents(
   registerComponent("popup-survey", PopupSurvey);
   registerComponent("survey-header", HeaderBasic);
   registerComponent("sv-logo-image", Logo);
-  registerComponent("survey-page", Page);
+  registerComponent("sv-page", Page);
   registerComponent("survey-row", Row);
   registerComponent("survey-question", Question);
   registerComponent("survey-panel", Panel);

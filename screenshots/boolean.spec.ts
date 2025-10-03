@@ -202,7 +202,7 @@ frameworks.forEach(framework => {
       });
     });
 
-    test("Check boolean as checkbox requred asterisk", async ({ page }) => {
+    test("Check boolean as checkbox: requred asterisk", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
 
       await initSurvey(page, framework, {
@@ -220,6 +220,25 @@ frameworks.forEach(framework => {
 
       const questionRoot = page.locator(".sd-question--boolean");
       await compareScreenshot(page, questionRoot, "boolean-question-checkbox-asterisk.png");
+    });
+
+    test("Check boolean as checkbox: useTitleAsLabel ", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+
+      await initSurvey(page, framework, {
+        showQuestionNumbers: "on",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "q1",
+            "useTitleAsLabel": true,
+            "renderAs": "checkbox"
+          }
+        ]
+      });
+
+      const questionRoot = page.locator(".sd-question--boolean");
+      await compareScreenshot(page, questionRoot, "boolean-question-checkbox-useTitleAsLabel.png");
     });
   });
 });

@@ -95,9 +95,9 @@ export class QuestionFileModelBase extends Question {
     this.setPropertyValue("waitForUpload", val);
   }
 
-  public clearValue(keepComment?: boolean): void {
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     this.clearOnDeletingContainer();
-    super.clearValue(keepComment);
+    super.clearValue(keepComment, fromUI);
   }
   public clearOnDeletingContainer() {
     if (!this.survey) return;

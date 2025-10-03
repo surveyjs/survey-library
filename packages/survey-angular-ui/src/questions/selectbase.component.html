@@ -40,7 +40,7 @@
   <div *ngIf="model.showClearButtonInContent">
     <input
       type="button"
-      (click)="model.clearValue(true)"
+      (click)="model.clearValueFromUI()"
       [value]="model.clearButtonCaption"
       [class]="model.cssClasses.clearButton"
     />

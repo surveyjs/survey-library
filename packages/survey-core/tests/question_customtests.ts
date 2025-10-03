@@ -500,7 +500,7 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
   assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Composite: content questions recursive numbering at design-time, Bug#10389", function (assert) {
+QUnit.test("Composite: content questions recursive numbering at design-time, Bug#10389 & Bug#10418", function (assert) {
   ComponentCollection.Instance.add({
     name: "customerinfo",
     elementsJSON: [
@@ -527,11 +527,47 @@ QUnit.test("Composite: content questions recursive numbering at design-time, Bug
   const q = <QuestionCompositeModel>survey.getAllQuestions()[1];
   const firstName = q.contentPanel.getQuestionByName("firstName");
   const lastName = q.contentPanel.getQuestionByName("lastName");
+  const q3 = survey.getQuestionByName("q3");
   assert.equal(q.visibleIndex, 1, "q visibleIndex");
   assert.equal(q.no, "2.", "q no is '2.'");
   assert.equal(q.contentPanel.no, "2.", "q contentPanel no is '2.'");
   assert.equal(firstName.no, "2.a.", "first question, no is '2a.'");
   assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
+  assert.equal(q3.no, "3.", "q3 no is '3.'");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: content questions recursive numbering in run-time, Bug#10389 & Bug#10418", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customerinfo",
+    elementsJSON: [
+      { type: "panel", name: "contentPanel", showQuestionNumbers: "recursive", elements: [
+        { type: "text", name: "firstName" },
+        { type: "text", name: "lastName" }
+      ] }
+    ],
+    onCreated: function (question) {
+      question.contentPanel.showQuestionNumbers = "recursive";
+      question.contentPanel.questionStartIndex = "a";
+    },
+  });
+  const survey = new SurveyModel({
+    showQuestionNumbers: "recursive",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "customerinfo", name: "q2" },
+      { type: "text", name: "q3" },
+    ],
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[1];
+  const firstName = q.contentPanel.getQuestionByName("firstName");
+  const lastName = q.contentPanel.getQuestionByName("lastName");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q.visibleIndex, 1, "q visibleIndex");
+  assert.equal(q.no, "2.", "q no is '2.'");
+  assert.equal(q.contentPanel.no, "2.", "q contentPanel no is '2.'");
+  assert.equal(firstName.no, "2.a.", "first question, no is '2a.'");
+  assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
+  assert.equal(q3.no, "3.", "q3 no is '3.'");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Custom, get css from contentQuestion", function (assert) {
@@ -1157,6 +1193,49 @@ QUnit.test("Complex: hide content question in designMode", function (assert) {
   assert.equal(middleName.isVisible, true, "showMiddleName is true");
   q.showMiddleName = false;
   assert.equal(middleName.isVisible, false, "showMiddleName is false");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Complex: hide content question in designMode inside dynamic panel, Bug#10421", function (assert) {
+  ComponentCollection.Instance.add(<any>{
+    name: "test1",
+    elementsJSON: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          {
+            type: "text",
+            name: "firstName",
+          },
+          {
+            type: "text",
+            name: "lastName",
+          },
+          {
+            type: "text",
+            name: "middleName",
+            visible: false,
+          },
+        ]
+      }
+    ]
+  });
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "test1",
+        question: "q1",
+      },
+    ],
+  });
+  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const panel = <QuestionPanelDynamicModel>q.contentPanel.getQuestionByName("panel");
+  const middleName = panel.template.getQuestionByName("middleName");
+  assert.equal(middleName.isVisible, false, "It is invisible by default");
+  assert.equal(middleName.areInvisibleElementsShowing, false, "All invisible content elements are stay invisible");
+  assert.equal(middleName.parentQuestion?.name, "panel", "The parent question is correct");
+  assert.equal(panel.areInvisibleElementsShowing, false, "All invisible content elements are stay invisible, #2");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (

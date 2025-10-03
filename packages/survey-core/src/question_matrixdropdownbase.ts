@@ -489,10 +489,10 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     });
     return res;
   }
-  public clearValue(keepComment?: boolean): void {
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].clearValue(keepComment);
+      questions[i].clearValue(keepComment, fromUI);
     }
   }
   public onAnyValueChanged(name: string, questionName: string): void {
@@ -2888,6 +2888,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public getRootElement(): HTMLElement {
     return this.rootElement;
+  }
+  public get dragDropMatrixAttribute(): string {
+    return this.renderedTable.wrapperDropTargetId;
   }
 }
 

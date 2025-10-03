@@ -1,6 +1,6 @@
 {
   "name": "survey-core",
-  "version": "2.3.8",
+  "version": "2.3.9",
   "scripts": {
     "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && rollup -c",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod && rollup -c rollup.i18n.config.js",
@@ -45,6 +45,8 @@
     "karma-webpack": "5.0.0",
     "merge-files": "^0.1.2",
     "mini-css-extract-plugin": "^2.9.0",
+    "peggy": "^5.0.6",
+    "ts-pegjs": "^4.2.1",
     "postcss": "8.4.31",
     "postcss-calc": "9.0.1",
     "postcss-cli": "10.1.0",
@@ -70,6 +72,11 @@
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.8.0",
     "webpack-remove-empty-scripts": "^1.0.4"
+  },
+  "overrides": {
+    "ts-pegjs": {
+      "peggy": "^5.0.6"
+    }
   },
   "commit-and-tag-version": {
     "bumpFiles": [

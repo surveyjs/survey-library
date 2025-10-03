@@ -614,11 +614,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.isContentElement;
   }
   public get areInvisibleElementsShowing(): boolean {
-    return (
-      !!this.survey &&
-      this.survey.areInvisibleElementsShowing &&
-      !this.isContentElement
-    );
+    const pQ = this.parentQuestion as any;
+    if (!!pQ && pQ.areInvisibleElementsShowing === false) return false;
+    return !!this.survey && this.survey.areInvisibleElementsShowing && !this.isContentElement;
   }
   public get isVisible(): boolean {
     return true;
@@ -736,6 +734,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
   }
   protected getValidName(name: string): string {
+    if (!!name) {
+      name = name.trim();
+      const sep = settings.itemValueSeparator;
+      if (!!sep && name.indexOf(sep) > -1) {
+        name = name.replace(sep, "");
+      }
+    }
     return name;
   }
   protected onNameChanged(oldValue: string) { }

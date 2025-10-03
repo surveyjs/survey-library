@@ -85,6 +85,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
   public scrollHandler: (e?: any) => void;
+  public loadingIndicatorVisibilityObserver: (isVisible: boolean) => void;
   public areSameItemsCallback: (item1: IAction, item2: IAction) => boolean;
 
   private hasText(item: T, filterStringInLow: string): boolean {
@@ -312,12 +313,15 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
   public get loadingIndicator(): T {
     if (!this.loadingIndicatorValue) {
-      this.loadingIndicatorValue = <T><any>(new Action({
+
+      const _loadingIndicator = new Action({
         id: "loadingIndicator",
         title: this.getLocalizationString("loadingPage"),
         action: () => { },
         css: this.cssClasses.loadingIndicator
-      }));
+      });
+      _loadingIndicator.initLoadingIndicatorVisibilityObserver(this.loadingIndicatorVisibilityObserver);
+      this.loadingIndicatorValue = <T><any>(_loadingIndicator);
     }
     return this.loadingIndicatorValue;
   }
@@ -408,11 +412,15 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public initListContainerHtmlElement(htmlElement: HTMLElement): void {
     this.listContainerHtmlElement = htmlElement;
   }
-  public onLastItemRended(item: T): void {
+  public onItemRended(item: T, element: HTMLElement): void {
     if (this.isAllDataLoaded) return;
 
     if (item === this.actions[this.actions.length - 1] && !!this.listContainerHtmlElement) {
       this.hasVerticalScroller = ElementHelper.hasVerticalScroller(this.scrollableContainer);
+    }
+
+    if (item.id === this.loadingIndicator.id && element && this.loadingIndicator["intersectionVisibilityObserver"]) {
+      this.loadingIndicator["intersectionVisibilityObserver"].observe(element);
     }
   }
   public scrollToFocusedItem(): void {
@@ -423,6 +431,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       this.scrollToItem(this.cssClasses.itemGroupSelected, 110);
     } else {
       this.scrollToItem(this.cssClasses.itemSelected, 110);
+    }
+  }
+
+  public setLoadingIndicatorVisibilityObserver(handler: (isVisible: boolean) => void): void {
+    if (!!handler) {
+      this.loadingIndicatorVisibilityObserver = handler;
     }
   }
 

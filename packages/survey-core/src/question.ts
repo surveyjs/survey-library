@@ -1875,7 +1875,7 @@ export class Question extends SurveyElement<Question>
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
   public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
-    if (this.isDesignMode || !this.isVisible || !this.survey) return;
+    if (this.isDesignMode || !this.isVisible || this.isReadOnly || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     const isSingleInput = this.survey.isSingleVisibleInput;
@@ -1906,7 +1906,8 @@ export class Question extends SurveyElement<Question>
   focusInputElement(onError: boolean): void {
     const id = !onError ? this.getFirstInputElementId() : this.getFirstErrorInputElementId();
     const surveyRoot = (this.survey as SurveyModel)?.rootElement;
-    if (SurveyElement.FocusElement(id, false, surveyRoot)) {
+    const res = SurveyElement.FocusElement(id, false, surveyRoot);
+    if (res || !!this.customWidget) {
       this.fireCallback(this.focusCallback);
     }
   }
@@ -2252,14 +2253,17 @@ export class Question extends SurveyElement<Question>
    * @see value
    * @see comment
    */
-  public clearValue(keepComment?: boolean): void {
+  public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     if (this.value !== undefined) {
       this.value = undefined;
     }
     if (!!this.comment && keepComment !== true) {
       this.comment = undefined;
     }
-    this.setValueChangedDirectly(false);
+    this.setValueChangedDirectly(fromUI === true);
+  }
+  clearValueFromUI(): void {
+    this.clearValue(true, true);
   }
   clearValueOnly(): void {
     this.clearValue(true);
@@ -2745,16 +2749,16 @@ export class Question extends SurveyElement<Question>
     return this.validators;
   }
   public getSupportedValidators(): Array<string> {
-    var res: Array<string> = [];
-    var className = this.getType();
+    const res: Array<string> = [];
+    let className = this.getType();
     while(!!className) {
-      var classValidators = (<any>settings.supportedValidators)[className];
+      const classValidators = (<any>settings.supportedValidators)[className];
       if (!!classValidators) {
-        for (var i = classValidators.length - 1; i >= 0; i--) {
+        for (let i = classValidators.length - 1; i >= 0; i--) {
           res.splice(0, 0, classValidators[i]);
         }
       }
-      var classInfo = Serializer.findClass(className);
+      const classInfo = Serializer.findClass(className);
       className = classInfo.parentName;
     }
     return res;
@@ -3068,14 +3072,16 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected getValidName(name: string): string {
-    return makeNameValid(name);
+    return makeNameValid(super.getValidName(name));
   }
   //IQuestion
+  private isUpdateingValueFromSurvey: boolean;
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     newValue = this.valueFromDataCore(newValue);
     if (!this.checkIsValueCorrect(newValue)) return;
     const isEmpty = this.isValueEmpty(newValue);
+    this.isUpdateingValueFromSurvey = true;
     if (!isEmpty && this.defaultValueExpression) {
       this.setDefaultValueCore((val: any): void => {
         this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
@@ -3085,9 +3091,26 @@ export class Question extends SurveyElement<Question>
       if (clearData && isEmpty) {
         this.isValueChangedDirectly = false;
       }
+      if (isEmpty) {
+        this.updateBindingsOnClearFromSurveyCore();
+      }
     }
+    this.isUpdateingValueFromSurvey = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
+  }
+  protected canUpdateBindings(): boolean { return !this.isUpdateingValueFromSurvey; }
+  private updateBindingsOnClearFromSurveyCore(): void {
+    const surveyData = this.data;
+    if (surveyData && !this.isBindingEmpty()) {
+      this.bindings.getNames().forEach(name => {
+        const valueName = this.bindings.getValueNameByPropertyName(name);
+        const val = surveyData.getValue(valueName);
+        if (!this.isValueEmpty(val)) {
+          this.updateBindingProp(name, val);
+        }
+      });
+    }
   }
   private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
     this.isChangingViaDefaultValue = viaDefaultVal;
@@ -3465,6 +3488,10 @@ export class Question extends SurveyElement<Question>
     return this.getPropertyValue("ariaExpanded");
   }
   //EO new a11y
+
+  public get dragDropMatrixAttribute(): string {
+    return null;
+  }
 
   private _syncPropertiesChanging: boolean = false;
   protected registerSychProperties(names: Array<string>, func: any) {

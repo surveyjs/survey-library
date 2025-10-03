@@ -22494,6 +22494,37 @@ QUnit.test("questionPerPage & focusing question inside the panel, Bug#10113", (a
   assert.equal(survey.currentPage.name, "page3", "page2 is the current page");
   assert.equal(survey.currentSingleElement.name, "panel1", "panel1 is the current element");
 });
+QUnit.test("questionPerPage &  panel validation, Bug#10426", (assert) => {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          { "type": "panel", "name": "panel1", "isRequired": true, "elements": [{ "type": "text", "name": "q1" }] }
+        ] },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3"
+          }
+        ]
+      }
+    ],
+    "questionsOnPageMode": "questionPerPage"
+  });
+  assert.equal(survey.currentPage.name, "page1", "page1 is the current page, #1");
+  assert.equal(survey.currentSingleElement.name, "panel1", "panel1 is the current element, #1");
+  survey.performNext();
+  assert.equal(survey.currentPage.name, "page1", "page1 is the current page, #2");
+  assert.equal(survey.currentSingleElement.name, "panel1", "panel1 is the current element, #2");
+  const panel = survey.getPanelByName("panel1");
+  assert.equal(panel.errors.length, 1, "panel has one error");
+  panel.getQuestionByName("q1").value = "val1";
+  survey.performNext();
+  assert.equal(panel.errors.length, 0, "panel has no errors");
+  assert.equal(survey.currentPage.name, "page2", "page2 is the current page, #3");
+  assert.equal(survey.currentSingleElement.name, "q3", "q3 is the current element");
+});
 QUnit.test("questionPerPage & asyc validation, Bug#10163", (assert) => {
   let returnResultFunc = undefined;
   function isItCorrect([value]) {
@@ -22717,4 +22748,18 @@ QUnit.test("Do not serialize mode:display property, #10281", function (assert) {
   assert.deepEqual(survey3.toJSON(), {
     readOnly: true
   }, "survey3 is serialized correctly");
+});
+QUnit.test("Do not allow to set name vs |, #10424", function (assert) {
+  const page = new PageModel("p1|mode");
+  assert.equal(page.name, "p1mode", "the | is removed, #1");
+  page.name = "p2|mode";
+  assert.equal(page.name, "p2mode", "the | is removed, #2");
+  const panel = new PanelModel("p1|mode");
+  assert.equal(panel.name, "p1mode", "the | is removed, #3");
+  panel.name = "p2|mode";
+  assert.equal(panel.name, "p2mode", "the | is removed, #4");
+  const question = new QuestionTextModel("q1|mode");
+  assert.equal(question.name, "q1mode", "the | is removed, #5");
+  question.name = "q2|mode";
+  assert.equal(question.name, "q2mode", "the | is removed, #6");
 });

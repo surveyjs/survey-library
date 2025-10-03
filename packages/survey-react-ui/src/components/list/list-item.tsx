@@ -10,6 +10,13 @@ interface IListItemProps {
 }
 
 export class ListItem extends SurveyElementBase<IListItemProps, any> {
+  private elementRef: React.RefObject<HTMLDivElement>;
+
+  constructor(props: any) {
+    super(props);
+    this.elementRef = React.createRef();
+  }
+
   get model(): ListModel {
     return this.props.model;
   }
@@ -29,6 +36,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
     const newElement = ReactElementFactory.Instance.createElement(itemContent, { item: this.item, key: this.item.id, model: this.model });
     const contentWrap =
       <div
+        ref={this.elementRef}
         style={this.model.getItemStyle(this.item) as any}
         className={this.model.cssClasses.itemBody}
         title={this.item.getTooltip()}
@@ -63,7 +71,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
   componentDidMount() {
     super.componentDidMount();
 
-    this.model.onLastItemRended(this.item);
+    this.model.onItemRended(this.item, this.elementRef?.current);
   }
 }
 

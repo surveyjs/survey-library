@@ -153,7 +153,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val) {
       this.selectAll();
     } else {
-      this.clearValue(true);
+      this.clearValueFromUI();
     }
   }
   public toggleSelectAll(): void {

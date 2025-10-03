@@ -20,7 +20,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public getType(): string {
     return "radiogroup";
   }
-
+  supportElementsInChoice(): boolean { return true; }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }

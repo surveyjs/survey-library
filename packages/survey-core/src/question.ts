@@ -574,7 +574,7 @@ export class Question extends SurveyElement<Question>
   public set page(val: IPage) {
     this.setPage(this.parent, val);
   }
-  public getPanel(): IPanel {
+  public getPanels(): Array<IPanel> {
     return null;
   }
   public delete(doDispose: boolean = true): void {

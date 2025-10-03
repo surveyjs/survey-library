@@ -267,6 +267,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.onLocOwnerChanged();
   }
   protected onLocOwnerChanged(): void {}
+  public onItemSelected(): void {}
   public get value(): any {
     return this.getPropertyValue("value");
   }
@@ -380,7 +381,16 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       if (typeof value.toJSON === "function") {
         json = (<Base>value).toJSON();
       } else {
-        json = value;
+        if (Array.isArray(value.elements)) {
+          json = {};
+          for (var key in value) {
+            if (key !== "elements") {
+              json[key] = value[key];
+            }
+          }
+        } else {
+          json = value;
+        }
       }
       new JsonObject().toObject(json, this);
     } else {

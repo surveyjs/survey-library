@@ -24,7 +24,7 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionSelectbase {
         <input
           type="button"
           className={this.question.cssClasses.clearButton}
-          onClick={() => this.question.clearValue(true)}
+          onClick={() => this.question.clearValueFromUI()}
           value={this.question.clearButtonCaption}
         />
       </div>

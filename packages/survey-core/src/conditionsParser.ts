@@ -1,5 +1,5 @@
 import { Operand, Const } from "./expressions/expressions";
-import { SyntaxError, parse } from "./expressions/expressionParser";
+import { PeggySyntaxError, parse } from "./expressions/expressionParser";
 
 export class ConditionsParserError {
   constructor(public at: number, public code: string) {}
@@ -25,7 +25,7 @@ export class ConditionsParser {
     try {
       return parse(this.patchExpression(text));
     } catch(e) {
-      if (e instanceof SyntaxError) {
+      if (e instanceof PeggySyntaxError) {
         this.conditionError = new ConditionsParserError(
           e.location.start.offset,
           e.message

@@ -2889,6 +2889,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getRootElement(): HTMLElement {
     return this.rootElement;
   }
+  public get dragDropMatrixAttribute(): string {
+    return this.renderedTable.wrapperDropTargetId;
+  }
 }
 
 Serializer.addClass(

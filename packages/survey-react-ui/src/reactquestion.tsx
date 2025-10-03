@@ -115,6 +115,8 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         style={contentStyle}
         aria-hidden={question.contentAriaHidden}
         role="presentation"
+        data-sv-drop-target-matrix={this.question.dragDropMatrixAttribute}
+        data-sv-drop-target-matrix-row={this.question.dragDropMatrixAttribute}
       >
         {questionRender}
         {comment}

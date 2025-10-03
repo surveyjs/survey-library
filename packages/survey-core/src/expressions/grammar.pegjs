@@ -91,7 +91,7 @@ FunctionOp
   = name:LettersAndDigits "(" params:Sequence ")"? { return new FunctionOperand(name, params); }
 
 UnaryFunctionOp
-  = ("!" / "negate"i) _ expr:Expression  { return new UnaryOperand(expr, "negate"); }
+  = ("!" / "negate"i) _ expr:Factor  { return new UnaryOperand(expr, "negate"); }
   / expr:Atom _ op:UnFunctions           { return new UnaryOperand(expr, op); }
 
 UnFunctions

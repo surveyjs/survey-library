@@ -33,7 +33,7 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
-
+      await page.waitForTimeout(1000);
       await expect(await page.locator(".sv-popup__content .my-custom-action-class").getByText("Custom Action 29").count()).toBe(1);
     });
 

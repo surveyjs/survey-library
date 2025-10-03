@@ -1,13 +1,13 @@
 import { JsonObjectProperty, property, propertyArray, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues, IElement, IPanel } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { getLocaleString } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
 import { ChoicesRestful } from "./choicesRestful";
-import { LocalizableString } from "./localizablestring";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ConditionRunner } from "./conditions";
 import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
@@ -18,13 +18,25 @@ import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, set
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
+import { PanelModel, PanelModelBase } from "./panel";
+
+export interface IChoiceOwner extends ILocalizableOwner {
+  supportElementsInChoice(): boolean;
+  getSurvey(): ISurvey;
+  isItemSelected(item: ItemValue): boolean;
+  isDesignMode: boolean;
+  parent: IPanel;
+}
 
 export class ChoiceItem extends ItemValue {
   private locCommentPlaceholderValue: LocalizableString;
+  private panelValue: PanelModel;
   protected getBaseType(): string { return "choiceitem"; }
+  public get choiceOwner(): IChoiceOwner { return this.locOwner as IChoiceOwner; }
   public get showCommentArea(): boolean {
     return this.getPropertyValue("showCommentArea");
   }
+  public get supportElements(): boolean { return this.choiceOwner?.supportElementsInChoice() === true; }
   public set showCommentArea(val: boolean) {
     if (val && !this.supportComment) {
       val = false;
@@ -73,13 +85,65 @@ export class ChoiceItem extends ItemValue {
     if (this.showCommentArea && !this.supportComment) {
       this.showCommentArea = false;
     }
+    this.setPanelSurvey(this.panelValue);
+  }
+  public onItemSelected(): void {
+    this.updatePanelState();
+  }
+  public get isPanelShowing(): boolean {
+    if (!this.panelValue || !this.choiceOwner) return false;
+    return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
+  }
+  private updatePanelState(): void {
+    this.panelValue?.onFirstRendering();
+  }
+  public get hasElements(): boolean {
+    const pnl = this.panelValue;
+    return !!pnl && pnl.elements.length > 0;
+  }
+  public get panel(): PanelModel {
+    if (!this.panelValue) {
+      this.panelValue = this.createPanel();
+    }
+    return this.panelValue;
+  }
+  public get isPanelCreated(): boolean {
+    return !!this.panelValue;
+  }
+  public get elements(): Array<IElement> {
+    return this.panel.elements;
+  }
+  protected createPanel(): PanelModel {
+    const res = Serializer.createClass("panel");
+    res.renderWidth = "100%";
+    res.isInteractiveDesignElement = false;
+    res.showTitle = false;
+    res.isInternalNested = true;
+    this.setPanelSurvey(res);
+    return res;
+  }
+  private setPanelSurvey(pnl: PanelModel) {
+    if (!!pnl && !pnl.survey) {
+      pnl.selectedElementInDesign = <any>this.choiceOwner;
+      const survey: any = this.choiceOwner?.getSurvey();
+      if (!!survey) {
+        pnl.name = "choicePanel" + pnl.uniqueId;
+        pnl.parent = <PanelModelBase>this.choiceOwner.parent;
+        pnl.setSurveyImpl(survey);
+      }
+    }
+  }
+  public dispose(): void {
+    super.dispose();
+    this.panelValue?.dispose();
+    this.panelValue = undefined;
   }
 }
 
 /**
  * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
-export class QuestionSelectBase extends Question {
+export class QuestionSelectBase extends Question implements IChoiceOwner {
   public visibleChoicesChangedCallback: () => void;
   public loadedChoicesFromServerCallback: () => void;
   public renderedChoicesChangedCallback: () => void;
@@ -173,6 +237,60 @@ export class QuestionSelectBase extends Question {
     if (!!dist) {
       Object.keys(dist).forEach((key) => { dist[key].dispose(); });
     }
+    this.doForPanels(undefined, (p) => p.dispose());
+  }
+  public supportElementsInChoice(): boolean {
+    return false;
+  }
+  public getPanels(): Array<IPanel> {
+    if (!this.supportElementsInChoice()) return super.getPanels();
+    const res = new Array<IPanel>();
+    this.choices.forEach((item) => {
+      if (item.isPanelCreated) {
+        res.push(item.panel);
+      }
+    });
+    return res;
+  }
+  private getVisiblePanels(isVisible: boolean): Array<PanelModel> {
+    if (!this.supportElementsInChoice()) return null;
+    const res = new Array<PanelModel>();
+    this.choices.forEach((item) => {
+      if (item.isPanelCreated && item.isPanelShowing === isVisible) {
+        res.push(item.panel);
+      }
+    });
+    return res;
+  }
+  private doForPanels(isVisible: boolean | undefined, func: (pnl: PanelModel) => void): void {
+    const pnls = isVisible !== undefined ? this.getVisiblePanels(isVisible) : this.getPanels();
+    if (Array.isArray(pnls)) {
+      pnls.forEach(func);
+    }
+  }
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean, includeNested: boolean, includeItSelf: boolean): void {
+    questions.push(this);
+    if (includeNested && this.supportElementsInChoice()) {
+      this.choices.forEach((item) => {
+        if (item.hasElements && (!visibleOnly || item.isPanelShowing)) {
+          item.panel.questions.forEach(q => q.addNestedQuestion(questions, visibleOnly, includeNested, includeItSelf));
+        }
+      });
+    }
+  }
+  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
+    if (!this.supportElementsInChoice()) return [];
+    const res = new Array<IElement>();
+    this.choices.forEach((item) => {
+      if (item.hasElements) {
+        if (includeHidden) {
+          res.push(item.panel);
+        } else {
+          res.push(...item.elements);
+        }
+      }
+    });
+    return res;
   }
   public get otherTextAreaModel(): TextAreaModel {
     return this.getCommentTextAreaModel(this.otherItem);
@@ -239,7 +357,11 @@ export class QuestionSelectBase extends Question {
     if (context.isOnValueChanged !== true) {
       this.clearIncorrectValues();
     }
-    return super.validateElementCore(context);
+    let res = true;
+    this.doForPanels(true, (p) => {
+      res &&= p.validateElement(context);
+    });
+    return super.validateElementCore(context) && res;
   }
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
@@ -548,12 +670,21 @@ export class QuestionSelectBase extends Question {
   public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
+  public addUsedLocales(locales: Array<string>) {
+    super.addUsedLocales(locales);
+    this.doForPanels(undefined, (p) => {
+      p.addUsedLocales(locales);
+    });
+  }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
     this.runItemsEnableCondition(properties);
     this.runItemsCondition(properties);
     this.choices.forEach(item => {
       item.runConditionCore(properties);
+    });
+    this.doForPanels(undefined, (p) => {
+      p.runCondition(properties);
     });
   }
   protected isTextValue(): boolean {
@@ -800,6 +931,7 @@ export class QuestionSelectBase extends Question {
     if (item.showCommentArea) {
       this.focusOtherComment(item);
     }
+    item.onItemSelected();
   }
   protected onItemDeselected(item: ItemValue): void {
     if (item.showCommentArea) {
@@ -1564,7 +1696,7 @@ export class QuestionSelectBase extends Question {
     }
     return false;
   }
-  protected isBuiltInChoice(item: ItemValue): boolean {
+  public isBuiltInChoice(item: ItemValue): boolean {
     return [this.otherItem, this.noneItem, this.refuseItem, this.dontKnowItem, this.newItemValue].indexOf(item) > -1;
   }
   public isNoneItem(item: ItemValue): boolean {
@@ -1672,6 +1804,7 @@ export class QuestionSelectBase extends Question {
   onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
+    this.doForPanels(undefined, (p) => { p.onSurveyLoad(); });
     super.onSurveyLoad();
   }
   onAnyValueChanged(name: string, questionName: string): void {
@@ -1955,6 +2088,9 @@ export class QuestionSelectBase extends Question {
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
     this.clearIncorrectValues();
+    this.doForPanels(false, (p) => {
+      p.questions.forEach((q) => { q.clearValue(); });
+    });
   }
   /**
    * Returns `true` if a passed choice item is selected.
@@ -2374,7 +2510,8 @@ function checkCopyPropVisibility(obj: any, mode: string): boolean {
 Serializer.addClass("choiceitem",
   [{ name: "showCommentArea:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.supportComment; } },
     { name: "isCommentRequired:boolean", locationInTable: "detail", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
-    { name: "commentPlaceholder", locationInTable: "detail", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } }
+    { name: "commentPlaceholder", locationInTable: "detail", serializationProperty: "locCommentPlaceholder", visibleIf: (obj: any): boolean => { return obj.showCommentArea; } },
+    { name: "elements", baseClassName: "question", visible: false, isLightSerializable: false, isSerializableFunc: (obj) => obj.hasElements }
   ],
   (value) => new ChoiceItem(value),
   "itemvalue"

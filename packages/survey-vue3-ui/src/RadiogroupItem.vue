@@ -32,7 +32,13 @@
       </span>
     </label>
   </div>
-<SvComponent
+  <SvComponent
+    v-if="item.isPanelShowing"
+    :is="'survey-panel'"
+    :element="item.panel"
+    :cssClasses="question.cssClasses"
+  />
+  <SvComponent
     :is="'survey-other-choice'"
     v-if="item.isCommentShowing"
     :question="question"

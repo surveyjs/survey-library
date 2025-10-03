@@ -385,8 +385,8 @@ export class QuestionPanelDynamicModel extends Question
   public get template(): PanelModel {
     return this.templateValue;
   }
-  public getPanel(): IPanel {
-    return this.template;
+  public getPanels(): Array<IPanel> {
+    return [this.template];
   }
   /**
    * An array of questions and panels included in a panel template.
@@ -2614,8 +2614,11 @@ export class QuestionPanelDynamicModel extends Question
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;
   }
   public needResponsiveWidth(): boolean {
-    const panel = <PanelModel>this.getPanel();
-    if (!!panel && panel.needResponsiveWidth()) return true;
+    const panels = this.getPanels();
+    for (let i = 0; i < panels.length; i++) {
+      const panel = <PanelModel>panels[i];
+      if (panel.isVisible && panel.needResponsiveWidth()) return true;
+    }
     return false;
   }
   private tabbedMenuValue: AdaptiveActionContainer<PanelDynamicTabbedMenuItem>;

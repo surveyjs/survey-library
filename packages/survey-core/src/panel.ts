@@ -684,8 +684,8 @@ export class PanelModelBase extends SurveyElement<Question>
   public get isPanel(): boolean {
     return false;
   }
-  public getPanel(): IPanel {
-    return this;
+  public getPanels(): Array<IPanel> {
+    return [this];
   }
   getLayoutType(): string {
     return "row";
@@ -750,14 +750,17 @@ export class PanelModelBase extends SurveyElement<Question>
    * @param name An element name.
    */
   public getElementByName(name: string): IElement {
+    if (name == this.name) return <any>this;
     var elements = this.elements;
     for (var i = 0; i < elements.length; i++) {
       var el = elements[i];
       if (el.name == name) return el;
-      var pnl = el.getPanel();
-      if (!!pnl) {
-        var res = (<PanelModelBase>pnl).getElementByName(name);
-        if (!!res) return res;
+      const pnls = el.getPanels();
+      if (Array.isArray(pnls)) {
+        for (let j = 0; j < pnls.length; j ++) {
+          const res = (<PanelModelBase>pnls[j]).getElementByName(name);
+          if (!!res) return res;
+        }
       }
     }
     return null;
@@ -908,9 +911,11 @@ export class PanelModelBase extends SurveyElement<Question>
     for (var i = 0; i < this.elements.length; i++) {
       var el: any = this.elements[i];
       if (el == element) return true;
-      var pnl = el.getPanel();
-      if (!!pnl) {
-        if ((<PanelModelBase>pnl).containsElement(element)) return true;
+      var pnls = el.getPanels();
+      if (Array.isArray(pnls)) {
+        for (let j = 0; j < pnls.length; j ++) {
+          if ((<PanelModelBase>pnls[j]).containsElement(element)) return true;
+        }
       }
     }
     return false;

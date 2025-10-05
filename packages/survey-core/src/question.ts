@@ -1372,6 +1372,9 @@ export class Question extends SurveyElement<Question>
   }
   protected getTitleLocationCore(): string {
     if (this.titleLocation !== "default") return this.titleLocation;
+    return this.getParentTitleLocation();
+  }
+  protected getParentTitleLocation(): string {
     if (!!this.parent) return this.parent.getQuestionTitleLocation();
     if (!!this.survey) return this.survey.questionTitleLocation;
     return "top";

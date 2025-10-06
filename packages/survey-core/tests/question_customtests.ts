@@ -3213,7 +3213,7 @@ QUnit.test("single component: inheritBaseProps: array<string> #2 + check propert
   assert.equal(prop.isVisible("form", q1), true, "it is visible");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("single component: inheritBaseProps: true, Issue#10060", function (assert) {
+QUnit.test("single component: inheritBaseProps: true, Issue#10060 & Bug#10460", function (assert) {
   ComponentCollection.Instance.add({
     name: "customdropdown",
     inheritBaseProps: true,
@@ -3228,6 +3228,9 @@ QUnit.test("single component: inheritBaseProps: true, Issue#10060", function (as
       { type: "customdropdown", name: "q1", title: "my title", allowClear: false, showOtherItem: true }
     ]
   });
+  const dropdownChoicesProp = Serializer.findProperty("dropdown", "choices");
+  assert.ok(dropdownChoicesProp, "dropdown.choices prop is here");
+  assert.equal(dropdownChoicesProp.visible, true, "dropdown.choices.visible is true");
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
   const props = Serializer.getDynamicPropertiesByObj(q1);
   const propChoices = props.find((prop) => prop.name === "choices");

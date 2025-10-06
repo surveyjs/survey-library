@@ -250,6 +250,7 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         (window as any).survey.getQuestionByName("relatives").titleLocation = "hidden";
+        (window as any).survey.getQuestionByName("relatives").templateQuestionTitleLocation = "hidden";
       });
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-tabs-without-title.png");
 

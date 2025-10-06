@@ -199,7 +199,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * - `text`: `string`\
    * The label text to display.
    *
-   * Numbers and objects can be combined in the same array. For instance, the following slider configuration specifies textual labels for extreme scale points and adds numeric labels between them.
+   * - `showValue`: `boolean`\
+   * Specifies whether to display the numeric value alongside the label text. Default value: `false`.
+   *
+   * Numbers and objects can be combined in the same array. For instance, the following slider configuration adds textual labels for the minimum and maximum scale values and numeric labels for intermediate points. The extreme labels also display their corresponding values.
    *
    * ```js
    * const surveyJson = {
@@ -208,12 +211,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    *       "type": "slider",
    *       // ...
    *       "customLabels": [
-   *         { value: 0, text: "Lowest" },
+   *         { "value": 0, "text": "Lowest", "showValue": true },
    *         20,
    *         40
    *         60
    *         80,
-   *         { value: 100, text: "Highest" },
+   *         { "value": 100, "text": "Highest", "showValue": true }
    *       ]
    *     }
    *   ]

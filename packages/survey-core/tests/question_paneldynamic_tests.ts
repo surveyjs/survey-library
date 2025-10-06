@@ -8167,6 +8167,44 @@ QUnit.test("Question title location for dynamic panels - update dynamically #229
   survey.pages[0].questionTitleLocation = "left";
   assert.equal(q1.cssRoot.indexOf(leftClass) > -1, true, "#4");
 });
+QUnit.test("Question title location for dynamic panels, bypass dynamic panel titleLocation Bug#10452", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }]
+  });
+  const page = survey.pages[0];
+  const qPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel = <PanelModel>qPanel.panels[0];
+  const q1 = panel.getQuestionByName("q1");
+  assert.equal(q1.getTitleLocation(), "top", "titleLocation #1");
+  qPanel.templateQuestionTitleLocation = "left";
+  assert.equal(q1.getTitleLocation(), "left", "titleLocation #2");
+  q1.titleLocation = "top";
+  assert.equal(q1.getTitleLocation(), "top", "titleLocation #3");
+  qPanel.templateQuestionTitleLocation = "default";
+  assert.equal(q1.getTitleLocation(), "top", "titleLocation #4");
+  q1.titleLocation = "default";
+  assert.equal(q1.getTitleLocation(), "top", "titleLocation #5");
+  page.questionTitleLocation = "left";
+  assert.equal(q1.getTitleLocation(), "left", "titleLocation #6");
+  qPanel.titleLocation = "hidden";
+  assert.equal(q1.getTitleLocation(), "left", "titleLocation #7");
+  qPanel.titleLocation = "top";
+  assert.equal(q1.getTitleLocation(), "left", "titleLocation #8");
+  page.questionTitleLocation = "top";
+  assert.equal(q1.getTitleLocation(), "top", "titleLocation #9");
+  page.questionTitleLocation = "left";
+  assert.equal(q1.getTitleLocation(), "left", "titleLocation #10");
+  page.questionTitleLocation = "default";
+  assert.equal(q1.getTitleLocation(), "top", "titleLocation #11");
+});
 QUnit.test("getFirstErrorInputElementId doesn't work correctly for panel dynamic", function (assert) {
   const survey = new SurveyModel({
     elements: [

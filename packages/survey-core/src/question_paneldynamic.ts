@@ -2344,7 +2344,7 @@ export class QuestionPanelDynamicModel extends Question
   private getTemplateQuestionTitleLocation(): string {
     return this.templateQuestionTitleLocation != "default"
       ? this.templateQuestionTitleLocation
-      : this.getTitleLocationCore();
+      : this.getParentTitleLocation();
   }
   public getChildErrorLocation(child: Question): string {
     if (this.templateErrorLocation !== "default") return this.templateErrorLocation;

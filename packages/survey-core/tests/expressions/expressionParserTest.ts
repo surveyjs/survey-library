@@ -1885,3 +1885,11 @@ QUnit.test("Unary not !, Bug#10412", function(assert) {
   assert.equal(runner.runContext(new VariableGetterContext({ b: "false", c: false })), true, "#5");
   assert.equal(runner.runContext(new VariableGetterContext({ b: "true", c: false })), false, "#6");
 });
+QUnit.test("Work with objects like constants, Bug#10448", function(assert) {
+  let runner = new ExpressionRunner("{\"key\": 1}");
+  assert.deepEqual(runner.runContext(new VariableGetterContext({})), { key: 1 }, "#1");
+  runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value\"}");
+  assert.equal(runner.runContext(new VariableGetterContext({})), true, "#2");
+  runner = new ExpressionRunner("{\"key\": \"value\"} = {\"key\": \"value1\"}");
+  assert.equal(runner.runContext(new VariableGetterContext({})), false, "#3");
+});

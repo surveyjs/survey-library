@@ -225,10 +225,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * @see labelCount
    * @see labelFormat
    */
-  public get customLabels(): ItemValue[] {
+  public get customLabels(): SliderLabelItemValue[] {
     return this.getPropertyValue("customLabels");
   }
-  public set customLabels(val: ItemValue[]) {
+  public set customLabels(val: SliderLabelItemValue[]) {
     this.setPropertyValue("customLabels", val);
   }
   @property({ defaultValue: true }) allowDragRange: boolean;
@@ -283,6 +283,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
       .append(this.cssClasses.rootTooltipsAlwaysMode, this.tooltipVisibility === "always")
+      .append(this.cssClasses.rootLabelsShowValueTextMode, this.isLabelsShowValueText)
       .toString();
   }
 
@@ -894,6 +895,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   private isAllowToChange():boolean {
     return !this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle;
+  }
+
+  private get isLabelsShowValueText(): boolean {
+    return !!this.customLabels.find(l => l.showValue);
   }
 }
 

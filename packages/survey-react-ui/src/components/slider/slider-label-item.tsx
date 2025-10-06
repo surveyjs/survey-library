@@ -20,16 +20,24 @@ export class SliderLabelItem extends SurveyElementBase<any, any> {
   protected renderElement(): React.JSX.Element {
     const { cssClasses, handleLabelPointerUp, getLabelCss, getPercent } = this.question;
     const { value, locText } = this.item;
-    let labelValue = null;
+    let labelText = null;
+    let labelTextSecondary = null;
     if (this.item.showValue) {
-      labelValue = <div>{this.item.value}</div>;
+      labelText = <div className={cssClasses.labelText}>{this.item.value}</div>;
+      labelTextSecondary = <div className={cssClasses.labelTextSecondaryMode}>
+        {this.renderLocString(locText)}
+      </div>;
+    } else {
+      labelText = <div className={cssClasses.labelText}>
+        {this.renderLocString(locText)}
+      </div>;
     }
     return <div key={this.item.id} className={getLabelCss(locText)}
       style={{ left: getPercent(value) + "%" }} onPointerUp={ (e)=>{ handleLabelPointerUp(e.nativeEvent, value); } }>
       <div className={cssClasses.labelTick}></div>
-      {labelValue}
-      <div className={cssClasses.labelText}>
-        {this.renderLocString(locText)}
+      <div className={cssClasses.labelTextContainer}>
+        {labelText}
+        {labelTextSecondary}
       </div>
     </div>;
   }

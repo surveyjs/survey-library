@@ -683,10 +683,11 @@ export var defaultCss = {
   slider: {
     root: "sd-slider",
     rootSingleMode: "sd-slider--single",
-    rootNegativeScaleMode: "sd-slider--negative-scale",
+    rootNegativeScaleMode: "sd-slider--negative-scale-mode",
     rootDesignMode: "sd-slider--design-mode",
     rootAnimatedThumbMode: "sd-slider--animated-thumb-mode",
     rootTooltipsAlwaysMode: "sd-slider--tooltips-always-mode",
+    rootLabelsShowValueTextMode: "sd-slider--labels-show-value-text-mode",
     visualContainer: "sd-slider-container",
     visualContainerSlider: "sd-slider-container__slider",
     rangeTrack: "sd-slider__track sd-slider__range-track",
@@ -706,7 +707,9 @@ export var defaultCss = {
     label: "sd-slider__label",
     labelLongMod: "sd-slider__label--long",
     labelTick: "sd-slider__label-tick",
+    labelTextContainer: "sd-slider__label-text-container",
     labelText: "sd-slider__label-text",
+    labelTextSecondaryMode: "sd-slider__label-text sd-slider__label-text--secondary",
     clearButton: "",
   },
   comment: {

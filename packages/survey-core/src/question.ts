@@ -2114,9 +2114,11 @@ export class Question extends SurveyElement<Question>
   private calcNo(): string {
     if (!this.hasTitle || !this.showNumber) return "";
     let parentIndex: number | undefined;
+    /*
     if (!!this.parent) {
       parentIndex = (<any>this.parent).visibleIndex;
     }
+    */
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);

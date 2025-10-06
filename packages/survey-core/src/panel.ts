@@ -1372,8 +1372,29 @@ export class PanelModelBase extends SurveyElement<Question>
     if (!!this.survey) return this.survey.questionStartIndex;
     return "";
   }
+  protected isQuestionIndexRecursive(): boolean {
+    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
+  }
   getQuestionStartIndex(): string {
-    return this.getStartIndex();
+    const res = this.getStartIndex();
+    if (this.isQuestionIndexRecursive()) {
+      return this.getStartIndexSubs(res, true);
+    }
+    return res;
+  }
+  protected getStartIndexSubs(str: string, isLast: boolean): string {
+    if (!str || !this.isComplexIndex(str)) return str;
+    const lastChar = str[str.length - 1] === "." ? "." : "";
+    if (lastChar) {
+      str = str.substring(0, str.length - 1);
+    }
+    const lastIndex = str.lastIndexOf(".");
+    str += lastChar;
+    return isLast ? str.substring(lastIndex + 1) : str.substring(0, lastIndex + 1);
+  }
+  protected isComplexIndex(str: string): boolean {
+    const index = str.indexOf(".");
+    return index > -1 && index < str.length - 1;
   }
   getChildrenLayoutType(): string {
     return "row";
@@ -2298,7 +2319,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected beforeSetVisibleIndex(index: number): number {
     if (this.isPage || !this.parent) return super.beforeSetVisibleIndex(index);
     let visibleIndex = -1;
-    if ((this.showNumber || this.isQuestionIndexRecursive) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
+    if ((this.showNumber || this.isQuestionIndexRecursive()) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
       visibleIndex = index;
     }
     this.setPropertyValue("visibleIndex", visibleIndex);
@@ -2311,13 +2332,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     return index;
   }
   private get isQuestionIndexOnPanel(): boolean {
-    return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive;
+    return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive();
   }
-  private get isQuestionIndexRecursive(): boolean {
-    if (this.isPage) return false;
+  protected isQuestionIndexRecursive(): boolean {
     const val = this.showQuestionNumbers;
     if (val !== "default") return val === "recursive";
-    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
+    return super.isQuestionIndexRecursive();
   }
   private hasParentInQuestionIndex(): boolean {
     if (!this.isQuestionIndexOnPanel) return false;

@@ -1,6 +1,6 @@
-import type { QuestionSliderModel, ItemValue } from "survey-core";
+import type { QuestionSliderModel, SliderLabelItemValue } from "survey-core";
 
 export interface ISliderItemProps {
   question: QuestionSliderModel;
-  item: ItemValue;
+  item: SliderLabelItemValue;
 }

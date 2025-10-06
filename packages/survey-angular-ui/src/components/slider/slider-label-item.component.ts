@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { ItemValue, QuestionSliderModel } from "survey-core";
+import { QuestionSliderModel, SliderLabelItemValue } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -10,7 +10,7 @@ import { AngularComponentFactory } from "../../component-factory";
 
 export class SliderLabelItemComponent extends BaseAngular {
   @Input() model!: QuestionSliderModel;
-  @Input() item!: ItemValue;
+  @Input() item!: SliderLabelItemValue;
 
   // onClick(event: any): void {
   //   this.model.setValueFromClick(event.target.value);

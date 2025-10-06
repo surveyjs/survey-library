@@ -67,7 +67,7 @@ import {
   DynamicPanelItemValueChangedEvent, DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent,
   DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, CheckAnswerCorrectEvent, DragDropAllowEvent, ScrollToTopEvent, GetQuestionTitleActionsEvent,
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
-  UpdateSingleInputNestedQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
+  GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
   IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent
 } from "./survey-events-api";
@@ -972,7 +972,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
 
   public onCheckSingleInputPerPageMode: EventBase<SurveyModel, CheckSingleInputPerPageModeEvent> = this.addEvent<SurveyModel, CheckSingleInputPerPageModeEvent>();
-  public onUpdateNestedSingleInputQuestions: EventBase<SurveyModel, UpdateSingleInputNestedQuestionsEvent> = this.addEvent<SurveyModel, UpdateSingleInputNestedQuestionsEvent>();
+  public onGetLoopQuestions: EventBase<SurveyModel, GetLoopQuestionsEvent> = this.addEvent<SurveyModel, GetLoopQuestionsEvent>();
 
   /**
    * An event that is raised after the visibility of a popup is changed.
@@ -4936,7 +4936,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public updateNestedSingleQuestions(question: IQuestion, nestedQuestions: Array<IQuestion>): void {
     const options: any = { question: question, nestedQuestions: nestedQuestions };
-    this.onUpdateNestedSingleInputQuestions.fire(this, options);
+    this.onGetLoopQuestions.fire(this, options);
   }
   private changeCurrentSingleElementOnVisibilityChanged(): void {
     const el = this.currentSingleElement;

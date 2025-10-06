@@ -1211,7 +1211,9 @@ export class Question extends SurveyElement<Question>
     const question = this.getPropertyValue("singleInputQuestion");
     if (question === this) return [this];
     const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
-    this.survey?.updateNestedSingleQuestions(this, res);
+    if (this.survey) {
+      this.survey.updateNestedSingleQuestions(this, res);
+    }
     res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
     return res;
   }

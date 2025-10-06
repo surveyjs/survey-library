@@ -2399,7 +2399,7 @@ QUnit.skip("singleInput bradscrum navigation for 3 level dynamic panels", assert
 });
 QUnit.test("Do not show summary page on request, Issue#10435", assert => {
   const survey = new SurveyModel();
-  survey.onUpdateNestedSingleInputQuestions.add((_, opt) => {
+  survey.onGetLoopQuestions.add((_, opt) => {
     const question = opt.nestedQuestions;
     for (let i = question.length - 1; i >= 0; i--) {
       if (question[i] === opt.question) {

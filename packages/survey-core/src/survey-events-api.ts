@@ -1102,7 +1102,7 @@ export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueE
 export interface CheckSingleInputPerPageModeEvent extends QuestionEventMixin {
   enabled: boolean;
 }
-export interface UpdateSingleInputNestedQuestionsEvent extends QuestionEventMixin {
+export interface GetLoopQuestionsEvent extends QuestionEventMixin {
   nestedQuestions: Array<Question>;
 }
 

@@ -2128,11 +2128,6 @@ export class Question extends SurveyElement<Question>
     }
     return no;
   }
-  protected getStartIndex(): string {
-    if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.questionStartIndex;
-    return "";
-  }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;
     this.fireCallback(this.surveyLoadCallback);

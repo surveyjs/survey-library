@@ -851,6 +851,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public setVisibleIndex(index: number): number {
     return 0;
   }
+  protected getStartIndex(): string {
+    if (!!this.parent) return this.parent.getQuestionStartIndex();
+    if (!!this.survey) return this.survey.questionStartIndex;
+    return "";
+  }
   public delete(doDispose: boolean): void { }
   //ILocalizableOwner
   locOwner: ILocalizableOwner;

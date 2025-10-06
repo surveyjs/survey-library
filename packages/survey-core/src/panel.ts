@@ -1367,11 +1367,6 @@ export class PanelModelBase extends SurveyElement<Question>
     (el as any).setPropertyValueDirectly("effectiveColSpan", result.length);
     return result;
   }
-  protected getStartIndex(): string {
-    if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.questionStartIndex;
-    return "";
-  }
   protected isQuestionIndexRecursive(): boolean {
     return !!this.survey && this.survey.showQuestionNumbers === "recursive";
   }

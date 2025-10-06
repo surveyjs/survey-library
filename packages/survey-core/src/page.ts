@@ -171,9 +171,7 @@ export class PageModel extends PanelModel implements IPage {
   getQuestionStartIndex(): string {
     const res = this.getStartIndex();
     if (this.isQuestionIndexRecursive()) {
-      const prefix = this.getStartIndexSubs(res, false);
-      const postfix = this.getStartIndexSubs(res, true);
-      return Helpers.getNumberByIndex(this.visibleIndex, prefix) + postfix;
+      return this.getQuestionStartIndexVsVisibleIndex(res, this.visibleIndex);
     }
     return res;
   }

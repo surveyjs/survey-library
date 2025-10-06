@@ -1392,6 +1392,11 @@ export class PanelModelBase extends SurveyElement<Question>
     str += lastChar;
     return isLast ? str.substring(lastIndex + 1) : str.substring(0, lastIndex + 1);
   }
+  protected getQuestionStartIndexVsVisibleIndex(str: string, index: number): string {
+    const prefix = this.getStartIndexSubs(str, false);
+    const postfix = this.getStartIndexSubs(str, true);
+    return Helpers.getNumberByIndex(index, prefix) + postfix;
+  }
   protected isComplexIndex(str: string): boolean {
     const index = str.indexOf(".");
     return index > -1 && index < str.length - 1;
@@ -2228,7 +2233,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public addNoFromChild(no: string): string {
-    if (this.isQuestionIndexRecursive)
+    if (this.isQuestionIndexRecursive())
       return this.calcNo() + no;
     return super.addNoFromChild(no);
   }
@@ -2272,8 +2277,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("questionStartIndex", val);
   }
   getQuestionStartIndex(): string {
-    if (!!this.questionStartIndex) return this.questionStartIndex;
-    return super.getQuestionStartIndex();
+    const res = this.questionStartIndex;
+    if (!!res && this.isQuestionIndexOnPanel && this.isComplexIndex(res))
+      return this.getQuestionStartIndexVsVisibleIndex(res, this.visibleIndex);
+    return res || super.getQuestionStartIndex();
   }
   /**
    * A question number or letter (depends on the `questionStartIndex` property).

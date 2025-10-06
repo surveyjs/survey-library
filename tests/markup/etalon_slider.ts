@@ -92,6 +92,28 @@ registerMarkupTests(
       },
       snapshot: "slider-read-only-range-mode",
     },
+    {
+      name: "Slider: Custom Labels",
+      json: {
+        questions: [
+          {
+            name: "name",
+            "type": "slider",
+            sliderType: "single",
+            titleLocation: "hidden",
+            "customLabels": [
+              { value: 0, text: "Lowest", showValue: true },
+              20,
+              40,
+              { value: 60, text: "Middle" },
+              80,
+              { value: 100, text: " Highest", showValue: true },
+            ]
+          }
+        ]
+      },
+      snapshot: "slider-custom-labels",
+    },
     // {
     //   name: "Slider: Error State: Single Mode",
     //   json: {

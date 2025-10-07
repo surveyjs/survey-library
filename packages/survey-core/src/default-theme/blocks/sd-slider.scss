@@ -685,12 +685,12 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
 .sd-slider--labels-show-value-text-mode {
   margin-bottom: calcSize(3);
 
-  .sd-slider__label--long:first-child .sd-slider__label-text-container .sd-slider__label-text:first-child {
+  .sd-slider__label--long:first-child .sd-slider__label-text:first-child {
     text-align: start;
     margin-left: 11px;
   }
 
-  .sd-slider__label--long:last-child .sd-slider__label-text-container .sd-slider__label-text:first-child {
+  .sd-slider__label--long:last-child .sd-slider__label-text:first-child {
     text-align: end;
   }
 }

@@ -3,6 +3,10 @@
       [style]="{ left: model.getPercent(item.value) + '%' }"
       (pointerup)="model.handleLabelPointerUp($any($event), item.value)">
         <div [class]="model.cssClasses.labelTick"></div>
-        <div [class]="model.cssClasses.labelText" [model]="item.locText" sv-ng-string></div>
+        <div [class]="model.cssClasses.labelTextContainer">
+          <div *ngIf="!item.showValue" [class]="model.cssClasses.labelText" [model]="item.locText" sv-ng-string></div>
+          <div *ngIf="item.showValue" [class]="model.cssClasses.labelText">{{ item.value }}</div>
+          <div *ngIf="item.showValue" [class]="model.cssClasses.labelTextSecondaryMode" [model]="item.locText" sv-ng-string></div>
+        </div>
     </div>
 </ng-template>

@@ -598,6 +598,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     for (var i = 0; i < valuesNames.length; i++) {
       this.mergeValue(prop, valuesNames[i]);
     }
+    this.isArray = prop.isArray;
   }
   public addDependedProperty(name: string) {
     if (!this.dependedProperties) {
@@ -1264,9 +1265,12 @@ export class JsonMetadata {
     const res = [];
     if (!nonSerialableProps) nonSerialableProps = [];
     for (let i = 0; i < dynamicProps.length; i++) {
-      const dProp = dynamicProps[i];
-      if (this.canAddDybamicProp(dProp, hash[dProp.name])) {
+      let dProp = dynamicProps[i];
+      if (this.canAddDynamicProp(dProp, hash[dProp.name])) {
         if (nonSerialableProps.indexOf(dProp.name) > -1) {
+          const newProp = new JsonObjectProperty(dProp.classInfo, dProp.name, dProp.isRequired);
+          newProp.mergeWith(dProp);
+          dProp = newProp;
           dProp.visible = false;
           dProp.isSerializable = false;
         }
@@ -1276,7 +1280,7 @@ export class JsonMetadata {
     this.dynamicPropsCache[cacheType] = res;
     return res;
   }
-  private canAddDybamicProp(dProp: JsonObjectProperty, orgProp: JsonObjectProperty): boolean {
+  private canAddDynamicProp(dProp: JsonObjectProperty, orgProp: JsonObjectProperty): boolean {
     if (!orgProp) return true;
     if (dProp === orgProp) return false;
     let classInfo = dProp.classInfo;
@@ -1307,7 +1311,6 @@ export class JsonMetadata {
     if (prop.classInfo === classInfo) return prop;
     const newProp = new JsonObjectProperty(classInfo, prop.name, prop.isRequired);
     newProp.mergeWith(prop);
-    newProp.isArray = prop.isArray;
     classInfo.properties.push(newProp);
     classInfo.resetAllProperties();
     return newProp;

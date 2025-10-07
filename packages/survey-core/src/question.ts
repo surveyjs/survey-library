@@ -1085,7 +1085,12 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputAddText(): string {
     const q = this.currentSingleInputQuestion;
-    return !!q && !!q.singleInputSummary ? q.getSingleInputAddTextCore() : undefined;
+    if (!q) return undefined;
+    if (!!q.singleInputSummary) return q.getSingleInputAddTextCore();
+    const qs = this.getSingleInputQuestions();
+    const len = Array.isArray(qs) ? qs.length : 0;
+    if (len > 0 && qs[len - 1] === q) return this.getSingleInputAddTextCore();
+    return undefined;
   }
   public singleInputAddItem(checkErrors?: boolean): void {
     if (!checkErrors || this.validateSingleInput()) {
@@ -1206,6 +1211,9 @@ export class Question extends SurveyElement<Question>
     const question = this.getPropertyValue("singleInputQuestion");
     if (question === this) return [this];
     const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
+    if (this.survey) {
+      this.survey.updateNestedSingleQuestions(this, res);
+    }
     res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
     return res;
   }

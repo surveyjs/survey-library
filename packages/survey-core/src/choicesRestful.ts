@@ -674,7 +674,9 @@ export class ChoicesRestful extends Base {
       ";" +
       this.titleName +
       ";" +
-      this.imageLinkName
+      this.imageLinkName +
+      ";" +
+      this.attachData
     );
   }
 }

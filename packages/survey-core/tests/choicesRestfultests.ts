@@ -1946,6 +1946,24 @@ QUnit.test("allowCustomChoices: Add custom value into dropdown", function (asser
   survey.tryComplete();
   assert.deepEqual(survey.data, { q1: testCustomValue }, "#3 survey.data");
 });
+QUnit.test("Check objHash, Bug#10463", function (assert) {
+  const question = new QuestionDropdownModelTester("q1");
+  const restful: any = question.choicesByUrl;
+  restful.url = "allcountries";
+  const cache1 = restful.objHash;
+  restful.valueName = "alpha2_code";
+  const cache2 = restful.objHash;
+  restful.titleName = "abc";
+  const cache3 = restful.objHash;
+  assert.notEqual(cache1, cache2, "change valueName -> change cache");
+  assert.notEqual(cache2, cache3, "change path -> change cache");
+  restful.attachData = true;
+  const cache4 = restful.objHash;
+  assert.notEqual(cache3, cache4, "change attachData -> change cache");
+  restful.attachData = false;
+  const cache5 = restful.objHash;
+  assert.equal(cache3, cache5, "change attachData back -> do not change cache");
+});
 
 function getCACities() {
   return ["Los Angeles", "San Francisco"];

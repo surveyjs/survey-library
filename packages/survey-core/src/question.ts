@@ -1085,7 +1085,12 @@ export class Question extends SurveyElement<Question>
   }
   public getSingleInputAddText(): string {
     const q = this.currentSingleInputQuestion;
-    return !!q && !!q.singleInputSummary ? q.getSingleInputAddTextCore() : undefined;
+    if (!q) return undefined;
+    if (!!q.singleInputSummary) return q.getSingleInputAddTextCore();
+    const qs = this.getSingleInputQuestions();
+    const len = Array.isArray(qs) ? qs.length : 0;
+    if (len > 0 && qs[len - 1] === q) return this.getSingleInputAddTextCore();
+    return undefined;
   }
   public singleInputAddItem(checkErrors?: boolean): void {
     if (!checkErrors || this.validateSingleInput()) {
@@ -1206,6 +1211,9 @@ export class Question extends SurveyElement<Question>
     const question = this.getPropertyValue("singleInputQuestion");
     if (question === this) return [this];
     const res = this.getSingleInputQuestionsCore(question, !question || !this.isSingleInputSummaryShown);
+    if (this.survey) {
+      this.survey.updateNestedSingleQuestions(this, res);
+    }
     res.forEach(q => { if (q !== this)this.onSingleInputQuestionAdded(q); });
     return res;
   }
@@ -2117,9 +2125,11 @@ export class Question extends SurveyElement<Question>
   private calcNo(): string {
     if (!this.hasTitle || !this.showNumber) return "";
     let parentIndex: number | undefined;
+    /*
     if (!!this.parent) {
       parentIndex = (<any>this.parent).visibleIndex;
     }
+    */
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);
@@ -2128,11 +2138,6 @@ export class Question extends SurveyElement<Question>
       no = this.survey.getUpdatedQuestionNo(this, no);
     }
     return no;
-  }
-  protected getStartIndex(): string {
-    if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.questionStartIndex;
-    return "";
   }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;

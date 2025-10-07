@@ -160,6 +160,21 @@ export class PageModel extends PanelModel implements IPage {
   protected canRenderFirstRows(): boolean {
     return !this.isDesignMode || this.visibleIndex == 0;
   }
+  protected isQuestionIndexRecursive(): boolean {
+    const res = super.isQuestionIndexRecursive();
+    return res && this.isComplexIndex(this.getStartIndex());
+  }
+  protected getPanelStartIndex(index: number): number {
+    if (this.isQuestionIndexRecursive()) return 0;
+    return index;
+  }
+  getQuestionStartIndex(): string {
+    const res = this.getStartIndex();
+    if (this.isQuestionIndexRecursive()) {
+      return this.getQuestionStartIndexVsVisibleIndex(res, this.visibleIndex);
+    }
+    return res;
+  }
   /**
    * Returns `true` if this page is a start page.
    *

@@ -1,4 +1,3 @@
-import { ItemValue } from "../src/itemvalue";
 import { QuestionSliderModel, SliderLabelItemValue } from "../src/question_slider";
 import { SurveyModel } from "../src/survey";
 

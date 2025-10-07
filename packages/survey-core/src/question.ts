@@ -2125,9 +2125,11 @@ export class Question extends SurveyElement<Question>
   private calcNo(): string {
     if (!this.hasTitle || !this.showNumber) return "";
     let parentIndex: number | undefined;
+    /*
     if (!!this.parent) {
       parentIndex = (<any>this.parent).visibleIndex;
     }
+    */
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex(), parentIndex);
     if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);
@@ -2136,11 +2138,6 @@ export class Question extends SurveyElement<Question>
       no = this.survey.getUpdatedQuestionNo(this, no);
     }
     return no;
-  }
-  protected getStartIndex(): string {
-    if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.questionStartIndex;
-    return "";
   }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;

@@ -1367,13 +1367,34 @@ export class PanelModelBase extends SurveyElement<Question>
     (el as any).setPropertyValueDirectly("effectiveColSpan", result.length);
     return result;
   }
-  protected getStartIndex(): string {
-    if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.questionStartIndex;
-    return "";
+  protected isQuestionIndexRecursive(): boolean {
+    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
   }
   getQuestionStartIndex(): string {
-    return this.getStartIndex();
+    const res = this.getStartIndex();
+    if (this.isQuestionIndexRecursive()) {
+      return this.getStartIndexSubs(res, true);
+    }
+    return res;
+  }
+  protected getStartIndexSubs(str: string, isLast: boolean): string {
+    if (!str || !this.isComplexIndex(str)) return str;
+    const lastChar = str[str.length - 1] === "." ? "." : "";
+    if (lastChar) {
+      str = str.substring(0, str.length - 1);
+    }
+    const lastIndex = str.lastIndexOf(".");
+    str += lastChar;
+    return isLast ? str.substring(lastIndex + 1) : str.substring(0, lastIndex + 1);
+  }
+  protected getQuestionStartIndexVsVisibleIndex(str: string, index: number): string {
+    const prefix = this.getStartIndexSubs(str, false);
+    const postfix = this.getStartIndexSubs(str, true);
+    return Helpers.getNumberByIndex(index, prefix) + postfix;
+  }
+  protected isComplexIndex(str: string): boolean {
+    const index = str.indexOf(".");
+    return index > -1 && index < str.length - 1;
   }
   getChildrenLayoutType(): string {
     return "row";
@@ -2207,7 +2228,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public addNoFromChild(no: string): string {
-    if (this.isQuestionIndexRecursive)
+    if (this.isQuestionIndexRecursive())
       return this.calcNo() + no;
     return super.addNoFromChild(no);
   }
@@ -2251,8 +2272,10 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("questionStartIndex", val);
   }
   getQuestionStartIndex(): string {
-    if (!!this.questionStartIndex) return this.questionStartIndex;
-    return super.getQuestionStartIndex();
+    const res = this.questionStartIndex;
+    if (!!res && this.isQuestionIndexOnPanel && this.isComplexIndex(res))
+      return this.getQuestionStartIndexVsVisibleIndex(res, this.visibleIndex);
+    return res || super.getQuestionStartIndex();
   }
   /**
    * A question number or letter (depends on the `questionStartIndex` property).
@@ -2298,7 +2321,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   protected beforeSetVisibleIndex(index: number): number {
     if (this.isPage || !this.parent) return super.beforeSetVisibleIndex(index);
     let visibleIndex = -1;
-    if ((this.showNumber || this.isQuestionIndexRecursive) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
+    if ((this.showNumber || this.isQuestionIndexRecursive()) && (this.isDesignMode || !this.locTitle.isEmpty || this.hasParentInQuestionIndex())) {
       visibleIndex = index;
     }
     this.setPropertyValue("visibleIndex", visibleIndex);
@@ -2311,13 +2334,12 @@ export class PanelModel extends PanelModelBase implements IElement {
     return index;
   }
   private get isQuestionIndexOnPanel(): boolean {
-    return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive;
+    return this.showQuestionNumbers === "onpanel" || this.isQuestionIndexRecursive();
   }
-  private get isQuestionIndexRecursive(): boolean {
-    if (this.isPage) return false;
+  protected isQuestionIndexRecursive(): boolean {
     const val = this.showQuestionNumbers;
     if (val !== "default") return val === "recursive";
-    return !!this.survey && this.survey.showQuestionNumbers === "recursive";
+    return super.isQuestionIndexRecursive();
   }
   private hasParentInQuestionIndex(): boolean {
     if (!this.isQuestionIndexOnPanel) return false;

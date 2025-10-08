@@ -67,7 +67,8 @@ registerMarkupTests(
           }
         ]
       },
-      snapshot: "dropdown-other"
+      snapshot: "dropdown-other",
+      removeIds: true
     },
     {
       name: "Test Dropdown question renderAs select markup Read only",
@@ -311,6 +312,7 @@ registerMarkupTests(
         ]
       },
       snapshot: "dropdown-with-other-value",
+      removeIds: true
     },
     {
       name: "Test Dropdown question with none selected item",

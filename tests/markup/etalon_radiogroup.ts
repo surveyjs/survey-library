@@ -42,6 +42,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "radiogroup-other",
+    removeIds: true
   },
   {
     name: "Test radiogroup question markup Read only",
@@ -313,6 +314,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "radiogroup-multiple-comments",
+    removeIds: true
   },
   ]
 );

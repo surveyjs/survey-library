@@ -3289,6 +3289,7 @@
                             ],
                             "enum": [
                                 "auto",
+                                "always",
                                 "never"
                             ]
                         },
@@ -3310,9 +3311,7 @@
                         },
                         "customLabels": {
                             "type": "array",
-                            "items": {
-                                "$href": "#undefined"
-                            }
+                            "items": "SliderLabelItemValue"
                         },
                         "allowDragRange": {
                             "type": "boolean"

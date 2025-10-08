@@ -220,5 +220,45 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question", "slider-single-tooltips-always.png");
     });
 
+    test("Slider: Custom Labels", async ({ page }) => {
+      const json = {
+        "elements": [
+          {
+            "type": "slider",
+            "name": "q1",
+            "customLabels": [
+              0,
+              20,
+              40,
+              60,
+              80,
+              100,
+            ]
+          }
+        ]
+      };
+      const question = new Question(page, "q1");
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, json);
+
+      await compareScreenshot(page, ".sd-question", "slider-custom-labels.png");
+
+      await question.setPropertyValue("customLabels", [
+        { value: 0, text: "Lowest", showValue: true },
+        20,
+        40,
+        { value: 60, text: "Middle" },
+        80,
+        { value: 100, text: " Highest", showValue: true },
+      ]);
+      await compareScreenshot(page, ".sd-question", "slider-custom-labels-secondary.png");
+
+      await question.setPropertyValue("readOnly", true);
+      await compareScreenshot(page, ".sd-question", "slider-custom-labels-secondary--read-only.png");
+
+      await new Survey(page).showPreview();
+      await compareScreenshot(page, ".sd-question", "slider-custom-labels-secondary--preview.png");
+    });
+
   });
 });

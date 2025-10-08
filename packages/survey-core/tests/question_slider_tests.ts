@@ -1,4 +1,3 @@
-import { ItemValue } from "../src/itemvalue";
 import { QuestionSliderModel, SliderLabelItemValue } from "../src/question_slider";
 import { SurveyModel } from "../src/survey";
 
@@ -804,7 +803,7 @@ QUnit.test("check if customLabels produces correct renderedLabels", (assert) => 
   let q1 = new QuestionSliderModel("q1");
   q1.max = 1000;
   q1.autoGenerate = false;
-  q1.customLabels = [new ItemValue(500, "middle")];
+  q1.customLabels = [new SliderLabelItemValue(500, "middle")];
   assert.deepEqual(q1.renderedLabels[0].text, "middle", "text is correct");
   assert.deepEqual(q1.renderedLabels[0].value, 500, "value is correct");
 });

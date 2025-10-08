@@ -2397,3 +2397,36 @@ QUnit.skip("singleInput bradscrum navigation for 3 level dynamic panels", assert
   assert.equal(actions[1].title, "Panel 2", "actions[1] title, #3");
   actions[0].action();
 });
+QUnit.test("Do not show summary page on request, Issue#10435", assert => {
+  const survey = new SurveyModel();
+  survey.onGetLoopQuestions.add((_, opt) => {
+    const question = opt.nestedQuestions;
+    for (let i = question.length - 1; i >= 0; i--) {
+      if (question[i] === opt.question) {
+        question.splice(i, 1);
+      }
+    }
+  });
+  survey.fromJSON({
+    elements: [
+      { type: "paneldynamic", name: "panel", panelCount: 1, templateElements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" }]
+      },
+      { type: "text", name: "q3" }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const addBtn = survey.navigationBar.getActionById("sv-singleinput-add");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(survey.currentSingleQuestion.name, "panel", "currentSingleQuestion is panel, #1");
+  assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion is q1, #1");
+  assert.equal(addBtn.visible, false, "addBtn.visible, #1");
+  survey.performNext();
+  assert.equal(panel.getSingleInputAddText(), "Add new", "getSingleInputAddText, #2");
+  assert.equal(panel.singleInputQuestion.name, "q2", "singleInputQuestion is q2, #2");
+  assert.equal(addBtn.visible, true, "addBtn.visible, #2");
+  survey.performNext();
+  assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion is q3, #3");
+  assert.equal(addBtn.visible, false, "addBtn.visible, #3");
+});

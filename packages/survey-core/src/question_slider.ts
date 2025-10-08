@@ -29,6 +29,12 @@ export class SliderLabelItemValue extends ItemValue {
     }
     return this.value || 0;
   }
+  public get showValue(): boolean {
+    return this.getPropertyValue("showValue", false);
+  }
+  public set showValue(val: boolean) {
+    this.setPropertyValue("showValue", val);
+  }
 }
 
 /**
@@ -193,7 +199,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * - `text`: `string`\
    * The label text to display.
    *
-   * Numbers and objects can be combined in the same array. For instance, the following slider configuration specifies textual labels for extreme scale points and adds numeric labels between them.
+   * - `showValue`: `boolean`\
+   * Specifies whether to display the numeric value alongside the label text. Default value: `false`.
+   *
+   * Numbers and objects can be combined in the same array. For instance, the following slider configuration adds textual labels for the minimum and maximum scale values and numeric labels for intermediate points. The extreme labels also display their corresponding values.
    *
    * ```js
    * const surveyJson = {
@@ -202,12 +211,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    *       "type": "slider",
    *       // ...
    *       "customLabels": [
-   *         { value: 0, text: "Lowest" },
+   *         { "value": 0, "text": "Lowest", "showValue": true },
    *         20,
    *         40
    *         60
    *         80,
-   *         { value: 100, text: "Highest" },
+   *         { "value": 100, "text": "Highest", "showValue": true }
    *       ]
    *     }
    *   ]
@@ -219,10 +228,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
    * @see labelCount
    * @see labelFormat
    */
-  public get customLabels(): ItemValue[] {
+  public get customLabels(): SliderLabelItemValue[] {
     return this.getPropertyValue("customLabels");
   }
-  public set customLabels(val: ItemValue[]) {
+  public set customLabels(val: SliderLabelItemValue[]) {
     this.setPropertyValue("customLabels", val);
   }
   @property({ defaultValue: true }) allowDragRange: boolean;
@@ -277,6 +286,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.rootAnimatedThumbMode, !!this.animatedThumb)
       .append(this.cssClasses.rootTooltipsAlwaysMode, this.tooltipVisibility === "always")
+      .append(this.cssClasses.rootLabelsShowValueTextMode, this.isLabelsShowValueText)
       .toString();
   }
 
@@ -889,6 +899,10 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   private isAllowToChange():boolean {
     return !this.isReadOnly && !this.isDisabledAttr && !this.isPreviewStyle && !this.isDisabledStyle;
   }
+
+  private get isLabelsShowValueText(): boolean {
+    return !!this.customLabels.find(l => l.showValue);
+  }
 }
 
 function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any {
@@ -902,7 +916,8 @@ Serializer.addClass(
   [
     { name: "!value:number" },
     { name: "visibleIf", visible: false },
-    { name: "enableIf", visible: false }
+    { name: "enableIf", visible: false },
+    { name: "showValue:boolean", locationInTable: "detail", default: false }
   ],
   (value: any) => new SliderLabelItemValue(value),
   "itemvalue"

@@ -1316,7 +1316,7 @@ QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
 QUnit.test("quesstion commentId/otherId", (assert) => {
   const q1 = new QuestionCheckboxModel("q1");
   assert.equal(q1.commentId, q1.id + "_comment", "Comment id");
-  assert.equal(q1.otherId, q1.id + "_other", "Other id");
+  assert.equal(q1.otherId, q1.id + "_" + q1.otherItem.uniqueId, "Other id");
 });
 QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
   const survey = new SurveyModel({ elements: [
@@ -2895,10 +2895,11 @@ QUnit.test("checbox question and choices has comment: clear comment on unselecti
   const textArea1 = q1.getCommentTextAreaModel(q1.choices[1]);
   q1.setCommentValue(q1.choices[1], "test comment");
   assert.equal(q1.getCommentValue(q1.choices[1]), "test comment", "getCommentValue for choices[1], #1");
-  assert.equal(q1.getPropertyValue("other_2"), "test comment", "comment property value, #1");
+  const propName = "other_" + q1.choices[1].uniqueId;
+  assert.equal(q1.getPropertyValue(propName), "test comment", "comment property value, #1");
   q1.renderedValue = [1];
   assert.equal(q1.getCommentValue(q1.choices[1]), "", "getCommentValue for choices[1], #2");
-  assert.equal(q1.getPropertyValue("other_2"), undefined, "comment property value, #2");
+  assert.equal(q1.getPropertyValue(propName), undefined, "comment property value, #2");
   assert.equal(textArea1.getTextValue(), "", "No value in text area");
   q1.renderedValue = [1, 2];
   q1.setCommentValue(q1.choices[1], "test comment");
@@ -3128,28 +3129,34 @@ QUnit.test("Focus element on selecting showCommentArea element", (assert) => {
     ]
   });
   const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  let otherId = q1.otherItem.uniqueId.toString();
+  let choice1Id = q1.choices[0].uniqueId.toString();
+  let choice3Id = q1.choices[2].uniqueId.toString();
   q1.selectItem(q1.otherItem, true);
-  assert.deepEqual(els, ["other"], "q1.focus #1");
+  assert.deepEqual(els, [otherId], "q1.focus #1");
   q1.selectItem(q1.otherItem, false);
-  assert.deepEqual(els, ["other"], "q1.focus #2");
+  assert.deepEqual(els, [otherId], "q1.focus #2");
   q1.selectItem(q1.choices[0], true);
-  assert.deepEqual(els, ["other", "1"], "q1.focus #3");
+  assert.deepEqual(els, [otherId, choice1Id], "q1.focus #3");
   q1.selectItem(q1.choices[0], false);
   q1.selectItem(q1.choices[1], true);
-  assert.deepEqual(els, ["other", "1"], "q1.focus #4");
+  assert.deepEqual(els, [otherId, choice1Id], "q1.focus #4");
   q1.selectItem(q1.choices[2], true);
-  assert.deepEqual(els, ["other", "1", "3"], "q1.focus #5");
+  assert.deepEqual(els, [otherId, choice1Id, choice3Id], "q1.focus #5");
 
   const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  otherId = q2.otherItem.uniqueId.toString();
+  choice1Id = q2.choices[0].uniqueId.toString();
+  choice3Id = q2.choices[2].uniqueId.toString();
   els.length = 0;
   q2.selectItem(q2.otherItem);
-  assert.deepEqual(els, ["other"], "q2.focus #1");
-  q2.selectItem(q1.choices[0]);
-  assert.deepEqual(els, ["other", "1"], "q2.focus #2");
-  q2.selectItem(q1.choices[1]);
-  assert.deepEqual(els, ["other", "1"], "q2.focus #3");
+  assert.deepEqual(els, [otherId], "q2.focus #1");
+  q2.selectItem(q2.choices[0]);
+  assert.deepEqual(els, [otherId, choice1Id], "q2.focus #2");
+  q2.selectItem(q2.choices[1]);
+  assert.deepEqual(els, [otherId, choice1Id], "q2.focus #3");
   q2.selectItem(q2.choices[2]);
-  assert.deepEqual(els, ["other", "1", "3"], "q2.focus #4");
+  assert.deepEqual(els, [otherId, choice1Id, choice3Id], "q2.focus #4");
 
   els.length = 0;
   q1.autoOtherMode = true;

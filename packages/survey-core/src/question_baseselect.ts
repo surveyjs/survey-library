@@ -339,7 +339,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.getItemCommentId(this.otherItem);
   }
   public getItemCommentId(item: ItemValue): string {
-    return this.id + "_" + item.normalizedId;
+    return this.id + "_" + item.uniqueId;
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId, this.otherId];
@@ -505,7 +505,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   protected getCommentPropertyValue(item: ItemValue): string {
     if (this.isOtherItemByValue(item)) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
-    return "other_" + item.normalizedId;
+    return "other_" + item.uniqueId;
   }
   /**
    * Specifies whether to display the "None" choice item.

@@ -450,7 +450,8 @@ registerMarkupTests(
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;
       },
-      snapshot: "dropdown-aria-expanded"
+      snapshot: "dropdown-aria-expanded",
+      removeIds: true
     }
   ]
 );

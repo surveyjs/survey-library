@@ -28,7 +28,8 @@ registerMarkupTests(
       getElement: () => {
         return document.querySelector(".sv-popup.sv-dropdown-popup .sv-popup__container") as HTMLElement;
       },
-      snapshot: "list-component"
+      snapshot: "list-component",
+      removeIds: true
     }, {
       name: "Test popup list with subitems",
       json: {

@@ -34,6 +34,7 @@ registerMarkupTests(
         ]
       },
       snapshot: "multipletext",
+      removeIds: true
     },
     {
       name: "Test mutlipletext readonly",
@@ -68,6 +69,7 @@ registerMarkupTests(
         ]
       },
       snapshot: "multipletext-readonly",
+      removeIds: true
     },
     {
       name: "Test mutlipletext disabled",
@@ -102,6 +104,7 @@ registerMarkupTests(
       },
       initSurvey: (survey) => survey.setDesignMode(true),
       snapshot: "multipletext-disabled",
+      removeIds: true
     },
     {
       name: "Test mutlipletext question markup error top",
@@ -127,6 +130,7 @@ registerMarkupTests(
         survey.tryComplete();
       },
       snapshot: "multipletext-error-top-v2",
+      removeIds: true
     },
     {
       name: "Test mutlipletext question markup error bottom",
@@ -153,6 +157,7 @@ registerMarkupTests(
         survey.tryComplete();
       },
       snapshot: "multipletext-error-bottom-v2",
+      removeIds: true
     },
   ]
 );

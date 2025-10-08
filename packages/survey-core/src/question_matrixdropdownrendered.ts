@@ -173,16 +173,13 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   public hasEndActions: boolean = false;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
-  private static counter = 1;
-  private idValue: number;
   public cells: Array<QuestionMatrixDropdownRenderedCell> = [];
 
   public constructor(public cssClasses: any, public isDetailRow: boolean = false) {
     super();
-    this.idValue = QuestionMatrixDropdownRenderedRow.counter++;
   }
   public get id(): string {
-    return getId(this.row?.id || this.idValue.toString(), this.isErrorsRow, this.isDetailRow);
+    return getId(this.row?.id || this.uniqueId.toString(), this.isErrorsRow, this.isDetailRow);
   }
   public get dropTargetId(): string {
     return this.row?.id;

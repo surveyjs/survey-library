@@ -13,7 +13,6 @@ import { settings } from "./settings";
  * Please note, it runs only one changing the expression result.
  */
 export class Trigger extends Base {
-  static idCounter: number = 1;
   static operatorsValue: HashTable<Function> = null;
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
@@ -53,12 +52,10 @@ export class Trigger extends Base {
     };
     return Trigger.operatorsValue;
   }
-  private conditionRunner: ConditionRunner;
-  private idValue: number = (Trigger.idCounter ++);
   constructor() {
     super();
   }
-  public get id(): number { return this.idValue; }
+  public get id(): number { return this.uniqueId; }
   public getType(): string {
     return "triggerbase";
   }

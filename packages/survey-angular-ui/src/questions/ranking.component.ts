@@ -9,7 +9,7 @@ import { SelectBaseComponent } from "./selectbase.component";
 })
 export class RankingQuestionComponent extends SelectBaseComponent<QuestionRankingModel> {
   public override inputType: string = "";
-  override trackItemBy = (index: number, item: ItemValue): string => {
+  override trackItemBy = (index: number, item: ItemValue): number => {
     return item.uniqueId;
   };
   public override getDefaultComponentName(): string {

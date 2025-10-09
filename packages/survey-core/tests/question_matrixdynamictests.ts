@@ -7811,7 +7811,7 @@ QUnit.test("moveRowByIndex test", function (assert) {
   assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
 });
 
-QUnit.skip("moveRowByIndex - detail panels", function (assert) {
+QUnit.test("moveRowByIndex - detail panels, Bug#10472", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -7825,7 +7825,7 @@ QUnit.skip("moveRowByIndex - detail panels", function (assert) {
       },
     ],
   });
-  var matrixD = new QuestionMatrixDynamicModel("matrix");
+  const matrixD = survey.getQuestionByName("matrix");
   matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
   matrixD.visibleRows[0].showDetailPanel();
   assert.ok(matrixD.visibleRows[0].isDetailPanelShowing, "row[0] expanded before move");

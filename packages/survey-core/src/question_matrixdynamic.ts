@@ -238,10 +238,21 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public moveRowByIndex(fromIndex: number, toIndex: number):void {
     const value = this.createNewValue();
-    if (!Array.isArray(value) && Math.max(fromIndex, toIndex) >= value.length) return;
+    const maxIndex = Math.max(fromIndex, toIndex);
+    if (!Array.isArray(value) && maxIndex >= value.length) return;
     const movableRow = value[fromIndex];
     value.splice(fromIndex, 1);
     value.splice(toIndex, 0, movableRow);
+    const rows = this.generatedVisibleRows;
+    if (Array.isArray(rows) && maxIndex < rows.length) {
+      const rowTo = rows[toIndex];
+      const rowFrom = rows[fromIndex];
+      if (this.getIsDetailPanelShowing(rowFrom) !== this.getIsDetailPanelShowing(rowTo)) {
+        const isRowToShowing = this.getIsDetailPanelShowing(rowTo);
+        this.setIsDetailPanelShowing(rowTo, this.getIsDetailPanelShowing(rowFrom));
+        this.setIsDetailPanelShowing(rowFrom, isRowToShowing);
+      }
+    }
     this.value = value;
   }
   public addRowByIndex(rowData: any, toIndex: number):void {

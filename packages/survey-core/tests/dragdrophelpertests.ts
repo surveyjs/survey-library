@@ -465,7 +465,7 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
 });
 
-QUnit.skip("rows: check matrixdynamic d&d with expanded details", function (assert) {
+QUnit.test("rows: check matrixdynamic d&d with expanded details, Bug#10472", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -495,8 +495,9 @@ QUnit.skip("rows: check matrixdynamic d&d with expanded details", function (asse
 
   const ddHelper = new DragDropMatrixRows(survey);
 
-  let draggedRow = question.visibleRows[2];
-  let dropRow = question.visibleRows[1];
+  const draggedRow = question.visibleRows[2];
+  draggedRow.showDetailPanel();
+  const dropRow = question.visibleRows[1];
 
   ddHelper["parentElement"] = question;
   ddHelper.draggedElement = draggedRow;

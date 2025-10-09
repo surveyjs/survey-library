@@ -5,7 +5,7 @@ const title = "preprocessTitlesAndHtml";
 const json = {
   questionTitleTemplate: "{no}) {title} {require}:",
   showQuestionNumbers: "on",
-  questionStartIndex: "A",
+  questionStartIndex: "A.",
   requiredText: "(*)",
   pages: [
     {

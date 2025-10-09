@@ -99,6 +99,8 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * When you create a [custom specialized question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types), you base it on another question type configured within the [`questionJSON`](#questionJSON) object. If the custom question type should inherit all properties from the base type, set the `inheritBaseProps` property to `true`. If you want to inherit only certain properties, set the `inheritBaseProps` property to an array of their names.
    *
+   * > If `inheritBaseProps` is set to `true`, properties declared in the `questionJSON` object are hidden in Survey Creator. To make them editable, include their names explicitly in the `inheritBaseProps` array.
+   *
    * [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types (linkStyle))
    */
   inheritBaseProps?: false | true | Array<string>;

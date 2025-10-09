@@ -479,7 +479,7 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
     ],
     onCreated: function (question) {
       question.contentPanel.showQuestionNumbers = "recursive";
-      question.contentPanel.questionStartIndex = "a";
+      question.contentPanel.questionStartIndex = "a.";
     },
   });
   var survey = new SurveyModel({
@@ -531,8 +531,8 @@ QUnit.test("Composite: content questions recursive numbering at design-time, Bug
   assert.equal(q.visibleIndex, 1, "q visibleIndex");
   assert.equal(q.no, "2.", "q no is '2.'");
   assert.equal(q.contentPanel.no, "2.", "q contentPanel no is '2.'");
-  assert.equal(firstName.no, "2.a.", "first question, no is '2a.'");
-  assert.equal(lastName.no, "2.b.", "second question, no is '2b.'");
+  assert.equal(firstName.no, "2.a", "first question, no is '2a.'");
+  assert.equal(lastName.no, "2.b", "second question, no is '2b.'");
   assert.equal(q3.no, "3.", "q3 no is '3.'");
   ComponentCollection.Instance.clear();
 });
@@ -547,7 +547,7 @@ QUnit.test("Composite: content questions recursive numbering in run-time, Bug#10
     ],
     onCreated: function (question) {
       question.contentPanel.showQuestionNumbers = "recursive";
-      question.contentPanel.questionStartIndex = "a";
+      question.contentPanel.questionStartIndex = "a.";
     },
   });
   const survey = new SurveyModel({

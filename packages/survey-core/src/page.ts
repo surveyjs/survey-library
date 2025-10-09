@@ -75,6 +75,7 @@ export class PageModel extends PanelModel implements IPage {
     let no = this.isStartPage ? "" : this.num + ". ";
     return this.survey.getUpdatedPageNo(this, no);
   }
+  public addNoFromChild(no: string): string { return no; }
   public get cssTitleNumber(): string {
     return this.isPanel ? this.cssClasses.panel.number : this.cssClasses.page.number;
   }

@@ -284,7 +284,7 @@ export class Helpers {
     if (index < 0) return "";
     var startIndex = 1;
     var prefix = "";
-    var postfix = ".";
+    var postfix = !!startIndexStr && startIndexStr[startIndexStr.length - 1] !== "." ? "" : ".";
     var isNumeric = true;
     var strIndex = "A";
     var str = "";

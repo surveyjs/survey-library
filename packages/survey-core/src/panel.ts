@@ -2228,8 +2228,15 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public addNoFromChild(no: string): string {
-    if (this.isQuestionIndexRecursive())
-      return this.calcNo() + no;
+    if (this.isQuestionIndexRecursive()) {
+      let parentNo = this.calcNo();
+      if (!!parentNo) {
+        if (!!no && parentNo[parentNo.length - 1] !== "." && no[0] !== ".") {
+          parentNo += ".";
+        }
+      }
+      return parentNo + no;
+    }
     return super.addNoFromChild(no);
   }
   /**

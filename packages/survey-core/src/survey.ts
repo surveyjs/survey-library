@@ -1870,7 +1870,7 @@ export class SurveyModel extends SurveyElementCore
    * [Question Numbers](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#question-numbers (linkStyle))
    */
   public get questionStartIndex(): string {
-    return this.getPropertyValue("questionStartIndex", "");
+    return this.getPropertyValue("questionStartIndex") || "";
   }
   public set questionStartIndex(val: string) {
     this.setPropertyValue("questionStartIndex", val);

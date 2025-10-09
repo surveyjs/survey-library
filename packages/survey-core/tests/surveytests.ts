@@ -3596,9 +3596,14 @@ QUnit.test("question fullTitle", function (assert) {
   question.isRequired = true;
   assert.equal(question.requiredMark, "*");
   survey.questionStartIndex = "100";
+  assert.equal(question.no, "101");
+  survey.questionStartIndex = "100.";
   assert.equal(question.no, "101.");
   survey.questionStartIndex = "A";
+  assert.equal(question.no, "B");
+  survey.questionStartIndex = "A.";
   assert.equal(question.no, "B.");
+  survey.questionStartIndex = "A";
   survey.questionTitleTemplate = "{no}) {title} ({require})";
   assert.equal(question.no, "B)");
   assert.equal(question.requiredMark, "(*)");
@@ -3609,8 +3614,12 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   var question = <Question>survey.pages[0].questions[1];
   assert.equal(question.no, "2.");
   survey.questionStartIndex = "100";
+  assert.equal(question.no, "101");
+  survey.questionStartIndex = "100.";
   assert.equal(question.no, "101.");
   survey.questionStartIndex = "A";
+  assert.equal(question.no, "B");
+  survey.questionStartIndex = "A.";
   assert.equal(question.no, "B.");
   survey.questionStartIndex = "10)";
   assert.equal(question.no, "11)");
@@ -3626,6 +3635,80 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
     options.no = "a.b." + (options.question.visibleIndex + 1) + ")";
   });
   assert.equal(question.no, "a.b.2)", "use event");
+});
+QUnit.test("question.no and survey.questionStartIndex and showQuestionNumbers 'recursive' vs design-time, Bug#10476", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      },
+      {
+        elements: [
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" },
+          { type: "panel", name: "p1", title: "panel", showNumber: true, elements: [
+            { type: "text", name: "q5" }
+          ] }
+        ]
+      }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  const panel = survey.getPanelByName("p1");
+  assert.equal(q1.no, "1.1", "q1, #1");
+  assert.equal(q2.no, "1.2", "q2, #1");
+  assert.equal(q3.no, "2.1", "q3, #1");
+  assert.equal(q4.no, "2.2", "q4, #1");
+  assert.equal(panel.no, "2.3", "panel, #1");
+  assert.equal(q5.no, "2.3.1", "q5, #1");
+});
+QUnit.test("question.no and survey.questionStartIndex and showQuestionNumbers 'recursive' & pages titles, Bug#10476", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        title: "Page 1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      },
+      {
+        title: "Page 2",
+        elements: [
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" },
+          { type: "panel", name: "p1", title: "panel", showNumber: true, elements: [
+            { type: "text", name: "q5" }
+          ] }
+        ]
+      }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  const panel = survey.getPanelByName("p1");
+  assert.equal(q1.no, "1.1", "q1, #1");
+  assert.equal(q2.no, "1.2", "q2, #1");
+  assert.equal(q3.no, "2.1", "q3, #1");
+  assert.equal(q4.no, "2.2", "q4, #1");
+  assert.equal(panel.no, "2.3", "panel, #1");
+  assert.equal(q5.no, "2.3.1", "q5, #1");
 });
 QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();

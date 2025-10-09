@@ -605,17 +605,6 @@ QUnit.test("Multiple Text Question: get/set values for two texts", function (
     "set the value from the text item"
   );
 });
-QUnit.test("Multiple Text Question: get/set for id", function (
-  assert
-) {
-  var mText = new QuestionMultipleTextModel("q1");
-  mText.items.push(new MultipleTextItemModel("text1"));
-  mText.items.push(new MultipleTextItemModel("text2"));
-  mText.id = "testid";
-  assert.equal(mText.id, "testid", "id is returned correctly");
-  assert.equal(mText.items[0].editor.id, "testid_0", "id for first multipletext editor");
-  assert.equal(mText.items[1].editor.id, "testid_1", "id for second multipletext editor");
-});
 QUnit.test(
   "Multiple Text Question: get/set values and properties via question text",
   function (assert) {
@@ -8247,8 +8236,9 @@ QUnit.test("TextAreaOptions", function (assert) {
 
   const q2 = <QuestionCommentModel>survey.getQuestionByName("q2");
   const textAreaOptions = q2.textAreaModel;
-
-  assert.equal(otherOptions.id, "sq_101_other", "otherOptions id");
+  const q1Id = q1.id;
+  const q2Id = q2.id;
+  assert.equal(otherOptions.id, q1Id + "_" + q1.otherItem.uniqueId, "otherOptions id");
   assert.equal(otherOptions.className, "sd-input sd-comment", "otherOptions className");
   assert.equal(otherOptions.isDisabledAttr, "", "otherOptions isDisabledAttr");
   assert.equal(otherOptions.isReadOnlyAttr, undefined, "otherOptions isReadOnlyAttr");
@@ -8257,7 +8247,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(otherOptions.cols, undefined, "otherOptions cols");
   assert.equal(otherOptions.rows, undefined, "otherOptions rows");
 
-  assert.equal(commentOptions.id, "sq_101_comment", "commentOptions id");
+  assert.equal(commentOptions.id, q1Id + "_comment", "commentOptions id");
   assert.equal(commentOptions.className, "sd-input sd-comment", "commentOptions className");
   assert.equal(commentOptions.isDisabledAttr, "", "commentOptions isDisabledAttr");
   assert.equal(commentOptions.isReadOnlyAttr, undefined, "commentOptions isReadOnlyAttr");
@@ -8266,7 +8256,7 @@ QUnit.test("TextAreaOptions", function (assert) {
   assert.equal(commentOptions.cols, undefined, "commentOptions cols");
   assert.equal(commentOptions.rows, undefined, "commentOptions rows");
 
-  assert.equal(textAreaOptions.id, "sq_102i", "textAreaOptions id");
+  assert.equal(textAreaOptions.id, q2Id + "i", "textAreaOptions id");
   assert.equal(textAreaOptions.className, "sd-input sd-comment", "textAreaOptions className");
   assert.equal(textAreaOptions.isDisabledAttr, "", "textAreaOptions isDisabledAttr");
   assert.equal(textAreaOptions.isReadOnlyAttr, false, "textAreaOptions isReadOnlyAttr");

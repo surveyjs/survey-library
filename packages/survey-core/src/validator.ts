@@ -48,14 +48,12 @@ export class ValidatorResult {
  * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class SurveyValidator extends Base {
-  private static idCounter = 0;
-  private idValue: string = "svd" + SurveyValidator.idCounter++;
   public errorOwner: ISurveyErrorOwner;
   constructor() {
     super();
     this.createLocalizableString("text", this, true);
   }
-  public get id(): string { return this.idValue; }
+  public get id(): string { return "svd" + this.uniqueId; }
   public get isValidator(): boolean { return true; }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.errorOwner && !!(<any>this.errorOwner)["getSurvey"]

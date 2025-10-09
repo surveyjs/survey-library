@@ -249,10 +249,6 @@ export class ValidationContext extends AsyncElementsRunner {
 export class Question extends SurveyElement<Question>
   implements IQuestion, IConditionRunner, IValidatorOwner, ITitleOwner {
   [index: string]: any;
-  private static questionCounter = 100;
-  private static getQuestionId(): string {
-    return "sq_" + Question.questionCounter++;
-  }
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
@@ -333,7 +329,7 @@ export class Question extends SurveyElement<Question>
 
   constructor(name: string) {
     super(name);
-    this.setPropertyValueDirectly("id", Question.getQuestionId());
+    this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
     this.createNewArray("validators", (validator: any) => {
       validator.errorOwner = this;

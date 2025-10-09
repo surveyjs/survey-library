@@ -466,13 +466,6 @@ export class QuestionMultipleTextModel extends Question
   }
   public get hasSingleInput(): boolean { return false; }
   public get isContainer(): boolean { return true; }
-  public get id() {
-    return this.getPropertyValue("id");
-  }
-  public set id(val: string) {
-    this.items?.map((item, index) => item.editor.id = val + "_" + index);
-    this.setPropertyValue("id", val);
-  }
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();

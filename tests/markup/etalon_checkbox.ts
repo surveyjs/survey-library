@@ -43,6 +43,7 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-other",
+      removeIds: true
     },
     {
       name: "Test checkbox question markup Other option with maxCommentLength",
@@ -60,6 +61,7 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-other-maxlength",
+      removeIds: true
     },
     {
       name: "Test checkbox question markup Other option (defaultV2)",
@@ -78,13 +80,8 @@ registerMarkupTests(
           }
         ]
       },
-      before() {
-
-      },
-      after() {
-
-      },
       snapshot: "checkbox-other-V2",
+      removeIds: true
     },
     {
       name: "Test checkbox question markup with comment (defaultV2)",
@@ -364,6 +361,7 @@ registerMarkupTests(
         ]
       },
       snapshot: "checkbox-multiple-comments",
+      removeIds: true
     },
   ]
 );

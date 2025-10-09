@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
 
   test("change column count", async t => {
     const getClassName = ClientFunction(
-      () => document.querySelector("div[id*=sq_1] fieldset .sd-selectbase__column").className
+      () => document.querySelector("div[id*=sq_] fieldset .sd-selectbase__column").className
     );
     let className = await getClassName();
     assert.notEqual(className.indexOf("sv-q-column-4"), -1);
@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
     await setOptions("car", { colCount: 1 });
 
     const getClassNameOneCol = ClientFunction(
-      () => document.querySelector("div[id*=sq_1] fieldset > .sd-radio").className
+      () => document.querySelector("div[id*=sq_] fieldset > .sd-radio").className
     );
     className = await getClassNameOneCol();
     assert.notEqual(className.indexOf("sv-q-col-1"), -1);

@@ -33,10 +33,6 @@ import { PanelLayoutColumnModel } from "./panel-layout-column";
 import { ValidationContext } from "./question";
 
 export class QuestionRowModel extends Base {
-  private static rowCounter = 100;
-  private static getRowId(): string {
-    return "pr_" + QuestionRowModel.rowCounter++;
-  }
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
   private get allowRendering(): boolean {
@@ -97,10 +93,8 @@ export class QuestionRowModel extends Base {
     this._scrollableParent = undefined;
     this._updateVisibility = undefined;
   }
-  private idValue: string;
   constructor(public panel: PanelModelBase) {
     super();
-    this.idValue = QuestionRowModel.getRowId();
     this.visible = panel.areInvisibleElementsShowing;
     this.createNewArray("elements");
     this.createNewArray("visibleElements");
@@ -114,7 +108,7 @@ export class QuestionRowModel extends Base {
     return this.isLazyRenderingValue === true;
   }
   public get id(): string {
-    return this.idValue;
+    return "pr_" + this.uniqueId;
   }
   protected equalsCore(obj: Base): boolean {
     return this == obj;
@@ -295,10 +289,6 @@ export class QuestionRowModel extends Base {
  */
 export class PanelModelBase extends SurveyElement<Question>
   implements IPanel, IConditionRunner, ISurveyErrorOwner, ITitleOwner {
-  private static panelCounter = 100;
-  private static getPanelId(): string {
-    return "sp_" + PanelModelBase.panelCounter++;
-  }
 
   private elementsValue: Array<IElement>;
   private isQuestionsReady: boolean = false;
@@ -395,7 +385,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.onAddElement.bind(this),
       this.onRemoveElement.bind(this)
     );
-    this.setPropertyValueDirectly("id", PanelModelBase.getPanelId());
+    this.setPropertyValueDirectly("id", "sp_" + this.uniqueId);
 
     this.addExpressionProperty("visibleIf",
       (obj: Base, res: any) => { this.visible = res === true; },

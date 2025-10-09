@@ -174,7 +174,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected renderOther(item: ItemValue, cssClasses: any): React.JSX.Element {
     if (!item || !item.isCommentShowing) return null;
     return (
-      <div key={item.normalizedId} className={this.question.getCommentAreaCss(true)}>
+      <div key={item.uniqueId} className={this.question.getCommentAreaCss(true)}>
         <SurveyQuestionCommentValueItem
           question={this.question}
           item={item}

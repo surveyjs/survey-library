@@ -107,6 +107,7 @@ registerMarkupTests(
       ],
     },
     snapshot: "comment-into-question-allowResize",
+    removeIds: true
   },
   {
     name: "Test Survey commentAreaRows is 3",
@@ -132,6 +133,7 @@ registerMarkupTests(
       ],
     },
     snapshot: "comment-into-question-commentAreaRows",
+    removeIds: true
   },
   ]
 );

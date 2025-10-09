@@ -37,7 +37,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
         aria-errormessage={this.question.a11y_input_ariaErrormessage}
         required={this.question.isRequired}>
         {this.question.allowClear ? (<option value="">{this.question.placeholder}</option>) : null}
-        {this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item} />)}
+        {this.question.visibleChoices.map((item: ItemValue) => <SurveyQuestionOptionItem key={item.uniqueId} item={item} />)}
       </select>);
     return (
       <div className={cssClasses.selectWrapper}>

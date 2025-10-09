@@ -72,31 +72,26 @@ frameworks.forEach((framework) => {
     });
 
     test("change column count", async ({ page }) => {
-      const getClassName = async () => {
-        return await page.evaluate(() => {
-          const element = document.querySelector("div[id*=sq_1] fieldset > div > div");
-          return element ? element.className : "";
-        });
+      const getClassName = async (colCount: number) => {
+        const clName = colCount > 1 ? ".sd-selectbase__column" : ".sd-selectbase__item";
+        return await page.locator(clName).nth(0).getAttribute("class");
       };
 
-      let className = await getClassName();
+      let className = await getClassName(4);
       expect(className).toContain("sv-q-column-4");
 
       await page.evaluate(() => {
         window["survey"].getAllQuestions()[0].colCount = 1;
       });
 
-      className = await page.evaluate(() => {
-        const element = document.querySelector("div[id*=sq_1] fieldset > div");
-        return element ? element.className : "";
-      });
+      className = await getClassName(1);
       expect(className).toContain("sv-q-col-1");
 
       await page.evaluate(() => {
         window["survey"].getAllQuestions()[0].colCount = 2;
       });
 
-      className = await getClassName();
+      className = await getClassName(2);
       expect(className).toContain("sv-q-column-2");
     });
 
@@ -107,18 +102,18 @@ frameworks.forEach((framework) => {
         return await page.evaluate(() => {
           const checkboxControlClassName = ".sd-checkbox__control";
           return document.querySelectorAll(
-            `div[id*=sq_1] fieldset ${checkboxControlClassName}`
+            `div[id*=sq_] fieldset ${checkboxControlClassName}`
           ).length;
         });
       };
 
       const getFirst = async () => {
-        const element = await page.locator(`div[id*=sq_1] ${columnClassName}:nth-child(1) .sv-string-viewer`).nth(0).textContent();
+        const element = await page.locator(`div[id*=sq_] ${columnClassName}:nth-child(1) .sv-string-viewer`).nth(0).textContent();
         return element || "";
       };
 
       const getSecond = async () => {
-        const element = await page.locator(`div[id*=sq_1] ${columnClassName}:nth-child(2) .sv-string-viewer`).nth(0).textContent();
+        const element = await page.locator(`div[id*=sq_] ${columnClassName}:nth-child(2) .sv-string-viewer`).nth(0).textContent();
         return element || "";
       };
 
@@ -178,7 +173,7 @@ frameworks.forEach((framework) => {
           const columnClassName = ".sd-selectbase__column";
           const checkboxControlClassName = ".sd-checkbox__control";
           return document.querySelectorAll(
-            `div[id*=sq_1] fieldset ${checkboxControlClassName}`
+            `div[id*=sq_] fieldset ${checkboxControlClassName}`
           ).length;
         });
       };
@@ -246,7 +241,7 @@ frameworks.forEach((framework) => {
         return await page.evaluate(() => {
           const columnClassName = ".sd-selectbase__column";
           const element = document.querySelector(
-            `div[id*=sq_1] fieldset ${columnClassName}:nth-child(1) div:nth-of-type(4)`
+            `div[id*=sq_] fieldset ${columnClassName}:nth-child(1) div:nth-of-type(4)`
           );
           return element ? element.textContent : "";
         });

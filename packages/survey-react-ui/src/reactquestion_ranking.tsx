@@ -108,7 +108,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
     const renderedItem = (
       <SurveyQuestionRankingItem
-        key={item.value}
+        key={item.uniqueId}
         text={text}
         index={index}
         indexText={indexText}

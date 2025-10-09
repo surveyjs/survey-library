@@ -22,7 +22,7 @@
           :is="'sv-dropdown-option-item'"
           v-for="item in question.visibleChoices"
           :item="item"
-          :key="item.id"
+          :key="item.uniqueId"
         ></SvComponent>
       </select>
       <div

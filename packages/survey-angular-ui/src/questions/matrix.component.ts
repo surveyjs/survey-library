@@ -20,10 +20,10 @@ export class MatrixQuestionComponent extends QuestionAngular<QuestionMatrixModel
     this.detectChanges();
   }
   trackRowByFn(i: number, row: any): string {
-    return "column-" + row.name + "-" + i;
+    return row.uniqueId;
   }
   trackColumnByFn(i: number, column: any): string {
-    return "column-" + column.value + "-" + i;
+    return column.uniqueId;
   }
 }
 

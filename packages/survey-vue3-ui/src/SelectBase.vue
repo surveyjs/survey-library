@@ -16,7 +16,7 @@
     <template v-if="question.hasHeadItems">
       <SvComponent
         v-for="item in question.headItems"
-        :key="item.value"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
@@ -24,7 +24,7 @@
     <template v-if="!question.hasColumns && !question.blockedRow">
       <SvComponent
         v-for="item in question.bodyItems"
-        :key="item.value"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>
@@ -33,7 +33,7 @@
       <template v-if="!question.hasColumns && question.blockedRow">
         <SvComponent
           v-for="item in question.dataChoices"
-          :key="item.value"
+          :key="item.uniqueId"
           :is="getItemValueComponentName(item)"
           v-bind="getItemValueComponentData(item)"
         ></SvComponent>
@@ -52,7 +52,7 @@
         >
           <SvComponent
             v-for="item in column"
-            :key="item.value"
+            :key="item.uniqueId"
             :is="getItemValueComponentName(item)"
             v-bind="getItemValueComponentData(item)"
           ></SvComponent>
@@ -62,7 +62,7 @@
     <template v-if="question.hasFootItems">
       <SvComponent
         v-for="item in question.footItems"
-        :key="item.value"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>

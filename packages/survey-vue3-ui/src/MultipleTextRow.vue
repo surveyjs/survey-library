@@ -2,7 +2,7 @@
   <tr :class="question.cssClasses.row" v-if="row.isVisible">
     <td
       v-for="cell in row.cells"
-      :key="'item' + cell.item.editor.id"
+      :key="cell.item.editor.id"
       :class="cell.className"
     >
       <SvComponent

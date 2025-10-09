@@ -7811,6 +7811,30 @@ QUnit.test("moveRowByIndex test", function (assert) {
   assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
 });
 
+QUnit.test("moveRowByIndex - detail panels, Bug#10472", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        detailPanelShowOnAdding: true,
+        columns: [{ name: "v1" }],
+        detailElements: [{ type: "text", name: "v2" }],
+      },
+    ],
+  });
+  const matrixD = survey.getQuestionByName("matrix");
+  matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
+  matrixD.visibleRows[0].showDetailPanel();
+  assert.ok(matrixD.visibleRows[0].isDetailPanelShowing, "row[0] expanded before move");
+  assert.notOk(matrixD.visibleRows[1].isDetailPanelShowing, "row[1] collapsed before move");
+  matrixD.moveRowByIndex(1, 0);
+  assert.notOk(matrixD.visibleRows[0].isDetailPanelShowing, "row[0] collapsed after move");
+  assert.ok(matrixD.visibleRows[1].isDetailPanelShowing, "row[1] expanded after move");
+});
+
 QUnit.test("Row actions, rendered table and className", function (assert) {
   var survey = new SurveyModel({
     elements: [

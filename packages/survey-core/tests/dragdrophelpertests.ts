@@ -464,6 +464,57 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   assert.strictEqual(question.renderedTable.rows[1].row, question.visibleRows[0]);
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
 });
+
+QUnit.test("rows: check matrixdynamic d&d with expanded details, Bug#10472", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q",
+        columns: ["Col1"],
+        rowCount: 3,
+        choices: ["item1", "item2", "item3"],
+        "detailElements": [
+          {
+            "type": "text",
+            "name": "a1",
+          },
+          {
+            "type": "text",
+            "name": "a2",
+          }
+        ],
+        "detailPanelMode": "underRow",
+      },
+    ]
+  });
+  const question: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q")
+  );
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  const draggedRow = question.visibleRows[2];
+  draggedRow.showDetailPanel();
+  const dropRow = question.visibleRows[1];
+
+  ddHelper["parentElement"] = question;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper["onStartDrag"]();
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 2);
+
+  ddHelper.dropTarget = dropRow;
+  ddHelper.isBottom = true;
+  ddHelper["afterDragOver"](<any>undefined);
+
+  ddHelper["doDrop"]();
+  ddHelper.clear();
+  assert.notOk(question.visibleRows[1].isDetailPanelShowing, "row[1] collapsed");
+  assert.ok(question.visibleRows[2].isDetailPanelShowing, "row[2] expanded");
+});
+
 QUnit.test("rows: check matrixdynamic d&d with expanded detail panel", function (assert) {
   const survey = new SurveyModel({
     elements: [

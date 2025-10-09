@@ -448,7 +448,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public setSubItems(options: IListModel): void {
     this.markerIconName = "icon-next_16x16";
-    this.component = this.getGroupComponentName();
     this.items = [...options.items];
     if (!this.popupModel) {
       this.createPopupForSubitems(options);
@@ -456,6 +455,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       const list: ListModel = this.popupModel.contentComponentData.model as ListModel;
       list.setItems(this.items);
     }
+    this.component = this.getGroupComponentName();
   }
   private createPopupForSubitems(options: IListModel): void {
     const listOptions = Object.assign({}, options);

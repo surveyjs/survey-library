@@ -8,7 +8,7 @@
     <template v-if="!question.hasColumns">
       <SvComponent
         v-for="item in question.visibleChoices"
-        :key="item.value"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item)"
       ></SvComponent>

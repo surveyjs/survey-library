@@ -37,7 +37,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     } else {
       cellContent = <SurveyMultipleTextItem question={this.question} item={cell.item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>;
     }
-    return (<td key={"item" + index} className={cell.className} onFocus={focusIn}>{cellContent}</td>);
+    return (<td key={cell.item.id} className={cell.className} onFocus={focusIn}>{cellContent}</td>);
   }
 
   protected renderRow(

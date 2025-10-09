@@ -17,8 +17,8 @@
     </td>
     <template v-if="question.hasCellText">
       <td
-        v-for="(column, columnIndex) in question.visibleColumns"
-        :key="columnIndex"
+        v-for="(column) in question.visibleColumns"
+        :key="column.uniqueId"
         :class="question.getItemClass(row, column)"
         v-on:click="cellClick(row, column)"
       >
@@ -31,7 +31,7 @@
     <template v-if="!question.hasCellText">
       <td
         v-for="(column, columnIndex) in question.visibleColumns"
-        :key="columnIndex"
+        :key="column.uniqueId"
         :data-responsive-title="column.locText.renderedHtml"
         :class="question.cssClasses.cell"
       >

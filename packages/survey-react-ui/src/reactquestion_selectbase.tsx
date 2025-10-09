@@ -105,7 +105,7 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
     isChecked?: boolean
   ): React.JSX.Element {
     const renderedItem = ReactElementFactory.Instance.createElement(this.question.itemComponent, {
-      key: item.value,
+      key: item.uniqueId,
       question: this.question,
       cssClasses: cssClasses,
       isDisplayMode: this.isDisplayMode,

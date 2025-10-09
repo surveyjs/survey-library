@@ -30,7 +30,7 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="(row, rowIndex) in visibleRows" :key="'row_' + row.name + '_' + rowIndex">
+          <template v-for="(row) in visibleRows" :key="row.uniqueId">
             <SvComponent :is="'sv-matrix-row'" :question="question" :row="row"/>
           </template>
         </tbody>

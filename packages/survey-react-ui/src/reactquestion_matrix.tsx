@@ -38,7 +38,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var headers: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       var column = this.question.visibleColumns[i];
-      var key = "column" + i;
       var columText = this.renderLocString(column.locText);
       const style: any = {};
       if (!!this.question.columnMinWidth) {
@@ -46,7 +45,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         style.width = this.question.columnMinWidth;
       }
       headers.push(
-        <th className={this.question.cssClasses.headerCell} style={style} key={key}>
+        <th className={this.question.cssClasses.headerCell} style={style} key={column.uniqueId}>
           {this.wrapCell({ column: column }, columText, "column-header")}
         </th>
       );
@@ -55,10 +54,9 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     var visibleRows = this.question.visibleRows;
     for (var i = 0; i < visibleRows.length; i++) {
       var row = visibleRows[i];
-      var key = "row-" + row.name + "-" + i;
       rows.push(
         <SurveyQuestionMatrixRow
-          key={key}
+          key={row.uniqueId}
           question={this.question}
           cssClasses={cssClasses}
           row={row}
@@ -150,7 +148,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       let td: React.JSX.Element | null = null;
       const column = this.question.visibleColumns[i];
-      const key = "value" + i;
+      const key = column.uniqueId;
 
       let itemClass = this.question.getItemClass(row, column);
       if (this.question.hasCellText) {

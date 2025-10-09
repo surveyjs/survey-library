@@ -2366,7 +2366,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return columns;
   }
   getItemsColumnKey(itemsColumn: Array<ItemValue>) {
-    return (itemsColumn || []).map(c => c.value || "").join("");
+    return (itemsColumn || []).map(c => c.uniqueId).join("-");
   }
   get hasColumns() {
     return !this.isMobile &&

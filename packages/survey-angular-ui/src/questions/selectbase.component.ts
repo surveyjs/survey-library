@@ -18,7 +18,7 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
     return "sv-ng-selectbase-item";
   }
   public trackItemBy(_: number, item: ItemValue): any {
-    return item.value;
+    return item.uniqueId;
   }
   public trackColumnBy(index: number): any {
     return index;

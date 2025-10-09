@@ -3,7 +3,7 @@
     <template v-if="!question.selectToRankEnabled">
       <SvComponent
         v-for="(item, index) in question.renderedRankingChoices"
-        :key="item.value + '-' + index + '-item'"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
       ></SvComponent>
@@ -16,7 +16,7 @@
     >
       <SvComponent
         v-for="(item, index) in question.renderedUnRankingChoices"
-        :key="item.value + '-' + index + '-item'"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index, true)"
       ></SvComponent>
@@ -44,7 +44,7 @@
     >
       <SvComponent
         v-for="(item, index) in question.renderedRankingChoices"
-        :key="item.value + '-' + index + '-item'"
+        :key="item.uniqueId"
         :is="getItemValueComponentName(item)"
         v-bind="getItemValueComponentData(item, index)"
       ></SvComponent>

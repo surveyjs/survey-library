@@ -14,6 +14,6 @@ export class MultipleTextRowComponent extends BaseAngular<MutlipleTextRow> {
     return this.model;
   }
   trackItemBy (_: number, cell: MultipleTextCell): string {
-    return "item" + cell.item.editor.id;
+    return cell.item.editor.id;
   }
 }

@@ -25,11 +25,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
   protected getColumns(cssClasses: any) {
     return this.question.columns.map((column: Array<ItemValue>, ci: number) => {
       var items = column.map((item: any, ii: number) =>
-        this.renderItem(
-          "item" + ii,
-          item,
-          cssClasses
-        )
+        this.renderItem(item, cssClasses)
       );
       return (
         <div key={"column" + ci + this.question.getItemsColumnKey(column)} className={this.question.getColumnClass()} role="presentation">
@@ -43,8 +39,7 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     var items: Array<React.JSX.Element> = [];
     for (var i = 0; i < this.question.visibleChoices.length; i++) {
       var item = this.question.visibleChoices[i];
-      var key = "item" + i;
-      items.push(this.renderItem(key, item as ImageItemValue, cssClasses));
+      items.push(this.renderItem(item as ImageItemValue, cssClasses));
     }
     return items;
   }
@@ -52,11 +47,10 @@ export class SurveyQuestionImagePicker extends SurveyQuestionElementBase {
     return { marginLeft: "3px", display: "inline", position: "static" };
   }
   protected renderItem(
-    key: string,
     item: ImageItemValue,
     cssClasses: any
   ): React.JSX.Element {
-    const renderedItem = <SurveyQuestionImagePickerItem key={key} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
+    const renderedItem = <SurveyQuestionImagePickerItem key={item.uniqueId} question={this.question} item={item} cssClasses={cssClasses}></SurveyQuestionImagePickerItem>;
     const survey = this.question.survey as SurveyModel;
     let wrappedItem: React.JSX.Element | null = null;
     if (!!survey) {

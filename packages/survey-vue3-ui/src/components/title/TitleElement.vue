@@ -36,7 +36,7 @@
     ></SvComponent>
     <SvComponent
       :is="'sv-title-actions'"
-      v-if="element.hasTitleActions"
+      v-if="needRenderActions && element.hasTitleActions"
       :element="element"
       :css="css"
     ></SvComponent>
@@ -48,9 +48,11 @@ import SvComponent from "@/SvComponent.vue";
 import { doKey2ClickUp, type SurveyElement } from "survey-core";
 defineProps<{
   element: SurveyElement;
+  renderActions: boolean;
   css: any;
 }>();
 
+const needRenderActions = computed(() => props.element.renderActions === undefined ? true : props.element.renderActions);
 const keyup = (event: any) => {
   doKey2ClickUp(event);
 };

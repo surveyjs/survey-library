@@ -3149,15 +3149,17 @@ export class Question extends SurveyElement<Question>
   }
   onSurveyValueChanged(newValue: any): void { }
   public setVisibleIndex(val: number): number {
-    if (val > -1 && (!this.isVisible ||
-      (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
-      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber))
-    ) {
+    if (this.isVisibleIndexNegative(val)) {
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);
     this.setPropertyValue("no", this.calcNo());
     return val < 0 ? 0 : 1;
+  }
+  protected isVisibleIndexNegative(val: number): boolean {
+    return val < 0 || !this.isVisible ||
+      (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
+      (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber);
   }
   public removeElement(element: IElement): boolean {
     return false;

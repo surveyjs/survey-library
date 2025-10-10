@@ -8059,6 +8059,67 @@ QUnit.test("A Dynamic Panel question number is updated when adding a new panel B
   panel.addPanel();
   assert.equal(panel.no, "2.", "no #2");
 });
+QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.1", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "on",
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "panel1", showNumber: false,
+        templateElements: [{ type: "text", name: "q2" }]
+      },
+      { type: "text", name: "q3" },
+    ]
+  });
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q3.no, "2.", "q3.no #1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.addPanel();
+  panel.addPanel();
+  assert.equal(q3.no, "2.", "q3.no #2");
+});
+QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.2", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "recursive",
+    elements: [
+      { type: "panel", name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "panel1", showNumber: false,
+            templateElements: [{ type: "text", name: "q2" }]
+          },
+          { type: "text", name: "q3" }
+        ] },
+    ]
+  });
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q3.no, "2.", "q3.no #1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.addPanel();
+  panel.addPanel();
+  assert.equal(q3.no, "2.", "q3.no #2");
+});
+QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.3", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1.",
+    elements: [
+      { type: "panel", name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "paneldynamic", name: "panel1", showNumber: false,
+            templateElements: [{ type: "text", name: "q2" }]
+          },
+          { type: "text", name: "q3" }
+        ] },
+    ]
+  });
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q3.no, "2.", "q3.no #1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.addPanel();
+  panel.addPanel();
+  assert.equal(q3.no, "2.", "q3.no #2");
+});
 QUnit.test("Test displayValue() function in dynamic panel, Bug#9635", function (assert) {
   const survey = new SurveyModel({
     elements: [

@@ -1650,21 +1650,13 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("showNavigationButtons");
   }
   public set showNavigationButtons(val: boolean | any) {
-    // if (val === true || val === undefined) {
-    //   val = "bottom";
-    // }
-    // if (val === false) {
-    //   val = "none";
-    // }
     if (val === "both") {
-      val === "topBottom";
+      val = "topBottom";
     }
-    if (val === true || val === false) {
-      this.setPropertyValue("showNavigationButtons", val);
-    } else if (val === "none") {
-      this.setPropertyValue("showNavigationButtons", false);
-    } else if (["top", "bottom", "both", "topBottom"].indexOf(val) > -1) {
-      this.setPropertyValue("showNavigationButtons", true);
+    const isOldShow = ["top", "bottom", "topBottom"].indexOf(val) > -1;
+    const show = val === true || isOldShow;
+    this.setPropertyValue("showNavigationButtons", show);
+    if (isOldShow) {
       this.navigationButtonsLocation = val;
     }
   }

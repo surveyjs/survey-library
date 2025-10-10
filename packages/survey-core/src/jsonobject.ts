@@ -437,7 +437,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
     return (
-      (value === false && (this.type == "boolean" || this.type == "switch") && !this.defaultValueFunc) ||
+      (value === false && this.isBooleanType && !this.defaultValueFunc) ||
       value === "" || Helpers.isValueEmpty(value)
     );
   }
@@ -477,20 +477,26 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       obj = this.getOriginalObj(obj);
       this.onSetValue(obj, value, jsonConv);
     } else {
-      if (this.serializationProperty && !!obj[this.serializationProperty])
+      if (this.serializationProperty && !!obj[this.serializationProperty]) {
         obj[this.serializationProperty].setJson(value, true);
-      else {
+      } else {
         if (value && typeof value === "string") {
           if (this.type == "number") {
             value = parseInt(value);
           }
-          if (this.type == "boolean" || this.type == "switch") {
-            value = value.toLowerCase() === "true";
+          if (this.isBooleanType) {
+            const valLower = value.toLowerCase();
+            if (valLower === "false" || valLower === "true") {
+              value = valLower === "true";
+            }
           }
         }
         obj[this.name] = value;
       }
     }
+  }
+  private get isBooleanType(): boolean {
+    return this.type === "boolean" || this.type === "switch";
   }
   public validateValue(value: any): boolean {
     const choices = this.choices;

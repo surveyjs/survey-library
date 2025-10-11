@@ -1818,7 +1818,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.clearIncorrectValues();
     }
   }
-  updateValueFromSurvey(newValue: any, clearData: boolean): void {
+  public updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
     if (
       this.showOtherItem && this.activeChoices.length > 0 &&
@@ -1841,6 +1841,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     if (!!newComment) {
       this.setNewComment(newComment);
+    }
+    this.updateValueForPanels(clearData, false);
+  }
+  updateCommentFromSurvey(newValue: any): any {
+    super.updateCommentFromSurvey(newValue);
+    this.updateValueForPanels(false, true);
+  }
+  private updateValueForPanels(clearData: boolean, isComment: boolean): void {
+    if (this.data) {
+      this.doForPanels(true, (p) => {
+        p.questions.forEach(q => {
+          const valName = q.getValueName();
+          if (isComment) {
+            q.updateCommentFromSurvey(this.data.getComment(valName));
+          } else {
+            q.updateValueFromSurvey(this.data.getValue(valName), clearData);
+          }
+        });
+      });
     }
   }
   protected getCommentFromValue(newValue: any): string {
@@ -2090,6 +2109,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.clearIncorrectValues();
     this.doForPanels(false, (p) => {
       p.questions.forEach((q) => { q.clearValue(); });
+      p.questions.forEach((q) => { q.clearValueIfInvisible(reason); });
     });
   }
   /**

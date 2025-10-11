@@ -4025,6 +4025,33 @@ QUnit.test("choice item & clearInvisible values, Issue#10384", (assert) => {
   assert.equal(q1_2.value, "edf", "q1_2 value is not cleared");
   assert.deepEqual(survey.data, { q1: ["item2"], "q1_2": "edf" }, "survey.data #2");
 });
+QUnit.test("choice item elements & clearInvisible values in nested panels, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          { value: "item1", elements: [
+            { type: "radiogroup", name: "q2", choices: [
+              { value: "item1", elements: [{ type: "text", name: "q2_1" }] }, { value: "item2" }
+            ] }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] },
+          "item3"
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2_1 = survey.getQuestionByName("q2_1");
+  q1.clickItemHandler(q1.choices[0], true);
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  q2.clickItemHandler(q2.choices[0]);
+  q2_1.value = "abc";
+  q1.clickItemHandler(q1.choices[0], false);
+  survey.doComplete();
+  assert.deepEqual(survey.data, {}, "survey.data is empty");
+});
 QUnit.test("choice item & dispose, Issue#10384", (assert) => {
   const survey = new SurveyModel({
     "elements": [
@@ -4047,4 +4074,31 @@ QUnit.test("choice item & dispose, Issue#10384", (assert) => {
   assert.equal(item1.panel.isDisposed, true, "item1 panel is disposed");
   assert.equal(item2.panel.isDisposed, true, "item2 panel is disposed");
   assert.notOk(item3.isPanelCreated, "item3 panel is not here");
+});
+QUnit.test("choice item elements & survey.data, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          { value: "item1", elements: [
+            { type: "radiogroup", name: "q2", choices: [
+              { value: "item1", elements: [{ type: "text", name: "q2_1" }] }, { value: "item2" }
+            ] }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] },
+          "item3"
+        ]
+      }
+    ]
+  });
+  survey.data = { q1: ["item1", "item2"], q2: "item1", q2_1: "abc", q1_2: "edf" };
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  const q2_1 = survey.getQuestionByName("q2_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  assert.deepEqual(q1.value, ["item1", "item2"], "q1.value is correct");
+  assert.equal(q2.value, "item1", "q2.value is correct");
+  assert.equal(q2_1.value, "abc", "q2_1.value is correct");
+  assert.equal(q1_2.value, "edf", "q1_2.value is correct");
 });

@@ -1465,10 +1465,10 @@ export class QuestionPanelDynamicModel extends Question
   public get isRenderModeTab(): boolean {
     return this.displayMode === "tab" && !this.isSingleInputActive;
   }
-  public setVisibleIndex(value: number): number {
-    if (!this.isVisible) return 0;
+  public setVisibleIndex(val: number): number {
+    if (this.isVisibleIndexNegative(val)) return super.setVisibleIndex(-1);
     const onSurveyNumbering = this.showQuestionNumbers === "onSurvey";
-    let startIndex = onSurveyNumbering ? value : 0;
+    let startIndex = onSurveyNumbering ? val : 0;
     const panels = this.isDesignMode ? [this.template] : this.visiblePanelsCore;
     for (let i = 0; i < panels.length; i++) {
       let counter = this.setPanelVisibleIndex(panels[i], startIndex, this.showQuestionNumbers != "off");
@@ -1476,8 +1476,8 @@ export class QuestionPanelDynamicModel extends Question
         startIndex += counter;
       }
     }
-    super.setVisibleIndex(!onSurveyNumbering ? value : -1);
-    return !onSurveyNumbering ? 1 : startIndex - value;
+    super.setVisibleIndex(!onSurveyNumbering ? val : -1);
+    return !onSurveyNumbering ? 1 : startIndex - val;
   }
   private setPanelVisibleIndex(
     panel: PanelModel,

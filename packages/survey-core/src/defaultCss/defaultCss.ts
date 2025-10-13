@@ -395,7 +395,7 @@ export var defaultCss = {
     controlCheckbox: "sd-visuallyhidden sd-item__control sd-checkbox__control",
     checkboxMaterialDecorator: "sd-item__decorator sd-checkbox__decorator",
     checkboxControlLabel: "sd-item__control-label",
-    checkboxIsLabelRendered: "sd-checkbox--label-rendeded",
+    checkboxIsLabelRendered: "sd-checkbox--label-rendered",
     svgIconCheckedId: "#icon-check-16x16",
   },
   text: {

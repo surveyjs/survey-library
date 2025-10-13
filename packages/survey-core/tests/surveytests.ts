@@ -4454,7 +4454,13 @@ QUnit.test("goNextPageAutomatic and checkbox wiht valueName bug #70", function (
   (<Question>survey.getQuestionByName("q1")).value = [1];
   assert.notEqual(survey.state, "completed", "it should not be completed");
 });
-
+QUnit.test("Compatibility  showNavigationButtons: 'both'", (assert) => {
+  const survey = new SurveyModel({
+    showNavigationButtons: "both"
+  });
+  assert.equal(survey.showNavigationButtons, true, "showNavigationButtons is true");
+  assert.equal(survey.navigationButtonsLocation, "topBottom", "navigationButtonsLocation is topBottom");
+});
 QUnit.test("isNavigationButtonsShowing", function (assert) {
   var survey = twoPageSimplestSurvey();
   assert.equal(
@@ -4562,11 +4568,9 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
   );
 
   survey.showNavigationButtons = "both";
-  assert.equal(
-    survey.isNavigationButtonsShowing,
-    "both",
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both"
-  );
+  assert.equal(survey.showNavigationButtons, true, "showNavigationButtons is true showNavigationButtons = both");
+  assert.equal(survey.navigationButtonsLocation, "topBottom", "navigationButtonsLocation is topBottom showNavigationButtons = both");
+  assert.equal(survey.isNavigationButtonsShowing, "topBottom", "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both");
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
@@ -4595,6 +4599,7 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
     "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #top"
   );
 });
+
 QUnit.test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop, navigationButtonsLocation is `topBottom`, Bug#9812", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "question1" }],

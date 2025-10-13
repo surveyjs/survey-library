@@ -8,4 +8,5 @@ import { EmbeddedViewContentComponent } from "../../embedded-view-content.compon
 })
 export class ElementTitleComponent extends EmbeddedViewContentComponent {
   @Input() element: any;
+  @Input() renderActions: any = true;
 }

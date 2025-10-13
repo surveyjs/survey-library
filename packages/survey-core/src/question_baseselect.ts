@@ -19,6 +19,7 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
+import { EventBase } from "./base";
 
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
@@ -90,6 +91,18 @@ export class ChoiceItem extends ItemValue {
   public onItemSelected(): void {
     this.updatePanelState();
   }
+  private onExpandPanelAtDesignValue: EventBase<ChoiceItem, any>;
+  public get onExpandPanelAtDesign(): EventBase<ChoiceItem, any> {
+    if (!this.onExpandPanelAtDesignValue) {
+      this.onExpandPanelAtDesignValue = new EventBase<ChoiceItem, any>();
+    }
+    return this.onExpandPanelAtDesignValue;
+  }
+  public expandPanelAtDesign(): void {
+    if (!!this.onExpandPanelAtDesignValue) {
+      this.onExpandPanelAtDesignValue.fire(this, {});
+    }
+  }
   public get isPanelShowing(): boolean {
     if (!this.panelValue || !this.choiceOwner) return false;
     return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
@@ -119,6 +132,7 @@ export class ChoiceItem extends ItemValue {
     res.isInteractiveDesignElement = false;
     res.showTitle = false;
     res.isInternalNested = true;
+    res["choiceItem"] = this;
     this.setPanelSurvey(res);
     return res;
   }

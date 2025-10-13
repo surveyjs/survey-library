@@ -98,11 +98,6 @@ export class ChoiceItem extends ItemValue {
     }
     return this.onExpandPanelAtDesignValue;
   }
-  public expandPanelAtDesign(): void {
-    if (!!this.onExpandPanelAtDesignValue) {
-      this.onExpandPanelAtDesignValue.fire(this, {});
-    }
-  }
   public get isPanelShowing(): boolean {
     if (!this.panelValue || !this.choiceOwner) return false;
     return this.hasElements && this.choiceOwner.isItemSelected(this) === true;

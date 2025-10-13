@@ -4115,8 +4115,8 @@ QUnit.test("choice item elements & item.expandPanelAtDesign, Issue#10384", (asse
   const choiceItem = <ChoiceItem>survey.getQuestionByName("q1").choices[0];
   let counter = 0;
   choiceItem.onExpandPanelAtDesign.add((_, opt) => counter++);
-  choiceItem.expandPanelAtDesign();
+  choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
   assert.equal(counter, 1, "onExpandPanelAtDesign should be called once");
-  choiceItem.expandPanelAtDesign();
+  choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
   assert.equal(counter, 2, "onExpandPanelAtDesign should be called twice");
 });

@@ -46,7 +46,9 @@
 <script lang="ts" setup>
 import SvComponent from "@/SvComponent.vue";
 import { doKey2ClickUp, type SurveyElement } from "survey-core";
-defineProps<{
+import { computed } from "vue";
+
+const props = defineProps<{
   element: SurveyElement;
   renderActions: boolean;
   css: any;

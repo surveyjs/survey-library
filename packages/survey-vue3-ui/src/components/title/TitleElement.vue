@@ -50,7 +50,7 @@ import { computed } from "vue";
 
 const props = defineProps<{
   element: SurveyElement;
-  renderActions: boolean;
+  renderActions?: boolean;
   css: any;
 }>();
 

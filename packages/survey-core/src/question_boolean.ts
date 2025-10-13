@@ -205,6 +205,7 @@ export class QuestionBooleanModel extends Question {
       .append(css.itemChecked, !!this.booleanValue)
       .append(css.itemExchanged, !!this.swapOrder)
       .append(css.itemIndeterminate, !this.isDeterminated)
+      .append(css.itemIsLabelRendered, !!this.isLabelRendered)
       .toString();
   }
 
@@ -221,7 +222,8 @@ export class QuestionBooleanModel extends Question {
         itemReadOnly: this.cssClasses.checkboxItemReadOnly,
         itemPreview: this.cssClasses.checkboxItemPreview,
         itemChecked: this.cssClasses.checkboxItemChecked,
-        itemIndeterminate: this.cssClasses.checkboxItemIndeterminate
+        itemIndeterminate: this.cssClasses.checkboxItemIndeterminate,
+        itemIsLabelRendered: this.cssClasses.checkboxIsLabelRendered
       }
     );
   }

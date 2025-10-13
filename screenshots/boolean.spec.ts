@@ -232,7 +232,8 @@ frameworks.forEach(framework => {
             "type": "boolean",
             "name": "q1",
             "useTitleAsLabel": true,
-            "renderAs": "checkbox"
+            "renderAs": "checkbox",
+            "description": "description"
           }
         ]
       });

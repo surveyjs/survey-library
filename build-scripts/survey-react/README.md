@@ -1,4 +1,4 @@
-# SurveyJS Form Library for React
+# SurveyJS Form Library for React (Obsolete)
 
 
 <video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
@@ -6,7 +6,11 @@
 
 SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.
 
-> **NOTE**: This package contains a legacy Knockout-dependent version of SurveyJS Form Library for React. We recommend using a new [native implementation of SurveyJS React Form Library](https://www.npmjs.com/package/survey-react-ui). For information on how to integrate it into your application, refer to the following tutorial: [Add a Survey to a React Application](https://surveyjs.io/form-library/documentation/get-started-react).
+> This package provides a **legacy Knockout-based version** of SurveyJS Form Library for React. For new projects, use the React-only implementation instead:
+>
+> - [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui)
+> 
+> To learn how to integrate it into your application, refer to the following tutorial: [Add a Survey to a React Application](https://surveyjs.io/form-library/documentation/get-started-react).
 
 ## Resources
 

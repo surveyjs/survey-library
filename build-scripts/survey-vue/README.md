@@ -1,4 +1,4 @@
-# SurveyJS Form Library for Vue
+# SurveyJS Form Library for Vue (Obsolete)
 
 
 <video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
@@ -6,7 +6,12 @@
 
 SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.
 
-> **NOTE**: This package contains a legacy Knockout-dependent version of SurveyJS Form Library for Vue. We recommend using a new [native implementation of SurveyJS Vue Form Library](https://www.npmjs.com/package/survey-vue-ui). For information on how to integrate it into your application, refer to the following tutorial: [Add a Survey to a Vue Application](https://surveyjs.io/form-library/documentation/get-started-vue).
+> This package provides a **legacy Knockout-based version** of SurveyJS Form Library for Vue. For new projects, use the native Vue implementations instead:
+>
+> - Vue 3: [`survey-vue3-ui`](https://www.npmjs.com/package/survey-vue3-ui)
+> - Vue 2: [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui)
+> 
+> To learn how to integrate them into your application, refer to the following tutorial: [Add a Survey to a Vue Application](https://surveyjs.io/form-library/documentation/get-started-vue).
 
 ## Resources
 

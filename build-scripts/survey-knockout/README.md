@@ -1,4 +1,4 @@
-# SurveyJS Form Library for Knockout
+# SurveyJS Form Library for Knockout (Obsolete)
 
 
 <video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
@@ -6,7 +6,11 @@
 
 SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.
 
-> **NOTE**: This package contains a legacy version of SurveyJS Form Library for Knockout. We recommend using a [new implementation](https://www.npmjs.com/package/survey-react-ui) that separates the data model from the UI rendering. For information on how to integrate it into your application, refer to the following tutorial: [Add a Survey to a Knockout Application](https://surveyjs.io/form-library/documentation/get-started-knockout).
+> This package provides a **legacy version** of SurveyJS Form Library for Knockout. For new projects, use the HTML/CSS/JavaScript implementation instead:
+>
+> - [`survey-js-ui`](https://www.npmjs.com/package/survey-js-ui)
+> 
+> To learn how to integrate it into your application, refer to the following tutorial: [Add a Survey to an HTML/CSS/JavaScript Application](https://surveyjs.io/form-library/documentation/get-started-html-css-javascript).
 
 ## Resources
 

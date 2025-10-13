@@ -54,7 +54,7 @@ const props = defineProps<{
   css: any;
 }>();
 
-const needRenderActions = computed(() => props.element.renderActions === undefined ? true : props.element.renderActions);
+const needRenderActions = computed(() => props.renderActions === undefined ? true : props.renderActions);
 const keyup = (event: any) => {
   doKey2ClickUp(event);
 };

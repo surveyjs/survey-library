@@ -1,5 +1,5 @@
 import { SurveyModel } from "../src/survey";
-import { QuestionSelectBase } from "../src/question_baseselect";
+import { ChoiceItem, QuestionSelectBase } from "../src/question_baseselect";
 import { settings } from "../src/settings";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
@@ -4101,4 +4101,22 @@ QUnit.test("choice item elements & survey.data, Issue#10384", (assert) => {
   assert.equal(q2.value, "item1", "q2.value is correct");
   assert.equal(q2_1.value, "abc", "q2_1.value is correct");
   assert.equal(q1_2.value, "edf", "q1_2.value is correct");
+});
+QUnit.test("choice item elements & item.expandPanelAtDesign, Issue#10384", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": ["item1"]
+      }
+    ]
+  });
+  const choiceItem = <ChoiceItem>survey.getQuestionByName("q1").choices[0];
+  let counter = 0;
+  choiceItem.onExpandPanelAtDesign.add((_, opt) => counter++);
+  choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
+  assert.equal(counter, 1, "onExpandPanelAtDesign should be called once");
+  choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
+  assert.equal(counter, 2, "onExpandPanelAtDesign should be called twice");
 });

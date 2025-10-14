@@ -20653,7 +20653,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
     ],
     "timeLimit": 10,
     "showTimerPanel": "top",
-    "showTimerPanelMode": "survey"
+    "timerInfoMode": "survey"
   };
   let survey = new SurveyModel(json);
   survey.headerView = "basic";

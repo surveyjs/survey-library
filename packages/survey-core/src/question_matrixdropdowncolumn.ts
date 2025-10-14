@@ -64,7 +64,7 @@ function onUpdateSelectDropdownCellQuestion(cellQuestion: QuestionSelectBase, co
   question: QuestionMatrixDropdownModelBase, data: any) {
   onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
   if (!!cellQuestion.locPlaceholder && cellQuestion.locPlaceholder.isEmpty && !question.locPlaceholder.isEmpty) {
-    cellQuestion.optionsCaption = question.optionsCaption;
+    cellQuestion.placeholder = question.placeholder;
   }
 }
 export var matrixDropdownColumnTypes: any = {

@@ -3356,7 +3356,7 @@ QUnit.test("columnsVisibleIf produce the bug, Bug#1540", function (assert) {
                   "Researcher",
                   "MD",
                 ],
-                optionsCaption: "not specified",
+                placeholder: "not specified",
                 choicesVisibleIf: "{roles} contains {item}",
               },
             ],
@@ -4258,7 +4258,7 @@ QUnit.test("matrix dynamic + renderedTable + remove buttons", function (assert) 
   assert.equal(rows[2].cells[3].isActionsCell, true, "there are actions in the last cell delete row");
 });
 
-QUnit.test("matrix dynamic + renderedTable + optionsCaption and columnColCount", function (assert) {
+QUnit.test("matrix dynamic + renderedTable + placeholder and columnColCount", function (assert) {
   const matrix = new QuestionMatrixDynamicModel("q1");
   matrix.addColumn("col1");
   matrix.addColumn("col2");
@@ -4271,9 +4271,9 @@ QUnit.test("matrix dynamic + renderedTable + optionsCaption and columnColCount",
   matrix.rowCount = 3;
 
   assert.equal(matrix.renderedTable.rows.length, 3 * 2, "There are 3 rows");
-  matrix.optionsCaption = "My Caption";
-  assert.equal(matrix.renderedTable.rows[1].cells[0].question["optionsCaption"], "My Caption", "options caption get from matrix");
-  assert.equal(matrix.renderedTable.rows[1].cells[2].question["optionsCaption"], "col2 options", "options caption get from column");
+  matrix.placeholder = "My Caption";
+  assert.equal(matrix.renderedTable.rows[1].cells[0].question["placeholder"], "My Caption", "options caption get from matrix");
+  assert.equal(matrix.renderedTable.rows[1].cells[2].question["placeholder"], "col2 options", "options caption get from column");
   matrix.columnColCount = 3;
   assert.equal(matrix.renderedTable.rows[1].cells[1].question["colCount"], 3, "question col count get from matrix");
   assert.equal(matrix.renderedTable.rows[1].cells[3].question["colCount"], 2, "question col count get from column");

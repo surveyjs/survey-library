@@ -795,7 +795,7 @@ var orderJSON = {
       title: "Qty",
       isRequired: true,
       cellType: "dropdown",
-      optionsCaption: "0",
+      placeholder: "0",
       choices: [1, 2, 3, 4, 5],
     },
     {
@@ -1043,7 +1043,7 @@ QUnit.test("Single: matrixdropdown onCreated after load properties", function (
           name: "qty",
           title: "Qty",
           cellType: "dropdown",
-          optionsCaption: "0",
+          placeholder: "0",
           choices: [1, 2, 3, 4, 5],
         },
         {

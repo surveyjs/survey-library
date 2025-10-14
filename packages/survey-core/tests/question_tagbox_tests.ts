@@ -1285,7 +1285,7 @@ QUnit.test("question.showClearButton", assert => {
       {
         "type": "tagbox",
         "name": "q1",
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",

@@ -6165,7 +6165,7 @@ QUnit.test("Use question onDisplayValueCallback", function (assert) {
       {
         type: "dropdown",
         name: "q1",
-        optionsCaption: "Empty",
+        placeholder: "Empty",
         choices: ["item2", "item3"],
       },
     ],
@@ -6173,7 +6173,7 @@ QUnit.test("Use question onDisplayValueCallback", function (assert) {
   var survey = new SurveyModel(json);
   var q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
   q1.displayValueCallback = (val: string): string => {
-    if (q1.isEmpty()) return q1.optionsCaption;
+    if (q1.isEmpty()) return q1.placeholder;
     return val;
   };
   assert.equal(q1.displayValue, "Empty", "We get display Value on callback");
@@ -6484,7 +6484,7 @@ QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
   assert.equal(question.commentPlaceholder, "Skriv din begrundelse her...", "da placeholder");
   survey.locale = "";
 });
-QUnit.test("Dropdown optionsCaption localization", function (assert) {
+QUnit.test("Dropdown placeholder localization", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -6495,11 +6495,11 @@ QUnit.test("Dropdown optionsCaption localization", function (assert) {
   });
   survey.locale = "";
   var question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  assert.equal(question.optionsCaption, "Select...", "default locale");
+  assert.equal(question.placeholder, "Select...", "default locale");
   survey.locale = "de";
-  assert.equal(question.optionsCaption, "Bitte auswählen...", "locale = de"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+  assert.equal(question.placeholder, "Bitte auswählen...", "locale = de"); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
   survey.locale = "";
-  assert.equal(question.optionsCaption, "Select...", "default locale, #2");
+  assert.equal(question.placeholder, "Select...", "default locale, #2");
 });
 QUnit.test("multipletext placeholder localization", function (assert) {
   var survey = new SurveyModel({

@@ -255,7 +255,7 @@ QUnit.test("add placeholder & allowClear", assert => {
   });
 });
 
-QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & allowClear", assert => {
+QUnit.test("deserialize showOptionsCaption & placeholder to placeholder & allowClear", assert => {
   const json = {
     elements: [
       {
@@ -263,7 +263,7 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
         "name": "car",
         "title": "What car are you driving?",
         "showOptionsCaption": false,
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",
@@ -281,8 +281,8 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-  assert.equal(question.placeholder, "New optionsCaption");
-  assert.equal(question.optionsCaption, "New optionsCaption");
+  assert.equal(question.placeholder, "New placeholder");
+  assert.equal(question.placeholder, "New placeholder");
 
   assert.ok(question.showOptionsCaption === false);
   assert.ok(question.allowClear === false);
@@ -291,7 +291,7 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
     "name": "car",
     "title": "What car are you driving?",
     "allowClear": false,
-    "placeholder": "New optionsCaption",
+    "placeholder": "New placeholder",
     "choices": [
       "Ford",
       "Vauxhall",
@@ -313,7 +313,7 @@ QUnit.test("question.showClearButton", assert => {
       {
         "type": "dropdown",
         "name": "q1",
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",
@@ -342,7 +342,7 @@ QUnit.test("ListModel localization", assert => {
         "name": "car",
         "title": "What car are you driving?",
         "showOptionsCaption": false,
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",

@@ -5546,7 +5546,7 @@ QUnit.test("Survey Localization - dropdownmatrix.columns", function (assert) {
   assert.equal(
     col1["placeholder"],
     "de-caption1",
-    "Use 'de' text, optionsCaption"
+    "Use 'de' text, placeholder"
   );
   assert.equal(col1["choices"][0].text, "de-text1", "Use 'de' text, choices");
   survey.locale = "fr";
@@ -5554,7 +5554,7 @@ QUnit.test("Survey Localization - dropdownmatrix.columns", function (assert) {
   assert.equal(
     col1["placeholder"],
     "caption1",
-    "Use default text, optionsCaption"
+    "Use default text, placeholder"
   );
   assert.equal(col1["choices"][0].text, "text1", "Use the default text");
 });

@@ -20,7 +20,7 @@ frameworks.forEach(framework => {
             title: "Where are you living?",
             name: "dropdown_question",
             renderAs: "select",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             choices: ["Greece"]
           },
         ]
@@ -42,7 +42,7 @@ frameworks.forEach(framework => {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             allowClear: false,
             choices: ["Greece"],
           },
@@ -65,7 +65,7 @@ frameworks.forEach(framework => {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             allowClear: false,
             choices: ["Greece"],
           },
@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             allowClear: false,
             choices: [
               "item1",

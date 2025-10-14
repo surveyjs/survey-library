@@ -151,7 +151,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "choices": [
             "item1",
             "item2"
@@ -170,7 +170,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "colCount": 2,
           "choices": [
             "item1",
@@ -190,7 +190,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "colCount": 2,
           "isMobile": true,
           "choices": [
@@ -213,7 +213,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "colCount": 2,
           "choices": [
             "item1",
@@ -236,7 +236,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "colCount": 2,
           "choices": [
             "item1",
@@ -261,7 +261,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "colCount": 0,
           "choices": [
             "item1",
@@ -284,7 +284,7 @@ registerMarkupTests(
           "type": "radiogroup",
           "name": "name",
           "title": "Question title",
-          "showClearButton": true,
+          "allowClear": true,
           "colCount": 0,
           "choices": [
             "item1",

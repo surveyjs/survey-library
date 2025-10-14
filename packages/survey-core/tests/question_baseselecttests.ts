@@ -985,7 +985,7 @@ QUnit.test("checkbox and radio css", (assert) => {
         type: "checkbox",
         name: "q2",
         choices: ["Item 1"],
-        showClearButton: true,
+        allowClear: true,
         showSelectAllItem: true,
         showNoneItem: true
       }]
@@ -2571,7 +2571,7 @@ QUnit.test("Clear action in locale & survey.locale change, Bug#9113", (assert) =
   const survey = new SurveyModel();
   survey.css = survey.css = { root: "sd-root-modern" };
   survey.fromJSON({
-    elements: [{ type: "radiogroup", name: "q1", showClearButton: true }]
+    elements: [{ type: "radiogroup", name: "q1", allowClear: true }]
   });
   const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   assert.ok(q1.getTitleToolbar());

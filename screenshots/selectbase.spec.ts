@@ -108,7 +108,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, question, "radiogroup-col-count-4.png");
 
       await page.evaluate(() => {
-        (window as any).survey.getAllQuestions()[0].showClearButton = true;
+        (window as any).survey.getAllQuestions()[0].allowClear = true;
       });
       await compareScreenshot(page, question, "radiogroup-clear-button.png");
     });

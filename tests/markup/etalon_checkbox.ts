@@ -213,7 +213,6 @@ registerMarkupTests(
             "type": "checkbox",
             "name": "name",
             "title": "Question title",
-            "showClearButton": true,
             "colCount": 2,
             "choices": [
               "item1",
@@ -233,7 +232,6 @@ registerMarkupTests(
             "type": "checkbox",
             "name": "name",
             "title": "Question title",
-            "showClearButton": true,
             "colCount": 2,
             "isMobile": true,
             "choices": [
@@ -256,7 +254,6 @@ registerMarkupTests(
             "type": "checkbox",
             "name": "name",
             "title": "Question title",
-            "showClearButton": true,
             "colCount": 2,
             "choices": [
               "item1",
@@ -280,7 +277,6 @@ registerMarkupTests(
             "type": "checkbox",
             "name": "name",
             "title": "Question title",
-            "showClearButton": true,
             "colCount": 2,
             "choices": [
               "item1",
@@ -306,7 +302,6 @@ registerMarkupTests(
             "type": "checkbox",
             "name": "name",
             "title": "Question title",
-            "showClearButton": true,
             "colCount": 0,
             "choices": [
               "item1",
@@ -330,7 +325,6 @@ registerMarkupTests(
             "type": "checkbox",
             "name": "name",
             "title": "Question title",
-            "showClearButton": true,
             "colCount": 0,
             "choices": [
               "item1",

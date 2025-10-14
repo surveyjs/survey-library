@@ -4430,7 +4430,7 @@ QUnit.test("goNextPageAutomatic and autoAdvanceAllowComplete=false", function (a
       { elements: [{ type: "dropdown", name: "q2", choices: [1, 2, 3] }] }
     ],
     goNextPageAutomatic: true,
-    allowCompleteSurveyAutomatic: false
+    autoAdvanceAllowComplete: false
   });
   assert.equal(survey.autoAdvanceAllowComplete, false, "autoAdvanceAllowComplete value # 2");
   const q1 = survey.getQuestionByName("q1");

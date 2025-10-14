@@ -16489,7 +16489,7 @@ QUnit.test("Randomized questions and onQuestionAdded", function (assert) {
     pages: [
       { elements: [{ type: "text", name: "q1" }] },
       {
-        questionsOrder: "random",
+        questionOrder: "random",
         elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }]
       }
     ]
@@ -16506,7 +16506,7 @@ QUnit.test("onQuestionAdded & changing parent", function (assert) {
     pages: [
       { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
       {
-        questionsOrder: "random",
+        questionOrder: "random",
         elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }]
       }
     ]

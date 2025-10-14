@@ -5134,7 +5134,7 @@ QUnit.test("visibleIf and page rows", function (assert) {
     ],
     questionTitleTemplate: "{title} {require}:",
     requiredText: "(*)",
-    sendResultOnPageNext: true,
+    partialSendEnabled: true,
     showQuestionNumbers: "off",
   });
   var page = survey.currentPage;

@@ -1140,13 +1140,13 @@ QUnit.test("check icons for rateValues", (assert) => {
       {
         "type": "rating",
         "name": "q1",
-        "rateDisplayMode": "stars",
+        "rateType": "stars",
         "rateValues": [1, 2]
       }]
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  q1.rateDisplayMode = "smileys";
+  q1.rateType = "smileys";
   assert.equal(q1.rateValues[0].icon, "not-good");
   assert.equal(q1.rateValues[1].icon, "very-good");
 
@@ -1156,19 +1156,19 @@ QUnit.test("check icons for rateValues", (assert) => {
   assert.equal(q1.rateValues[2].icon, "very-good");
 });
 
-QUnit.test("change rateCount on switch rateDisplayMode", (assert) => {
+QUnit.test("change rateCount on switch rateType", (assert) => {
   var json = {
     elements: [
       {
         "type": "rating",
         "name": "q1",
-        "rateDisplayMode": "stars",
+        "rateType": "stars",
         "rateValues": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
       }]
   };
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
-  q1.rateDisplayMode = "smileys";
+  q1.rateType = "smileys";
   assert.equal(q1.rateCount, 10);
   assert.equal(q1.rateValues.length, 10);
 });
@@ -1179,7 +1179,7 @@ QUnit.test("reset rateValues on change autoGenerate", (assert) => {
       {
         "type": "rating",
         "name": "q1",
-        "rateDisplayMode": "stars",
+        "rateType": "stars",
         "rateValues": [1, 2, 3]
       }]
   };
@@ -1196,7 +1196,7 @@ QUnit.test("rateCount limitations", (assert) => {
       {
         "type": "rating",
         "name": "q1",
-        "rateDisplayMode": "stars"
+        "rateType": "stars"
       }]
   };
   const survey = new SurveyModel(json);
@@ -1212,7 +1212,7 @@ QUnit.test("rateCount limitations", (assert) => {
   q1.rateCount = 21;
   assert.equal(q1.rateCount, 21);
 
-  q1.rateDisplayMode = "smileys";
+  q1.rateType = "smileys";
   q1.rateCount = 15;
   assert.equal(q1.rateCount, 10);
 });

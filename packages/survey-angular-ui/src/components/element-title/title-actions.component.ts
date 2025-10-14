@@ -12,7 +12,4 @@ export class ElementTitleActionsComponent extends EmbeddedViewContentComponent {
   get cssClasses() {
     return (this.element.isPanel ? this.element.cssClasses.panel : this.element.cssClasses) || {};
   }
-  get needRenderActions(): boolean {
-    return this.renderActions && this.element.hasTitleActions;
-  }
 }

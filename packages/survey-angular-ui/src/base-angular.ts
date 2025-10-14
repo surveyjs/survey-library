@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange, ViewContainerRef } from "@angular/core";
-import { ArrayChanges, Base, ISurvey, SurveyModel } from "survey-core";
+import { ArrayChanges, Base, IOnArrayChangedEvent, ISurvey, SurveyModel } from "survey-core";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
 
 @Component({
@@ -52,6 +52,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     (<any>stateElement).__ngSubscribers = (<any>stateElement).__ngSubscribers ?? [];
     return ((<any>stateElement).__ngSubscribers);
   }
+  private onArrayChangedCallback = (stateElement: Base, options: IOnArrayChangedEvent) => {
+    this.update(options.name);
+  };
   private makeBaseElementAngular(stateElement: T) {
     this.makeBaseElementAngularCallback = () => {
       this.isModelSubsribed = true;
@@ -60,9 +63,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         var val: any = hash[key];
         if (Array.isArray(val)) {
           var val: any = val;
-          val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-            this.update(key);
-          };
+          stateElement.addOnArrayChangedCallback(val, this.onArrayChangedCallback);
         }
       });
       stateElement.setPropertyValueCoreHandler = (
@@ -95,7 +96,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
           var val: any = hash[key];
           if (Array.isArray(val)) {
             var val: any = val;
-            val["onArrayChanged"] = () => { };
+            stateElement.removeOnArrayChangedCallback(val, this.onArrayChangedCallback);
           }
         });
         stateElement.disableOnElementRerenderedEvent();

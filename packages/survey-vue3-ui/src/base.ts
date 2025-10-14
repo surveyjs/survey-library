@@ -29,14 +29,32 @@ class NextRenderManager {
   }
 }
 
+interface CoreRef<T = any>  {
+  ref: Ref<T>,
+  clear?: () => void;
+}
+
+function isCoreRef(coreRef: any) {
+  return typeof coreRef == "object" && isRef(coreRef.ref);
+}
+function unCoreRef(val: any) {
+  if(isCoreRef(val)) {
+    return unref(val.ref);
+  } else {
+    return val;
+  }
+}
+
 function useCoreRef(options: {
   initialValue: any;
+  surveyElement: Base,
   isUpdateAllowed: () => boolean;
   nextRenderManager: NextRenderManager;
   isArray?: boolean
-}) {
+}): CoreRef {
   let value = options.initialValue;
-  return customRef((tracker, trigger) => {
+  let clear!: () => void;
+  return { ref: customRef((tracker, trigger) => {
     const update = () => {
       if (options.isUpdateAllowed()) {
         trigger();
@@ -44,7 +62,10 @@ function useCoreRef(options: {
       }
     }
     if (options.isArray) {
-      value["onArrayChanged"] = update;
+      options.surveyElement.addOnArrayChangedCallback(value, update)
+      clear = () => {
+        options.surveyElement.removeOnArrayChangedCallback(value, update) 
+      }
     }
     return {
       get() {
@@ -58,8 +79,7 @@ function useCoreRef(options: {
           update();
         }
       },
-    };
-  });
+    };}), clear };
 }
 
 export function makeReactive(
@@ -73,36 +93,40 @@ export function makeReactive(
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
       hash[key] = useCoreRef({
         initialValue: [],
+        surveyElement,
         isUpdateAllowed,
         nextRenderManager,
         isArray: true
       });
-      return unref(hash[key]);
+      return unCoreRef(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
       hash[key] = useCoreRef({
         initialValue: hash[key],
+        surveyElement,
         isUpdateAllowed,
         nextRenderManager,
         isArray: Array.isArray(hash[key])
       });
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
-      if (!isRef(hash[key])) {
+      if (!isCoreRef(hash[key])) {
         hash[key] = useCoreRef({
           initialValue: hash[key],
+          surveyElement,
           isUpdateAllowed,
           nextRenderManager,
         });
       }
-      return unref(hash[key]);
+      return unCoreRef(hash[key]);
     };
     surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
-      if (isRef(hash[key])) {
-        hash[key].value = val;
+      if (isCoreRef(hash[key])) {
+        hash[key].ref.value = val;
       } else {
         hash[key] = useCoreRef({
           initialValue: hash[key],
+          surveyElement,
           isUpdateAllowed,
           nextRenderManager,
         });
@@ -125,10 +149,10 @@ export function unMakeReactive(surveyElement?: Base) {
   (surveyElement as any).__vueImplemented--;
   if ((surveyElement as any).__vueImplemented <= 0) {
     surveyElement.iteratePropertiesHash((hash, key) => {
-      hash[key] = unref(hash[key]);
-      if (Array.isArray(hash[key])) {
-        hash[key]["onArrayChanged"] = undefined;
+      if (isCoreRef(hash[key]) && typeof hash[key].clear == "function") {
+        hash[key].clear();
       }
+      hash[key] = unCoreRef(hash[key]);
     });
     delete (surveyElement as any).__vueUpdatesLock;
     delete (surveyElement as any).__vueImplemented;

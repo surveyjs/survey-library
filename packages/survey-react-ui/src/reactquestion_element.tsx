@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question } from "survey-core";
+import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question, IOnArrayChangedEvent } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
@@ -159,6 +159,15 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected isCurrentStateElement(stateElement: Base) {
     return !!stateElement && !!stateElement.setPropertyValueCoreHandler && stateElement.setPropertyValueCoreHandler === this.propertyValueChangedHandler;
   }
+  private onArrayChangedCallback = (stateElement: Base, options: IOnArrayChangedEvent) => {
+    if (this.isRendering) return;
+    this.changedStatePropNameValue = options.name;
+    this.setState((state: any) => {
+      var newState: { [index: string]: any } = {};
+      newState[options.name] = options.newValue;
+      return newState as S;
+    });
+  };
   private makeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
     stateElement.iteratePropertiesHash((hash, key) => {
@@ -166,15 +175,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = (arrayChanges: ArrayChanges) => {
-          if (this.isRendering) return;
-          this.changedStatePropNameValue = key;
-          this.setState((state: any) => {
-            var newState: { [index: string]: any } = {};
-            newState[key] = val;
-            return newState as S;
-          });
-        };
+        stateElement.addOnArrayChangedCallback(val, this.onArrayChangedCallback);
       }
     });
     stateElement.setPropertyValueCoreHandler = this.propertyValueChangedHandler;
@@ -194,7 +195,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       var val: any = hash[key];
       if (Array.isArray(val)) {
         var val: any = val;
-        val["onArrayChanged"] = () => { };
+        stateElement.removeOnArrayChangedCallback(val, this.onArrayChangedCallback);
       }
     });
   }

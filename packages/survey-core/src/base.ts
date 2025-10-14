@@ -15,6 +15,12 @@ import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
+export interface IOnArrayChangedEvent {
+  name: string;
+  newValue: Array<any>;
+  arrayChanges: ArrayChanges;
+}
+
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
   canRun?: (obj: Base) => boolean;
@@ -599,13 +605,6 @@ export class Base implements IObjectValueContext {
   public iteratePropertiesHash(func: (hash: any, key: string) => void) {
     var keys: string[] = [];
     for (var key in this.propertyHash) {
-      if (
-        key === "value" &&
-        this.isEditingSurveyElement &&
-        Array.isArray((<any>this).value)
-      )
-        continue;
-
       keys.push(key);
     }
     keys.forEach((key) => func(this.propertyHash, key));
@@ -1049,8 +1048,22 @@ export class Base implements IObjectValueContext {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private notifyArrayChanged(ar: any, arrayChanges: ArrayChanges) {
-    !!ar.onArrayChanged && ar.onArrayChanged(arrayChanges);
+  public addOnArrayChangedCallback(ar: any, callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
+    if (!ar.onArrayChanged) {
+      ar.onArrayChanged = new EventBase<Base, IOnArrayChangedEvent>();
+    }
+    ar.onArrayChanged.add(callback);
+  }
+  public removeOnArrayChangedCallback(ar: any, callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
+    if (!!ar.onArrayChanged) {
+      ar.onArrayChanged.remove(callback);
+      if (ar.onArrayChanged.isEmpty) {
+        ar.onArrayChanged = undefined;
+      }
+    }
+  }
+  private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
+    !!ar.onArrayChanged && (ar.onArrayChanged as EventBase<Base, IOnArrayChangedEvent>).fire(this, { arrayChanges, name, newValue: ar });
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;
@@ -1097,7 +1110,7 @@ export class Base implements IObjectValueContext {
           []
         );
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(newArray, arrayChanges);
+        self.notifyArrayChanged(name, newArray, arrayChanges);
       }
       return result;
     };
@@ -1107,7 +1120,7 @@ export class Base implements IObjectValueContext {
         if (onRemove) onRemove(result);
         const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(newArray, arrayChanges);
+        self.notifyArrayChanged(name, newArray, arrayChanges);
       }
       return result;
     };
@@ -1120,7 +1133,7 @@ export class Base implements IObjectValueContext {
         if (onPush) onPush(value, newArray.length - 1);
         const arrayChanges = new ArrayChanges(0, 0, [value], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(newArray, arrayChanges);
+        self.notifyArrayChanged(name, newArray, arrayChanges);
       }
       return result;
     };
@@ -1130,7 +1143,7 @@ export class Base implements IObjectValueContext {
         if (onRemove) onRemove(result);
         const arrayChanges = new ArrayChanges(newArray.length - 1, 1, [], []);
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(newArray, arrayChanges);
+        self.notifyArrayChanged(name, newArray, arrayChanges);
       }
       return result;
     };
@@ -1166,7 +1179,7 @@ export class Base implements IObjectValueContext {
           result
         );
         self.propertyValueChanged(name, newArray, newArray, arrayChanges);
-        self.notifyArrayChanged(newArray, arrayChanges);
+        self.notifyArrayChanged(name, newArray, arrayChanges);
       }
       return result;
     };
@@ -1207,7 +1220,7 @@ export class Base implements IObjectValueContext {
       deletedItems
     );
     this.propertyValueChanged(name, deletedItems, src, arrayChanges);
-    this.notifyArrayChanged(src, arrayChanges);
+    this.notifyArrayChanged(name, src, arrayChanges);
   }
   protected isTwoValueEquals(
     x: any,

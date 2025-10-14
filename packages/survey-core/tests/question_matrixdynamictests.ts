@@ -8414,7 +8414,7 @@ QUnit.test("Drag handler cell in rendered table", function (assert) {
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         columns: ["col1"]
       },
     ],
@@ -8454,7 +8454,7 @@ QUnit.test("allowRowReorder with readOnly", function (assert) {
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         "readOnly": true,
         columns: ["col1"]
       },
@@ -8489,7 +8489,7 @@ QUnit.test("Drag&drop and column visibleIf", function (assert) {
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text", visibleIf: "{row.col1}='a'" }]
       },
     ],
@@ -8523,7 +8523,7 @@ QUnit.test("Drag&drop row with dropdown and column visibleIf", function (assert)
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         columns: [{ name: "col1", cellType: "dropdown", "choices": ["a", "b", "c"] }, { name: "col2", cellType: "text", visibleIf: "{row.col1}='a'" }]
       },
     ],
@@ -9296,7 +9296,7 @@ QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
     elements: [
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: "true",
+        allowRowReorder: "true",
         name: "matrix",
         rowCount: 2,
         detailPanelMode: "underRow",
@@ -10396,7 +10396,7 @@ QUnit.test("lockedRowCount property", function (assert) {
       {
         type: "matrixdynamic",
         name: "matrix",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         rowCount: 4,
         columns: ["col1"]
       }
@@ -10421,7 +10421,7 @@ QUnit.test("lockedRowCount property", function (assert) {
   assert.equal(table.rows[5].cells[0].isEmpty, false, "isEmpty, row#3");
   assert.equal(table.rows[7].cells[0].isEmpty, false, "isEmpty, row#4");
 });
-QUnit.test("Do not re-create rows on changing allowRowsDragAndDrop property", function (assert) {
+QUnit.test("Do not re-create rows on changing allowRowReorder property", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -10434,9 +10434,9 @@ QUnit.test("Do not re-create rows on changing allowRowsDragAndDrop property", fu
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   const visibleRows = matrix.visibleRows;
-  matrix.allowRowsDragAndDrop = true;
+  matrix.allowRowReorder = true;
   assert.equal(visibleRows[0].id, matrix.visibleRows[0].id, "#1");
-  matrix.allowRowsDragAndDrop = false;
+  matrix.allowRowReorder = false;
   assert.equal(visibleRows[0].id, matrix.visibleRows[0].id, "#2");
 });
 

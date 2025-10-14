@@ -216,39 +216,39 @@
 //     });
 //   });
 
-//   test("Check Matrixdynamic with allowRowsDragAndDrop", async (t) => {
+//   test("Check Matrixdynamic with allowRowReorder", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       //todo
 //       if (framework === "vue") {
 //         return;
 //       }
 //       await t.resizeWindow(1280, 1100);
-//       await initSurvey(framework, { showQuestionNumbers: "on", "pages": [{ "name": "page1", "elements": [{ "type": "matrixdynamic", "name": "relatives", "title": "Please enter all blood relatives you know", "columns": [{ "name": "relativeType", "title": "Relative", "cellType": "dropdown", "isRequired": true, "choices": ["father", "mother", "brother", "sister", "son", "daughter"] }, { "name": "firstName", "title": "First name", "cellType": "text", "isRequired": true }, { "name": "lastName", "title": "Last name", "cellType": "text", "isRequired": true }], "detailElements": [{ "type": "radiogroup", "name": "isalive", "startWithNewLine": false, "title": "Alive?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "dropdown", "name": "liveage", "visibleIf": "{row.isalive} = 'Yes'", "startWithNewLine": false, "title": "Age", "isRequired": true, "choicesMin": 1, "choicesMax": 115 }, { "type": "dropdown", "name": "deceasedage", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Deceased Age", "isRequired": true, "choices": [{ "value": -1, "text": "Unknown" }], "choicesMin": 1, "choicesMax": 115 }, { "type": "radiogroup", "name": "causeofdeathknown", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Cause of Death Known?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "text", "name": "causeofdeath", "visibleIf": "{row.isalive} = 'No' and {row.causeofdeathknown} = 'Yes'", "startWithNewLine": false, "title": "Cause of Death", "isRequired": true }], "detailPanelMode": "underRow", "addRowText": "Add a blood relative", "removeRowText": "Remove the relative", "allowRowsDragAndDrop": true }] }], "checkErrorsMode": "onValueChanged" });
+//       await initSurvey(framework, { showQuestionNumbers: "on", "pages": [{ "name": "page1", "elements": [{ "type": "matrixdynamic", "name": "relatives", "title": "Please enter all blood relatives you know", "columns": [{ "name": "relativeType", "title": "Relative", "cellType": "dropdown", "isRequired": true, "choices": ["father", "mother", "brother", "sister", "son", "daughter"] }, { "name": "firstName", "title": "First name", "cellType": "text", "isRequired": true }, { "name": "lastName", "title": "Last name", "cellType": "text", "isRequired": true }], "detailElements": [{ "type": "radiogroup", "name": "isalive", "startWithNewLine": false, "title": "Alive?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "dropdown", "name": "liveage", "visibleIf": "{row.isalive} = 'Yes'", "startWithNewLine": false, "title": "Age", "isRequired": true, "choicesMin": 1, "choicesMax": 115 }, { "type": "dropdown", "name": "deceasedage", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Deceased Age", "isRequired": true, "choices": [{ "value": -1, "text": "Unknown" }], "choicesMin": 1, "choicesMax": 115 }, { "type": "radiogroup", "name": "causeofdeathknown", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Cause of Death Known?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "text", "name": "causeofdeath", "visibleIf": "{row.isalive} = 'No' and {row.causeofdeathknown} = 'Yes'", "startWithNewLine": false, "title": "Cause of Death", "isRequired": true }], "detailPanelMode": "underRow", "addRowText": "Add a blood relative", "removeRowText": "Remove the relative", "allowRowReorder": true }] }], "checkErrorsMode": "onValueChanged" });
 
 //       const matrixdynamicRoot = Selector(".sd-question");
 //       await resetFocusToBody();
 //       await t.hover(matrixdynamicRoot.find(".sd-table__row"));
-//       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop.png", matrixdynamicRoot, t, comparer);
+//       await takeElementScreenshot("matrixdynamic-allowRowReorder.png", matrixdynamicRoot, t, comparer);
 //     });
 //   });
-//   test("Check Matrixdynamic with allowRowsDragAndDrop & lockedRowCount=1", async (t) => {
+//   test("Check Matrixdynamic with allowRowReorder & lockedRowCount=1", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       //todo
 //       if (framework === "vue") {
 //         return;
 //       }
 //       await t.resizeWindow(1280, 1100);
-//       await initSurvey(framework, { showQuestionNumbers: "on", elements: [{ type: "matrixdynamic", name: "question1", allowRowsDragAndDrop: true, defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }], columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }] }] });
+//       await initSurvey(framework, { showQuestionNumbers: "on", elements: [{ type: "matrixdynamic", name: "question1", allowRowReorder: true, defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }], columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }] }] });
 //       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].lockedRowCount = 1; })();
 
 //       const matrixdynamicRoot = Selector(".sd-question");
 //       await resetFocusToBody();
 //       await t.hover(matrixdynamicRoot.find(".sd-table__row").nth(0));
-//       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount.png", matrixdynamicRoot, t, comparer);
+//       await takeElementScreenshot("matrixdynamic-allowRowReorder-lockedRowCount.png", matrixdynamicRoot, t, comparer);
 //       await t.hover(matrixdynamicRoot.find(".sd-table__row").nth(1));
-//       await takeElementScreenshot("matrixdynamic-allowRowsDragAndDrop-lockedRowCount-2.png", matrixdynamicRoot, t, comparer);
+//       await takeElementScreenshot("matrixdynamic-allowRowReorder-lockedRowCount-2.png", matrixdynamicRoot, t, comparer);
 
-//       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowRowsDragAndDrop = false; })();
+//       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowRowReorder = false; })();
 //       await takeElementScreenshot("matrixdynamic-lockedRowCount.png", matrixdynamicRoot, t, comparer);
 //     });
 //   });

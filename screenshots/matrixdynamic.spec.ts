@@ -189,7 +189,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-errors-in-cell-bottom.png");
     });
 
-    test("Check Matrixdynamic with allowRowsDragAndDrop", async ({ page }) => {
+    test("Check Matrixdynamic with allowRowReorder", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
@@ -214,7 +214,7 @@ frameworks.forEach(framework => {
             "detailPanelMode": "underRow",
             "addRowText": "Add a blood relative",
             "removeRowText": "Remove the relative",
-            "allowRowsDragAndDrop": true
+            "allowRowReorder": true
           }]
         }],
         "checkErrorsMode": "onValueChanged"
@@ -222,17 +222,17 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = page.locator(".sd-question");
       await matrixdynamicRoot.locator(".sd-table__row").first().hover();
-      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowsDragAndDrop.png");
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowReorder.png");
     });
 
-    test("Check Matrixdynamic with allowRowsDragAndDrop & lockedRowCount=1", async ({ page }) => {
+    test("Check Matrixdynamic with allowRowReorder & lockedRowCount=1", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         elements: [{
           type: "matrixdynamic",
           name: "question1",
-          allowRowsDragAndDrop: true,
+          allowRowReorder: true,
           defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }],
           columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }]
         }]
@@ -242,12 +242,12 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = page.locator(".sd-question");
       await matrixdynamicRoot.locator(".sd-table__row").nth(0).hover();
-      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowsDragAndDrop-lockedRowCount.png");
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowReorder-lockedRowCount.png");
 
       await matrixdynamicRoot.locator(".sd-table__row").nth(1).hover();
-      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowsDragAndDrop-lockedRowCount-2.png");
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowReorder-lockedRowCount-2.png");
 
-      await page.evaluate(() => { (window as any).survey.getAllQuestions()[0].allowRowsDragAndDrop = false; });
+      await page.evaluate(() => { (window as any).survey.getAllQuestions()[0].allowRowReorder = false; });
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-lockedRowCount.png");
     });
 

@@ -404,7 +404,7 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
     elements: [
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q",
         columns: ["Col1"],
         rowCount: 3,
@@ -470,7 +470,7 @@ QUnit.test("rows: check matrixdynamic d&d with expanded details, Bug#10472", fun
     elements: [
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q",
         columns: ["Col1"],
         rowCount: 3,
@@ -520,7 +520,7 @@ QUnit.test("rows: check matrixdynamic d&d with expanded detail panel", function 
     elements: [
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q",
         columns: ["Col1"],
         rowCount: 3,
@@ -566,7 +566,7 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
     elements: [
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q1",
         columns: ["Col1"],
         defaultValue: [{ Col1: "item1" }, { Col1: "item2" }, { Col1: "item3" }],
@@ -575,7 +575,7 @@ QUnit.test("rows: check matrixdynamic d&d between different matrices", function 
       },
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q2",
         columns: ["Col1"],
         defaultValue: [{ Col1: "item4" }, { Col1: "item5" }, { Col1: "item6" }],
@@ -913,7 +913,7 @@ QUnit.test("rows: check matrixdynamic d&d to empty matrix", function (assert) {
     elements: [
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q1",
         columns: ["Col1"],
         defaultValue: [{ Col1: "item1" }, { Col1: "item2" }, { Col1: "item3" }],
@@ -922,7 +922,7 @@ QUnit.test("rows: check matrixdynamic d&d to empty matrix", function (assert) {
       },
       {
         type: "matrixdynamic",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         name: "q2",
         columns: ["Col1"],
         rowCount: 0,

@@ -381,7 +381,7 @@ QUnit.test("Edit columns in matrix, check for empty titles", function (assert) {
   assert.equal(survey.getQuestionByName("name").value, "col1", "column.name #5");
   assert.notOk(survey.getQuestionByName("title").value, "column.title #5");
 });
-QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
+QUnit.test("allowRowReorder and editingObj", function (assert) {
   var question = new QuestionMatrixDynamicModel("q1");
   question.addColumn("col1");
   question.addColumn("col2");
@@ -391,7 +391,7 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
       {
         type: "matrixdynamic",
         name: "columns",
-        allowRowsDragAndDrop: true,
+        allowRowReorder: true,
         columns: [
           { cellType: "text", name: "name" },
           { cellType: "text", name: "title" },

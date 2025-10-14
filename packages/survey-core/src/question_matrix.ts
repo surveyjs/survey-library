@@ -610,7 +610,7 @@ export class QuestionMatrixModel
       question.locTitle.sharedData = row.locText;
       question.choices = this.visibleColumns;
       question.value = row.value;
-      question.isRequired = this.isAllRowRequired;
+      question.isRequired = this.eachRowRequired;
       question.setSurveyImpl(this);
       question.setParentQuestion(this);
       res.push(question);

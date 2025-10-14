@@ -6287,7 +6287,7 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
                 "text": "Product is easy to use"
               }
             ],
-            "isAllRowRequired": true
+            "eachRowRequired": true
           },
           {
             "type": "paneldynamic",
@@ -6339,7 +6339,7 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
                     "text": "Product is easy to use"
                   }
                 ],
-                "isAllRowRequired": true
+                "eachRowRequired": true
               }
             ]
           }

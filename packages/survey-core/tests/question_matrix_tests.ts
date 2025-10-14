@@ -275,7 +275,7 @@ QUnit.test("check row randomization in design mode", (assert) => {
   q1["sortVisibleRows"](rows);
   assert.equal(randomizedCount, 0);
 
-  q1.rowsOrder = "initial";
+  q1.rowOrder = "initial";
 
   randomizedCount = 0;
   survey.setDesignMode(false);
@@ -429,7 +429,7 @@ QUnit.test("matrix eachRowRequired  & getItemClass", function (assert) {
         name: "q1",
         columns: ["col1", "col2"],
         rows: ["row1", "row2"],
-        isAllRowRequired: true
+        eachRowRequired: true
       },
     ],
   });

@@ -350,8 +350,9 @@ export class ChoicesRestful extends Base {
     this.getAllPropertiesNames().forEach(name => {
       (<any>this)[name] = json[name];
     });
-    if (json.attachOriginalItems) {
-      this.attachData = json.attachOriginalItems;
+    const attach = json.attachData || json.attachOriginalItems;
+    if (attach !== undefined) {
+      this.attachData = attach;
     }
   }
   public getData(): any {

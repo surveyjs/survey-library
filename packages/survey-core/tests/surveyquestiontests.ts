@@ -3481,17 +3481,17 @@ QUnit.test("Load survey with requiredIf expression", function (assert) {
     "The question becomes required on changing value"
   );
 });
-QUnit.test("dropdown showOptionsCaption, https://surveyjs.answerdesk.io/ticket/details/T1499", function (assert) {
+QUnit.test("dropdown allowClear, https://surveyjs.answerdesk.io/ticket/details/T1499", function (assert) {
   var question = new QuestionDropdownModel("q1");
-  assert.equal(question.showOptionsCaption, true, "showOptionsCaption is true by default");
+  assert.equal(question.allowClear, true, "allowClear is true by default");
 
-  question.showOptionsCaption = false;
+  question.allowClear = false;
   var json = new JsonObject().toJsonObject(question);
   var checkedJson = {
     name: "q1",
     allowClear: false,
   };
-  assert.deepEqual(json, checkedJson, "showOptionsCaption is serialized");
+  assert.deepEqual(json, checkedJson, "allowClear is serialized");
 }
 );
 QUnit.test(

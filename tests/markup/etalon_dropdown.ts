@@ -34,7 +34,7 @@ registerMarkupTests(
             "renderAs": "select",
             "name": "name",
             "title": "Question title",
-            "showOptionsCaption": false,
+            "allowClear": false,
             "choices": [
               "item1",
               "item2",

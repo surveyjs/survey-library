@@ -341,7 +341,7 @@ QUnit.test("ListModel localization", assert => {
         "type": "dropdown",
         "name": "car",
         "title": "What car are you driving?",
-        "showOptionsCaption": false,
+        "allowClear": false,
         "placeholder": "New placeholder",
         "choices": [
           "Ford",

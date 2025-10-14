@@ -4626,7 +4626,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
     "sv_p_wrapper",
     "Default rendering: remove button in the bottom of the panel"
   );
-  question.panelRemoveButtonLocation = "right";
+  question.removePanelButtonLocation = "right";
   assert.equal(
     question.getPanelWrapperCss(panel),
     "sv_p_wrapper sv_p_wrapper_in_row",
@@ -4671,7 +4671,7 @@ QUnit.test("getPanelRemoveButtonCss", function(assert) {
     "sv_p_remove_btn",
     "Default rendering: remove button in the bottom of the panel"
   );
-  question.panelRemoveButtonLocation = "right";
+  question.removePanelButtonLocation = "right";
   assert.equal(
     question.getPanelRemoveButtonCss(),
     "sv_p_remove_btn sv_p_remove_btn_right",
@@ -8029,19 +8029,19 @@ QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
   settings.panel.maxPanelCount = 100;
   assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
 });
-QUnit.test("Do not serialize renderMode & showRangeInProgress", function (assert) {
+QUnit.test("Do not serialize renderMode & showProgressBar", function (assert) {
   const survey = new SurveyModel({
-    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showRangeInProgress: false }]
+    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showProgressBar: false }]
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   assert.equal(panel.renderMode, "progressTop", "renderMode is set");
   assert.equal(panel.displayMode, "carousel", "displayMode is set");
-  assert.equal(panel.showRangeInProgress, false, "showRangeInProgress is set");
+  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
   assert.equal(panel.showProgressBar, false, "showProgressBar is set");
   const json = panel.toJSON();
   assert.notOk(json.renderMode, "renderMode on json");
   assert.equal(json.displayMode, "carousel", "displayMode is json");
-  assert.notOk(json.showRangeInProgress, "showRangeInProgress is json");
+  assert.notOk(json.showProgressBar, "showProgressBar is json");
   assert.equal(json.showProgressBar, false, "showProgressBar is json");
 });
 QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {

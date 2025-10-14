@@ -134,7 +134,7 @@ registerMarkupTests(
           name: "pd",
           titleLocation: "hidden",
           renderMode: "list",
-          panelRemoveButtonLocation: "right",
+          removePanelButtonLocation: "right",
           templateElements: [
             {
               "type": "text",

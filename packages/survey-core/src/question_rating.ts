@@ -16,6 +16,40 @@ import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
 
+function getColorFromProperty(varName: string) {
+  if ("function" === typeof getComputedStyle) {
+    const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
+    return style.getPropertyValue && style.getPropertyValue(varName);
+  }
+  return "";
+}
+
+function getRGBColor(themeVariables: any, colorName: string, varName: string) {
+  let str: string = !!themeVariables && themeVariables[colorName] as any;
+  if (!str) str = getColorFromProperty(varName);
+  if (!str) return null;
+  const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
+  if (!canvasElement) return null;
+  var ctx = canvasElement.getContext("2d");
+  ctx.fillStyle = str;
+
+  if (ctx.fillStyle == "#000000") {
+    ctx.fillStyle = getColorFromProperty(varName);
+  }
+  const newStr = ctx.fillStyle;
+
+  if (newStr.startsWith("rgba")) {
+    return newStr.substring(5, newStr.length - 1).split(",").map(c => +(c.trim()));
+  }
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(newStr);
+  return result ? [
+    parseInt(result[1], 16),
+    parseInt(result[2], 16),
+    parseInt(result[3], 16),
+    1
+  ] : null;
+}
+
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
     this.text = this.itemValue.text;
@@ -304,42 +338,12 @@ export class QuestionRatingModel extends Question {
     if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
 
-    function getColorFromProperty(varName: string) {
-      const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
-      return style.getPropertyValue && style.getPropertyValue(varName);
-    }
-    function getRGBColor(colorName: string, varName: string) {
-      let str: string = !!themeVariables && themeVariables[colorName] as any;
-      if (!str) str = getColorFromProperty(varName);
-      if (!str) return null;
-      const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
-      if (!canvasElement) return null;
-      var ctx = canvasElement.getContext("2d");
-      ctx.fillStyle = str;
-
-      if (ctx.fillStyle == "#000000") {
-        ctx.fillStyle = getColorFromProperty(varName);
-      }
-      const newStr = ctx.fillStyle;
-
-      if (newStr.startsWith("rgba")) {
-        return newStr.substring(5, newStr.length - 1).split(",").map(c => +(c.trim()));
-      }
-      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(newStr);
-      return result ? [
-        parseInt(result[1], 16),
-        parseInt(result[2], 16),
-        parseInt(result[3], 16),
-        1
-      ] : null;
-    }
-
-    QuestionRatingModel.badColor = getRGBColor("--sjs-special-red", "--sd-rating-bad-color");
-    QuestionRatingModel.normalColor = getRGBColor("--sjs-special-yellow", "--sd-rating-normal-color");
-    QuestionRatingModel.goodColor = getRGBColor("--sjs-special-green", "--sd-rating-good-color");
-    QuestionRatingModel.badColorLight = getRGBColor("--sjs-special-red-light", "--sd-rating-bad-color-light");
-    QuestionRatingModel.normalColorLight = getRGBColor("--sjs-special-yellow-light", "--sd-rating-normal-color-light");
-    QuestionRatingModel.goodColorLight = getRGBColor("--sjs-special-green-light", "--sd-rating-good-color-light");
+    QuestionRatingModel.badColor = getRGBColor(themeVariables, "--sjs-special-red", "--sd-rating-bad-color");
+    QuestionRatingModel.normalColor = getRGBColor(themeVariables, "--sjs-special-yellow", "--sd-rating-normal-color");
+    QuestionRatingModel.goodColor = getRGBColor(themeVariables, "--sjs-special-green", "--sd-rating-good-color");
+    QuestionRatingModel.badColorLight = getRGBColor(themeVariables, "--sjs-special-red-light", "--sd-rating-bad-color-light");
+    QuestionRatingModel.normalColorLight = getRGBColor(themeVariables, "--sjs-special-yellow-light", "--sd-rating-normal-color-light");
+    QuestionRatingModel.goodColorLight = getRGBColor(themeVariables, "--sjs-special-green-light", "--sd-rating-good-color-light");
 
     this.colorsCalculated = true;
     this.resetRenderedItems();

@@ -11,6 +11,9 @@ export class TitleActions extends React.Component<any, any> {
   protected get element(): SurveyElement {
     return this.props.element;
   }
+  private get renderActions(): boolean {
+    return this.props.renderActions === undefined ? true : this.props.renderActions;
+  }
 
   render(): React.JSX.Element {
     const titleContent: React.JSX.Element = <TitleContent element={this.element} cssClasses={this.cssClasses}></TitleContent>;
@@ -18,7 +21,7 @@ export class TitleActions extends React.Component<any, any> {
     return (
       <div className="sv-title-actions">
         <span className="sv-title-actions__title">{titleContent}</span>
-        <SurveyActionBar model={this.element.getTitleToolbar()}></SurveyActionBar>
+        {(this.renderActions ? <SurveyActionBar model={this.element.getTitleToolbar()}></SurveyActionBar> : null)}
       </div>
     );
   }

@@ -10,9 +10,6 @@ export class TitleElement extends React.Component<any, any> {
   private get element(): SurveyElement {
     return this.props.element;
   }
-  private get renderActions(): boolean {
-    return this.props.renderActions === undefined ? true : this.props.renderActions;
-  }
   renderTitleExpandableSvg() {
     if (!this.element.getCssTitleExpandableSvg()) return null;
     let iconName = this.element.isExpanded ? "icon-collapse-16x16" : "icon-expand-16x16";
@@ -30,12 +27,13 @@ export class TitleElement extends React.Component<any, any> {
 
     const titleExpandableSvg = this.renderTitleExpandableSvg();
 
-    const titleContent = this.renderActions ? (
+    const titleContent = (
       <TitleActions
         element={element}
         cssClasses={element.cssClasses}
+        renderActions={this.props.renderActions}
       ></TitleActions>
-    ) : null;
+    );
 
     let onClick: undefined | ((e: any) => void) = undefined;
     let onKeyUp: undefined | ((e: any) => void) = undefined;

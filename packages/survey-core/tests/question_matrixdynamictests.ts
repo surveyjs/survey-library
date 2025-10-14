@@ -2202,90 +2202,90 @@ QUnit.test("Matrixdynamic addRowButtonLocation", function (assert) {
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     false,
-    "columnsLocation='horizontal', addRowButtonLocation='default', #1"
+    "columnLayout='horizontal', addRowButtonLocation='default', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnsLocation='horizontal', addRowButtonLocation='default', #2"
+    "columnLayout='horizontal', addRowButtonLocation='default', #2"
   );
   question.addRowButtonLocation = "top";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnsLocation='horizontal', addRowButtonLocation='top', #1"
+    "columnLayout='horizontal', addRowButtonLocation='top', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     false,
-    "columnsLocation='horizontal', addRowButtonLocation='top', #2"
+    "columnLayout='horizontal', addRowButtonLocation='top', #2"
   );
   question.addRowButtonLocation = "bottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     false,
-    "columnsLocation='horizontal', addRowButtonLocation='bottom', #1"
+    "columnLayout='horizontal', addRowButtonLocation='bottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnsLocation='horizontal', addRowButtonLocation='bottom', #2"
+    "columnLayout='horizontal', addRowButtonLocation='bottom', #2"
   );
   question.addRowButtonLocation = "topBottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnsLocation='horizontal', addRowButtonLocation='topBottom', #1"
+    "columnLayout='horizontal', addRowButtonLocation='topBottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnsLocation='horizontal', addRowButtonLocation='topBottom', #2"
+    "columnLayout='horizontal', addRowButtonLocation='topBottom', #2"
   );
-  question.columnsLocation = "vertical";
+  question.columnLayout = "vertical";
   question.addRowButtonLocation = "default";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnsLocation='vertical', addRowButtonLocation='default', #1"
+    "columnLayout='vertical', addRowButtonLocation='default', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     false,
-    "columnsLocation='vertical', addRowButtonLocation='default', #2"
+    "columnLayout='vertical', addRowButtonLocation='default', #2"
   );
   question.addRowButtonLocation = "top";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnsLocation='vertical', addRowButtonLocation='top', #1"
+    "columnLayout='vertical', addRowButtonLocation='top', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     false,
-    "columnsLocation='vertical', addRowButtonLocation='top', #2"
+    "columnLayout='vertical', addRowButtonLocation='top', #2"
   );
   question.addRowButtonLocation = "bottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     false,
-    "columnsLocation='vertical', addRowButtonLocation='bottom', #1"
+    "columnLayout='vertical', addRowButtonLocation='bottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnsLocation='vertical', addRowButtonLocation='bottom', #2"
+    "columnLayout='vertical', addRowButtonLocation='bottom', #2"
   );
   question.addRowButtonLocation = "topBottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnsLocation='vertical', addRowButtonLocation='topBottom', #1"
+    "columnLayout='vertical', addRowButtonLocation='topBottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnsLocation='vertical', addRowButtonLocation='topBottom', #2"
+    "columnLayout='vertical', addRowButtonLocation='topBottom', #2"
   );
 });
 
@@ -4623,7 +4623,7 @@ QUnit.test("column is requriedText, Bug #2297", function (assert) {
     "required Text is here"
   );
   assert.notOk(table.headerRow.cells[1].requiredMark, "required Text is empty");
-  matrix.columnsLocation = "vertical";
+  matrix.columnLayout = "vertical";
   table = matrix.renderedTable;
   assert.equal(
     table.rows[1].cells[0].requiredMark,

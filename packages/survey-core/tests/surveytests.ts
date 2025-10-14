@@ -14519,7 +14519,7 @@ QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel re
   assert.equal(counter, 1, "focusQuestion called one time");
   assert.equal(isOnError, true, "focusQuestion called with onError = true");
 });
-QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + focusOnFirstError = false, Bug#8322", function (assert) {
+QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + autoFocusFirstError = false, Bug#8322", function (assert) {
   var focusedQuestionId = "";
   const oldFunc = SurveyElement.FocusElement;
   SurveyElement.FocusElement = function (elId: string): boolean {
@@ -14529,7 +14529,7 @@ QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + f
 
   const survey = new SurveyModel({
     checkErrorsMode: "onComplete",
-    focusOnFirstError: false,
+    autoFocusFirstError: false,
     pages: [
       {
         elements: [

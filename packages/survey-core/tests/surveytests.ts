@@ -4610,7 +4610,7 @@ QUnit.test("isNavigationButtonsShowingOnBottom & isNavigationButtonsShowingOnTop
   const getContainerContent = getContainerContentFunction(survey);
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "buttons-navigation"
+    "id": "buttons-navigation-top"
   }], "nav both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
@@ -18069,7 +18069,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav top footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "buttons-navigation"
+    "id": "buttons-navigation-top"
   }], "nav top contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "nav top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav top left");
@@ -18080,7 +18080,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav both footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "buttons-navigation"
+    "id": "buttons-navigation-top"
   }], "nav both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
@@ -18094,7 +18094,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav left footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "buttons-navigation"
+    "id": "buttons-navigation-top"
   }], "nav left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
@@ -18111,7 +18111,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav right footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "buttons-navigation"
+    "id": "buttons-navigation-top"
   }], "nav right contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",

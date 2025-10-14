@@ -85,6 +85,7 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
+import { NavigationActionBar } from "./navigation-bar";
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
@@ -202,8 +203,6 @@ export class SurveyModel extends SurveyElementCore
   private editingObjValue: Base;
 
   private timerModelValue: SurveyTimerModel;
-
-  private navigationBarValue: ActionContainer;
 
   //#region Event declarations
   public onEndLoadingFromJson: EventBase<SurveyModel, Object> = this.addEvent<SurveyModel, Object>();
@@ -1196,7 +1195,11 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-action-bar",
       getData: () => this.navigationBar
     });
-
+    this.layoutElements.push({
+      id: "buttons-navigation-top",
+      component: "sv-action-bar",
+      getData: () => this.navigationBarTop
+    });
   }
   private tocModelValue: TOCModel;
   private get tocModel(): TOCModel {
@@ -1301,7 +1304,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
-    this.updateNavigationCss();
+    this.navigationBarValue?.updateCss();
+    this.navigationBarTopValue?.updateCss();
     this.updateCompletedPageCss();
     this.updateWrapperFormCss();
   }
@@ -1332,45 +1336,6 @@ export class SurveyModel extends SurveyElementCore
 
   public get cssTitle(): string {
     return this.css.title;
-  }
-  public get cssNavigationComplete() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.complete
-    );
-  }
-  public get cssNavigationPreview() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.preview
-    );
-  }
-  public get cssNavigationEdit() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.edit
-    );
-  }
-  public get cssNavigationPrev() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.prev
-    );
-  }
-  public get cssNavigationStart() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.start
-    );
-  }
-  public get cssNavigationNext() {
-    return this.getNavigationCss(
-      this.cssSurveyNavigationButton,
-      this.css.navigation.next
-    );
-  }
-  private get cssSurveyNavigationButton(): string {
-    return new CssClassBuilder().append(this.css.navigationButton).append(this.css.bodyNavigationButton).toString();
   }
   public get bodyCss(): string {
     return new CssClassBuilder().append(this.css.body)
@@ -1427,10 +1392,6 @@ export class SurveyModel extends SurveyElementCore
    */
   public showHeaderOnCompletePage: true | false | "auto" = "auto";
 
-  private getNavigationCss(main: string, btn: string) {
-    return new CssClassBuilder().append(main)
-      .append(btn).toString();
-  }
   private lazyRenderEnabledValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
@@ -2229,9 +2190,8 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isStartPageActive) {
       this.updateProgressText();
     }
-    if (!!this.navigationBarValue) {
-      this.navigationBar.locStrsChanged();
-    }
+    this.navigationBarValue?.locStrsChanged();
+    this.navigationBarTopValue?.locStrsChanged();
   }
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.getSurveyMarkdownHtml(this, text, name, item);
@@ -2664,12 +2624,32 @@ export class SurveyModel extends SurveyElementCore
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
   }
-  public get navigationBar(): ActionContainer {
+
+  private getNavigationCss(main: string, btn: string) {
+    return new CssClassBuilder().append(main)
+      .append(btn).toString();
+  }
+
+  public get cssNavigationEdit() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.edit
+    );
+  }
+
+  private navigationBarValue: NavigationActionBar;
+  public get navigationBar(): NavigationActionBar {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = this.createNavigationBar();
-      this.updateNavigationCss();
+      this.navigationBarValue = new NavigationActionBar(this);
     }
     return this.navigationBarValue;
+  }
+  private navigationBarTopValue: NavigationActionBar;
+  public get navigationBarTop(): NavigationActionBar {
+    if (!this.navigationBarTopValue) {
+      this.navigationBarTopValue = new NavigationActionBar(this);
+    }
+    return this.navigationBarTopValue;
   }
   /**
    * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons. Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
@@ -2677,24 +2657,12 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
   public addNavigationItem(val: IAction): Action {
-    if (!val.component) {
-      val.component = "sv-nav-btn";
-    }
-    if (!val.innerCss) {
-      val.innerCss = this.cssSurveyNavigationButton;
-    }
-    const originalActionFunc = val.action;
-    val.action = () => {
-      this.taskManager.waitAndExecute(() => originalActionFunc());
-    };
+    this.navigationBarTop.addAction(val);
     return this.navigationBar.addAction(val);
   }
   private removeNavigationItem(id: string): void {
-    const action = this.navigationBar.getActionById(id);
-    if (action) {
-      const actions = this.navigationBar.actions;
-      actions.splice(actions.indexOf(action), 1);
-    }
+    this.navigationBar.removeActionById(id);
+    this.navigationBarTop.removeActionById(id);
   }
   /**
    * Gets or sets a caption for the Start button.
@@ -5005,11 +4973,14 @@ export class SurveyModel extends SurveyElementCore
     if (!this.isSingleVisibleInput) return;
     const q = this.currentSingleQuestion;
     if (!q) return;
-    const addBtn = this.navigationBar.getActionById("sv-singleinput-add");
-    if (addBtn) {
-      addBtn.title = q.getSingleInputAddText();
-      addBtn.visible = !!addBtn.title;
+    function updateBtn(addBtn: IAction) {
+      if (addBtn) {
+        addBtn.title = q.getSingleInputAddText();
+        addBtn.visible = !!addBtn.title;
+      }
     }
+    updateBtn(this.navigationBar.getActionById("sv-singleinput-add"));
+    updateBtn(this.navigationBarTop.getActionById("sv-singleinput-add"));
   }
   public get isShowPrevButton(): boolean {
     return this.getPropertyValue("isShowPrevButton");
@@ -6764,86 +6735,6 @@ export class SurveyModel extends SurveyElementCore
     this.onEndLoadingFromJson.fire(this, {});
   }
 
-  private updateNavigationCss() {
-    const val = this.navigationBarValue;
-    if (!!val) {
-      val.cssClasses = this.css.actionBar;
-      val.containerCss = this.css.footer;
-      !!this.updateNavigationItemCssCallback && this.updateNavigationItemCssCallback();
-    }
-  }
-
-  private updateNavigationItemCssCallback: (strName?: string) => void;
-
-  protected createNavigationBar(): ActionContainer {
-    const res = new ActionContainer();
-    res.setItems(this.createNavigationActions());
-    res.locOwner = this;
-    return res;
-  }
-  protected createNavigationActions(): Array<IAction> {
-    const defaultComponent = "sv-nav-btn";
-    const navStart = new Action({
-      id: "sv-nav-start",
-      visible: <any>new ComputedUpdater<boolean>(() => this.isStartPageActive),
-      visibleIndex: 10,
-      locTitle: this.locStartSurveyText,
-      action: () => this.start(),
-      component: defaultComponent
-    });
-    const navPrev = new Action({
-      id: "sv-nav-prev",
-      visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
-      visibleIndex: 20,
-      data: {
-        mouseDown: () => this.navigationMouseDown(),
-      },
-      locTitle: this.locPagePrevText,
-      action: () => this.performPrevious(),
-      component: defaultComponent
-    });
-    const navNext = new Action({
-      id: "sv-nav-next",
-      visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
-      visibleIndex: 30,
-      data: {
-        mouseDown: () => this.nextPageMouseDown(),
-      },
-      locTitle: this.locPageNextText,
-      action: () => this.nextPageUIClick(),
-      component: defaultComponent
-    });
-    const navPreview = new Action({
-      id: "sv-nav-preview",
-      visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
-      visibleIndex: 40,
-      data: {
-        mouseDown: () => this.navigationMouseDown(),
-      },
-      locTitle: this.locPreviewText,
-      action: () => this.showPreview(),
-      component: defaultComponent
-    });
-    const navComplete = new Action({
-      id: "sv-nav-complete",
-      visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
-      visibleIndex: 50,
-      data: {
-        mouseDown: () => this.navigationMouseDown(),
-      },
-      locTitle: this.locCompleteText,
-      action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
-      component: defaultComponent
-    });
-    this.updateNavigationItemCssCallback = () => {
-      navStart.innerCss = this.cssNavigationStart;
-      navPrev.innerCss = this.cssNavigationPrev;
-      navNext.innerCss = this.cssNavigationNext;
-      navPreview.innerCss = this.cssNavigationPreview;
-      navComplete.innerCss = this.cssNavigationComplete;
-    };
-    return [navStart, navPrev, navNext, navPreview, navComplete];
-  }
   protected onBeforeRunConstructor() {}
   protected onBeforeCreating() { }
   protected onCreating() { }
@@ -8300,12 +8191,13 @@ export class SurveyModel extends SurveyElementCore
             }
           }
         }
-      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
+      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation-top")) {
         if (container === "contentTop") {
           if (this.isNavigationButtonsShowingOnTop) {
             containerLayoutElements.push(layoutElement);
           }
         }
+      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
         if (container === "contentBottom") {
           if (this.isNavigationButtonsShowingOnBottom) {
             containerLayoutElements.push(layoutElement);
@@ -8399,6 +8291,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();
+  public waitAndExecute(action: any): void {
+    this.taskManager.waitAndExecute(action);
+  }
 
   /**
    * Disposes of the survey model.

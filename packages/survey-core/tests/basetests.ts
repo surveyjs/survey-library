@@ -1,4 +1,4 @@
-import { ComputedUpdater, Base, Event, ArrayChanges } from "../src/base";
+import { ComputedUpdater, Base, Event, ArrayChanges, IOnArrayChangedEvent, EventBase } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
@@ -495,17 +495,24 @@ QUnit.test("Base onArrayChanged", function (assert) {
   var base = new BaseTester();
   var counter = 0;
   var arrayChanges: ArrayChanges = null;
-  (<any>base["items"]).onArrayChanged = function (arCh: ArrayChanges): void {
-    arrayChanges = arCh;
+  assert.strictEqual((base["items"] as any).onArrayChanged, undefined);
+  const callback = (_: Base, options: IOnArrayChangedEvent) => {
+    arrayChanges = options.arrayChanges;
     counter++;
   };
-
+  base.addOnArrayChangedCallback(base["items"], callback);
+  assert.ok((base["items"] as any).onArrayChanged instanceof EventBase);
   assert.equal(counter, 0, "initial");
   base.items.push(new ItemValue(1));
 
   assert.equal(counter, 1, "onArrayChanged is changed");
   assert.equal(arrayChanges.index, 0, "added into 0 index");
   assert.deepEqual(arrayChanges.itemsToAdd, [base.items[0]], "added items");
+
+  base.removeOnArrayChangedCallback(base["items"], callback);
+  assert.strictEqual((base["items"] as any).onArrayChanged, undefined);
+  base.items.push(new ItemValue(1));
+  assert.equal(counter, 1, "onArrayChanged is not changed");
 });
 QUnit.test("Change value to array and then to undefined", function (assert) {
   var base = new Base();

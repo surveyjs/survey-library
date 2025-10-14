@@ -6351,9 +6351,9 @@ QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (asse
   const question = new QuestionDropdownModel("q1");
   let counter = 0;
   (<any>question.visibleChoices).testId = 1;
-  (<any>question.visibleChoices).onArrayChanged = () => {
+  question.addOnArrayChangedCallback(question.visibleChoices, () => {
     counter++;
-  };
+  });
   let hasVisibleChoicesInHash = false;
   question.iteratePropertiesHash((hash, key) => {
     if (key === "visibleChoices") {

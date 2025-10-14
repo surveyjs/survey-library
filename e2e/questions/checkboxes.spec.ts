@@ -360,7 +360,7 @@ frameworks.forEach((framework) => {
 
     test("Check that selectAll item is checked after loading data", async ({ page }) => {
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasSelectAll = true;
+        window["survey"].getAllQuestions()[0].showSelectAllItem = true;
       });
 
       const isSelectAllChecked = async () => {

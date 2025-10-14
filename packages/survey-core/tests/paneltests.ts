@@ -1179,7 +1179,7 @@ QUnit.test(
           "name": "car",
           "title": "Checkbox",
 
-          "hasSelectAll": true,
+          "showSelectAllItem": true,
           "showNoneItem": true,
           "colCount": 4,
           "choices": [

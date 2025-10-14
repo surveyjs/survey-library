@@ -203,7 +203,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
         name: "Question 1",
         choices: ["Item1", "Item2"],
         showOtherItem: true,
-        hasSelectAll: true,
+        showSelectAllItem: true,
         showNoneItem: true,
         colCount: 2
       },
@@ -682,7 +682,7 @@ QUnit.test("checkbox vs valuePropertyName, check selectAll and none", (assert) =
         choices: ["apple", "banana", "orange"],
         valuePropertyName: "fruit",
         showNoneItem: true,
-        hasSelectAll: true
+        showSelectAllItem: true
       }
     ]
   });
@@ -706,7 +706,7 @@ QUnit.test("checkbox vs valuePropertyName, check selectAll and none & refuse & d
         showNoneItem: true,
         showRefuseItem: true,
         showDontKnowItem: true,
-        hasSelectAll: true
+        showSelectAllItem: true
       }
     ]
   });
@@ -755,7 +755,7 @@ QUnit.test("checkbox:readonly:clickItemHandler", (assert) => {
         showNoneItem: true,
         defaultValue: ["banana"],
         readOnly: true,
-        hasSelectAll: true
+        showSelectAllItem: true
       }
     ]
   });
@@ -986,7 +986,7 @@ QUnit.test("checkbox and radio css", (assert) => {
         name: "q2",
         choices: ["Item 1"],
         showClearButton: true,
-        hasSelectAll: true,
+        showSelectAllItem: true,
         showNoneItem: true
       }]
   });
@@ -1137,7 +1137,7 @@ QUnit.test("check locOwner for items", (assert) => {
 QUnit.test("check renamed has... properties", (assert) => {
   const question = new QuestionCheckboxModel("q1");
   assert.notOk(question.showNoneItem);
-  assert.notOk(question.hasSelectAll);
+  assert.notOk(question.showSelectAllItem);
   assert.notOk(question.showOtherItem);
   assert.notOk(question.hasComment);
   assert.notOk(question.showCommentArea);
@@ -1156,10 +1156,10 @@ QUnit.test("check renamed has... properties", (assert) => {
 
   question.showSelectAllItem = true;
   assert.ok(question.showSelectAllItem);
-  assert.ok(question.hasSelectAll);
-  question.hasSelectAll = false;
+  assert.ok(question.showSelectAllItem);
+  question.showSelectAllItem = false;
   assert.notOk(question.showSelectAllItem);
-  assert.notOk(question.hasSelectAll);
+  assert.notOk(question.showSelectAllItem);
 
   question.showOtherItem = true;
   assert.ok(question.showOtherItem);

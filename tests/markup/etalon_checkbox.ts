@@ -262,7 +262,7 @@ registerMarkupTests(
               "item1",
               "item2"
             ],
-            hasSelectAll: true,
+            showSelectAllItem: true,
             showNoneItem: true,
             showOtherItem: true,
             titleLocation: "hidden",
@@ -286,7 +286,7 @@ registerMarkupTests(
               "item1",
               "item2"
             ],
-            hasSelectAll: true,
+            showSelectAllItem: true,
             showNoneItem: true,
             showOtherItem: true,
             separateSpecialChoices: false,
@@ -312,7 +312,7 @@ registerMarkupTests(
               "item1",
               "item2"
             ],
-            hasSelectAll: true,
+            showSelectAllItem: true,
             showNoneItem: true,
             showOtherItem: true,
             separateSpecialChoices: false,
@@ -336,7 +336,7 @@ registerMarkupTests(
               "item1",
               "item2"
             ],
-            hasSelectAll: true,
+            showSelectAllItem: true,
             showNoneItem: true,
             showOtherItem: true,
             separateSpecialChoices: true,

@@ -1183,7 +1183,7 @@ QUnit.test("Edit matrix dynamic column", function (assert) {
       },
       {
         type: "boolean",
-        name: "hasSelectAll",
+        name: "showSelectAllItem",
       },
     ],
   });
@@ -1199,19 +1199,19 @@ QUnit.test("Edit matrix dynamic column", function (assert) {
     "column title value is set correctly"
   );
   assert.equal(
-    survey.getQuestionByName("hasSelectAll").value,
+    survey.getQuestionByName("showSelectAllItem").value,
     true,
-    "column hasSelectAll value is set correctly"
+    "column showSelectAllItem value is set correctly"
   );
   survey.getQuestionByName("name").value = "col2";
   survey.getQuestionByName("title").value = "Column 2";
-  survey.getQuestionByName("hasSelectAll").value = false;
+  survey.getQuestionByName("showSelectAllItem").value = false;
   assert.equal(column.name, "col2", "column name changed correctly");
   assert.equal(column.title, "Column 2", "column title changed correctly");
   assert.equal(
-    column["hasSelectAll"],
+    column["showSelectAllItem"],
     false,
-    "column hasSelectAll changed correctly"
+    "column showSelectAllItem changed correctly"
   );
 });
 QUnit.test("Edit choices in matrix dynamic column", function (assert) {

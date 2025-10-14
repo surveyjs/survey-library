@@ -2983,13 +2983,13 @@ QUnit.test("Dropdown showNoneItem", function (assert) {
   assert.equal(q.visibleChoices.length, 6, "none is added");
 });
 
-QUnit.test("Checkbox hasSelectAll", function (assert) {
+QUnit.test("Checkbox showSelectAllItem", function (assert) {
   var json = {
     elements: [
       {
         type: "checkbox",
         name: "q1",
-        hasSelectAll: true,
+        showSelectAllItem: true,
         choices: [1, 2, 3],
       },
     ],
@@ -2997,9 +2997,9 @@ QUnit.test("Checkbox hasSelectAll", function (assert) {
   var survey = new SurveyModel(json);
   var q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   assert.equal(q.visibleChoices.length, 4, "3 items + select all");
-  q.hasSelectAll = false;
+  q.showSelectAllItem = false;
   assert.equal(q.visibleChoices.length, 3, "select all is removed");
-  q.hasSelectAll = true;
+  q.showSelectAllItem = true;
   assert.equal(q.visibleChoices.length, 4, "none is added");
   assert.equal(q.isAllSelected, false, "All items are not selected");
   assert.equal(
@@ -3202,7 +3202,7 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   question.hideIfChoicesEmpty = true;
   assert.equal(question.isVisible, false, "Choices are empty");
   question.showOtherItem = true;
-  question.hasSelectAll = true;
+  question.showSelectAllItem = true;
   question.showNoneItem = true;
   assert.equal(question.isVisible, false, "Still choices are empty");
   question.choices = [1, 2, 3];
@@ -4605,7 +4605,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
         type: "checkbox",
         name: "q1",
         storeOthersAsComment: false,
-        hasSelectAll: true,
+        showSelectAllItem: true,
         showNoneItem: true,
         choices: [1, 2],
       },
@@ -5087,7 +5087,7 @@ QUnit.test("maxSelectedChoices in checkbox", function (assert) {
         name: "q1",
         choices: [1, 2, 3, 4, 5],
         maxSelectedChoices: 2,
-        hasSelectAll: true,
+        showSelectAllItem: true,
         showOtherItem: true,
       },
     ],
@@ -5115,7 +5115,7 @@ QUnit.test("select items and then set maxSelectedChoices in checkbox", function 
         type: "checkbox",
         name: "q1",
         choices: [1, 2, 3, 4, 5],
-        hasSelectAll: true,
+        showSelectAllItem: true,
         showOtherItem: true,
       },
     ],
@@ -5141,7 +5141,7 @@ QUnit.test("select items and then set minSelectedChoices in checkbox", function 
         type: "checkbox",
         name: "q1",
         choices: [1, 2, 3, 4, 5],
-        hasSelectAll: true,
+        showSelectAllItem: true,
         showOtherItem: true,
       },
     ],
@@ -5340,7 +5340,7 @@ QUnit.test("Checkbox: Carry Forward and showOtherItem", function(assert) {
   assert.equal(q2.visibleChoices[2].text, "someText", "other text");
 });
 QUnit.test(
-  "choicesFromQuestion hasSelectAll, showNoneItem, showOtherItem properties, Bug#",
+  "choicesFromQuestion showSelectAllItem, showNoneItem, showOtherItem properties, Bug#",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -5348,7 +5348,7 @@ QUnit.test(
           type: "checkbox",
           name: "q1",
           choices: [1, 2, 3],
-          hasSelectAll: true,
+          showSelectAllItem: true,
           showNoneItem: true,
           showOtherItem: true,
         },
@@ -5356,7 +5356,7 @@ QUnit.test(
           type: "checkbox",
           name: "q2",
           choicesFromQuestion: "q1",
-          hasSelectAll: true,
+          showSelectAllItem: true,
           showNoneItem: true,
           showOtherItem: true,
         },
@@ -5670,7 +5670,7 @@ QUnit.test(
       false,
       "selectall not in list"
     );
-    q2.hasSelectAll = true;
+    q2.showSelectAllItem = true;
     assert.equal(
       q2.isItemInList(q2.visibleChoices[0]),
       true,
@@ -5722,7 +5722,7 @@ QUnit.test(
       2,
       "Do not show SelectAll+None+showOtherItem+new: 2"
     );
-    q1.hasSelectAll = true;
+    q1.showSelectAllItem = true;
     q1.showNoneItem = true;
     q1.showOtherItem = true;
     assert.equal(
@@ -5784,7 +5784,7 @@ QUnit.test(
 
     Serializer.findProperty("selectbase", "showOtherItem").visible = false;
     Serializer.findProperty("selectbase", "showNoneItem").visible = false;
-    Serializer.findProperty("checkbox", "hasSelectAll").visible = false;
+    Serializer.findProperty("checkbox", "showSelectAllItem").visible = false;
     var survey = new SurveyModel();
     survey.setDesignMode(true);
     survey.fromJSON(json);
@@ -5796,7 +5796,7 @@ QUnit.test(
     );
     Serializer.findProperty("selectbase", "showOtherItem").visible = true;
     Serializer.findProperty("selectbase", "showNoneItem").visible = true;
-    Serializer.findProperty("checkbox", "hasSelectAll").visible = true;
+    Serializer.findProperty("checkbox", "showSelectAllItem").visible = true;
   }
 );
 QUnit.test(

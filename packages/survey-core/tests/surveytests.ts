@@ -17571,7 +17571,7 @@ QUnit.test("Test survey with custom type", function (assert) {
       { name: "showNoneItem", visible: false },
       { name: "renderAs", visible: false },
       { name: "checkboxClass", visible: false },
-      { name: "hasSelectAll", visible: false },
+      { name: "showSelectAllItem", visible: false },
       { name: "noneText", visible: false },
       { name: "selectAllText", visible: false },
     ],

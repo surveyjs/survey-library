@@ -6431,14 +6431,14 @@ QUnit.test("Checkbox item, others  and visibleIf bug, #3694", (assert) => {
   assert.equal(question.isOtherSelected, false, "Other is not selected");
   assert.equal(question.isItemSelected(question.choices[1]), true, "second item is selected");
 });
-QUnit.test("SelectBase otherPlaceHolder localized", function (assert) {
+QUnit.test("SelectBase otherPlaceholder localized", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
         type: "radiogroup",
         name: "car",
         showOtherItem: true,
-        otherPlaceHolder: {
+        otherPlaceholder: {
           "da": "Skriv din begrundelse her...",
           "default": "Write your reason here..."
         },

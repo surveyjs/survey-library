@@ -146,7 +146,7 @@ frameworks.forEach(framework => {
           panelCount: 2,
           noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
           addPanelText: "Add application",
-          panelRemoveText: "Remove application"
+          removePanelText: "Remove application"
         },
       ]
     };

@@ -3859,7 +3859,7 @@ QUnit.test(
           ],
           panelCount: 2,
           addPanelText: "Add a blood relative",
-          panelRemoveText: "Remove the relative",
+          removePanelText: "Remove the relative",
         },
       ],
     };
@@ -5680,7 +5680,7 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
         ],
         minPanelCount: 1,
         panelCount: 2,
-        panelRemoveText: "Remove Panel"
+        removePanelText: "Remove Panel"
       }
     ]
   });
@@ -5992,7 +5992,7 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
         ],
         panelCount: 2,
         addPanelText: "Add a blood relative",
-        panelRemoveText: "Remove the relative"
+        removePanelText: "Remove the relative"
       }
     ],
   });
@@ -6076,7 +6076,7 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
         ],
         panelCount: 2,
         addPanelText: "Add a blood relative",
-        panelRemoveText: "Remove the relative"
+        removePanelText: "Remove the relative"
       }
     ],
   });

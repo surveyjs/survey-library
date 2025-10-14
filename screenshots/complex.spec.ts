@@ -13,7 +13,7 @@ const json = {
       name: "order",
       renderMode: "progressBottom",
       templateTitle: "{panel.itemName}",
-      panelRemoveText: "Remove Item",
+      removePanelText: "Remove Item",
       panelCount: 5,
       minWidth: "708px",
       maxWidth: "708px",

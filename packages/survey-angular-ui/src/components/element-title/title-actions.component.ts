@@ -8,6 +8,7 @@ import { EmbeddedViewContentComponent } from "../../embedded-view-content.compon
 })
 export class ElementTitleActionsComponent extends EmbeddedViewContentComponent {
   @Input() element: any;
+  @Input() renderActions: any = true;
   get cssClasses() {
     return (this.element.isPanel ? this.element.cssClasses.panel : this.element.cssClasses) || {};
   }

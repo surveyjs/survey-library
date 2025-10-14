@@ -7,7 +7,7 @@
       <span class="sv-title-actions__title">
         <ng-container *ngTemplateOutlet="elementTitleContent"></ng-container>
       </span>
-      <sv-ng-action-bar [model]="element.getTitleToolbar()"></sv-ng-action-bar>
+      <sv-ng-action-bar *ngIf="renderActions" [model]="element.getTitleToolbar()"></sv-ng-action-bar>
     </div>
   </ng-container>
   <ng-template #elementTitleContent>

@@ -2,6 +2,6 @@
   <sv-ng-dynamic-head [tagName]="element.titleTagName" [element]="element" *ngIf="element.hasTitle">
     <svg *ngIf="!element.isExpanded && element.getCssTitleExpandableSvg()" [iconName]="'icon-expand-16x16'" [partCss]="element.getCssTitleExpandableSvg()" [size]="'auto'" sv-ng-svg-icon></svg>
     <svg *ngIf="element.isExpanded && element.getCssTitleExpandableSvg()" [iconName]="'icon-collapse-16x16'" [partCss]="element.getCssTitleExpandableSvg()" [size]="'auto'" sv-ng-svg-icon></svg>
-    <sv-ng-element-title-actions *ngIf="renderActions" [element]="element"></sv-ng-element-title-actions>
+    <sv-ng-element-title-actions [element]="element" [renderActions]="renderActions"></sv-ng-element-title-actions>
   </sv-ng-dynamic-head>
 </ng-template>

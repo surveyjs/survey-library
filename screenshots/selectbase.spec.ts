@@ -79,7 +79,7 @@ frameworks.forEach(framework => {
             "type": "radiogroup",
             "name": "car",
             "title": "What car are you driving?",
-            "hasNone": true,
+            "showNoneItem": true,
             "colCount": 0,
             "choices": [
               "Ford",

@@ -17568,7 +17568,7 @@ QUnit.test("Test survey with custom type", function (assert) {
     [
       { name: "showOtherItem", visible: false },
       { name: "storeOthersAsComment", visible: false },
-      { name: "hasNone", visible: false },
+      { name: "showNoneItem", visible: false },
       { name: "renderAs", visible: false },
       { name: "checkboxClass", visible: false },
       { name: "hasSelectAll", visible: false },
@@ -20651,7 +20651,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
         ]
       }
     ],
-    "maxTimeToFinish": 10,
+    "timeLimit": 10,
     "showTimerPanel": "top",
     "showTimerPanelMode": "survey"
   };

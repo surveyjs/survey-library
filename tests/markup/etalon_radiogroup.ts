@@ -219,7 +219,7 @@ registerMarkupTests(
             "item1",
             "item2"
           ],
-          hasNone: true,
+          showNoneItem: true,
           showOtherItem: true,
           titleLocation: "hidden",
           separateSpecialChoices: true
@@ -242,7 +242,7 @@ registerMarkupTests(
             "item1",
             "item2"
           ],
-          hasNone: true,
+          showNoneItem: true,
           showOtherItem: true,
           separateSpecialChoices: false,
           titleLocation: "hidden"
@@ -267,7 +267,7 @@ registerMarkupTests(
             "item1",
             "item2"
           ],
-          hasNone: true,
+          showNoneItem: true,
           showOtherItem: true,
           titleLocation: "hidden",
           separateSpecialChoices: true
@@ -290,7 +290,7 @@ registerMarkupTests(
             "item1",
             "item2"
           ],
-          hasNone: true,
+          showNoneItem: true,
           showOtherItem: true,
           separateSpecialChoices: false,
           titleLocation: "hidden"

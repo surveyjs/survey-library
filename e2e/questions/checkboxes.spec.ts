@@ -14,7 +14,7 @@ const json = {
       isRequired: true,
       colCount: 4,
       showOtherItem: true,
-      hasNone: true,
+      showNoneItem: true,
       choices: [
         "Unknown",
         "Ford",

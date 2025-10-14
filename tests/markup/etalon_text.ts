@@ -6,7 +6,7 @@ registerMarkupTest(
   {
     name: "Test Text question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -21,7 +21,7 @@ registerMarkupTest(
   {
     name: "Test Text (text update mode) question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -36,7 +36,7 @@ registerMarkupTest(
 registerMarkupTest({
   name: "Test Text readonly question markup",
   json: {
-    questions: [
+    elements: [
       {
         name: "name",
         type: "text",
@@ -51,7 +51,7 @@ registerMarkupTest({
 registerMarkupTest({
   name: "Test Text disabled question markup",
   json: {
-    questions: [
+    elements: [
       {
         name: "name",
         type: "text",
@@ -66,7 +66,7 @@ registerMarkupTest({
 registerMarkupTest({
   name: "Test Text readonly DIV question markup",
   json: {
-    questions: [
+    elements: [
       {
         name: "name",
         type: "text",
@@ -84,7 +84,7 @@ registerMarkupTest({
 registerMarkupTest({
   name: "Test Text Date question markup",
   json: {
-    questions: [
+    elements: [
       {
         name: "birthdate",
         type: "text",
@@ -101,7 +101,7 @@ registerMarkupTest({
 registerMarkupTest({
   name: "Test Text Email question markup",
   json: {
-    questions: [
+    elements: [
       {
         name: "email",
         type: "text",
@@ -125,7 +125,7 @@ registerMarkupTest({
   name: "Test Text Data list markup",
   json: {
 
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -140,7 +140,7 @@ registerMarkupTest({
   name: "Test Text numeric mask type markup",
   json: {
 
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",

@@ -15,7 +15,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -82,7 +82,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -119,7 +119,7 @@ frameworks.forEach(framework => {
 
     const panelDynamicJSON = {
       showQuestionNumbers: "off",
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "applications",
@@ -369,7 +369,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "q1",
@@ -398,7 +398,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "q1",
@@ -434,7 +434,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "checkbox",
             title: "Which cities have you visited?",
@@ -455,7 +455,7 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "off",
         "widthMode": "static",
         "width": "60%",
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "contract-type",
@@ -483,7 +483,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "image",
             name: "image_question",
@@ -501,7 +501,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",

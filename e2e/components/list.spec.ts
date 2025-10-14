@@ -86,7 +86,7 @@ frameworks.forEach(framework => {
       if (framework !== "react") return;
 
       const json = {
-        questions: [
+        elements: [
           {
             name: "text",
             type: "text",

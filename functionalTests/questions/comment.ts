@@ -4,7 +4,7 @@ const title = "comment";
 
 const commentQuestion = Selector(".sd-question textarea");
 const json = {
-  questions: [
+  elements: [
     {
       type: "comment",
       name: "suggestions",
@@ -101,7 +101,7 @@ frameworks.forEach(framework => {
       "showQuestionNumbers": "off",
       "widthMode": "static",
       "width": "500px",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",
@@ -160,7 +160,7 @@ frameworks.forEach(framework => {
 
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           name: "comment",
           type: "comment",

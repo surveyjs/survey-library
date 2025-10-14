@@ -7,7 +7,7 @@ frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       const json = {
-        questions: [
+        elements: [
           {
             type: "boolean",
             name: "bool",
@@ -72,7 +72,7 @@ frameworks.forEach((framework) => {
   test.describe(title + ": design time - " + framework, () => {
     test.beforeEach(async ({ page }) => {
       const json = {
-        questions: [
+        elements: [
           {
             type: "boolean",
             name: "bool",
@@ -119,7 +119,7 @@ frameworks.forEach((framework) => {
   test.describe(title + ": custom input - " + framework, () => {
     test("click on question title state editable", async ({ page }) => {
       const json = {
-        questions: [
+        elements: [
           {
             type: "boolean",
             name: "bool",
@@ -140,7 +140,7 @@ frameworks.forEach((framework) => {
     });
     test("test radio boolean", async ({ page }) => {
       const json = {
-        questions: [
+        elements: [
           {
             type: "boolean",
             name: "bool",

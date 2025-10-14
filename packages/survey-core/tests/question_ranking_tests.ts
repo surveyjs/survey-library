@@ -794,7 +794,7 @@ QUnit.test("Ranking: renderedSelectToRankAreasLayout", function (assert) {
 
 QUnit.test("Ranking: check SelectToRankEmptyRankedAreaText & SelectToRankEmptyUnrankedAreaText properties", (assert) => {
   let json: any = {
-    questions: [
+    elements: [
       {
         "type": "ranking",
         "name": "question1",

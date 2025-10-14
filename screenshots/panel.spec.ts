@@ -15,7 +15,7 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -48,7 +48,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "details",
@@ -160,7 +160,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -426,7 +426,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 722, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "panel",
             "name": "panel1",
@@ -460,7 +460,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -497,7 +497,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -537,7 +537,7 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "on",
         width: "900px",
         questionErrorLocation: "bottom",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",
@@ -574,7 +574,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",

@@ -6,7 +6,7 @@ const title = "File Screenshot";
 const json = {
   showQuestionNumbers: "off",
   width: "900px",
-  questions: [{
+  elements: [{
     type: "file",
     title: "Upload everything what you'd like to.",
     name: "file_question",
@@ -259,7 +259,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1000 });
       const json = {
         showQuestionNumbers: "off",
-        questions: [{
+        elements: [{
           type: "file",
           title: "Upload everything what you'd like to.",
           name: "file_question",
@@ -285,7 +285,7 @@ frameworks.forEach(framework => {
       const json = {
         showQuestionNumbers: "on",
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "file",
             name: "q1",
@@ -348,7 +348,7 @@ frameworks.forEach(framework => {
       const json = {
         showQuestionNumbers: "off",
         widthMode: "900px",
-        questions: [{
+        elements: [{
           type: "file",
           title: "Question With Camera",
           allowMultiple: true,

@@ -310,7 +310,7 @@ QUnit.test(
   "Survey.onPropertyValueChangedCallback for calculatedValues, Bug#2604",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -376,7 +376,7 @@ QUnit.test(
 );
 QUnit.test("Use calculated value in text processing", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "text",
         title: "title: {var1}",
@@ -396,7 +396,7 @@ QUnit.test("Use calculated value in text processing", function(assert) {
 });
 QUnit.test("Fire onVariableChanged on changing calculated value", function(assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",

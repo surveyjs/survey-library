@@ -75,7 +75,7 @@ QUnit.test("question isExpanded and isCollapsed", function (assert) {
 
 QUnit.test("element check that title classes are updated after element state updated", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "panel",
         name: "p1",

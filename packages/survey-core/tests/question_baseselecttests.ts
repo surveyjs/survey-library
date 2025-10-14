@@ -22,7 +22,7 @@ function getValuesInColumns(question: QuestionSelectBase) {
 
 QUnit.test("Check QuestionSelectBase columns property", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "Question 1",
@@ -51,7 +51,7 @@ QUnit.test("Check QuestionSelectBase columns property", function (assert) {
 });
 QUnit.test("Check QuestionSelectBase columns property and creator V2", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "Question 1",
@@ -87,7 +87,7 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
 
 QUnit.test("Check QuestionSelectBase head and foot items property", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "Question 1",
@@ -143,7 +143,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   refuseProp.visible = true;
   dontKnowProp.visible = true;
   const json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "Question 1",
@@ -197,7 +197,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
 
 QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "Question 1",
@@ -252,7 +252,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
 QUnit.test("settings.noneItemValue", function (assert) {
   settings.noneItemValue = "n/a";
   const json = {
-    questions: [
+    elements: [
       { name: "q1", type: "dropdown", choices: [1, 2, 3], showNoneItem: true },
       { name: "q1", type: "checkbox", choices: [1, 2, 3], showNoneItem: true }
     ],
@@ -269,7 +269,7 @@ QUnit.test("settings.noneItemValue", function (assert) {
 
 QUnit.test("Set choicesByUrl for checkbox", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -298,7 +298,7 @@ QUnit.test("Set choicesByUrl for checkbox", function (assert) {
 });
 QUnit.test("Bind two checkboxes by valueName, Bug#10344", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -326,7 +326,7 @@ QUnit.test("Bind two checkboxes by valueName, Bug#10344", function (assert) {
 });
 QUnit.test("Bind two checkboxes by valueName & storeOthersAsComment= false, Bug#10344", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -355,7 +355,7 @@ QUnit.test("Bind two checkboxes by valueName & storeOthersAsComment= false, Bug#
 });
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -373,7 +373,7 @@ QUnit.test("check allowhover class in design mode", (assert) => {
 });
 QUnit.test("check item value type", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "dropdown",
         name: "q1",
@@ -410,7 +410,7 @@ QUnit.test("check item value type", (assert) => {
 
 QUnit.test("check item locstring owner and name", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -428,7 +428,7 @@ QUnit.test("check item locstring owner and name", (assert) => {
 
 QUnit.test("check onShowingChoiceItem event", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -456,7 +456,7 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
 });
 QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -489,7 +489,7 @@ QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem"
 
 QUnit.test("check focus comment of other select", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -952,7 +952,7 @@ QUnit.test("checkbox vs valuePropertyName & setValueExpression, Bug#8973", (asse
 
 QUnit.test("check radiogroup title actions", (assert) => {
   let survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -974,7 +974,7 @@ QUnit.test("check radiogroup title actions", (assert) => {
 
 QUnit.test("checkbox and radio css", (assert) => {
   let survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -2360,7 +2360,7 @@ QUnit.test("On value changed, comment and valueName Bug#8137", (assert) => {
 });
 QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -2389,7 +2389,7 @@ QUnit.test("maxSelectedChoices & getItemClass, bug#8159", (assert) => {
 });
 QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
   var json = {
-    questions: [
+    elements: [
       { type: "radiogroup", name: "q1", allowClear: true, choices: ["Item1"] },
       { type: "radiogroup", name: "q2", choices: ["Item1"] }
     ],
@@ -2404,7 +2404,7 @@ QUnit.test("radiogroup.getConditionJson, bug#8226", (assert) => {
 });
 QUnit.test("dropdown.clearValue(true) for showCommentArea & showOtherItem, bug#8226", (assert) => {
   var json = {
-    questions: [
+    elements: [
       { type: "dropdown", name: "q1", showCommentArea: true, choices: [1, 2] },
       { type: "dropdown", name: "q2", showOtherItem: true, choices: [1, 2] },
       { type: "dropdown", name: "q3", showCommentArea: true, showOtherItem: true, choices: [1, 2] },
@@ -3047,7 +3047,7 @@ QUnit.test("storeOthersAsComment: false, add dynamic question vs survey.data, Bu
 });
 QUnit.test("Create multiple choice item for checkbox", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",

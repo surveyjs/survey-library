@@ -4,7 +4,7 @@ registerMarkupTests(
   [{
     name: "Test Boolean question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -19,7 +19,7 @@ registerMarkupTests(
     name: "Test Boolean question markup: Readonly",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -34,7 +34,7 @@ registerMarkupTests(
     name: "Test Boolean question markup: Disabled",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -49,7 +49,7 @@ registerMarkupTests(
   {
     name: "Test Boolean question markup Default V2",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -63,7 +63,7 @@ registerMarkupTests(
   {
     name: "Test Boolean question markup with value Default V2",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -78,7 +78,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Checkbox question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -95,7 +95,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Checkbox question markup: Required",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -111,7 +111,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Checkbox question markup: Readonly",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -130,7 +130,7 @@ registerMarkupTests(
     name: "Test Boolean Checkbox question markup: Disabled",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -146,7 +146,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Checkbox defaultV2",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -161,7 +161,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Checkbox question markup - use svgIcon",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -180,7 +180,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Radio question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           defaultValue: true,
@@ -196,7 +196,7 @@ registerMarkupTests(
   {
     name: "Test Boolean question Radio markup Default V2",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           defaultValue: false,
@@ -213,7 +213,7 @@ registerMarkupTests(
   {
     name: "Test Boolean Radio with true/false values question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           defaultValue: "true_val",
@@ -232,7 +232,7 @@ registerMarkupTests(
     name: "Test Boolean Radio question markup: Readonly",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",
@@ -248,7 +248,7 @@ registerMarkupTests(
     name: "Test Boolean Radio question markup: Disabled",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "boolean",

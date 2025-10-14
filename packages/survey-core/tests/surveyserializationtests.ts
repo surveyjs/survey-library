@@ -61,7 +61,7 @@ QUnit.test("Deserialize two questions", function (assert) {
   survey.addPage(page);
   new JsonObject().toObject(
     {
-      questions: [
+      elements: [
         { type: "text", name: "textQuestion", isRequired: "true" },
         {
           type: "checkbox",
@@ -116,7 +116,7 @@ QUnit.test("Full survey deserialize with one question", function (assert) {
       pages: [
         {
           name: "page1",
-          questions: [
+          elements: [
             { type: "text", name: "textQuestion", isRequired: "true" },
             {
               type: "checkbox",
@@ -143,7 +143,7 @@ QUnit.test(
     var survey = new SurveyModel();
     new JsonObject().toObject(
       {
-        questions: [
+        elements: [
           { type: "text", name: "textQuestion", isRequired: "true" },
           {
             type: "checkbox",
@@ -277,7 +277,7 @@ QUnit.test("Deserialize question with missing name", function (assert) {
   var jsonObj = new JsonObject();
   jsonObj.toObject(
     {
-      questions: [{ type: "text", isRequired: "true" }],
+      elements: [{ type: "text", isRequired: "true" }],
     },
     survey
   );
@@ -655,7 +655,7 @@ QUnit.test(
   "html and expression questions should not have errors, Bug#2359",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         { name: "q1", type: "html", html: "text", isRequired: true },
         { name: "q2", type: "expression", isRequired: true },
       ],
@@ -668,7 +668,7 @@ QUnit.test(
 );
 QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       { name: "q1", type: "dropdown", choices: [1, 2, 3] },
       { name: "q2", type: "matrixdynamic" },
       { name: "q3", type: "dropdown", choicesFromQuestion: "q1" },
@@ -723,7 +723,7 @@ QUnit.test("choiceValuesFromQuestion properties visibility for column in design 
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({
-    questions: [
+    elements: [
       { name: "q1", type: "dropdown", choices: [1, 2, 3] },
       { name: "q2", type: "matrixdynamic" },
       { name: "q3", type: "matrixdropdown",
@@ -765,7 +765,7 @@ QUnit.test("choiceValuesFromQuestion properties visibility for column in design 
 });
 QUnit.test("Allow to save empty string for localization strings", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       { name: "q1", type: "dropdown", choices: [1, 2, 3] }
     ]
   });

@@ -6,7 +6,7 @@ registerMarkupTests(
     {
       name: "Test checkbox question markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -25,7 +25,7 @@ registerMarkupTests(
     {
       name: "Test checkbox question markup Other option",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -49,7 +49,7 @@ registerMarkupTests(
       name: "Test checkbox question markup Other option with maxCommentLength",
       json: {
         "maxOthersLength": 15,
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -66,7 +66,7 @@ registerMarkupTests(
     {
       name: "Test checkbox question markup Other option (defaultV2)",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -86,7 +86,7 @@ registerMarkupTests(
     {
       name: "Test checkbox question markup with comment (defaultV2)",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -111,7 +111,7 @@ registerMarkupTests(
       name: "Test checkbox question markup Read only",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -130,7 +130,7 @@ registerMarkupTests(
     {
       name: "Test radiogroup question markup Disabled",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -151,7 +151,7 @@ registerMarkupTests(
       name: "Test checkbox question Readonly selected",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -171,7 +171,7 @@ registerMarkupTests(
     {
       name: "Test checkbox V2 theme",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -190,7 +190,7 @@ registerMarkupTests(
     {
       name: "Test checkbox modern theme",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -208,7 +208,7 @@ registerMarkupTests(
     {
       name: "Test checkbox columns",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -228,7 +228,7 @@ registerMarkupTests(
     {
       name: "Test checkbox columns in mobile mode",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -251,7 +251,7 @@ registerMarkupTests(
     {
       name: "Test checkbox columns with header and footer",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -275,7 +275,7 @@ registerMarkupTests(
     {
       name: "Test checkbox columns with no header and footer",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -301,7 +301,7 @@ registerMarkupTests(
     {
       name: "Test checkbox row layout with no header and footer",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -325,7 +325,7 @@ registerMarkupTests(
     {
       name: "Test checkbox row layout with header and footer",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",
@@ -349,7 +349,7 @@ registerMarkupTests(
     {
       name: "Test checkbox vs mutliple comments",
       json: {
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "name",

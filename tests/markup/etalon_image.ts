@@ -4,7 +4,7 @@ registerMarkupTest(
   {
     name: "Test Image question markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "image",
           "name": "banner",
@@ -24,7 +24,7 @@ registerMarkupTest(
   {
     name: "Test Image question empty",
     json: {
-      questions: [
+      elements: [
         {
           "type": "image",
           "name": "banner",
@@ -38,7 +38,7 @@ registerMarkupTest(
   {
     name: "Test Image Video question markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "image",
           "name": "banner",
@@ -59,7 +59,7 @@ registerMarkupTest(
   {
     name: "Test Image question doesn't load content",
     json: {
-      questions: [
+      elements: [
         {
           "type": "image",
           "name": "banner",
@@ -80,7 +80,7 @@ registerMarkupTest(
   {
     name: "Test Image question markup with iframe",
     json: {
-      questions: [
+      elements: [
         {
           "type": "image",
           "imageLink": "testurl",

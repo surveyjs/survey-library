@@ -6,7 +6,7 @@ registerMarkupTests(
     {
       name: "Test popup list",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -33,7 +33,7 @@ registerMarkupTests(
     }, {
       name: "Test popup list with subitems",
       json: {
-        questions: [
+        elements: [
           {
             "type": "text",
             "name": "q1",
@@ -62,7 +62,7 @@ registerMarkupTests(
     }, {
       name: "Test popup list with separator",
       json: {
-        questions: [
+        elements: [
           {
             "type": "text",
             "name": "q1",

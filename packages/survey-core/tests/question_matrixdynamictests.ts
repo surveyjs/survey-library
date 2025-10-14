@@ -884,7 +884,7 @@ QUnit.test(
   "Matrixdynamic onMatrixValueChanging - control the value in the cell",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "q1",
@@ -927,7 +927,7 @@ QUnit.test(
 );
 QUnit.test("Matrixdropdown onMatrixValueChanging, bug#5396", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "matrixdropdown",
         name: "q1",
@@ -1009,7 +1009,7 @@ QUnit.test("Matrixdropdown booleanDefaultValue", function (assert) {
 
 QUnit.test("Matrixdropdown defaultValue", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdropdown",
         name: "q1",
@@ -1040,7 +1040,7 @@ QUnit.test("matrixdynamic.defaultValue - check the complex property", function (
   assert
 ) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "matrix",
@@ -1330,7 +1330,7 @@ QUnit.test(
   "Matrixdynamic column.visibleIf, load from json and add item",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           rowCount: 1,
@@ -1358,7 +1358,7 @@ QUnit.test(
   "Matrixdynamic column.visibleIf, hide column if all cells are invisible",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "q1",
@@ -3479,7 +3479,7 @@ QUnit.test(
   "register function on visibleChoices change calls many times, Bug#1622",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "matrix",
@@ -4403,7 +4403,7 @@ QUnit.test(
   "Matrixdynamic column.visibleIf, hide column if all cells are invisible + rendered table",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "q1",
@@ -4477,7 +4477,7 @@ QUnit.test(
     }
     FunctionFactory.Instance.register("newIndexFor", newIndexFor);
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "foo",
@@ -4508,7 +4508,7 @@ QUnit.test(
 );
 QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "q1",
@@ -4550,7 +4550,7 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
 
 QUnit.test("The Remove row button is misaligned when a column is hidden, Bug#10004", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "q1",
@@ -4576,7 +4576,7 @@ QUnit.test("The Remove row button is misaligned when a column is hidden, Bug#100
 
 QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "q1",
@@ -4606,7 +4606,7 @@ QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon",
 
 QUnit.test("column is requriedText, Bug #2297", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "q1",
@@ -4636,7 +4636,7 @@ QUnit.test(
   "two shared matrixdynamic - should be no errors, Bug #T3121 (https://surveyjs.answerdesk.io/ticket/details/T3121)",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "employer_names",
@@ -4764,7 +4764,7 @@ QUnit.test(
   "The row numbers is incorrect after setting the value: survey.data, Bug #1958",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "teachersRate",
@@ -4820,7 +4820,7 @@ QUnit.test(
   "Change question in rendered cell on changing column type, Bug https://github.com/surveyjs/survey-creator/issues/690",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "teachersRate",
@@ -8338,7 +8338,7 @@ QUnit.test(
   "Matrixdynamic onMatrixValueChanging - do not call event on clear empty cell",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "q1",
@@ -8372,7 +8372,7 @@ QUnit.test(
   "Matrixdynamic onMatrixValueChanging - do not call event on set the same renderedValue",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "matrixdynamic",
           name: "q1",
@@ -10736,7 +10736,7 @@ QUnit.test("Validation doesn't work if a user doesn't visit the page, Bug#8937",
 
 QUnit.test("column width settings passed to all rows", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "q1",
@@ -10755,7 +10755,7 @@ QUnit.test("column width settings passed to all rows", function (assert) {
 });
 QUnit.test("cell title renderedHtml is incorrect on adding/removing rows ", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "q1",

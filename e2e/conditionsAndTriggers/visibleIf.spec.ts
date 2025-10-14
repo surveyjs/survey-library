@@ -4,7 +4,7 @@ const title = "visibleIf";
 
 const json = {
   showQuestionNumbers: "off",
-  questions: [
+  elements: [
     {
       type: "radiogroup",
       name: "haveKids",

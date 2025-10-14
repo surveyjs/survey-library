@@ -71,7 +71,7 @@ QUnit.test("QuestionSignaturePadModel dataFormat converters", function (assert) 
 });
 QUnit.test("check allowClear", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1"
@@ -100,7 +100,7 @@ QUnit.test("check allowClear", (assert) => {
 
 QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
   var json: any = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -129,7 +129,7 @@ QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
 //todo: need to remove this test after code modification
 QUnit.test("Check width/height influence on signageWidth/Height properties", (assert) => {
   let json: any = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -150,7 +150,7 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   assert.equal(canvas.height, 300);
 
   json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -165,7 +165,7 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   assert.equal(canvas.width, 300);
 
   json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -190,7 +190,7 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
 
 QUnit.test("check penColor & background color from json", (assert) => {
   const json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -226,7 +226,7 @@ QUnit.test("check penColor & background color from json", (assert) => {
 
 QUnit.test("check penColor & background color from theme", (assert) => {
   const json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -260,7 +260,7 @@ QUnit.test("check penColor & background color from theme", (assert) => {
 
 QUnit.test("check penColor & background color if background image", (assert) => {
   const json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         backgroundImage: "someUrl",
@@ -301,7 +301,7 @@ QUnit.test("check penColor & background color if background image", (assert) => 
 
 QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
   let json: any = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         backgroundImage: "someUrl",
@@ -335,7 +335,7 @@ QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
   assert.equal(question.locRenderedPlaceholder.renderedHtml, "empty sign");
 
   json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         backgroundImage: "someUrl",
@@ -365,7 +365,7 @@ QUnit.test("check placeholder property visibility", (assert) => {
 
 QUnit.test("check rendered size properties", (assert) => {
   const json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1",
@@ -392,7 +392,7 @@ QUnit.test("check rendered size properties", (assert) => {
 
 QUnit.test("Question Signature upload files", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -458,7 +458,7 @@ QUnit.test("Question Signature upload files", function (assert) {
 
 QUnit.test("Question Signature upload files - and complete", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -502,7 +502,7 @@ QUnit.test("Question Signature upload files - and complete", function (assert) {
 
 QUnit.test("Question Signature pad invisible - on complete", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "text"
@@ -526,7 +526,7 @@ QUnit.test("Check signature download file event", (assert) => {
   var canv = document.createElement("canvas");
   el.appendChild(canv);
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -564,7 +564,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   var canv = document.createElement("canvas");
   el.appendChild(canv);
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -610,7 +610,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
 
 QUnit.test("Check storeDataAsText: false and base64 data", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -635,7 +635,7 @@ QUnit.test("Check storeDataAsText: false and base64 data", (assert) => {
 QUnit.test("Check storeDataAsText: false and no download file callback and incorrect link passed", (assert) => {
   const done = assert.async();
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -666,7 +666,7 @@ QUnit.test("Check signature image cached in loadedData and loaded only once unti
   var canv = document.createElement("canvas");
   el.appendChild(canv);
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "signature",
@@ -764,7 +764,7 @@ QUnit.test("Check signature image cached in loadedData and loaded only once unti
 QUnit.test("do not init in design mode", (assert) => {
   var el = document.createElement("div");
   var json = {
-    questions: [
+    elements: [
       {
         type: "signaturepad",
         name: "q1"

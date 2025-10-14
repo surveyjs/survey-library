@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "question1",
@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "question12",
@@ -62,7 +62,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "tagbox",
@@ -93,7 +93,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "q1",
@@ -120,7 +120,7 @@ frameworks.forEach(framework => {
       });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "question1",
@@ -148,7 +148,7 @@ frameworks.forEach(framework => {
 
       const json = {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "tagbox",
@@ -186,7 +186,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "tagbox",
@@ -239,7 +239,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 900 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "tagbox",
@@ -257,7 +257,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "tagbox",
@@ -278,7 +278,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
         mode: "display",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "q1",
@@ -314,7 +314,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 900 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "tagbox",

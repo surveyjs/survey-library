@@ -8,7 +8,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "renderAs": "select",
@@ -28,7 +28,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question markup Show options caption false",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "renderAs": "select",
@@ -49,7 +49,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question markup Other option",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "renderAs": "select",
@@ -74,7 +74,7 @@ registerMarkupTests(
       name: "Test Dropdown question renderAs select markup Read only",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "renderAs": "select",
@@ -95,7 +95,7 @@ registerMarkupTests(
       name: "Test Dropdown question renderAs select Readonly selected",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "renderAs": "select",
@@ -117,7 +117,7 @@ registerMarkupTests(
       name: "Test Dropdown question markup Read only",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -137,7 +137,7 @@ registerMarkupTests(
       name: "Test Dropdown question markup Read only with value",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -157,7 +157,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question markup disabled without value",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -177,7 +177,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question markup disabled with value",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -198,7 +198,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown Select question markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -217,7 +217,7 @@ registerMarkupTests(
     }, {
       name: "Test Dropdown Select question markup - touch",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -248,7 +248,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown Select question with clear button markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -268,7 +268,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question with markdown markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -295,7 +295,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question with other selected item",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -317,7 +317,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question with none selected item",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -338,7 +338,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question input string",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -371,7 +371,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question without textWrapEnabled",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -404,7 +404,7 @@ registerMarkupTests(
     {
       name: "Test Dropdown question input focused",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",
@@ -431,7 +431,7 @@ registerMarkupTests(
     {
       name: "Test dropdown aria-expanded",
       json: {
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "name",

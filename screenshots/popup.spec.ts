@@ -5,7 +5,7 @@ const title = "Popup Screenshot";
 
 const json = {
   showQuestionNumbers: "off",
-  questions: [
+  elements: [
     {
       name: "often",
       type: "radiogroup",

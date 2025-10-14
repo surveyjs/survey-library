@@ -23,7 +23,7 @@ frameworks.forEach(framework => {
         headerView: "basic",
         title: "Survey Title",
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -49,7 +49,7 @@ frameworks.forEach(framework => {
         description: "Survey description",
         logo: upArrowImageLink,
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -72,7 +72,7 @@ frameworks.forEach(framework => {
         description: "Survey description",
         logo: upArrowImageLink,
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -95,7 +95,7 @@ frameworks.forEach(framework => {
         description: "Survey description",
         logo: upArrowImageLink,
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -958,7 +958,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "panel",
             name: "delivery_details",

@@ -118,7 +118,7 @@
 //   test("check list filter", async t => {
 
 //     await initSurvey(framework, {
-//       questions: [
+//       elements: [
 //         {
 //           name: "text",
 //           type: "text",

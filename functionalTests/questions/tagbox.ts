@@ -8,7 +8,7 @@ const singleListItemHeight = 56;
 const jsonCloseOnSelectIsTrue = {
   focusFirstQuestionAutomatic: true,
   showQuestionNumbers: "off",
-  questions: [
+  elements: [
     {
       type: "tagbox",
       name: "question1",
@@ -50,7 +50,7 @@ const jsonCloseOnSelectIsTrue = {
 const jsonCloseOnSelectIsDefault = {
   focusFirstQuestionAutomatic: true,
   showQuestionNumbers: "off",
-  questions: [
+  elements: [
     {
       type: "tagbox",
       name: "question1",
@@ -185,7 +185,7 @@ frameworks.forEach((framework) => {
   test("tagbox popup position recalculate", async (t) => {
     await initSurvey(framework, {
       showQuestionNumbers: "off",
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "question1",
@@ -532,7 +532,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check popup height with lazy loading", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "country",
@@ -629,7 +629,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check popup height and position while searching", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "country",
@@ -762,7 +762,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "country",
@@ -859,7 +859,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     const json = {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "country",
@@ -992,7 +992,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check tagbox popup opens after beak click", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "cars",
@@ -1038,7 +1038,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check tagbox popup opens after beak click - search enabled", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "tagbox",
           name: "cars",

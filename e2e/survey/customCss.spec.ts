@@ -3,7 +3,7 @@ import { frameworks, url, initSurvey, test, expect } from "../helper";
 const title = "customCss";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "matrix",
       name: "Quality",

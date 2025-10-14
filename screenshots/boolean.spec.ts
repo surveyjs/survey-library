@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [{ type: "boolean", name: "boolean_question", },]
+        elements: [{ type: "boolean", name: "boolean_question", },]
       });
       const questionRoot = page.locator(".sd-question--boolean");
       await page.waitForTimeout(1000);
@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1600, height: 800 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [{ type: "boolean", name: "boolean_question", swapOrder: true },] });
+        elements: [{ type: "boolean", name: "boolean_question", swapOrder: true },] });
       const questionRoot = page.locator(".sd-question--boolean");
       await page.waitForTimeout(1000);
       await resetFocusToBody(page);
@@ -75,7 +75,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "boolean",
             name: "boolean_question",
@@ -104,7 +104,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         focusFirstQuestionAutomatic: true,
-        questions: [
+        elements: [
           {
             type: "boolean",
             name: "boolean_question",

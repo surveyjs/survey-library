@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             "type": "expression",
             "name": "q1",

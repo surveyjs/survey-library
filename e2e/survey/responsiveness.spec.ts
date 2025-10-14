@@ -7,7 +7,7 @@ frameworks.forEach((framework) => {
     test("check survey root class on isMobile switch", async ({ page }) => {
       await page.goto(`${url}${framework}`);
 
-      const json = { questions: [{ type: "text", name: "q1", },], };
+      const json = { elements: [{ type: "text", name: "q1", },], };
       await initSurvey(page, framework, json);
       await page.setViewportSize({ width: 1000, height: 1000 });
       await page.evaluate(() => {

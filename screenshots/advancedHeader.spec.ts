@@ -21,7 +21,7 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -54,7 +54,7 @@ frameworks.forEach(framework => {
         "widthMode": "static",
         "width": "600",
         headerView: "advanced",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -96,7 +96,7 @@ frameworks.forEach(framework => {
         "width": "600",
         headerView: "advanced",
         showTOC: true,
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",
@@ -132,7 +132,7 @@ frameworks.forEach(framework => {
         focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
-        questions: [
+        elements: [
           {
             type: "text",
             title: "Question title",

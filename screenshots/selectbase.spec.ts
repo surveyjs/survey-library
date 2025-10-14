@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "checkbox",
             title: "Which cities have you visited?",
@@ -46,7 +46,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "checkbox",
             title: "Which cities have you visited?",
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "radiogroup",
             "name": "car",
@@ -117,7 +117,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "radiogroup",
             title: "Which city have you visited?",

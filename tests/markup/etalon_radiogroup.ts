@@ -5,7 +5,7 @@ registerMarkupTests(
   [{
     name: "Test radiogroup question markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -24,7 +24,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup question markup Other option",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -48,7 +48,7 @@ registerMarkupTests(
     name: "Test radiogroup question markup Read only",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -67,7 +67,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup question markup Disabled",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -88,7 +88,7 @@ registerMarkupTests(
     name: "Test radiogroup question Readonly selected",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -108,7 +108,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup V2 theme",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -127,7 +127,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup modern theme",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -146,7 +146,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup clear button",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -165,7 +165,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup columns",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -185,7 +185,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup columns in mobile mode",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -208,7 +208,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup columns with header and footer",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -231,7 +231,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup columns with no header and footer",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -256,7 +256,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup row with header and footer",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -279,7 +279,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup row with no header and footer",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",
@@ -302,7 +302,7 @@ registerMarkupTests(
   {
     name: "Test radiogroup vs mutliple comments",
     json: {
-      questions: [
+      elements: [
         {
           "type": "radiogroup",
           "name": "name",

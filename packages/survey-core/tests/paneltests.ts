@@ -53,7 +53,7 @@ QUnit.test("load page from json with old questions", function (assert) {
   const jsonObject = new JsonObject();
   jsonObject.toObject(
     {
-      questions: [
+      elements: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
       ],
@@ -1120,7 +1120,7 @@ QUnit.test(
   function (assert) {
 
     const json = {
-      "questions": [
+      "elements": [
         {
           "name": "signature",
           "type": "signaturepad",

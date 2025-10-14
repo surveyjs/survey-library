@@ -1587,7 +1587,7 @@ QUnit.test(
   function (assert) {
     var json = {
       storeOthersAsComment: false,
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "q1",
@@ -3165,7 +3165,7 @@ QUnit.test(
   "Multipletext, item isRequired, make item question isRequired, bug #1983",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "multipletext",
           name: "q1",
@@ -3345,7 +3345,7 @@ QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
 });
 QUnit.test("question.paddingLeft from json and defaultV2", function (assert) {
   const survey = new SurveyModel({
-    questions: [{ type: "text", name: "q1", indent: 1 }],
+    elements: [{ type: "text", name: "q1", indent: 1 }],
   });
   const question = <Question>survey.getQuestionByName("q1");
   assert.equal(question.paddingLeft, "20px");
@@ -3559,7 +3559,7 @@ QUnit.test(
   function (assert) {
     var json = {
       storeOthersAsComment: false,
-      questions: [
+      elements: [
         {
           storeOthersAsComment: true,
           type: "radiogroup",
@@ -3626,7 +3626,7 @@ QUnit.test("Could not assign validators", function (assert) {
 
 QUnit.test("Radio group comment without hasOther, Bug #1747", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -3651,7 +3651,7 @@ QUnit.test("Radio group comment without hasOther, Bug #1747", function (assert) 
 
 QUnit.test("other's comment value is properly set from data", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "q1",
@@ -4076,7 +4076,7 @@ QUnit.test("QuestionImagePickerModel and disable imageLink localization", functi
 });
 
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
-  var json = { title: "title", questions: [{ type: "text", name: "q" }] };
+  var json = { title: "title", elements: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);
   var question = survey.getQuestionByName("q");
   var counter = 0;
@@ -4112,7 +4112,7 @@ QUnit.test("Question.addError(SurveyError|string)", function (assert) {
 QUnit.test("QuestionText min/max value and renderedMin/renderedMax", function (
   assert
 ) {
-  var survey = new SurveyModel({ questions: [{ type: "text", name: "q" }] });
+  var survey = new SurveyModel({ elements: [{ type: "text", name: "q" }] });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.min, undefined, "Empty min");
   assert.equal(question.max, undefined, "Empty max");
@@ -4143,7 +4143,7 @@ function getDateStr(date: Date): string {
 }
 QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
   var survey = new SurveyModel({
-    questions: [{ type: "text", name: "q", max: "=today()" }],
+    elements: [{ type: "text", name: "q", max: "=today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   const date = new Date();
@@ -4153,7 +4153,7 @@ QUnit.test("QuestionText renderedMin/renderedMax, today()", function (assert) {
 });
 QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
   var survey = new SurveyModel({
-    questions: [{ type: "text", name: "q", maxValueExpression: "today()" }],
+    elements: [{ type: "text", name: "q", maxValueExpression: "today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   const date = new Date();
@@ -4167,7 +4167,7 @@ QUnit.test("QuestionText max/maxValueExpression, today()", function (assert) {
 });
 QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", function (assert) {
   const survey = new SurveyModel({
-    questions: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
+    elements: [{ type: "text", name: "q", minValueExpression: "today()", maxValueExpression: "today(10)" }],
   });
   const question = <QuestionTextModel>survey.getQuestionByName("q");
   const date = new Date();
@@ -4190,7 +4190,7 @@ QUnit.test("QuestionText mixValueExpression/maxValueExpression, today()", functi
 });
 QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
   var survey = new SurveyModel({
-    questions: [{ type: "text", name: "q", min: "=today()" }],
+    elements: [{ type: "text", name: "q", min: "=today()" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(
@@ -4210,7 +4210,7 @@ QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
 });
 QUnit.test("QuestionText min/maxValueExpression, today()", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", inputType: "date", name: "q1" },
       {
         type: "text",
@@ -4229,7 +4229,7 @@ QUnit.test(
   "QuestionText min/max do not allow to set value to survey if values are not in the range",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         { type: "text", name: "q1", inputType: "number", min: 3, max: 10 },
         {
           type: "text",
@@ -4344,7 +4344,7 @@ QUnit.test("QuestionText min/max properties and global setting", function (
   settings.minDate = "1900-01-01";
   settings.maxDate = "2100-01-01";
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", inputType: "date", name: "q1", min: "2020-01-01" },
       { type: "text", inputType: "date", name: "q2", max: "2030-01-01" },
     ],
@@ -4362,7 +4362,7 @@ QUnit.test("QuestionText min/max properties and global setting", function (
 
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
-    questions: [{ type: "text", name: "q", defaultValue: "=1+2" }],
+    elements: [{ type: "text", name: "q", defaultValue: "=1+2" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.notOk(question.defaultValue, "defaultValue is empty");
@@ -4375,7 +4375,7 @@ QUnit.test("Question defaultValue as expression", function (assert) {
 });
 QUnit.test("Question defaultValueExpression", function (assert) {
   var survey = new SurveyModel({
-    questions: [{ type: "text", name: "q", defaultValueExpression: "1+2" }],
+    elements: [{ type: "text", name: "q", defaultValueExpression: "1+2" }],
   });
   var question = <QuestionTextModel>survey.getQuestionByName("q");
   assert.equal(question.value, 3, "run expression");
@@ -4391,7 +4391,7 @@ QUnit.test("Question defaultValueExpression with async function", function (
   FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
 
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", name: "q1", defaultValue: 1 },
       { type: "text", name: "q2", defaultValueExpression: "asyncFunc({q1})" },
     ],
@@ -6433,7 +6433,7 @@ QUnit.test("Checkbox item, others  and visibleIf bug, #3694", (assert) => {
 });
 QUnit.test("SelectBase otherPlaceHolder localized", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "car",
@@ -6460,7 +6460,7 @@ QUnit.test("SelectBase otherPlaceHolder localized", function (assert) {
 });
 QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "satisfaction",
@@ -6486,7 +6486,7 @@ QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
 });
 QUnit.test("Dropdown optionsCaption localization", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "dropdown",
         name: "q1"
@@ -6503,7 +6503,7 @@ QUnit.test("Dropdown optionsCaption localization", function (assert) {
 });
 QUnit.test("multipletext placeholder localization", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         "type": "multipletext",
         "name": "question1",
@@ -6557,7 +6557,7 @@ QUnit.test("placeholder localization, question in run-time", function (assert) {
 });
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", clearIfInvisible: "none" },
       { type: "text", name: "q3", clearIfInvisible: "onHidden" },
@@ -6585,7 +6585,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onCom
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'", function (assert) {
   var survey = new SurveyModel({
     clearInvisibleValues: "none",
-    questions: [
+    elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", clearIfInvisible: "none" },
       { type: "text", name: "q3", clearIfInvisible: "onHidden" },
@@ -6613,7 +6613,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='none'
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHidden'", function (assert) {
   var survey = new SurveyModel({
     clearInvisibleValues: "onHidden",
-    questions: [
+    elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", clearIfInvisible: "none" },
       { type: "text", name: "q3", clearIfInvisible: "onHidden" },
@@ -6641,7 +6641,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHiddenContainer'", function (assert) {
   var survey = new SurveyModel({
     clearInvisibleValues: "onHiddenContainer",
-    questions: [
+    elements: [
       {
         type: "panel", name: "panel",
         elements: [
@@ -6670,7 +6670,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
 });
 QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "panel", name: "panel",
         elements: [

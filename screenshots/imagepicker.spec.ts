@@ -16,7 +16,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         widthMode: "static",
-        questions: [
+        elements: [
           {
             type: "imagepicker",
             name: "choosepicture",
@@ -53,7 +53,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "imagepicker",
             name: "choosepicture",
@@ -94,7 +94,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "imagepicker",
             name: "choosepicture",
@@ -160,7 +160,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             "type": "imagepicker",
             "name": "question1",

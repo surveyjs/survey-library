@@ -8,7 +8,7 @@ frameworks.forEach((framework) => {
   test("Save unmasked value", async (t) => {
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -33,7 +33,7 @@ frameworks.forEach((framework) => {
   test("Cursor position on click", async (t) => {
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -142,7 +142,7 @@ frameworks.forEach((framework) => {
     await setTimeZoneUnsafe(t, "America/Los_Angeles");
     await initSurvey(framework, {
       focusFirstQuestionAutomatic: true,
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",

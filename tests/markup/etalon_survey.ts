@@ -6,7 +6,7 @@ registerMarkupTests(
     {
       name: "Test Survey navigation custom buttons",
       json: {
-        questions: [
+        elements: [
           {
             "type": "html",
             "name": "q1",
@@ -31,7 +31,7 @@ registerMarkupTests(
     }, {
       name: "Test Survey theme css variables",
       json: {
-        questions: [
+        elements: [
           {
             "type": "html",
             "name": "q1",
@@ -54,7 +54,7 @@ registerMarkupTests(
     }, {
       name: "Test Survey language and direction",
       json: {
-        questions: [
+        elements: [
           {
             "type": "html",
             "name": "q1",
@@ -81,7 +81,7 @@ registerMarkupTests(
         backgroundImageFit: "cover",
         backgroundImageAttachment: "fixed",
         backgroundOpacity: 0.4,
-        questions: [
+        elements: [
           {
             "type": "html",
             "name": "q1",

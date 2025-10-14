@@ -80,7 +80,7 @@ QUnit.test("Check youtube video imagelink", function (assert) {
 
 QUnit.test("Image adaptive mode", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "image",
         name: "q1"
@@ -117,7 +117,7 @@ QUnit.test("Image question correct youtube url", function (assert) {
   question.imageLink = "https://www.youtube.com/watch?v=-5CdAup0o-I2";
   assert.equal(question.locImageLink.renderedHtml, "https://www.youtube.com/embed/-5CdAup0o-I2");
   const json = {
-    questions: [
+    elements: [
       {
         type: "image",
         name: "q1",
@@ -132,7 +132,7 @@ QUnit.test("Image question correct youtube url", function (assert) {
 
 QUnit.test("Image question: check image size css values", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "image",
         name: "q1",

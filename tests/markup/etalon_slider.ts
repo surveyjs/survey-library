@@ -5,7 +5,7 @@ registerMarkupTests(
     {
       name: "Slider: Single Mode",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "slider",
@@ -19,7 +19,7 @@ registerMarkupTests(
     {
       name: "Slider: Default Value: Single Mode",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "slider",
@@ -34,7 +34,7 @@ registerMarkupTests(
     {
       name: "Slider: Range Mode",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "slider",
@@ -48,7 +48,7 @@ registerMarkupTests(
     {
       name: "Slider: Default Value: Range Mode",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "slider",
@@ -63,7 +63,7 @@ registerMarkupTests(
     {
       name: "Slider: Read-Only: Single Mode",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "slider",
@@ -79,7 +79,7 @@ registerMarkupTests(
     {
       name: "Slider: Read-Only: Range Mode",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "slider",
@@ -95,7 +95,7 @@ registerMarkupTests(
     {
       name: "Slider: Custom Labels",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             "type": "slider",
@@ -117,7 +117,7 @@ registerMarkupTests(
     // {
     //   name: "Slider: Error State: Single Mode",
     //   json: {
-    //     questions: [
+    //     elements: [
     //       {
     //         name: "name",
     //         type: "slider",
@@ -136,7 +136,7 @@ registerMarkupTests(
     // {
     //   name: "Slider: Error State: Range Mode",
     //   json: {
-    //     questions: [
+    //     elements: [
     //       {
     //         name: "name",
     //         type: "slider",

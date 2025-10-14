@@ -95,7 +95,7 @@ const json = {
   pages: [
     {
       title: "What operating system do you use?",
-      questions: [
+      elements: [
         {
           type: "checkbox",
           name: "opSystem",
@@ -108,7 +108,7 @@ const json = {
     },
     {
       title: "What language(s) are you currently using?",
-      questions: [
+      elements: [
         {
           type: "checkbox",
           name: "langs",
@@ -152,7 +152,7 @@ const json = {
     },
     {
       title: "Please enter your name and e-mail",
-      questions: [
+      elements: [
         { type: "text", name: "name", title: "Name:" },
         { type: "text", name: "email", title: "Your e-mail" }
       ]

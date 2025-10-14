@@ -370,7 +370,7 @@ QUnit.test("check question width if column width is set for only one column", fu
 QUnit.test("effectiveColSpan #1", assert => {
   const surveyModel = new SurveyModel({
     gridLayoutEnabled: true,
-    "questions": [
+    "elements": [
       { "type": "text", "name": "q1" },
       {
         "type": "text",
@@ -675,7 +675,7 @@ QUnit.test("gridLayoutColumns: serialize last column", assert => {
 QUnit.test("gridLayoutColumns: questions with visibleIf", assert => {
   const json = {
     gridLayoutEnabled: true,
-    "questions": [
+    "elements": [
       { "type": "text", "name": "q1" },
       {
         "type": "radiogroup",

@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
@@ -33,7 +33,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             name: "ranking_question",
@@ -49,7 +49,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             name: "ranking_question",
@@ -67,7 +67,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
@@ -84,7 +84,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
@@ -133,7 +133,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "ranking question",
@@ -159,7 +159,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "ranking question",
@@ -185,7 +185,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             title: "ranking question",
@@ -224,7 +224,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",
@@ -249,7 +249,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             name: "ranking_question",
@@ -268,7 +268,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "ranking",
             name: "ranking_question",

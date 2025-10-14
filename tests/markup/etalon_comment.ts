@@ -5,7 +5,7 @@ registerMarkupTests(
   [{
     name: "Test Comment question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",
@@ -21,7 +21,7 @@ registerMarkupTests(
     name: "Test Comment question Read-only markup",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",
@@ -36,7 +36,7 @@ registerMarkupTests(
   {
     name: "Test Comment question disabled markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",
@@ -53,7 +53,7 @@ registerMarkupTests(
     name: "Test Comment question Read-only DIV markup",
     json: {
       mode: "display",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",
@@ -71,7 +71,7 @@ registerMarkupTests(
   {
     name: "Test Comment question allowResize is false",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",

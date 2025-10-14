@@ -8,7 +8,7 @@ const getSurveyWithLogoTitleAndDescription = () => new SurveyModel({
   description: "Survey Description",
   logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
   logoPosition: "right",
-  questions: [
+  elements: [
     {
       name: "signature",
       type: "signaturepad",

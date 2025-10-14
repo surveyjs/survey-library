@@ -45,7 +45,7 @@ const json = {
     },
     { type: "visible", name: "type", value: "other", questions: ["otherType"] }
   ],
-  questions: [
+  elements: [
     {
       type: "radiogroup",
       name: "type",

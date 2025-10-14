@@ -16,7 +16,7 @@ export default QUnit.module("DragDropHelper Tests");
 
 function getNewQuestion(choices?: string[]) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "checkbox",
         name: "Question 1",
@@ -30,7 +30,7 @@ function getNewQuestion(choices?: string[]) {
 
 function getNewRankingQuestion() {
   const json = {
-    questions: [
+    elements: [
       {
         type: "ranking",
         name: "Question 1",
@@ -761,7 +761,7 @@ QUnit.test("rows: check events matrixdynamic d&d between different matrices in d
 
 QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "ranking",
         name: "q1",

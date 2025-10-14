@@ -14,7 +14,7 @@ import { setOldTheme } from "./oldTheme";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -32,7 +32,7 @@ QUnit.test("check allowhover class in design mode", (assert) => {
 
 QUnit.test("check rating default items has owner and owner property name", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -47,7 +47,7 @@ QUnit.test("check rating default items has owner and owner property name", (asse
 });
 QUnit.test("check rating processResponsiveness", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -68,7 +68,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
   contentElement.className = "sd-scrollable-container";
   rootElement.append(contentElement);
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -115,7 +115,7 @@ QUnit.test("check rating resize observer behavior", (assert) => {
   }
   );
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -162,7 +162,7 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
     return q1["onPropChangeFunctions"].filter(item => item.name == "state" && item.key == "for-responsiveness")[0];
   };
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -184,7 +184,7 @@ QUnit.test("check rating in case of state 'collapsed'", (assert) => {
 });
 QUnit.test("check rating displayMode", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -207,7 +207,7 @@ QUnit.test("check rating displayMode", (assert) => {
 });
 QUnit.test("do not process reponsiveness when required width differs from avalailable less then 2px: #4554", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -229,7 +229,7 @@ QUnit.test("do not process reponsiveness when required width differs from avalai
 QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set renderAs 'dropdown'", (assert) => {
   RendererFactory.Instance.registerRenderer("rating", "dropdown", "test-renderer");
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -258,7 +258,7 @@ QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set ren
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -274,7 +274,7 @@ QUnit.test("check getItemClass in display mode", (assert) => {
 });
 QUnit.test("Check numeric item values recalculation", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -294,7 +294,7 @@ QUnit.test("Check numeric item values recalculation", (assert) => {
 
 QUnit.test("Check rateValues on text change", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -314,7 +314,7 @@ QUnit.test("Check rateValues on text change", (assert) => {
 });
 QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -350,7 +350,7 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
 });
 QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -380,7 +380,7 @@ QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) =>
 });
 QUnit.test("check stars highlighting", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "stars",
@@ -436,7 +436,7 @@ QUnit.test("check stars highlighting", (assert) => {
 
 QUnit.test("check stars highlighting design mode", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "stars",
@@ -467,7 +467,7 @@ QUnit.test("check stars highlighting design mode", (assert) => {
 
 QUnit.test("check stars highlighting on touch device", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "stars",
@@ -500,7 +500,7 @@ QUnit.test("check stars highlighting on touch device", (assert) => {
 
 QUnit.test("check stars styles", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "stars",
@@ -535,7 +535,7 @@ QUnit.test("check stars styles", (assert) => {
 QUnit.test("check smiley styles", (assert) => {
 
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "smileys",
@@ -683,7 +683,7 @@ QUnit.test("check smileys for min/max", (assert) => {
 QUnit.test("check smileys styles", (assert) => {
 
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "smileys",
@@ -716,7 +716,7 @@ QUnit.test("check smileys styles", (assert) => {
 
 QUnit.test("check styles on event", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -742,7 +742,7 @@ QUnit.test("check styles on event", (assert) => {
 
 QUnit.test("rating smileys max item count", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         rateType: "smileys",
@@ -770,7 +770,7 @@ QUnit.test("rating smileys max item count", (assert) => {
 QUnit.test("check fixed width styles", (assert) => {
 
   var json = {
-    questions: [
+    elements: [
       {
         "type": "rating",
         "name": "q1",
@@ -798,7 +798,7 @@ QUnit.test("check fixed width styles", (assert) => {
 QUnit.test("check fixed width styles - rate values", (assert) => {
 
   var json = {
-    questions: [
+    elements: [
       {
         "type": "rating",
         "name": "q1",
@@ -833,7 +833,7 @@ QUnit.test("check fixed width styles - rate values", (assert) => {
 
 QUnit.test("rateCount changing rateMin/rateMax", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1"
@@ -853,7 +853,7 @@ QUnit.test("rateCount changing rateMin/rateMax", (assert) => {
 
 QUnit.test("rateMin/rateMax/rateStep changing rateCount", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1"
@@ -887,7 +887,7 @@ QUnit.test("rateMin/rateMax/rateStep changing rateCount", (assert) => {
 
 QUnit.test("rateStep changing rateMax", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1"
@@ -915,7 +915,7 @@ QUnit.test("rateStep changing rateMax", (assert) => {
 
 QUnit.test("rateValues changing rateCount", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -933,7 +933,7 @@ QUnit.test("rateValues changing rateCount", (assert) => {
 
 QUnit.test("rateCount changing rateValues", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -953,7 +953,7 @@ QUnit.test("rateCount changing rateValues", (assert) => {
 
 QUnit.test("rateMin/rateMax/rateStep does not change rateValues and rateCount", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -984,7 +984,7 @@ QUnit.test("rate params loading from json", (assert) => {
   const survey = new SurveyModel();
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -999,7 +999,7 @@ QUnit.test("rate params loading from json", (assert) => {
   assert.equal(q1.rateMax, 7, "rateCount, rateMin -> rateMax");
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1014,7 +1014,7 @@ QUnit.test("rate params loading from json", (assert) => {
   assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1030,7 +1030,7 @@ QUnit.test("rate params loading from json", (assert) => {
   assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1049,7 +1049,7 @@ QUnit.test("rate params loading from json", (assert) => {
 
 QUnit.test("autoGenerate change creates rateValues", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1"
@@ -1068,7 +1068,7 @@ QUnit.test("autoGenerate change creates rateValues", (assert) => {
 
 QUnit.test("when autoGenerate true rateValues ignored", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1087,7 +1087,7 @@ QUnit.test("rate autoGenerate loading from json", (assert) => {
   const survey = new SurveyModel();
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1101,7 +1101,7 @@ QUnit.test("rate autoGenerate loading from json", (assert) => {
   assert.equal(q1.visibleRateValues.length, 6);
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1117,7 +1117,7 @@ QUnit.test("rate autoGenerate loading from json", (assert) => {
   assert.equal(q1.visibleRateValues.length, 3);
 
   survey.setJsonObject({
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1458,7 +1458,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 
 QUnit.test("check rating in-matrix mode styles", (assert) => {
 
-  const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1" }] });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q";
   q1.cssClasses.rootLabelsTop = "sv_q__top";
@@ -1471,7 +1471,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 
 QUnit.test("check rating display-mode styles", (assert) => {
 
-  const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
+  const survey = new SurveyModel({ elements: [{ type: "rating", name: "q1" }] });
   const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
   q1.cssClasses.root = "sv_q-root";
   q1.cssClasses.rootWrappable = "sv_q-root__wrap";
@@ -1501,7 +1501,7 @@ QUnit.test("check rating triggerResponsiveness method", (assert) => {
   document.body.appendChild(rootElement);
 
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1612,7 +1612,7 @@ QUnit.test("check rating in-matrix pre-defined items", (assert) => {
 
 QUnit.test("show only 10 items when switching to smileys mode", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1"
@@ -1638,7 +1638,7 @@ QUnit.test("show only 10 items when switching to smileys mode", (assert) => {
 
 QUnit.test("rating items custom component", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1"
@@ -1653,7 +1653,7 @@ QUnit.test("rating items custom component", (assert) => {
   assert.equal(q1.itemComponent, "sv-rating-dropdown-item");
 
   var json2 = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "q1",
@@ -1878,7 +1878,7 @@ QUnit.test("Rating: check in matrix mode", (assert) => {
 
 QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appear for rateValues", (assert) => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "rating",
         "name": "q1",

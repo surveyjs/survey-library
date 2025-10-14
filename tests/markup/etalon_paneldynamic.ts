@@ -5,7 +5,7 @@ registerMarkupTests(
   [{
     name: "Test paneldynamic with old navigation (progressTop) markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -21,7 +21,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic (progressTop) markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -37,7 +37,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic with old navigation (progressBottom) markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -53,7 +53,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic (progressBottom) markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -69,7 +69,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic with old navigation (list) markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -85,7 +85,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic (list) #1 markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -101,7 +101,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic (list) #2 markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -128,7 +128,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic (list) #3 markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -153,7 +153,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic do not render empty footer (do not allow add) markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "paneldynamic",
           "name": "question1",
@@ -179,7 +179,7 @@ registerMarkupTests(
   {
     name: "Test paneldynamic do not render empty footer (max panels reached) markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "paneldynamic",
           "name": "question1",
@@ -205,7 +205,7 @@ registerMarkupTests(
   }, {
     name: "Test paneldynamic (tab) markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -225,7 +225,7 @@ registerMarkupTests(
   }, {
     name: "Test paneldynamic (tab) tabAlign right markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",
@@ -246,7 +246,7 @@ registerMarkupTests(
   }, {
     name: "Test paneldynamic (tab) tabAlign left markup",
     json: {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "pd",

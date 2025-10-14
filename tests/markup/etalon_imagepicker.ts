@@ -5,7 +5,7 @@ registerMarkupTests(
   [{
     name: "Test image picker question markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -32,7 +32,7 @@ registerMarkupTests(
   {
     name: "Test image picker question MULTISELECT markup",
     json: {
-      questions: [
+      elements: [
         {
           multiSelect: true,
           "type": "imagepicker",
@@ -60,7 +60,7 @@ registerMarkupTests(
   {
     name: "Test image picker question VIDEO markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
 
@@ -90,7 +90,7 @@ registerMarkupTests(
   {
     name: "Test image picker question Labels markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -118,7 +118,7 @@ registerMarkupTests(
   {
     name: "Test image picker no-image markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -147,7 +147,7 @@ registerMarkupTests(
   {
     name: "Test image picker no-image V2 markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -177,7 +177,7 @@ registerMarkupTests(
   {
     name: "Test image picker colCount 2, V2 markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -206,7 +206,7 @@ registerMarkupTests(
   {
     name: "Test image picker colCount 1, V2 markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -235,7 +235,7 @@ registerMarkupTests(
   {
     name: "Test image picker readonly question markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",
@@ -260,7 +260,7 @@ registerMarkupTests(
   {
     name: "Test image picker disabled question markup",
     json: {
-      questions: [
+      elements: [
         {
           "type": "imagepicker",
           "name": "question1",

@@ -4,7 +4,7 @@ registerMarkupTest(
   {
     name: "Test Expression question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "expression",

@@ -10,7 +10,7 @@ const json = {
   pages: [
     {
       title: "This is the page {pageno} of {pagecount}.",
-      questions: [
+      elements: [
         {
           type: "text",
           name: "name",
@@ -28,7 +28,7 @@ const json = {
     },
     {
       title: "This is the page {pageno} of {pagecount}.",
-      questions: [
+      elements: [
         {
           type: "comment",
           name: "comment",

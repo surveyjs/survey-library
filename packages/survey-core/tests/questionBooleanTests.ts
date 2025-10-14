@@ -9,7 +9,7 @@ export default QUnit.module("boolean");
 
 QUnit.test("Test boolean labelTrue and labelFalse property", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "boolean",
         name: "bool",
@@ -60,7 +60,7 @@ QUnit.test("Test boolean labelTrue and labelFalse property", function (assert) {
 //https://github.com/surveyjs/survey-library/issues/3653
 QUnit.test("labelTrue/labelFalse with defaultValue", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "boolean",
         name: "boo-1",
@@ -82,7 +82,7 @@ QUnit.test("labelTrue/labelFalse with defaultValue", function (assert) {
 
 QUnit.test("Test boolean allowClick property", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "boolean",
         name: "bool",
@@ -105,7 +105,7 @@ QUnit.test("Test boolean allowClick property", function (assert) {
 
 QUnit.test("Check indeterminate defaultValue in design mode", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "boolean",
         name: "q1",
@@ -134,7 +134,7 @@ QUnit.test("Check indeterminate defaultValue in design mode", function (assert) 
 });
 QUnit.test("Check boolean with string values", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "boolean",
         name: "q1",

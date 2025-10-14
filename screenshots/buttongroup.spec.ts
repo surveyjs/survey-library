@@ -15,7 +15,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         widthMode: "static",
-        questions: [
+        elements: [
           {
             type: "buttongroup",
             title: "Where are you living?",
@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 1000 });
 
       const json = {
-        questions: [{
+        elements: [{
           "type": "buttongroup",
           "name": "car",
           "title": "Which is the brand of your car?",

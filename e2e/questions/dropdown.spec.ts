@@ -11,7 +11,7 @@ frameworks.forEach(framework => {
     test("Save filter string after popup is closed", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 600 });
       const json = {
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "car",

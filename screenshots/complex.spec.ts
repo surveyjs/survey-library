@@ -6,7 +6,7 @@ const title = "Complex Screenshot";
 const json = {
   showQuestionNumbers: "off",
   width: "900px",
-  questions: [
+  elements: [
     {
       type: "Paneldynamic",
       title: "My Order",

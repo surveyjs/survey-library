@@ -243,7 +243,7 @@ QUnit.test(
   "Validators and isRequired in multipletext items, Bug#1055",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "multipletext",
           name: "pricelimit",
@@ -286,7 +286,7 @@ QUnit.test(
   "text validator doesn't work correctly with empty text, Bug#1241",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -324,7 +324,7 @@ QUnit.test(
   "text validator doesn't work correctly with setting value to  empty text, Bug#3065",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -352,7 +352,7 @@ QUnit.test(
 
 QUnit.test("Expression validator", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "pricelimit",
@@ -388,7 +388,7 @@ QUnit.test("Expression validator", function(assert) {
 
 QUnit.test("Expression validator #2", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "comment",
         name: "comment",

@@ -211,7 +211,7 @@ QUnit.test("Change values in panels on changing in question.value", function(
 
 QUnit.test("Load from Json", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -278,7 +278,7 @@ QUnit.test("Load from Json", function(assert) {
 
 QUnit.test("Load from Json with nested panel", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -1342,7 +1342,7 @@ QUnit.test(
   "Set data for loaded panel after clearing the survey data, bug#784",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "q",
@@ -1371,7 +1371,7 @@ QUnit.test(
 
 QUnit.test("Set panel count to 0, Editor bug#228", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -2321,7 +2321,7 @@ QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
 });
 QUnit.test("matrixDynamic.panelsState, load from json", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -2349,7 +2349,7 @@ QUnit.test(
   "matrixDynamic.panelsState, not tempalteTitle load from json",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "q",
@@ -2416,7 +2416,7 @@ QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
   assert
 ) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -2456,7 +2456,7 @@ QUnit.test(
   "Dynamic Panel readOnly, Bug#https://surveyjs.answerdesk.io/ticket/details/T1663",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "panel",
@@ -3807,7 +3807,7 @@ QUnit.test(
   "Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -4135,7 +4135,7 @@ QUnit.test(
   "Do not reset panelCount after deleting the last panel, Bug #1972",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "panel1",
@@ -4166,7 +4166,7 @@ QUnit.test(
   "call clearFiles for QuestionFile on removing the panel, Bug #1970",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "panel1",
@@ -4204,7 +4204,7 @@ QUnit.test(
 );
 QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -4240,7 +4240,7 @@ QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(asser
 
 QUnit.test("call clearFiles for QuestionFile on clearing panel value, Bug #6336", function(assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -4823,7 +4823,7 @@ QUnit.test(
 );
 QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         name: "question1",
         type: "paneldynamic",
@@ -4865,7 +4865,7 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
 });
 QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function(assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", name: "val1" },
       {
         name: "panel",
@@ -4930,7 +4930,7 @@ QUnit.test(
 );
 QUnit.test("Dynamic Panel, getDisplayValue(), Bug#2855", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -5555,7 +5555,7 @@ QUnit.test("Incorrect default value in panel dynamic", (assert) => {
 
 QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -6857,7 +6857,7 @@ QUnit.test("templateErrorLocation property", function (assert) {
 QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(assert) {
   const prevAsync = settings.confirmActionAsync;
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel1",
@@ -6893,7 +6893,7 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(as
 });
 QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOnDelete", function(assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel1",
@@ -7083,7 +7083,7 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
 QUnit.test("Footer css for nested panels", function(assert) {
   const footerCss = "abcd";
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",

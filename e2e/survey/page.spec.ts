@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
         pages: [
           {
             title: "Page title",
-            questions: [
+            elements: [
               {
                 titleLocation: "hidden",
                 type: "text",
@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
         pages: [
           {
             description: "Page description",
-            questions: [
+            elements: [
               {
                 titleLocation: "hidden",
                 type: "text",
@@ -71,7 +71,7 @@ frameworks.forEach(framework => {
         pages: [
           {
             title: "",
-            questions: [
+            elements: [
               {
                 titleLocation: "hidden",
                 type: "text",
@@ -102,7 +102,7 @@ frameworks.forEach(framework => {
         pages: [
           {
             description: "",
-            questions: [
+            elements: [
               {
                 titleLocation: "hidden",
                 type: "text",
@@ -131,7 +131,7 @@ frameworks.forEach(framework => {
             description: {
               de: "Page description"
             },
-            questions: [
+            elements: [
               {
                 titleLocation: "hidden",
                 type: "text",

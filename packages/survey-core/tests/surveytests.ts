@@ -5034,14 +5034,14 @@ QUnit.test("multiple triger on checkbox stop working.", function (assert) {
         operator: "contains",
         value: "one",
         name: "question1",
-        elements: ["question2"],
+        questions: ["question2"],
       },
       {
         type: "visible",
         operator: "contains",
         value: "two",
         name: "question1",
-        elements: ["question3"],
+        questions: ["question3"],
       },
     ],
   });

@@ -16650,7 +16650,7 @@ QUnit.test("Run expressions on changing comments", function (assert) {
           "item2",
           "item3"
         ],
-        hasComment: true
+        showCommentArea: true
       },
       {
         type: "text",

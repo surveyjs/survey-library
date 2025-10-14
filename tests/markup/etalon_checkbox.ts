@@ -93,7 +93,7 @@ registerMarkupTests(
             "choices": [
               "item1",
             ],
-            "hasComment": true,
+            "showCommentArea": true,
             "commentText": "Other (describe)",
             titleLocation: "hidden"
           }

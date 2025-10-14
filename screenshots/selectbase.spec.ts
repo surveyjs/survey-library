@@ -154,7 +154,7 @@ frameworks.forEach(framework => {
                 "choices": [
                   "choice1"
                 ],
-                "hasComment": true,
+                "showCommentArea": true,
                 "name": "q1",
                 "commentText": "Please feel free to share your thoughts in the comment box down below"
               }

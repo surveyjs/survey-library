@@ -31,7 +31,7 @@ frameworks.forEach(framework => {
             {
               "type": "radiogroup",
               "name": "question2",
-              "hasComment": true,
+              "showCommentArea": true,
               "commentText": "Comment text"
             },
             {

@@ -68,13 +68,13 @@ QUnit.test("Only some questions support comment", function (assert) {
     "Text question doesn't support comment."
   );
   assert.equal(
-    questionText.hasComment,
+    questionText.showCommentArea,
     false,
     "Text question doesn't support comment."
   );
-  questionText.hasComment = true;
+  questionText.showCommentArea = true;
   assert.equal(
-    questionText.hasComment,
+    questionText.showCommentArea,
     false,
     "You can't set has comment to the text question."
   );
@@ -88,13 +88,13 @@ QUnit.test("Only some questions support comment", function (assert) {
     "Drop down question supports comment."
   );
   assert.equal(
-    questionDropDown.hasComment,
+    questionDropDown.showCommentArea,
     false,
     "Has comment is false by  default."
   );
-  questionDropDown.hasComment = true;
+  questionDropDown.showCommentArea = true;
   assert.equal(
-    questionDropDown.hasComment,
+    questionDropDown.showCommentArea,
     true,
     "You can set comment for drop down question."
   );
@@ -146,7 +146,7 @@ QUnit.test("Comment and other could not be set together", function (assert) {
     QuestionFactory.Instance.createQuestion("dropdown", "dropdownQuestion")
   );
   assert.equal(
-    questionDropDown.hasComment,
+    questionDropDown.showCommentArea,
     false,
     "Initial comment is turn off."
   );
@@ -155,12 +155,12 @@ QUnit.test("Comment and other could not be set together", function (assert) {
   questionDropDown.showOtherItem = true;
   assert.equal(questionDropDown.showOtherItem, true, "set initially other to true");
 
-  questionDropDown.hasComment = true;
-  assert.equal(questionDropDown.hasComment, true, "After set comment to true");
+  questionDropDown.showCommentArea = true;
+  assert.equal(questionDropDown.showCommentArea, true, "After set comment to true");
   assert.equal(questionDropDown.showOtherItem, true, "After set comment to true, behavior is changed");
 
   questionDropDown.showOtherItem = true;
-  assert.equal(questionDropDown.hasComment, true, "After set other to true, behavior is changed");
+  assert.equal(questionDropDown.showCommentArea, true, "After set other to true, behavior is changed");
   assert.equal(questionDropDown.showOtherItem, true, "After set other to true");
 });
 QUnit.test("Keep comment if question value is null", function (assert) {
@@ -168,7 +168,7 @@ QUnit.test("Keep comment if question value is null", function (assert) {
   var page = survey.addNewPage("p1");
   var question = <QuestionCheckboxModel>page.addNewQuestion("checkbox", "q1");
   question.choices = [1, 2, 3];
-  question.hasComment = true;
+  question.showCommentArea = true;
   question.comment = "Comment";
   assert.deepEqual(survey.data, { "q1-Comment": "Comment" }, "Comment is here");
   survey.doComplete();
@@ -3630,7 +3630,7 @@ QUnit.test("Radio group comment without showOtherItem, Bug #1747", function (ass
       {
         type: "radiogroup",
         name: "q1",
-        hasComment: true,
+        showCommentArea: true,
         choices: [1, 2, 3, 4, 5],
       },
     ],

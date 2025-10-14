@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
-const title = "hasComment";
+const title = "showCommentArea";
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
@@ -11,7 +11,7 @@ frameworks.forEach((framework) => {
           {
             type: "checkbox",
             name: "q1",
-            hasComment: true,
+            showCommentArea: true,
             choices: ["item1", "item2"]
           }
         ]

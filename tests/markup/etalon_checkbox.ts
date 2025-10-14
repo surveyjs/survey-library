@@ -48,7 +48,7 @@ registerMarkupTests(
     {
       name: "Test checkbox question markup Other option with maxCommentLength",
       json: {
-        "maxOthersLength": 15,
+        "maxCommentLength": 15,
         elements: [
           {
             "type": "checkbox",

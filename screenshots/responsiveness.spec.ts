@@ -249,7 +249,7 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 2,
-            "addRowLocation": "top"
+            "addRowButtonLocation": "top"
           },
         ]
       });

@@ -3044,7 +3044,7 @@ QUnit.test("Test copyDefaultValueFromLastEntry property", function(assert) {
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2, q3: 3 },
     ],
-    "defaultValueFromLastRow is merging with defaultPanelValue"
+    "copyDefaultValueFromLastEntry is merging with defaultPanelValue"
   );
 });
 QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(assert) {

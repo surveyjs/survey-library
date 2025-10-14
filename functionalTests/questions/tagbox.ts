@@ -451,7 +451,7 @@ frameworks.forEach((framework) => {
           ]
         }
       ],
-      "showCompletedPage": false,
+      "showCompletePage": false,
       "showQuestionNumbers": "off",
       "showProgressBar": "top",
       "checkErrorsMode": "onComplete",

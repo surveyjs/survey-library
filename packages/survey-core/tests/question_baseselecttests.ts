@@ -3358,7 +3358,7 @@ QUnit.test("commentPlaceholder serialization", (assert) => {
   assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder");
   q.choices[0].commentPlaceholder = "val1";
   assert.equal(q.choices[0].locCommentPlaceholder.text, "val1", "locCommentPlaceholder.text is set");
-  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: "val1" }] }, "serialization vs commentPlaceHolder");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: "val1" }] }, "serialization vs commentPlaceholder");
   q.fromJSON({ name: "q1", type: "radiogroup", choices: [{ value: 1, commentPlaceholder: { default: "en-val", de: "de-val" } }] });
   assert.equal(q.choices[0].locCommentPlaceholder.text, "en-val", "locCommentPlaceholder.text for locale 'default'");
   survey.locale = "de";
@@ -3367,7 +3367,7 @@ QUnit.test("commentPlaceholder serialization", (assert) => {
   assert.equal(q.choices[0].locCommentPlaceholder.text, "en-val", "locCommentPlaceholder.text for locale 'fr #1'");
   q.choices[0].locCommentPlaceholder.text = "fr-val";
   assert.equal(q.choices[0].locCommentPlaceholder.text, "fr-val", "locCommentPlaceholder.text for locale 'fr #2'");
-  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: { "default": "en-val", "de": "de-val", fr: "fr-val" } }] }, "serialization vs commentPlaceHolder&locales");
+  assert.deepEqual(q.toJSON(), { name: "q1", choices: [{ value: 1, commentPlaceholder: { "default": "en-val", "de": "de-val", fr: "fr-val" } }] }, "serialization vs commentPlaceholder&locales");
   q.choices[0].locCommentPlaceholder.clear();
   assert.deepEqual(q.toJSON(), { name: "q1", choices: [1] }, "serialization without commentPlaceholder #2");
 });

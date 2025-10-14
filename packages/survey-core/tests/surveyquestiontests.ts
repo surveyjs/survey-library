@@ -6458,14 +6458,14 @@ QUnit.test("SelectBase otherPlaceholder localized", function (assert) {
   assert.equal(question.otherPlaceholder, "Skriv din begrundelse her...", "da placeholder");
   survey.locale = "";
 });
-QUnit.test("Ranking commentPlaceHolder localized", function (assert) {
+QUnit.test("Ranking commentPlaceholder localized", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
         type: "rating",
         name: "satisfaction",
         "showCommentArea": true,
-        "commentPlaceHolder": {
+        "commentPlaceholder": {
           "da": "Skriv din begrundelse her...",
           "default": "Write your reason here..."
         },

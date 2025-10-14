@@ -1527,7 +1527,7 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    return this.getPropertyValue("renderedCommentPlaceholder") ?? (!this.isReadOnly ? this.commentPlaceHolder : undefined);
+    return this.getPropertyValue("renderedCommentPlaceholder") ?? (!this.isReadOnly ? this.commentPlaceholder : undefined);
   }
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");

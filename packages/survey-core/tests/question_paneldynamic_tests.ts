@@ -3054,7 +3054,7 @@ QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(a
         panelCount: 1,
         templateElements: [
           { type: "paneldynamic", name: "question",
-            defaultValueFromLastPanel: true,
+            copyDefaultValueFromLastEntry: true,
             panelCount: 0,
             templateElements: [
               { type: "dropdown", name: "q1", choices: [1, 2, 3], showOtherItem: true },
@@ -3615,7 +3615,7 @@ QUnit.test("addPanel(index, skipvalidation)", function(assert) {
   assert.equal(question.panelCount, 2, "panelCount #2");
   assert.equal(question.canAddPanel, true, "canAddPanel #2");
 
-  question.defaultValueFromLastPanel = true;
+  question.copyDefaultValueFromLastEntry = true;
   question.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
   assert.equal(question.currentIndex, 1, "don't change currentIndex");
   question.addPanel(2);

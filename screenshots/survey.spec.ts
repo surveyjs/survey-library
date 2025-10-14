@@ -433,7 +433,7 @@ frameworks.forEach(framework => {
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
         "widthMode": "static",
-        "firstPageIsStarted": true,
+        "firstPageIsStartPage": true,
         "pages": [
           {
             "elements": [

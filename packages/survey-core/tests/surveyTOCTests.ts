@@ -113,7 +113,7 @@ QUnit.test("pages visibility", function (assert) {
 
 QUnit.test("pages visibility, do not include start page into TOC, bug #6192", function (assert) {
   let json: any = {
-    "firstPageIsStarted": true,
+    "firstPageIsStartPage": true,
     "pages": [
       {
         "name": "page1",

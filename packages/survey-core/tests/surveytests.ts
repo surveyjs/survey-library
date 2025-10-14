@@ -371,7 +371,7 @@ QUnit.test("Do not show errors in display mode", function (assert) {
       { name: "p2", elements: [{ type: "text", name: "q1" }] },
       { name: "p3", elements: [{ type: "text", name: "q2" }] },
     ],
-    firstPageIsStarted: true
+    firstPageIsStartPage: true
   });
   survey.mode = "display";
   assert.equal(survey.activePage.name, "p2", "active page page is p2");
@@ -389,14 +389,14 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   assert.equal(survey.activePage.name, "p2", "active page page is p2, #2");
   assert.equal(survey.currentPage.name, "p2", "current page page is p2, #2");
 });
-QUnit.test("firstPageIsStarted & questionsOnPageMode, Bug#9510", function (assert) {
+QUnit.test("firstPageIsStartPage & questionsOnPageMode, Bug#9510", function (assert) {
   var survey = new SurveyModel({
     pages: [
       { name: "p1", elements: [{ type: "text", name: "info1" }, { type: "text", name: "info2" }] },
       { name: "p2", elements: [{ type: "text", name: "q1" }] },
       { name: "p3", elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] },
     ],
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     questionsOnPageMode: "questionPerPage"
   });
   assert.equal(survey.activePage.name, "p1", "active page #1");
@@ -7154,7 +7154,7 @@ QUnit.test("firstPageIsStartPage = true, load from JSON, the flow", function (
   assert
 ) {
   var json = {
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       { name: "start", elements: [{ type: "text", name: "q1" }] },
       { name: "page1", elements: [{ type: "text", name: "q2" }] },
@@ -17199,7 +17199,7 @@ QUnit.test("Do not execute visibleIf in design mode", function (assert) {
 });
 QUnit.test("Ignore firstStartPage if there is only one page", function (assert) {
   var survey = new SurveyModel({
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2" }
@@ -17498,7 +17498,7 @@ QUnit.test("First page with conditions. Make the second only page visible/invisi
       }],
       visibleIf: "{question1} = 1"
     }],
-    firstPageIsStarted: true
+    firstPageIsStartPage: true
   });
   assert.equal(survey.getPropertyValue("isStartedState"), true, "the state is started");
   assert.equal(survey.startPage.name, "page1", "The started page");
@@ -17633,7 +17633,7 @@ QUnit.test("progress is not changed on the start page", function (assert) {
     ],
 
     showProgressBar: "bottom",
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     questionsOnPageMode: "questionPerPage",
     widthMode: "static"
   });
@@ -19063,10 +19063,10 @@ QUnit.test("getContainerContent - navigation with page.showNavigationButtons", f
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 });
-QUnit.test("survey.showNavigationButtons = 'none', page.showNavigationButtons = true & firstPageIsStarted is true, Bug#9248", function (assert) {
+QUnit.test("survey.showNavigationButtons = 'none', page.showNavigationButtons = true & firstPageIsStartPage is true, Bug#9248", function (assert) {
   const survey = new SurveyModel({
     showNavigationButtons: "none",
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       {
         "showNavigationButtons": true,
@@ -22010,7 +22010,7 @@ QUnit.test("The Start Page & changing the question visibility, Bug#9520", functi
       { name: "p1", visibleIf: "{q1}='a'", elements: [{ type: "text", name: "q2" }] },
       { name: "p2", elements: [{ type: "text", name: "q1" }] }
     ],
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
   });
   assert.equal(survey.visiblePages.length, 1, "visiblePages #1");
   survey.setValue("q1", "a");

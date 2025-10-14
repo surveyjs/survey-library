@@ -7,7 +7,7 @@ const json = {
     { elements: [{ type: "text", name: "name" }] },
     { elements: [{ type: "text", name: "address" },] }
   ],
-  firstPageIsStarted: true
+  firstPageIsStartPage: true
 };
 
 frameworks.forEach((framework) => {

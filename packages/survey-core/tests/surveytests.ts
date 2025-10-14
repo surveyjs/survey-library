@@ -5133,7 +5133,7 @@ QUnit.test("visibleIf and page rows", function (assert) {
       },
     ],
     questionTitleTemplate: "{title} {require}:",
-    requiredText: "(*)",
+    requiredMark: "(*)",
     partialSendEnabled: true,
     showQuestionNumbers: "off",
   });

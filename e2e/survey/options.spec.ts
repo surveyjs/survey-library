@@ -86,7 +86,7 @@ frameworks.forEach(framework => {
       await expect(requiredElement).toHaveText("*");
 
       await page.evaluate(() => {
-        window["survey"].requiredText = "😱"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+        window["survey"].requiredMark = "😱"; // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
         window["survey"].render();
       });
 

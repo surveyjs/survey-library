@@ -571,12 +571,12 @@ QUnit.test("Matrixdynamic: remove duplicationError in cells and in detailPanels"
   assert.equal(matrix.validate(), true, "There are no errors");
 });
 
-QUnit.test("Matrixdynamic hasOther column", function (assert) {
+QUnit.test("Matrixdynamic showOtherItem column", function (assert) {
   var question = new QuestionMatrixDynamicModel("matrixDymanic");
   question.choices = [1, 2, 3];
   question.rowCount = 1;
   question.columns.push(new MatrixDropdownColumn("column1"));
-  question.columns[0].hasOther = true;
+  question.columns[0].showOtherItem = true;
   var rows = question.visibleRows;
   assert.equal(question.validate(), true, "Everything is fine so far");
   rows[0].cells[0].question.value = "other";
@@ -5134,7 +5134,7 @@ QUnit.test("showInMultipleColumns property, change column choices in running", f
   column.templateQuestion.loadedChoicesFromServerCallback();
   assert.notEqual(matrix.renderedTable["testId"], 1, "table re-created");
 });
-QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
+QUnit.test("showInMultipleColumns and showOtherItem properties", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -5145,7 +5145,7 @@ QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
             name: "col1",
             cellType: "checkbox",
             showInMultipleColumns: true,
-            hasOther: true,
+            showOtherItem: true,
             choices: [1, 2, 3]
           },
           { name: "col2", cellType: "comment" }
@@ -5159,12 +5159,12 @@ QUnit.test("showInMultipleColumns and hasOther properties", function (assert) {
   assert.equal(
     matrix.renderedTable.headerRow.cells.length,
     1 + 3 + 2,
-    "header: row value + 3 choices + hasOther"
+    "header: row value + 3 choices + showOtherItem"
   );
   assert.equal(
     matrix.renderedTable.rows[1].cells.length,
     1 + 3 + 2,
-    "first row: row value + 3 choices + hasOther"
+    "first row: row value + 3 choices + showOtherItem"
   );
   assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "Other (describe)", "Column text is correct");
   const cell = matrix.renderedTable.rows[1].cells[4];
@@ -5240,7 +5240,7 @@ QUnit.test("showInMultipleColumns  and showNoneItem property properties & choice
   assert.equal(cell.question.getType(), "checkbox", "question is checkbox");
   assert.equal(cell.question.showNoneItem, true, "showNoneItem is set");
 });
-QUnit.test("showInMultipleColumns and hasOther properties, change in run-time", function (assert) {
+QUnit.test("showInMultipleColumns and showOtherItem properties, change in run-time", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -5261,14 +5261,14 @@ QUnit.test("showInMultipleColumns and hasOther properties, change in run-time", 
   const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3, "header: row value + 3 choices");
   matrix.renderedTable["test_id"] = "#1";
-  matrix.columns[0].hasOther = true;
+  matrix.columns[0].showOtherItem = true;
   assert.notEqual(matrix.renderedTable["test_id"], "#1", "Re-create renderedTable");
   assert.equal(matrix.columns[0].templateQuestion.autoOtherMode, true, "Other mode is set for column template question");
-  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1, "header: row value + 3 choices + hasOther");
-  assert.equal(matrix.renderedTable.rows[0].cells.length, 1 + 3 + 1, "first row: row value + 3 choices + hasOther");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 1 + 3 + 1, "header: row value + 3 choices + showOtherItem");
+  assert.equal(matrix.renderedTable.rows[0].cells.length, 1 + 3 + 1, "first row: row value + 3 choices + showOtherItem");
   assert.equal(matrix.renderedTable.headerRow.cells[4].locTitle.text, "Other (describe)", "Column text is correct");
 });
-QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in matrix dynamic", function (assert) {
+QUnit.test("showInMultipleColumns and showOtherItem properties, change in run-time in matrix dynamic", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -5289,11 +5289,11 @@ QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 2, "header: 2 choices");
   matrix.renderedTable["test_id"] = "#1";
-  matrix.columns[0].hasOther = true;
+  matrix.columns[0].showOtherItem = true;
   assert.notEqual(matrix.renderedTable["test_id"], "#1", "Re-create renderedTable");
   assert.equal(matrix.columns[0].templateQuestion.autoOtherMode, true, "Other mode is set for column template question");
-  assert.equal(matrix.renderedTable.headerRow.cells.length, 2 + 1, "header: 2 choices + hasOther");
-  assert.equal(matrix.renderedTable.rows[0].cells.length, 2 + 1, "first row: 2 choices + hasOther");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 2 + 1, "header: 2 choices + showOtherItem");
+  assert.equal(matrix.renderedTable.rows[0].cells.length, 2 + 1, "first row: 2 choices + showOtherItem");
   assert.equal(matrix.renderedTable.headerRow.cells[2].locTitle.text, "Other (describe)", "Column text is correct");
 });
 QUnit.test("showInMultipleColumns property, and visibleIf in choices", function (assert) {
@@ -5630,7 +5630,7 @@ QUnit.test(
             {
               name: "col1",
               cellType: "radiogroup",
-              hasOther: true,
+              showOtherItem: true,
               showInMultipleColumns: true,
               choices: [1, 2],
             },
@@ -5649,7 +5649,7 @@ QUnit.test(
     assert.equal(
       matrix.columns[0].templateQuestion.visibleChoices.length,
       3,
-      "There are two visible choices in question + hasOther"
+      "There are two visible choices in question + showOtherItem"
     );
     assert.equal(
       matrix.renderedTable.rows.length,
@@ -6398,7 +6398,7 @@ QUnit.test(
               name: "col1",
               cellType: "dropdown",
               choices: [1, 2, 3],
-              hasOther: true,
+              showOtherItem: true,
             },
           ],
           rowCount: 1,
@@ -6466,7 +6466,7 @@ QUnit.test(
               name: "col1",
               cellType: "checkbox",
               choices: [1, 2, 3],
-              hasOther: true,
+              showOtherItem: true,
             },
           ],
           rowCount: 1,
@@ -6538,7 +6538,7 @@ QUnit.test(
               name: "col1",
               cellType: "checkbox",
               choices: [1, 2, 3],
-              hasOther: true,
+              showOtherItem: true,
             },
           ],
           rowCount: 1,
@@ -6608,7 +6608,7 @@ QUnit.test(
               name: "col1",
               cellType: "dropdown",
               choices: [1, 2, 3],
-              hasOther: true,
+              showOtherItem: true,
             },
           ],
         },

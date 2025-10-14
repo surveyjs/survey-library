@@ -351,7 +351,7 @@ QUnit.test("Survey.onValueChanged event, #352", function (assert) {
   var page = survey.addNewPage("page1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   q1.choices = [1, 2, 3];
-  q1.hasOther = true;
+  q1.showOtherItem = true;
   var valueChangedCallCounter = 0;
   survey.onValueChanged.add(function (survey, options) {
     valueChangedCallCounter++;
@@ -1713,7 +1713,7 @@ QUnit.test("Should not show errors with others bug #2014", function (assert) {
   var question = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   question.choices = [1, 2, 3];
   question.isRequired = true;
-  question.hasOther = true;
+  question.showOtherItem = true;
   page = survey.addNewPage("page2");
   page.addNewQuestion("text", "q2");
 
@@ -3898,7 +3898,7 @@ QUnit.test("clearInvisibleValues - comments and other values, #309", function (
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
-  q1.hasOther = true;
+  q1.showOtherItem = true;
   var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
   q2.showCommentArea = true;
   var q3 = <QuestionTextModel>page.addNewQuestion("text", "q3");
@@ -3925,7 +3925,7 @@ QUnit.test(
     var page = survey.addNewPage("p1");
     var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
     q1.choices = [1];
-    q1.hasOther = true;
+    q1.showOtherItem = true;
     q1.value = q1.otherItem.value;
     q1.otherValue = "comment1";
     q1.value = 1;
@@ -4123,7 +4123,7 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
     survey.pages[1].addNewQuestion("dropdown", "question5")
   );
   dropDownQ.choices = [1, 2, 3];
-  dropDownQ.hasOther = true;
+  dropDownQ.showOtherItem = true;
   survey.goNextPageAutomatic = true;
   assert.equal(
     survey.currentPage.name,
@@ -4206,7 +4206,7 @@ QUnit.test(
       survey.pages[1].addNewQuestion("dropdown", "question5")
     );
     dropDownQ.choices = [1, 2, 3];
-    dropDownQ.hasOther = true;
+    dropDownQ.showOtherItem = true;
     survey.goNextPageAutomatic = true;
     assert.equal(
       survey.currentPage.name,
@@ -5472,7 +5472,7 @@ QUnit.test("Survey Localization - radiogroup.otheItem", function (assert) {
       {
         type: "radiogroup",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2],
         otherText: {
           default: "Other",
@@ -6847,14 +6847,14 @@ QUnit.test("defaultValue + survey.clear() + 'other'", function (assert) {
         name: "q1",
         defaultValue: "other",
         choices: [1],
-        hasOther: true,
+        showOtherItem: true,
       },
       {
         type: "checkbox",
         name: "q2",
         defaultValue: ["other"],
         choices: [1],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   };
@@ -7505,7 +7505,7 @@ QUnit.test("survey.isSinglePage revert and other value", function (assert) {
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2],
       },
     ],
@@ -7538,7 +7538,7 @@ QUnit.test(
     survey.setValue("q1", ["other2"]);
     var question = new QuestionCheckboxModel("q1");
     question.choices = [1, 2];
-    question.hasOther = true;
+    question.showOtherItem = true;
     survey.pages[0].addQuestion(question);
     assert.deepEqual(question.value, ["other2"], "question value");
     assert.deepEqual(
@@ -10926,7 +10926,7 @@ QUnit.test(
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [
           {
             value: "lion",
@@ -11015,7 +11015,7 @@ QUnit.test(
       {
         type: "radiogroup",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [
           {
             value: "lion",
@@ -13525,7 +13525,7 @@ QUnit.test("Update question errors on other text change if survey.checkErrorsMod
         type: "dropdown",
         name: "q1",
         choices: [1, 2],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -13552,7 +13552,7 @@ QUnit.test(
           type: "dropdown",
           name: "q1",
           choices: [1, 2],
-          hasOther: true,
+          showOtherItem: true,
         },
       ],
     });
@@ -14846,14 +14846,14 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Do not create otherItem in image picker on loading it from JSON, even if hasOther is true, Bug#2603",
+  "Do not create otherItem in image picker on loading it from JSON, even if showOtherItem is true, Bug#2603",
   (assert) => {
     var survey = new SurveyModel({
       elements: [
         {
           type: "radiogroup",
           name: "q1",
-          hasOther: true,
+          showOtherItem: true,
           choices: ["item1", "item2", "item3"],
         },
       ],
@@ -15875,13 +15875,13 @@ QUnit.test("other and survey.clear", function (assert) {
       {
         type: "dropdown",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: ["item1", "item2", "item3"],
       },
       {
         type: "checkbox",
         name: "q2",
-        hasOther: true,
+        showOtherItem: true,
         choices: ["item1", "item2", "item3"],
       },
     ],
@@ -17411,7 +17411,7 @@ QUnit.test("Survey Localization - check errors update after locale changed", fun
         type: "radiogroup",
         name: "question6",
         isRequired: true,
-        hasOther: true,
+        showOtherItem: true,
         otherErrorText: {
           default: "custom_other_error_text",
           de: "custom_other_error_text_deutch"
@@ -17566,7 +17566,7 @@ QUnit.test("Test survey with custom type", function (assert) {
   JsonObject.metaData.addClass(
     "sortablelist",
     [
-      { name: "hasOther", visible: false },
+      { name: "showOtherItem", visible: false },
       { name: "storeOthersAsComment", visible: false },
       { name: "hasNone", visible: false },
       { name: "renderAs", visible: false },

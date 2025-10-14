@@ -9,7 +9,7 @@ const jsonTagbox = {
   elements: [{
     type: "tagbox",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     choices: [
       "item1",
       "item2",
@@ -74,7 +74,7 @@ QUnit.test("DropdownListModel with MultiListModel & searchEnabled false", (asser
     elements: [{
       type: "tagbox",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       searchEnabled: "false",
       choices: [
         "item1",

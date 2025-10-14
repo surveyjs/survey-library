@@ -14,7 +14,7 @@ const json = {
           type: "checkbox",
           name: "opSystem",
           title: "OS",
-          hasOther: true,
+          showOtherItem: true,
           isRequired: true,
           choices: ["Windows", "Linux", "Macintosh OSX"]
         }

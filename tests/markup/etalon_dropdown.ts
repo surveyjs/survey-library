@@ -60,7 +60,7 @@ registerMarkupTests(
               "item2",
               "item3"
             ],
-            "hasOther": true,
+            "showOtherItem": true,
             "defaultValue": "other",
             "otherText": "Other (describe)",
             titleLocation: "hidden"

@@ -110,13 +110,13 @@ QUnit.test("Only some questions support other", function (assert) {
     "Text question doesn't support other."
   );
   assert.equal(
-    questionImagePicker.hasOther,
+    questionImagePicker.showOtherItem,
     false,
     "Text question doesn't support other."
   );
-  questionImagePicker.hasOther = true;
+  questionImagePicker.showOtherItem = true;
   assert.equal(
-    questionImagePicker.hasOther,
+    questionImagePicker.showOtherItem,
     false,
     "You can't set has other to the text question."
   );
@@ -130,13 +130,13 @@ QUnit.test("Only some questions support other", function (assert) {
     "Drop down question supports other."
   );
   assert.equal(
-    questionDropDown.hasOther,
+    questionDropDown.showOtherItem,
     false,
     "Has other is false by  default."
   );
-  questionDropDown.hasOther = true;
+  questionDropDown.showOtherItem = true;
   assert.equal(
-    questionDropDown.hasOther,
+    questionDropDown.showOtherItem,
     true,
     "You can set other for drop down question."
   );
@@ -150,18 +150,18 @@ QUnit.test("Comment and other could not be set together", function (assert) {
     false,
     "Initial comment is turn off."
   );
-  assert.equal(questionDropDown.hasOther, false, "Initial other is turn off.");
+  assert.equal(questionDropDown.showOtherItem, false, "Initial other is turn off.");
 
-  questionDropDown.hasOther = true;
-  assert.equal(questionDropDown.hasOther, true, "set initially other to true");
+  questionDropDown.showOtherItem = true;
+  assert.equal(questionDropDown.showOtherItem, true, "set initially other to true");
 
   questionDropDown.hasComment = true;
   assert.equal(questionDropDown.hasComment, true, "After set comment to true");
-  assert.equal(questionDropDown.hasOther, true, "After set comment to true, behavior is changed");
+  assert.equal(questionDropDown.showOtherItem, true, "After set comment to true, behavior is changed");
 
-  questionDropDown.hasOther = true;
+  questionDropDown.showOtherItem = true;
   assert.equal(questionDropDown.hasComment, true, "After set other to true, behavior is changed");
-  assert.equal(questionDropDown.hasOther, true, "After set other to true");
+  assert.equal(questionDropDown.showOtherItem, true, "After set other to true");
 });
 QUnit.test("Keep comment if question value is null", function (assert) {
   var survey = new SurveyModel();
@@ -198,13 +198,13 @@ QUnit.test("visibleChoices changes on setting others to true/false", function (
     3,
     "By default visibleChoices equals to choices"
   );
-  question.hasOther = true;
+  question.showOtherItem = true;
   assert.equal(
     question.visibleChoices.length,
     4,
     "Add one more item for others"
   );
-  question.hasOther = false;
+  question.showOtherItem = false;
   assert.equal(question.visibleChoices.length, 3, "Remove the others item");
 });
 QUnit.test(
@@ -215,7 +215,7 @@ QUnit.test(
       { value: 1, text: "Value 1" },
       { value: 2, text: "Value 2" },
     ];
-    question.hasOther = true;
+    question.showOtherItem = true;
     assert.equal(
       question.displayValue,
       "",
@@ -695,7 +695,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   surveyTimerFunctions.safeTimeOut = prevFunc;
   settings.autoAdvanceDelay = 0;
 });
-QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", function (assert) {
+QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", function (assert) {
   var json = {
     pages: [
       {
@@ -703,7 +703,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", functi
           {
             type: "radiogroup",
             name: "q1",
-            hasOther: true,
+            showOtherItem: true,
             choices: [1, 2, 3],
           },
         ],
@@ -731,7 +731,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", functi
 });
 
 QUnit.test(
-  "Radiogroup Question: support goNextPageAutomatic + hasOther + textUpdateMode = onTyping",
+  "Radiogroup Question: support goNextPageAutomatic + showOtherItem + textUpdateMode = onTyping",
   function (assert) {
     var json = {
       pages: [
@@ -740,7 +740,7 @@ QUnit.test(
             {
               type: "radiogroup",
               name: "q1",
-              hasOther: true,
+              showOtherItem: true,
               choices: [1, 2, 3],
             },
           ],
@@ -858,7 +858,7 @@ QUnit.test("Validators for other values - dropdown, Bug #722", function (
 ) {
   var question = new QuestionDropdownModel("q1");
   question.choices = ["1", "2", "3", "4", "5"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.value = "1";
   assert.equal(question.validate(), true, "There is no validators");
   question.validators.push(new RegexValidator("[0-9]+"));
@@ -878,7 +878,7 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function (
 ) {
   var question = new QuestionCheckboxModel("q1");
   question.choices = ["1", "2", "3", "4", "5"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.value = ["1", "2", question.otherItem.value];
   question.otherValue = "33";
   assert.equal(question.isOtherSelected, true, "Other is selected");
@@ -901,7 +901,7 @@ QUnit.test("Validators for other values - checkbox, Bug #722", function (
   assert.equal(question.validate(), true, "We do not check the empty value");
 });
 QUnit.test(
-  "other values in choices, hasOther=false, Bug(Editor) #242",
+  "other values in choices, showOtherItem=false, Bug(Editor) #242",
   function (assert) {
     var question = new QuestionRadiogroupModel("q1");
     question.choices = ["1", "2", "3", "other"];
@@ -912,7 +912,7 @@ QUnit.test(
     assert.equal(
       question.validate(),
       true,
-      "Everything is still fine, hasOther = false"
+      "Everything is still fine, showOtherItem = false"
     );
   }
 );
@@ -949,7 +949,7 @@ QUnit.test("checkbox selectedChoices property", function (assert) {
         type: "checkbox",
         name: "q1",
         choices: ["item1", "item2", "item3"],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   };
@@ -964,7 +964,7 @@ QUnit.test("Show errors if others value is selected, but not entered", function 
   var radio = new QuestionRadiogroupModel("q1");
   new SurveyModel().addNewPage("p1").addQuestion(radio);
   radio.choices = ["one"];
-  radio.hasOther = true;
+  radio.showOtherItem = true;
   assert.equal(radio.validate(), true, "There is no error by default");
   radio.value = radio.otherItem.value;
   assert.equal(radio.validate(), false, "The other comment should be entered");
@@ -986,7 +986,7 @@ QUnit.test("dropdown properties: choicesMin, choicesMax, choicesStep", function 
   );
   assert.equal(q.visibleChoices[0].value, "one", "from choices");
   assert.equal(q.visibleChoices[2].value, 1, "auto generated");
-  q.hasOther = true;
+  q.showOtherItem = true;
   assert.equal(q.visibleChoices.length, 2 + 20 + 1, "has other has been aded");
   q.choicesStep = 2;
   assert.equal(
@@ -1006,12 +1006,12 @@ QUnit.test(
     survey.pages[0].addQuestion(multipleSelection);
 
     singleSelection.choices = ["one"];
-    singleSelection.hasOther = true;
+    singleSelection.showOtherItem = true;
     singleSelection.value = singleSelection.otherItem.value;
     singleSelection.otherValue = "Comment1 is here";
 
     multipleSelection.choices = ["one"];
-    multipleSelection.hasOther = true;
+    multipleSelection.showOtherItem = true;
     multipleSelection.value = [multipleSelection.otherItem.value];
     multipleSelection.otherValue = "Comment2 is here";
 
@@ -1108,7 +1108,7 @@ QUnit.test("Init SelectBase with comment comment", function (assert) {
   survey.addNewPage("page1");
   var question = new QuestionSelectBase("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   survey.pages[0].addQuestion(question);
   assert.equal(question.comment, "aaaa", "Set the initial comment");
 });
@@ -1117,7 +1117,7 @@ QUnit.test("SelectBase store others value not in comment", function (assert) {
   survey.addNewPage("page1");
   var question = new QuestionSelectBase("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   survey.pages[0].addQuestion(question);
   survey.storeOthersAsComment = false;
 
@@ -1177,7 +1177,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   survey.addNewPage("page1");
   var question = new QuestionCheckboxModel("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   survey.pages[0].addQuestion(question);
   survey.storeOthersAsComment = false;
 
@@ -1246,7 +1246,7 @@ QUnit.test("Checkbox store others value not in comment & defaultValue", function
         type: "checkbox",
         name: "q1",
         defaultValue: ["A", "B"],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -1272,7 +1272,7 @@ QUnit.test(
     survey.addNewPage("page1");
     var question = new QuestionCheckboxModel("q");
     question.choices = ["A", "B", "C", "D"];
-    question.hasOther = true;
+    question.showOtherItem = true;
     question.storeOthersAsComment = false;
     survey.pages[0].addQuestion(question);
     // survey.storeOthersAsComment = false;
@@ -1326,7 +1326,7 @@ QUnit.test("radiogroup.renderedValue - simple synhronization", function (
   survey.addNewPage("page1");
   var question = new QuestionSelectBase("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   survey.pages[0].addQuestion(question);
 
   question.value = "A";
@@ -1370,7 +1370,7 @@ QUnit.test("radiogroup.renderedValue - storeOthersAsComment = false;", function 
   survey.addNewPage("page1");
   var question = new QuestionSelectBase("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   survey.storeOthersAsComment = false;
   survey.pages[0].addQuestion(question);
 
@@ -1448,7 +1448,7 @@ QUnit.test("checkbox.renderedValue - storeOthersAsComment = false;", function (
   survey.addNewPage("page1");
   var question = new QuestionCheckboxModel("q");
   question.choices = ["A", "B", "C", "D"];
-  question.hasOther = true;
+  question.showOtherItem = true;
   survey.storeOthersAsComment = false;
   survey.pages[0].addQuestion(question);
 
@@ -1592,13 +1592,13 @@ QUnit.test(
           type: "radiogroup",
           name: "q1",
           choices: [1, 2],
-          hasOther: true,
+          showOtherItem: true,
         },
         {
           type: "checkbox",
           name: "q2",
           choices: [1, 2],
-          hasOther: true,
+          showOtherItem: true,
         },
       ],
     };
@@ -1772,7 +1772,7 @@ QUnit.test("Boolean question read only checkedValue", function (assert) {
   );
 });
 
-QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function (
+QUnit.test("defaultValue and showOtherItem - radiogroup, bug#384 (Editor)", function (
   assert
 ) {
   var json = {
@@ -1781,7 +1781,7 @@ QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function 
         type: "radiogroup",
         name: "q1",
         choices: [1, 2, 3],
-        hasOther: true,
+        showOtherItem: true,
         defaultValue: "otherValue",
       },
     ],
@@ -1792,7 +1792,7 @@ QUnit.test("defaultValue and hasOther - radiogroup, bug#384 (Editor)", function 
   assert.equal(question.comment, "otherValue", "other value is set");
 });
 
-QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function (
+QUnit.test("defaultValue and showOtherItem - checkbox, bug#384 (Editor)", function (
   assert
 ) {
   var json = {
@@ -1801,7 +1801,7 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function (
         type: "checkbox",
         name: "q1",
         choices: [1, 2, 3],
-        hasOther: true,
+        showOtherItem: true,
         defaultValue: [2, "otherValue"],
       },
     ],
@@ -2884,7 +2884,7 @@ QUnit.test("space in others does not work correctly , bug #1214", function (
       {
         type: "radiogroup",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: ["high"],
         storeOthersAsComment: false,
       },
@@ -3014,7 +3014,7 @@ QUnit.test("Checkbox hasSelectAll", function (assert) {
     true,
     "isItemSelected returns true"
   );
-  q.hasOther = true;
+  q.showOtherItem = true;
   q.value = [1, 2, "other"];
   assert.equal(q.isAllSelected, false, "3 is not selected");
   q.value = [1, 2, 3, "other"];
@@ -3201,7 +3201,7 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   assert.equal(question.isVisible, true, "By default it is visible");
   question.hideIfChoicesEmpty = true;
   assert.equal(question.isVisible, false, "Choices are empty");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasSelectAll = true;
   question.showNoneItem = true;
   assert.equal(question.isVisible, false, "Still choices are empty");
@@ -3564,7 +3564,7 @@ QUnit.test(
           storeOthersAsComment: true,
           type: "radiogroup",
           name: "q1",
-          hasOther: true,
+          showOtherItem: true,
           choices: [1, 2],
         },
       ],
@@ -3624,7 +3624,7 @@ QUnit.test("Could not assign validators", function (assert) {
   );
 });
 
-QUnit.test("Radio group comment without hasOther, Bug #1747", function (assert) {
+QUnit.test("Radio group comment without showOtherItem, Bug #1747", function (assert) {
   var json = {
     elements: [
       {
@@ -3655,7 +3655,7 @@ QUnit.test("other's comment value is properly set from data", function (assert) 
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   };
@@ -4837,11 +4837,11 @@ QUnit.test("QuestionMultipleText.getProgressInfo()", function (assert) {
     "root is required and two items are required and has one value and one required item is invisible"
   );
 });
-QUnit.test("Set value with hasOther that is not in the list", function (assert) {
+QUnit.test("Set value with showOtherItem that is not in the list", function (assert) {
   var survey = new SurveyModel({
     elements: [
-      { type: "dropdown", name: "q1", choices: [1, 2], hasOther: true },
-      { type: "checkbox", name: "q2", choices: [1, 2], hasOther: true },
+      { type: "dropdown", name: "q1", choices: [1, 2], showOtherItem: true },
+      { type: "checkbox", name: "q2", choices: [1, 2], showOtherItem: true },
     ],
   });
   survey.data = { q1: "NonInList" };
@@ -5088,7 +5088,7 @@ QUnit.test("maxSelectedChoices in checkbox", function (assert) {
         choices: [1, 2, 3, 4, 5],
         maxSelectedChoices: 2,
         hasSelectAll: true,
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -5116,7 +5116,7 @@ QUnit.test("select items and then set maxSelectedChoices in checkbox", function 
         name: "q1",
         choices: [1, 2, 3, 4, 5],
         hasSelectAll: true,
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -5142,7 +5142,7 @@ QUnit.test("select items and then set minSelectedChoices in checkbox", function 
         name: "q1",
         choices: [1, 2, 3, 4, 5],
         hasSelectAll: true,
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -5314,10 +5314,10 @@ QUnit.test("choicesFromQuestion predefined data, Bug#2648", function (assert) {
   assert.ok(q2.choicesFromQuestion, "choicesFromQuestion is here");
   assert.equal(q2.visibleChoices.length, 3, "Get choices from q1.value");
 });
-QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
+QUnit.test("Checkbox: Carry Forward and showOtherItem", function(assert) {
   var survey = new SurveyModel({
     elements: [
-      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], showOtherItem: true },
       {
         type: "checkbox",
         name: "q2",
@@ -5340,7 +5340,7 @@ QUnit.test("Checkbox: Carry Forward and hasOther", function(assert) {
   assert.equal(q2.visibleChoices[2].text, "someText", "other text");
 });
 QUnit.test(
-  "choicesFromQuestion hasSelectAll, showNoneItem, hasOther properties, Bug#",
+  "choicesFromQuestion hasSelectAll, showNoneItem, showOtherItem properties, Bug#",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -5350,7 +5350,7 @@ QUnit.test(
           choices: [1, 2, 3],
           hasSelectAll: true,
           showNoneItem: true,
-          hasOther: true,
+          showOtherItem: true,
         },
         {
           type: "checkbox",
@@ -5358,7 +5358,7 @@ QUnit.test(
           choicesFromQuestion: "q1",
           hasSelectAll: true,
           showNoneItem: true,
-          hasOther: true,
+          showOtherItem: true,
         },
       ],
     });
@@ -5599,7 +5599,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Creator V2: add into visibleChoices others/hasOther items in design mode",
+  "Creator V2: add into visibleChoices others/showOtherItem items in design mode",
   function (assert) {
     var json = {
       elements: [
@@ -5621,11 +5621,11 @@ QUnit.test(
     survey.fromJSON(json);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
-    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(q1.visibleChoices.length, 6, "Show None+showOtherItem+new: 3+3");
     assert.equal(
       q2.visibleChoices.length,
       7,
-      "Show SelectAll+None+hasOther+new: 3+4"
+      "Show SelectAll+None+showOtherItem+new: 3+4"
     );
 
     assert.equal(q1.visibleChoices[0].value, "item1", "item1 is the first");
@@ -5661,7 +5661,7 @@ QUnit.test(
       false,
       "other not in list"
     );
-    q1.hasOther = true;
+    q1.showOtherItem = true;
     assert.equal(q1.isItemInList(q1.visibleChoices[5]), true, "other in list");
 
     assert.equal(q2.visibleChoices[0].id, "selectall", "index=0, selectall");
@@ -5680,7 +5680,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Creator V2: add into visibleChoices others/hasOther items in design mode and canShowOptionItemCallback",
+  "Creator V2: add into visibleChoices others/showOtherItem items in design mode and canShowOptionItemCallback",
   function (assert) {
     var json = {
       elements: [
@@ -5703,7 +5703,7 @@ QUnit.test(
     assert.equal(
       q1.visibleChoices.length,
       6,
-      "Show SelectAll+None+hasOther+new: 2+4"
+      "Show SelectAll+None+showOtherItem+new: 2+4"
     );
     assert.equal(q1.visibleChoices[3].value, "newitem");
     q1.choices.push(new ItemValue("item3"));
@@ -5713,22 +5713,22 @@ QUnit.test(
     assert.equal(
       q1.visibleChoices.length,
       6,
-      "Show SelectAll+None+hasOther-new: 3+3"
+      "Show SelectAll+None+showOtherItem-new: 3+3"
     );
     isReadOnly = true;
     q1.choices.splice(2, 1);
     assert.equal(
       q1.visibleChoices.length,
       2,
-      "Do not show SelectAll+None+hasOther+new: 2"
+      "Do not show SelectAll+None+showOtherItem+new: 2"
     );
     q1.hasSelectAll = true;
     q1.showNoneItem = true;
-    q1.hasOther = true;
+    q1.showOtherItem = true;
     assert.equal(
       q1.visibleChoices.length,
       5,
-      "Do not show SelectAll+None+hasOther are set: 2 + 3"
+      "Do not show SelectAll+None+showOtherItem are set: 2 + 3"
     );
   }
 );
@@ -5758,19 +5758,19 @@ QUnit.test("Creator V2: do not add choices from carry-forward in design mode", f
   survey.fromJSON(json);
   const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
   const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
-  assert.equal(q2.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
-  assert.equal(q3.visibleChoices.length, 7, "Show SelectAll+None+hasOther+new: 3+4");
+  assert.equal(q2.visibleChoices.length, 6, "Show None+showOtherItem+new: 3+3");
+  assert.equal(q3.visibleChoices.length, 7, "Show SelectAll+None+showOtherItem+new: 3+4");
   q2.choicesFromQuestion = "q1";
   q3.choicesFromQuestion = "q1";
-  assert.equal(q2.visibleChoices.length, 2, "Show None+hasOther: 2+0");
-  assert.equal(q3.visibleChoices.length, 3, "Show SelectAll+None+hasOther: 3+0");
+  assert.equal(q2.visibleChoices.length, 2, "Show None+showOtherItem: 2+0");
+  assert.equal(q3.visibleChoices.length, 3, "Show SelectAll+None+showOtherItem: 3+0");
   q2.choicesFromQuestion = "";
   q3.choicesFromQuestion = "";
   assert.equal(q2.visibleChoices.length, 6, "radiogroup = clear carry-forward");
   assert.equal(q3.visibleChoices.length, 7, "checkbox = clear carry-forward");
 });
 QUnit.test(
-  "Creator V2: Hide selectAll, showNoneItem and hasOther if this properties are invisible",
+  "Creator V2: Hide selectAll, showNoneItem and showOtherItem if this properties are invisible",
   function (assert) {
     var json = {
       elements: [
@@ -5782,7 +5782,7 @@ QUnit.test(
       ],
     };
 
-    Serializer.findProperty("selectbase", "hasOther").visible = false;
+    Serializer.findProperty("selectbase", "showOtherItem").visible = false;
     Serializer.findProperty("selectbase", "showNoneItem").visible = false;
     Serializer.findProperty("checkbox", "hasSelectAll").visible = false;
     var survey = new SurveyModel();
@@ -5792,15 +5792,15 @@ QUnit.test(
     assert.equal(
       q1.visibleChoices.length,
       4,
-      "Hide SelectAll+None+hasOther and show only new: 3+4 - 3"
+      "Hide SelectAll+None+showOtherItem and show only new: 3+4 - 3"
     );
-    Serializer.findProperty("selectbase", "hasOther").visible = true;
+    Serializer.findProperty("selectbase", "showOtherItem").visible = true;
     Serializer.findProperty("selectbase", "showNoneItem").visible = true;
     Serializer.findProperty("checkbox", "hasSelectAll").visible = true;
   }
 );
 QUnit.test(
-  "Creator V2: add into visibleChoices others/hasOther items in design mode, add new question",
+  "Creator V2: add into visibleChoices others/showOtherItem items in design mode, add new question",
   function (assert) {
     var json = {
       elements: [
@@ -5819,16 +5819,16 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-    assert.equal(q1.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+    assert.equal(q1.visibleChoices.length, 6, "Show None+showOtherItem+new: 3+3");
     assert.equal(
       q2.visibleChoices.length,
       7,
-      "Show SelectAll+None+hasOther+new: 3+4"
+      "Show SelectAll+None+showOtherItem+new: 3+4"
     );
   }
 );
 QUnit.test(
-  "Creator V2 + showDefaultItemsInCreator: add into visibleChoices others/hasOther items in design mode, add new question",
+  "Creator V2 + showDefaultItemsInCreator: add into visibleChoices others/showOtherItem items in design mode, add new question",
   function (assert) {
     var json = {
       elements: [
@@ -5848,11 +5848,11 @@ QUnit.test(
     survey.pages[0].addQuestion(q2);
     var q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
     (q1.choices = ["item1", "item2", "item3"]),
-    assert.equal(q1.visibleChoices.length, 3, "Do not show None+hasOther+new: 3");
+    assert.equal(q1.visibleChoices.length, 3, "Do not show None+showOtherItem+new: 3");
     assert.equal(
       q2.visibleChoices.length,
       3,
-      "Show SelectAll+None+hasOther+new: 3"
+      "Show SelectAll+None+showOtherItem+new: 3"
     );
     settings.showDefaultItemsInCreator = true;
   }
@@ -6308,7 +6308,7 @@ QUnit.test("checkbox question item methods", function (assert) {
         type: "checkbox",
         name: "q1",
         choices: ["item1", "item2", "other"],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   };
@@ -6413,7 +6413,7 @@ QUnit.test("Checkbox item, others  and visibleIf bug, #3694", (assert) => {
       {
         "type": "checkbox",
         "name": "question1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [
           "item1",
           {
@@ -6437,7 +6437,7 @@ QUnit.test("SelectBase otherPlaceHolder localized", function (assert) {
       {
         type: "radiogroup",
         name: "car",
-        hasOther: true,
+        showOtherItem: true,
         otherPlaceHolder: {
           "da": "Skriv din begrundelse her...",
           "default": "Write your reason here..."
@@ -6872,13 +6872,13 @@ QUnit.test("storeOthersAsComment: false, renderedValue and ", function (assert) 
       {
         type: "radiogroup",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2, 3]
       },
       {
         type: "checkbox",
         name: "q2",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2, 3]
       }
     ]

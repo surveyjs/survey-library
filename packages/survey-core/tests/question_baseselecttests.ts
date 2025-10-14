@@ -202,7 +202,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
         type: "checkbox",
         name: "Question 1",
         choices: ["Item1", "Item2"],
-        hasOther: true,
+        showOtherItem: true,
         hasSelectAll: true,
         showNoneItem: true,
         colCount: 2
@@ -434,7 +434,7 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
         name: "q1",
         choices: [{ value: "Item1", visibleIf: "1 = 2" }, "Item2", "Item3"],
         showNoneItem: true,
-        hasOther: true
+        showOtherItem: true
       }]
   });
 
@@ -464,7 +464,7 @@ QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem"
         showNoneItem: true,
         showRefuseItem: true,
         showDontKnowItem: true,
-        hasOther: true
+        showOtherItem: true
       }]
   });
 
@@ -493,7 +493,7 @@ QUnit.test("check focus comment of other select", (assert) => {
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: ["item1"]
       }
     ]
@@ -581,7 +581,7 @@ QUnit.test("Apply choice visibleIf correctly on setting survey.data", (assert) =
           },
           "item3",
         ],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -763,7 +763,7 @@ QUnit.test("checkbox:readonly:clickItemHandler", (assert) => {
   q.clickItemHandler(q.choices[2], true);
   assert.deepEqual(q.value, [{ fruit: "banana" }], "nothing changed");
 });
-QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
+QUnit.test("checkbox vs valuePropertyName, check showOtherItem", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -771,7 +771,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
         name: "q1",
         choices: ["apple", "banana", "orange"],
         valuePropertyName: "fruit",
-        hasOther: true
+        showOtherItem: true
       }
     ]
   });
@@ -799,7 +799,7 @@ QUnit.test("checkbox vs valuePropertyName, getDisplayValue", (assert) => {
   //assert.deepEqual(q.getDisplayValue(false, [{ fruite: 1 }]), ["apple", "orange"], "display value for all values");
   //assert.deepEqual(q.getDisplayValue(false), ["apple", "orange"], "display value for all values");
 });
-QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsComment", (assert) => {
+QUnit.test("checkbox vs valuePropertyName, check showOtherItem vs storeOthersAsComment", (assert) => {
   const survey = new SurveyModel({
     storeOthersAsComment: false,
     elements: [
@@ -808,7 +808,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
         name: "q1",
         choices: ["apple", "banana", "orange"],
         valuePropertyName: "fruit",
-        hasOther: true
+        showOtherItem: true
       }
     ]
   });
@@ -819,7 +819,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
 });
-QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsComment & matrix", (assert) => {
+QUnit.test("checkbox vs valuePropertyName, check showOtherItem vs storeOthersAsComment & matrix", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -827,7 +827,7 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
         name: "q1",
         choices: ["apple", "banana", "orange"],
         valuePropertyName: "fruit",
-        hasOther: true
+        showOtherItem: true
       },
       {
         type: "matrixdynamic",
@@ -1073,7 +1073,7 @@ QUnit.test("checkbox and radio css", (assert) => {
 });
 QUnit.test("autoOtherMode property, radiogroup", (assert) => {
   const question = new QuestionRadiogroupModel("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.choices = [1, 2, 3];
   question.autoOtherMode = true;
   assert.equal(question.isOtherSelected, false, "other is not selected by default");
@@ -1100,7 +1100,7 @@ QUnit.test("autoOtherMode property, checkbox", (assert) => {
   survey.addNewPage("p1");
   const question = new QuestionCheckboxModel("q1");
   survey.pages[0].addQuestion(question);
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.choices = [1, 2, 3];
   question.autoOtherMode = true;
   assert.equal(question.isOtherSelected, false, "other is not selected by default");
@@ -1138,7 +1138,7 @@ QUnit.test("check renamed has... properties", (assert) => {
   const question = new QuestionCheckboxModel("q1");
   assert.notOk(question.showNoneItem);
   assert.notOk(question.hasSelectAll);
-  assert.notOk(question.hasOther);
+  assert.notOk(question.showOtherItem);
   assert.notOk(question.hasComment);
   assert.notOk(question.showCommentArea);
 
@@ -1163,10 +1163,10 @@ QUnit.test("check renamed has... properties", (assert) => {
 
   question.showOtherItem = true;
   assert.ok(question.showOtherItem);
-  assert.ok(question.hasOther);
-  question.hasOther = false;
+  assert.ok(question.showOtherItem);
+  question.showOtherItem = false;
   assert.notOk(question.showOtherItem);
-  assert.notOk(question.hasOther);
+  assert.notOk(question.showOtherItem);
 
   question.showCommentArea = true;
   assert.ok(question.showCommentArea);
@@ -1567,8 +1567,8 @@ QUnit.test("Remove newItem from the list if it is false", function (
 QUnit.test("displayValue & otherItem", function (assert) {
   const survey = new SurveyModel({
     elements: [
-      { type: "dropdown", name: "q1", choices: [1], hasOther: true },
-      { type: "checkbox", name: "q2", choices: [1], hasOther: true }
+      { type: "dropdown", name: "q1", choices: [1], showOtherItem: true },
+      { type: "checkbox", name: "q2", choices: [1], showOtherItem: true }
     ]
   });
   const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
@@ -3051,7 +3051,7 @@ QUnit.test("Create multiple choice item for checkbox", (assert) => {
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2, 3]
       }
     ]

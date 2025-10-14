@@ -12,7 +12,7 @@ const jsonCloseOnSelectIsTrue = {
     {
       type: "tagbox",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: true,
       choices: [
         "item1",
@@ -54,7 +54,7 @@ const jsonCloseOnSelectIsDefault = {
     {
       type: "tagbox",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -189,7 +189,7 @@ frameworks.forEach((framework) => {
         {
           type: "tagbox",
           name: "question1",
-          hasOther: "true",
+          showOtherItem: "true",
           closeOnSelect: "false",
           choices: [
             "item1",

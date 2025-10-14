@@ -17,7 +17,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "question1",
-            hasOther: "true",
+            showOtherItem: "true",
             closeOnSelect: "false",
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item13", "item14", "item15", "item16", "item17", "item18", "item19", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27"]
           }
@@ -48,7 +48,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "question12",
-            hasOther: "true",
+            showOtherItem: "true",
             allowClear: false,
             defaultValue: ["item1"],
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7"]
@@ -66,7 +66,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "tagbox",
-            hasOther: "true",
+            showOtherItem: "true",
             searchEnabled: false,
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item13", "item14", "item15", "item16", "item17", "item18", "item19", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27"]
           }
@@ -97,7 +97,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "q1",
-            hasOther: "true",
+            showOtherItem: "true",
             allowClear: false,
             defaultValue: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10",],
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10",]
@@ -152,7 +152,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "tagbox",
-            hasOther: "true",
+            showOtherItem: "true",
             closeOnSelect: false,
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12",]
           }
@@ -190,7 +190,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "tagbox",
-            hasOther: "true",
+            showOtherItem: "true",
             closeOnSelect: false,
             choices: ["item1", "item2", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27", "item28", "item29", "item30", "item31",]
           }
@@ -243,7 +243,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "tagbox",
-            hasOther: "true",
+            showOtherItem: "true",
             choices: ["item1", "item2", "item3"]
           }
         ]
@@ -261,7 +261,7 @@ frameworks.forEach(framework => {
           {
             type: "tagbox",
             name: "tagbox",
-            hasOther: "true",
+            showOtherItem: "true",
             choices: ["item1", "item2", "item3"]
           }
         ]

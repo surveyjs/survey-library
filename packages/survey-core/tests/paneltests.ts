@@ -416,7 +416,7 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function (assert) {
       {
         type: "radiogroup",
         name: "spread",
-        hasOther: true,
+        showOtherItem: true,
         choices: [
           {
             value: "butter",

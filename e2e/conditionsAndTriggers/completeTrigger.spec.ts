@@ -20,7 +20,7 @@ frameworks.forEach((framework) => {
                 type: "checkbox",
                 name: "opSystem",
                 title: "OS",
-                hasOther: true,
+                showOtherItem: true,
                 choices: ["Windows", "Linux", "Macintosh OSX"]
               },
               {

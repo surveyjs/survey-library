@@ -35,7 +35,7 @@ registerMarkupTests(
               "item2",
               "item3"
             ],
-            "hasOther": true,
+            "showOtherItem": true,
             "defaultValue": "other",
             "otherText": "Other (describe)",
             titleLocation: "hidden"
@@ -53,7 +53,7 @@ registerMarkupTests(
           {
             "type": "checkbox",
             "name": "name",
-            "hasOther": true,
+            "showOtherItem": true,
             "defaultValue": "other",
             "otherText": "Other (describe)",
             titleLocation: "hidden"
@@ -73,7 +73,7 @@ registerMarkupTests(
             "choices": [
               "item1",
             ],
-            "hasOther": true,
+            "showOtherItem": true,
             "defaultValue": "other",
             "otherText": "Other (describe)",
             titleLocation: "hidden"
@@ -264,7 +264,7 @@ registerMarkupTests(
             ],
             hasSelectAll: true,
             hasNone: true,
-            hasOther: true,
+            showOtherItem: true,
             titleLocation: "hidden",
             separateSpecialChoices: true
           }
@@ -288,7 +288,7 @@ registerMarkupTests(
             ],
             hasSelectAll: true,
             hasNone: true,
-            hasOther: true,
+            showOtherItem: true,
             separateSpecialChoices: false,
             titleLocation: "hidden"
           }
@@ -314,7 +314,7 @@ registerMarkupTests(
             ],
             hasSelectAll: true,
             hasNone: true,
-            hasOther: true,
+            showOtherItem: true,
             separateSpecialChoices: false,
             titleLocation: "hidden"
           }
@@ -338,7 +338,7 @@ registerMarkupTests(
             ],
             hasSelectAll: true,
             hasNone: true,
-            hasOther: true,
+            showOtherItem: true,
             separateSpecialChoices: true,
             titleLocation: "hidden"
           }

@@ -55,7 +55,7 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
     elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -97,7 +97,7 @@ QUnit.test("Test dropdown renderAs select", assert => {
     elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -145,7 +145,7 @@ QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
     elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       searchEnabled: false,
       choices: [
         "item1",
@@ -432,7 +432,7 @@ QUnit.test("readOnlyText render as select", assert => {
         "name": "q1",
         "renderAs": "select",
         "placeholder": "click",
-        "hasOther": true,
+        "showOtherItem": true,
         "showNoneItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
@@ -460,7 +460,7 @@ QUnit.test("readOnlyText on changing locale", assert => {
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -481,7 +481,7 @@ QUnit.test("inputFieldComponent", assert => {
         "type": "dropdown",
         "itemComponent": "my-item",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -506,7 +506,7 @@ QUnit.test("showSelectedItemLocText", assert => {
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -522,16 +522,15 @@ QUnit.test("showSelectedItemLocText", assert => {
   question.itemComponent = "my-item";
   assert.equal(question.showSelectedItemLocText, false, "#3");
 });
-QUnit.test("selectedItemLocText, hasOther & storeOthersAsComment=false, Bug#3800", assert => {
+QUnit.test("selectedItemLocText, showOtherItem & storeOthersAsComment=false, Bug#3800", assert => {
   const json = {
     storeOthersAsComment: false,
     elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
-        "choices": [1, 2, 3],
-        showOtherItem: true
+        "showOtherItem": true,
+        "choices": [1, 2, 3]
       }]
   };
   const survey = new SurveyModel(json);
@@ -551,7 +550,7 @@ QUnit.test("showInputFieldComponent", assert => {
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -573,7 +572,7 @@ QUnit.test("clearValue", assert => {
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };

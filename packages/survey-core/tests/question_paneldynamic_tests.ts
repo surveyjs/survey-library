@@ -131,7 +131,7 @@ QUnit.test(
     (<QuestionRadiogroupModel>(
       question.template.addNewQuestion("radiogroup", "q2")
     )).choices = [1, 2, 3];
-    question.template.questions[1].hasOther = true;
+    question.template.questions[1].showOtherItem = true;
 
     question.value = [
       { q1: 1, q2: "other", "q2-Comment": "Some Value" },
@@ -3047,7 +3047,7 @@ QUnit.test("Test copyDefaultValueFromLastEntry property", function(assert) {
     "defaultValueFromLastRow is merging with defaultPanelValue"
   );
 });
-QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert) {
+QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic", name: "root",
@@ -3057,8 +3057,8 @@ QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert
             defaultValueFromLastPanel: true,
             panelCount: 0,
             templateElements: [
-              { type: "dropdown", name: "q1", choices: [1, 2, 3], hasOther: true },
-              { type: "dropdown", name: "q2", choices: [1, 2, 3], hasOther: true }
+              { type: "dropdown", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+              { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
             ]
           }
         ]
@@ -3665,7 +3665,7 @@ QUnit.test(
               type: "radiogroup",
               name: "radio",
               choices: ["item1", "item2", "item3"],
-              hasOther: true,
+              showOtherItem: true,
             },
           ],
         },
@@ -5476,7 +5476,7 @@ QUnit.test("checkbox vs valuePropertyName and display text", (assert) => {
         choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
         valueName: "data1",
         valuePropertyName: "fruit",
-        hasOther: true
+        showOtherItem: true
       },
       {
         type: "paneldynamic",

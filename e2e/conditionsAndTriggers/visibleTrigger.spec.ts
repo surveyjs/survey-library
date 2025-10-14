@@ -51,7 +51,7 @@ const json = {
       name: "type",
       isRequired: true,
       colCount: 4,
-      hasOther: true,
+      showOtherItem: true,
       title: "Please select the sport cars type.",
       choices: [
         "Hot hatch",
@@ -71,7 +71,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: ["Honda Civic Type R", "Renault Megane RS", "Fiat 500 Abarth"]
     },
     {
@@ -81,7 +81,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: [
         "BMW M5",
         "Mazdaspeed6/Mazda 6 MPS",
@@ -98,7 +98,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: ["Chevrolet Corvette", "Mazda MX-5", "Porsche 911"]
     },
     {
@@ -108,7 +108,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: ["Aston Martin V8", "Lexus SC300/400", "Ferrari 612 Scaglietti"]
     },
     {
@@ -118,7 +118,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: ["McLaren P1", "Lamborghini Miura", "Bugatti Veyron 16.4"]
     },
     {
@@ -128,7 +128,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: [
         "Ford Torino",
         "Plymouth Road Runner",
@@ -145,7 +145,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: ["AMC Javelin", "Chevrolet Camaro", "Dodge Challenger"]
     },
     {
@@ -155,7 +155,7 @@ const json = {
       colCount: 4,
       visible: false,
       title: "Please select the car",
-      hasOther: true,
+      showOtherItem: true,
       choices: ["Honda S2000", "Volkswagen Eos", "Volvo C70"]
     },
     {

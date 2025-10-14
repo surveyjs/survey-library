@@ -13,7 +13,7 @@ const jsonTagbox = {
   elements: [{
     type: "tagbox",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     choices: [
       "item1",
       "item2",
@@ -52,7 +52,7 @@ QUnit.test("clearValue", assert => {
       {
         "type": "tagbox",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -137,7 +137,7 @@ const jsonTagboxWithSelectAll = {
   elements: [{
     type: "tagbox",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     showNoneItem: "true",
     hasSelectAll: "true",
     choices: [
@@ -985,7 +985,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     elements: [{
       type: "tagbox",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -997,7 +997,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     {
       type: "tagbox",
       name: "question2",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: true,
       choices: [
         "item1",
@@ -1010,7 +1010,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     {
       type: "tagbox",
       name: "question3",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: "false",
       choices: [
         "item1",
@@ -1023,7 +1023,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     {
       type: "tagbox",
       name: "question4",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: "true",
       choices: [
         "item1",

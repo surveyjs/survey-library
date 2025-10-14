@@ -1161,7 +1161,7 @@ QUnit.test("Do not set comments on running values", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");
   var question = new QuestionCheckboxModelTester("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "id";
@@ -1186,7 +1186,7 @@ QUnit.test("Set comment on incorrect value", function(assert) {
   survey.storeOthersAsComment = false;
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "id";
@@ -1212,7 +1212,7 @@ QUnit.test("Set comment on incorrect value and empty results", function(
   survey.storeOthersAsComment = false;
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "id";
@@ -1811,7 +1811,7 @@ QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
   question.rowCount = 1;
   var column = question.addColumn("country");
   column.cellType = "dropdown";
-  column.hasOther = true;
+  column.showOtherItem = true;
   column["choicesByUrl"].url = "allcountries";
   column["choicesByUrl"].path = "RestResponse;result";
   survey.pages[0].addQuestion(question);
@@ -1831,7 +1831,7 @@ QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
   assert.equal(
     cellDropdown.visibleChoices.length,
     5 + 1,
-    "Choices are loaded, + hasOther"
+    "Choices are loaded, + showOtherItem"
   );
   assert.equal(cellDropdown.value, "Afghanistan");
   survey.doComplete();

@@ -375,9 +375,15 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.readOnly = val;
   }
   public get hasOther(): boolean {
-    return this.templateQuestion.showOtherItem;
+    return this.showOtherItem;
   }
   public set hasOther(val: boolean) {
+    this.showOtherItem = val;
+  }
+  public get showOtherItem(): boolean {
+    return this.templateQuestion.showOtherItem;
+  }
+  public set showOtherItem(val: boolean) {
     this.templateQuestion.showOtherItem = val;
   }
   /**

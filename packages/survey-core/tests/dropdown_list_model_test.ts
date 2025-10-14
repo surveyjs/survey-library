@@ -13,7 +13,7 @@ const jsonDropdown = {
   elements: [{
     type: "dropdown",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     choices: [
       "item1",
       "item2",
@@ -145,7 +145,7 @@ QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) =>
       type: "dropdown",
       name: "question1",
       searchEnabled: "false",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -378,7 +378,7 @@ QUnit.test("showHintString for zero values", function (assert) {
     elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       searchEnabled: false,
       choices: [
         0,
@@ -806,7 +806,7 @@ QUnit.test("hintString letter case", function (assert) {
     elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "AbcAbc",
         "cAbcAb",
@@ -836,7 +836,7 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
     { value: 1, text: "text1markdown" },
     { value: 2, text: "text2markdown" },
   ];
-  q1.hasOther = true;
+  q1.showOtherItem = true;
   survey.onTextMarkdown.add(function (survey, options) {
     options.html = options.text;
   });

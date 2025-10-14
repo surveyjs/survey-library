@@ -34,7 +34,7 @@ registerMarkupTests(
             "item2",
             "item3"
           ],
-          "hasOther": true,
+          "showOtherItem": true,
           "defaultValue": "other",
           "otherText": "Other (describe)",
           titleLocation: "hidden"
@@ -220,7 +220,7 @@ registerMarkupTests(
             "item2"
           ],
           hasNone: true,
-          hasOther: true,
+          showOtherItem: true,
           titleLocation: "hidden",
           separateSpecialChoices: true
         }
@@ -243,7 +243,7 @@ registerMarkupTests(
             "item2"
           ],
           hasNone: true,
-          hasOther: true,
+          showOtherItem: true,
           separateSpecialChoices: false,
           titleLocation: "hidden"
         }
@@ -268,7 +268,7 @@ registerMarkupTests(
             "item2"
           ],
           hasNone: true,
-          hasOther: true,
+          showOtherItem: true,
           titleLocation: "hidden",
           separateSpecialChoices: true
         }
@@ -291,7 +291,7 @@ registerMarkupTests(
             "item2"
           ],
           hasNone: true,
-          hasOther: true,
+          showOtherItem: true,
           separateSpecialChoices: false,
           titleLocation: "hidden"
         }

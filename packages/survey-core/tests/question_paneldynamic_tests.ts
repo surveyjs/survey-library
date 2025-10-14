@@ -3858,7 +3858,7 @@ QUnit.test(
             },
           ],
           panelCount: 2,
-          panelAddText: "Add a blood relative",
+          addPanelText: "Add a blood relative",
           panelRemoveText: "Remove the relative",
         },
       ],
@@ -5991,7 +5991,7 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
           }
         ],
         panelCount: 2,
-        panelAddText: "Add a blood relative",
+        addPanelText: "Add a blood relative",
         panelRemoveText: "Remove the relative"
       }
     ],
@@ -6075,7 +6075,7 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
           }
         ],
         panelCount: 2,
-        panelAddText: "Add a blood relative",
+        addPanelText: "Add a blood relative",
         panelRemoveText: "Remove the relative"
       }
     ],

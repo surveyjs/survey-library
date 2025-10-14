@@ -32,7 +32,7 @@ var json = {
       ],
       panelCount: 2,
       noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
-      panelAddText: "Add application",
+      addPanelText: "Add application",
       panelRemoveText: "Remove application",
       maxWidth: "768px",
       minWidth: "768px",
@@ -231,7 +231,7 @@ frameworks.forEach(framework => {
                   }
                 ],
                 panelCount: 2,
-                panelAddText: "Add a blood relative",
+                addPanelText: "Add a blood relative",
                 panelRemoveText: "Remove the relative"
               }
             ]

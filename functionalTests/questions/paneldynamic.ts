@@ -135,7 +135,7 @@ const json = {
               ],
             },
           ],
-          panelAddText: "Add a blood relative",
+          addPanelText: "Add a blood relative",
           panelRemoveText: "Remove the relative",
         },
       ],
@@ -459,11 +459,11 @@ frameworks.forEach((framework) => {
       ]
     });
   });
-  test("Reactive panelAddText/panelRemoveText - #7658", async (t) => {
+  test("Reactive addPanelText/panelRemoveText - #7658", async (t) => {
     const changeButtonsText = ClientFunction(
       () => {
         const q = window["survey"].getQuestionByName("panel1");
-        q.panelAddText = "#Add#";
+        q.addPanelText = "#Add#";
         q.panelRemoveText = "#Remove#";
       }
     );

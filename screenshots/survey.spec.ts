@@ -284,7 +284,7 @@ frameworks.forEach(framework => {
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
-        "maxTimeToFinish": 60,
+        "timeLimit": 60,
         "widthMode": "responsive",
         "firstPageIsStartPage": true,
         "pages": [
@@ -358,7 +358,7 @@ frameworks.forEach(framework => {
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
-        "maxTimeToFinish": 60,
+        "timeLimit": 60,
         "widthMode": "static",
         "firstPageIsStartPage": true,
         "pages": [

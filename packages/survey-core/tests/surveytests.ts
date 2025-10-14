@@ -16378,7 +16378,7 @@ QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (a
     showProgressBar: "bottom",
     showTimerPanel: "top",
     maxTimeToFinishPage: 10,
-    maxTimeToFinish: 25,
+    timeLimit: 25,
     pages: [
       {
         elements: [

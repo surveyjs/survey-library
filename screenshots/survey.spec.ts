@@ -19,7 +19,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         headerView: "basic",
         title: "Survey Title",
         widthMode: "responsive",
@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
         logo: upArrowImageLink,
@@ -131,7 +131,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         headerView: "basic",
         title: "Test",
         widthMode: "static",
@@ -145,7 +145,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 700, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         headerView: "basic",
         title: "Test",
         widthMode: "static",
@@ -182,7 +182,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "backgroundImage": backgroundImage,
         "backgroundOpacity": 0.7,
         "pages": [
@@ -279,7 +279,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         headerView: "basic",
         "title": "American History",
         "showTimerPanel": "bottom",
@@ -353,7 +353,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         headerView: "basic",
         "title": "American History",
         "showTimerPanel": "bottom",
@@ -427,7 +427,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         headerView: "basic",
         "title": "American History",
         "showTimerPanel": "bottom",
@@ -706,7 +706,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -775,7 +775,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Software developer survey.",
         showTOC: true,
         tocLocation: "right",
@@ -998,7 +998,7 @@ frameworks.forEach(framework => {
       });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -1062,7 +1062,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -1127,7 +1127,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1600, height: 900 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -1448,7 +1448,7 @@ frameworks.forEach(framework => {
       });
       const json = {
         showQuestionNumbers: "on",
-        "focusFirstQuestionAutomatic": true,
+        "autoFocusFirstQuestion": true,
         "elements": [
           {
             "type": "text",

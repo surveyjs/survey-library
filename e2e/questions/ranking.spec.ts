@@ -9,7 +9,7 @@ frameworks.forEach((framework) => {
     });
     test("is focused after page changed", async ({ page }) => {
       const json = {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         pages: [
           {
             name: "page1",

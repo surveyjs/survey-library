@@ -81,7 +81,7 @@ frameworks.forEach(framework => {
     test("item focused state for keyboard navigation", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
         elements: [
           {
@@ -134,7 +134,7 @@ frameworks.forEach(framework => {
     test("Check dropdown select question with clear button", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
         elements: [
           {
@@ -272,7 +272,7 @@ frameworks.forEach(framework => {
     test("Check dropdown with markdown", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       const json = {
-        focusFirstQuestionAutomatic: false,
+        autoFocusFirstQuestion: false,
         showQuestionNumbers: "off",
         elements: [
           {
@@ -366,7 +366,7 @@ frameworks.forEach(framework => {
       await registerCustomItemComponent(page, framework);
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         elements: [
           {
             type: "dropdown",

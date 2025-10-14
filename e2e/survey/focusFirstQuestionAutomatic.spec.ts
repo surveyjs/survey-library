@@ -1,9 +1,9 @@
 import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewport, test, expect } from "../helper";
 
-const title = "focusFirstQuestionAutomatic";
+const title = "autoFocusFirstQuestion";
 
 const json = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   pages: [
     { elements: [{ type: "text", name: "q1" }] },
     { elements: [{ type: "text", name: "q2" }] }
@@ -35,7 +35,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Check first focused question, avoid focusing question in code", async ({ page }) => {
-      await initSurvey(page, framework, json, false, { focusFirstQuestionAutomatic: false });
+      await initSurvey(page, framework, json, false, { autoFocusFirstQuestion: false });
       await page.keyboard.type("val1");
       await page.click("input[value=Next]");
       await page.keyboard.type("val2");
@@ -46,9 +46,9 @@ frameworks.forEach((framework) => {
     });
 
     test("Check first focused question, avoid focusing question in json", async ({ page }) => {
-      json["focusFirstQuestionAutomatic"] = false;
+      json["autoFocusFirstQuestion"] = false;
       await initSurvey(page, framework, json);
-      json["focusFirstQuestionAutomatic"] = true;
+      json["autoFocusFirstQuestion"] = true;
       await page.keyboard.type("val1");
       await page.click("input[value=Next]");
       await page.keyboard.type("val2");

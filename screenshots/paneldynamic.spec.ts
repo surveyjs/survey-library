@@ -365,7 +365,7 @@ frameworks.forEach(framework => {
     test("Paneldynamic confirm dialog", async ({ page }) => {
       const json = {
         showQuestionNumbers: "on",
-        "focusFirstQuestionAutomatic": true,
+        "autoFocusFirstQuestion": true,
         "pages": [
           {
             "name": "page1",

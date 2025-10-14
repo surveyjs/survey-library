@@ -297,7 +297,7 @@ frameworks.forEach((framework) => {
 });
 
 const json3 = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   elements: [
     {
       type: "matrixdynamic",
@@ -587,7 +587,7 @@ frameworks.forEach((framework) => {
   });
   test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "paneldynamic",
@@ -610,7 +610,7 @@ frameworks.forEach((framework) => {
   });
   test("Focus first input on removing and adding panels, #8940", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "paneldynamic",

@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         elements: [
           {
             type: "text",
@@ -30,7 +30,7 @@ frameworks.forEach(framework => {
     test("Check simple question on smartphone screen", async ({ page }) => {
       await page.setViewportSize({ width: 391, height: 712 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "elements": [{
           "name": "username",
           "type": "text",
@@ -81,7 +81,7 @@ frameworks.forEach(framework => {
       });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         elements: [
           {
             type: "text",
@@ -470,7 +470,7 @@ frameworks.forEach(framework => {
             "colCount": 5
           }
         ],
-        "focusFirstQuestionAutomatic": true // do not remove, it is need to check container clipping
+        "autoFocusFirstQuestion": true // do not remove, it is need to check container clipping
       });
 
       await compareScreenshot(page, ".sd-question", "responsiveness-checkbox-col-count-5-wide.png");
@@ -521,7 +521,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework,
         {
           showQuestionNumbers: "on",
-          focusFirstQuestionAutomatic: true,
+          autoFocusFirstQuestion: true,
           description: "Survey Description",
           title: "Title",
           widthMode: "static",

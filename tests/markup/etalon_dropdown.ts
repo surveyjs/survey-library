@@ -354,7 +354,7 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => {
-        survey.focusFirstQuestionAutomatic = false;
+        survey.autoFocusFirstQuestion = false;
         survey.onAfterRenderQuestion.add((target, options) => {
           options.question["popupModel"];
           options.question["dropdownListModel"].inputStringRendered = "o";
@@ -387,7 +387,7 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => {
-        survey.focusFirstQuestionAutomatic = false;
+        survey.autoFocusFirstQuestion = false;
         survey.onAfterRenderQuestion.add((target, options) => {
           options.question["popupModel"];
           options.question["dropdownListModel"].inputStringRendered = "o";
@@ -420,7 +420,7 @@ registerMarkupTests(
         ]
       },
       initSurvey: (survey) => {
-        survey.focusFirstQuestionAutomatic = false;
+        survey.autoFocusFirstQuestion = false;
         survey.getQuestionByName("name")["popupModel"];
         survey.getQuestionByName("name")["dropdownListModel"].focused = true;
       },

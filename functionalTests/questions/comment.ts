@@ -159,7 +159,7 @@ frameworks.forEach(framework => {
     const characterCounter = Selector(".sd-remaining-character-counter");
 
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           name: "comment",

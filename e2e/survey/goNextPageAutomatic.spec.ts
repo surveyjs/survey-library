@@ -19,7 +19,7 @@ frameworks.forEach((framework) => {
             ]
           }
         ],
-        "focusFirstQuestionAutomatic": true,
+        "autoFocusFirstQuestion": true,
         "goNextPageAutomatic": true,
         "questionsOnPageMode": "questionPerPage",
       };

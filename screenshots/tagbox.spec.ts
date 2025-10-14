@@ -91,7 +91,7 @@ frameworks.forEach(framework => {
     test("Check tagbox multivalue selected items", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 900 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
         elements: [
           {
@@ -255,7 +255,7 @@ frameworks.forEach(framework => {
     test("Check tagbox input width", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 900 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
         elements: [
           {
@@ -275,7 +275,7 @@ frameworks.forEach(framework => {
     test("Check readOnly tagbox with markdown", async ({ page }) => {
       await page.setViewportSize({ width: 900, height: 400 });
       const json = {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
         mode: "display",
         elements: [

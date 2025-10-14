@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Check question title font size", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "pages": [
@@ -84,7 +84,7 @@ frameworks.forEach(framework => {
     test("Check question title font size, #2", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "elements": [{
@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
     test("Check items size & colors", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 2000 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "elements": [
@@ -234,7 +234,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "logoPosition": "right",
         "pages": [
           {
@@ -498,7 +498,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",

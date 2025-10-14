@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
         logo: upArrowImageLink,
@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
         logo: upArrowImageLink,
@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
         logo: upArrowImageLink,
@@ -129,7 +129,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
         elements: [

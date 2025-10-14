@@ -6,7 +6,7 @@ const questionOffsetTopConst = 176;
 const singleListItemHeight = 56;
 
 const jsonCloseOnSelectIsTrue = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   showQuestionNumbers: "off",
   elements: [
     {
@@ -48,7 +48,7 @@ const jsonCloseOnSelectIsTrue = {
 };
 
 const jsonCloseOnSelectIsDefault = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   showQuestionNumbers: "off",
   elements: [
     {
@@ -418,7 +418,7 @@ frameworks.forEach((framework) => {
 
   test("check tagbox after navigating between pages", async t => {
     const json = {
-      "focusFirstQuestionAutomatic": false,
+      "autoFocusFirstQuestion": false,
       "pages": [
         {
           "name": "page1",
@@ -531,7 +531,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url}${framework}`)("Check popup height with lazy loading", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "tagbox",
@@ -628,7 +628,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url}${framework}`)("Check popup height and position while searching", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "tagbox",
@@ -761,7 +761,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url}${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "tagbox",
@@ -858,7 +858,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url}${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "tagbox",

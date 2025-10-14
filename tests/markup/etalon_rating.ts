@@ -206,7 +206,7 @@ registerMarkupTests(
       let q1 = survey.getQuestionByName("name");
       const dropdownListModel = new DropdownListModel(q1);
       q1["dropdownListModel"] = dropdownListModel;
-      survey.focusFirstQuestionAutomatic = false;
+      survey.autoFocusFirstQuestion = false;
       q1["dropdownListModel"].onFocus(null);
     },
     timeout: 300,

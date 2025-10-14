@@ -655,7 +655,7 @@ QUnit.test(
             {
               type: "matrixdropdown",
               name: "question3",
-              useDisplayValuesInTitle: false,
+              useDisplayValuesInDynamicTexts: false,
               isRequired: true,
               defaultValue: { item1: { col1: "val1" } },
               columns: [{ cellType: "text", name: "col1" }],

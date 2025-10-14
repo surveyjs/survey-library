@@ -222,7 +222,7 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = page.locator(".sd-question");
       await matrixdynamicRoot.locator(".sd-table__row").first().hover();
-      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowReorder.png");
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowsDragAndDrop.png");
     });
 
     test("Check Matrixdynamic with allowRowReorder & lockedRowCount=1", async ({ page }) => {
@@ -242,10 +242,10 @@ frameworks.forEach(framework => {
 
       const matrixdynamicRoot = page.locator(".sd-question");
       await matrixdynamicRoot.locator(".sd-table__row").nth(0).hover();
-      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowReorder-lockedRowCount.png");
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowsDragAndDrop-lockedRowCount.png");
 
       await matrixdynamicRoot.locator(".sd-table__row").nth(1).hover();
-      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowReorder-lockedRowCount-2.png");
+      await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-allowRowsDragAndDrop-lockedRowCount-2.png");
 
       await page.evaluate(() => { (window as any).survey.getAllQuestions()[0].allowRowReorder = false; });
       await compareScreenshot(page, matrixdynamicRoot, "matrixdynamic-lockedRowCount.png");

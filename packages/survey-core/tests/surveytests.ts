@@ -4526,77 +4526,77 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
     false,
     "showNavigationButtons = none, #top"
   );
-  survey.pages[0].navigationButtonsVisibility = "show";
+  survey.pages[0].showNavigationButtons = true;
   assert.equal(
     survey.isNavigationButtonsShowing,
     "bottom",
-    "navigationButtonsVisibility = 'show' && showNavigationButtons = false"
+    "showNavigationButtons = true && showNavigationButtons = false"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
-    "navigationButtonsVisibility = 'show' && showNavigationButtons = false, #bottom"
+    "showNavigationButtons = true && showNavigationButtons = false, #bottom"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnTop,
     false,
-    "navigationButtonsVisibility = 'show' && showNavigationButtons = false, #top"
+    "showNavigationButtons = true && showNavigationButtons = false, #top"
   );
-  survey.showNavigationButtons = true;
-  survey.pages[0].navigationButtonsVisibility = "hide";
+  survey.showNavigationButtons = false;
+  survey.pages[0].showNavigationButtons = false;
   assert.equal(
     survey.isNavigationButtonsShowing,
     "none",
-    "navigationButtonsVisibility = 'hide' && showNavigationButtons = true"
+    "showNavigationButtons = false && showNavigationButtons = false"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     false,
-    "navigationButtonsVisibility = 'hide' && showNavigationButtons = true, #bottom"
+    "showNavigationButtons = false && showNavigationButtons = false, #bottom"
   );
   survey.showNavigationButtons = true;
-  survey.pages[0].navigationButtonsVisibility = "inherit";
+  survey.pages[0].showNavigationButtons = "inherit";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "bottom",
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true"
+    "showNavigationButtons = 'inherit' && showNavigationButtons = true"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true, #bottom"
+    "showNavigationButtons = 'inherit' && showNavigationButtons = true, #bottom"
   );
 
   survey.showNavigationButtons = "both";
   assert.equal(survey.showNavigationButtons, true, "showNavigationButtons is true showNavigationButtons = both");
   assert.equal(survey.navigationButtonsLocation, "topBottom", "navigationButtonsLocation is topBottom showNavigationButtons = both");
-  assert.equal(survey.isNavigationButtonsShowing, "topBottom", "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both");
+  assert.equal(survey.isNavigationButtonsShowing, "topBottom", "showNavigationButtons = undefined && showNavigationButtons = both");
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both, #bottom"
+    "showNavigationButtons = 'inherit' && showNavigationButtons = both, #bottom"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnTop,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both, #top"
+    "showNavigationButtons = undefined && showNavigationButtons = both, #top"
   );
 
   survey.showNavigationButtons = "top";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "top",
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top"
+    "showNavigationButtons = undefined && showNavigationButtons = top"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     false,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #bottom"
+    "showNavigationButtons = undefined && showNavigationButtons = top, #bottom"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnTop,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #top"
+    "showNavigationButtons = undefined && showNavigationButtons = top, #top"
   );
 });
 
@@ -18986,11 +18986,11 @@ QUnit.test("If localizable string has isLocalizable set to false then it should 
   titleProp.isLocalizable = true;
 });
 
-QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibility", function (assert) {
+QUnit.test("getContainerContent - navigation with page.showNavigationButtons", function (assert) {
   const json = {
     pages: [
       {
-        "navigationButtonsVisibility": "hide",
+        "showNavigationButtons": false,
         "elements": [
           {
             required: true,
@@ -19005,7 +19005,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
         ]
       },
       {
-        "navigationButtonsVisibility": "show",
+        "showNavigationButtons": true,
         "elements": [
           {
             "type": "radiogroup",
@@ -19063,13 +19063,13 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 });
-QUnit.test("survey.showNavigationButtons = 'none', page.navigationButtonsVisibility = 'show' & firstPageIsStarted is true, Bug#9248", function (assert) {
+QUnit.test("survey.showNavigationButtons = 'none', page.showNavigationButtons = true & firstPageIsStarted is true, Bug#9248", function (assert) {
   const survey = new SurveyModel({
     showNavigationButtons: "none",
     firstPageIsStarted: true,
     pages: [
       {
-        "navigationButtonsVisibility": "show",
+        "showNavigationButtons": true,
         "elements": [{ type: "text", name: "q1" }]
       },
       {

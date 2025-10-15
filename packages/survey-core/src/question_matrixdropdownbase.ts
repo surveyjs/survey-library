@@ -102,6 +102,7 @@ export class MatrixDropdownCell {
     data: IMatrixDropdownData
   ): Question {
     const res = data.createQuestion(this.row, this.column);
+    res.onFirstRendering();
     res.readOnlyCallback = (): boolean => !this.row.isRowEnabled();
     res.validateValueCallback = function () {
       return data.validateCell(row, column.name, row.value);

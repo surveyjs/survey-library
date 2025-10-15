@@ -769,7 +769,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("renderedErrors", val);
   }
   public calcRenderedErrors(): Array<SurveyError> {
-    const currentType = this.calcCurrentNotificationType();
+    const currentType = this.currentNotificationType;
     return this.errors.filter((e=> {
       return e.visible && e.notificationType === currentType;
     }));
@@ -777,10 +777,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get currentNotificationType(): string {
     return this.getPropertyValue("currentNotificationType", undefined, () => this.calcCurrentNotificationType());
   }
-  public set currentNotificationType(val: string) {
-    this.setPropertyValue("currentNotificationType", val);
-  }
-  public calcCurrentNotificationType(): string {
+  private calcCurrentNotificationType(): string {
     let currentType = "";
     const types = ["info", "warning", "error"];
 
@@ -796,15 +793,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return currentType;
   }
   @property({ defaultValue: false }) hasVisibleErrors: boolean;
-  private updateVisibleErrors() {
+  protected updateVisibleErrors() {
+    this.resetPropertyValue("currentNotificationType");
     var counter = 0;
     for (var i = 0; i < this.errors.length; i++) {
       if (this.errors[i].visible) counter++;
     }
     this.hasVisibleErrors = counter > 0;
     this.renderedErrors = this.calcRenderedErrors();
-    this.setPropertyValue("currentNotificationType", this.calcCurrentNotificationType());
-    this.currentNotificationType = this.calcCurrentNotificationType();
   }
   /**
    * Returns `true` if the survey element or its child elements have validation errors.

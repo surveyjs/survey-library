@@ -11084,8 +11084,15 @@ QUnit.test("SurveyError.notificationType & validate in matrices,Issue#9085", fun
   assert.equal(cell2.errors.length, 2, "There is an error, cell2");
   assert.equal(cell2["hasCssError"](), true, "There is css error, cell2");
   assert.equal(cell2["hasCssError"](true), true, "There is css error, cell2");
+  assert.equal(cell2.getPropertyValue("currentNotificationType"), "error", "the currentNotificationType is error");
+  assert.equal(cell1.wasRendered, true, "cell1 was rendered, #1");
   cell2.value = 8;
   assert.equal(cell2.errors.length, 1, "There is a warning, cell2");
+  assert.equal(cell2.errors[0].notificationType, "warning", "it is a warning");
+  assert.equal(cell2.errors[0].isWarning, true, "it is a warning");
+  assert.equal(cell2.errors[0].isError, false, "it is not an error");
+  assert.equal(cell1.wasRendered, true, "cell1 was rendered, #2");
+  assert.equal(cell2.getPropertyValue("currentNotificationType"), "warning", "the currentNotificationType is warning");
   assert.equal(cell2["hasCssError"](), false, "There is css error, cell2");
   assert.equal(cell2["hasCssError"](true), true, "There is a css warning, cell2");
   assert.equal(survey.tryComplete(), true, "There is no error, complete the survey");

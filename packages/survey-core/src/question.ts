@@ -378,9 +378,6 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["_isMobile"], () => { this.onMobileChanged(); });
     this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
-    this.registerPropertyChangedHandlers(["currentNotificationType"], () => {
-      this.updateQuestionCss();
-    });
   }
   protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
@@ -1779,6 +1776,10 @@ export class Question extends SurveyElement<Question>
       if (er.visible && (includeWarning || er.isError)) return true;
     }
     return this.hasCssErrorCallback();
+  }
+  protected updateVisibleErrors() {
+    super.updateVisibleErrors();
+    this.updateQuestionCss();
   }
   private get isSingleInputQuestionMode(): boolean {
     return !!this.parentQuestion && this.survey?.isSingleVisibleInput;

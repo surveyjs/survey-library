@@ -76,7 +76,10 @@ function useCoreRef(options: {
     };}), clear };
 }
 function onArrayChanged(surveyElement: Base, options: IOnArrayChangedEvent): void {
-
+  const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
+  if (isUpdateAllowed()) {
+    options.name
+  }
 }
 export function makeReactive(
   surveyElement: Base) {

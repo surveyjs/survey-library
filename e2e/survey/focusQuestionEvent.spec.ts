@@ -10,7 +10,7 @@ frameworks.forEach((framework) => {
 
     test("Check question focus event", async ({ page }) => {
       const json = {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         pages: [
           {
             elements: [
@@ -194,7 +194,7 @@ frameworks.forEach((framework) => {
 
     test("Check question focus event with multiple questions", async ({ page }) => {
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         pages: [
           {
             elements: [

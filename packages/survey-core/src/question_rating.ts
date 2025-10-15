@@ -186,7 +186,7 @@ export class QuestionRatingModel extends Question {
     } else {
       newCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
     }
-    if (newCount > 10 && this.rateDisplayMode == "smileys") {
+    if (newCount > 10 && this.rateType == "smileys") {
       newCount = 10;
     }
     this.rateCount = newCount;
@@ -199,7 +199,7 @@ export class QuestionRatingModel extends Question {
           this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
         } else {
           if (this.rateCount < this.rateValues.length) {
-            if (this.rateCount >= 10 && this.rateDisplayMode == "smileys") return;
+            if (this.rateCount >= 10 && this.rateType == "smileys") return;
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
             for (let i = this.rateValues.length; i < this.rateCount; i++) {
@@ -1013,7 +1013,7 @@ Serializer.addClass(
       default: "monochrome",
       choices: ["monochrome", "colored"],
       visibleIf: function (obj: any) {
-        return obj.rateDisplayMode == "smileys";
+        return obj.rateType == "smileys";
       },
       visibleIndex: 2
     },
@@ -1023,7 +1023,7 @@ Serializer.addClass(
       default: "scale",
       choices: ["default", "scale"],
       visibleIf: function (obj: any) {
-        return obj.rateDisplayMode == "smileys" && obj.scaleColorMode == "monochrome";
+        return obj.rateType == "smileys" && obj.scaleColorMode == "monochrome";
       },
       visibleIndex: 3
     },
@@ -1042,7 +1042,7 @@ Serializer.addClass(
       onSettingValue: (obj: any, val: any): any => {
         if (val < 2) return 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
-        if (val > 10 && obj.rateDisplayMode == "smileys") return 10;
+        if (val > 10 && obj.rateType == "smileys") return 10;
         return val;
       },
     },

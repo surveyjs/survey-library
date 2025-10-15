@@ -4,7 +4,7 @@ const title = "comment";
 
 const commentQuestion = Selector(".sd-question textarea");
 const json = {
-  questions: [
+  elements: [
     {
       type: "comment",
       name: "suggestions",
@@ -31,7 +31,7 @@ frameworks.forEach(framework => {
             {
               "type": "radiogroup",
               "name": "question2",
-              "hasComment": true,
+              "showCommentArea": true,
               "commentText": "Comment text"
             },
             {
@@ -101,7 +101,7 @@ frameworks.forEach(framework => {
       "showQuestionNumbers": "off",
       "widthMode": "static",
       "width": "500px",
-      questions: [
+      elements: [
         {
           name: "name",
           type: "comment",
@@ -159,8 +159,8 @@ frameworks.forEach(framework => {
     const characterCounter = Selector(".sd-remaining-character-counter");
 
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
-      questions: [
+      autoFocusFirstQuestion: true,
+      elements: [
         {
           name: "comment",
           type: "comment",

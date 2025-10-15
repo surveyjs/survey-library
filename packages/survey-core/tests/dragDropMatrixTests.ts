@@ -35,7 +35,7 @@ QUnit.test("matrix.lockedRowCount", function (assert) {
       type: "matrixdynamic",
       name: "test",
       rowCount: 2,
-      allowRowsDragAndDrop: true,
+      allowRowReorder: true,
       columns: [
         { cellType: "text", name: "value" },
         { cellType: "text", name: "text" },

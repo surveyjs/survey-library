@@ -6,7 +6,7 @@ const title = "Paneldynamic Screenshot";
 var json = {
   showQuestionNumbers: "off",
   width: "900px",
-  questions: [
+  elements: [
     {
       type: "paneldynamic",
       name: "applications",
@@ -32,8 +32,8 @@ var json = {
       ],
       panelCount: 2,
       noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
-      panelAddText: "Add application",
-      panelRemoveText: "Remove application",
+      addPanelText: "Add application",
+      removePanelText: "Remove application",
       maxWidth: "768px",
       minWidth: "768px",
       width: "768px"
@@ -231,8 +231,8 @@ frameworks.forEach(framework => {
                   }
                 ],
                 panelCount: 2,
-                panelAddText: "Add a blood relative",
-                panelRemoveText: "Remove the relative"
+                addPanelText: "Add a blood relative",
+                removePanelText: "Remove the relative"
               }
             ]
           }
@@ -365,7 +365,7 @@ frameworks.forEach(framework => {
     test("Paneldynamic confirm dialog", async ({ page }) => {
       const json = {
         showQuestionNumbers: "on",
-        "focusFirstQuestionAutomatic": true,
+        "autoFocusFirstQuestion": true,
         "pages": [
           {
             "name": "page1",

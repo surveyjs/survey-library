@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "checkbox",
             title: "Which cities have you visited?",
@@ -46,7 +46,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "checkbox",
             title: "Which cities have you visited?",
@@ -74,12 +74,12 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "radiogroup",
             "name": "car",
             "title": "What car are you driving?",
-            "hasNone": true,
+            "showNoneItem": true,
             "colCount": 0,
             "choices": [
               "Ford",
@@ -108,7 +108,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, question, "radiogroup-col-count-4.png");
 
       await page.evaluate(() => {
-        (window as any).survey.getAllQuestions()[0].showClearButton = true;
+        (window as any).survey.getAllQuestions()[0].allowClear = true;
       });
       await compareScreenshot(page, question, "radiogroup-clear-button.png");
     });
@@ -117,7 +117,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "radiogroup",
             title: "Which city have you visited?",
@@ -154,7 +154,7 @@ frameworks.forEach(framework => {
                 "choices": [
                   "choice1"
                 ],
-                "hasComment": true,
+                "showCommentArea": true,
                 "name": "q1",
                 "commentText": "Please feel free to share your thoughts in the comment box down below"
               }

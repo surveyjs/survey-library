@@ -5,7 +5,7 @@ registerMarkupTests(
   [{
     name: "Test Rating question integers",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -20,7 +20,7 @@ registerMarkupTests(
   {
     name: "Test Rating question integers readonly",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -36,7 +36,7 @@ registerMarkupTests(
   {
     name: "Test Rating question integers disabled",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -52,7 +52,7 @@ registerMarkupTests(
   {
     name: "Test Rating question min/max labels disabled",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -69,7 +69,7 @@ registerMarkupTests(
   {
     name: "Test Rating question min/max items",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -87,7 +87,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as dropdown",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -104,7 +104,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as dropdown with description",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -135,7 +135,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as dropdown readonly",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -153,7 +153,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as dropdown readonly with value",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -172,7 +172,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as dropdown disabled with value",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -190,7 +190,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as dropdown with value focused",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -206,7 +206,7 @@ registerMarkupTests(
       let q1 = survey.getQuestionByName("name");
       const dropdownListModel = new DropdownListModel(q1);
       q1["dropdownListModel"] = dropdownListModel;
-      survey.focusFirstQuestionAutomatic = false;
+      survey.autoFocusFirstQuestion = false;
       q1["dropdownListModel"].onFocus(null);
     },
     timeout: 300,
@@ -216,7 +216,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as wrappable items",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -233,7 +233,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as stars",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -249,7 +249,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as stars readonly",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -266,7 +266,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as stars disabled",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -283,7 +283,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as smileys",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -299,7 +299,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as smileys readonly",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -316,7 +316,7 @@ registerMarkupTests(
   {
     name: "Test Rating question as smileys disabled",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -333,7 +333,7 @@ registerMarkupTests(
   {
     name: "Test Rating question display mode",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",

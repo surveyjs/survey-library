@@ -19,7 +19,7 @@ QUnit.test(
   "a11y: aria-label",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           title: "Title",
@@ -38,7 +38,7 @@ QUnit.test(
   "a11y: aria-labelledby",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           title: "Title",
@@ -57,7 +57,7 @@ QUnit.test(
   "a11y: aria-describedbby",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           title: "Title",
@@ -76,7 +76,7 @@ QUnit.test(
   "a11y: aria-describedbby: empty and hidden description",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           title: "Title",
@@ -134,7 +134,7 @@ QUnit.test(
   "a11y: aria-labelledby",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           choices: [1, 2, 3],

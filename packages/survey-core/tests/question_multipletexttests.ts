@@ -144,7 +144,7 @@ QUnit.test("Check rows rebuilding", (assert) => {
 
 QUnit.test("Check error row visibility", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "test",
@@ -175,7 +175,7 @@ QUnit.test("Check error row visibility", (assert) => {
 });
 QUnit.test("Load min/maxValueExpression from JSON", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "q1",
@@ -195,7 +195,7 @@ QUnit.test("Load min/maxValueExpression from JSON", (assert) => {
 });
 QUnit.test("min/maxValueExpression executing", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "q1",
@@ -218,7 +218,7 @@ QUnit.test("min/maxValueExpression executing", (assert) => {
 });
 QUnit.test("defaultValueExpression executing", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "q1",
@@ -248,7 +248,7 @@ QUnit.test("Make inputSize invisible by default", (assert) => {
 });
 QUnit.test("mutltipletext fromJSON, bug#9400", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "q1",

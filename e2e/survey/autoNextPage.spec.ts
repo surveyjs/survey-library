@@ -3,7 +3,7 @@ import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../h
 const title = "autoNextPage";
 
 const json = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   title: "American History",
   showProgressBar: "bottom",
   goNextPageAutomatic: true,
@@ -60,7 +60,7 @@ const json = {
 };
 
 const json2 = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   goNextPageAutomatic: true,
   pages: [
     {
@@ -77,7 +77,7 @@ const json2 = {
 };
 
 const json3 = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   goNextPageAutomatic: true,
   pages: [
     {

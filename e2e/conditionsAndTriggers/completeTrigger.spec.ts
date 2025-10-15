@@ -15,12 +15,12 @@ frameworks.forEach((framework) => {
         pages: [
           {
             title: "What operating system do you use?",
-            questions: [
+            elements: [
               {
                 type: "checkbox",
                 name: "opSystem",
                 title: "OS",
-                hasOther: true,
+                showOtherItem: true,
                 choices: ["Windows", "Linux", "Macintosh OSX"]
               },
               {
@@ -34,7 +34,7 @@ frameworks.forEach((framework) => {
           },
           {
             title: "What language(s) are you currently using?",
-            questions: [
+            elements: [
               {
                 type: "checkbox",
                 name: "langs",
@@ -84,7 +84,7 @@ frameworks.forEach((framework) => {
           },
           {
             title: "Please enter your name and e-mail",
-            questions: [
+            elements: [
               { type: "text", name: "name", title: "Name:" },
               { type: "text", name: "email", title: "Your e-mail" }
             ]

@@ -12,7 +12,7 @@ export default QUnit.module("Survey_QuestionFile");
 
 QUnit.test("QuestionFile value initialization strings", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -65,7 +65,7 @@ QUnit.test("QuestionFile value initialization strings", function (assert) {
 
 QUnit.test("QuestionFile value initialization array", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -138,7 +138,7 @@ QUnit.test("QuestionFile value initialization array of objects", function (
   assert
 ) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -203,7 +203,7 @@ QUnit.test(
   "QuestionFile value initialization array of objects without onDownloadFile handler",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "file",
           allowMultiple: true,
@@ -254,7 +254,7 @@ QUnit.test(
 
 QUnit.test("QuestionFile upload files", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -322,7 +322,7 @@ QUnit.test("QuestionFile upload files", function (assert) {
 
 QUnit.test("QuestionFile remove file", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -352,7 +352,7 @@ QUnit.test("QuestionFile remove file", function (assert) {
 
 QUnit.test("QuestionFile remove files with the same name", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -379,7 +379,7 @@ QUnit.test(
   "QuestionFile upload files that exceed max size - https://surveyjs.answerdesk.io/ticket/details/T994",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "file",
           allowMultiple: true,
@@ -460,7 +460,7 @@ QUnit.test(
     const done2 = assert.async();
 
     var json = {
-      questions: [
+      elements: [
         {
           type: "file",
           name: "image1",
@@ -530,7 +530,7 @@ QUnit.test(
 
 QUnit.test("QuestionFile replace file for single file mode", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         name: "image1",
@@ -563,7 +563,7 @@ QUnit.test("QuestionFile replace file for single file mode", function (assert) {
 });
 QUnit.test("QuestionFile in panel dynamic in preview mode", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -591,7 +591,7 @@ QUnit.test("QuestionFile in panel dynamic in preview mode", function (assert) {
 });
 QUnit.test("Writable captions", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -656,7 +656,7 @@ QUnit.test("Writable captions", function (assert) {
 
 QUnit.test("Check choose button text", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "file",
         title: "Please upload your file",
@@ -684,7 +684,7 @@ QUnit.test("Check choose button text", function (assert) {
 
 QUnit.test("check file d&d", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -731,7 +731,7 @@ QUnit.test("check file d&d", (assert) => {
 
 QUnit.test("check file d&d readonly", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -769,7 +769,7 @@ QUnit.test("check file d&d readonly", (assert) => {
 });
 QUnit.test("file.clearButtonCaption localization", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "file",
         name: "file1",
@@ -785,7 +785,7 @@ QUnit.test("file.clearButtonCaption localization", (assert) => {
 
 QUnit.test("Question File responsive", (assert) => {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         name: "image1",
@@ -903,7 +903,7 @@ QUnit.test("QuestionFile inside a panel set value", async function (assert) {
 
 QUnit.test("preview item index on last file removed", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "file",
         name: "file1",
@@ -939,7 +939,7 @@ QUnit.test(
   "QuestionFile upload state sequence",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "file",
           name: "image1",
@@ -988,7 +988,7 @@ QUnit.test(
 
 QUnit.test("Check assign data and upload state", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "file",
         name: "file1",
@@ -1009,7 +1009,7 @@ QUnit.test("Check assign data and upload state", (assert) => {
 
 QUnit.test("Check download file event", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "file",
         name: "file1",
@@ -1052,7 +1052,7 @@ QUnit.test("Check download file event", (assert) => {
 
 QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "file",
         name: "file1",
@@ -1108,7 +1108,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
 
 QUnit.test("QuestionFile remove file by preview value", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -1874,7 +1874,7 @@ QUnit.test("QuestionFile maxSize error doesnt update question css classes", func
 QUnit.test("QuestionFile process errors with partially loaded files",
   async function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "file",
           name: "image1",
@@ -2019,7 +2019,7 @@ QUnit.test("Bug #8242: currentMode is set incorrectly when file question is loca
 
 QUnit.test("Check renderedPages property", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -2113,7 +2113,7 @@ QUnit.test("Check renderedPages property", function (assert) {
 
 QUnit.test("Check renderedPages property", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -2207,7 +2207,7 @@ QUnit.test("Check renderedPages property", function (assert) {
 
 QUnit.test("Check pageAnimationOptions", (assert) => {
   const json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -2266,7 +2266,7 @@ QUnit.test("Check pageAnimationOptions", (assert) => {
 
 QUnit.test("QuestionFile remove file by preview value with confirmation", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,
@@ -2303,7 +2303,7 @@ QUnit.test("QuestionFile remove file by preview value with confirmation", functi
 
 QUnit.test("QuestionFile show loading indicator remove file", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "file",
         allowMultiple: true,

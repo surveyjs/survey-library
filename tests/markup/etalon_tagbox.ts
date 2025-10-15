@@ -8,7 +8,7 @@ registerMarkupTests(
     {
       name: "Test Tagbox question markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -28,7 +28,7 @@ registerMarkupTests(
     {
       name: "Test Tagbox question markup - touch",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -58,7 +58,7 @@ registerMarkupTests(
     }, {
       name: "Test Tagbox question markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -79,7 +79,7 @@ registerMarkupTests(
       name: "Test Tagbox question markup Read only",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -98,7 +98,7 @@ registerMarkupTests(
       name: "Test Tagbox question markup Read only with value",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -117,7 +117,7 @@ registerMarkupTests(
     }, {
       name: "Test Tagbox question markup disabled without value",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -137,7 +137,7 @@ registerMarkupTests(
     }, {
       name: "Test Tagbox question markup disabled with value",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -158,7 +158,7 @@ registerMarkupTests(
     }, {
       name: "Test Tagbox question without clear button markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -179,7 +179,7 @@ registerMarkupTests(
     {
       name: "Test Tagbox question without textWrapEnabled",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",
@@ -200,7 +200,7 @@ registerMarkupTests(
     {
       name: "Test Tagbox question searchEnabled false markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "name",

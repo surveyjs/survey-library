@@ -11,7 +11,7 @@ export default QUnit.module("question text tests");
 
 QUnit.test("check text disabled class", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         name: "q1",
         type: "text",
@@ -27,7 +27,7 @@ QUnit.test("check text disabled class", function (assert) {
 });
 QUnit.test("Test renderedPlaceholder", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -65,7 +65,7 @@ QUnit.test("Test renderedPlaceholder", function(assert) {
 });
 QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",

@@ -505,7 +505,7 @@ QUnit.test("Test showTimerAsClock flag", function(assert) {
 QUnit.test("Check timer when limits are not specified", function(assert) {
   const createSurvey = (showTimerModelMode: string, timeLimit: number, timeLimitPerPage: number): SurveyModel => {
     var survey = new SurveyModel();
-    survey.showTimerPanelMode = showTimerModelMode;
+    survey.timerInfoMode = showTimerModelMode;
     survey.timeLimit = timeLimit;
     survey.timeLimitPerPage = timeLimitPerPage;
     survey.addNewPage("p1");
@@ -624,39 +624,39 @@ QUnit.test("Do not start timer if the survey in the display mode", function (ass
   doTimer(5);
   assert.equal(survey.timeSpent, 0, "Timmer is not started");
 });
-QUnit.test("showTimerPanelMode -> timerInfoMode", function (assert) {
+QUnit.test("timerInfoMode -> timerInfoMode", function (assert) {
   const survey = new SurveyModel();
   assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #1");
-  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #1");
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #1");
   survey.timerInfoMode = "survey";
   assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #2");
-  assert.equal(survey.showTimerPanelMode, "survey", "showTimerPanelMode, #2");
+  assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #2");
   survey.timerInfoMode = "page";
   assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #3");
-  assert.equal(survey.showTimerPanelMode, "page", "showTimerPanelMode, #3");
+  assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #3");
   survey.timerInfoMode = "combined";
   assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #4");
-  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #4");
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #4");
 
-  survey.showTimerPanelMode = "survey";
+  survey.timerInfoMode = "survey";
   assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #5");
-  assert.equal(survey.showTimerPanelMode, "survey", "showTimerPanelMode, #5");
-  survey.showTimerPanelMode = "page";
+  assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #5");
+  survey.timerInfoMode = "page";
   assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #6");
-  assert.equal(survey.showTimerPanelMode, "page", "showTimerPanelMode, #6");
-  survey.showTimerPanelMode = "all";
+  assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #6");
+  survey.timerInfoMode = "all";
   assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #7");
-  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #7");
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #7");
 
-  survey.fromJSON({ showTimerPanelMode: "survey" });
+  survey.fromJSON({ timerInfoMode: "survey" });
   assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #8");
-  assert.equal(survey.showTimerPanelMode, "survey", "showTimerPanelMode, #8");
-  survey.fromJSON({ showTimerPanelMode: "page" });
+  assert.equal(survey.timerInfoMode, "survey", "timerInfoMode, #8");
+  survey.fromJSON({ timerInfoMode: "page" });
   assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #9");
-  assert.equal(survey.showTimerPanelMode, "page", "showTimerPanelMode, #9");
-  survey.fromJSON({ showTimerPanelMode: "all" });
+  assert.equal(survey.timerInfoMode, "page", "timerInfoMode, #9");
+  survey.fromJSON({ timerInfoMode: "combined" });
   assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #10");
-  assert.equal(survey.showTimerPanelMode, "all", "showTimerPanelMode, #10");
+  assert.equal(survey.timerInfoMode, "combined", "timerInfoMode, #10");
 });
 QUnit.test("showTimerPanel -> showTimer & timerLocation", function (assert) {
   const survey = new SurveyModel();

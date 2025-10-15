@@ -1270,7 +1270,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected getSingleInputAddTextCore(): string {
     if (!this.canAddPanel) return undefined;
-    return this.panelAddText;
+    return this.addPanelText;
   }
   protected singleInputAddItemCore(): void {
     this.addPanelUI();

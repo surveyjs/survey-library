@@ -513,7 +513,7 @@ Serializer.addClass(
     { name: "showRefuseItem", visible: false },
     { name: "showDontKnowItem", visible: false },
     { name: "noneText", visible: false },
-    { name: "optionsCaption", visible: false },
+    { name: "placeholder", visible: false },
     { name: "otherErrorText", visible: false },
     { name: "storeOthersAsComment", visible: false },
     {

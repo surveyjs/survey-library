@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "q1",
@@ -42,7 +42,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "q1",
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "q1",

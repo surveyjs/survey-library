@@ -6,10 +6,10 @@ import { SurveyModel } from "../src/survey";
 export default QUnit.module("DropdownMultiListModel");
 
 const jsonTagbox = {
-  questions: [{
+  elements: [{
     type: "tagbox",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     choices: [
       "item1",
       "item2",
@@ -71,10 +71,10 @@ QUnit.test("DropdownListModel with MultiListModel", (assert) => {
 
 QUnit.test("DropdownListModel with MultiListModel & searchEnabled false", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       searchEnabled: "false",
       choices: [
         "item1",
@@ -371,7 +371,7 @@ QUnit.test("tagbox placeholder not updated", function (assert) {
 
 QUnit.test("Hide popup if hideSelectedItems and click 'Select All'", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       showSelectAllItem: true,

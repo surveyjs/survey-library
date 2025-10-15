@@ -15,7 +15,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             type: "image",
             name: "image_question",
@@ -38,7 +38,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "image",
             name: "image_question",
@@ -66,7 +66,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           { "type": "image", "name": "noimage",
             "imageLink": "https://surveyjs.io/Cos/image-picker/panda.jpg"
           }
@@ -82,7 +82,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        "questions": [
+        "elements": [
           { "type": "text", "name": "q1", },
           {
             "type": "image",

@@ -64,7 +64,7 @@ function onUpdateSelectDropdownCellQuestion(cellQuestion: QuestionSelectBase, co
   question: QuestionMatrixDropdownModelBase, data: any) {
   onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
   if (!!cellQuestion.locPlaceholder && cellQuestion.locPlaceholder.isEmpty && !question.locPlaceholder.isEmpty) {
-    cellQuestion.optionsCaption = question.optionsCaption;
+    cellQuestion.placeholder = question.placeholder;
   }
 }
 export var matrixDropdownColumnTypes: any = {
@@ -375,9 +375,15 @@ export class MatrixDropdownColumn extends Base
     this.templateQuestion.readOnly = val;
   }
   public get hasOther(): boolean {
-    return this.templateQuestion.showOtherItem;
+    return this.showOtherItem;
   }
   public set hasOther(val: boolean) {
+    this.showOtherItem = val;
+  }
+  public get showOtherItem(): boolean {
+    return this.templateQuestion.showOtherItem;
+  }
+  public set showOtherItem(val: boolean) {
     this.templateQuestion.showOtherItem = val;
   }
   /**

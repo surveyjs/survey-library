@@ -4086,10 +4086,10 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return "none";
     var page = this.activePage;
     if (!page) return "none";
-    if (page.navigationButtonsVisibility === "hide") {
+    if (page.showNavigationButtons === false) {
       return "none";
     }
-    if (page.navigationButtonsVisibility === "show") {
+    if (page.showNavigationButtons === true) {
       return !this.showNavigationButtons ? "bottom" : this.navigationButtonsLocation;
     }
     return !this.showNavigationButtons ? "none" : this.navigationButtonsLocation;

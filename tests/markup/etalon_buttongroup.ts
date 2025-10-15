@@ -5,7 +5,7 @@ registerMarkupTests(
   [{
     name: "Test button group as dropdown",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "buttongroup",

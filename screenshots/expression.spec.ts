@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             "type": "expression",
             "name": "q1",
@@ -29,7 +29,7 @@ frameworks.forEach(framework => {
             "expression": "123"
           },
         ],
-        "focusFirstQuestionAutomatic": true
+        "autoFocusFirstQuestion": true
       });
 
       await expect(page.locator(".sd-question[data-name=q1]")).toHaveScreenshot("expression-title-left.png");

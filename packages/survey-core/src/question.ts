@@ -1527,7 +1527,7 @@ export class Question extends SurveyElement<Question>
     this.commentPlaceholder = newValue;
   }
   public get renderedCommentPlaceholder(): string {
-    return this.getPropertyValue("renderedCommentPlaceholder") ?? (!this.isReadOnly ? this.commentPlaceHolder : undefined);
+    return this.getPropertyValue("renderedCommentPlaceholder") ?? (!this.isReadOnly ? this.commentPlaceholder : undefined);
   }
   private resetRenderedCommentPlaceholder() {
     this.resetPropertyValue("renderedCommentPlaceholder");
@@ -2040,7 +2040,7 @@ export class Question extends SurveyElement<Question>
   public get commentId(): string {
     return this.id + "_comment";
   }
-  public get requireUpdateCommentValue(): boolean { return this.hasComment; }
+  public get requireUpdateCommentValue(): boolean { return this.showCommentArea; }
   public readOnlyCallback: () => boolean;
   public get isReadOnly(): boolean {
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
@@ -2494,7 +2494,7 @@ export class Question extends SurveyElement<Question>
       (options.calculations || []).forEach((calculation) => {
         questionPlainData[calculation.propertyName] = this.getPlainDataCalculatedValue(calculation.propertyName);
       });
-      if (this.hasComment) {
+      if (this.showCommentArea) {
         questionPlainData.isNode = true;
         questionPlainData.data = [
           {
@@ -3661,7 +3661,7 @@ Serializer.addClass("question", [
     serializationProperty: "locCommentPlaceholder",
     dependsOn: "showCommentArea",
     visibleIf: function (obj: any) {
-      return obj.hasComment;
+      return obj.showCommentArea;
     }
   },
   { name: "defaultDisplayValue", serializationProperty: "locDefaultDisplayValue" }

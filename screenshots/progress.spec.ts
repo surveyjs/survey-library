@@ -16,7 +16,7 @@ const testedPages = [{
 
 const json = {
   showQuestionNumbers: "on",
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
   "pages": [{
     "name": "page1",
@@ -214,7 +214,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         pages: testedPages,
         showProgressBar: "top"
       });
@@ -227,7 +227,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         pages: testedPages
       });
       await applyHeaderAccentBackgroundColor(page);
@@ -239,7 +239,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         title: "Test",
         pages: testedPages
       });

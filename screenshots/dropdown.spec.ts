@@ -14,13 +14,13 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
             renderAs: "select",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             choices: ["Greece"]
           },
         ]
@@ -37,12 +37,12 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             allowClear: false,
             choices: ["Greece"],
           },
@@ -60,12 +60,12 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             allowClear: false,
             choices: ["Greece"],
           },
@@ -81,14 +81,14 @@ frameworks.forEach(framework => {
     test("item focused state for keyboard navigation", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             title: "Where are you living?",
             name: "dropdown_question",
-            optionsCaption: "Select country here...",
+            placeholder: "Select country here...",
             allowClear: false,
             choices: [
               "item1",
@@ -116,11 +116,11 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "question1",
-            hasOther: "true",
+            showOtherItem: "true",
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item13", "item14", "item15", "item16", "item17", "item18", "item19", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27"]
           }
         ]
@@ -134,13 +134,13 @@ frameworks.forEach(framework => {
     test("Check dropdown select question with clear button", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "question12",
-            hasOther: "true",
+            showOtherItem: "true",
             defaultValue: "item1",
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7"]
           }
@@ -154,7 +154,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "question1",
@@ -199,11 +199,11 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "DropdownRenderAsSelect",
-            hasOther: "true",
+            showOtherItem: "true",
             searchEnabled: false,
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item13", "item14", "item15", "item16", "item17", "item18", "item19", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27"] }
         ]
@@ -227,11 +227,11 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 500, height: 300 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "question1",
-            hasOther: "true",
+            showOtherItem: "true",
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item13", "item14", "item15", "item16", "item17", "item18", "item19", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27"] }
         ]
       });
@@ -249,11 +249,11 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "q1",
-            hasOther: "true",
+            showOtherItem: "true",
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12", "item13", "item14", "item15", "item16", "item17", "item18", "item19", "item20", "item21", "item22", "item23", "item24", "item25", "item26", "item27"] }
         ]
       });
@@ -272,9 +272,9 @@ frameworks.forEach(framework => {
     test("Check dropdown with markdown", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       const json = {
-        focusFirstQuestionAutomatic: false,
+        autoFocusFirstQuestion: false,
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "q1",
@@ -322,7 +322,7 @@ frameworks.forEach(framework => {
       });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "dropdown_question",
@@ -343,11 +343,11 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "q1",
-            hasOther: "true",
+            showOtherItem: "true",
             choices: ["item abc", "item def",]
           }
         ]
@@ -366,8 +366,8 @@ frameworks.forEach(framework => {
       await registerCustomItemComponent(page, framework);
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             type: "dropdown",
             name: "cars",
@@ -394,11 +394,11 @@ frameworks.forEach(framework => {
       });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "dropdown",
-            hasOther: "true",
+            showOtherItem: "true",
             closeOnSelect: false,
             choices: ["item1", "item2", "item3", "item4", "item5", "item6", "item7", "item8", "item9", "item10", "item11", "item12",] }
         ]
@@ -450,7 +450,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "q1",
@@ -467,7 +467,7 @@ frameworks.forEach(framework => {
     test("Check dropdown custom item styles", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        questions: [
+        elements: [
           {
             type: "dropdown", name: "q1", allowCustomChoices: true,
             choices: ["item1", "item2", "item3"]

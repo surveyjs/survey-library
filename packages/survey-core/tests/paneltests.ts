@@ -53,7 +53,7 @@ QUnit.test("load page from json with old questions", function (assert) {
   const jsonObject = new JsonObject();
   jsonObject.toObject(
     {
-      questions: [
+      elements: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
       ],
@@ -416,7 +416,7 @@ QUnit.test("Panel.getValue() + others, Bug# 1573, T1701", function (assert) {
       {
         type: "radiogroup",
         name: "spread",
-        hasOther: true,
+        showOtherItem: true,
         choices: [
           {
             value: "butter",
@@ -1120,7 +1120,7 @@ QUnit.test(
   function (assert) {
 
     const json = {
-      "questions": [
+      "elements": [
         {
           "name": "signature",
           "type": "signaturepad",
@@ -1179,7 +1179,7 @@ QUnit.test(
           "name": "car",
           "title": "Checkbox",
 
-          "hasSelectAll": true,
+          "showSelectAllItem": true,
           "showNoneItem": true,
           "colCount": 4,
           "choices": [

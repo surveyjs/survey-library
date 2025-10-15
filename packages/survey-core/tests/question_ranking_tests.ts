@@ -98,7 +98,7 @@ QUnit.test("Ranking: check removing other from visibleChoices", function(
         type: "ranking",
         name: "q1",
         choices: ["a", "b", "c"],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -154,10 +154,10 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
     q2: [2, 3],
   });
 });
-QUnit.test("Ranking: Carry Forward and hasOther", function(assert) {
+QUnit.test("Ranking: Carry Forward and showOtherItem", function(assert) {
   var survey = new SurveyModel({
     elements: [
-      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], showOtherItem: true },
       {
         type: "ranking",
         name: "q2",
@@ -182,7 +182,7 @@ QUnit.test("Ranking: Carry Forward and hasOther", function(assert) {
 QUnit.test("Ranking: Carry Forward and unrankIfChoicesChanged", function(assert) {
   var survey = new SurveyModel({
     elements: [
-      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], showOtherItem: true },
       {
         type: "ranking",
         name: "q2",
@@ -794,7 +794,7 @@ QUnit.test("Ranking: renderedSelectToRankAreasLayout", function (assert) {
 
 QUnit.test("Ranking: check SelectToRankEmptyRankedAreaText & SelectToRankEmptyUnrankedAreaText properties", (assert) => {
   let json: any = {
-    questions: [
+    elements: [
       {
         "type": "ranking",
         "name": "question1",

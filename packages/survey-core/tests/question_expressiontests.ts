@@ -126,7 +126,7 @@ function createSurveyWith3Questions(): SurveyModel {
 }
 QUnit.test("setting data doesn't calculate expressions if value is set", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         "name": "q1",
         "type": "text"
@@ -150,7 +150,7 @@ QUnit.test("setting data doesn't calculate expressions if value is set", functio
 });
 QUnit.test("setting data doesn't calculate expressions survey.questionsOnPageMode = 'singlePage'", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         "name": "q1",
         "type": "text"
@@ -175,7 +175,7 @@ QUnit.test("setting data doesn't calculate expressions survey.questionsOnPageMod
 });
 QUnit.test("round to digits", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       { "name": "q1", "type": "expression", "expression": "1111/125" },
       { "name": "q2", "type": "expression", "expression": "1111/125", "precision": 2 },
       { "name": "q3", "type": "expression", "expression": "1111/125", "precision": 1 },

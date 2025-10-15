@@ -258,9 +258,6 @@ export class PageModel extends PanelModel implements IPage {
     return result ? "show" : "hide";
   }
   public set navigationButtonsVisibility(val: string) {
-    if (typeof val == "string") {
-      val = val.toLowerCase();
-    }
     this.showNavigationButtons = val;
   }
   /**
@@ -275,6 +272,9 @@ export class PageModel extends PanelModel implements IPage {
     this.setShowNavigationButtonsProperty(val);
   }
   public setShowNavigationButtonsProperty(val: boolean | string) {
+    if (typeof val == "string") {
+      val = val.toLowerCase();
+    }
     if (val === true || val === false) {
       this.setPropertyValue("showNavigationButtons", val);
     } else if (val === "show") {

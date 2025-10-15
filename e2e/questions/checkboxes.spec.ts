@@ -13,8 +13,8 @@ const json = {
       title: "What car are you driving?",
       isRequired: true,
       colCount: 4,
-      hasOther: true,
-      hasNone: true,
+      showOtherItem: true,
+      showNoneItem: true,
       choices: [
         "Unknown",
         "Ford",
@@ -229,7 +229,7 @@ frameworks.forEach((framework) => {
 
     test("show \"other\" choice", async ({ page }) => {
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasOther = true;
+        window["survey"].getAllQuestions()[0].showOtherItem = true;
       });
       await expect(page.locator(".sv-string-viewer").getByText("Other")).toBeVisible();
     });
@@ -248,7 +248,7 @@ frameworks.forEach((framework) => {
       };
 
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasOther = true;
+        window["survey"].getAllQuestions()[0].showOtherItem = true;
       });
       await page.evaluate(() => {
         window["survey"].getAllQuestions()[0].choicesOrder = "desc";
@@ -262,7 +262,7 @@ frameworks.forEach((framework) => {
       const getOtherInput = () => page.locator("textarea").first();
 
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasOther = true;
+        window["survey"].getAllQuestions()[0].showOtherItem = true;
       });
 
       await page.locator("span").getByText("Other (describe)").click();
@@ -282,7 +282,7 @@ frameworks.forEach((framework) => {
       const getOtherInput = () => page.locator("textarea").first();
 
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasOther = true;
+        window["survey"].getAllQuestions()[0].showOtherItem = true;
       });
 
       await page.locator("span").getByText("Other (describe)").click();
@@ -301,7 +301,7 @@ frameworks.forEach((framework) => {
       const getOtherInput = () => page.locator("textarea").first();
 
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasOther = true;
+        window["survey"].getAllQuestions()[0].showOtherItem = true;
       });
 
       await page.locator("span").getByText("Other (describe)").click();
@@ -318,7 +318,7 @@ frameworks.forEach((framework) => {
       const getOtherInput = () => page.locator("textarea").first();
 
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasOther = true;
+        window["survey"].getAllQuestions()[0].showOtherItem = true;
       });
 
       await page.locator("span").getByText("Other (describe)").click();
@@ -360,7 +360,7 @@ frameworks.forEach((framework) => {
 
     test("Check that selectAll item is checked after loading data", async ({ page }) => {
       await page.evaluate(() => {
-        window["survey"].getAllQuestions()[0].hasSelectAll = true;
+        window["survey"].getAllQuestions()[0].showSelectAllItem = true;
       });
 
       const isSelectAllChecked = async () => {

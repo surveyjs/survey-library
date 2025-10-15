@@ -3,7 +3,7 @@ import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../h
 const title = "workWithData";
 
 const json = {
-  questions: [
+  elements: [
     { type: "text", name: "name", title: "Your name:" },
     { type: "text", name: "email", title: "Your e-mail" },
     {

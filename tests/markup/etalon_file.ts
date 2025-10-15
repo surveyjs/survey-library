@@ -6,7 +6,7 @@ registerMarkupTests(
     {
       name: "Test single file question disabled (default)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -28,7 +28,7 @@ registerMarkupTests(
     {
       name: "Test file question empty (defaultV2)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -43,7 +43,7 @@ registerMarkupTests(
     {
       name: "Test file question ZIP (defaultV2)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -65,7 +65,7 @@ registerMarkupTests(
     {
       name: "Test file question PNG (defaultV2)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -87,7 +87,7 @@ registerMarkupTests(
     {
       name: "Test multiply file question (defaultV2)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -118,7 +118,7 @@ registerMarkupTests(
     {
       name: "Test multiply file question (defaultV2) with file navigator",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -150,7 +150,7 @@ registerMarkupTests(
       name: "Test multiply file question readOnly (defaultV2)",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -182,7 +182,7 @@ registerMarkupTests(
     {
       name: "Test file question empty mobile (defaultV2 mobile)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -198,7 +198,7 @@ registerMarkupTests(
     {
       name: "Test file question ZIP mobile (defaultV2 mobile)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -221,7 +221,7 @@ registerMarkupTests(
     {
       name: "Test file question PNG mobile (defaultV2 mobile)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -244,7 +244,7 @@ registerMarkupTests(
     {
       name: "Test multiply file question mobile (defaultV2 mobile)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -274,7 +274,7 @@ registerMarkupTests(
       name: "Test multiply file question readOnly (defaultV2 mobile)",
       json: {
         mode: "display",
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -303,7 +303,7 @@ registerMarkupTests(
     {
       name: "Test file question with preview image size",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -326,7 +326,7 @@ registerMarkupTests(
     {
       name: "Test file question empty (default)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -341,7 +341,7 @@ registerMarkupTests(
     {
       name: "Test file question empty (default)",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -358,7 +358,7 @@ registerMarkupTests(
     {
       name: "Test file question mode: 'both'",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -376,7 +376,7 @@ registerMarkupTests(
     {
       name: "Test file question mode: 'camera'",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",
@@ -394,7 +394,7 @@ registerMarkupTests(
     {
       name: "Test file question playing video",
       json: {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "file",

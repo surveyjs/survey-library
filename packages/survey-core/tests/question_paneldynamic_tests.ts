@@ -131,7 +131,7 @@ QUnit.test(
     (<QuestionRadiogroupModel>(
       question.template.addNewQuestion("radiogroup", "q2")
     )).choices = [1, 2, 3];
-    question.template.questions[1].hasOther = true;
+    question.template.questions[1].showOtherItem = true;
 
     question.value = [
       { q1: 1, q2: "other", "q2-Comment": "Some Value" },
@@ -211,7 +211,7 @@ QUnit.test("Change values in panels on changing in question.value", function(
 
 QUnit.test("Load from Json", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -278,7 +278,7 @@ QUnit.test("Load from Json", function(assert) {
 
 QUnit.test("Load from Json with nested panel", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -1342,7 +1342,7 @@ QUnit.test(
   "Set data for loaded panel after clearing the survey data, bug#784",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "q",
@@ -1371,7 +1371,7 @@ QUnit.test(
 
 QUnit.test("Set panel count to 0, Editor bug#228", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -2321,7 +2321,7 @@ QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
 });
 QUnit.test("matrixDynamic.panelsState, load from json", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -2349,7 +2349,7 @@ QUnit.test(
   "matrixDynamic.panelsState, not tempalteTitle load from json",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "q",
@@ -2416,7 +2416,7 @@ QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
   assert
 ) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -2456,7 +2456,7 @@ QUnit.test(
   "Dynamic Panel readOnly, Bug#https://surveyjs.answerdesk.io/ticket/details/T1663",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "panel",
@@ -3044,21 +3044,21 @@ QUnit.test("Test copyDefaultValueFromLastEntry property", function(assert) {
       { q1: 1, q2: 2 },
       { q1: 1, q2: 2, q3: 3 },
     ],
-    "defaultValueFromLastRow is merging with defaultPanelValue"
+    "copyDefaultValueFromLastEntry is merging with defaultPanelValue"
   );
 });
-QUnit.test("copyDefaultValueFromLastEntry property && hasOther", function(assert) {
+QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic", name: "root",
         panelCount: 1,
         templateElements: [
           { type: "paneldynamic", name: "question",
-            defaultValueFromLastPanel: true,
+            copyDefaultValueFromLastEntry: true,
             panelCount: 0,
             templateElements: [
-              { type: "dropdown", name: "q1", choices: [1, 2, 3], hasOther: true },
-              { type: "dropdown", name: "q2", choices: [1, 2, 3], hasOther: true }
+              { type: "dropdown", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+              { type: "dropdown", name: "q2", choices: [1, 2, 3], showOtherItem: true }
             ]
           }
         ]
@@ -3615,7 +3615,7 @@ QUnit.test("addPanel(index, skipvalidation)", function(assert) {
   assert.equal(question.panelCount, 2, "panelCount #2");
   assert.equal(question.canAddPanel, true, "canAddPanel #2");
 
-  question.defaultValueFromLastPanel = true;
+  question.copyDefaultValueFromLastEntry = true;
   question.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
   assert.equal(question.currentIndex, 1, "don't change currentIndex");
   question.addPanel(2);
@@ -3665,7 +3665,7 @@ QUnit.test(
               type: "radiogroup",
               name: "radio",
               choices: ["item1", "item2", "item3"],
-              hasOther: true,
+              showOtherItem: true,
             },
           ],
         },
@@ -3807,7 +3807,7 @@ QUnit.test(
   "Dynamic Panel validators, validators expression do not recognize 'panel.' prefix. Bug#1710",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -3858,8 +3858,8 @@ QUnit.test(
             },
           ],
           panelCount: 2,
-          panelAddText: "Add a blood relative",
-          panelRemoveText: "Remove the relative",
+          addPanelText: "Add a blood relative",
+          removePanelText: "Remove the relative",
         },
       ],
     };
@@ -4135,7 +4135,7 @@ QUnit.test(
   "Do not reset panelCount after deleting the last panel, Bug #1972",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "panel1",
@@ -4166,7 +4166,7 @@ QUnit.test(
   "call clearFiles for QuestionFile on removing the panel, Bug #1970",
   function(assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "paneldynamic",
           name: "panel1",
@@ -4204,7 +4204,7 @@ QUnit.test(
 );
 QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -4240,7 +4240,7 @@ QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(asser
 
 QUnit.test("call clearFiles for QuestionFile on clearing panel value, Bug #6336", function(assert) {
   const json = {
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -4626,7 +4626,7 @@ QUnit.test("getPanelWrapperCss", function(assert) {
     "sv_p_wrapper",
     "Default rendering: remove button in the bottom of the panel"
   );
-  question.panelRemoveButtonLocation = "right";
+  question.removePanelButtonLocation = "right";
   assert.equal(
     question.getPanelWrapperCss(panel),
     "sv_p_wrapper sv_p_wrapper_in_row",
@@ -4671,7 +4671,7 @@ QUnit.test("getPanelRemoveButtonCss", function(assert) {
     "sv_p_remove_btn",
     "Default rendering: remove button in the bottom of the panel"
   );
-  question.panelRemoveButtonLocation = "right";
+  question.removePanelButtonLocation = "right";
   assert.equal(
     question.getPanelRemoveButtonCss(),
     "sv_p_remove_btn sv_p_remove_btn_right",
@@ -4823,7 +4823,7 @@ QUnit.test(
 );
 QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         name: "question1",
         type: "paneldynamic",
@@ -4865,7 +4865,7 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
 });
 QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function(assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       { type: "text", name: "val1" },
       {
         name: "panel",
@@ -4930,7 +4930,7 @@ QUnit.test(
 );
 QUnit.test("Dynamic Panel, getDisplayValue(), Bug#2855", function(assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -5476,7 +5476,7 @@ QUnit.test("checkbox vs valuePropertyName and display text", (assert) => {
         choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
         valueName: "data1",
         valuePropertyName: "fruit",
-        hasOther: true
+        showOtherItem: true
       },
       {
         type: "paneldynamic",
@@ -5555,7 +5555,7 @@ QUnit.test("Incorrect default value in panel dynamic", (assert) => {
 
 QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (assert) => {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel",
@@ -5680,7 +5680,7 @@ QUnit.test("Check paneldynamic panel actions", (assert) => {
         ],
         minPanelCount: 1,
         panelCount: 2,
-        panelRemoveText: "Remove Panel"
+        removePanelText: "Remove Panel"
       }
     ]
   });
@@ -5991,8 +5991,8 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
           }
         ],
         panelCount: 2,
-        panelAddText: "Add a blood relative",
-        panelRemoveText: "Remove the relative"
+        addPanelText: "Add a blood relative",
+        removePanelText: "Remove the relative"
       }
     ],
   });
@@ -6075,8 +6075,8 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
           }
         ],
         panelCount: 2,
-        panelAddText: "Add a blood relative",
-        panelRemoveText: "Remove the relative"
+        addPanelText: "Add a blood relative",
+        removePanelText: "Remove the relative"
       }
     ],
   });
@@ -6287,7 +6287,7 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
                 "text": "Product is easy to use"
               }
             ],
-            "isAllRowRequired": true
+            "eachRowRequired": true
           },
           {
             "type": "paneldynamic",
@@ -6339,7 +6339,7 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
                     "text": "Product is easy to use"
                   }
                 ],
-                "isAllRowRequired": true
+                "eachRowRequired": true
               }
             ]
           }
@@ -6857,7 +6857,7 @@ QUnit.test("templateErrorLocation property", function (assert) {
 QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(assert) {
   const prevAsync = settings.confirmActionAsync;
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel1",
@@ -6893,7 +6893,7 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(as
 });
 QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOnDelete", function(assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "panel1",
@@ -7083,7 +7083,7 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
 QUnit.test("Footer css for nested panels", function(assert) {
   const footerCss = "abcd";
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "paneldynamic",
         name: "q",
@@ -8029,19 +8029,19 @@ QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
   settings.panel.maxPanelCount = 100;
   assert.equal(new QuestionPanelDynamicModel("q1").maxPanelCount, 100, "default value again");
 });
-QUnit.test("Do not serialize renderMode & showRangeInProgress", function (assert) {
+QUnit.test("Do not serialize renderMode & showProgressBar", function (assert) {
   const survey = new SurveyModel({
-    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showRangeInProgress: false }]
+    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showProgressBar: false }]
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   assert.equal(panel.renderMode, "progressTop", "renderMode is set");
   assert.equal(panel.displayMode, "carousel", "displayMode is set");
-  assert.equal(panel.showRangeInProgress, false, "showRangeInProgress is set");
+  assert.equal(panel.showProgressBar, false, "showProgressBar is set");
   assert.equal(panel.showProgressBar, false, "showProgressBar is set");
   const json = panel.toJSON();
   assert.notOk(json.renderMode, "renderMode on json");
   assert.equal(json.displayMode, "carousel", "displayMode is json");
-  assert.notOk(json.showRangeInProgress, "showRangeInProgress is json");
+  assert.notOk(json.showProgressBar, "showProgressBar is json");
   assert.equal(json.showProgressBar, false, "showProgressBar is json");
 });
 QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {

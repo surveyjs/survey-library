@@ -32,7 +32,7 @@ registerMarkupTests([
   {
     name: "Test HTML question markup",
     json: {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "html",

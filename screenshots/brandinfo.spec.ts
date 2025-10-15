@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
       const json = {
         showQuestionNumbers: "on",
         showBrandInfo: true,
-        questions: [{
+        elements: [{
           type: "text",
           name: "question1",
         }]

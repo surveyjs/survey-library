@@ -3,7 +3,7 @@ import { frameworks, initSurvey, url, test, expect } from "../helper";
 const title = "Popup";
 
 const json = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   elements: [
     {
       type: "text",
@@ -181,7 +181,7 @@ frameworks.forEach((framework) => {
             showTitle: true,
             action: () => {
               const model = new window["Survey"].Model(_json);
-              model.focusFirstQuestionAutomatic = false;
+              model.autoFocusFirstQuestion = false;
               window["Survey"].settings.showDialog({
                 componentName: "survey",
                 data: {
@@ -239,7 +239,7 @@ frameworks.forEach((framework) => {
             showTitle: true,
             action: () => {
               const model = new window["Survey"].Model(_json);
-              model.focusFirstQuestionAutomatic = false;
+              model.autoFocusFirstQuestion = false;
               window["Survey"].settings.showDialog({
                 componentName: "survey",
                 data: {
@@ -282,7 +282,7 @@ frameworks.forEach((framework) => {
             showTitle: true,
             action: () => {
               const model = new window["Survey"].Model(_json);
-              model.focusFirstQuestionAutomatic = false;
+              model.autoFocusFirstQuestion = false;
               window["Survey"].settings.showDialog({
                 componentName: "survey",
                 data: {
@@ -359,7 +359,7 @@ frameworks.forEach((framework) => {
             showTitle: true,
             action: () => {
               const model = new window["Survey"].Model(json);
-              model.focusFirstQuestionAutomatic = false;
+              model.autoFocusFirstQuestion = false;
               window["Survey"].settings.showDialog({
                 componentName: "survey",
                 data: {

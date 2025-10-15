@@ -135,8 +135,8 @@ const json = {
               ],
             },
           ],
-          panelAddText: "Add a blood relative",
-          panelRemoveText: "Remove the relative",
+          addPanelText: "Add a blood relative",
+          removePanelText: "Remove the relative",
         },
       ],
     },
@@ -297,7 +297,7 @@ frameworks.forEach((framework) => {
 });
 
 const json3 = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   elements: [
     {
       type: "matrixdynamic",
@@ -459,12 +459,12 @@ frameworks.forEach((framework) => {
       ]
     });
   });
-  test("Reactive panelAddText/panelRemoveText - #7658", async (t) => {
+  test("Reactive addPanelText/removePanelText - #7658", async (t) => {
     const changeButtonsText = ClientFunction(
       () => {
         const q = window["survey"].getQuestionByName("panel1");
-        q.panelAddText = "#Add#";
-        q.panelRemoveText = "#Remove#";
+        q.addPanelText = "#Add#";
+        q.removePanelText = "#Remove#";
       }
     );
     await initSurvey(framework, {
@@ -587,7 +587,7 @@ frameworks.forEach((framework) => {
   });
   test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "paneldynamic",
@@ -610,7 +610,7 @@ frameworks.forEach((framework) => {
   });
   test("Focus first input on removing and adding panels, #8940", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "paneldynamic",

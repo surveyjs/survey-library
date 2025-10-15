@@ -9,7 +9,7 @@ frameworks.forEach((framework) => {
       const json = {
         pages: [
           {
-            questions: [
+            elements: [
               {
                 type: "radiogroup",
                 name: "q1",
@@ -18,7 +18,7 @@ frameworks.forEach((framework) => {
             ],
           },
           {
-            questions: [
+            elements: [
               { type: "text", name: "q2", },
               { type: "text", name: "q3", },
             ],

@@ -355,7 +355,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("attachOriginalItems", function(assert) {
+QUnit.test("attachData", function(assert) {
   var test = new ChoicesRestfulTester();
   var items: Array<ItemValue> = [];
   test.getResultCallback = function(res: Array<ItemValue>) {
@@ -364,7 +364,7 @@ QUnit.test("attachOriginalItems", function(assert) {
   test.noCaching = true;
   test.url = "allcountries";
   test.path = "RestResponse;result";
-  test.attachOriginalItems = true;
+  test.attachData = true;
   test.run();
   assert.equal(items.length, 5, "there are 5 countries");
   assert.equal(
@@ -382,13 +382,13 @@ QUnit.test("attachOriginalItems", function(assert) {
   assert.deepEqual(items[0].data, originalItem, "keeps the original item");
 });
 
-QUnit.test("attachOriginalItems in question", function(assert) {
+QUnit.test("attachData in question", function(assert) {
   var question = new QuestionDropdownModelTester("q1");
   question.fromJSON({
     choicesByUrl: {
       url: "allcountries",
       path: "RestResponse;result",
-      attachOriginalItems: true,
+      attachData: true,
     },
   });
   question.onSurveyLoad();
@@ -424,26 +424,26 @@ QUnit.test("attachData in question", function(assert) {
   assert.deepEqual(question.visibleChoices[0].data, originalItem, "keeps the original item");
 });
 
-QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
+QUnit.test("Load attachData value from JSON", function(assert) {
   var test = new ChoicesRestful();
-  assert.notOk(test.attachOriginalItems, "attachOriginalItems initially false");
+  assert.notOk(test.attachData, "attachData initially false");
   test.fromJSON({
     url: "allcountries",
     path: "RestResponse;result",
-    attachOriginalItems: true,
+    attachData: true,
   });
-  assert.ok(test.attachOriginalItems, "attachOriginalItems has been loaded");
+  assert.ok(test.attachData, "attachData has been loaded");
 
   var question = new QuestionDropdownModel("q1");
   assert.notOk(
-    question.choicesByUrl.attachOriginalItems,
-    "question: attachOriginalItems initially false"
+    question.choicesByUrl.attachData,
+    "question: attachData initially false"
   );
   question.fromJSON({
     choicesByUrl: {
       url: "allcountries",
       path: "RestResponse;result",
-      attachOriginalItems: true,
+      attachData: true,
     },
   });
   assert.equal(
@@ -452,8 +452,8 @@ QUnit.test("Load attachOriginalItems value from JSON", function(assert) {
     "question: url has been loaded"
   );
   assert.ok(
-    question.choicesByUrl.attachOriginalItems,
-    "question: attachOriginalItems has been loaded"
+    question.choicesByUrl.attachData,
+    "question: attachData has been loaded"
   );
 });
 
@@ -1161,7 +1161,7 @@ QUnit.test("Do not set comments on running values", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");
   var question = new QuestionCheckboxModelTester("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "id";
@@ -1186,7 +1186,7 @@ QUnit.test("Set comment on incorrect value", function(assert) {
   survey.storeOthersAsComment = false;
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "id";
@@ -1212,7 +1212,7 @@ QUnit.test("Set comment on incorrect value and empty results", function(
   survey.storeOthersAsComment = false;
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
-  question.hasOther = true;
+  question.showOtherItem = true;
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "id";
@@ -1811,7 +1811,7 @@ QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
   question.rowCount = 1;
   var column = question.addColumn("country");
   column.cellType = "dropdown";
-  column.hasOther = true;
+  column.showOtherItem = true;
   column["choicesByUrl"].url = "allcountries";
   column["choicesByUrl"].path = "RestResponse;result";
   survey.pages[0].addQuestion(question);
@@ -1831,7 +1831,7 @@ QUnit.test("matrix dynamic and has other, Bug #2854", function(assert) {
   assert.equal(
     cellDropdown.visibleChoices.length,
     5 + 1,
-    "Choices are loaded, + hasOther"
+    "Choices are loaded, + showOtherItem"
   );
   assert.equal(cellDropdown.value, "Afghanistan");
   survey.doComplete();
@@ -1913,7 +1913,7 @@ QUnit.test("allowCustomChoices: Add custom value into dropdown", function (asser
     choicesByUrl: {
       url: "allcountries",
       path: "RestResponse;result",
-      attachOriginalItems: true,
+      attachData: true,
     },
   });
   question.onSurveyLoad();

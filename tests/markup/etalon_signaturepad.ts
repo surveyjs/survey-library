@@ -5,7 +5,7 @@ registerMarkupTests(
     {
       name: "Test Signaturepad question markup",
       json: {
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -18,7 +18,7 @@ registerMarkupTests(
     {
       name: "Test Signaturepad question markup readonly",
       json: {
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -32,7 +32,7 @@ registerMarkupTests(
     {
       name: "Test Signaturepad question with value",
       json: {
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -46,7 +46,7 @@ registerMarkupTests(
     {
       name: "Test Signaturepad question - loading",
       json: {
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -64,7 +64,7 @@ registerMarkupTests(
     {
       name: "Test Signaturepad question with backgroundImage",
       json: {
-        questions: [
+        elements: [
           {
             "type": "signaturepad",
             "name": "q1",
@@ -78,7 +78,7 @@ registerMarkupTests(
     {
       name: "Test Scaled Signaturepad question markup",
       json: {
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",

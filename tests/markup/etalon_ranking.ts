@@ -5,7 +5,7 @@ registerMarkupTests(
     {
       name: "Test ranking markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",
@@ -24,7 +24,7 @@ registerMarkupTests(
     {
       name: "Test ranking with values markup",
       json: {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",
@@ -48,7 +48,7 @@ registerMarkupTests(
     {
       name: "Test ranking markup design mode",
       json: {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",
@@ -68,7 +68,7 @@ registerMarkupTests(
     {
       name: "Ranking selectToRankEnabled empty",
       json: {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",
@@ -88,7 +88,7 @@ registerMarkupTests(
     {
       name: "Ranking selectToRankEnabled selectToRankAreasLayout Vertical",
       json: {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",
@@ -109,7 +109,7 @@ registerMarkupTests(
     {
       name: "Ranking selectToRankEnabled selectToRankSwapAreas",
       json: {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "name",

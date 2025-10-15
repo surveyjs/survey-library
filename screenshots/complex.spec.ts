@@ -6,14 +6,14 @@ const title = "Complex Screenshot";
 const json = {
   showQuestionNumbers: "off",
   width: "900px",
-  questions: [
+  elements: [
     {
       type: "Paneldynamic",
       title: "My Order",
       name: "order",
       renderMode: "progressBottom",
       templateTitle: "{panel.itemName}",
-      panelRemoveText: "Remove Item",
+      removePanelText: "Remove Item",
       panelCount: 5,
       minWidth: "708px",
       maxWidth: "708px",

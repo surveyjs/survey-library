@@ -15,7 +15,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "html",
             name: "html_question",
@@ -38,7 +38,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "html",
             name: "html_question",

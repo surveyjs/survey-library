@@ -12,7 +12,7 @@ const deleteCookie = async (page) => {
 
 const json = {
   cookieName: "myuniquesurveyid",
-  questions: [
+  elements: [
     {
       type: "checkbox",
       name: "car",

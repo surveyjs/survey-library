@@ -39,7 +39,7 @@ frameworks.forEach(framework => {
         "showQuestionNumbers": "off",
         "widthMode": "static",
         "width": "720px",
-        focusFirstQuestionAutomatic: false
+        autoFocusFirstQuestion: false
       });
 
       const questionRoot = page.locator(".sd-row");
@@ -59,7 +59,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        "focusFirstQuestionAutomatic": true,
+        "autoFocusFirstQuestion": true,
         "pages": [
           {
             "name": "page1",
@@ -99,7 +99,7 @@ frameworks.forEach(framework => {
     test("Matrix single-select in panel", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "pages": [
           {
             "name": "page1",
@@ -201,7 +201,7 @@ frameworks.forEach(framework => {
     test("Matrix multi-select in panel", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "pages": [
           {
             "name": "page1",
@@ -301,7 +301,7 @@ frameworks.forEach(framework => {
         "showQuestionNumbers": "off",
         "widthMode": "static",
         "width": "720px",
-        focusFirstQuestionAutomatic: false
+        autoFocusFirstQuestion: false
       });
 
       const questionRoot = page.locator(".sd-row");
@@ -349,7 +349,7 @@ frameworks.forEach(framework => {
         "showQuestionNumbers": "off",
         "widthMode": "static",
         "width": "720px",
-        focusFirstQuestionAutomatic: false
+        autoFocusFirstQuestion: false
       });
 
       const questionRoot = page.locator(".sd-row");
@@ -383,7 +383,7 @@ frameworks.forEach(framework => {
         "showQuestionNumbers": "off",
         "widthMode": "static",
         "width": "720px",
-        focusFirstQuestionAutomatic: false
+        autoFocusFirstQuestion: false
       });
 
       const questionRoot = page.locator(".sd-row");
@@ -444,7 +444,7 @@ frameworks.forEach(framework => {
         "showQuestionNumbers": "off",
         "widthMode": "static",
         "width": "720px",
-        focusFirstQuestionAutomatic: false
+        autoFocusFirstQuestion: false
       });
 
       const questionRoot = page.locator(".sd-row");
@@ -499,7 +499,7 @@ frameworks.forEach(framework => {
         "showQuestionNumbers": "off",
         "widthMode": "static",
         "width": "728px",
-        focusFirstQuestionAutomatic: false
+        autoFocusFirstQuestion: false
       });
 
       const questionRoot = page.locator(".sd-row");
@@ -521,7 +521,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -611,7 +611,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -649,7 +649,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -681,7 +681,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -725,7 +725,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -792,7 +792,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         "logoPosition": "right",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -818,7 +818,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "pages": [
           {
             "name": "page1",
@@ -844,7 +844,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "elements": [
           {
             "type": "matrixdropdown",
@@ -872,7 +872,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         "elements": [
           {
             "type": "matrixdropdown",
@@ -974,7 +974,7 @@ frameworks.forEach(framework => {
           }
         ],
         "questionsOnPageMode": "singlePage",
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         "widthMode": "static"
       });
 
@@ -1096,7 +1096,7 @@ frameworks.forEach(framework => {
         "cookieName": "1000",
         "widthMode": "static",
         "width": "1000",
-        "focusFirstQuestionAutomatic": true
+        "autoFocusFirstQuestion": true
       });
 
       const questionRoot = page.locator(".sd-row");

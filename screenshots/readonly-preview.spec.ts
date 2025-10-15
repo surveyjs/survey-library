@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "radiogroup",
             "name": "car",
@@ -37,7 +37,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "name": "username",
             "type": "text",
@@ -59,7 +59,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "name": "username",
             "type": "comment",
@@ -85,7 +85,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "multipletext",
             "name": "question1",
@@ -114,7 +114,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "rating",
             "name": "nps-score",
@@ -141,7 +141,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "rating",
             "name": "nps-score",
@@ -169,7 +169,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "rating",
             "name": "nps-score",
@@ -197,7 +197,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "rating",
             "name": "nps-score",
@@ -225,7 +225,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "rating",
             "name": "nps-score",
@@ -299,7 +299,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "dropdown",
             "name": "question1",
@@ -322,7 +322,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "tagbox",
             "name": "question2",
@@ -345,7 +345,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "checkbox",
             "name": "car",
@@ -368,7 +368,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "signaturepad",
             "name": "question1",
@@ -466,7 +466,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "car",
@@ -488,7 +488,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "boolean",
             "name": "boolean1",
@@ -511,7 +511,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "boolean",
             "name": "boolean1",
@@ -534,7 +534,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "boolean",
             "name": "boolean1",
@@ -558,7 +558,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "boolean",
             "name": "boolean2",
@@ -585,7 +585,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "imagepicker",
             "name": "animals",
@@ -620,7 +620,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "matrix",
             "name": "question1",
@@ -649,7 +649,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "matrix",
             "name": "question1",
@@ -679,7 +679,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: "showAnsweredQuestions",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             "type": "file",
             "titleLocation": "hidden",

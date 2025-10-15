@@ -8,7 +8,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       const json = {
         elements: [
-          { type: "radiogroup", name: "q1", choices: ["item 1", "item 2"], showClearButton: true },
+          { type: "radiogroup", name: "q1", choices: ["item 1", "item 2"], allowClear: true },
           { type: "radiogroup", name: "q2", choices: ["item 3", "item 4"], defaultValue: "item 3" },
           { type: "checkbox", name: "q3", choices: ["item 5", "item 6"] },
           { type: "checkbox", name: "q4", choices: ["item 7", "item 8"], defaultValue: ["item 7"] },

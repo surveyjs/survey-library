@@ -673,7 +673,7 @@ QUnit.test("singleInput and single matrix", assert => {
   const survey = new SurveyModel({
     elements: [
       {
-        type: "matrix", name: "matrix1", isAllRowRequired: true,
+        type: "matrix", name: "matrix1", eachRowRequired: true,
         columns: ["col1", "col2", "col3", "col4"],
         rows: [{ value: "row1", text: "Row 1" }, "row2"]
       }

@@ -10,10 +10,10 @@ import { PopupDropdownViewModel } from "../src/popup-dropdown-view-model";
 export default QUnit.module("DropdownListModel");
 
 const jsonDropdown = {
-  questions: [{
+  elements: [{
     type: "dropdown",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     choices: [
       "item1",
       "item2",
@@ -141,11 +141,11 @@ QUnit.test("DropdownListModel focusFirstInputSelector mobile", (assert) => {
 });
 QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       searchEnabled: "false",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -375,10 +375,10 @@ QUnit.test("hintString test", function (assert) {
 
 QUnit.test("showHintString for zero values", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       searchEnabled: false,
       choices: [
         0,
@@ -803,10 +803,10 @@ QUnit.test("filtering on question with value", function (assert) {
 
 QUnit.test("hintString letter case", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "AbcAbc",
         "cAbcAb",
@@ -836,7 +836,7 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
     { value: 1, text: "text1markdown" },
     { value: 2, text: "text2markdown" },
   ];
-  q1.hasOther = true;
+  q1.showOtherItem = true;
   survey.onTextMarkdown.add(function (survey, options) {
     options.html = options.text;
   });
@@ -876,7 +876,7 @@ QUnit.test("Survey Markdown - dropdown and input string", function (assert) {
 
 QUnit.test("placeholderRendered", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       choices: ["item1", "item2", "item3", "item4", "item5",]
@@ -906,7 +906,7 @@ QUnit.test("placeholderRendered", function (assert) {
 
 QUnit.test("lazy loading clear value", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "country",
       "title": "Select a country",
@@ -1038,7 +1038,7 @@ QUnit.test("DropdownListModel in panel filterString change callback", (assert) =
 });
 QUnit.test("DropdownListModel filter options", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       searchEnabled: true,
@@ -1068,7 +1068,7 @@ QUnit.test("DropdownListModel filter options", (assert) => {
 
 QUnit.test("DropdownListModel filter event", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       searchEnabled: true,
@@ -1103,7 +1103,7 @@ QUnit.test("DropdownListModel filter event", (assert) => {
 
 QUnit.test("DropdownListModel buttons", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "q1",
       defaultValue: "item1",

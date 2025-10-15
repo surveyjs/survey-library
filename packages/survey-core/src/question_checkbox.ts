@@ -422,11 +422,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.otherItem.setIsEnabled(isEnabled);
   }
   private updateSelectAllItemProps(): void {
-    if (!this.hasSelectAll) return;
+    if (!this.showSelectAllItem) return;
     this.selectAllItem.setIsEnabled(this.getSelectAllEnabled());
   }
   private getSelectAllEnabled(): boolean {
-    if (!this.hasSelectAll) return true;
+    if (!this.showSelectAllItem) return true;
     let visCount = this.getVisibleEnableItems().length;
     const max = this.maxSelectedChoices;
     if (max > 0 && max < visCount) return false;
@@ -590,7 +590,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     super.addNonChoicesItems(dict, isAddAll);
     if (this.supportSelectAll()) {
-      this.addNonChoiceItem(dict, this.selectAllItem, isAddAll, this.hasSelectAll, settings.specialChoicesOrder.selectAllItem);
+      this.addNonChoiceItem(dict, this.selectAllItem, isAddAll, this.showSelectAllItem, settings.specialChoicesOrder.selectAllItem);
     }
   }
   public isBuiltInChoice(item: ItemValue): boolean {
@@ -598,7 +598,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
 
   public isItemInList(item: ItemValue): boolean {
-    if (item == this.selectAllItem) return this.hasSelectAll;
+    if (item == this.selectAllItem) return this.showSelectAllItem;
     return super.isItemInList(item);
   }
   protected getDisplayValueEmpty(): string {
@@ -844,7 +844,7 @@ Serializer.addClass(
       serializationProperty: "locSelectAllText",
       dependsOn: "showSelectAllItem",
       visibleIf: function (obj: any) {
-        return obj.hasSelectAll;
+        return obj.showSelectAllItem;
       }
     },
     {

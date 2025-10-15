@@ -5,7 +5,7 @@ registerMarkupTests(
     {
       name: "Test mutlipletext question markup",
       json: {
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "multipletext",
@@ -39,7 +39,7 @@ registerMarkupTests(
     {
       name: "Test mutlipletext readonly",
       json: {
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "multipletext",
@@ -74,7 +74,7 @@ registerMarkupTests(
     {
       name: "Test mutlipletext disabled",
       json: {
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "multipletext",
@@ -109,7 +109,7 @@ registerMarkupTests(
     {
       name: "Test mutlipletext question markup error top",
       json: {
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "multipletext",
@@ -135,7 +135,7 @@ registerMarkupTests(
     {
       name: "Test mutlipletext question markup error bottom",
       json: {
-        questions: [
+        elements: [
           {
             type: "multipletext",
             name: "multipletext",

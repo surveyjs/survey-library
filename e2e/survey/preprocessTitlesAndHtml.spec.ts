@@ -6,11 +6,11 @@ const json = {
   questionTitleTemplate: "{no}) {title} {require}:",
   showQuestionNumbers: "on",
   questionStartIndex: "A.",
-  requiredText: "(*)",
+  requiredMark: "(*)",
   pages: [
     {
       title: "This is the page {pageno} of {pagecount}.",
-      questions: [
+      elements: [
         {
           type: "text",
           name: "name",
@@ -28,7 +28,7 @@ const json = {
     },
     {
       title: "This is the page {pageno} of {pagecount}.",
-      questions: [
+      elements: [
         {
           type: "comment",
           name: "comment",

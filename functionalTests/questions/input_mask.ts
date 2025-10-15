@@ -7,8 +7,8 @@ frameworks.forEach((framework) => {
 
   test("Save unmasked value", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
-      questions: [
+      autoFocusFirstQuestion: true,
+      elements: [
         {
           name: "name",
           type: "text",
@@ -32,8 +32,8 @@ frameworks.forEach((framework) => {
 
   test("Cursor position on click", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
-      questions: [
+      autoFocusFirstQuestion: true,
+      elements: [
         {
           name: "name",
           type: "text",
@@ -69,7 +69,7 @@ frameworks.forEach((framework) => {
 
   test("An invalid value is not always cleared", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       pages: [
         {
           name: "page1",
@@ -107,7 +107,7 @@ frameworks.forEach((framework) => {
 
   test("mask and maxlength", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       "pages": [
         {
           "name": "page1",
@@ -141,8 +141,8 @@ frameworks.forEach((framework) => {
     const oldTimeZone = await getTimeZone();
     await setTimeZoneUnsafe(t, "America/Los_Angeles");
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
-      questions: [
+      autoFocusFirstQuestion: true,
+      elements: [
         {
           name: "name",
           type: "text",

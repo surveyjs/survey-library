@@ -58,7 +58,7 @@ const json = {
   pages: [
     {
       title: "Customer information",
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "copy",

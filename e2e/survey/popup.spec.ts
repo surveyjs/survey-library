@@ -59,7 +59,7 @@ const initPopupSurvey = async (page, framework, json) => {
 
 const json = {
   title: "Car survey",
-  questions: [
+  elements: [
     {
       type: "checkbox",
       name: "car",

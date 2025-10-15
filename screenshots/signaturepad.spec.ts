@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -45,7 +45,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -80,7 +80,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "600px",
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -104,7 +104,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "600px",
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "q1",
@@ -128,7 +128,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "signaturepad",
             name: "signature",

@@ -216,7 +216,7 @@ frameworks.forEach((framework) => {
         pages: [
           {
             title: "Page title with actions",
-            questions: [
+            elements: [
               {
                 type: "text",
                 name: "simple question",
@@ -234,7 +234,7 @@ frameworks.forEach((framework) => {
         pages: [
           {
             title: "Page title with actions",
-            questions: [
+            elements: [
               {
                 type: "text",
                 name: "simple question",
@@ -364,7 +364,7 @@ frameworks.forEach((framework) => {
     test("check adaptivity with one action", async ({ page }) => {
       const json = {
         widthMode: "responsive",
-        questions: [
+        elements: [
           {
             name: "name",
             type: "text",
@@ -405,7 +405,7 @@ frameworks.forEach((framework) => {
 
     test("check adaptivity with title changes", async ({ page }) => {
       const json = {
-        questions: [
+        elements: [
           {
             name: "name",
             type: "text",

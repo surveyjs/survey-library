@@ -9,7 +9,7 @@ const json = {
     {
       name: "Address",
       title: "Address",
-      questions: [
+      elements: [
         { type: "text", name: "address1", title: "Stree Address" },
         { type: "text", name: "address2", title: "Address Line 2" },
         { type: "text", name: "city", title: "City" },

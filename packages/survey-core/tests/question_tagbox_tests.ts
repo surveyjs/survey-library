@@ -10,10 +10,10 @@ import { IAction } from "../src/actions/action";
 export default QUnit.module("Tagbox question");
 
 const jsonTagbox = {
-  questions: [{
+  elements: [{
     type: "tagbox",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     choices: [
       "item1",
       "item2",
@@ -48,11 +48,11 @@ const jsonTagbox = {
 
 QUnit.test("clearValue", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "tagbox",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -91,7 +91,7 @@ QUnit.test("Tagbox DropdownListModel with MultiListModel", (assert) => {
 
 QUnit.test("DropdownListModel with MultiListModel and defaultValue", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       defaultValue: ["item1"],
@@ -134,12 +134,12 @@ QUnit.test("DropdownListModel with MultiListModel and defaultValue", (assert) =>
 });
 
 const jsonTagboxWithSelectAll = {
-  questions: [{
+  elements: [{
     type: "tagbox",
     name: "question1",
-    hasOther: "true",
+    showOtherItem: "true",
     showNoneItem: "true",
-    hasSelectAll: "true",
+    showSelectAllItem: "true",
     choices: [
       "item1",
       "item2",
@@ -219,7 +219,7 @@ QUnit.test("Select None item", (assert) => {
 
 QUnit.test("Tagbox hideSelectedItems property default false", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       defaultValue: ["item1"],
@@ -262,7 +262,7 @@ QUnit.test("Tagbox hideSelectedItems property default false", (assert) => {
 
 QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       defaultValue: ["item1"],
@@ -342,7 +342,7 @@ const doneCallback = (opt) => {
 
 QUnit.test("lazy loading: several loading", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -386,7 +386,7 @@ QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert =
   const done4 = assert.async();
 
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -498,7 +498,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
 });
 QUnit.test("lazy loading: A value disappears when open tagbox popup again", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -578,7 +578,7 @@ function getObjectArray(skip = 1, count = 25): Array<{ value: any, text: string 
 }
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [52, 55],
@@ -626,7 +626,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [{ id: 52 }, { id: 55 }],
@@ -667,7 +667,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -718,7 +718,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [52, 55],
@@ -755,7 +755,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -792,7 +792,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
 
 QUnit.test("lazy loading + change filter string", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -845,7 +845,7 @@ QUnit.test("lazy loading + change filter string", assert => {
 
 QUnit.test("lazy loading + change listModel filter string", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -900,7 +900,7 @@ QUnit.test("lazy loading + change listModel filter string", assert => {
 QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
   _setIsTouch(true);
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "closeOnSelect": false,
@@ -943,7 +943,7 @@ QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
 QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert) => {
   _setIsTouch(true);
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "hideSelectedItems": false,
@@ -982,10 +982,10 @@ QUnit.test("Tagbox focusFirstInputSelector mobile && hideSelectedItems", (assert
 
 QUnit.test("Tagbox closeOnSelect", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -997,7 +997,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     {
       type: "tagbox",
       name: "question2",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: true,
       choices: [
         "item1",
@@ -1010,7 +1010,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     {
       type: "tagbox",
       name: "question3",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: "false",
       choices: [
         "item1",
@@ -1023,7 +1023,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
     {
       type: "tagbox",
       name: "question4",
-      hasOther: "true",
+      showOtherItem: "true",
       closeOnSelect: "true",
       choices: [
         "item1",
@@ -1047,7 +1047,7 @@ QUnit.test("Tagbox closeOnSelect", (assert) => {
 QUnit.test("Tagbox settings.tagboxCloseOnSelect", (assert) => {
   settings.tagboxCloseOnSelect = true;
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       choices: [
@@ -1079,7 +1079,7 @@ QUnit.test("Tagbox settings.tagboxCloseOnSelect", (assert) => {
 
 QUnit.test("maxSelectedChoices in tagbox", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       maxSelectedChoices: 2,
@@ -1131,7 +1131,7 @@ QUnit.test("maxSelectedChoices in tagbox", function (assert) {
 
 QUnit.test("reset filterstring after select item", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       defaultValue: ["item1"],
@@ -1168,7 +1168,7 @@ QUnit.test("reset filterstring after select item", (assert) => {
 
 QUnit.test("TagBox displays a value which doesn't exist in a list of choices #6293", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       choices: ["Item 1", "Item 2", "Item 3"]
@@ -1187,7 +1187,7 @@ QUnit.test("TagBox displays a value which doesn't exist in a list of choices #62
 
 QUnit.test("TagBox displays a value as Other if it doesn't exist in a list of choices", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       showOtherItem: true,
@@ -1208,7 +1208,7 @@ QUnit.test("TagBox displays a value as Other if it doesn't exist in a list of ch
 });
 QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       choices: ["Item 1", "Item 2", "Item 3"]
@@ -1230,7 +1230,7 @@ QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
 });
 QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "q1",
       placeholder: {
@@ -1257,7 +1257,7 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
 
 QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         name: "q1",
         type: "tagbox",
@@ -1281,11 +1281,11 @@ QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (a
 
 QUnit.test("question.showClearButton", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "tagbox",
         "name": "q1",
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",
@@ -1306,7 +1306,7 @@ QUnit.test("question.showClearButton", assert => {
 });
 QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear the value", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [1],
@@ -1367,7 +1367,7 @@ QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear th
 });
 QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unselecting choices within a drop-down list", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [1],
@@ -1480,7 +1480,7 @@ QUnit.test("Check readOnly tagbox with markdown", function (assert) {
 
 QUnit.test("Tagbox searchmode filter options", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       searchEnabled: true,
@@ -1513,7 +1513,7 @@ QUnit.test("Tagbox searchmode filter options", (assert) => {
 
 QUnit.test("Tagbox readonly", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "question1",
       readOnly: true,
@@ -1548,7 +1548,7 @@ QUnit.test("Create tag box from json, dropdownListModel instance", (assert) => {
 
 QUnit.test("Prevoiusly selected options disappear", (assert) => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "defaultValue": [5],
@@ -1595,7 +1595,7 @@ QUnit.test("Prevoiusly selected options disappear", (assert) => {
 
 QUnit.test("The new selected value is replaced with the the default value while searching #8751", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "closeOnSelect": true,
@@ -1638,7 +1638,7 @@ QUnit.test("The new selected value is replaced with the the default value while 
 
 QUnit.test("The new selected value is always replaced with the the first selected value while searching #8751", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "tagbox",
       "name": "q1",
       "closeOnSelect": true,
@@ -1685,7 +1685,7 @@ QUnit.test("The new selected value is always replaced with the the first selecte
 });
 QUnit.test("rendering actions id", assert => {
   const json = {
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "q1",
       searchEnabled: false,
@@ -1707,7 +1707,7 @@ QUnit.test("rendering actions id", assert => {
 });
 QUnit.test("List actions disableTabStop", assert => {
   const json = {
-    questions: [{
+    elements: [{
       type: "tagbox",
       name: "q1",
       searchEnabled: true,
@@ -1727,7 +1727,7 @@ QUnit.test("List actions disableTabStop", assert => {
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: false", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: "false",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -1798,7 +1798,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
 QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: false, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -1855,7 +1855,7 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", funct
 
 QUnit.test("allowCustomChoices: inputStringRendered isn't reset after backspace, if searchEnabled: false", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: "false", allowCustomChoices: "true",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -1885,7 +1885,7 @@ QUnit.test("allowCustomChoices: inputStringRendered isn't reset after backspace,
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: "true",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -1956,7 +1956,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
 QUnit.test("allowCustomChoices: Add custom value if searchEnabled: true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: true, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -1997,7 +1997,7 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: true", functi
 
 QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: "true", allowCustomChoices: "true",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2022,7 +2022,7 @@ QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: t
 
 QUnit.test("allowCustomChoices: Option to create item not available if item exist (case-insensitive).", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: "true", allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2042,7 +2042,7 @@ QUnit.test("allowCustomChoices: Option to create item not available if item exis
 
 QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: true, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2102,7 +2102,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: "true",
       "choicesLazyLoadEnabled": true, "choicesLazyLoadPageSize": 25
     }]
@@ -2316,7 +2316,7 @@ QUnit.test("allowCustomChoices: Filter choices if choicesLazyLoadEnabled is true
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value (mobile mode)", function (assert) {
   _setIsTouch(true);
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: false, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2377,7 +2377,7 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
   _setIsTouch(true);
 
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "tagbox", searchEnabled: true, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2454,7 +2454,7 @@ QUnit.test("tagbox vs selectAll and isExclusive", (assert) => {
 
 QUnit.test("lazy loading + isReady", assert => {
   const done = assert.async();
-  const survey = new SurveyModel({ questions: [{ "type": "tagbox", "name": "q1", "choicesLazyLoadEnabled": true }] });
+  const survey = new SurveyModel({ elements: [{ "type": "tagbox", "name": "q1", "choicesLazyLoadEnabled": true }] });
   survey.onChoicesLazyLoad.add((_, options) => {
     options.setItems(getNumberArray(1, 25), 25);
   });
@@ -2472,7 +2472,7 @@ QUnit.test("lazy loading + isReady", assert => {
 });
 QUnit.test("Tagbox doesn't support showCommentArea functionality", assert => {
   const survey = new SurveyModel(
-    { questions: [{ "type": "tagbox", "name": "q1", "choices": [{ value: 1, showCommentArea: true }] }] });
+    { elements: [{ "type": "tagbox", "name": "q1", "choices": [{ value: 1, showCommentArea: true }] }] });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.choices.length, 1, "#1");
   assert.equal(question.choices[0].showCommentArea, false, "#1");
@@ -2482,7 +2482,7 @@ QUnit.test("Tagbox doesn't support showCommentArea functionality", assert => {
 });
 QUnit.test("Tagbox otherItem works correctly", assert => {
   const survey = new SurveyModel(
-    { questions: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });
+    { elements: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.otherItem.isCommentShowing, false, "#1");
   question.renderedValue = [1, "other"];
@@ -2517,7 +2517,7 @@ QUnit.test("TagBox becomes unresponsive when 0 is selected", (assert) => {
 
 QUnit.test("allowCustomChoices: custom choices from survey.data", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox", name: "q1", allowCustomChoices: true, choices: [
         "Long battery life",
         "Plenty of storage capacity",
@@ -2549,7 +2549,7 @@ QUnit.test("allowCustomChoices: custom choices from survey.data", function (asse
 
 QUnit.test("allowCustomChoices: custom choices with displayName from survey.data", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "tagbox", name: "q1", allowCustomChoices: true, choices: [
         { value: "LBL", text: "Long battery life" },
         { value: "PSC", text: "Plenty of storage capacity" },

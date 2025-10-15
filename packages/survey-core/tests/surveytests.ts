@@ -351,7 +351,7 @@ QUnit.test("Survey.onValueChanged event, #352", function (assert) {
   var page = survey.addNewPage("page1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   q1.choices = [1, 2, 3];
-  q1.hasOther = true;
+  q1.showOtherItem = true;
   var valueChangedCallCounter = 0;
   survey.onValueChanged.add(function (survey, options) {
     valueChangedCallCounter++;
@@ -371,7 +371,7 @@ QUnit.test("Do not show errors in display mode", function (assert) {
       { name: "p2", elements: [{ type: "text", name: "q1" }] },
       { name: "p3", elements: [{ type: "text", name: "q2" }] },
     ],
-    firstPageIsStarted: true
+    firstPageIsStartPage: true
   });
   survey.mode = "display";
   assert.equal(survey.activePage.name, "p2", "active page page is p2");
@@ -389,14 +389,14 @@ QUnit.test("Do not show errors in display mode", function (assert) {
   assert.equal(survey.activePage.name, "p2", "active page page is p2, #2");
   assert.equal(survey.currentPage.name, "p2", "current page page is p2, #2");
 });
-QUnit.test("firstPageIsStarted & questionsOnPageMode, Bug#9510", function (assert) {
+QUnit.test("firstPageIsStartPage & questionsOnPageMode, Bug#9510", function (assert) {
   var survey = new SurveyModel({
     pages: [
       { name: "p1", elements: [{ type: "text", name: "info1" }, { type: "text", name: "info2" }] },
       { name: "p2", elements: [{ type: "text", name: "q1" }] },
       { name: "p3", elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }] },
     ],
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     questionsOnPageMode: "questionPerPage"
   });
   assert.equal(survey.activePage.name, "p1", "active page #1");
@@ -1713,7 +1713,7 @@ QUnit.test("Should not show errors with others bug #2014", function (assert) {
   var question = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   question.choices = [1, 2, 3];
   question.isRequired = true;
-  question.hasOther = true;
+  question.showOtherItem = true;
   page = survey.addNewPage("page2");
   page.addNewQuestion("text", "q2");
 
@@ -3746,7 +3746,7 @@ QUnit.test(
   function (assert) {
     var survey = new SurveyModel({
       showQuestionNumbers: "on",
-      questions: [
+      elements: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
         { type: "text", name: "q3" },
@@ -3898,7 +3898,7 @@ QUnit.test("clearInvisibleValues - comments and other values, #309", function (
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
-  q1.hasOther = true;
+  q1.showOtherItem = true;
   var q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
   q2.showCommentArea = true;
   var q3 = <QuestionTextModel>page.addNewQuestion("text", "q3");
@@ -3925,7 +3925,7 @@ QUnit.test(
     var page = survey.addNewPage("p1");
     var q1 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
     q1.choices = [1];
-    q1.hasOther = true;
+    q1.showOtherItem = true;
     q1.value = q1.otherItem.value;
     q1.otherValue = "comment1";
     q1.value = 1;
@@ -4123,7 +4123,7 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
     survey.pages[1].addNewQuestion("dropdown", "question5")
   );
   dropDownQ.choices = [1, 2, 3];
-  dropDownQ.hasOther = true;
+  dropDownQ.showOtherItem = true;
   survey.goNextPageAutomatic = true;
   assert.equal(
     survey.currentPage.name,
@@ -4206,7 +4206,7 @@ QUnit.test(
       survey.pages[1].addNewQuestion("dropdown", "question5")
     );
     dropDownQ.choices = [1, 2, 3];
-    dropDownQ.hasOther = true;
+    dropDownQ.showOtherItem = true;
     survey.goNextPageAutomatic = true;
     assert.equal(
       survey.currentPage.name,
@@ -4430,7 +4430,7 @@ QUnit.test("goNextPageAutomatic and autoAdvanceAllowComplete=false", function (a
       { elements: [{ type: "dropdown", name: "q2", choices: [1, 2, 3] }] }
     ],
     goNextPageAutomatic: true,
-    allowCompleteSurveyAutomatic: false
+    autoAdvanceAllowComplete: false
   });
   assert.equal(survey.autoAdvanceAllowComplete, false, "autoAdvanceAllowComplete value # 2");
   const q1 = survey.getQuestionByName("q1");
@@ -4526,77 +4526,77 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
     false,
     "showNavigationButtons = none, #top"
   );
-  survey.pages[0].navigationButtonsVisibility = "show";
+  survey.pages[0].showNavigationButtons = true;
   assert.equal(
     survey.isNavigationButtonsShowing,
     "bottom",
-    "navigationButtonsVisibility = 'show' && showNavigationButtons = false"
+    "showNavigationButtons = true && showNavigationButtons = false"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
-    "navigationButtonsVisibility = 'show' && showNavigationButtons = false, #bottom"
+    "showNavigationButtons = true && showNavigationButtons = false, #bottom"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnTop,
     false,
-    "navigationButtonsVisibility = 'show' && showNavigationButtons = false, #top"
+    "showNavigationButtons = true && showNavigationButtons = false, #top"
   );
-  survey.showNavigationButtons = true;
-  survey.pages[0].navigationButtonsVisibility = "hide";
+  survey.showNavigationButtons = false;
+  survey.pages[0].showNavigationButtons = false;
   assert.equal(
     survey.isNavigationButtonsShowing,
     "none",
-    "navigationButtonsVisibility = 'hide' && showNavigationButtons = true"
+    "showNavigationButtons = false && showNavigationButtons = false"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     false,
-    "navigationButtonsVisibility = 'hide' && showNavigationButtons = true, #bottom"
+    "showNavigationButtons = false && showNavigationButtons = false, #bottom"
   );
   survey.showNavigationButtons = true;
-  survey.pages[0].navigationButtonsVisibility = "inherit";
+  survey.pages[0].showNavigationButtons = "inherit";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "bottom",
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true"
+    "showNavigationButtons = 'inherit' && showNavigationButtons = true"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = true, #bottom"
+    "showNavigationButtons = 'inherit' && showNavigationButtons = true, #bottom"
   );
 
   survey.showNavigationButtons = "both";
   assert.equal(survey.showNavigationButtons, true, "showNavigationButtons is true showNavigationButtons = both");
   assert.equal(survey.navigationButtonsLocation, "topBottom", "navigationButtonsLocation is topBottom showNavigationButtons = both");
-  assert.equal(survey.isNavigationButtonsShowing, "topBottom", "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both");
+  assert.equal(survey.isNavigationButtonsShowing, "topBottom", "showNavigationButtons = undefined && showNavigationButtons = both");
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both, #bottom"
+    "showNavigationButtons = 'inherit' && showNavigationButtons = both, #bottom"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnTop,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = both, #top"
+    "showNavigationButtons = undefined && showNavigationButtons = both, #top"
   );
 
   survey.showNavigationButtons = "top";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "top",
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top"
+    "showNavigationButtons = undefined && showNavigationButtons = top"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnBottom,
     false,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #bottom"
+    "showNavigationButtons = undefined && showNavigationButtons = top, #bottom"
   );
   assert.equal(
     survey.isNavigationButtonsShowingOnTop,
     true,
-    "navigationButtonsVisibility = 'inherit' && showNavigationButtons = top, #top"
+    "showNavigationButtons = undefined && showNavigationButtons = top, #top"
   );
 });
 
@@ -4623,7 +4623,7 @@ QUnit.test("simple condition test", (assert) => {
     pages: [
       {
         name: "page1",
-        questions: [
+        elements: [
           { type: "radiogroup", name: "q1", choices: ["yes", "no"] },
           { type: "radiogroup", name: "q2", choices: ["yes", "no"] },
         ],
@@ -4631,7 +4631,7 @@ QUnit.test("simple condition test", (assert) => {
       {
         name: "page2",
         visibleIf: "{q1} = 'yes' or {q2} = 'no'",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q3",
@@ -4664,12 +4664,12 @@ QUnit.test("simple condition test, page visibility", function (assert) {
     pages: [
       {
         name: "page1",
-        questions: [{ type: "checkbox", name: "q1", choices: ["yes", "no"] }],
+        elements: [{ type: "checkbox", name: "q1", choices: ["yes", "no"] }],
       },
       {
         name: "page2",
         visibleIf: "{q1} contains 'yes'",
-        questions: [{ type: "text", name: "q3" }],
+        elements: [{ type: "text", name: "q3" }],
       },
     ],
   });
@@ -4683,7 +4683,7 @@ QUnit.test("Re-run condition on changing the variable", function (assert) {
     pages: [
       {
         name: "page1",
-        questions: [{ type: "text", name: "q1", visibleIf: "{var1} = 1" }],
+        elements: [{ type: "text", name: "q1", visibleIf: "{var1} = 1" }],
       },
     ],
   });
@@ -4710,11 +4710,11 @@ QUnit.test("visibleIf for question, call onPageVisibleChanged", function (
     pages: [
       {
         name: "page1",
-        questions: [{ type: "checkbox", name: "q1", choices: ["yes", "no"] }],
+        elements: [{ type: "checkbox", name: "q1", choices: ["yes", "no"] }],
       },
       {
         name: "page2",
-        questions: [
+        elements: [
           { type: "text", name: "q3", visibleIf: "{q1} contains 'yes'" },
         ],
       },
@@ -4755,7 +4755,7 @@ QUnit.test(
     }
     FunctionFactory.Instance.register("isAllChecksSet", isAllChecksSet);
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         { type: "checkbox", name: "q1", choices: ["yes", "no"] },
         { type: "text", name: "q2", visibleIf: "isAllChecksSet('q1') == true" },
       ],
@@ -4771,7 +4771,7 @@ QUnit.test(
 );
 QUnit.test("visibleIf, bug#729", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         choices: [
           { value: "true", text: "Yes" },
@@ -4824,7 +4824,7 @@ QUnit.test("visibleIf, Does not work with 0, bug#1792", function (assert) {
 });
 QUnit.test("visibleIf, allow dot in question name", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         choices: [
           { value: "true", text: "Yes" },
@@ -4893,7 +4893,7 @@ QUnit.test("visibleIf, Does not work with many dots (2)", function (assert) {
 });
 QUnit.test("visibleIf, Does not work with many dots (3)", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         name: "application.contactMethod",
         type: "text",
@@ -4925,7 +4925,7 @@ QUnit.test("enableIf for question", function (assert) {
     pages: [
       {
         name: "page1",
-        questions: [
+        elements: [
           { type: "checkbox", name: "q1", choices: ["yes", "no"] },
           { type: "text", name: "q2", enableIf: "{q1} contains 'yes'" },
         ],
@@ -4940,7 +4940,7 @@ QUnit.test("enableIf for question", function (assert) {
 
 QUnit.test("enableIf for matrix questions, Bug#736", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdropdown",
         name: "q1",
@@ -4991,7 +4991,7 @@ QUnit.test(
       pages: [
         {
           name: "page1",
-          questions: [
+          elements: [
             {
               type: "checkbox",
               isRequired: true,
@@ -5016,7 +5016,7 @@ QUnit.test("multiple triger on checkbox stop working.", function (assert) {
   var survey = new SurveyModel({
     pages: [
       {
-        questions: [
+        elements: [
           {
             type: "checkbox",
             name: "question1",
@@ -5087,7 +5087,7 @@ QUnit.test("visibleIf and page rows", function (assert) {
     pages: [
       {
         name: "component",
-        questions: [
+        elements: [
           {
             type: "dropdown",
             choices: [
@@ -5133,8 +5133,8 @@ QUnit.test("visibleIf and page rows", function (assert) {
       },
     ],
     questionTitleTemplate: "{title} {require}:",
-    requiredText: "(*)",
-    sendResultOnPageNext: true,
+    requiredMark: "(*)",
+    partialSendEnabled: true,
     showQuestionNumbers: "off",
   });
   var page = survey.currentPage;
@@ -5234,7 +5234,7 @@ QUnit.test("assign customWidgets to matrix dynamic cell question", function (ass
   });
 
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "Grid",
@@ -5468,11 +5468,11 @@ QUnit.test("Survey Localization - dropdown.choices", function (assert) {
 
 QUnit.test("Survey Localization - radiogroup.otheItem", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2],
         otherText: {
           default: "Other",
@@ -5546,7 +5546,7 @@ QUnit.test("Survey Localization - dropdownmatrix.columns", function (assert) {
   assert.equal(
     col1["placeholder"],
     "de-caption1",
-    "Use 'de' text, optionsCaption"
+    "Use 'de' text, placeholder"
   );
   assert.equal(col1["choices"][0].text, "de-text1", "Use 'de' text, choices");
   survey.locale = "fr";
@@ -5554,7 +5554,7 @@ QUnit.test("Survey Localization - dropdownmatrix.columns", function (assert) {
   assert.equal(
     col1["placeholder"],
     "caption1",
-    "Use default text, optionsCaption"
+    "Use default text, placeholder"
   );
   assert.equal(col1["choices"][0].text, "text1", "Use the default text");
 });
@@ -5693,7 +5693,7 @@ QUnit.test(
   "Survey text preprocessing, zero value, issue https://surveyjs.answerdesk.io/ticket/details/t2493",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         { type: "text", name: "q1", inputType: "number" },
         { type: "text", name: "q2", title: "q1={q1}" },
       ],
@@ -6706,7 +6706,7 @@ QUnit.test("Pass custom properties to cell question", function (assert) {
     choices: ["default", "select2tagbox"],
   });
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "matrixdynamic",
         name: "teachersRate",
@@ -6745,7 +6745,7 @@ QUnit.test("Pass custom properties to cell question", function (assert) {
 
 QUnit.test("Pass text as survey json", function (assert) {
   var survey = new SurveyModel(
-    '{ "questions": [ {"type": "text", "name": "q1"}]}'
+    '{ "elements": [ {"type": "text", "name": "q1"}]}'
   );
   var q1 = survey.getQuestionByName("q1");
   assert.equal(q1.name, "q1", "The survey created from the string");
@@ -6785,7 +6785,7 @@ QUnit.test(
   "Set defaultValue on loading from JSON, on adding into survey and on setting defaultValue property",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [{ type: "text", name: "q1", defaultValue: "your_name" }],
+      elements: [{ type: "text", name: "q1", defaultValue: "your_name" }],
     });
     assert.equal(survey.getValue("q1"), "your_name", "on loading from JSON");
     var q2 = new QuestionTextModel("q2");
@@ -6847,14 +6847,14 @@ QUnit.test("defaultValue + survey.clear() + 'other'", function (assert) {
         name: "q1",
         defaultValue: "other",
         choices: [1],
-        hasOther: true,
+        showOtherItem: true,
       },
       {
         type: "checkbox",
         name: "q2",
         defaultValue: ["other"],
         choices: [1],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   };
@@ -7154,7 +7154,7 @@ QUnit.test("firstPageIsStartPage = true, load from JSON, the flow", function (
   assert
 ) {
   var json = {
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       { name: "start", elements: [{ type: "text", name: "q1" }] },
       { name: "page1", elements: [{ type: "text", name: "q2" }] },
@@ -7505,7 +7505,7 @@ QUnit.test("survey.isSinglePage revert and other value", function (assert) {
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [1, 2],
       },
     ],
@@ -7538,7 +7538,7 @@ QUnit.test(
     survey.setValue("q1", ["other2"]);
     var question = new QuestionCheckboxModel("q1");
     question.choices = [1, 2];
-    question.hasOther = true;
+    question.showOtherItem = true;
     survey.pages[0].addQuestion(question);
     assert.deepEqual(question.value, ["other2"], "question value");
     assert.deepEqual(
@@ -8098,7 +8098,7 @@ QUnit.test(
       pages: [
         {
           name: "Start Page",
-          questions: [
+          elements: [
             {
               type: "html",
               html: "1",
@@ -8112,7 +8112,7 @@ QUnit.test(
         },
         {
           name: "First Page",
-          questions: [
+          elements: [
             {
               type: "text",
               name: "q1",
@@ -9018,7 +9018,7 @@ QUnit.test("Page with numeric name, bug #1293", function (assert) {
     pages: [
       {
         name: "0608",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q1",
@@ -9379,7 +9379,7 @@ function createPageWithQuestion(
 
 QUnit.test("Survey get full title with values", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -9401,7 +9401,7 @@ QUnit.test("Survey get full title with values", function (assert) {
 
 QUnit.test("Survey get full title with values, bug#5383", function (assert) {
   var json = {
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -9430,7 +9430,7 @@ QUnit.test(
   "Survey radioGroup remove data on visible items change even if there are other visible questions here, Bug# T1239",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "group1",
@@ -9475,7 +9475,7 @@ QUnit.test(
   "Do not call onValueChanged event onComplete event, Bug# T1239",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -9501,7 +9501,7 @@ QUnit.test(
   "Call onValueChanged event onComplete event only one for real field, Bug# T1239",
   function (assert) {
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -9769,7 +9769,7 @@ QUnit.test(
     var q = new QuestionImagePickerModel(null);
 
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "rating",
           name: "question11",
@@ -10539,7 +10539,7 @@ QUnit.test(
     });
 
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "rating",
           name: "question11",
@@ -10833,7 +10833,7 @@ QUnit.test("getPlainData - calculate itemvalue.score in rate question, Bug#6804"
     Serializer.addProperty("itemvalue", { name: "score:number" });
 
     var survey = new SurveyModel({
-      questions: [
+      elements: [
         {
           type: "rating",
           name: "q1",
@@ -10926,7 +10926,7 @@ QUnit.test(
       {
         type: "checkbox",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [
           {
             value: "lion",
@@ -11015,7 +11015,7 @@ QUnit.test(
       {
         type: "radiogroup",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: [
           {
             value: "lion",
@@ -11210,7 +11210,7 @@ QUnit.test("question.getPlainData - optional survey values", function (assert) {
 
 QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         name: "name",
         type: "text",
@@ -11224,7 +11224,7 @@ QUnit.test("question.valueName is numeric, Bug# 1432", function (assert) {
 
 QUnit.test("Show several errors based on validation", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "q1",
@@ -11300,7 +11300,7 @@ QUnit.test("Show several errors based on validation", function (assert) {
 
 QUnit.test("getCustomErrorText for error", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         name: "name",
         type: "text",
@@ -11409,7 +11409,7 @@ QUnit.test(
   "True/False strings do not work, Bug #https://surveyjs.answerdesk.io/ticket/details/T2425",
   function (assert) {
     var json = {
-      questions: [
+      elements: [
         {
           name: "bool",
           type: "dropdown",
@@ -12879,7 +12879,7 @@ QUnit.test(
 );
 
 QUnit.test("Different css for different surveys", function (assert) {
-  var json = { questions: [{ type: "text", name: "q" }] };
+  var json = { elements: [{ type: "text", name: "q" }] };
   var survey1 = new SurveyModel();
   setOldTheme(survey1);
   var survey2 = new SurveyModel();
@@ -12922,7 +12922,7 @@ QUnit.test("Question css classes", function (assert) {
   survey.css.question.titleOnError = "onError";
   survey.css.question.titleOnAnswer = "onAnswer";
   survey.fromJSON({
-    questions: [{ type: "text", name: "q1", isRequired: true }],
+    elements: [{ type: "text", name: "q1", isRequired: true }],
   });
   var q1 = survey.getQuestionByName("q1");
   assert.equal(q1.errors.length, 0, "There is not errors");
@@ -12973,7 +12973,7 @@ QUnit.test("Question css classes", function (assert) {
 });
 
 QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
-  var json = { title: "title", questions: [{ type: "text", name: "q" }] };
+  var json = { title: "title", elements: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);
   var counter = 0;
 
@@ -13001,7 +13001,7 @@ QUnit.test(
   function (assert) {
     var json = {
       title: "title",
-      questions: [
+      elements: [
         {
           type: "text",
           name: "q1",
@@ -13525,7 +13525,7 @@ QUnit.test("Update question errors on other text change if survey.checkErrorsMod
         type: "dropdown",
         name: "q1",
         choices: [1, 2],
-        hasOther: true,
+        showOtherItem: true,
       },
     ],
   });
@@ -13552,7 +13552,7 @@ QUnit.test(
           type: "dropdown",
           name: "q1",
           choices: [1, 2],
-          hasOther: true,
+          showOtherItem: true,
         },
       ],
     });
@@ -13946,7 +13946,7 @@ QUnit.test(
   function (assert) {
     var survey = new SurveyModel({
       storeOthersAsComment: false,
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "test",
@@ -13966,7 +13966,7 @@ QUnit.test(
 );
 QUnit.test("question.clickTitleFunction, Bug#2312", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "radiogroup",
         name: "q1",
@@ -14022,7 +14022,7 @@ QUnit.test("survey.getProgressInfo()", function (assert) {
 });
 QUnit.test("trigger to copy matrix dropdown cell ", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         name: "q1",
         type: "matrixdropdown",
@@ -14519,7 +14519,7 @@ QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel re
   assert.equal(counter, 1, "focusQuestion called one time");
   assert.equal(isOnError, true, "focusQuestion called with onError = true");
 });
-QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + focusOnFirstError = false, Bug#8322", function (assert) {
+QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + autoFocusFirstError = false, Bug#8322", function (assert) {
   var focusedQuestionId = "";
   const oldFunc = SurveyElement.FocusElement;
   SurveyElement.FocusElement = function (elId: string): boolean {
@@ -14529,7 +14529,7 @@ QUnit.test("Do not focus errored question when checkErrorsMode: `onComplete` + f
 
   const survey = new SurveyModel({
     checkErrorsMode: "onComplete",
-    focusOnFirstError: false,
+    autoFocusFirstError: false,
     pages: [
       {
         elements: [
@@ -14846,14 +14846,14 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "Do not create otherItem in image picker on loading it from JSON, even if hasOther is true, Bug#2603",
+  "Do not create otherItem in image picker on loading it from JSON, even if showOtherItem is true, Bug#2603",
   (assert) => {
     var survey = new SurveyModel({
       elements: [
         {
           type: "radiogroup",
           name: "q1",
-          hasOther: true,
+          showOtherItem: true,
           choices: ["item1", "item2", "item3"],
         },
       ],
@@ -15285,7 +15285,7 @@ QUnit.test(
       pages: [
         {
           name: "Start Page",
-          questions: [
+          elements: [
             {
               type: "html",
               html: "1",
@@ -15294,7 +15294,7 @@ QUnit.test(
         },
         {
           name: "First Page",
-          questions: [
+          elements: [
             {
               type: "text",
               name: "q1",
@@ -15871,17 +15871,17 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
 });
 QUnit.test("other and survey.clear", function (assert) {
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "dropdown",
         name: "q1",
-        hasOther: true,
+        showOtherItem: true,
         choices: ["item1", "item2", "item3"],
       },
       {
         type: "checkbox",
         name: "q2",
-        hasOther: true,
+        showOtherItem: true,
         choices: ["item1", "item2", "item3"],
       },
     ],
@@ -16377,8 +16377,8 @@ QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (a
     goNextPageAutomatic: true,
     showProgressBar: "bottom",
     showTimerPanel: "top",
-    maxTimeToFinishPage: 10,
-    maxTimeToFinish: 25,
+    timeLimitPerPage: 10,
+    timeLimit: 25,
     pages: [
       {
         elements: [
@@ -16489,7 +16489,7 @@ QUnit.test("Randomized questions and onQuestionAdded", function (assert) {
     pages: [
       { elements: [{ type: "text", name: "q1" }] },
       {
-        questionsOrder: "random",
+        questionOrder: "random",
         elements: [{ type: "text", name: "q2" }, { type: "text", name: "q3" }]
       }
     ]
@@ -16506,7 +16506,7 @@ QUnit.test("onQuestionAdded & changing parent", function (assert) {
     pages: [
       { elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }] },
       {
-        questionsOrder: "random",
+        questionOrder: "random",
         elements: [{ type: "text", name: "q3" }, { type: "text", name: "q4" }]
       }
     ]
@@ -16650,7 +16650,7 @@ QUnit.test("Run expressions on changing comments", function (assert) {
           "item2",
           "item3"
         ],
-        hasComment: true
+        showCommentArea: true
       },
       {
         type: "text",
@@ -17199,7 +17199,7 @@ QUnit.test("Do not execute visibleIf in design mode", function (assert) {
 });
 QUnit.test("Ignore firstStartPage if there is only one page", function (assert) {
   var survey = new SurveyModel({
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2" }
@@ -17411,7 +17411,7 @@ QUnit.test("Survey Localization - check errors update after locale changed", fun
         type: "radiogroup",
         name: "question6",
         isRequired: true,
-        hasOther: true,
+        showOtherItem: true,
         otherErrorText: {
           default: "custom_other_error_text",
           de: "custom_other_error_text_deutch"
@@ -17498,7 +17498,7 @@ QUnit.test("First page with conditions. Make the second only page visible/invisi
       }],
       visibleIf: "{question1} = 1"
     }],
-    firstPageIsStarted: true
+    firstPageIsStartPage: true
   });
   assert.equal(survey.getPropertyValue("isStartedState"), true, "the state is started");
   assert.equal(survey.startPage.name, "page1", "The started page");
@@ -17566,12 +17566,12 @@ QUnit.test("Test survey with custom type", function (assert) {
   JsonObject.metaData.addClass(
     "sortablelist",
     [
-      { name: "hasOther", visible: false },
+      { name: "showOtherItem", visible: false },
       { name: "storeOthersAsComment", visible: false },
-      { name: "hasNone", visible: false },
+      { name: "showNoneItem", visible: false },
       { name: "renderAs", visible: false },
       { name: "checkboxClass", visible: false },
-      { name: "hasSelectAll", visible: false },
+      { name: "showSelectAllItem", visible: false },
       { name: "noneText", visible: false },
       { name: "selectAllText", visible: false },
     ],
@@ -17579,7 +17579,7 @@ QUnit.test("Test survey with custom type", function (assert) {
     "checkbox"
   );
   const survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "sortablelist",
         name: "lifepriopity",
@@ -17633,7 +17633,7 @@ QUnit.test("progress is not changed on the start page", function (assert) {
     ],
 
     showProgressBar: "bottom",
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     questionsOnPageMode: "questionPerPage",
     widthMode: "static"
   });
@@ -18986,11 +18986,11 @@ QUnit.test("If localizable string has isLocalizable set to false then it should 
   titleProp.isLocalizable = true;
 });
 
-QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibility", function (assert) {
+QUnit.test("getContainerContent - navigation with page.showNavigationButtons", function (assert) {
   const json = {
     pages: [
       {
-        "navigationButtonsVisibility": "hide",
+        "showNavigationButtons": false,
         "elements": [
           {
             required: true,
@@ -19005,7 +19005,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
         ]
       },
       {
-        "navigationButtonsVisibility": "show",
+        "showNavigationButtons": true,
         "elements": [
           {
             "type": "radiogroup",
@@ -19063,13 +19063,13 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 });
-QUnit.test("survey.showNavigationButtons = 'none', page.navigationButtonsVisibility = 'show' & firstPageIsStarted is true, Bug#9248", function (assert) {
+QUnit.test("survey.showNavigationButtons = 'none', page.showNavigationButtons = true & firstPageIsStartPage is true, Bug#9248", function (assert) {
   const survey = new SurveyModel({
     showNavigationButtons: "none",
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
     pages: [
       {
-        "navigationButtonsVisibility": "show",
+        "showNavigationButtons": true,
         "elements": [{ type: "text", name: "q1" }]
       },
       {
@@ -20651,9 +20651,9 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
         ]
       }
     ],
-    "maxTimeToFinish": 10,
+    "timeLimit": 10,
     "showTimerPanel": "top",
-    "showTimerPanelMode": "survey"
+    "timerInfoMode": "survey"
   };
   let survey = new SurveyModel(json);
   survey.headerView = "basic";
@@ -21507,7 +21507,7 @@ QUnit.test("_isElementShouldBeSticky", (assert) => {
 });
 QUnit.test("survey navigateToUrl encode url", function (assert) {
   var survey = new SurveyModel({
-    questions: [
+    elements: [
       {
         type: "text",
         name: "q1",
@@ -22010,7 +22010,7 @@ QUnit.test("The Start Page & changing the question visibility, Bug#9520", functi
       { name: "p1", visibleIf: "{q1}='a'", elements: [{ type: "text", name: "q2" }] },
       { name: "p2", elements: [{ type: "text", name: "q1" }] }
     ],
-    firstPageIsStarted: true,
+    firstPageIsStartPage: true,
   });
   assert.equal(survey.visiblePages.length, 1, "visiblePages #1");
   survey.setValue("q1", "a");

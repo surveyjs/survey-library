@@ -16,7 +16,7 @@ export default QUnit.module("Dropdown question");
 
 QUnit.test("Test dropdown choicesMax choicesMin properties", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         name: "liveage",
         type: "dropdown",
@@ -35,7 +35,7 @@ QUnit.test("Test dropdown choicesMax choicesMin properties", function (assert) {
 
 QUnit.test("check dropdown disabled class", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         name: "q1",
         type: "dropdown",
@@ -52,10 +52,10 @@ QUnit.test("check dropdown disabled class", function (assert) {
 
 QUnit.test("DropdownListModel with ListModel", (assert) => {
   const jsonDropdown = {
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -94,10 +94,10 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
 
 QUnit.test("Test dropdown renderAs select", assert => {
   const json = {
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       choices: [
         "item1",
         "item2",
@@ -142,10 +142,10 @@ QUnit.test("Test dropdown renderAs select", assert => {
 
 QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
   const json = {
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
-      hasOther: "true",
+      showOtherItem: "true",
       searchEnabled: false,
       choices: [
         "item1",
@@ -191,7 +191,7 @@ QUnit.test("Test dropdown renderAs select searchEnabled property", assert => {
 
 QUnit.test("add placeholder & allowClear", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "car",
@@ -255,15 +255,15 @@ QUnit.test("add placeholder & allowClear", assert => {
   });
 });
 
-QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & allowClear", assert => {
+QUnit.test("deserialize showOptionsCaption & placeholder to placeholder & allowClear", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "car",
         "title": "What car are you driving?",
         "showOptionsCaption": false,
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",
@@ -281,8 +281,8 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
   const survey = new SurveyModel(json);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
-  assert.equal(question.placeholder, "New optionsCaption");
-  assert.equal(question.optionsCaption, "New optionsCaption");
+  assert.equal(question.placeholder, "New placeholder");
+  assert.equal(question.placeholder, "New placeholder");
 
   assert.ok(question.showOptionsCaption === false);
   assert.ok(question.allowClear === false);
@@ -291,7 +291,7 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
     "name": "car",
     "title": "What car are you driving?",
     "allowClear": false,
-    "placeholder": "New optionsCaption",
+    "placeholder": "New placeholder",
     "choices": [
       "Ford",
       "Vauxhall",
@@ -309,11 +309,11 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
 
 QUnit.test("question.showClearButton", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "optionsCaption": "New optionsCaption",
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",
@@ -336,13 +336,13 @@ QUnit.test("question.showClearButton", assert => {
 
 QUnit.test("ListModel localization", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "car",
         "title": "What car are you driving?",
-        "showOptionsCaption": false,
-        "optionsCaption": "New optionsCaption",
+        "allowClear": false,
+        "placeholder": "New placeholder",
         "choices": [
           "Ford",
           "Vauxhall",
@@ -367,7 +367,7 @@ QUnit.test("ListModel localization", assert => {
 });
 QUnit.test("survey.onTextMarkdown, options.item #9601", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
@@ -426,13 +426,13 @@ QUnit.test("readOnlyText visibleChoices changed", assert => {
 });
 QUnit.test("readOnlyText render as select", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
         "renderAs": "select",
         "placeholder": "click",
-        "hasOther": true,
+        "showOtherItem": true,
         "showNoneItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
@@ -456,11 +456,11 @@ QUnit.test("readOnlyText render as select", assert => {
 });
 QUnit.test("readOnlyText on changing locale", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -476,12 +476,12 @@ QUnit.test("readOnlyText on changing locale", assert => {
 });
 QUnit.test("inputFieldComponent", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "itemComponent": "my-item",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -502,11 +502,11 @@ QUnit.test("inputFieldComponent", assert => {
 });
 QUnit.test("showSelectedItemLocText", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -522,16 +522,15 @@ QUnit.test("showSelectedItemLocText", assert => {
   question.itemComponent = "my-item";
   assert.equal(question.showSelectedItemLocText, false, "#3");
 });
-QUnit.test("selectedItemLocText, hasOther & storeOthersAsComment=false, Bug#3800", assert => {
+QUnit.test("selectedItemLocText, showOtherItem & storeOthersAsComment=false, Bug#3800", assert => {
   const json = {
     storeOthersAsComment: false,
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
-        "choices": [1, 2, 3],
-        showOtherItem: true
+        "showOtherItem": true,
+        "choices": [1, 2, 3]
       }]
   };
   const survey = new SurveyModel(json);
@@ -547,11 +546,11 @@ QUnit.test("selectedItemLocText, hasOther & storeOthersAsComment=false, Bug#3800
 });
 QUnit.test("showInputFieldComponent", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -569,11 +568,11 @@ QUnit.test("showInputFieldComponent", assert => {
 });
 QUnit.test("clearValue", assert => {
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
-        "hasOther": true,
+        "showOtherItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -606,7 +605,7 @@ QUnit.test("clearValue", assert => {
 
 QUnit.test("Dropdown doesn't displays a value which doesn't exist in a list of choices", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       choices: ["Item 1", "Item 2", "Item 3"]
@@ -625,7 +624,7 @@ QUnit.test("Dropdown doesn't displays a value which doesn't exist in a list of c
 
 QUnit.test("Dropdown displays a value as Other if it doesn't exist in a list of choices", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       showOtherItem: true,
@@ -646,7 +645,7 @@ QUnit.test("Dropdown displays a value as Other if it doesn't exist in a list of 
 
 QUnit.test("Dropdown displays a value if list of choices is empty", (assert) => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "question1",
       choices: ["Item 1", "Item 2", "Item 3"]
@@ -700,7 +699,7 @@ const doneCallback = (opt) => {
 
 QUnit.test("lazy loading: first loading", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -724,7 +723,7 @@ QUnit.test("lazy loading: first loading", assert => {
 
 QUnit.test("lazy loading: first loading - default value", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "defaultValue": "1",
@@ -748,7 +747,7 @@ QUnit.test("lazy loading: first loading - default value", assert => {
 
 QUnit.test("lazy loading: several loading", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -790,7 +789,7 @@ QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert =
   const done4 = assert.async();
 
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -842,7 +841,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
   const done2 = assert.async();
   const done3 = assert.async();
   const json = {
-    questions: [
+    elements: [
       {
         "type": "dropdown",
         "name": "q1",
@@ -962,7 +961,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
 
 QUnit.test("itemsSettings property", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -1002,7 +1001,7 @@ QUnit.test("itemsSettings property", assert => {
 });
 QUnit.test("rendering actions id", assert => {
   const json = {
-    questions: [{
+    elements: [{
       type: "dropdown",
       name: "q1",
       choices: ["Item1", "Item2"]
@@ -1023,7 +1022,7 @@ QUnit.test("rendering actions id", assert => {
 
 QUnit.test("Test dropdown choices change should update strings", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         name: "liveage",
         type: "dropdown",
@@ -1043,7 +1042,7 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
 
 QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (assert) {
   const json = {
-    questions: [
+    elements: [
       {
         name: "q1",
         type: "dropdown",
@@ -1066,7 +1065,7 @@ QUnit.test("Test update readOnlyText after onGetChoiceDisplayValue", function (a
 
 QUnit.test("min page size", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1096,7 +1095,7 @@ QUnit.test("min page size", assert => {
 
 QUnit.test("selectedItem until all data is loaded", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1146,7 +1145,7 @@ function getObjectArray(skip = 1, count = 25): Array<{value: number, text: strin
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "defaultValue": 55,
@@ -1196,7 +1195,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue & custom property", assert => {
   Serializer.addProperty("itemvalue", "customProp");
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "defaultValue": 55,
@@ -1229,7 +1228,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue & custom proper
 });
 QUnit.test("lazy loading + onGetChoiceDisplayValue, selected last item", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1264,7 +1263,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue, selected last item", assert 
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "defaultValue": { id: 55 },
@@ -1302,7 +1301,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -1336,7 +1335,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "defaultValue": 55,
@@ -1371,7 +1370,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -1405,7 +1404,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
 
 QUnit.test("lazy loading + change filter string", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -1457,7 +1456,7 @@ QUnit.test("lazy loading + change filter string", assert => {
 
 QUnit.test("lazy loading + change listModel filter string", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -1510,7 +1509,7 @@ QUnit.test("lazy loading + change listModel filter string", assert => {
 
 QUnit.test("show comment and show other together", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "showOtherItem": true,
@@ -1531,7 +1530,7 @@ QUnit.test("show comment and show other together", assert => {
 
 QUnit.test("ItemValue: check action fields", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       itemComponent: "custom-component",
       defaultValue: "Item1",
@@ -1561,7 +1560,7 @@ QUnit.test("ItemValue: check action fields", assert => {
 QUnit.test("lazy loading placeholder", assert => {
 
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true
@@ -1591,7 +1590,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
   const done = assert.async();
 
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1626,7 +1625,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
 
 QUnit.test("isReady flag + onGetChoiceDisplayValue + setItems with empty array", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1646,7 +1645,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
   const done = assert.async();
 
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1684,7 +1683,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
 
 QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
     }]
@@ -1725,7 +1724,7 @@ QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
 });
 QUnit.test("lazy loading: duplication of elements after blur", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1779,7 +1778,7 @@ QUnit.test("lazy loading: duplication of elements after blur", assert => {
 QUnit.test("lazy loading: check onChoicesLazyLoad callback count", assert => {
   let callbackCount = 0;
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1925,7 +1924,7 @@ QUnit.test("Rapidly Changing Search Filter", (assert) => {
   let filterValue = "";
   let filterValueLog = "";
   const json = {
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true,
@@ -1975,7 +1974,7 @@ QUnit.test("Rapidly Changing Search Filter", (assert) => {
 
 QUnit.test("Dropdown with Lazy Loading - A list of items display duplicate entries #9111", assert => {
   const survey = new SurveyModel({
-    questions: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }]
+    elements: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }]
   });
   const doCallback = (opt: any) => {
     opt.setItems(getNumberArray(0, 5, opt.filter), 5);
@@ -2010,7 +2009,7 @@ QUnit.test("Dropdown with Lazy Loading - A list of items display duplicate entri
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: false", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: "false",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2089,7 +2088,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
 QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: false, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2129,7 +2128,7 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: false", funct
 
 QUnit.test("allowCustomChoices: inputStringRendered isn't reset after backspace, if searchEnabled: false", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: "false", allowCustomChoices: "true",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2159,7 +2158,7 @@ QUnit.test("allowCustomChoices: inputStringRendered isn't reset after backspace,
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if searchEnabled: true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: "true",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2230,7 +2229,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
 
 QUnit.test("allowCustomChoices: Add custom value if searchEnabled: true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: true, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2269,7 +2268,7 @@ QUnit.test("allowCustomChoices: Add custom value if searchEnabled: true", functi
 
 QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: "true", allowCustomChoices: "true",
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2321,7 +2320,7 @@ QUnit.test("allowCustomChoices: hintString with custom value if searchEnabled: t
 
 QUnit.test("allowCustomChoices: Option to create item not available if item exist (case-insensitive).", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: "true", allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2341,7 +2340,7 @@ QUnit.test("allowCustomChoices: Option to create item not available if item exis
 
 QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: true, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2389,7 +2388,7 @@ QUnit.test("allowCustomChoices: onCreateCustomChoiceItem event.", function (asse
 
 QUnit.test("allowCustomChoices: Possibility of creating an element with custom value if choicesLazyLoadEnabled is true", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: "true",
       "choicesLazyLoadEnabled": true, "choicesLazyLoadPageSize": 25
     }]
@@ -2551,7 +2550,7 @@ QUnit.test("allowCustomChoices: Possibility of creating an element with custom v
   _setIsTouch(true);
 
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: false, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2612,7 +2611,7 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
   _setIsTouch(true);
 
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", searchEnabled: true, allowCustomChoices: true,
       "choices": ["item1", "item2", "item3", "item4"]
     }]
@@ -2652,7 +2651,7 @@ QUnit.test("allowCustomChoices: Add custom value (mobile mode)", function (asser
 
 QUnit.test("allowCustomChoices: Add custom value if sortOrder", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       name: "q1", type: "dropdown", choicesOrder: "asc", allowCustomChoices: true,
       choices: ["ABC", "DEF", "JKL", "MNO", "PQR"]
     }]
@@ -2691,7 +2690,7 @@ QUnit.test("allowCustomChoices: Add custom value if sortOrder", function (assert
 
 QUnit.test("allowCustomChoices: custom choices from survey.data", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown", name: "q1", allowCustomChoices: true, choices: [
         "Long battery life",
         "Plenty of storage capacity",
@@ -2720,7 +2719,7 @@ QUnit.test("allowCustomChoices: custom choices from survey.data", function (asse
 
 QUnit.test("allowCustomChoices: choices with displayName from survey.data", function (assert) {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       type: "dropdown", name: "q1", allowCustomChoices: true, choices: [
         { value: "LBL", text: "Long battery life" },
         { value: "PSC", text: "Plenty of storage capacity" },
@@ -2747,7 +2746,7 @@ QUnit.test("allowCustomChoices: choices with displayName from survey.data", func
 
 QUnit.test("lazy loading + isReady", assert => {
   const done = assert.async();
-  const survey = new SurveyModel({ questions: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }] });
+  const survey = new SurveyModel({ elements: [{ "type": "dropdown", "name": "q1", "choicesLazyLoadEnabled": true }] });
   survey.onChoicesLazyLoad.add((_, options) => {
     options.setItems(getNumberArray(1, 25), 25);
   });
@@ -2766,7 +2765,7 @@ QUnit.test("lazy loading + isReady", assert => {
 
 QUnit.test("Dropdown with Lazy Loading applies additional client-side filtering to the choice list", assert => {
   const survey = new SurveyModel({
-    questions: [{
+    elements: [{
       "type": "dropdown",
       "name": "q1",
       "choicesLazyLoadEnabled": true

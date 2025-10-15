@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -40,7 +40,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -64,7 +64,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -85,7 +85,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -112,7 +112,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "question1",
@@ -178,7 +178,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1000, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "panel",
             title: "Panel",
@@ -244,7 +244,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -279,7 +279,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -307,7 +307,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -331,7 +331,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -367,7 +367,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -401,7 +401,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -436,7 +436,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -473,7 +473,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [{ type: "rating", name: "q1" }]
+        elements: [{ type: "rating", name: "q1" }]
       });
 
       await page.evaluate(() => {
@@ -494,7 +494,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -519,7 +519,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "rating",
             name: "satisfaction",
@@ -566,7 +566,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         widthMode: "static",
-        questions: [
+        elements: [
           {
             "type": "matrixdropdown",
             "name": "question7",
@@ -623,7 +623,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
         width: "900px",
-        questions: [
+        elements: [
           {
             "type": "rating",
             "name": "question2",

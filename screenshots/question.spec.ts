@@ -16,7 +16,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "text",
             titleLocation: "hidden",
@@ -37,7 +37,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "text",
             title: " ",
@@ -57,9 +57,9 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -78,9 +78,9 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
+        autoFocusFirstQuestion: true,
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "text",
             inputType: "color",
@@ -101,7 +101,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -130,7 +130,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         width: "900px",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q1",
@@ -154,7 +154,7 @@ frameworks.forEach(framework => {
       const json = {
         width: "900px",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -184,7 +184,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         width: "900px",
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "required_question",
@@ -205,7 +205,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -279,7 +279,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 900, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "question_with_num",
@@ -308,7 +308,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q_error",
@@ -347,7 +347,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             "type": "matrixdropdown",
             "name": "question1",
@@ -399,7 +399,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q_error",
@@ -419,7 +419,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q_error",
@@ -479,8 +479,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             type: "text",
             name: "q1",
@@ -496,9 +496,9 @@ frameworks.forEach(framework => {
     test("Check title location Left - small question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        focusFirstQuestionAutomatic: false,
+        autoFocusFirstQuestion: false,
         "showQuestionNumbers": "off",
-        questions: [
+        elements: [
           {
             type: "text",
             name: "q1",
@@ -557,8 +557,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             name: "name",
             type: "text",
@@ -589,8 +589,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             name: "Range",
             type: "text",
@@ -608,8 +608,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             name: "name",
             type: "text",
@@ -680,7 +680,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 350, height: 900 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [
+        elements: [
           {
             name: "name",
             type: "text",
@@ -724,8 +724,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             name: "name",
             type: "text",
@@ -744,8 +744,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        focusFirstQuestionAutomatic: true,
-        questions: [
+        autoFocusFirstQuestion: true,
+        elements: [
           {
             "type": "matrixdynamic",
             "name": "relatives",
@@ -841,7 +841,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        questions: [{ name: "name", type: "text", indent: 1, }]
+        elements: [{ name: "name", type: "text", indent: 1, }]
       });
       await compareScreenshot(page, ".sd-question", "question-with-indent.png");
     });
@@ -851,7 +851,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
         questionStartIndex: "1.1.1",
-        questions: [{ name: "name", type: "text", }] });
+        elements: [{ name: "name", type: "text", }] });
       await compareScreenshot(page, ".sd-question", "question-with-big-number.png");
     });
 
@@ -864,7 +864,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             name: "q1",
             type: "text",
@@ -887,7 +887,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(page, framework, {
         showQuestionNumbers: "off",
-        questions: [
+        elements: [
           {
             name: "q1",
             type: "text",
@@ -904,7 +904,7 @@ frameworks.forEach(framework => {
     test("Question descriptionLocation property", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        "focusFirstQuestionAutomatic": false,
+        "autoFocusFirstQuestion": false,
         showQuestionNumbers: "off",
         "pages": [
           {

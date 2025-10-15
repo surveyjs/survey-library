@@ -8,7 +8,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 1920, height: 1080 });
       const json = {
-        questions: [
+        elements: [
           {
             type: "matrixdropdown",
             name: "frameworksRate",
@@ -110,7 +110,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
 
       const json2 = {
-        "focusFirstQuestionAutomatic": true,
+        "autoFocusFirstQuestion": true,
         "elements": [{
           "type": "radiogroup",
           "name": "question2",

@@ -214,7 +214,7 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       }, test.timeout || 10);
     }
   });
-  platform.survey.focusFirstQuestionAutomatic = false;
+  platform.survey.autoFocusFirstQuestion = false;
   if (test.initSurvey)
     test.initSurvey(platform.survey);
   platform.survey.getAllQuestions().map((q, i) => {

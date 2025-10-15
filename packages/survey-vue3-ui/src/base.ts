@@ -35,7 +35,7 @@ interface CoreRef<T = any>  {
 }
 
 function isCoreRef(coreRef: any) {
-  return typeof coreRef == "object" && isRef(coreRef.ref);
+  return typeof coreRef == "object" && coreRef !== null && isRef(coreRef.ref);
 }
 function unCoreRef(val: any) {
   if(isCoreRef(val)) {

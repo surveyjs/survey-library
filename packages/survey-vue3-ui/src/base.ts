@@ -12,6 +12,7 @@ import {
   onBeforeUpdate,
   onUpdated,
   onBeforeMount,
+  triggerRef
 } from "vue";
 
 class NextRenderManager {
@@ -75,14 +76,8 @@ function useCoreRef(options: {
       },
     };}), clear };
 }
-function onArrayChanged(surveyElement: Base, options: IOnArrayChangedEvent): void {
-  const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
-  if (isUpdateAllowed()) {
-    options.name
-  }
-}
 export function makeReactive(
-  surveyElement: Base) {
+  surveyElement: Base, onArrayChanged: (surveyElement: Base, options: IOnArrayChangedEvent) => void){
   if (!surveyElement) return;
   (surveyElement as any).__vueUpdatesLock = (surveyElement as any).__vueUpdatesLock ?? 0;
   (surveyElement as any).__vueImplemented = (surveyElement as any).__vueImplemented ?? 0;
@@ -142,7 +137,7 @@ export function isBaseElementSubsribed(surveyElement: Base) {
   return !!(surveyElement as any).__vueImplemented;
 }
 
-export function unMakeReactive(surveyElement?: Base) {
+export function unMakeReactive(surveyElement?: Base, onArrayChanged?: (surveyElement: Base, options: IOnArrayChangedEvent) => void) {
   if (!surveyElement) return;
   (surveyElement as any).__vueImplemented =
     (surveyElement as any).__vueImplemented ?? 0;
@@ -181,6 +176,13 @@ export function useBase<T extends Base>(
   onModelChanged?: (newValue: T, oldValue?: T) => void,
   clean?: (model: T) => void
 ) {
+  function onArrayChanged(surveyElement: Base, options: IOnArrayChangedEvent): void {
+    const arrRef = options.valueFromHash;
+    const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
+    if (isUpdateAllowed() && isCoreRef(arrRef)) {
+      triggerRef(arrRef.ref);
+    }
+  }
   let currentModel: T;
   const stopWatch = watch(
     getModel,
@@ -191,7 +193,7 @@ export function useBase<T extends Base>(
         if (clean) clean(oldValue);
       }
       currentModel = value;
-      makeReactive(value);
+      makeReactive(value, onArrayChanged);
     },
     {
       immediate: true,
@@ -211,7 +213,7 @@ export function useBase<T extends Base>(
     if (!isOnBeforeUnmountCalled) {
       const model = getModel();
       if (model) {
-        unMakeReactive(model);
+        unMakeReactive(model, onArrayChanged);
         stopWatch();
         if (clean) clean(model);
       }

@@ -19,6 +19,7 @@ export interface IOnArrayChangedEvent {
   name: string;
   newValue: Array<any>;
   arrayChanges: ArrayChanges;
+  valueFromHash: Array<any>;
 }
 
 interface IExpressionRunnerInfo {
@@ -1064,7 +1065,7 @@ export class Base implements IObjectValueContext {
     }
   }
   private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
-    !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar });
+    !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;

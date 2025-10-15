@@ -492,16 +492,15 @@ QUnit.test("Base propertyValueChanged colOwner - column undo/redo", function (
   assert.equal(counter2, 1, "callback locOwner called");
 });
 QUnit.test("Base onArrayChanged", function (assert) {
-  var base = new BaseTester();
-  var counter = 0;
-  var arrayChanges: ArrayChanges = null;
-  assert.strictEqual((base["items"] as any).onArrayChanged, undefined);
+  const base = new BaseTester();
+  let counter = 0;
+  let arrayChanges: ArrayChanges = null;
+  assert.strictEqual((base as any).onArrayChanged, undefined, "#1");
   const callback = (_: Base, options: IOnArrayChangedEvent) => {
     arrayChanges = options.arrayChanges;
     counter++;
   };
-  base.addOnArrayChangedCallback(base["items"], callback);
-  assert.ok((base["items"] as any).onArrayChanged instanceof EventBase);
+  base.addOnArrayChangedCallback(callback);
   assert.equal(counter, 0, "initial");
   base.items.push(new ItemValue(1));
 
@@ -509,8 +508,8 @@ QUnit.test("Base onArrayChanged", function (assert) {
   assert.equal(arrayChanges.index, 0, "added into 0 index");
   assert.deepEqual(arrayChanges.itemsToAdd, [base.items[0]], "added items");
 
-  base.removeOnArrayChangedCallback(base["items"], callback);
-  assert.strictEqual((base["items"] as any).onArrayChanged, undefined);
+  base.removeOnArrayChangedCallback(callback);
+  assert.strictEqual((base as any).onArrayChanged, undefined);
   base.items.push(new ItemValue(1));
   assert.equal(counter, 1, "onArrayChanged is not changed");
 });

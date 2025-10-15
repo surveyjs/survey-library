@@ -1,4 +1,4 @@
-import { Base, Question, LocalizableString } from "survey-core";
+import { Base, Question, LocalizableString, IOnArrayChangedEvent } from "survey-core";
 import {
   ref,
   isRef,
@@ -61,12 +61,6 @@ function useCoreRef(options: {
         options.nextRenderManager.add();
       }
     }
-    if (options.isArray) {
-      options.surveyElement.addOnArrayChangedCallback(value, update)
-      clear = () => {
-        options.surveyElement.removeOnArrayChangedCallback(value, update) 
-      }
-    }
     return {
       get() {
         tracker();
@@ -81,7 +75,9 @@ function useCoreRef(options: {
       },
     };}), clear };
 }
+function onArrayChanged(surveyElement: Base, options: IOnArrayChangedEvent): void {
 
+}
 export function makeReactive(
   surveyElement: Base) {
   if (!surveyElement) return;
@@ -109,6 +105,7 @@ export function makeReactive(
         isArray: Array.isArray(hash[key])
       });
     });
+    surveyElement.addOnArrayChangedCallback(onArrayChanged)
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
       if (!isCoreRef(hash[key])) {
         hash[key] = useCoreRef({
@@ -156,6 +153,7 @@ export function unMakeReactive(surveyElement?: Base) {
     });
     delete (surveyElement as any).__vueUpdatesLock;
     delete (surveyElement as any).__vueImplemented;
+    surveyElement.removeOnArrayChangedCallback(onArrayChanged);
     surveyElement.createArrayCoreHandler = undefined as any;
     surveyElement.getPropertyValueCoreHandler = undefined as any;
     surveyElement.setPropertyValueCoreHandler = undefined as any;

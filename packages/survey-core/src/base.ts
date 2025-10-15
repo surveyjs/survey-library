@@ -1048,22 +1048,23 @@ export class Base implements IObjectValueContext {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  public addOnArrayChangedCallback(ar: any, callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
-    if (!ar.onArrayChanged) {
-      ar.onArrayChanged = new EventBase<Base, IOnArrayChangedEvent>();
+  private onArrayChanged: EventBase<Base, IOnArrayChangedEvent>;
+  public addOnArrayChangedCallback(callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
+    if (!this.onArrayChanged) {
+      this.onArrayChanged = new EventBase<Base, IOnArrayChangedEvent>();
     }
-    ar.onArrayChanged.add(callback);
+    this.onArrayChanged.add(callback);
   }
-  public removeOnArrayChangedCallback(ar: any, callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
-    if (!!ar.onArrayChanged) {
-      ar.onArrayChanged.remove(callback);
-      if (ar.onArrayChanged.isEmpty) {
-        ar.onArrayChanged = undefined;
+  public removeOnArrayChangedCallback(callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
+    if (!!this.onArrayChanged) {
+      this.onArrayChanged.remove(callback);
+      if (this.onArrayChanged.isEmpty) {
+        this.onArrayChanged = undefined;
       }
     }
   }
   private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
-    !!ar.onArrayChanged && (ar.onArrayChanged as EventBase<Base, IOnArrayChangedEvent>).fire(this, { arrayChanges, name, newValue: ar });
+    !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar });
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;

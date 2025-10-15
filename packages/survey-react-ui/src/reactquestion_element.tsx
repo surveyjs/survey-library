@@ -170,14 +170,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   };
   private makeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
-    stateElement.iteratePropertiesHash((hash, key) => {
-      if (!this.canUsePropInState(key)) return;
-      var val: any = hash[key];
-      if (Array.isArray(val)) {
-        var val: any = val;
-        stateElement.addOnArrayChangedCallback(val, this.onArrayChangedCallback);
-      }
-    });
+    stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
     stateElement.setPropertyValueCoreHandler = this.propertyValueChangedHandler;
   }
   protected canUsePropInState(key: string): boolean {
@@ -191,13 +184,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
       // return;
     }
     stateElement.setPropertyValueCoreHandler = undefined as any;
-    stateElement.iteratePropertiesHash((hash, key) => {
-      var val: any = hash[key];
-      if (Array.isArray(val)) {
-        var val: any = val;
-        stateElement.removeOnArrayChangedCallback(val, this.onArrayChangedCallback);
-      }
-    });
+    stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
   }
 }
 

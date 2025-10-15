@@ -59,13 +59,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.makeBaseElementAngularCallback = () => {
       this.isModelSubsribed = true;
       (<any>stateElement).__ngImplemented = true;
-      stateElement.iteratePropertiesHash((hash, key) => {
-        var val: any = hash[key];
-        if (Array.isArray(val)) {
-          var val: any = val;
-          stateElement.addOnArrayChangedCallback(val, this.onArrayChangedCallback);
-        }
-      });
+      stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
       stateElement.setPropertyValueCoreHandler = (
         hash: any,
         key: string,
@@ -92,13 +86,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         this.isModelSubsribed = false;
         (<any>stateElement).__ngImplemented = false;
         stateElement.setPropertyValueCoreHandler = <any>undefined;
-        stateElement.iteratePropertiesHash((hash, key) => {
-          var val: any = hash[key];
-          if (Array.isArray(val)) {
-            var val: any = val;
-            stateElement.removeOnArrayChangedCallback(val, this.onArrayChangedCallback);
-          }
-        });
+        stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
         stateElement.disableOnElementRerenderedEvent();
         const callbacks = this.getBaseElementCallbacks(stateElement);
         const callback = callbacks.shift();

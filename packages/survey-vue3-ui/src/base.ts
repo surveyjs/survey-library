@@ -1,4 +1,9 @@
-import { Base, Question, LocalizableString, IOnArrayChangedEvent } from "survey-core";
+import {
+  Base,
+  Question,
+  LocalizableString,
+  type IOnArrayChangedEvent,
+} from "survey-core";
 import {
   ref,
   isRef,
@@ -12,7 +17,7 @@ import {
   onBeforeUpdate,
   onUpdated,
   onBeforeMount,
-  triggerRef
+  triggerRef,
 } from "vue";
 
 class NextRenderManager {
@@ -30,38 +35,21 @@ class NextRenderManager {
   }
 }
 
-interface CoreRef<T = any>  {
-  ref: Ref<T>,
-  clear?: () => void;
-}
-
-function isCoreRef(coreRef: any) {
-  return typeof coreRef == "object" && isRef(coreRef.ref);
-}
-function unCoreRef(val: any) {
-  if(isCoreRef(val)) {
-    return unref(val.ref);
-  } else {
-    return val;
-  }
-}
-
-function useCoreRef(options: {
+function useCoreRef<T = any>(options: {
   initialValue: any;
-  surveyElement: Base,
+  surveyElement: Base;
   isUpdateAllowed: () => boolean;
   nextRenderManager: NextRenderManager;
-  isArray?: boolean
-}): CoreRef {
+  isArray?: boolean;
+}): Ref<T> {
   let value = options.initialValue;
-  let clear!: () => void;
-  return { ref: customRef((tracker, trigger) => {
+  return customRef<T>((tracker, trigger) => {
     const update = () => {
       if (options.isUpdateAllowed()) {
         trigger();
         options.nextRenderManager.add();
       }
-    }
+    };
     return {
       get() {
         tracker();
@@ -74,25 +62,35 @@ function useCoreRef(options: {
           update();
         }
       },
-    };}), clear };
+    };
+  });
 }
-export function makeReactive(
-  surveyElement: Base, onArrayChanged: (surveyElement: Base, options: IOnArrayChangedEvent) => void){
+export function makeReactive(surveyElement: Base) {
   if (!surveyElement) return;
-  (surveyElement as any).__vueUpdatesLock = (surveyElement as any).__vueUpdatesLock ?? 0;
-  (surveyElement as any).__vueImplemented = (surveyElement as any).__vueImplemented ?? 0;
+  (surveyElement as any).__vueUpdatesLock =
+    (surveyElement as any).__vueUpdatesLock ?? 0;
+  (surveyElement as any).__vueImplemented =
+    (surveyElement as any).__vueImplemented ?? 0;
   if ((surveyElement as any).__vueImplemented <= 0) {
     const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
     const nextRenderManager = new NextRenderManager(surveyElement);
+    const onArrayChanged = (_: Base, options: IOnArrayChangedEvent) => {
+      const arrRef = options.valueFromHash;
+      if (isUpdateAllowed() && isRef(arrRef)) {
+        triggerRef(arrRef);
+        nextRenderManager.add();
+      }
+    };
+    surveyElement.addOnArrayChangedCallback(onArrayChanged);
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
       hash[key] = useCoreRef({
         initialValue: [],
         surveyElement,
         isUpdateAllowed,
         nextRenderManager,
-        isArray: true
+        isArray: true,
       });
-      return unCoreRef(hash[key]);
+      return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
       hash[key] = useCoreRef({
@@ -100,12 +98,11 @@ export function makeReactive(
         surveyElement,
         isUpdateAllowed,
         nextRenderManager,
-        isArray: Array.isArray(hash[key])
+        isArray: Array.isArray(hash[key]),
       });
     });
-    surveyElement.addOnArrayChangedCallback(onArrayChanged)
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
-      if (!isCoreRef(hash[key])) {
+      if (!isRef(hash[key])) {
         hash[key] = useCoreRef({
           initialValue: hash[key],
           surveyElement,
@@ -113,11 +110,11 @@ export function makeReactive(
           nextRenderManager,
         });
       }
-      return unCoreRef(hash[key]);
+      return unref(hash[key]);
     };
-    surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
-      if (isCoreRef(hash[key])) {
-        hash[key].ref.value = val;
+     surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
+      if (isRef(hash[key])) {
+        hash[key].value = val;
       } else {
         hash[key] = useCoreRef({
           initialValue: hash[key],
@@ -128,8 +125,21 @@ export function makeReactive(
       }
       nextRenderManager.add();
     };
+    (surveyElement as any).__vueClear = () => {
+      surveyElement.iteratePropertiesHash((hash, key) => {
+        hash[key] = unref(hash[key]);
+      });
+      delete (surveyElement as any).__vueClear;
+      delete (surveyElement as any).__vueUpdatesLock;
+      delete (surveyElement as any).__vueImplemented;
+      surveyElement.removeOnArrayChangedCallback(onArrayChanged);
+      surveyElement.createArrayCoreHandler = undefined as any;
+      surveyElement.getPropertyValueCoreHandler = undefined as any;
+      surveyElement.setPropertyValueCoreHandler = undefined as any;
+      surveyElement.disableOnElementRerenderedEvent();
+    };
+    surveyElement.enableOnElementRerenderedEvent();
   }
-  surveyElement.enableOnElementRerenderedEvent();
   (surveyElement as any).__vueImplemented++;
 }
 
@@ -137,37 +147,27 @@ export function isBaseElementSubsribed(surveyElement: Base) {
   return !!(surveyElement as any).__vueImplemented;
 }
 
-export function unMakeReactive(surveyElement?: Base, onArrayChanged?: (surveyElement: Base, options: IOnArrayChangedEvent) => void) {
+export function unMakeReactive(surveyElement?: Base) {
   if (!surveyElement) return;
   (surveyElement as any).__vueImplemented =
     (surveyElement as any).__vueImplemented ?? 0;
   (surveyElement as any).__vueImplemented--;
   if ((surveyElement as any).__vueImplemented <= 0) {
-    surveyElement.iteratePropertiesHash((hash, key) => {
-      if (isCoreRef(hash[key]) && typeof hash[key].clear == "function") {
-        hash[key].clear();
-      }
-      hash[key] = unCoreRef(hash[key]);
-    });
-    delete (surveyElement as any).__vueUpdatesLock;
-    delete (surveyElement as any).__vueImplemented;
-    surveyElement.removeOnArrayChangedCallback(onArrayChanged);
-    surveyElement.createArrayCoreHandler = undefined as any;
-    surveyElement.getPropertyValueCoreHandler = undefined as any;
-    surveyElement.setPropertyValueCoreHandler = undefined as any;
-    surveyElement.disableOnElementRerenderedEvent();
+    if (typeof (surveyElement as any).__vueClear == "function") {
+      (surveyElement as any).__vueClear();
+    }
   }
 }
 
 function blockUpdates(model: any) {
-    if(model && model.__vueUpdatesLock !== undefined) {
-      model.__vueUpdatesLock++;
-    }
+  if (model && model.__vueUpdatesLock !== undefined) {
+    model.__vueUpdatesLock++;
+  }
 }
 function releaseUpdates(model: any) {
-    if(model && model.__vueUpdatesLock !== undefined) {
-      model.__vueUpdatesLock--;
-    }
+  if (model && model.__vueUpdatesLock !== undefined) {
+    model.__vueUpdatesLock--;
+  }
 }
 
 // by convention, composable function names start with "use"
@@ -176,13 +176,6 @@ export function useBase<T extends Base>(
   onModelChanged?: (newValue: T, oldValue?: T) => void,
   clean?: (model: T) => void
 ) {
-  function onArrayChanged(surveyElement: Base, options: IOnArrayChangedEvent): void {
-    const arrRef = options.valueFromHash;
-    const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
-    if (isUpdateAllowed() && isCoreRef(arrRef)) {
-      triggerRef(arrRef.ref);
-    }
-  }
   let currentModel: T;
   const stopWatch = watch(
     getModel,
@@ -193,7 +186,7 @@ export function useBase<T extends Base>(
         if (clean) clean(oldValue);
       }
       currentModel = value;
-      makeReactive(value, onArrayChanged);
+      makeReactive(value);
     },
     {
       immediate: true,
@@ -203,17 +196,17 @@ export function useBase<T extends Base>(
 
   onBeforeUpdate(() => {
     blockUpdates(currentModel);
-  }) 
+  });
   onUpdated(() => {
     releaseUpdates(currentModel);
   });
-  onBeforeMount(() => blockUpdates(currentModel))
-  onMounted(() => releaseUpdates(currentModel))
+  onBeforeMount(() => blockUpdates(currentModel));
+  onMounted(() => releaseUpdates(currentModel));
   onBeforeUnmount(() => {
     if (!isOnBeforeUnmountCalled) {
       const model = getModel();
       if (model) {
-        unMakeReactive(model, onArrayChanged);
+        unMakeReactive(model);
         stopWatch();
         if (clean) clean(model);
       }

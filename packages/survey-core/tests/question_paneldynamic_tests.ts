@@ -7650,6 +7650,12 @@ QUnit.test("paneldynamic: Do not call onFirstRendered for hidden panels", functi
   assert.equal(panel1.panels[0].wasRendered, true, "panel1, #3");
   panel3.currentIndex = 1;
   assert.equal(panel3.panels[1].wasRendered, true, "panel3, #3");
+  panel1.addPanel();
+  assert.equal(panel1.panels[2].wasRendered, true, "panel1, #4");
+  panel2.addPanel();
+  assert.equal(panel2.panels[2].wasRendered, true, "panel2, #4");
+  panel3.addPanel();
+  assert.equal(panel3.panels[2].wasRendered, true, "panel3, #4");
 });
 
 QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {

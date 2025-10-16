@@ -1,8 +1,9 @@
 import * as React from "react";
-import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question, IOnArrayChangedEvent } from "survey-core";
+import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question, IPropertyArrayValueChangedEvent } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { IPropertyValueChangedEvent } from "survey-core/typings/src/base";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
@@ -143,23 +144,17 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private canMakeReact(stateElement: Base): boolean {
     return !!stateElement && !!stateElement.iteratePropertiesHash;
   }
-  private propertyValueChangedHandler = (hash: any, key: string, val: any) => {
-    if (hash[key] !== val) {
-      hash[key] = val;
-      if (!this.canUsePropInState(key)) return;
-      if (this.isRendering) return;
-      this.changedStatePropNameValue = key;
-      this.setState((state: any) => {
-        var newState: { [index: string]: any } = {};
-        newState[key] = val;
-        return newState as S;
-      });
-    }
+  private propertyValueChangedHandler = (stateElement: Base, options: IPropertyValueChangedEvent) => {
+    const key = options.name;
+    if (!this.canUsePropInState(key) || this.isRendering) return;
+    this.changedStatePropNameValue = key;
+    this.setState((state: any) => {
+      var newState: { [index: string]: any } = {};
+      newState[key] = options.newValue;
+      return newState as S;
+    });
   };
-  protected isCurrentStateElement(stateElement: Base) {
-    return !!stateElement && !!stateElement.setPropertyValueCoreHandler && stateElement.setPropertyValueCoreHandler === this.propertyValueChangedHandler;
-  }
-  private onArrayChangedCallback = (stateElement: Base, options: IOnArrayChangedEvent) => {
+  private onArrayChangedCallback = (stateElement: Base, options: IPropertyArrayValueChangedEvent) => {
     if (this.isRendering) return;
     this.changedStatePropNameValue = options.name;
     this.setState((state: any) => {
@@ -171,19 +166,14 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   private makeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
     stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
-    stateElement.setPropertyValueCoreHandler = this.propertyValueChangedHandler;
+    stateElement.addOnPropertyValueChangedCallback(this.propertyValueChangedHandler);
   }
   protected canUsePropInState(key: string): boolean {
     return true;
   }
   private unMakeBaseElementReact(stateElement: Base) {
     if (!this.canMakeReact(stateElement)) return;
-    if (!this.isCurrentStateElement(stateElement)) {
-      // eslint-disable-next-line no-console
-      // console.warn("Looks like the component is bound to another survey element. It is not supported and can lead to issues.");
-      // return;
-    }
-    stateElement.setPropertyValueCoreHandler = undefined as any;
+    stateElement.removeOnPropertyValueChangedCallback(this.propertyValueChangedHandler);
     stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
   }
 }

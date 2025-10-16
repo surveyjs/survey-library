@@ -1,6 +1,7 @@
-import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange, ViewContainerRef } from "@angular/core";
-import { ArrayChanges, Base, IOnArrayChangedEvent, ISurvey, SurveyModel } from "survey-core";
+import { ChangeDetectorRef, Component, DoCheck, OnDestroy, ViewContainerRef } from "@angular/core";
+import { ArrayChanges, Base, IPropertyArrayValueChangedEvent, ISurvey } from "survey-core";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
+import { IPropertyValueChangedEvent } from "survey-core/typings/src/base";
 
 @Component({
   template: ""
@@ -52,7 +53,10 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     (<any>stateElement).__ngSubscribers = (<any>stateElement).__ngSubscribers ?? [];
     return ((<any>stateElement).__ngSubscribers);
   }
-  private onArrayChangedCallback = (stateElement: Base, options: IOnArrayChangedEvent) => {
+  private onArrayChangedCallback = (stateElement: Base, options: IPropertyArrayValueChangedEvent) => {
+    this.update(options.name);
+  };
+  private onPropertyChangedCallback = (stateElement: Base, options: IPropertyValueChangedEvent) => {
     this.update(options.name);
   };
   private makeBaseElementAngular(stateElement: T) {
@@ -60,16 +64,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.isModelSubsribed = true;
       (<any>stateElement).__ngImplemented = true;
       stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
-      stateElement.setPropertyValueCoreHandler = (
-        hash: any,
-        key: string,
-        val: any
-      ) => {
-        if (hash[key] !== val) {
-          hash[key] = val;
-          this.update(key);
-        }
-      };
+      stateElement.addOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
       stateElement.enableOnElementRerenderedEvent();
     };
     if (!!stateElement) {
@@ -85,7 +80,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       if (this.isModelSubsribed) {
         this.isModelSubsribed = false;
         (<any>stateElement).__ngImplemented = false;
-        stateElement.setPropertyValueCoreHandler = <any>undefined;
+        stateElement.removeOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
         stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
         stateElement.disableOnElementRerenderedEvent();
         const callbacks = this.getBaseElementCallbacks(stateElement);

@@ -1,4 +1,4 @@
-import { ComputedUpdater, Base, Event, ArrayChanges, IOnArrayChangedEvent, EventBase } from "../src/base";
+import { ComputedUpdater, Base, Event, ArrayChanges, IPropertyArrayValueChangedEvent, EventBase, IPropertyValueChangedEvent } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
@@ -337,6 +337,24 @@ QUnit.test("Base hash values - get/set PropertyValueCoreHandler", function (
   assert.equal(base.value1, 5);
   assert.equal(counter, 3);
 });
+QUnit.test("Base hash values - onPropertyValueCoreChanged event", function (assert) {
+  var base = new BaseTester();
+  const names = new Array<string>();
+  const onPropertyValueChanged = (sender: Base, options: IPropertyValueChangedEvent) => {
+    names.push(options.name);
+  };
+  base.addOnPropertyValueChangedCallback(onPropertyValueChanged);
+  assert.equal(names.length, 0);
+  base.value1 = 5;
+  assert.deepEqual(names, ["value1"], "#1");
+  base.value1 = 5;
+  assert.deepEqual(names, ["value1"], "#2");
+  base.value1 = 7;
+  assert.deepEqual(names, ["value1", "value1"], "#3");
+  base.removeOnPropertyValueChangedCallback(onPropertyValueChanged);
+  base.value1 = 10;
+  assert.deepEqual(names, ["value1", "value1"], "#4");
+});
 
 QUnit.test("Base localizable string", function (assert) {
   var base = new BaseTester();
@@ -496,7 +514,7 @@ QUnit.test("Base onArrayChanged", function (assert) {
   let counter = 0;
   let arrayChanges: ArrayChanges = null;
   assert.strictEqual((base as any).onArrayChanged, undefined, "#1");
-  const callback = (_: Base, options: IOnArrayChangedEvent) => {
+  const callback = (_: Base, options: IPropertyArrayValueChangedEvent) => {
     arrayChanges = options.arrayChanges;
     counter++;
   };

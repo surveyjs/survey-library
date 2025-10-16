@@ -19,44 +19,6 @@ class TestBase extends BaseAngular<QuestionTextModel> {
   }
 }
 
-describe("base tests", () => {
-  it("check base makeBaseElementAngular behavior", () => {
-    const fixture = TestBed.createComponent(TestBase);
-    const q = new QuestionTextModel("q1");
-    const q2 = new QuestionTextModel("q1");
-    const component = fixture.componentInstance;
-    component.model = q;
-    fixture.detectChanges();
-    expect(!!q.setPropertyValueCoreHandler).toBe(true);
-    component.model = q2;
-    component.ngDoCheck();
-    expect(!!q.setPropertyValueCoreHandler).toBe(false);
-    expect(!!q2.setPropertyValueCoreHandler).toBe(true);
-    component.ngOnDestroy();
-    expect(!!q2.setPropertyValueCoreHandler).toBe(false);
-  });
-  it("check base makeBaseElementAngular behavior with child and parent components share model", () => {
-    const parentFixture = TestBed.createComponent(TestBase);
-    const childFixture = TestBed.createComponent(TestBase);
-    const parentComponent = parentFixture.componentInstance;
-    const childComponent = childFixture.componentInstance;
-    const q = new QuestionTextModel("q1");
-
-    parentComponent.model = q;
-    parentFixture.detectChanges();
-    const parentCallback = q.setPropertyValueCoreHandler;
-    expect(!!q.setPropertyValueCoreHandler).toBe(true);
-
-    childComponent.model = q;
-    childFixture.detectChanges();
-    expect(q.setPropertyValueCoreHandler).toBe(parentCallback);
-
-    childComponent.ngOnDestroy();
-    expect(!!q.setPropertyValueCoreHandler).toBe(true);
-    parentComponent.ngOnDestroy();
-    expect(!!q.setPropertyValueCoreHandler).toBe(false);
-  });
-});
 it("check survey renderCallback destroy if model is not defined", () => {
   const fixture = TestBed.createComponent(SurveyContentComponent);
   fixture.detectChanges();
@@ -78,7 +40,6 @@ it("check model is subsribed to next component after destroy current component",
   fixture4.componentInstance.model = q;
   fixture4.detectChanges();
 
-  expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
@@ -86,7 +47,6 @@ it("check model is subsribed to next component after destroy current component",
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(3);
 
   fixture1.destroy();
-  expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
@@ -94,7 +54,6 @@ it("check model is subsribed to next component after destroy current component",
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(2);
 
   fixture2.destroy();
-  expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
@@ -102,7 +61,6 @@ it("check model is subsribed to next component after destroy current component",
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(1);
 
   fixture4.destroy();
-  expect(!!q.setPropertyValueCoreHandler).toBe(true);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
@@ -110,7 +68,6 @@ it("check model is subsribed to next component after destroy current component",
   expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(0);
 
   fixture3.destroy();
-  expect(!!q.setPropertyValueCoreHandler).toBe(false);
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);

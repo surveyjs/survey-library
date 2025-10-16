@@ -13,9 +13,13 @@ import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, I
 import { ExpressionRunner } from "./conditions";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditionProcessValue";
 
-export interface IOnArrayChangedEvent {
+export interface IPropertyValueChangedEvent {
+  name: string;
+  newValue: any;
+}
+export interface IPropertyArrayValueChangedEvent {
   name: string;
   newValue: Array<any>;
   arrayChanges: ArrayChanges;
@@ -591,13 +595,26 @@ export class Base implements IObjectValueContext {
     return this.propertyHash["value"];
   }
   protected setPropertyValueCore(propertiesHash: any, name: string, val: any): void {
+    let reportError = false;
     if (this.setPropertyValueCoreHandler) {
-      if (!this.isDisposedValue) {
+      reportError = this.isDisposedValue;
+      if (!reportError) {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);
-      } else {
-        ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
       }
-    } else propertiesHash[name] = val;
+    } else {
+      if (propertiesHash[name] !== val) {
+        propertiesHash[name] = val;
+        if (!!this.onPropertyValueCoreChanged) {
+          reportError = this.isDisposedValue;
+          if (!reportError) {
+            this.onPropertyValueCoreChanged.fire(this, { name, newValue: val });
+          }
+        }
+      }
+    }
+    if (reportError) {
+      ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
+    }
   }
   public get isEditingSurveyElement(): boolean {
     var survey = this.getSurvey();
@@ -1049,14 +1066,14 @@ export class Base implements IObjectValueContext {
     this.arraysInfo[name].isItemValues = true;
     return result;
   }
-  private onArrayChanged: EventBase<Base, IOnArrayChangedEvent>;
-  public addOnArrayChangedCallback(callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
+  private onArrayChanged: EventBase<Base, IPropertyArrayValueChangedEvent>;
+  public addOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!this.onArrayChanged) {
-      this.onArrayChanged = new EventBase<Base, IOnArrayChangedEvent>();
+      this.onArrayChanged = new EventBase<Base, IPropertyArrayValueChangedEvent>();
     }
     this.onArrayChanged.add(callback);
   }
-  public removeOnArrayChangedCallback(callback: (sender: Base, options: IOnArrayChangedEvent) => void) {
+  public removeOnArrayChangedCallback(callback: (sender: Base, options: IPropertyArrayValueChangedEvent) => void) {
     if (!!this.onArrayChanged) {
       this.onArrayChanged.remove(callback);
       if (this.onArrayChanged.isEmpty) {
@@ -1066,6 +1083,21 @@ export class Base implements IObjectValueContext {
   }
   private notifyArrayChanged(name: string, ar: any, arrayChanges: ArrayChanges) {
     !!this.onArrayChanged && this.onArrayChanged.fire(this, { arrayChanges, name, newValue: ar, valueFromHash: this.propertyHash[name] });
+  }
+  private onPropertyValueCoreChanged: EventBase<Base, IPropertyValueChangedEvent>;
+  public addOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
+    if (!this.onPropertyValueCoreChanged) {
+      this.onPropertyValueCoreChanged = new EventBase<Base, IPropertyValueChangedEvent>();
+    }
+    this.onPropertyValueCoreChanged.add(callback);
+  }
+  public removeOnPropertyValueChangedCallback(callback: (sender: Base, options: IPropertyValueChangedEvent) => void) {
+    if (!!this.onPropertyValueCoreChanged) {
+      this.onPropertyValueCoreChanged.remove(callback);
+      if (this.onPropertyValueCoreChanged.isEmpty) {
+        this.onPropertyValueCoreChanged = undefined;
+      }
+    }
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;

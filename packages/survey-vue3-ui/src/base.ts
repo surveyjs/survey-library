@@ -2,7 +2,7 @@ import {
   Base,
   Question,
   LocalizableString,
-  type IOnArrayChangedEvent,
+  type IPropertyArrayValueChangedEvent,
 } from "survey-core";
 import {
   ref,
@@ -73,39 +73,32 @@ export function makeReactive(surveyElement: Base) {
   if ((surveyElement as any).__vueImplemented <= 0) {
     const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
     const nextRenderManager = new NextRenderManager(surveyElement);
-    const onArrayChanged = (_: Base, options: IOnArrayChangedEvent) => {
+    const onArrayChanged = (_: Base, options: IPropertyArrayValueChangedEvent) => {
       const arrRef = options.valueFromHash;
       if (isUpdateAllowed() && isRef(arrRef)) {
         triggerRef(arrRef);
         nextRenderManager.add();
       }
     };
-    surveyElement.addOnArrayChangedCallback(onArrayChanged);
-    surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
+    const setRef = (hash: any, key: string, initVal?: any): void => {
       hash[key] = useCoreRef({
-        initialValue: [],
+        initialValue: initVal ?? hash[key],
         surveyElement,
         isUpdateAllowed,
         nextRenderManager
       });
+    };
+    surveyElement.addOnArrayChangedCallback(onArrayChanged);
+    surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
+      hash[key] = setRef(hash, key, []);
       return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
-      hash[key] = useCoreRef({
-        initialValue: hash[key],
-        surveyElement,
-        isUpdateAllowed,
-        nextRenderManager
-      });
+      hash[key] = setRef(hash, key);
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
       if (!isRef(hash[key])) {
-        hash[key] = useCoreRef({
-          initialValue: hash[key],
-          surveyElement,
-          isUpdateAllowed,
-          nextRenderManager,
-        });
+        hash[key] = setRef(hash, key);
       }
       return unref(hash[key]);
     };
@@ -113,12 +106,7 @@ export function makeReactive(surveyElement: Base) {
       if (isRef(hash[key])) {
         hash[key].value = val;
       } else {
-        hash[key] = useCoreRef({
-          initialValue: hash[key],
-          surveyElement,
-          isUpdateAllowed,
-          nextRenderManager,
-        });
+        hash[key] = setRef(hash, key);
       }
       nextRenderManager.add();
     };

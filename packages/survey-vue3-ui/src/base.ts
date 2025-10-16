@@ -90,15 +90,15 @@ export function makeReactive(surveyElement: Base) {
     };
     surveyElement.addOnArrayChangedCallback(onArrayChanged);
     surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
-      hash[key] = setRef(hash, key, []);
+      setRef(hash, key, []);
       return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
-      hash[key] = setRef(hash, key);
+      setRef(hash, key);
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
       if (!isRef(hash[key])) {
-        hash[key] = setRef(hash, key);
+        setRef(hash, key);
       }
       return unref(hash[key]);
     };
@@ -106,7 +106,7 @@ export function makeReactive(surveyElement: Base) {
       if (isRef(hash[key])) {
         hash[key].value = val;
       } else {
-        hash[key] = setRef(hash, key);
+        setRef(hash, key);
       }
       nextRenderManager.add();
     };

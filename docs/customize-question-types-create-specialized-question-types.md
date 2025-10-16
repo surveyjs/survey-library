@@ -32,10 +32,10 @@ To avoid these drawbacks, use a different approach: add your [custom question ty
 import { ComponentCollection } from "survey-core";
 
 ComponentCollection.Instance.add({
-  // A unique name; must use lowercase
-  name: "country", 
+  // A unique name for the custom question type; must use lowercase
+  name: "country",
   // A display name used in the Toolbox
-  title: "Country", 
+  title: "Country",
   // A default title for questions created with this question type
   defaultQuestionTitle: "Country",
   // A JSON schema for the base question type (Dropdown in this case)
@@ -54,7 +54,7 @@ ComponentCollection.Instance.add({
 This approach gives you the following advantages:
 
 - In Survey Creator, a corresponding toolbox item appears automatically.
-- End users cannot break the functionality because the Property Grid hides the `questionJSON` object properties.
+- End users cannot break the functionality because the Property Grid hides the `questionJSON` object properties. If you want to make these properties editable, you can include their names in the [`inheritBaseProps`](/form-library/documentation/api-reference/icustomquestiontypeconfiguration#inheritBaseProps) array.
 - If you modify the question configuration, changes automatically apply to every instance of this question.
 - A cleaner JSON schema:
   ```js

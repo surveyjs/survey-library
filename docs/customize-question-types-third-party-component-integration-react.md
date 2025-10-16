@@ -32,6 +32,7 @@ To integrate a third-party component, you need to configure a custom question ty
 
 import { Question } from "survey-core";
 
+// Must use lowercase
 const CUSTOM_TYPE = "color-picker";
 
 export class QuestionColorPickerModel extends Question {

@@ -106,7 +106,7 @@ export function makeReactive(surveyElement: Base) {
       if (isRef(hash[key])) {
         hash[key].value = val;
       } else {
-        setRef(hash, key);
+        setRef(hash, key, val);
       }
       nextRenderManager.add();
     };

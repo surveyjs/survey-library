@@ -631,11 +631,13 @@ export class QuestionPanelDynamicModel extends Question
     } else {
       this.renderedPanels = [];
     }
-    this.renderedPanels.forEach(panel => this.onAddingNewPanel(panel));
+    this.renderedPanels.forEach(panel => this.panelOnFirstRendering(panel));
   }
-  private onAddingNewPanel(panel: PanelModel) {
-    panel.onFirstRendering();
-    panel.locStrsChanged();
+  private panelOnFirstRendering(panel: PanelModel) {
+    if (panel) {
+      panel.onFirstRendering();
+      panel.locStrsChanged();
+    }
   }
   public set renderedPanels(val: Array<PanelModel>) {
     if (this.renderedPanels.length == 0 || val.length == 0) {
@@ -1659,7 +1661,7 @@ export class QuestionPanelDynamicModel extends Question
       if (!this.canLeaveCurrentPanel()) return null;
     }
     const newPanel = this.addPanelCore(index);
-    this.onAddingNewPanel(newPanel);
+    this.panelOnFirstRendering(newPanel);
     if (isUI) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
         newPanel.expand();

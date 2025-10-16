@@ -7606,6 +7606,51 @@ QUnit.test("paneldynamic: check panelsAnimation", function (assert) {
   assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
   assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
 });
+QUnit.test("paneldynamic: Do not call onFirstRendered for hidden panels", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        displayMode: "tab",
+        panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text" },
+        ]
+      },
+      {
+        type: "paneldynamic",
+        name: "panel2",
+        panelCount: 2,
+        templateElements: [
+          { name: "q2", type: "text" },
+        ]
+      },
+      {
+        type: "paneldynamic",
+        name: "panel3",
+        displayMode: "carousel",
+        panelCount: 2,
+        templateElements: [
+          { name: "q2", type: "text" },
+        ]
+      }
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel3 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel3");
+  assert.equal(panel1.panels[0].wasRendered, true, "panel1, #1");
+  assert.equal(panel1.panels[1].wasRendered, false, "panel1, #1");
+  assert.equal(panel2.panels[0].wasRendered, true, "panel2, #1");
+  assert.equal(panel2.panels[1].wasRendered, true, "panel2, #2");
+  assert.equal(panel3.panels[0].wasRendered, true, "panel3, #1");
+  assert.equal(panel3.panels[1].wasRendered, false, "panel3, #2");
+  panel1.currentIndex = 1;
+  assert.equal(panel1.panels[0].wasRendered, true, "panel1, #3");
+  panel3.currentIndex = 1;
+  assert.equal(panel3.panels[1].wasRendered, true, "panel3, #3");
+});
 
 QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   const survey = new SurveyModel({

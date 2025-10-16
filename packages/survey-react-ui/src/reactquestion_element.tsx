@@ -1,9 +1,8 @@
 import * as React from "react";
-import { Base, ArrayChanges, SurveyModel, Helpers, PanelModel, LocalizableString, Question, IPropertyArrayValueChangedEvent } from "survey-core";
+import { Base, SurveyModel, Helpers, PanelModel, LocalizableString, Question, IPropertyValueChangedEvent, IPropertyArrayValueChangedEvent } from "survey-core";
 import { ISurveyCreator } from "./reactquestion";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
-import { IPropertyValueChangedEvent } from "survey-core/typings/src/base";
 
 export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(

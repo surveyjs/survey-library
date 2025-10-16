@@ -5,7 +5,6 @@ const title = "tagbox";
 const questionOffsetTopConst = 176;
 
 const jsonCloseOnSelectIsTrue = {
-  focusFirstQuestionAutomatic: true,
   showQuestionNumbers: "off",
   questions: [
     {
@@ -47,7 +46,6 @@ const jsonCloseOnSelectIsTrue = {
 };
 
 const jsonCloseOnSelectIsDefault = {
-  focusFirstQuestionAutomatic: true,
   showQuestionNumbers: "off",
   questions: [
     {
@@ -246,6 +244,7 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, jsonCloseOnSelectIsTrue);
     await t
+      .pressKey("tab")
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
@@ -306,6 +305,7 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, jsonCloseOnSelectIsTrue);
     await t
+      .pressKey("tab")
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
@@ -332,6 +332,7 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, jsonCloseOnSelectIsDefault);
     await t
+      .pressKey("tab")
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
@@ -393,6 +394,7 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, jsonCloseOnSelectIsDefault);
     await t
+      .pressKey("tab")
       .expect(popupContainer.visible).notOk()
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
@@ -628,7 +630,6 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
-      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "tagbox",
@@ -721,6 +722,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 900)
 
+      .pressKey("tab")
       .pressKey("2")
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
@@ -858,7 +860,6 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
-      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "tagbox",
@@ -951,6 +952,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 900)
 
+      .pressKey("tab")
       .pressKey("2")
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)

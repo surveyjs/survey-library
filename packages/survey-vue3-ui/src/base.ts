@@ -40,7 +40,6 @@ function useCoreRef<T = any>(options: {
   surveyElement: Base;
   isUpdateAllowed: () => boolean;
   nextRenderManager: NextRenderManager;
-  isArray?: boolean;
 }): Ref<T> {
   let value = options.initialValue;
   return customRef<T>((tracker, trigger) => {
@@ -87,8 +86,7 @@ export function makeReactive(surveyElement: Base) {
         initialValue: [],
         surveyElement,
         isUpdateAllowed,
-        nextRenderManager,
-        isArray: true,
+        nextRenderManager
       });
       return unref(hash[key]);
     };
@@ -97,8 +95,7 @@ export function makeReactive(surveyElement: Base) {
         initialValue: hash[key],
         surveyElement,
         isUpdateAllowed,
-        nextRenderManager,
-        isArray: Array.isArray(hash[key]),
+        nextRenderManager
       });
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {

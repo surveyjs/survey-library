@@ -82,7 +82,7 @@ export function makeReactive(surveyElement: Base) {
     };
     const setRef = (hash: any, key: string, initVal?: any): void => {
       hash[key] = useCoreRef({
-        initialValue: initVal ?? hash[key],
+        initialValue: initVal === undefined ? hash[key] : initVal,
         surveyElement,
         isUpdateAllowed,
         nextRenderManager

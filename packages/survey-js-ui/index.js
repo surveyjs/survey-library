@@ -476,7 +476,7 @@ var json = {
       type: "matrixdynamic",
       name: "Current Level of Function",
       title: "Matrix Dynamic (vertical columns)",
-      columnLayout: "vertical",
+      transposeData: true,
       minRowCount: 1,
       maxRowCount: 5,
       columns: [

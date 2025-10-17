@@ -1452,7 +1452,7 @@ QUnit.test(
           "type": "matrixdynamic",
           "name": "Current Level of Function",
           "title": "Matrix Dynamic (vertical columns)",
-          "columnLayout": "vertical",
+          "transposeData": true,
           "maxRowCount": 5,
           "columns": [
             {

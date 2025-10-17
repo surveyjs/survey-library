@@ -41,7 +41,7 @@ QUnit.test("verticalLayout when isMobile set 'true'", function (assert) {
         type: "matrixdropdown",
         name: "matrix",
         rowCount: 2,
-        columnLayout: "vertical",
+        transposeData: true,
         columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
       },
     ],

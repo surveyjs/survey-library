@@ -2202,90 +2202,90 @@ QUnit.test("Matrixdynamic addRowButtonLocation", function (assert) {
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     false,
-    "columnLayout='horizontal', addRowButtonLocation='default', #1"
+    "transposeData=false, addRowButtonLocation='default', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnLayout='horizontal', addRowButtonLocation='default', #2"
+    "transposeData=false, addRowButtonLocation='default', #2"
   );
   question.addRowButtonLocation = "top";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnLayout='horizontal', addRowButtonLocation='top', #1"
+    "transposeData=false, addRowButtonLocation='top', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     false,
-    "columnLayout='horizontal', addRowButtonLocation='top', #2"
+    "transposeData=false, addRowButtonLocation='top', #2"
   );
   question.addRowButtonLocation = "bottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     false,
-    "columnLayout='horizontal', addRowButtonLocation='bottom', #1"
+    "transposeData=false, addRowButtonLocation='bottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnLayout='horizontal', addRowButtonLocation='bottom', #2"
+    "transposeData=false, addRowButtonLocation='bottom', #2"
   );
   question.addRowButtonLocation = "topBottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnLayout='horizontal', addRowButtonLocation='topBottom', #1"
+    "transposeData=false, addRowButtonLocation='topBottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnLayout='horizontal', addRowButtonLocation='topBottom', #2"
+    "transposeData=false, addRowButtonLocation='topBottom', #2"
   );
-  question.columnLayout = "vertical";
+  question.transposeData = true;
   question.addRowButtonLocation = "default";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnLayout='vertical', addRowButtonLocation='default', #1"
+    "transposeData=true, addRowButtonLocation='default', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     false,
-    "columnLayout='vertical', addRowButtonLocation='default', #2"
+    "transposeData=true, addRowButtonLocation='default', #2"
   );
   question.addRowButtonLocation = "top";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnLayout='vertical', addRowButtonLocation='top', #1"
+    "transposeData=true, addRowButtonLocation='top', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     false,
-    "columnLayout='vertical', addRowButtonLocation='top', #2"
+    "transposeData=true, addRowButtonLocation='top', #2"
   );
   question.addRowButtonLocation = "bottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     false,
-    "columnLayout='vertical', addRowButtonLocation='bottom', #1"
+    "transposeData=true, addRowButtonLocation='bottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnLayout='vertical', addRowButtonLocation='bottom', #2"
+    "transposeData=true, addRowButtonLocation='bottom', #2"
   );
   question.addRowButtonLocation = "topBottom";
   assert.equal(
     question.renderedTable.showAddRowOnTop,
     true,
-    "columnLayout='vertical', addRowButtonLocation='topBottom', #1"
+    "transposeData=true, addRowButtonLocation='topBottom', #1"
   );
   assert.equal(
     question.renderedTable.showAddRowOnBottom,
     true,
-    "columnLayout='vertical', addRowButtonLocation='topBottom', #2"
+    "transposeData=true, addRowButtonLocation='topBottom', #2"
   );
 });
 
@@ -3814,7 +3814,7 @@ QUnit.test("matrix dropdown + renderedTable.headerRow", function (assert) {
     "Header is hidden: col1 width get from rowTitleWidth"
   );
 
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   cells = matrix.renderedTable.headerRow.cells;
   assert.equal(cells.length, 3, "3 rows");
   assert.equal(cells[0].locTitle.renderedHtml, "row1", "row1");
@@ -3858,7 +3858,7 @@ QUnit.test("matrix dynamic + renderedTable.headerRow", function (assert) {
   assert.equal(matrix.renderedTable.showHeader, false, "Header is not shown");
   assert.notOk(!!matrix.renderedTable.headerRow, "Header row is null");
 
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   assert.equal(
     matrix.renderedTable.showHeader,
     false,
@@ -3900,7 +3900,7 @@ QUnit.test("matrix dropdown + renderedTable.rows", function (assert) {
   assert.equal(cells[1].question.getType(), "text", "col1.cellType");
   assert.equal(cells[2].question.getType(), "dropdown", "col2.cellType");
 
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   var rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 4, "2 columns");
   cells = rows[1].cells;
@@ -4012,7 +4012,7 @@ QUnit.test("matrix dynamic + renderedTable.rows", function (assert) {
   cells = matrix.renderedTable.rows[1].cells;
   assert.equal(cells.length, 3, "2 columns + remove again");
 
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 5, "2 columns + remove + errors");
   cells = rows[1].cells;
@@ -4085,7 +4085,7 @@ QUnit.test("matrix dropdown + renderedTable + totals", function (assert) {
   assert.notOk(matrix.renderedTable.footerRow, "Footer row not exists");
 
   matrix.columns[0].totalType = "count";
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   assert.equal(
     matrix.renderedTable.showFooter,
     false,
@@ -4123,7 +4123,7 @@ QUnit.test("matrix dropdown + renderedTable + totals", function (assert) {
   assert.equal(cells[2].question.getType(), "expression", "total, it is expression");
   assert.equal(cells[2].minWidth, "100px", "total, set minWidth");
 
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   var rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 4, "2 columns");
   cells = rows[1].cells;
@@ -4154,7 +4154,7 @@ QUnit.test("matrix dynamic + renderedTable + totals", function (assert) {
   assert.equal(cells[1].locTitle.renderedHtml, "col2", "header, col2");
   assert.equal(cells[2].hasTitle, false, "header total, there is no title");
 
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   var rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 5, "2 columns + remove + errors");
   cells = rows[4].cells;
@@ -4247,7 +4247,7 @@ QUnit.test("matrix dynamic + renderedTable + remove buttons", function (assert) 
     "it is an action cell, row2"
   );
   //Bug #3449
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   rows = matrix.renderedTable.rows;
   assert.equal(rows.length, 3, "one column and remove buttons rows + errors rows");
   assert.equal(rows[1].cells[0].locTitle.renderedHtml, "col1", "column header");
@@ -4433,7 +4433,7 @@ QUnit.test(
       2,
       "Footer: There is one visible column + Remove button"
     );
-    matrix.columnLayout = "vertical";
+    matrix.transposeData = true;
     var rows = matrix.renderedTable.rows;
     assert.equal(rows.length, 3, "Only one column is shown + remove button + errrors row");
   }
@@ -4623,7 +4623,7 @@ QUnit.test("column is requriedText, Bug #2297", function (assert) {
     "required Text is here"
   );
   assert.notOk(table.headerRow.cells[1].requiredMark, "required Text is empty");
-  matrix.columnLayout = "vertical";
+  matrix.transposeData = true;
   table = matrix.renderedTable;
   assert.equal(
     table.rows[1].cells[0].requiredMark,
@@ -5377,14 +5377,14 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
   assert.equal(table.rows[1].cells[2].choiceValue, "none", "none in the first row, #4");
 });
 QUnit.test(
-  "showInMultipleColumns property + columnLayout = 'vertical'",
+  "showInMultipleColumns property + transposeData: true",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
           type: "matrixdropdown",
           name: "matrix",
-          columnLayout: "vertical",
+          transposeData: true,
           columns: [
             {
               name: "col1",
@@ -5618,14 +5618,14 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showInMultipleColumns property, columnLayout: 'vertical' and other is empty value, Bug #2200",
+  "showInMultipleColumns property, transposeData: true and other is empty value, Bug #2200",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
           type: "matrixdropdown",
           name: "matrix",
-          columnLayout: "vertical",
+          transposeData: true,
           columns: [
             {
               name: "col1",
@@ -5775,14 +5775,14 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showInMultipleColumns property, columnLayout: 'vertical'  and enabledIf in item, Bug #2926",
+  "showInMultipleColumns property, transposeData: true  and enabledIf in item, Bug #2926",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
         {
           type: "matrixdropdown",
           name: "matrix",
-          columnLayout: "vertical",
+          transposeData: true,
           columns: [
             {
               name: "col1",
@@ -8280,7 +8280,7 @@ QUnit.test(
       false,
       "nothing"
     );
-    matrix.columnLayout = "vertical";
+    matrix.transposeData = true;
     assert.equal(
       matrix.renderedTable.rows[1].cells[0].hasTitle,
       true,
@@ -9074,7 +9074,7 @@ QUnit.test("Vertical column layout & allowRowReorder, rendered table", function 
         "type": "matrixdynamic",
         "name": "matrix",
         "allowRowReorder": true,
-        "columnLayout": "vertical",
+        transposeData: true,
         columns: [
           { cellType: "text", name: "col1" },
           { cellType: "text", name: "col2" },
@@ -9085,7 +9085,7 @@ QUnit.test("Vertical column layout & allowRowReorder, rendered table", function 
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, false, "vertical column layout");
-  matrix.columnLayout = "horizontal";
+  matrix.transposeData = false;
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "horizontal column layout");
   matrix.onPointerDown(<any>undefined, <any>undefined);
 });
@@ -9651,7 +9651,7 @@ QUnit.test("Errors: matrixdynamic + vertical columns", function (assert) {
         type: "matrixdynamic",
         name: "matrix",
         rowCount: 3,
-        columnLayout: "vertical",
+        transposeData: true,
         columns: [{ name: "col1" }, { name: "col2" }]
       }
     ]
@@ -9721,7 +9721,7 @@ QUnit.test("Errors: matrixdynamic + show in multiple columns + vertical layout",
         type: "matrixdropdown",
         name: "matrix",
         rows: ["row1"],
-        columnLayout: "vertical",
+        transposeData: true,
         columns: [
           {
             name: "col1",
@@ -9770,7 +9770,7 @@ QUnit.test("transposeData property", function (assert) {
         type: "matrixdropdown",
         name: "matrix",
         rows: ["row1"],
-        columnLayout: "vertical",
+        transposeData: true,
         columns: [
           {
             name: "col1",

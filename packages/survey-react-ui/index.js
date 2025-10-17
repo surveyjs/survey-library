@@ -1035,7 +1035,7 @@ json = {
           {
             "type": "boolean",
             "name": "q1",
-            "titleLocation": "hidden",
+            "useTitleAsLabel": true,
             "isRequired": true,
             "renderAs": "checkbox"
           }

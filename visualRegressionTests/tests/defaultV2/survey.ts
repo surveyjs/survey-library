@@ -295,9 +295,10 @@
 //         focusFirstQuestionAutomatic: true,
 //         headerView: "basic",
 //         "title": "American History",
+//         "showTimer": true
 //         "showTimerPanel": "bottom",
 //         "showTimerPanelMode": "survey",
-//         "maxTimeToFinish": 60,
+//         "timeLimit": 60,
 //         "widthMode": "responsive",
 //         "firstPageIsStartPage": true,
 //         "pages": [
@@ -370,9 +371,10 @@
 //         focusFirstQuestionAutomatic: true,
 //         headerView: "basic",
 //         "title": "American History",
+//         "showTimer": true,
 //         "showTimerPanel": "bottom",
 //         "showTimerPanelMode": "survey",
-//         "maxTimeToFinish": 60,
+//         "timeLimit": 60,
 //         "widthMode": "static",
 //         "firstPageIsStartPage": true,
 //         "pages": [

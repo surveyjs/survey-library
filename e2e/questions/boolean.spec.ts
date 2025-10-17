@@ -188,7 +188,7 @@ frameworks.forEach((framework) => {
               type: "boolean",
               name: "bool",
               title: "21",
-              titleLocation: "hidden",
+              useTitleAsLabel: true,
               renderAs: "checkbox",
             },
           ],

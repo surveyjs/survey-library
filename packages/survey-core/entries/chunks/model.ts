@@ -96,7 +96,7 @@ export {
   ValidatorRunner
 } from "../../src/validator";
 export { ItemValue } from "../../src/itemvalue";
-export { Base, Event, EventBase, ArrayChanges, ComputedUpdater, IOnArrayChangedEvent } from "../../src/base";
+export { Base, Event, EventBase, ArrayChanges, ComputedUpdater, IPropertyValueChangedEvent, IPropertyArrayValueChangedEvent } from "../../src/base";
 export {
   ISurvey,
   ISurveyElement,

@@ -93,9 +93,8 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     this.row.isNeedRender = !this.row.isLazyRendering();
   }
   componentWillUnmount() {
-    const isCurrentStateElement = this.isCurrentStateElement(this.getStateElement());
     super.componentWillUnmount();
-    if (isCurrentStateElement) {
+    if (!!this.row) {
       this.row.setRootElement(undefined);
       this.stopLazyRendering();
     }

@@ -30,7 +30,7 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { QuestionImagePickerModel } from "../src/question_imagepicker";
 import { FunctionFactory } from "../src/functionsfactory";
-import { ArrayChanges } from "../src/base";
+import { Base, ArrayChanges, IPropertyArrayValueChangedEvent } from "../src/base";
 import { RequreNumericError } from "../src/error";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { PanelModel } from "../src/panel";
@@ -6351,8 +6351,10 @@ QUnit.test("setting visibleChoices do not fired onArrayChanged ", function (asse
   const question = new QuestionDropdownModel("q1");
   let counter = 0;
   (<any>question.visibleChoices).testId = 1;
-  question.addOnArrayChangedCallback(question.visibleChoices, () => {
-    counter++;
+  question.addOnArrayChangedCallback((_: Base, options: IPropertyArrayValueChangedEvent) => {
+    if (options.name === "visibleChoices") {
+      counter++;
+    }
   });
   let hasVisibleChoicesInHash = false;
   question.iteratePropertiesHash((hash, key) => {

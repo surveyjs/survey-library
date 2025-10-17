@@ -98,7 +98,7 @@ module.exports = {
     // "@typescript-eslint/no-use-before-define": "off",
     // "@typescript-eslint/interface-name-prefix": "off",
     // "@typescript-eslint/consistent-type-assertions": "off",
-    // "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
     // "@typescript-eslint/no-empty-interface": "off",
     // "@typescript-eslint/no-empty-function": "off",
     "surveyjs/eslint-plugin-i18n/only-english-or-code": [

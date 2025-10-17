@@ -1,9 +1,10 @@
 {
   "title": "American History",
   "showProgressBar": "top",
-  "showTimerPanel": "bottom",
+  "showTimer": true,
+  "timerLocation": "bottom",
   "showTimerPanelMode": "all",
-  "maxTimeToFinish": 100,
+  "timeLimit": 100,
   "widthMode": "responsive",
   "firstPageIsStarted": true,
   "startSurveyText": "Start Quiz",

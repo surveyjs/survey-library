@@ -566,7 +566,7 @@ frameworks.forEach(framework => {
             "valueFalse": "No",
             "renderAs": "checkbox",
             "label": "I am 21 or older",
-            "titleLocation": "hidden",
+            "useTitleAsLabel": true,
             "readOnly": true,
             "defaultValue": "Yes",
           }

@@ -5,7 +5,7 @@
 // const json = {
 //   showQuestionNumbers: "on",
 //   questionStartIndex: "# 1.",
-//   requiredText: "(*)",
+//   requiredMark: "(*)",
 //   elements: [
 //     {
 //       type: "radiogroup",

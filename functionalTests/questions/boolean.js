@@ -30,7 +30,7 @@ var jsonCheckbox2 = {
       type: "boolean",
       name: "bool",
       title: "Are you 21 or older?",
-      titleLocation: "hidden",
+      useTitleAsLabel: true,
       renderAs: "checkbox",
     },
   ],

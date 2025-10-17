@@ -68,7 +68,7 @@ frameworks.forEach(framework => {
           {
             type: "matrixdynamic",
             name: "Current Level of Function",
-            columnLayout: "vertical",
+            transposeData: true,
             rowCount: 3,
             columns: [
               {

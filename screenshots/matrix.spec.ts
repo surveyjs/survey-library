@@ -890,7 +890,7 @@ frameworks.forEach(framework => {
                 ]
               }
             ],
-            "columnLayout": "vertical",
+            "transposeData": true,
             "rows": [{ "value": "col", "text": "Col" }]
           }
         ],

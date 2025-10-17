@@ -2705,10 +2705,10 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "radiogroup.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
+  "radiogroup.choicesEnableIf, clear value on making the value disable, survey.clearDisabledChoices",
   function (assert) {
     var survey = new SurveyModel();
-    survey.clearValueOnDisableItems = true;
+    survey.clearDisabledChoices = true;
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionRadiogroupModel("bestCar");
     qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
@@ -2740,10 +2740,10 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "checkbox.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
+  "checkbox.choicesEnableIf, clear value on making the value disable, survey.clearDisabledChoices",
   function (assert) {
     var survey = new SurveyModel();
-    survey.clearValueOnDisableItems = true;
+    survey.clearDisabledChoices = true;
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionCheckboxModel("bestCar");
     qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];

@@ -299,7 +299,7 @@ const json3 = {
       "type": "matrixdynamic",
       "name": "matrix",
       "allowRowsDragAndDrop": true,
-      "columnLayout": "vertical",
+      "transposeData": true,
       "columns": [
         { cellType: "text", name: "col1" },
         { cellType: "text", name: "col2" },

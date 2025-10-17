@@ -131,7 +131,7 @@ frameworks.forEach((framework) => {
               "requiredIf": "{question2} = 'Item1'"
             }
           ],
-          "columnLayout": "vertical",
+          "transposeData": true,
           "rows": [
             "Row 1",
             "Row 2"

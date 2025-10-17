@@ -3,7 +3,7 @@
 // const title = "options";
 
 // const change_question_required_text = ClientFunction(() => {
-//   window["survey"].requiredText = "some";  //
+//   window["survey"].requiredMark = "some";  //
 //   window["survey"].render();
 // });
 

@@ -1207,7 +1207,7 @@
 //                 ]
 //               }
 //             ],
-//             "columnLayout": "vertical",
+//             "transposeData": true,
 //             "rows": [
 //               {
 //                 "value": "col",

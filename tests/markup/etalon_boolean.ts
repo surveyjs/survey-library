@@ -83,7 +83,7 @@ registerMarkupTests(
           name: "name",
           type: "boolean",
           title: "Question title",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           defaultValue: "true",
           renderAs: "checkbox"
         }
@@ -100,7 +100,7 @@ registerMarkupTests(
           name: "name",
           type: "boolean",
           title: "Question title",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           isRequired: true,
           renderAs: "checkbox"
         },
@@ -117,7 +117,7 @@ registerMarkupTests(
           type: "boolean",
           readOnly: true,
           title: "Question title",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           defaultValue: "true",
           renderAs: "checkbox"
         }
@@ -135,7 +135,7 @@ registerMarkupTests(
           name: "name",
           type: "boolean",
           title: "Question title",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           renderAs: "checkbox"
         }
       ]
@@ -151,7 +151,7 @@ registerMarkupTests(
           name: "name",
           type: "boolean",
           title: "Question title",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           renderAs: "checkbox"
         }
       ]
@@ -166,7 +166,7 @@ registerMarkupTests(
           name: "name",
           type: "boolean",
           title: "Question title",
-          titleLocation: "hidden",
+          useTitleAsLabel: true,
           renderAs: "checkbox"
         }
       ]

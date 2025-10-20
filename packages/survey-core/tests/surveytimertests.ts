@@ -619,7 +619,7 @@ QUnit.test("Do not start timer if the survey in the display mode", function (ass
   survey.pages[0].addNewQuestion("text");
   survey.timeLimit = 10;
   survey.timeLimitPerPage = 7;
-  survey.mode = "display";
+  survey.readOnly = true;
   survey.startTimer();
   doTimer(5);
   assert.equal(survey.timeSpent, 0, "Timmer is not started");

@@ -373,7 +373,7 @@ QUnit.test("Do not show errors in display mode", function (assert) {
     ],
     firstPageIsStartPage: true
   });
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(survey.activePage.name, "p2", "active page page is p2");
   assert.equal(survey.currentPage.name, "p2", "current page page is p2");
   assert.equal(survey.isShowPrevButton, false, "prev, first page");
@@ -448,7 +448,7 @@ QUnit.test("Check page num when first page is started", function (assert) {
 QUnit.test("Do not show errors in display mode", function (assert) {
   var survey = twoPageSimplestSurvey();
   (<Question>survey.pages[0].questions[0]).isRequired = true;
-  survey.mode = "display";
+  survey.readOnly = true;
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
 });
@@ -502,7 +502,7 @@ QUnit.test("Do not run triggers in display mode", function (assert) {
   });
   (<Question>survey.pages[0].questions[0]).isRequired = true;
   survey.data = { question1: 1 };
-  survey.mode = "display";
+  survey.readOnly = true;
   survey.setValue("question2", 2);
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
@@ -612,7 +612,7 @@ QUnit.test("Question is readOnly", function (assert) {
   q1.readOnly = true;
   assert.equal(q1.isReadOnly, true, "check2. question is  readonly now");
   q1.readOnly = false;
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(
     q1.isReadOnly,
     true,
@@ -738,9 +738,9 @@ QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: show
   assert.equal(survey.isShowPrevButton, false, "isShowPrevButton #2");
   assert.equal(survey.isShowNextButton, false, "isShowNextButton #3");
   assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible #3");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, read-only #4");
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible, edit mode #5");
 });
 QUnit.test("isShowPrevButton/isCompleteButtonVisible & showPrevButton/showCompleteButton", function (
@@ -5394,9 +5394,9 @@ QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   question.value = 2;
   assert.equal(panel.isReadOnly, false, "Panel is not readOnly");
   assert.equal(readOnlyCounter, 4, "Panel is not readOnly");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(readOnlyCounter, 5, "survey.mode = 'display'");
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(readOnlyCounter, 6, "survey.mode = 'edit'");
 
   CustomWidgetCollection.Instance.clear();
@@ -17027,14 +17027,14 @@ QUnit.test("Check survey getRootCss function - defaultCss", function (assert) {
   survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile");
 
-  survey.mode = "display";
+  survey.readOnly = true;
   survey.fitToContainer = true;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
 
   survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--mobile sd-root--readonly");
 
-  survey.mode = "edit";
+  survey.readOnly = false;
   survey.setIsMobile(false);
   survey["isCompact"] = true;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root--compact");
@@ -19255,7 +19255,7 @@ QUnit.test("Check readOnly flag", function (assert) {
     ],
   });
   assert.ok(survey.readOnly);
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.notOk(survey.readOnly);
 });
 QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
@@ -20674,7 +20674,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("center"), [], "default center");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
@@ -21080,7 +21080,7 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.isDisplayMode, false);
   assert.equal(survey.getRootCss(), "sd-root-modern sd-progress--pages sd-root-modern--full-container");
 
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, true);
   assert.ok(survey.getRootCss().indexOf(survey.css.rootReadOnly) !== -1);
@@ -22829,10 +22829,10 @@ QUnit.test("Do not serialize mode:display property, #10281", function (assert) {
   survey3.readOnly = true;
   assert.equal(survey3.mode, "display", "mode #3");
   assert.equal(survey3.readOnly, true, "readOnly #3");
-  survey3.mode = "edit";
+  survey3.readOnly = false;
   assert.equal(survey3.mode, "edit", "mode #4");
   assert.equal(survey3.readOnly, false, "readOnly #4");
-  survey3.mode = "display";
+  survey3.readOnly = true;
   assert.deepEqual(survey3.toJSON(), {
     readOnly: true
   }, "survey3 is serialized correctly");

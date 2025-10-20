@@ -1925,7 +1925,7 @@ QUnit.test("Acton takePhoto should be serialiazed", function (assert) {
 
 QUnit.test("Choose file action should have disabled class", function (assert) {
   const survey = new SurveyModel({
-    mode: "display",
+    readOnly: true,
     elements: [
       { type: "file", name: "q1", maxSize: 3 },
     ]
@@ -1933,9 +1933,9 @@ QUnit.test("Choose file action should have disabled class", function (assert) {
   survey.css = defaultCss;
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-action sd-file__choose-btn--text", "Enabled");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
 });
 

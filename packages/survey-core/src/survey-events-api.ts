@@ -1005,11 +1005,11 @@ export interface DragDropAllowEvent {
   allow: boolean;
   allowDropNextToAnother?: boolean;
   /**
-   * @deprecated Use `options.draggedElement` instead.
+   * @deprecated Use `options.toElement` instead.
    */
   target: IElement;
   /**
-   * @deprecated Use `options.toElement` instead.
+   * @deprecated Use `options.draggedElement` instead.
    */
   source: IElement;
 }

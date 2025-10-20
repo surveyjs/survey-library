@@ -105,9 +105,9 @@ frameworks.forEach((framework) => {
   test("check comment existing", async (t) => {
     const setQuestionId = ClientFunction(() => {
       const survey = window["survey"];
-      //survey.mode = "display";
+      //survey.readOnly = true;
       survey.getAllQuestions().forEach(q => { q.id = q.name; });
-      //survey.mode = "edit";
+      //survey.readOnly = false;
     });
 
     await initSurvey(framework, json);

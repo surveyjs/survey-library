@@ -2443,7 +2443,7 @@ QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
     false,
     "The question is not readonly"
   );
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(question.isReadOnly, true, "The standard question is readonly");
   assert.equal(
     panel.panels[0].questions[0].isReadOnly,
@@ -2497,7 +2497,7 @@ QUnit.test(
       false,
       "The question is not readonly again"
     );
-    survey.mode = "display";
+    survey.readOnly = true;
     assert.equal(
       question.isReadOnly,
       true,
@@ -2595,7 +2595,7 @@ QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", function(
     ],
   };
   var survey = new SurveyModel(json);
-  survey.mode = "display";
+  survey.readOnly = true;
 
   survey.data = {
     employers: [
@@ -5809,7 +5809,7 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
   assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for readonly");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for readonly");
 });
 QUnit.test("Carry forward in panel dynamic", function (assert) {

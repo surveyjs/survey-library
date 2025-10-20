@@ -1251,7 +1251,7 @@ QUnit.test("Checkbox store others value not in comment & defaultValue", function
     ],
   });
   var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.deepEqual(
     question.renderedValue,
     ["A", "B"],
@@ -2387,7 +2387,7 @@ QUnit.test("readOnlyCommentRenderMode", function (assert) {
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
   var qRadio = new QuestionRadiogroupModel("q2");
-  survey.mode = "display";
+  survey.readOnly = true;
 
   page.addElement(qComment);
   page.addElement(qRadio);
@@ -2408,7 +2408,7 @@ QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function (assert)
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
   var qText = new QuestionTextModel("q3");
-  survey.mode = "display";
+  survey.readOnly = true;
 
   page.addElement(qComment);
   page.addElement(qText);
@@ -2463,7 +2463,7 @@ QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function (assert)
   );
 
   settings.readOnlyCommentRenderMode = "div";
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(
     qComment["isReadOnlyRenderDiv"](),
     false,
@@ -3060,9 +3060,9 @@ QUnit.test(
       false,
       "It is not readOnly by default"
     );
-    survey.mode = "display";
+    survey.readOnly = true;
     assert.equal(itemQuestion.isReadOnly, true, "survey mode is display");
-    survey.mode = "edit";
+    survey.readOnly = false;
     assert.equal(itemQuestion.isReadOnly, false, "survey mode is edit");
     question.readOnly = true;
     assert.equal(itemQuestion.isReadOnly, true, "question is readOnly");
@@ -5589,7 +5589,7 @@ QUnit.test(
       ],
     };
     var survey = new SurveyModel(json);
-    survey.mode = "display";
+    survey.readOnly = true;
     survey.data = { q1: 1, q2: 2, q3: 5 };
     assert.equal(
       survey.getValue("q3"),

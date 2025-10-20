@@ -2086,7 +2086,7 @@ QUnit.test("Set totals correctly for read-only question", function (assert) {
   };
 
   var survey = new SurveyModel(json);
-  survey.mode = "display";
+  survey.readOnly = true;
   var data = {
     "question1-total": { Column3: 3 },
     question1: [{ Column1: "1", Column2: "2", Column3: 3 }],
@@ -8466,9 +8466,9 @@ QUnit.test("allowRowReorder with readOnly", function (assert) {
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
 });
 
-QUnit.test("allowRowReorder &mode=display", function (assert) {
+QUnit.test("allowRowReorder & readOnly = true", function (assert) {
   const survey = new SurveyModel({
-    mode: "display",
+    readOnly: true,
     elements: [
       {
         type: "matrixdynamic",
@@ -8480,7 +8480,7 @@ QUnit.test("allowRowReorder &mode=display", function (assert) {
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, false, "#1");
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
 });
 QUnit.test("Drag&drop and column visibleIf", function (assert) {
@@ -8761,12 +8761,12 @@ QUnit.test("Restore read-only on setting mode display/edit", function (assert) {
   assert.equal(row.cells[0].question.isReadOnly, false, "isReadOnly-false cell1 #1");
   assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #1");
   assert.equal(row.cells[1].question.isReadOnly, true, "isReadOnly-true cell2 #1");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(row.cells[0].question.readOnly, false, "It is not read-only cell1 #2");
   assert.equal(row.cells[0].question.isReadOnly, true, "isReadOnly-true cell1 #2");
   assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #2");
   assert.equal(row.cells[1].question.isReadOnly, true, "isReadOnly-true cell2 #2");
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(row.cells[0].question.readOnly, false, "It is not read-only cell1 #3");
   assert.equal(row.cells[0].question.isReadOnly, false, "isReadOnly-false cell1 #3");
   assert.equal(row.cells[1].question.readOnly, true, "It is read-only cell2 #3");

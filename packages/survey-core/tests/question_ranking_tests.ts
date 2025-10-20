@@ -304,10 +304,10 @@ QUnit.test("Ranking: ReadOnlyMode ", function(assert) {
 
   assert.equal(q["isAllowStartDrag"](target, choise), true);
 
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(q["isAllowStartDrag"](target, choise), false);
 
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(q["isAllowStartDrag"](target, choise), true);
   choise.enabled = false;
   assert.equal(q["isAllowStartDrag"](target, choise), false);

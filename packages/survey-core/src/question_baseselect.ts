@@ -88,9 +88,6 @@ export class ChoiceItem extends ItemValue {
     }
     this.setPanelSurvey(this.panelValue);
   }
-  public onItemSelected(): void {
-    this.updatePanelState();
-  }
   private onExpandPanelAtDesignValue: EventBase<ChoiceItem, any>;
   public get onExpandPanelAtDesign(): EventBase<ChoiceItem, any> {
     if (!this.onExpandPanelAtDesignValue) {
@@ -101,9 +98,6 @@ export class ChoiceItem extends ItemValue {
   public get isPanelShowing(): boolean {
     if (!this.panelValue || !this.choiceOwner) return false;
     return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
-  }
-  private updatePanelState(): void {
-    this.panelValue?.onFirstRendering();
   }
   public get hasElements(): boolean {
     const pnl = this.panelValue;
@@ -120,6 +114,11 @@ export class ChoiceItem extends ItemValue {
   }
   public get elements(): Array<IElement> {
     return this.panel.elements;
+  }
+  public panelFirstRendering(): void {
+    if (this.hasElements && this.isPanelShowing) {
+      this.panel.onFirstRendering();
+    }
   }
   protected createPanel(): PanelModel {
     const res = Serializer.createClass("panel");
@@ -940,7 +939,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (item.showCommentArea) {
       this.focusOtherComment(item);
     }
-    item.onItemSelected();
   }
   protected onItemDeselected(item: ItemValue): void {
     if (item.showCommentArea) {
@@ -957,6 +955,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setRenderedValue(this.rendredValueFromData(newValue), false);
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateChoicesDependedQuestions();
+    this.updateChoicesPanels();
     if (this.showCommentArea || !updateComment) return;
     if (!this.isOtherSelected && !!this.otherValue) {
       this.makeCommentEmpty = true;
@@ -988,6 +987,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       return this.getChoiceValue(item, val, false);
     }
     return super.valueFromData(val);
+  }
+  private updateChoicesPanels(): void {
+    if (!this.supportElementsInChoice() || !this.wasRendered) return;
+    this.choices.forEach(item => {
+      if (item.isDescendantOf("choiceitem")) {
+        item.panelFirstRendering();
+      }
+    });
   }
   protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
     const isObj = typeof val === "object";
@@ -1815,6 +1822,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.onVisibleChoicesChanged();
     this.doForPanels(undefined, (p) => { p.onSurveyLoad(); });
     super.onSurveyLoad();
+  }
+  protected onFirstRenderingCore(): void {
+    super.onFirstRenderingCore();
+    this.doForPanels(true, (p) => { p.onFirstRendering(); });
   }
   onAnyValueChanged(name: string, questionName: string): void {
     super.onAnyValueChanged(name, questionName);

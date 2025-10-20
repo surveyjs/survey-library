@@ -17,7 +17,8 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   protected previousModel?: T;
   private isModelSubsribed: boolean = false;
 
-  public ngDoCheck(): void {
+  public override ngDoCheck(): void {
+    super.ngDoCheck();
     if (this.previousModel !== this.getModel()) {
       this.unMakeBaseElementAngular(this.previousModel);
       this.makeBaseElementAngular(this.getModel());
@@ -118,7 +119,8 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       model.afterRerender();
     }
   }
-  ngAfterViewChecked(): void {
+  override ngAfterViewChecked(): void {
+    super.ngAfterViewChecked();
     this.afterViewCheckedCallback && this.afterViewCheckedCallback();
     this.setIsModelRendering(false);
   }

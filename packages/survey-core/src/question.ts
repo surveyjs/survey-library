@@ -142,6 +142,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
   constructor(private questions: Array<Question>) {
     super();
   }
+  protected isSearchNameRevert(): boolean { return true; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const lowName = name.toLocaleLowerCase();
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;

@@ -267,7 +267,7 @@ frameworks.forEach((framework) => {
         });
         window["survey"].fromJSON(json);
       }, json);
-
+      await page.waitForTimeout(1000);
       let hasResponsivityManager = await page.evaluate(() => {
         return !!window["survey"].getQuestionByName("actions_question").titleToolbarValue.responsivityManager;
       });

@@ -4506,7 +4506,7 @@ QUnit.test(
     assert.equal(counter, 1, "onValueChanged has been called");
   }
 );
-QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
+QUnit.test("survey.onMatrixRenderRemoveButton", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4523,7 +4523,7 @@ QUnit.test("survey.onMatrixAllowRemoveRow", function (assert) {
       },
     ],
   });
-  survey.onMatrixAllowRemoveRow.add(function (sender, options) {
+  survey.onMatrixRenderRemoveButton.add(function (sender, options) {
     options.allow = options.rowIndex % 2 == 0;
   });
   const firstMatrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[1];
@@ -4559,7 +4559,7 @@ QUnit.test("The Remove row button is misaligned when a column is hidden, Bug#100
       },
     ],
   });
-  survey.onMatrixAllowRemoveRow.add(function (sender, options) {
+  survey.onMatrixRenderRemoveButton.add(function (sender, options) {
     options.allow = options.row.isEmpty;
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];

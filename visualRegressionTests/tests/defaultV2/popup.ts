@@ -369,7 +369,7 @@
 //             showTitle: true,
 //             action: () => {
 //               const model = new window["Survey"].Model(json);
-//               model.focusFirstQuestionAutomatic = false;
+//               model.autoFocusFirstQuestion = false;
 //               window["Survey"].settings.showDialog({
 //                 componentName: "survey",
 //                 data: {

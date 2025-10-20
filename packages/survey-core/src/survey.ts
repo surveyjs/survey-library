@@ -4460,19 +4460,19 @@ export class SurveyModel extends SurveyElementCore
     num++;
     return base + num;
   }
-  private validateActivePage(isFocuseOnFirstError?: boolean): boolean {
-    return this.validatePageCore(this.activePage, isFocuseOnFirstError);
+  private validateActivePage(isFocusOnFirstError?: boolean): boolean {
+    return this.validatePageCore(this.activePage, isFocusOnFirstError);
   }
-  private validatePageCore(page: PageModel, isFocuseOnFirstError?: boolean, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
-    if (isFocuseOnFirstError === undefined) {
-      isFocuseOnFirstError = this.focusOnFirstError;
+  private validatePageCore(page: PageModel, isFocusOnFirstError?: boolean, onAsyncValidation?: (hasErrors: boolean) => void): boolean {
+    if (isFocusOnFirstError === undefined) {
+      isFocusOnFirstError = this.focusOnFirstError;
     }
     if (!page) return true;
     let callback = undefined;
     if (onAsyncValidation) {
       callback = (res: boolean) => { onAsyncValidation(!res); };
     }
-    const res = page.validate(true, isFocuseOnFirstError, callback);
+    const res = page.validate(true, isFocusOnFirstError, callback);
     this.fireValidatedErrorsOnPage(page);
     return res;
   }

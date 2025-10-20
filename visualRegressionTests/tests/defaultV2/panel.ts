@@ -16,7 +16,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         width: "900px",
 //         questions: [
 //           {

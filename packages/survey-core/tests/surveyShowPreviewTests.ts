@@ -673,7 +673,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions' and goNextPageAutomatic, Bug#3450",
+  "showPreviewBeforeComplete = 'showAnsweredQuestions' and autoAdvanceEnabled, Bug#3450",
   function(assert) {
     const survey = new SurveyModel({
       "pages": [
@@ -698,7 +698,7 @@ QUnit.test(
           ]
         }
       ],
-      "goNextPageAutomatic": true,
+      "autoAdvanceEnabled": true,
       "showPreviewBeforeComplete": "showAnsweredQuestions"
     });
     const q1 = survey.getQuestionByName("q1");

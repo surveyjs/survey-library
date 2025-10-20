@@ -394,7 +394,7 @@
 // frameworks.forEach(framework => {
 //   const json = {
 //     showQuestionNumbers: "on",
-//     "focusFirstQuestionAutomatic": true,
+//     "autoFocusFirstQuestion": true,
 //     "pages": [
 //       {
 //         "name": "page1",

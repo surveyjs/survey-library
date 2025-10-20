@@ -16,7 +16,7 @@
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         questions: [
 //           {
 //             type: "text",
@@ -32,7 +32,7 @@
 //   test("Check simple question on smartphone screen", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "elements": [{
 //           "name": "username",
 //           "type": "text",
@@ -85,7 +85,7 @@
 //       })();
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         questions: [
 //           {
 //             type: "text",
@@ -547,7 +547,7 @@
 //             "colCount": 5
 //           }
 //         ],
-//         "focusFirstQuestionAutomatic": true // do not remove, it is need to check container clipping
+//         "autoFocusFirstQuestion": true // do not remove, it is need to check container clipping
 //       });
 //       await takeElementScreenshot("responsiveness-checkbox-col-count-5-wide.png", Selector(".sd-question"), t, comparer);
 //       await t.resizeWindow(1000, 1080);
@@ -602,7 +602,7 @@
 //       await initSurvey(framework,
 //         {
 //           showQuestionNumbers: "on",
-//           focusFirstQuestionAutomatic: true,
+//           autoFocusFirstQuestion: true,
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",

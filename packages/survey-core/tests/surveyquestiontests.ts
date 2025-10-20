@@ -632,7 +632,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
+QUnit.test("Multiple Text Question: support autoAdvanceEnabled", function (
   assert
 ) {
   var mText = new QuestionMultipleTextModel("q1");
@@ -675,7 +675,7 @@ QUnit.test("Use timer to go next page", function (assert) {
         ],
       },
     ],
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   };
   const prevFunc = surveyTimerFunctions.safeTimeOut;
   let checkDelay: number = 0;
@@ -695,7 +695,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   surveyTimerFunctions.safeTimeOut = prevFunc;
   settings.autoAdvanceDelay = 0;
 });
-QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", function (assert) {
+QUnit.test("Radiogroup Question: support autoAdvanceEnabled + showOtherItem", function (assert) {
   var json = {
     pages: [
       {
@@ -717,7 +717,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", f
         ],
       },
     ],
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   };
   const survey = new SurveyModel(json);
   const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
@@ -731,7 +731,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", f
 });
 
 QUnit.test(
-  "Radiogroup Question: support goNextPageAutomatic + showOtherItem + textUpdateMode = onTyping",
+  "Radiogroup Question: support autoAdvanceEnabled + showOtherItem + textUpdateMode = onTyping",
   function (assert) {
     var json = {
       pages: [
@@ -755,7 +755,7 @@ QUnit.test(
         },
       ],
       textUpdateMode: "onTyping",
-      goNextPageAutomatic: true,
+      autoAdvanceEnabled: true,
     };
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");

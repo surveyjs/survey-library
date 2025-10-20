@@ -16,7 +16,7 @@
 
 // const json = {
 //   showQuestionNumbers: "on",
-//   focusFirstQuestionAutomatic: true,
+//   autoFocusFirstQuestion: true,
 //   "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
 //   "pages": [{
 //     "name": "page1",
@@ -213,7 +213,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         pages: testedPages,
 //         showProgressBar: "top"
 //       });
@@ -226,7 +226,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         pages: testedPages
 //       });
 //       await applyHeaderAccentBackgroundColor();
@@ -238,7 +238,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Test",
 //         pages: testedPages
 //       });

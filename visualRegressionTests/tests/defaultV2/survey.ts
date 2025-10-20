@@ -24,7 +24,7 @@
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         title: "Survey Title",
 //         widthMode: "responsive",
@@ -49,7 +49,7 @@
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Survey Title",
 //         description: "Survey description",
 //         logo: upArrowImageLink,
@@ -140,7 +140,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         title: "Test",
 //         widthMode: "static",
@@ -155,7 +155,7 @@
 //       await t.resizeWindow(700, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         title: "Test",
 //         widthMode: "static",
@@ -195,7 +195,7 @@
 //       await t.resizeWindow(1280, 900);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "backgroundImage": backgroundImage,
 //         "backgroundOpacity": 0.7,
 //         "pages": [
@@ -292,7 +292,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         "title": "American History",
 //         "showTimer": true
@@ -368,7 +368,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         "title": "American History",
 //         "showTimer": true,
@@ -445,7 +445,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         "title": "American History",
 //         "showTimerPanel": "bottom",
@@ -696,7 +696,7 @@
 //       await t.resizeWindow(1600, 900);
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Software developer survey.",
 //         showTOC: true,
 //         pages: [
@@ -768,7 +768,7 @@
 //       await t.resizeWindow(1600, 900);
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Software developer survey.",
 //         showTOC: true,
 //         tocLocation: "right",
@@ -1001,7 +1001,7 @@
 
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Software developer survey.",
 //         showTOC: true,
 //         pages: [
@@ -1071,7 +1071,7 @@
 
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Software developer survey.",
 //         showTOC: true,
 //         pages: [
@@ -1140,7 +1140,7 @@
 
 //       const json = {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Software developer survey.",
 //         showTOC: true,
 //         pages: [
@@ -1459,7 +1459,7 @@
 //       await insertDiv();
 //       const json = {
 //         showQuestionNumbers: "on",
-//         "focusFirstQuestionAutomatic": true,
+//         "autoFocusFirstQuestion": true,
 //         "elements": [
 //           {
 //             "type": "text",

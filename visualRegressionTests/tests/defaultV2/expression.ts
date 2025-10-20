@@ -31,7 +31,7 @@
 //             "expression": "123"
 //           },
 //         ],
-//         "focusFirstQuestionAutomatic": true
+//         "autoFocusFirstQuestion": true
 //       });
 //       await takeElementScreenshot("expression-title-left.png", Selector(".sd-question[data-name=q1]"), t, comparer);
 //       await takeElementScreenshot("expression-title-top.png", Selector(".sd-question[data-name=q2]"), t, comparer);

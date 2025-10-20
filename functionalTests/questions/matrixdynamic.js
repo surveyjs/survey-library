@@ -328,7 +328,7 @@ frameworks.forEach((framework) => {
 });
 const json4 = {
   "textUpdateMode": "onTyping",
-  "focusFirstQuestionAutomatic": true,
+  "autoFocusFirstQuestion": true,
   "elements": [
     {
       "type": "matrixdynamic",
@@ -496,7 +496,7 @@ frameworks.forEach((framework) => {
   test("Focus remove or add button removing", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "matrixdynamic",
@@ -529,7 +529,7 @@ frameworks.forEach((framework) => {
   test("Focus remove or add button removing - no header", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "matrixdynamic",
@@ -563,7 +563,7 @@ frameworks.forEach((framework) => {
   test("Focus remove or add button removing for horizontal columns layout", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "matrixdynamic",

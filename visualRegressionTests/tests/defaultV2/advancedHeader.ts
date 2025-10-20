@@ -13,7 +13,7 @@
 //       await t.resizeWindow(1200, 1000);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Survey Title",
 //         description: "Survey description",
 //         logo: upArrowImageLink,
@@ -47,7 +47,7 @@
 //       await t.resizeWindow(1200, 1000);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Survey Title",
 //         description: "Survey description",
 //         logo: upArrowImageLink,
@@ -89,7 +89,7 @@
 //       await t.resizeWindow(1200, 1000);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Survey Title",
 //         description: "Survey description",
 //         logo: upArrowImageLink,
@@ -131,7 +131,7 @@
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Survey Title",
 //         description: "Survey description",
 //         questions: [

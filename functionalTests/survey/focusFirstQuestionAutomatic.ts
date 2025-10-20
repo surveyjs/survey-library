@@ -1,10 +1,10 @@
 // import { url, initSurvey, frameworks, getSurveyResult, filterIsInViewport, setRowItemFlowDirection } from "../helper";
 // import { Selector, ClientFunction } from "testcafe";
 
-// const title = "focusFirstQuestionAutomatic";
+// const title = "autoFocusFirstQuestion";
 
 // const json = {
-//   focusFirstQuestionAutomatic: true,
+//   autoFocusFirstQuestion: true,
 //   pages: [
 //     {
 //       elements: [
@@ -48,7 +48,7 @@
 //       q1: "val1", q2: "val2" });
 //   });
 //   test("Check first focused question, avoid focusing question in code", async t => {
-//     await initSurvey(framework, json, null, false, { focusFirstQuestionAutomatic: false });
+//     await initSurvey(framework, json, null, false, { autoFocusFirstQuestion: false });
 //     await t.pressKey("v a l 1")
 //       .click("input[value=Next]")
 //       .pressKey("v a l 2")
@@ -58,9 +58,9 @@
 //     await t.expect(surveyResult).eql({ });
 //   });
 //   test("Check first focused question, avoid focusing question in json", async t => {
-//     json["focusFirstQuestionAutomatic"] = false;
+//     json["autoFocusFirstQuestion"] = false;
 //     await initSurvey(framework, json);
-//     json["focusFirstQuestionAutomatic"] = true;
+//     json["autoFocusFirstQuestion"] = true;
 //     await t.pressKey("v a l 1")
 //       .click("input[value=Next]")
 //       .pressKey("v a l 2")

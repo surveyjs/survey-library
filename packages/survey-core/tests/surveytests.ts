@@ -841,7 +841,7 @@ QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
     "Make one question invisible"
   );
 });
-QUnit.test("progressText and onProgressText event", function (assert) {
+QUnit.test("progressText and onGetProgressText event", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));
   survey.addPage(createPageWithQuestion("Second page", "q2"));
@@ -851,7 +851,7 @@ QUnit.test("progressText and onProgressText event", function (assert) {
   var questionCount = -1;
   var answeredQuestionCount = -1;
 
-  survey.onProgressText.add((sender: SurveyModel, options: any) => {
+  survey.onGetProgressText.add((sender: SurveyModel, options: any) => {
     questionCount = options.questionCount;
     answeredQuestionCount = options.answeredQuestionCount;
     options.text =
@@ -866,7 +866,7 @@ QUnit.test("progressText and onProgressText event", function (assert) {
   assert.equal(answeredQuestionCount, 1, "One question is answered");
 });
 QUnit.test(
-  "progressText, 'requiredQuestions' type and onProgressText event",
+  "progressText, 'requiredQuestions' type and onGetProgressText event",
   function (assert) {
     var survey = new SurveyModel();
     survey.addPage(createPageWithQuestion("Page 1", "q1"));
@@ -890,7 +890,7 @@ QUnit.test(
     var requiredQuestionCount = -1;
     var requiredAnsweredQuestionCount = -1;
 
-    survey.onProgressText.add((sender: SurveyModel, options: any) => {
+    survey.onGetProgressText.add((sender: SurveyModel, options: any) => {
       questionCount = options.questionCount;
       answeredQuestionCount = options.answeredQuestionCount;
       requiredQuestionCount = options.requiredQuestionCount;
@@ -954,7 +954,7 @@ QUnit.test("onProgressText event and questionOrder in page, Bug#3383", function 
     oldCurrentPageName = !!options.oldCurrentPage ? options.oldCurrentPage.name : "";
     newCurrentPageName = !!options.newCurrentPage ? options.newCurrentPage.name : "";
   });
-  survey.onProgressText.add(() => { var dummy = 1; });
+  survey.onGetProgressText.add(() => { var dummy = 1; });
   survey.nextPage();
   assert.equal(oldCurrentPageName, "page1", "First nextPage, old");
   assert.equal(newCurrentPageName, "page2", "First nextPage, new");
@@ -1686,7 +1686,7 @@ QUnit.test("survey.checkErrorsMode = 'onComplete'", function (assert) {
 
 QUnit.test("Should not be errors after prevPage bug#151", function (assert) {
   var survey = new SurveyModel();
-  survey.goNextPageAutomatic = true;
+  survey.autoAdvanceEnabled = true;
   var page = survey.addNewPage("page1");
   var question = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   question.choices = [1, 2, 3];
@@ -1708,7 +1708,7 @@ QUnit.test("Should not be errors after prevPage bug#151", function (assert) {
 });
 QUnit.test("Should not show errors with others bug #2014", function (assert) {
   var survey = new SurveyModel();
-  survey.goNextPageAutomatic = true;
+  survey.autoAdvanceEnabled = true;
   var page = survey.addNewPage("page1");
   var question = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q1");
   question.choices = [1, 2, 3];
@@ -1730,7 +1730,7 @@ QUnit.test(
   "Show error on question value changed if can't go to the next page",
   function (assert) {
     var survey = new SurveyModel({
-      goNextPageAutomatic: true,
+      autoAdvanceEnabled: true,
       pages: [
         {
           elements: [
@@ -2574,7 +2574,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "Server validation - fire onValidatedErrorsOnCurrentPage  event, Bug#2566",
+  "Server validation - fire onValidatePage  event, Bug#2566",
   function (assert) {
     var survey = twoPageSimplestSurvey();
     var opt = null;
@@ -2582,7 +2582,7 @@ QUnit.test(
       opt = options;
     });
     var errorCount = 0;
-    survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+    survey.onValidatePage.add(function (sender, options) {
       errorCount = options.errors.length;
     });
     survey.setValue("question1", 101);
@@ -3631,8 +3631,8 @@ QUnit.test("question.no and survey.questionStartIndex", function (assert) {
   assert.equal(question.no, "1.3");
   survey.questionStartIndex = "1.01";
   assert.equal(question.no, "1.02");
-  survey.onGetQuestionNo.add(function (sender, options) {
-    options.no = "a.b." + (options.question.visibleIndex + 1) + ")";
+  survey.onGetQuestionNumber.add(function (sender, options) {
+    options.number = "a.b." + (options.question.visibleIndex + 1) + ")";
   });
   assert.equal(question.no, "a.b.2)", "use event");
 });
@@ -4116,7 +4116,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("test goNextPageAutomatic property", function (assert) {
+QUnit.test("test autoAdvanceEnabled property", function (assert) {
   var survey = twoPageSimplestSurvey();
 
   var dropDownQ = <QuestionDropdownModel>(
@@ -4124,7 +4124,7 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
   );
   dropDownQ.choices = [1, 2, 3];
   dropDownQ.showOtherItem = true;
-  survey.goNextPageAutomatic = true;
+  survey.autoAdvanceEnabled = true;
   assert.equal(
     survey.currentPage.name,
     survey.pages[0].name,
@@ -4151,11 +4151,11 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
   dropDownQ.value = 1;
   assert.equal(survey.state, "completed", "complete the survey");
 });
-QUnit.test("test goNextPageAutomatic property for boolean/switch", function (
+QUnit.test("test autoAdvanceEnabled property for boolean/switch", function (
   assert
 ) {
   var survey = new SurveyModel({
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
     pages: [
       {
         elements: [{ type: "boolean", name: "q1" }],
@@ -4171,7 +4171,7 @@ QUnit.test("test goNextPageAutomatic property for boolean/switch", function (
     ],
   });
 
-  survey.goNextPageAutomatic = true;
+  survey.autoAdvanceEnabled = true;
   assert.equal(
     survey.currentPage.name,
     survey.pages[0].name,
@@ -4198,7 +4198,7 @@ QUnit.test("test goNextPageAutomatic property for boolean/switch", function (
   );
 });
 QUnit.test(
-  "test goNextPageAutomatic property - 'autogonext' - go next page automatically but do not submit",
+  "test autoAdvanceEnabled property - 'autogonext' - go next page automatically but do not submit",
   function (assert) {
     var survey = twoPageSimplestSurvey();
 
@@ -4207,7 +4207,7 @@ QUnit.test(
     );
     dropDownQ.choices = [1, 2, 3];
     dropDownQ.showOtherItem = true;
-    survey.goNextPageAutomatic = true;
+    survey.autoAdvanceEnabled = true;
     assert.equal(
       survey.currentPage.name,
       survey.pages[0].name,
@@ -4233,19 +4233,19 @@ QUnit.test(
     assert.notEqual(survey.state, "completed", "survey is still running");
   }
 );
-QUnit.test("test goNextPageAutomatic property - 'autogonext' - load from survey", function (assert) {
+QUnit.test("test autoAdvanceEnabled property - 'autogonext' - load from survey", function (assert) {
   const survey = new SurveyModel({
-    goNextPageAutomatic: "autogonext",
+    autoAdvanceEnabled: "autogonext",
     elements: [
       { type: "text", name: "q1" }
     ]
   });
-  assert.equal(survey.goNextPageAutomatic, true, "goNextPageAutomatic set to autogonext on loading correctly");
+  assert.equal(survey.autoAdvanceEnabled, true, "autoAdvanceEnabled set to autogonext on loading correctly");
 });
-QUnit.test("test goNextPageAutomatic after errors", function (assert) {
+QUnit.test("test autoAdvanceEnabled after errors", function (assert) {
   var survey = twoPageSimplestSurvey();
 
-  survey.goNextPageAutomatic = true;
+  survey.autoAdvanceEnabled = true;
   (<Question>survey.getQuestionByName("question2")).isRequired = true;
   assert.equal(
     survey.currentPage.name,
@@ -4266,7 +4266,7 @@ QUnit.test("test goNextPageAutomatic after errors", function (assert) {
     "go to the second page automatically"
   );
 });
-QUnit.test("goNextPageAutomatic: should not work for complex questions like matrix, checkbox, multiple text", function (assert) {
+QUnit.test("autoAdvanceEnabled: should not work for complex questions like matrix, checkbox, multiple text", function (assert) {
   var questions = new Array<any>();
   const checkboxQuestion = new QuestionCheckboxModel("check");
   checkboxQuestion.choices = [1, 2, 3];
@@ -4372,7 +4372,7 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     var survey = new SurveyModel();
     var page = survey.addNewPage("firstpage");
     page.addQuestion(q.question);
-    survey.goNextPageAutomatic = true;
+    survey.autoAdvanceEnabled = true;
     if (q.value) {
       q.question.onMouseDown();
       q.question.value = q.value;
@@ -4381,12 +4381,12 @@ QUnit.test("goNextPageAutomatic: should not work for complex questions like matr
     assert.equal(
       survey.state,
       state,
-      "goNextPageAutomatic is incorrect for question: " + q.question.name
+      "autoAdvanceEnabled is incorrect for question: " + q.question.name
     );
   }
 });
 QUnit.test(
-  "goNextPageAutomatic bug #200: https://github.com/surveyjs/surveyjs/issues/200",
+  "autoAdvanceEnabled bug #200: https://github.com/surveyjs/surveyjs/issues/200",
   function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page1");
@@ -4395,7 +4395,7 @@ QUnit.test(
     q2.choices = [1, 2, 3];
     page = survey.addNewPage("page2");
     page.addNewQuestion("text", "q3");
-    survey.goNextPageAutomatic = true;
+    survey.autoAdvanceEnabled = true;
     (<Question>survey.getQuestionByName("q2")).value = 1;
     assert.equal(
       survey.currentPage.name,
@@ -4406,7 +4406,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "goNextPageAutomatic and clearInvisibleValues bug #252: https://github.com/surveyjs/surveyjs/issues/252",
+  "autoAdvanceEnabled and clearInvisibleValues bug #252: https://github.com/surveyjs/surveyjs/issues/252",
   function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page1");
@@ -4415,13 +4415,13 @@ QUnit.test(
     var q2 = <QuestionDropdownModel>page.addNewQuestion("dropdown", "q2");
     q2.visible = false;
     q2.value = 1;
-    survey.goNextPageAutomatic = true;
+    survey.autoAdvanceEnabled = true;
     survey.clearInvisibleValues = true;
     (<Question>survey.getQuestionByName("q1")).value = 1;
     assert.equal(survey.state, "completed");
   }
 );
-QUnit.test("goNextPageAutomatic and autoAdvanceAllowComplete=false", function (assert) {
+QUnit.test("autoAdvanceEnabled and autoAdvanceAllowComplete=false", function (assert) {
   const emptySurvey = new SurveyModel();
   assert.equal(emptySurvey.autoAdvanceAllowComplete, true, "autoAdvanceAllowComplete value # 1");
   const survey = new SurveyModel({
@@ -4429,7 +4429,7 @@ QUnit.test("goNextPageAutomatic and autoAdvanceAllowComplete=false", function (a
       { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] },
       { elements: [{ type: "dropdown", name: "q2", choices: [1, 2, 3] }] }
     ],
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
     autoAdvanceAllowComplete: false
   });
   assert.equal(survey.autoAdvanceAllowComplete, false, "autoAdvanceAllowComplete value # 2");
@@ -4442,7 +4442,7 @@ QUnit.test("goNextPageAutomatic and autoAdvanceAllowComplete=false", function (a
   assert.equal(survey.currentPageNo, 1, "curPage #2");
 });
 
-QUnit.test("goNextPageAutomatic and checkbox wiht valueName bug #70", function (
+QUnit.test("autoAdvanceEnabled and checkbox wiht valueName bug #70", function (
   assert
 ) {
   var survey = new SurveyModel();
@@ -4450,7 +4450,7 @@ QUnit.test("goNextPageAutomatic and checkbox wiht valueName bug #70", function (
   var q1 = <QuestionDropdownModel>page.addNewQuestion("checkbox", "q1");
   q1.valueName = "v"; //this line produce the issue
   q1.choices = [1, 2, 3];
-  survey.goNextPageAutomatic = true;
+  survey.autoAdvanceEnabled = true;
   (<Question>survey.getQuestionByName("q1")).value = [1];
   assert.notEqual(survey.state, "completed", "it should not be completed");
 });
@@ -8135,7 +8135,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "Quiz, correct, incorrect answers and onIsAnswerCorrect event",
+  "Quiz, correct, incorrect answers and onCheckAnswerCorrect event",
   function (assert) {
     var survey = new SurveyModel();
     var page = survey.addNewPage("page");
@@ -8149,7 +8149,7 @@ QUnit.test(
     assert.equal(q1.correctAnswerCount, 1, "q1.correctAnswerCount, #1");
     assert.equal(survey.getCorrectAnswerCount(), 1, "The answer is correct now, #2");
     let counter = 0;
-    survey.onIsAnswerCorrect.add(function (survey, options) {
+    survey.onCheckAnswerCorrect.add(function (survey, options) {
       counter++;
       const q = options.question;
       options.result = Helpers.isTwoValueEquals(q.value, q.correctAnswer, false);
@@ -8163,7 +8163,7 @@ QUnit.test(
     assert.equal(counter, 3, "counter #3");
   }
 );
-QUnit.test("Quiz, correct, incorrect answers and onIsAnswerCorrect event", function (assert) {
+QUnit.test("Quiz, correct, incorrect answers and onCheckAnswerCorrect event", function (assert) {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -8181,7 +8181,7 @@ QUnit.test("Quiz, correct, incorrect answers and onIsAnswerCorrect event", funct
   settings.comparator.caseSensitive = false;
 });
 QUnit.test(
-  "Quiz, correct, incorrect answers and onIsAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606",
+  "Quiz, correct, incorrect answers and onCheckAnswerCorrect event for matrix, https://surveyjs.answerdesk.io/ticket/details/T2606",
   function (assert) {
     var survey = new SurveyModel({
       elements: [
@@ -8211,7 +8211,7 @@ QUnit.test(
     assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
   }
 );
-QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (assert) {
+QUnit.test("question.isCorrectAnswer() and onCheckAnswerCorrect event", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1", correctAnswer: 1 },
@@ -8219,7 +8219,7 @@ QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (a
     ]
   });
   let counter = 0;
-  survey.onIsAnswerCorrect.add((sender, options) => {
+  survey.onCheckAnswerCorrect.add((sender, options) => {
     counter++;
     const q = options.question;
     options.result = Math.abs(q.value - q.correctAnswer) < 2;
@@ -8751,7 +8751,7 @@ QUnit.test("Do not add invisible Panel Dynamic to the data, Bug#1258", function 
   assert.equal(JSON.stringify(survey.data), "{}", "Panel Dynamic is invisible");
 });
 
-QUnit.test("Compete trigger and goNextPageAutomatic option", function (assert) {
+QUnit.test("Compete trigger and autoAdvanceEnabled option", function (assert) {
   var json = {
     pages: [
       {
@@ -8782,7 +8782,7 @@ QUnit.test("Compete trigger and goNextPageAutomatic option", function (assert) {
         expression: "{exp1} = true",
       },
     ],
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   };
   var survey = new SurveyModel(json);
   var expressionQuestion = new QuestionExpressionModel("exp1");
@@ -8949,7 +8949,7 @@ QUnit.test("Compete trigger and allowComplete false, Bug #3184", function (
   assert.equal(survey.currentPageNo, 1, "go next page");
 });
 
-QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
+QUnit.test("textUpdateMode=onTyping and autoAdvanceEnabled option", function (
   assert
 ) {
   var json = {
@@ -8972,7 +8972,7 @@ QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
       },
     ],
     textUpdateMode: "onTyping",
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   };
   var survey = new SurveyModel(json);
   var question = survey.getQuestionByName("q1");
@@ -11451,7 +11451,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
+QUnit.test("Test onValidatePage event", function (assert) {
   var json = {
     pages: [
       {
@@ -11477,7 +11477,7 @@ QUnit.test("Test onValidatedErrorsOnCurrentPage event", function (assert) {
   var counter = 0;
   var errors: any = null;
   var questions: any = null;
-  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+  survey.onValidatePage.add(function (sender, options) {
     counter++;
     errors = options.errors;
     questions = options.questions;
@@ -11543,12 +11543,12 @@ QUnit.test("Server validation - do no fire onValidatedErrorsOnCurrentPage  on ch
     assert.equal(counter, 2, "Do complete again");
   }
 );
-QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question errors, Bug#9331", function (assert) {
+QUnit.test("onValidatePage doesn't include internal question errors, Bug#9331", function (assert) {
   const survey = new SurveyModel({ "elements": [{ name: "name", type: "matrixdynamic", columns: [{ name: "col1", cellType: "text", isRequired: true }], rowCount: 2 }] });
   let counter = 0;
   let errorCount = 0;
   let questionCount = 0;
-  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+  survey.onValidatePage.add(function (sender, options) {
     errorCount = options.errors.length;
     questionCount = options.questions.length;
     counter++;
@@ -11559,7 +11559,7 @@ QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question err
   assert.equal(errorCount, 2, "options.errors.length");
   assert.equal(questionCount, 2, "options.questions.length");
 });
-QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question errors, Bug#9565", function (assert) {
+QUnit.test("onValidatePage doesn't include internal question errors, Bug#9565", function (assert) {
   const survey = new SurveyModel({ "elements": [{
     name: "q1",
     type: "multipletext",
@@ -11568,7 +11568,7 @@ QUnit.test("onValidatedErrorsOnCurrentPage doesn't include internal question err
   let counter = 0;
   let errorCount = 0;
   let questions = undefined;
-  survey.onValidatedErrorsOnCurrentPage.add(function (sender, options) {
+  survey.onValidatePage.add(function (sender, options) {
     errorCount = options.errors.length;
     questions = options.questions;
     counter++;
@@ -16374,7 +16374,7 @@ QUnit.test("firstPageIsStartPage = true and invisible questions and clear", func
 QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (assert) {
   const survey = new SurveyModel({
     firstPageIsStartPage: true,
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
     showProgressBar: "bottom",
     showTimerPanel: "top",
     timeLimitPerPage: 10,
@@ -17884,7 +17884,7 @@ QUnit.test("scrolling to page top after current page changed", function (assert)
     ]
   });
   let scrollCount = 0;
-  survey.onScrollingElementToTop.add((s, o) => {
+  survey.onScrollToTop.add((s, o) => {
     scrollCount++;
   });
 
@@ -20238,7 +20238,7 @@ QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPa
   assert.equal(q2_2.visible, true, "q2_2.visible");
 });
 
-QUnit.test("goNextPageAutomatic & questionsOnPageMode=questionPerPage is used #9315", function (assert) {
+QUnit.test("autoAdvanceEnabled & questionsOnPageMode=questionPerPage is used #9315", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "dropdown", name: "q1", choices: ["A", "B"] },
@@ -20246,7 +20246,7 @@ QUnit.test("goNextPageAutomatic & questionsOnPageMode=questionPerPage is used #9
       { type: "dropdown", name: "q3", choices: ["A", "B"] }
     ],
     questionsOnPageMode: "questionPerPage",
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   });
   assert.equal(survey.currentSingleQuestion.name, "q1", "survey.currentSingleQuestion.name #1");
   survey.setValue("q1", "A");
@@ -21220,7 +21220,7 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
   survey.data = { q1: 1 };
   let progressCounter = 0;
   let visibleChangedCounter = 0;
-  survey.onProgressText.add((sender, options) => {
+  survey.onGetProgressText.add((sender, options) => {
     progressCounter++;
   });
   survey.onQuestionVisibleChanged.add((sender, options) => {
@@ -22127,7 +22127,7 @@ QUnit.test("Reduce the number of calls of setVisibleIndexes function", function 
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   let counter = 0;
-  survey.onProgressText.add((sender, options) => {
+  survey.onGetProgressText.add((sender, options) => {
     counter++;
   });
   survey.fromJSON({

@@ -16,7 +16,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 1600);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "logoPosition": "right",
 //         "showQuestionNumbers": "off",
 //         "pages": [
@@ -89,7 +89,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 1600);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "logoPosition": "right",
 //         "showQuestionNumbers": "off",
 //         "elements": [{
@@ -154,7 +154,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 2000);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "logoPosition": "right",
 //         "showQuestionNumbers": "off",
 //         "elements": [
@@ -241,7 +241,7 @@
 //       await t.resizeWindow(800, 1600);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "logoPosition": "right",
 //         "pages": [
 //           {
@@ -521,7 +521,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",

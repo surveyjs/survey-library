@@ -3073,7 +3073,7 @@ QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(a
   panel1.getQuestionByName("q2").value = "other";
   panel1.getQuestionByName("q2").otherValue = "comment2";
   let counter = 0;
-  survey.onDynamicPanelItemValueChanged.add((sender, options) => {
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
     counter ++;
   });
   question.addPanel();
@@ -3396,7 +3396,7 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var changedValue = null;
-    survey.onDynamicPanelItemValueChanged.add(function(sender, options) {
+    survey.onDynamicPanelValueChanged.add(function(sender, options) {
       if (options.name != "q1") return;
       var q2 = options.panel.getQuestionByName("q2");
       q2.value = [1, 2, 3];
@@ -4529,7 +4529,7 @@ QUnit.test("Avoid stack-overflow", function(assert) {
       },
     ],
   });
-  survey.onDynamicPanelItemValueChanged.add((sender, options) => {
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
     if (options.name == "q1") {
       options.panel.getQuestionByName("q2").value = "2";
     }

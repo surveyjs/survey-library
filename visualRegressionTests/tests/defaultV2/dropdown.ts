@@ -95,7 +95,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -182,7 +182,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -434,7 +434,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: false,
+//         autoFocusFirstQuestion: false,
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -570,7 +570,7 @@
 
 //     const jsonWithDropDown = {
 //       showQuestionNumbers: "on",
-//       focusFirstQuestionAutomatic: true,
+//       autoFocusFirstQuestion: true,
 //       questions: [
 //         {
 //           type: "dropdown",

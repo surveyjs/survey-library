@@ -59,7 +59,7 @@
 //         "showQuestionNumbers": "off",
 //         "widthMode": "static",
 //         "width": "720px",
-//         focusFirstQuestionAutomatic: false
+//         autoFocusFirstQuestion: false
 //       });
 
 //       const questionRoot = Selector(".sd-row");
@@ -81,7 +81,7 @@
 //       await t.resizeWindow(1200, 1200);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         "focusFirstQuestionAutomatic": true,
+//         "autoFocusFirstQuestion": true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -133,7 +133,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1200, 1200);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -302,7 +302,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1200, 1200);
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -476,7 +476,7 @@
 //         "showQuestionNumbers": "off",
 //         "widthMode": "static",
 //         "width": "720px",
-//         focusFirstQuestionAutomatic: false
+//         autoFocusFirstQuestion: false
 //       });
 
 //       const questionRoot = Selector(".sd-row");
@@ -550,7 +550,7 @@
 //         "showQuestionNumbers": "off",
 //         "widthMode": "static",
 //         "width": "720px",
-//         focusFirstQuestionAutomatic: false
+//         autoFocusFirstQuestion: false
 //       });
 
 //       const questionRoot = Selector(".sd-row");
@@ -601,7 +601,7 @@
 //         "showQuestionNumbers": "off",
 //         "widthMode": "static",
 //         "width": "720px",
-//         focusFirstQuestionAutomatic: false
+//         autoFocusFirstQuestion: false
 //       });
 
 //       const questionRoot = Selector(".sd-row");
@@ -679,7 +679,7 @@
 //         "showQuestionNumbers": "off",
 //         "widthMode": "static",
 //         "width": "720px",
-//         focusFirstQuestionAutomatic: false
+//         autoFocusFirstQuestion: false
 //       });
 
 //       const questionRoot = Selector(".sd-row");
@@ -754,7 +754,7 @@
 //         "showQuestionNumbers": "off",
 //         "widthMode": "static",
 //         "width": "728px",
-//         focusFirstQuestionAutomatic: false
+//         autoFocusFirstQuestion: false
 //       });
 
 //       const questionRoot = Selector(".sd-row");
@@ -779,7 +779,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -891,7 +891,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -958,7 +958,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -996,7 +996,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -1045,7 +1045,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -1096,7 +1096,7 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         "logoPosition": "right",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -1126,7 +1126,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -1156,7 +1156,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "elements": [
 //           {
 //             "type": "matrixdropdown",
@@ -1189,7 +1189,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "elements": [
 //           {
 //             "type": "matrixdropdown",
@@ -1320,7 +1320,7 @@
 //           }
 //         ],
 //         "questionsOnPageMode": "singlePage",
-//         "focusFirstQuestionAutomatic": false,
+//         "autoFocusFirstQuestion": false,
 //         "widthMode": "static"
 //       });
 //       //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
@@ -1516,7 +1516,7 @@
 //         "cookieName": "1000",
 //         "widthMode": "static",
 //         "width": "1000",
-//         "focusFirstQuestionAutomatic": true
+//         "autoFocusFirstQuestion": true
 //       });
 //       await takeElementScreenshot("matrix-focus-frame-in-one-line.png", Selector(".sd-row"), t, comparer);
 //     });

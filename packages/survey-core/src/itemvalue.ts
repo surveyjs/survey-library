@@ -267,7 +267,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.onLocOwnerChanged();
   }
   protected onLocOwnerChanged(): void {}
-  public onItemSelected(): void {}
   public get value(): any {
     return this.getPropertyValue("value");
   }

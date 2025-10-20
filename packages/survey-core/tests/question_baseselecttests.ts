@@ -4075,7 +4075,7 @@ QUnit.test("choice item & dispose, Issue#10384", (assert) => {
   assert.equal(item2.panel.isDisposed, true, "item2 panel is disposed");
   assert.notOk(item3.isPanelCreated, "item3 panel is not here");
 });
-QUnit.test("choice item elements & survey.data, Issue#10384", (assert) => {
+QUnit.test("choice item elements & survey.data, Issue#10384, Bug#10506", (assert) => {
   const survey = new SurveyModel({
     "elements": [
       {
@@ -4101,6 +4101,45 @@ QUnit.test("choice item elements & survey.data, Issue#10384", (assert) => {
   assert.equal(q2.value, "item1", "q2.value is correct");
   assert.equal(q2_1.value, "abc", "q2_1.value is correct");
   assert.equal(q1_2.value, "edf", "q1_2.value is correct");
+  const panel1 = q1.choices[0].panel;
+  assert.equal(panel1.wasRendered, true, "panel1 is was rendered");
+  assert.equal(panel1.rows.length, 1, "panel1 has one row");
+  const panel2 = q2.choices[0].panel;
+  assert.equal(panel2.wasRendered, true, "panel2 is was rendered");
+  assert.equal(panel2.rows.length, 1, "panel2 has one row");
+});
+QUnit.test("choice item elements & defaultValue, Issue#10506", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "defaultValue": ["item1", "item2"],
+        "choices": [
+          { value: "item1", elements: [
+            { type: "radiogroup", name: "q2", defaultValue: "item1", choices: [
+              { value: "item1", elements: [{ type: "text", name: "q2_1", defaultValue: "abc" }] }, { value: "item2" }
+            ] }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2", defaultValue: "edf" }] },
+          "item3"
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  const q2_1 = survey.getQuestionByName("q2_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  assert.deepEqual(q1.value, ["item1", "item2"], "q1.value is correct");
+  assert.equal(q2.value, "item1", "q2.value is correct");
+  assert.equal(q2_1.value, "abc", "q2_1.value is correct");
+  assert.equal(q1_2.value, "edf", "q1_2.value is correct");
+  const panel1 = q1.choices[0].panel;
+  assert.equal(panel1.wasRendered, true, "panel1 is was rendered");
+  assert.equal(panel1.rows.length, 1, "panel1 has one row");
+  const panel2 = q2.choices[0].panel;
+  assert.equal(panel2.wasRendered, true, "panel2 is was rendered");
+  assert.equal(panel2.rows.length, 1, "panel2 has one row");
 });
 QUnit.test("choice item elements & item.expandPanelAtDesign, Issue#10384", (assert) => {
   const survey = new SurveyModel({

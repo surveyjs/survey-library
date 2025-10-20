@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Check oridinary panel", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         width: "900px",
         elements: [
@@ -46,7 +46,7 @@ frameworks.forEach(framework => {
     test("Check panel with elements in one line", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -86,7 +86,7 @@ frameworks.forEach(framework => {
     test("Check panel expand/collapse", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -127,7 +127,7 @@ frameworks.forEach(framework => {
 
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -158,7 +158,7 @@ frameworks.forEach(framework => {
     test("Check invisible panel when showInvisibleElements: true", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -194,7 +194,7 @@ frameworks.forEach(framework => {
     test("Check panel in row", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             type: "html",
@@ -206,7 +206,7 @@ frameworks.forEach(framework => {
           {
             type: "panel",
             name: "name",
-            showQuestionNumbers: "off",
+            showQuestionNumbers: false,
             startWithNewLine: false,
             elements: [
               {
@@ -229,7 +229,7 @@ frameworks.forEach(framework => {
     test("Check panel with actions", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page0",
@@ -273,7 +273,7 @@ frameworks.forEach(framework => {
     test("Check preview mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             type: "text",
@@ -425,7 +425,7 @@ frameworks.forEach(framework => {
     test("Two panels - one row, small screen", async ({ page }) => {
       await page.setViewportSize({ width: 722, height: 1000 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "panel",
@@ -458,7 +458,7 @@ frameworks.forEach(framework => {
     test("Check panel with errors above", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -495,7 +495,7 @@ frameworks.forEach(framework => {
     test("Check panel with errors and question title location left", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -534,7 +534,7 @@ frameworks.forEach(framework => {
     test("Check panel with errors below", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         questionErrorLocation: "bottom",
         elements: [
@@ -572,7 +572,7 @@ frameworks.forEach(framework => {
     test("Check panel with number", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -602,7 +602,7 @@ frameworks.forEach(framework => {
     test("Check panel with singlePage mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         questionsOnPageMode: "singlePage",
         pages: [
           {
@@ -631,7 +631,7 @@ frameworks.forEach(framework => {
     test("Check panel with singlePage mode - one line", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         questionsOnPageMode: "singlePage",
         pages: [
           {
@@ -662,7 +662,7 @@ frameworks.forEach(framework => {
     test("Check multiple panels with singlePage mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         questionsOnPageMode: "singlePage",
         pages: [
           {
@@ -697,7 +697,7 @@ frameworks.forEach(framework => {
     test("Check inner panel with singlePage mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         questionsOnPageMode: "singlePage",
         pages: [
           {
@@ -730,7 +730,7 @@ frameworks.forEach(framework => {
     test("Check collapsed questions inside panel", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             "type": "panel",
@@ -761,7 +761,7 @@ frameworks.forEach(framework => {
     test("Check panel with errors", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             "type": "panel",
@@ -782,7 +782,7 @@ frameworks.forEach(framework => {
     test("Check panel with errors without title", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             "type": "panel",
@@ -801,7 +801,7 @@ frameworks.forEach(framework => {
     test("Check question min size inside panels in design mode", async ({ page }) => {
       await page.setViewportSize({ width: 370, height: 800 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -847,7 +847,7 @@ frameworks.forEach(framework => {
     test("Scroll into view if needed on expanding panel", async ({ page }) => {
       await page.setViewportSize({ width: 400, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         showNavigationButtons: false,
         width: "500px",
         elements: [

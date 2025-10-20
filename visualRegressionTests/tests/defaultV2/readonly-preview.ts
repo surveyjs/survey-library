@@ -14,7 +14,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "radiogroup",
@@ -39,7 +39,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "name": "username",
@@ -63,7 +63,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "name": "username",
@@ -87,7 +87,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "multipletext",
@@ -122,7 +122,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "rating",
@@ -151,7 +151,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "rating",
@@ -181,7 +181,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "rating",
@@ -210,7 +210,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "rating",
@@ -239,7 +239,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "rating",
@@ -267,7 +267,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
 //         widthMode: "static",
@@ -317,7 +317,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "dropdown",
@@ -346,7 +346,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "tagbox",
@@ -378,7 +378,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "checkbox",
@@ -403,7 +403,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "signaturepad",
@@ -504,7 +504,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "ranking",
@@ -529,7 +529,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "boolean",
@@ -555,7 +555,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "boolean",
@@ -580,7 +580,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "boolean",
@@ -607,7 +607,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "boolean",
@@ -637,7 +637,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "imagepicker",
@@ -675,7 +675,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "matrix",
@@ -712,7 +712,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "matrix",
@@ -750,7 +750,7 @@
 //       await initSurvey(framework, {
 //         showPreviewBeforeComplete: true,
 //         previewMode: "answeredQuestions",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "file",

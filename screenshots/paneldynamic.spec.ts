@@ -4,7 +4,7 @@ import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from
 const title = "Paneldynamic Screenshot";
 
 var json = {
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   width: "900px",
   elements: [
     {
@@ -107,7 +107,7 @@ frameworks.forEach(framework => {
 
     test("Two Paneldynamics in one row", async ({ page }) => {
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "panel",
@@ -148,7 +148,7 @@ frameworks.forEach(framework => {
 
     test("Navigation panel by tabs", async ({ page }) => {
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "pages": [
           {
@@ -265,7 +265,7 @@ frameworks.forEach(framework => {
 
     test("Paneldynamic without buttons", async ({ page }) => {
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "pages": [
           {
@@ -364,7 +364,7 @@ frameworks.forEach(framework => {
 
     test("Paneldynamic confirm dialog", async ({ page }) => {
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "autoFocusFirstQuestion": true,
         "pages": [
           {
@@ -402,7 +402,7 @@ frameworks.forEach(framework => {
     test("tab focused state for panel dynamic", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 900 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",

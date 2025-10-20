@@ -15,7 +15,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         questions: [
 //           {
@@ -84,7 +84,7 @@
 //         document.body.setAttribute("dir", "rtl");
 //       })();
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         questions: [
 //           {
@@ -101,7 +101,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         questions: [
 //           {
 //             type: "text",
@@ -123,7 +123,7 @@
 //   });
 
 //   const panelDynamicJSON = {
-//     showQuestionNumbers: "off",
+//     showQuestionNumbers: false,
 //     questions: [
 //       {
 //         type: "paneldynamic",
@@ -183,7 +183,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrix",
@@ -213,7 +213,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrix",
@@ -244,7 +244,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -302,7 +302,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -340,7 +340,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questionErrorLocation: "bottom",
 //         elements: [
 //           {
@@ -379,7 +379,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdropdown",
@@ -418,7 +418,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "multipletext",
@@ -457,7 +457,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "multipletext",
@@ -494,7 +494,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "checkbox",
@@ -514,7 +514,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         "widthMode": "static",
 //         "width": "60%",
 //         questions: [
@@ -560,7 +560,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         questions: [
 //           {
 //             type: "image",
@@ -580,7 +580,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -601,7 +601,7 @@
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework,
 //         {
-//           showQuestionNumbers: "on",
+//           showQuestionNumbers: true,
 //           autoFocusFirstQuestion: true,
 //           description: "Survey Description",
 //           title: "Title",
@@ -661,7 +661,7 @@
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
-//           showQuestionNumbers: "off",
+//           showQuestionNumbers: false,
 //           elements: [{
 //             "type": "matrixdynamic",
 //             "name": "question1",
@@ -714,7 +714,7 @@
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
-//           showQuestionNumbers: "off",
+//           showQuestionNumbers: false,
 //           elements: [{
 //             "type": "matrixdropdown",
 //             "name": "question1",
@@ -768,7 +768,7 @@
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
-//           showQuestionNumbers: "off",
+//           showQuestionNumbers: false,
 //           elements: [{
 //             "type": "matrixdropdown",
 //             "name": "question1",
@@ -804,7 +804,7 @@
 //       await t.resizeWindow(600, 1920);
 //       await initSurvey(framework,
 //         {
-//           showQuestionNumbers: "on",
+//           showQuestionNumbers: true,
 //           "pages": [
 //             {
 //               "name": "page1",
@@ -852,7 +852,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrixdynamic", "name": "question1",

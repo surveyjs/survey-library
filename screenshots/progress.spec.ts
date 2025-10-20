@@ -15,7 +15,7 @@ const testedPages = [{
 }];
 
 const json = {
-  showQuestionNumbers: "on",
+  showQuestionNumbers: true,
   autoFocusFirstQuestion: true,
   "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
   "pages": [{
@@ -215,7 +215,7 @@ frameworks.forEach(framework => {
     test("Check survey without title and with progress", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         pages: testedPages,
         showProgressBar: true,
@@ -229,7 +229,7 @@ frameworks.forEach(framework => {
     test("Check survey without title and progress", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         pages: testedPages
       });
@@ -241,7 +241,7 @@ frameworks.forEach(framework => {
     test("Check survey with title and without progress", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Test",
         pages: testedPages
@@ -257,7 +257,7 @@ frameworks.forEach(framework => {
         "title": "American History",
         "showProgressBar": true,
         "progressBarLocation": "top",
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "elements": [
@@ -441,7 +441,7 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress top pages - sticky", async ({ page }) => {
       const surveyJson = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         title: "Survey Title",
         showProgressBar: true,
         progressBarLocation: "top",
@@ -484,7 +484,7 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress top questions - sticky", async ({ page }) => {
       const surveyJson = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         title: "Survey Title",
         showProgressBar: true,
         progressBarLocation: "top",
@@ -528,7 +528,7 @@ frameworks.forEach(framework => {
     test("Check progress top buttons sticky has background", async ({ page }) => {
       await page.setViewportSize({ width: 1400, height: 800 });
       const surveyJson = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         title: "Sample Survey",
         logoPosition: "right",
         pages: [

@@ -1031,7 +1031,7 @@ var json = {
 };
 
 json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",

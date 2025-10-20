@@ -80,7 +80,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1200, 1200);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "autoFocusFirstQuestion": true,
 //         "pages": [
 //           {
@@ -255,7 +255,7 @@
 //       await t.resizeWindow(1200, 1200);
 //       await initSurvey(framework,
 //         {
-//           showQuestionNumbers: "on",
+//           showQuestionNumbers: true,
 //           pages: [
 //             {
 //               name: "page1",
@@ -777,7 +777,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
@@ -825,7 +825,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -861,7 +861,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -889,7 +889,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
@@ -956,7 +956,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
@@ -994,7 +994,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
@@ -1043,7 +1043,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
@@ -1094,7 +1094,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
@@ -1125,7 +1125,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "autoFocusFirstQuestion": false,
 //         "pages": [
 //           {
@@ -1155,7 +1155,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         "elements": [
 //           {
@@ -1188,7 +1188,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         "elements": [
 //           {
@@ -1228,7 +1228,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -1278,7 +1278,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -1378,7 +1378,7 @@
 //     await t.resizeWindow(600, 1080);
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         elements: [
 //           {
 //             "type": "matrixdropdown",
@@ -1429,7 +1429,7 @@
 //     await t.resizeWindow(1200, 1080);
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",

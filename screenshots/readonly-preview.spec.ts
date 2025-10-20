@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "radiogroup",
@@ -38,7 +38,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "name": "username",
@@ -61,7 +61,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "name": "username",
@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "multipletext",
@@ -118,7 +118,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "rating",
@@ -146,7 +146,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "rating",
@@ -175,7 +175,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "rating",
@@ -204,7 +204,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "rating",
@@ -233,7 +233,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "rating",
@@ -261,7 +261,7 @@ frameworks.forEach(framework => {
     test("Rating Smileys and Stars in matrix ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
         widthMode: "static",
@@ -309,7 +309,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "dropdown",
@@ -333,7 +333,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "tagbox",
@@ -357,7 +357,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "checkbox",
@@ -381,7 +381,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "signaturepad",
@@ -480,7 +480,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "ranking",
@@ -503,7 +503,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "boolean",
@@ -527,7 +527,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "boolean",
@@ -551,7 +551,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "boolean",
@@ -576,7 +576,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "boolean",
@@ -604,7 +604,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "imagepicker",
@@ -640,7 +640,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "matrix",
@@ -670,7 +670,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "matrix",
@@ -701,7 +701,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, {
         showPreviewBeforeComplete: true,
         previewMode: "answeredQuestions",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "file",

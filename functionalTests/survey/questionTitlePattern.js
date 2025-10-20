@@ -3,7 +3,7 @@
 // const title = "questionTitlePattern";
 
 // const json = {
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   questionStartIndex: "# 1.",
 //   requiredMark: "(*)",
 //   elements: [

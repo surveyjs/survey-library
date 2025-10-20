@@ -8,7 +8,7 @@
 // });
 
 // const json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   width: "900px",
 //   questions: [
 //     {

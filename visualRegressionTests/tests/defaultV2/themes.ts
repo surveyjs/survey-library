@@ -240,7 +240,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 1600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         "logoPosition": "right",
 //         "pages": [
@@ -292,7 +292,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 1600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "elements": [
 //           {
 //             "type": "dropdown",
@@ -323,7 +323,7 @@
 //   });
 
 //   const jsonWithInputs = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     "logoPosition": "right",
 //     "pages": [
 //       {
@@ -475,7 +475,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 3000);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -519,7 +519,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "autoFocusFirstQuestion": false,
 //         "pages": [

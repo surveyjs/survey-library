@@ -52,7 +52,7 @@
 // const json = {
 //   title: "Software developer survey.",
 //   headerView: "basic",
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   pages: [
 //     {
 //       title: "What operating system do you use?",

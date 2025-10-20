@@ -5,7 +5,7 @@
 // const title = "File Screenshot";
 
 // const json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   width: "900px",
 //   questions: [{
 //     type: "file",
@@ -230,7 +230,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1000);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [{
 //           type: "file",
 //           title: "Upload everything what you'd like to.",
@@ -246,7 +246,7 @@
 //   test("Check file question different width", async t => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         widthMode: "responsive",
 //         questions: [
 //           {
@@ -302,7 +302,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1980, 1000);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         widthMode: "900px",
 //         questions: [{
 //           type: "file",

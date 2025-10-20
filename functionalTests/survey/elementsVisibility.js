@@ -3,7 +3,7 @@
 // const title = "Elements Visibility";
 
 // const json = {
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   pages: [
 //     {
 //       elements: [

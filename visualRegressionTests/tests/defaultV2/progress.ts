@@ -15,7 +15,7 @@
 // }];
 
 // const json = {
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   autoFocusFirstQuestion: true,
 //   "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
 //   "pages": [{
@@ -214,7 +214,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         pages: testedPages,
 //         showProgressBar: true,
@@ -228,7 +228,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         pages: testedPages
 //       });
@@ -240,7 +240,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         autoFocusFirstQuestion: true,
 //         title: "Test",
 //         pages: testedPages
@@ -257,7 +257,7 @@
 //           "title": "American History",
 //           "showProgressBar": true,
 //           "progressBarLocation": "top",
-//           showQuestionNumbers: "on",
+//           showQuestionNumbers: true,
 //           "pages": [
 //             {
 //               "elements": [
@@ -436,7 +436,7 @@
 //   test("Check survey with progress top pages - sticky", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         title: "Survey Title",
 //         showProgressBar: true,
 //         progressBarLocation: "top",
@@ -472,7 +472,7 @@
 //   test("Check survey with progress top questions - sticky", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         title: "Survey Title",
 //         showProgressBar: true,
 //         progressBarLocation: "top",
@@ -509,7 +509,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1400, 800);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "title": "Sample Survey",
 //         "logoPosition": "right",
 //         "pages": [

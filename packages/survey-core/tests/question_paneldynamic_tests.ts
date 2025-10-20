@@ -8049,7 +8049,7 @@ QUnit.test("Do not serialize renderMode & showProgressBar", function (assert) {
 });
 QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "question1" },
       { type: "paneldynamic", name: "panel1",
@@ -8064,7 +8064,7 @@ QUnit.test("A Dynamic Panel question number is updated when adding a new panel B
 });
 QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.1", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "paneldynamic", name: "panel1", showNumber: false,

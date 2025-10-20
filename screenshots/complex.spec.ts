@@ -4,7 +4,7 @@ import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from
 const title = "Complex Screenshot";
 
 const json = {
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   width: "900px",
   elements: [
     {

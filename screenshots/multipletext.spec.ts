@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Check multipletext question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -40,7 +40,7 @@ frameworks.forEach(framework => {
     test("Check multipletext question error", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         widthMode: "responsive",
         elements: [
           {
@@ -72,7 +72,7 @@ frameworks.forEach(framework => {
     test("Check multipletext itemTitleWidth", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {

@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
       // Skip initSurvey and wrapVisualTest parts
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "checkbox",
@@ -45,7 +45,7 @@ frameworks.forEach(framework => {
     test("Check checkbox state", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "checkbox",
@@ -73,7 +73,7 @@ frameworks.forEach(framework => {
     test("Check radiogroup question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "radiogroup",
@@ -116,7 +116,7 @@ frameworks.forEach(framework => {
     test("Check radiogroup state", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "radiogroup",
@@ -144,7 +144,7 @@ frameworks.forEach(framework => {
     test("Check checkbox with comment long area", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -175,7 +175,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys scale colored question themes", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "pages": [
           {

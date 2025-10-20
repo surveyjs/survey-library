@@ -6,7 +6,7 @@
 // fixture`${title}`.page`${url}`;
 
 // const json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   questions: [
 //     {
 //       name: "often",
@@ -326,7 +326,7 @@
 //       await initSurvey(framework, json, {
 //         onGetQuestionTitleActions: (_, opt) => {
 //           const json = {
-//             showQuestionNumbers: "on",
+//             showQuestionNumbers: true,
 //             elements: [
 //               {
 //                 type: "dropdown",
@@ -394,7 +394,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1000, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",

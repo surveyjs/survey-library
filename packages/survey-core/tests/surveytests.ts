@@ -3745,7 +3745,7 @@ QUnit.test(
   "question.no/queston.visibleIndex and hideNo/hideTitle options",
   function (assert) {
     var survey = new SurveyModel({
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       elements: [
         { type: "text", name: "q1" },
         { type: "text", name: "q2" },
@@ -5136,7 +5136,7 @@ QUnit.test("visibleIf and page rows", function (assert) {
     questionTitleTemplate: "{title} {require}:",
     requiredMark: "(*)",
     partialSendEnabled: true,
-    showQuestionNumbers: "off",
+    showQuestionNumbers: false,
   });
   var page = survey.currentPage;
   assert.equal(page.rows.length, 5);
@@ -7288,7 +7288,7 @@ QUnit.test(
   "Survey.isSinglePage = true, question.visibleIndex set incorrectly, bug#925",
   function (assert) {
     var json = {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       pages: [
         {
           elements: [
@@ -13633,7 +13633,7 @@ QUnit.test(
   "Question showNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form",
   function (assert) {
     var survey = new SurveyModel({
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       elements: [
         {
           type: "panel",
@@ -18873,7 +18873,7 @@ QUnit.test("setStructuredData function", function (assert) {
 
 QUnit.test("check titleNumInline cssClass", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     questionStartIndex: "1.1.1",
     elements: [{
       type: "panel",

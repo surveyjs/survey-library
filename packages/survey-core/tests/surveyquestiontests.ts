@@ -8370,7 +8370,7 @@ QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
 });
 QUnit.test("Show parent number in the question Bug#8813, #1", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -8399,7 +8399,7 @@ QUnit.test("Show parent number in the question Bug#8813, #1", function (assert) 
 });
 QUnit.test("Show parent number in the question #8813, #2", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       {
@@ -8432,7 +8432,7 @@ QUnit.test("Show parent number in the question #8813, #2", function (assert) {
 });
 QUnit.test("Show parent number in the question #8813, #3", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       {

@@ -420,7 +420,7 @@ QUnit.test("Composite: content questions numbering", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },
@@ -483,7 +483,7 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
     },
   });
   var survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },

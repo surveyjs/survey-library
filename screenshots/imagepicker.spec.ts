@@ -14,7 +14,7 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 1920, height: 1500 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         widthMode: "static",
         elements: [
           {
@@ -51,7 +51,7 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 1920, height: 1500 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         widthMode: "responsive",
         elements: [
           {
@@ -92,7 +92,7 @@ frameworks.forEach(framework => {
       await setRowItemFlowDirection(page);
       await page.setViewportSize({ width: 1920, height: 1500 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         widthMode: "responsive",
         elements: [
           {
@@ -131,7 +131,7 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "imagepicker",
@@ -159,7 +159,7 @@ frameworks.forEach(framework => {
       await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             "type": "imagepicker",

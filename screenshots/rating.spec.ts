@@ -10,7 +10,7 @@ frameworks.forEach(framework => {
     test("Check rating question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -38,7 +38,7 @@ frameworks.forEach(framework => {
     test.skip("Check rating disabled question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -62,7 +62,7 @@ frameworks.forEach(framework => {
     test("Check rating question with many items", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -83,7 +83,7 @@ frameworks.forEach(framework => {
     test("Check rating question as dropdown", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -110,7 +110,7 @@ frameworks.forEach(framework => {
     test("Check rating question - long items", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -142,7 +142,7 @@ frameworks.forEach(framework => {
     test("Check rating question - long items, button mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "pages": [
           {
@@ -177,7 +177,7 @@ frameworks.forEach(framework => {
     test("Check big rating in panel", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "panel",
@@ -198,7 +198,7 @@ frameworks.forEach(framework => {
     test("Check big rating in matrix", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         locale: "de",
         pages: [{
           name: "page1", elements: [
@@ -242,7 +242,7 @@ frameworks.forEach(framework => {
       });
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -277,7 +277,7 @@ frameworks.forEach(framework => {
     test.skip("Check rating stars disabled question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -305,7 +305,7 @@ frameworks.forEach(framework => {
         document.body.style.setProperty("--base-unit", "4px");
       });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -329,7 +329,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -365,7 +365,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys rate colored question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -399,7 +399,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys scale colored question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -434,7 +434,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys scale colored question themes", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -471,7 +471,7 @@ frameworks.forEach(framework => {
     test("Check rating inner shadow", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [{ type: "rating", name: "q1" }]
       });
@@ -492,7 +492,7 @@ frameworks.forEach(framework => {
     test.skip("Check rating smileys disabled question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -517,7 +517,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys error question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -564,7 +564,7 @@ frameworks.forEach(framework => {
     test("Check rating smileys and stars in matrix", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         widthMode: "static",
         elements: [
           {
@@ -621,7 +621,7 @@ frameworks.forEach(framework => {
     test("Check rating rate descriptions position", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {

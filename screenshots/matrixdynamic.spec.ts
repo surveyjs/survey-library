@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Matrixdynamic empty placeholder", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -63,7 +63,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic vertical", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "matrixdynamic",
@@ -113,7 +113,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic errors inside cells", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -153,7 +153,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         questionErrorLocation: "bottom",
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         width: "900px",
         elements: [
           {
@@ -192,7 +192,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic with allowRowReorder", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [{
           "name": "page1",
           "elements": [{
@@ -228,7 +228,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic with allowRowReorder & lockedRowCount=1", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [{
           type: "matrixdynamic",
           name: "question1",
@@ -254,7 +254,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic delete confirm dialog", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -325,7 +325,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdynamic with totals", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "matrixdynamic",
@@ -350,7 +350,7 @@ frameworks.forEach(framework => {
     test("Check Matrixdropdown with totals", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "matrixdropdown",
@@ -395,7 +395,7 @@ frameworks.forEach(framework => {
     test("Check MatrixDynamic totals alignment", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         pages: [
           {
             name: "page1",

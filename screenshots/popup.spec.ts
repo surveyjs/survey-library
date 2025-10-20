@@ -4,7 +4,7 @@ import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from
 const title = "Popup Screenshot";
 
 const json = {
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   elements: [
     {
       name: "often",
@@ -263,7 +263,7 @@ frameworks.forEach(framework => {
       await page.evaluate((json) => {
         window["survey"].onGetQuestionTitleActions.add((_, opt) => {
           const json = {
-            showQuestionNumbers: "on",
+            showQuestionNumbers: true,
             elements: [
               {
                 type: "dropdown",
@@ -301,7 +301,7 @@ frameworks.forEach(framework => {
     test("Popup search width", async ({ page }) => {
       await page.setViewportSize({ width: 1000, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         pages: [
           {
             name: "page1",

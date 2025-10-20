@@ -16,7 +16,7 @@ registerMarkupTest(
         {
           type: "panel",
           name: "name",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           startWithNewLine: false,
           elements: [
             {
@@ -68,7 +68,7 @@ registerMarkupTest(
     name: "Layout mode - start with new line with panel and titles",
     json: {
       gridLayoutEnabled: true,
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "elements": [
         {
           type: "text",
@@ -78,7 +78,7 @@ registerMarkupTest(
         {
           type: "panel",
           name: "name",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           startWithNewLine: false,
           elements: [
             {
@@ -100,7 +100,7 @@ registerMarkupTest(
     name: "Layout mode - start with new line Title",
     json: {
       gridLayoutEnabled: true,
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "elements": [
         {
           type: "text",

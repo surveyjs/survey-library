@@ -233,7 +233,7 @@ frameworks.forEach(framework => {
     test("Check input element placeholder", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         "logoPosition": "right",
         "pages": [
@@ -283,7 +283,7 @@ frameworks.forEach(framework => {
     test("Check dropdown element colors", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 1600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "dropdown",
@@ -311,7 +311,7 @@ frameworks.forEach(framework => {
     });
 
     const jsonWithInputs = {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "logoPosition": "right",
       "pages": [
         {
@@ -455,7 +455,7 @@ frameworks.forEach(framework => {
     test("HTML default color", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 3000 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -496,7 +496,7 @@ frameworks.forEach(framework => {
     test("Matrix many columns", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [

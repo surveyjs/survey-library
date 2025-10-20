@@ -252,7 +252,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",

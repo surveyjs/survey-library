@@ -8,7 +8,7 @@
 // });
 
 // var json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   width: "900px",
 //   questions: [
 //     {
@@ -114,7 +114,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     elements: [
 //       {
 //         type: "panel",
@@ -165,7 +165,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     "logoPosition": "right",
 //     "pages": [
 //       {
@@ -286,7 +286,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     "logoPosition": "right",
 //     "pages": [
 //       {
@@ -393,7 +393,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     "autoFocusFirstQuestion": true,
 //     "pages": [
 //       {
@@ -442,7 +442,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 900);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",

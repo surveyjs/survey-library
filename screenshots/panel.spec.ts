@@ -848,7 +848,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 400, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        showNavigationButtons: "none",
+        showNavigationButtons: false,
         width: "500px",
         elements: [
           { type: "comment", name: "q1" },

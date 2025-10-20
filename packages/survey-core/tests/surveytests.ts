@@ -4582,7 +4582,8 @@ QUnit.test("isNavigationButtonsShowing", function (assert) {
     "showNavigationButtons = undefined && showNavigationButtons = both, #top"
   );
 
-  survey.showNavigationButtons = "top";
+  survey.showNavigationButtons = true;
+  survey.navigationButtonsLocation = "top";
   assert.equal(
     survey.isNavigationButtonsShowing,
     "top",
@@ -18070,7 +18071,8 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 
-  survey.showNavigationButtons = "top";
+  survey.showNavigationButtons = true;
+  survey.navigationButtonsLocation = "top";
   assert.deepEqual(getContainerContent("header"), [], "nav top header");
   assert.deepEqual(getContainerContent("footer"), [], "nav top footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
@@ -18081,7 +18083,8 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("left"), [], "nav top left");
   assert.deepEqual(getContainerContent("right"), [], "nav top right");
 
-  survey.showNavigationButtons = "both";
+  survey.showNavigationButtons = true;
+  survey.navigationButtonsLocation = "topBottom";
   assert.deepEqual(getContainerContent("header"), [], "nav both header");
   assert.deepEqual(getContainerContent("footer"), [], "nav both footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
@@ -18130,7 +18133,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   }], "nav right right");
 
   survey.showProgressBar = false;
-  survey.showNavigationButtons = "none";
+  survey.showNavigationButtons = false;
   survey.showTOC = false;
   assert.deepEqual(getContainerContent("header"), [], "nav none header");
   assert.deepEqual(getContainerContent("footer"), [], "nav none footer");
@@ -18142,7 +18145,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
 
 QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (assert) {
   const json = {
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     pages: [
       {
         "elements": [
@@ -18301,7 +18304,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
 QUnit.test("getContainerContent - progress", function (assert) {
   surveyCss.currentType = "default";
   const json = {
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     pages: [
       {
         "elements": [
@@ -19060,7 +19063,7 @@ QUnit.test("getContainerContent - navigation with page.showNavigationButtons", f
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 
-  survey.showNavigationButtons = "none";
+  survey.showNavigationButtons = false;
   assert.deepEqual(getContainerContent("header"), [], "default header");
   assert.deepEqual(getContainerContent("footer"), [], "default footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
@@ -19073,7 +19076,7 @@ QUnit.test("getContainerContent - navigation with page.showNavigationButtons", f
 });
 QUnit.test("survey.showNavigationButtons = 'none', page.showNavigationButtons = true & firstPageIsStartPage is true, Bug#9248", function (assert) {
   const survey = new SurveyModel({
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     firstPageIsStartPage: true,
     pages: [
       {
@@ -20413,7 +20416,7 @@ QUnit.test("emptySurveyText, make it writable, #7456", function (assert) {
 QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarView)", function (assert) {
   const json = {
     title: "My Survey",
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     pages: [
       {
         "elements": [
@@ -20539,7 +20542,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   surveyCss.currentType = "default";
   const json = {
     title: "My Survey",
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     pages: [
       {
         "elements": [
@@ -20698,7 +20701,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
 QUnit.test("Check triggerReponsiveness is called when isCompact changed", function (assert) {
   const json = {
     title: "My Survey",
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     pages: [
       {
         "elements": [
@@ -20782,7 +20785,7 @@ QUnit.test("element.wasREndered", function (assert) {
 QUnit.test("getContainerContent - progress settings", function (assert) {
   surveyCss.currentType = "default";
   const json = {
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     pages: [
       {
         "elements": [
@@ -20904,7 +20907,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
 QUnit.test("getContainerContent - show advanced header on start page", function (assert) {
   surveyCss.currentType = "default";
   const json = {
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     "firstPageIsStartPage": true,
     headerView: "advanced",
     title: "My title",
@@ -21307,7 +21310,7 @@ QUnit.test("check panel's visibleRows are updated sync when running condidtions 
 
 QUnit.test("getContainerContent - do not show buttons progress in the single page mode", function (assert) {
   const json = {
-    showNavigationButtons: "none",
+    showNavigationButtons: false,
     showProgressBar: true,
     progressBarLocation: "auto",
     pages: [

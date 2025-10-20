@@ -913,7 +913,7 @@
 //       await t.resizeWindow(400, 600);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         showNavigationButtons: "none",
+//         showNavigationButtons: false,
 //         width: "500px",
 //         elements: [
 //           {

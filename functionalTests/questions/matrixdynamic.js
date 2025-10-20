@@ -669,7 +669,7 @@ frameworks.forEach((framework) => {
           ]
         }
       ],
-      "showNavigationButtons": "none",
+      "showNavigationButtons": false,
       "showQuestionNumbers": "off"
     });
     await t.resizeWindow(600, 1080);

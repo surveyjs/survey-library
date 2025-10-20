@@ -14841,7 +14841,8 @@ QUnit.test(
           rowCount: 1,
         },
       ],
-      progressBarType: "buttons",
+      progressBarType: "pages",
+      progressBarShowPageTitles: true
     });
     assert.ok(survey.getQuestionByName("q1"), "Do not produce stack-overflow");
   }
@@ -18566,7 +18567,8 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
 
 QUnit.test("getContainerContent - do not show buttons progress on completed page", function (assert) {
   const json = {
-    "progressBarType": "buttons",
+    "progressBarType": "pages",
+    "progressBarShowPageTitles": true,
     "showProgressBar": true,
     "progressBarLocation": "top",
     pages: [

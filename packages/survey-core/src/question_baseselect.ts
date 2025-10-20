@@ -990,7 +990,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   private updateChoicesPanels(): void {
     if (!this.supportElementsInChoice() || !this.wasRendered) return;
-    this.choices.forEach(item => { item.panelFirstRendering(); });
+    this.choices.forEach(item => {
+      if (item.isDescendantOf("choiceitem")) {
+        item.panelFirstRendering();
+      }
+    });
   }
   protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
     const isObj = typeof val === "object";

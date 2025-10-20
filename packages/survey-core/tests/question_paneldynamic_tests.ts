@@ -8564,3 +8564,43 @@ QUnit.test("Panel dynamic vs multiple text in expression, Bug#10230", function (
   q1.items[1].value = 2;
   assert.equal(q2.value, 3, "q1.item1 = 1, q1.item2 = 2");
 });
+QUnit.test("Panel dynamic vs visibleIf & dots in question names, Bug#10505", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "Q088"
+          },
+          {
+            "type": "boolean",
+            "name": "Q088.5"
+          },
+          {
+            "type": "text",
+            "name": "Q090",
+            "visibleIf": "{panel.Q088.5} = false"
+          }
+        ],
+        "panelCount": 1
+      }
+    ]
+  });
+  const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel = dp.panels[0];
+  const q088 = <QuestionMultipleTextModel>panel.getQuestionByName("Q088");
+  const q088_5 = <QuestionTextModel>panel.getQuestionByName("Q088.5");
+  const q090 = <QuestionTextModel>panel.getQuestionByName("Q090");
+  assert.equal(q090.isVisible, false, "q090 visible #1");
+  q088_5.value = false;
+  assert.equal(q090.isVisible, true, "q090 visible #2");
+  q088.value = "0123456789";
+  assert.equal(q090.isVisible, true, "q090 visible #3");
+  q088_5.value = true;
+  assert.equal(q090.isVisible, false, "q090 visible #4");
+  q088_5.value = false;
+  assert.equal(q090.isVisible, true, "q090 visible #5");
+});

@@ -92,7 +92,7 @@
 //       await takeElementScreenshot("radiogroup-col-count-0.png", Selector(".sd-question"), t, comparer);
 //       await ClientFunction(() => { (<any>window).survey.getQuestionByName("car").colCount = 4; })();
 //       await takeElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t, comparer);
-//       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].showClearButton = true; })();
+//       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowClear = true; })();
 //       await takeElementScreenshot("radiogroup-clear-button", Selector(".sd-question"), t, comparer);
 //     });
 //   });

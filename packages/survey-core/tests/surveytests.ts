@@ -2166,7 +2166,7 @@ QUnit.test("Question visibleIndex", function (assert) {
     2,
     "the third question is third again"
   );
-  survey.getQuestionByName("question1").hideNumber = true;
+  survey.getQuestionByName("question1").showNumber = false;
   assert.equal(
     (<Question>survey.getQuestionByName("question1")).visibleIndex,
     -1,
@@ -2177,7 +2177,7 @@ QUnit.test("Question visibleIndex", function (assert) {
     1,
     "the first question number is hidden"
   );
-  survey.getQuestionByName("question1").hideNumber = false;
+  survey.getQuestionByName("question1").showNumber = true;
   survey.getQuestionByName("question1").visible = false;
   survey.showQuestionNumbers = "off";
   assert.equal(
@@ -3794,37 +3794,37 @@ QUnit.test(
     settings.setQuestionVisibleIndexForHiddenTitle = false;
 
     q2.titleLocation = "default";
-    q2.hideNumber = true;
-    assert.equal(q2.visibleIndex, -1, "hideNumber = true, default behavior");
+    q2.showNumber = false;
+    assert.equal(q2.visibleIndex, -1, "showNumber = false, default behavior");
     assert.equal(q2.no, "", "titleLocation = 'hidden'");
     assert.equal(
       q3.visibleIndex,
       1,
-      "previous question hideNumber = true, default behavior"
+      "previous question showNumber = false, default behavior"
     );
-    assert.equal(q3.no, "2.", "previous question hideNumber = true");
+    assert.equal(q3.no, "2.", "previous question showNumber = false");
     q1.visible = false;
     settings.setQuestionVisibleIndexForHiddenNumber = true;
     q1.visible = true;
     assert.equal(
       q2.visibleIndex,
       1,
-      "hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+      "showNumber = false, setQuestionVisibleIndexForHiddenNumber"
     );
     assert.equal(
       q2.no,
       "",
-      "hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+      "showNumber = false, setQuestionVisibleIndexForHiddenNumber"
     );
     assert.equal(
       q3.visibleIndex,
       2,
-      "previous question hideNumber = true, default behavior, setQuestionVisibleIndexForHiddenNumber"
+      "previous question showNumber = false, default behavior, setQuestionVisibleIndexForHiddenNumber"
     );
     assert.equal(
       q3.no,
       "3.",
-      "previous question hideNumber = true, setQuestionVisibleIndexForHiddenNumber"
+      "previous question showNumber = false, setQuestionVisibleIndexForHiddenNumber"
     );
     settings.setQuestionVisibleIndexForHiddenNumber = false;
   }
@@ -13629,7 +13629,7 @@ QUnit.test("Avoid stack overrflow in triggers, Bug #2202", function (assert) {
 });
 
 QUnit.test(
-  "Question hideNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form",
+  "Question showNumber visibility depending on parent settings, https://surveyjs.answerdesk.io/ticket/details/t4504/survey-creator-can-we-hide-show-number-property-on-questions-if-numbering-is-off-at-form",
   function (assert) {
     var survey = new SurveyModel({
       showQuestionNumbers: "on",
@@ -13764,7 +13764,7 @@ QUnit.test(
               type: "radiogroup",
               name: "Replace modem",
               visibleIf: "{Check modem power} = 'item1'",
-              hideNumber: true,
+              showNumber: false,
               choices: ["item1", "item2", "item3"],
             },
           ],
@@ -13776,7 +13776,7 @@ QUnit.test(
               type: "radiogroup",
               name: "Select ticket action 1",
               visibleIf: "{Replace modem} anyof ['item1', 'item2', 'item3']",
-              hideNumber: true,
+              showNumber: false,
               choices: ["item1", "item2"],
             },
           ],
@@ -13802,7 +13802,7 @@ QUnit.test(
               visibleIf:
                 "{Check modem lights} anyof ['item1', 'item3', 'item5']",
               title: "Checks",
-              hideNumber: true,
+              showNumber: false,
               choices: [
                 "item1",
                 "item2",

@@ -204,7 +204,7 @@ frameworks.forEach(framework => {
                 "type": "imagepicker",
                 "name": "best_picture",
                 "title": "Which movie do you believe should have won the Academy Award for Best Picture?",
-                "hideNumber": true,
+                "showNumber": false,
                 "choices": [
                   {
                     "value": "movie_1",

@@ -737,7 +737,7 @@
 //             "waitForUpload": true,
 //             "allowMultiple": true,
 //             "maxSize": 102400,
-//             "hideNumber": true,
+//             "showNumber": false,
 //             "readOnly": true,
 //             defaultValue: [
 //               {

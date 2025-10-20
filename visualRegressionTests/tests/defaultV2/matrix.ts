@@ -1237,7 +1237,7 @@
 //                 "type": "matrix",
 //                 "name": "planningPerformance",
 //                 "title": "Question",
-//                 "hideNumber": true,
+//                 "showNumber": false,
 //                 "defaultValue": {
 //                   "Row 1": "Column 1",
 //                   "Row 2": "Column 2"

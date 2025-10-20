@@ -3,10 +3,9 @@
   "showProgressBar": "top",
   "showTimer": true,
   "timerLocation": "bottom",
-  "showTimerPanelMode": "all",
   "timeLimit": 100,
   "widthMode": "responsive",
-  "firstPageIsStarted": true,
+  "firstPageIsStartPage": true,
   "startSurveyText": "Start Quiz",
   "pages": [
     {

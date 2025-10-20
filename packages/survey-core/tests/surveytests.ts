@@ -16376,7 +16376,7 @@ QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (a
     firstPageIsStartPage: true,
     autoAdvanceEnabled: true,
     showProgressBar: "bottom",
-    showTimerPanel: "top",
+    showTimer: true,
     timeLimitPerPage: 10,
     timeLimit: 25,
     pages: [
@@ -20652,7 +20652,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
       }
     ],
     "timeLimit": 10,
-    "showTimerPanel": "top",
+    "showTimer": true,
     "timerInfoMode": "survey"
   };
   let survey = new SurveyModel(json);

@@ -296,8 +296,8 @@
 //         headerView: "basic",
 //         "title": "American History",
 //         "showTimer": true
-//         "showTimerPanel": "bottom",
-//         "showTimerPanelMode": "survey",
+//         "timerLocation": "bottom",
+//         "timerInfoMode": "survey",
 //         "timeLimit": 60,
 //         "widthMode": "responsive",
 //         "firstPageIsStartPage": true,
@@ -372,8 +372,8 @@
 //         headerView: "basic",
 //         "title": "American History",
 //         "showTimer": true,
-//         "showTimerPanel": "bottom",
-//         "showTimerPanelMode": "survey",
+//         "timerLocation": "bottom",
+//         "timerInfoMode": "survey",
 //         "timeLimit": 60,
 //         "widthMode": "static",
 //         "firstPageIsStartPage": true,
@@ -448,10 +448,11 @@
 //         autoFocusFirstQuestion: true,
 //         headerView: "basic",
 //         "title": "American History",
-//         "showTimerPanel": "bottom",
-//         "showTimerPanelMode": "survey",
+//         "showTimer": true,
+//         "timerLocation": "bottom",
+//         "timerInfoMode": "survey",
 //         "widthMode": "static",
-//         "firstPageIsStarted": true,
+//         "firstPageIsStartPage": true,
 //         "pages": [
 //           {
 //             "elements": [

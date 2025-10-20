@@ -366,7 +366,7 @@
 //         ],
 //         "showQuestionNumbers": "off",
 //         "questionsOnPageMode": "singlePage",
-//         "showPreviewBeforeComplete": "showAllQuestions",
+//         "showPreviewBeforeComplete": true,
 //         "widthMode": "static",
 //         "width": "800"
 //       });
@@ -430,7 +430,7 @@
 //         ],
 //         "showQuestionNumbers": "off",
 //         "questionsOnPageMode": "singlePage",
-//         "showPreviewBeforeComplete": "showAllQuestions",
+//         "showPreviewBeforeComplete": true,
 //         "widthMode": "static",
 //         "width": "800"
 //       });

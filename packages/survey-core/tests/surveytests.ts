@@ -711,11 +711,11 @@ QUnit.test("isFirstPage/isLastPage", function (
   assert.equal(survey.isFirstPage, true, "isFirstPage #6");
   assert.equal(survey.isLastPage, true, "isLastPage #6");
 });
-QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: showAllQuestions", function (
+QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: true", function (
   assert
 ) {
   var survey = new SurveyModel({
-    showPreviewBeforeComplete: "showAllQuestions",
+    showPreviewBeforeComplete: true,
     pages: [
       {
         elements: [{ type: "text", name: "q1" }]
@@ -14590,7 +14590,7 @@ QUnit.test(
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAllQuestions",
+      showPreviewBeforeComplete: true,
     });
     var counter = 0;
     var generateError = false;
@@ -14654,7 +14654,7 @@ QUnit.test("Several onServerValidateQuestions event without errors, bug#4531 par
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete: 'showAllQuestions' and showProgressBar, Bug#2552",
+  "showPreviewBeforeComplete and showProgressBar, Bug#2552",
   function (assert) {
     var survey = new SurveyModel({
       pages: [
@@ -14686,7 +14686,7 @@ QUnit.test(
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAllQuestions",
+      showPreviewBeforeComplete: true,
       showProgressBar: true,
       progressBarLocation: "bottom",
     });
@@ -18456,7 +18456,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
 QUnit.test("getContainerContent - do not show TOC on preview", function (assert) {
   const json = {
     showTOC: true,
-    "showPreviewBeforeComplete": "showAllQuestions",
+    "showPreviewBeforeComplete": true,
     pages: [
       {
         "elements": [
@@ -21271,7 +21271,7 @@ QUnit.test("showPreview & dynamic panel? single page", function (
       }
     ],
     "questionsOnPageMode": "singlePage",
-    "showPreviewBeforeComplete": "showAllQuestions"
+    "showPreviewBeforeComplete": true
   });
   survey.showPreview();
   assert.notOk((survey.getQuestionByName("question1") as QuestionPanelDynamicModel).panels[0].showPanelAsPage);
@@ -21990,7 +21990,7 @@ QUnit.test("Check questionsOnPageMode is 'singlePage' & showPreview", function (
         { "type": "text", "name": "q4" }
       ] }],
     "questionsOnPageMode": "singlePage",
-    "showPreviewBeforeComplete": "showAllQuestions"
+    "showPreviewBeforeComplete": true
   });
   assert.equal(survey.visiblePageCount, 1, "There is one visible page, #1");
   assert.equal(survey.visiblePages[0].name, "single-page", "The name is single-page, #1");

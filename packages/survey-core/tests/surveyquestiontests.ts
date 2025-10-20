@@ -3073,7 +3073,7 @@ QUnit.test(
   "isDisabledStyle isReadOnlyStyle properties",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionMultipleTextModel("q1");
     assert.equal(question.isDisabledStyle, false);
@@ -3092,7 +3092,7 @@ QUnit.test(
   "isPreviewStyle property",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionMultipleTextModel("q1");
     assert.equal(question.isPreviewStyle, false, "false if survey doesn't exist");
@@ -3110,7 +3110,7 @@ QUnit.test(
   "itemSvgIcon property",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionRadiogroupModel("q1");
     page.addQuestion(question);
@@ -3129,7 +3129,7 @@ QUnit.test(
   "Boolean Radiogroup Mode itemSvgIcon property",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionBooleanModel("q1");
     question.renderAs = "radio";

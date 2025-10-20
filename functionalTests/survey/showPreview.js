@@ -17,10 +17,11 @@
 // };
 
 // const showAnsweredQuestions = ClientFunction(() => {
-//   window["survey"].showPreviewBeforeComplete = "showAnsweredQuestions";
+//   window["survey"].showPreviewBeforeComplete = true;
+//   window["survey"].previewMode = "answeredQuestions";
 // });
 // const showAllQuestions = ClientFunction(() => {
-//   window["survey"].showPreviewBeforeComplete = "showAllQuestions";
+//   window["survey"].showPreviewBeforeComplete = true;
 // });
 // const goLastPage = ClientFunction(() => {
 //   window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;

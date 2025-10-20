@@ -12,7 +12,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -36,7 +37,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -59,7 +61,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -82,7 +85,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -116,7 +120,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -144,7 +149,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -173,7 +179,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -201,7 +208,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -229,7 +237,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -259,7 +268,8 @@
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
-//         "showPreviewBeforeComplete": "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         widthMode: "static",
 //         width: "700px",
 //         elements: [{
@@ -305,7 +315,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -333,7 +344,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -364,7 +376,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -388,7 +401,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -470,7 +484,7 @@
 //           }
 //         ],
 //         "showQuestionNumbers": "off",
-//         "showPreviewBeforeComplete": "showAllQuestions"
+//         "showPreviewBeforeComplete": true
 //       });
 //       await takeElementScreenshot("readonly-panel-dynamic-no-entries.png", Selector(".sd-question--paneldynamic").nth(0), t, comparer);
 //       await takeElementScreenshot("readonly-panel-dynamic-one-entry.png", Selector(".sd-question--paneldynamic").nth(1), t, comparer);
@@ -488,7 +502,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -512,7 +527,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -537,7 +553,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -561,7 +578,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -587,7 +605,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -616,7 +635,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -653,7 +673,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -689,7 +710,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {
@@ -726,7 +748,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(800, 600);
 //       await initSurvey(framework, {
-//         showPreviewBeforeComplete: "showAnsweredQuestions",
+//         showPreviewBeforeComplete: true,
+//         previewMode: "answeredQuestions",
 //         showQuestionNumbers: "off",
 //         questions: [
 //           {

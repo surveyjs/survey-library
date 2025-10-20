@@ -12,7 +12,8 @@ frameworks.forEach(framework => {
     test("Radiogroup ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -35,7 +36,8 @@ frameworks.forEach(framework => {
     test("Single Input ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -57,7 +59,8 @@ frameworks.forEach(framework => {
     test("Comment Input ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -83,7 +86,8 @@ frameworks.forEach(framework => {
     test("Multiple text Input ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -112,7 +116,8 @@ frameworks.forEach(framework => {
     test("Rating ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -139,7 +144,8 @@ frameworks.forEach(framework => {
     test("Rating as dropdown ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -167,7 +173,8 @@ frameworks.forEach(framework => {
     test("Rating Stars ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -195,7 +202,8 @@ frameworks.forEach(framework => {
     test("Rating Smileys ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -223,7 +231,8 @@ frameworks.forEach(framework => {
     test("Rating Smileys colored ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -253,7 +262,8 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
         showQuestionNumbers: "on",
-        "showPreviewBeforeComplete": "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         widthMode: "static",
         width: "700px",
         elements: [{
@@ -297,7 +307,8 @@ frameworks.forEach(framework => {
     test("Dropdown ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -320,7 +331,8 @@ frameworks.forEach(framework => {
     test("Tagbox ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -343,7 +355,8 @@ frameworks.forEach(framework => {
     test("Checkbox Group ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -366,7 +379,8 @@ frameworks.forEach(framework => {
     test("Signature ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -447,7 +461,7 @@ frameworks.forEach(framework => {
           }
         ],
         "showQuestionNumbers": "off",
-        "showPreviewBeforeComplete": "showAllQuestions"
+        "showPreviewBeforeComplete": true
       });
 
       await compareScreenshot(page, page.locator(".sd-question--paneldynamic").nth(0), "readonly-panel-dynamic-no-entries.png");
@@ -464,7 +478,8 @@ frameworks.forEach(framework => {
     test("Ranking ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -486,7 +501,8 @@ frameworks.forEach(framework => {
     test("Boolean ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -509,7 +525,8 @@ frameworks.forEach(framework => {
     test("Boolean:Indeterminate ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -532,7 +549,8 @@ frameworks.forEach(framework => {
     test("Boolean:Radio ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -556,7 +574,8 @@ frameworks.forEach(framework => {
     test("Boolean:Checkbox ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -583,7 +602,8 @@ frameworks.forEach(framework => {
     test("ImagePicker ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -618,7 +638,8 @@ frameworks.forEach(framework => {
     test("Matrix ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -647,7 +668,8 @@ frameworks.forEach(framework => {
     test("Matrix ReadOnly and Preview alt rows", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {
@@ -677,7 +699,8 @@ frameworks.forEach(framework => {
     test("File ReadOnly and Preview", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         showQuestionNumbers: "off",
         elements: [
           {

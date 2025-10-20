@@ -27,7 +27,7 @@ QUnit.test("Complete and Preview button visibility", function(assert) {
     false,
     "cancel preview button: running survey, no preview"
   );
-  survey.showPreviewBeforeComplete = "showAllQuestions";
+  survey.showPreviewBeforeComplete = true;
   assert.equal(survey.showPreviewBeforeComplete, true, "has preview");
   assert.equal(
     survey.isCompleteButtonVisible,
@@ -79,7 +79,7 @@ QUnit.test("Complete and Preview button visibility", function(assert) {
 });
 
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', do not show preview if there is an error",
+  "showPreviewBeforeComplete = true, do not show preview if there is an error",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -87,7 +87,7 @@ QUnit.test(
         { elements: [{ type: "text", name: "q2", isRequired: true }] },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     assert.equal(survey.showPreview(), false, "It should show error");
     assert.equal(
@@ -116,7 +116,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', check currentPage on showing preview",
+  "showPreviewBeforeComplete = true, check currentPage on showing preview",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -124,7 +124,7 @@ QUnit.test(
         { elements: [{ type: "text", name: "q2" }] },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
     assert.equal(survey.visiblePages.length, 1, "We have one page now");
@@ -162,7 +162,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', restore pages before onComplete",
+  "showPreviewBeforeComplete = true, restore pages before onComplete",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -170,7 +170,7 @@ QUnit.test(
         { elements: [{ type: "text", name: "q2" }] },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
     survey.tryComplete();
@@ -179,7 +179,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', and do noting onCompleting, options.allowComplete = false",
+  "showPreviewBeforeComplete = true, and do noting onCompleting, options.allowComplete = false",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -187,7 +187,7 @@ QUnit.test(
         { elements: [{ type: "text", name: "q2" }] },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var allowComplete = false;
     survey.onCompleting.add((sender, options) => {
       options.allow = allowComplete;
@@ -204,7 +204,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'singlePage'",
+  "showPreviewBeforeComplete = true, questionsOnPageMode = 'singlePage'",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -213,7 +213,7 @@ QUnit.test(
       ],
     });
     survey.questionsOnPageMode = "singlePage";
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
     survey.cancelPreview();
@@ -228,7 +228,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', questionsOnPageMode = 'questionPerPage'",
+  "showPreviewBeforeComplete = true, questionsOnPageMode = 'questionPerPage'",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -247,7 +247,7 @@ QUnit.test(
       ],
     });
     survey.questionsOnPageMode = "questionPerPage";
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
     assert.equal(survey.visiblePages.length, 1, "We have one page");
@@ -282,7 +282,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' set property", function(
+QUnit.test("showPreviewBeforeComplete = true set property", function(
   assert
 ) {
   var survey = new SurveyModel({
@@ -292,7 +292,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' set property", f
     ],
   });
   survey.setValue("q2", "va1");
-  survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+  survey.showPreviewBeforeComplete = true;
   survey.currentPageNo = 1;
   survey.showPreview();
   const panels = survey.currentPage.elements;
@@ -305,7 +305,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' set property", f
   assert.equal(survey.getAllQuestions()[1].isVisible, true, "question is not empty");
 });
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', edit page, #2",
+  "showPreviewBeforeComplete = true, edit page, #2",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -323,7 +323,7 @@ QUnit.test(
       ],
     });
     setOldTheme(survey);
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 2;
     assert.equal(survey.getAllPanels().length, 1, "There is one panel");
     assert.equal(
@@ -367,7 +367,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAllQuestions', edit page",
+  "showPreviewBeforeComplete = true, edit page",
   function (assert) {
     var survey = new SurveyModel({
       "pages": [
@@ -398,9 +398,9 @@ QUnit.test(
           ]
         }
       ],
-      "showPreviewBeforeComplete": "showAllQuestions"
+      "showPreviewBeforeComplete": true
     });
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 0;
     assert.notOk(survey.getAllQuestions()[0].visiblePanels[0].elements[0].hasEditButton, "There is no edit button");
     survey.showPreview();
@@ -409,7 +409,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions', edit page",
+  "showPreviewBeforeComplete = true, edit page",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -418,7 +418,7 @@ QUnit.test(
         { name: "p3", elements: [{ type: "text", name: "q3" }] },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.data = { q2: "2", q3: "3" };
     survey.currentPageNo = 2;
     survey.showPreview();
@@ -430,7 +430,7 @@ QUnit.test(
     assert.equal(survey.currentPage.name, "p2", "We are editing the second page");
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions', onCurrentPageChanging/onCurrentPageChanged, bug#6564", function(assert) {
+QUnit.test("showPreviewBeforeComplete = true, onCurrentPageChanging/onCurrentPageChanged, bug#6564", function(assert) {
   const survey = new SurveyModel({
     pages: [
       { name: "p1", elements: [{ type: "text", name: "q1" }] },
@@ -438,7 +438,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions', onCurrentPageCh
       { name: "p3", elements: [{ type: "text", name: "q3" }] },
     ],
   });
-  survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+  survey.showPreviewBeforeComplete = true;
   survey.data = { q2: "2", q3: "3" };
   survey.currentPageNo = 2;
   survey.showPreview();
@@ -473,7 +473,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions', onCurrentPageCh
   assert.equal(changedIsAfterPreview, 3, "changedIsAfterPreview is called three times");
 });
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions', do not hide questions on running state",
+  "showPreviewBeforeComplete = true, do not hide questions on running state",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -482,12 +482,12 @@ QUnit.test(
         { elements: [{ type: "text", name: "q3" }] },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+    survey.showPreviewBeforeComplete = true;
     assert.equal(survey.visiblePageCount, 3, "There are 3 visible pages");
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions', Bug#2190",
+  "showPreviewBeforeComplete = true, Bug#2190",
   function(assert) {
     var survey = new SurveyModel({
       pages: [
@@ -506,14 +506,14 @@ QUnit.test(
         },
       ],
     });
-    survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+    survey.showPreviewBeforeComplete = true;
     survey.currentPageNo = 1;
     survey.showPreview();
     (<PanelModel>survey.currentPage.elements[0]).cancelPreview();
     assert.equal(survey.currentPageNo, 0, "Go to the first page");
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' invisible Page, Bug#2385", function(assert) {
+QUnit.test("showPreviewBeforeComplete = true invisible Page, Bug#2385", function(assert) {
   const survey = new SurveyModel({
     pages: [
       {
@@ -552,7 +552,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' invisible Page, Bug#2
         ],
       },
     ],
-    showPreviewBeforeComplete: "showAllQuestions",
+    showPreviewBeforeComplete: true,
   });
   survey.setValue("mybool", false);
   survey.showPreview();
@@ -562,7 +562,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' invisible Page, Bug#2
   panels[2].cancelPreview();
   assert.equal(survey.currentPage.name, "page_visible_always", "Go to correct page");
 });
-QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event",
+QUnit.test("showPreviewBeforeComplete = true onShowingPreview event",
   function(assert) {
     var survey = new SurveyModel({
       elements: [
@@ -583,7 +583,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview even
     assert.equal(survey.state, "preview", "We allow to show preview");
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview event, use options.allow",
+QUnit.test("showPreviewBeforeComplete = true onShowingPreview event, use options.allow",
   function(assert) {
     var survey = new SurveyModel({
       elements: [
@@ -634,10 +634,11 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions' and invisible matrix dropdown, Bug#3176",
+  "showPreviewBeforeComplete = true and invisible matrix dropdown, Bug#3176",
   function(assert) {
     var survey = new SurveyModel({
-      showPreviewBeforeComplete: "showAnsweredQuestions",
+      showPreviewBeforeComplete: true,
+      previewMode: "answeredQuestions",
       pages: [
         {
           elements: [
@@ -673,7 +674,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions' and autoAdvanceEnabled, Bug#3450",
+  "showPreviewBeforeComplete = true and autoAdvanceEnabled, Bug#3450",
   function(assert) {
     const survey = new SurveyModel({
       "pages": [
@@ -699,7 +700,8 @@ QUnit.test(
         }
       ],
       "autoAdvanceEnabled": true,
-      "showPreviewBeforeComplete": "showAnsweredQuestions"
+      "showPreviewBeforeComplete": true,
+      "previewMode": "answeredQuestions",
     });
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
@@ -713,7 +715,7 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "showPreviewBeforeComplete = 'showAnsweredQuestions' and all questions are empty, Bug#6497",
+  "showPreviewBeforeComplete = true and all questions are empty, Bug#6497",
   function(assert) {
     const survey = new SurveyModel({
       "pages": [
@@ -738,7 +740,8 @@ QUnit.test(
           ]
         }
       ],
-      "showPreviewBeforeComplete": "showAnsweredQuestions"
+      "showPreviewBeforeComplete": true,
+      "previewMode": "answeredQuestions",
     });
     survey.nextPage();
     survey.showPreview();
@@ -746,11 +749,12 @@ QUnit.test(
     assert.equal(survey.getAllQuestions(true).length, 2, "Show all questions");
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all questions are empty, bug#6608",
+QUnit.test("showPreviewBeforeComplete = true and all questions are empty, bug#6608",
   function(assert) {
     const survey = new SurveyModel({
       "elements": [{ "type": "text", "name": "q1", "isRequired": true }],
-      "showPreviewBeforeComplete": "showAnsweredQuestions"
+      "showPreviewBeforeComplete": true,
+      "previewMode": "answeredQuestions",
     });
     survey.showPreview();
     assert.equal(survey.state, "running", "There is an error");
@@ -766,14 +770,15 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all question
     assert.equal(survey.state, "completed", "No errors");
   }
 );
-QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
+QUnit.test("showPreviewBeforeComplete = true & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
   function(assert) {
     const survey = new SurveyModel({
       "pages": [
         { "elements": [{ "type": "text", "name": "q1", "isRequired": true }] },
         { "elements": [{ "type": "text", "name": "q2" }] },
       ],
-      "showPreviewBeforeComplete": "showAnsweredQuestions",
+      "showPreviewBeforeComplete": true,
+      "previewMode": "answeredQuestions",
       "checkErrorsMode": "onComplete"
     });
     survey.nextPage();
@@ -816,7 +821,7 @@ QUnit.test("showAllQuestions - pages css after cancelPreview",
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAllQuestions",
+      showPreviewBeforeComplete: true,
     });
     assert.ok(survey.pages[0].cssClasses.page);
     assert.ok(survey.pages[1].cssClasses.page);

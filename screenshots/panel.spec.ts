@@ -341,7 +341,7 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "questionsOnPageMode": "singlePage",
-        "showPreviewBeforeComplete": "showAllQuestions",
+        "showPreviewBeforeComplete": true,
         "widthMode": "static",
         "width": "800"
       });
@@ -403,7 +403,7 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "questionsOnPageMode": "singlePage",
-        "showPreviewBeforeComplete": "showAllQuestions",
+        "showPreviewBeforeComplete": true,
         "widthMode": "static",
         "width": "800"
       });

@@ -4724,7 +4724,8 @@ QUnit.test(
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAnsweredQuestions",
+      showPreviewBeforeComplete: true,
+      previewMode: "answeredQuestions",
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     panel.addPanel();
@@ -4750,7 +4751,8 @@ QUnit.test(
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAnsweredQuestions",
+      showPreviewBeforeComplete: true,
+      previewMode: "answeredQuestions",
     });
     survey.onDynamicPanelAdded.add(function (survey, options) {
       options.panel.questions[0].choices.push(new ItemValue(2, "Item2"));

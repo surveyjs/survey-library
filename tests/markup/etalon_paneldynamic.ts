@@ -59,7 +59,7 @@ registerMarkupTests(
           name: "pd",
           titleLocation: "hidden",
           displayMode: "carousel",
-          progressBarLocation: "bottom",
+          progressBarLocatin: "bottom",
           panelCount: 2,
         },
       ]

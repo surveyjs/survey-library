@@ -31,7 +31,7 @@ const getId = (panel: PanelModel): string => {
 };
 const removePanelClick = (panel: PanelModel) => {
   if (!question.value.isInputReadOnly) {
-    question.value.removePanel(panel, true);
+    question.value.removePanelUI(panel);
   }
 };
 </script>

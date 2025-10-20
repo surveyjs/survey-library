@@ -2297,7 +2297,7 @@ QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
   panel.template.addNewQuestion("text", "q1");
   panel.templateTitle = "Some text";
   panel.panelCount = 2;
-  panel.addPanel(undefined, true);
+  panel.addPanelUI();
   assert.equal(
     panel.panels[2].state,
     "default",
@@ -2305,14 +2305,14 @@ QUnit.test("matrixDynamic.panelsState, add panel always expanded", function(
   );
   panel.panelsState = "expanded";
   assert.equal(panel.panels[2].state, "expanded", "It is expanded now");
-  panel.addPanel(undefined, true);
+  panel.addPanelUI();
   assert.equal(
     panel.panels[3].state,
     "expanded",
     "the panel is added with expanded state"
   );
   panel.panelsState = "collapsed";
-  panel.addPanel(undefined, true);
+  panel.addPanelUI();
   assert.equal(
     panel.panels[4].state,
     "expanded",
@@ -3570,7 +3570,7 @@ QUnit.test("do not add new panel for list", function(assert) {
   let panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current");
   assert.equal(panelDynamic.panelCount, 1, "There is one panel");
-  panelDynamic.addPanel(undefined, true);
+  panelDynamic.addPanelUI();
   assert.equal(panelDynamic.currentIndex, 0, "first panel is current because of validation errors");
   assert.equal(panelDynamic.panelCount, 1, "There is still one panel");
   assert.equal(panelDynamic.canAddPanel, true, "You still can show buttons");
@@ -3579,14 +3579,14 @@ QUnit.test("do not add new panel for list", function(assert) {
   survey.data = { pd: [{ q1: "a" }] };
   assert.equal(panelDynamic.currentPanel.validate(), true);
 
-  panelDynamic.addPanel(undefined, true);
+  panelDynamic.addPanelUI();
   assert.equal(panelDynamic.currentIndex, 1, "second panel is current");
   assert.equal(panelDynamic.panelCount, 2, "There are two panels");
 
   survey = new SurveyModel(json);
   panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
   panelDynamic.displayMode = "list";
-  panelDynamic.addPanel(undefined, true);
+  panelDynamic.addPanelUI();
   assert.equal(panelDynamic.panelCount, 2, "Do not check for list mode");
 });
 
@@ -4153,9 +4153,9 @@ QUnit.test(
     var survey = new SurveyModel(json);
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     assert.equal(panel.panelCount, 3, "There are 3 panels by default");
-    panel.removePanel(2, true);
+    panel.removePanelUI(2);
     assert.equal(panel.panelCount, 2, "Remove the third panel");
-    panel.removePanel(1, true);
+    panel.removePanelUI(1);
     assert.equal(panel.panelCount, 1, "Remove the second panel");
     panel.removePanelUI(0);
     assert.equal(panel.panelCount, 0, "Remove the first panel");
@@ -4198,7 +4198,7 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     (<QuestionFileModel>panel.panels[0].getQuestionByName("q2")).value =
       "data:image/jpeg;base64,FILECONTENT";
-    panel.removePanel(0, true);
+    panel.removePanelUI(0);
     assert.equal(counter, 1, "clear files was called");
   }
 );
@@ -5777,7 +5777,7 @@ QUnit.test("Error in nested dynamic collapsed panel && displayMode - carousel", 
   const childPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("childPanel");
   assert.equal(childPanel.state, "collapsed", "child panel State is collapsed by default");
   assert.equal(rootPanel.panelCount, 1, "There is one panel");
-  rootPanel.addPanel(undefined, true);
+  rootPanel.addPanelUI();
   assert.equal(rootPanel.panelCount, 1, "There is still one panel");
   assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });
@@ -6170,7 +6170,7 @@ QUnit.test("question.cssHeader class", function (assert) {
   panel.titleLocation = "top";
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
 
-  panel.removePanel(0, true);
+  panel.removePanelUI(0);
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
 });
@@ -6772,7 +6772,7 @@ QUnit.test("newPanelPosition & add panel button visibility", function (assert) {
   assert.equal(panel.newPanelPosition, "next", "newPanelPosition #3");
   assert.equal(panel.canAddPanel, true, "canAddPanel, #5");
   assert.equal(addBtn.isVisible, true, "addBtn, #5");
-  panel.addPanel(undefined, true);
+  panel.addPanelUI();
   assert.equal(panel.currentIndex, 2, "currentIndex is next");
   assert.equal(panel.panelCount, 4, "4 panels");
   assert.equal(panel.canAddPanel, true, "canAddPanel, #6");
@@ -6880,11 +6880,11 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(as
     f_resFunc = resFunc;
     return true;
   };
-  panel.removePanel(1, true);
+  panel.removePanelUI(1);
   assert.equal(panel.panelCount, 3, "We are waiting for async function");
   f_resFunc(false);
   assert.equal(panel.panelCount, 3, "confirm action return false");
-  panel.removePanel(1, true);
+  panel.removePanelUI(1);
   assert.equal(panel.panelCount, 3, "We are waiting for async function, #2");
   f_resFunc(true);
   assert.equal(panel.panelCount, 2, "confirm action return true");
@@ -8394,7 +8394,7 @@ QUnit.test("paneldynamic.panelCountExpression custom property, Bug#10171", funct
   assert.equal(panel.panelCount, 1, "panelCount #1");
   panel.removePanel(0);
   assert.equal(panel.panelCount, 1, "panelCount #2");
-  panel.addPanel(undefined, true);
+  panel.addPanelUI();
   assert.equal(panel.panelCount, 1, "panelCount #3");
   survey.setValue("question1", 2);
   assert.equal(panel.panelCount, 2, "panelCount #4");

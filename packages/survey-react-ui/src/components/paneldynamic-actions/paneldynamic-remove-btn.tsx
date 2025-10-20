@@ -4,7 +4,7 @@ import { SurveyQuestionPanelDynamicAction } from "./paneldynamic-add-btn";
 
 export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelDynamicAction {
   protected handleClick = (event: any) => {
-    this.question.removePanel(this.data.panel, true);
+    this.question.removePanelUI(this.data.panel);
   };
   protected renderElement(): React.JSX.Element {
     const btnText = this.renderLocString(this.question.locRemovePanelText);

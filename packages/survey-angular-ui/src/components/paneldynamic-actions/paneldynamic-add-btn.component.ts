@@ -20,7 +20,7 @@ export class PaneldynamicAction {
 })
 export class PanelDynamicAddBtn extends PaneldynamicAction {
   addPanelClick() {
-    this.question.addPanelUI();
+    this.question.addPanel(undefined, true);
   }
 }
 AngularComponentFactory.Instance.registerComponent("sv-paneldynamic-add-btn", PanelDynamicAddBtn);

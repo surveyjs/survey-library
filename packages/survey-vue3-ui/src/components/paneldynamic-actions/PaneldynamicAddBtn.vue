@@ -19,6 +19,6 @@ import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 const props = defineProps<IPanelDynamicActionProps>();
 const question = usePanelDynamicAction(props);
 const addPanelClick = () => {
-  question.value.addPanelUI();
+  question.value.addPanel(undefined, true);
 };
 </script>

@@ -324,7 +324,7 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #1");
   assert.equal(survey.isShowPrevButton, false, "prev buttton, #1");
   assert.equal(survey.isShowNextButton, false, "next buttton, #1");
-  panel1.addPanelUI();
+  panel1.addPanel(undefined, true);
   assert.equal(panel1.panelCount, 1, "panelCount #2");
   assert.equal(addBtn.visible, false, "addBtn visible #2");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #2");

@@ -1273,12 +1273,12 @@ export class QuestionPanelDynamicModel extends Question
     return this.addPanelText;
   }
   protected singleInputAddItemCore(): void {
-    this.addPanelUI();
+    this.addPanel(undefined, true);
   }
   protected singleInputRemoveItemCore(question: Question): void {
     const panel = this.getPanelByQuestion(question);
     const index = this.visiblePanelsCore.indexOf(panel);
-    this.removePanelUI(index);
+    this.removePanel(index, true);
   }
   protected getSingleQuestionOnChange(index: number): Question {
     const panels = this.visiblePanelsCore;
@@ -1302,7 +1302,7 @@ export class QuestionPanelDynamicModel extends Question
         return this.processSingleInputTitle(this.templateTitle, panel);
       };
       const bntEdit = new Action({ locTitle: this.getLocalizableString("editPanelText"), action: () => { this.singInputEditPanel(panel); } });
-      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } }) : undefined;
+      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanel(panel, true); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;

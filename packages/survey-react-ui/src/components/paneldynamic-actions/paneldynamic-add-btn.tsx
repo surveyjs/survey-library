@@ -19,7 +19,7 @@ export class SurveyQuestionPanelDynamicAction extends ReactSurveyElement {
 
 export class SurveyQuestionPanelDynamicAddButton extends SurveyQuestionPanelDynamicAction {
   protected handleClick = (event: any) => {
-    this.question.addPanelUI();
+    this.question.addPanel(undefined, true);
   };
   protected renderElement(): React.JSX.Element | null {
     if (!this.question.canAddPanel) return null;

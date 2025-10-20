@@ -1935,7 +1935,8 @@ frameworks.forEach((framework) => {
       ],
       "showCompletePage": false,
       "showQuestionNumbers": "off",
-      "showProgressBar": "top",
+      "showProgressBar": true,
+      "progressBarLocation": "top",
       "checkErrorsMode": "onComplete"
     };
     const popupContainer = Selector(".sv-popup__container").filterVisible();

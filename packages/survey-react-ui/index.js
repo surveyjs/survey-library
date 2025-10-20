@@ -19,7 +19,8 @@ var getItemPrice = function (params) {
 Survey.FunctionFactory.Instance.register("getItemPrice", getItemPrice);
 
 var json = {
-  showProgressBar: "both",
+  showProgressBar: true,
+  progressBarLocation: "topBottom",
   description: "Survey Description",
   title: "Survey New Design Test",
   logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",

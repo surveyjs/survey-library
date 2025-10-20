@@ -3,7 +3,8 @@ import { frameworks, initSurvey, url, test, expect } from "../helper";
 const title = "progressBarType";
 
 const json_questions = {
-  showProgressBar: "top",
+  showProgressBar: true,
+  progressBarLocation: "top",
   progressBarType: "questions",
   pages: [
     {
@@ -27,7 +28,8 @@ const json_questions = {
 };
 
 const json_requiredQuestions = {
-  showProgressBar: "top",
+  showProgressBar: true,
+  progressBarLocation: "top",
   progressBarType: "requiredQuestions",
   pages: [
     {

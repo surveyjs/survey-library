@@ -7,7 +7,8 @@
 // const json = {
 //   autoFocusFirstQuestion: true,
 //   title: "American History",
-//   showProgressBar: "bottom",
+//   showProgressBar: true,
+//   progressBarLocation: "bottom",
 //   autoAdvanceEnabled: true,
 //   pages: [
 //     {

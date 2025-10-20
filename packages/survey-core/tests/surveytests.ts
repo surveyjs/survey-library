@@ -14686,7 +14686,8 @@ QUnit.test(
         },
       ],
       showPreviewBeforeComplete: "showAllQuestions",
-      showProgressBar: "bottom",
+      showProgressBar: true,
+      progressBarLocation: "bottom",
     });
     survey.nextPage();
     survey.nextPage();
@@ -16375,7 +16376,8 @@ QUnit.test("firstPageIsStartPage = true and clear&state='starting'", function (a
   const survey = new SurveyModel({
     firstPageIsStartPage: true,
     autoAdvanceEnabled: true,
-    showProgressBar: "bottom",
+    showProgressBar: true,
+    progressBarLocation: "bottom",
     showTimer: true,
     timeLimitPerPage: 10,
     timeLimit: 25,
@@ -17632,7 +17634,8 @@ QUnit.test("progress is not changed on the start page", function (assert) {
       }
     ],
 
-    showProgressBar: "bottom",
+    showProgressBar: true,
+    progressBarLocation: "bottom",
     firstPageIsStartPage: true,
     questionsOnPageMode: "questionPerPage",
     widthMode: "static"
@@ -17969,7 +17972,8 @@ QUnit.test("Get first focused question on collapsed question", function (assert)
 });
 QUnit.test("Check getProgressCssClasses method", function (assert) {
   const survey = new SurveyModel({
-    "showProgressBar": "top",
+    "showProgressBar": true,
+    "progressBarLocation": "top",
     elements: [
       { type: "text", name: "q1", state: "collapsed", isRequired: true },
       { type: "text", name: "q2" }
@@ -17990,7 +17994,8 @@ QUnit.test("settings.minWidth/maxWidth", function (assert) {
   settings.minWidth = "0px";
   settings.maxWidth = "500px";
   const survey = new SurveyModel({
-    "showProgressBar": "top",
+    "showProgressBar": true,
+    "progressBarLocation": "top",
     elements: [
       { type: "text", name: "q1" },
       { type: "text", name: "q2", minWidth: "50px" },
@@ -18123,7 +18128,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
     "id": "toc-navigation"
   }], "nav right right");
 
-  survey.showProgressBar = "off";
+  survey.showProgressBar = false;
   survey.showNavigationButtons = "none";
   survey.showTOC = false;
   assert.deepEqual(getContainerContent("header"), [], "nav none header");
@@ -18256,7 +18261,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
     }], "progress toc both left");
     assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
 
-    survey.showProgressBar = "off";
+    survey.showProgressBar = false;
     survey.tocLocation = "left";
     assert.deepEqual(getContainerContent("header"), [], "progress toc left header");
     assert.deepEqual(getContainerContent("footer"), [], "progress toc left footer");
@@ -18412,7 +18417,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   }], "progress toc both left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
 
-  survey.showProgressBar = "off";
+  survey.showProgressBar = false;
   survey.tocLocation = "left";
   assert.deepEqual(getContainerContent("header"), [], "progress toc left header");
   assert.deepEqual(getContainerContent("footer"), [], "progress toc left footer");
@@ -18562,7 +18567,8 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
 QUnit.test("getContainerContent - do not show buttons progress on completed page", function (assert) {
   const json = {
     "progressBarType": "buttons",
-    "showProgressBar": "top",
+    "showProgressBar": true,
+    "progressBarLocation": "top",
     pages: [
       {
         "elements": [
@@ -21199,8 +21205,9 @@ QUnit.test("showPreview & updateProgress & updateVisibleIndexes", function (
   assert
 ) {
   const survey = new SurveyModel({
-    showProgressBar: "top",
-    progressBarType: "buttons",
+    showProgressBar: true,
+    progressBarLocation: "top",
+    progressBarType: "pages",
     progressBarShowPageTitles: true,
     pages: [
       {
@@ -21299,7 +21306,8 @@ QUnit.test("check panel's visibleRows are updated sync when running condidtions 
 QUnit.test("getContainerContent - do not show buttons progress in the single page mode", function (assert) {
   const json = {
     showNavigationButtons: "none",
-    showProgressBar: "auto",
+    showProgressBar: true,
+    progressBarLocation: "auto",
     pages: [
       {
         "elements": [

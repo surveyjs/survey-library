@@ -70,8 +70,10 @@
 //       type: "text"
 //     }]
 //   }],
-//   "showProgressBar": "top",
-//   "progressBarType": "buttons"
+//   "showProgressBar": true,
+//   "progressBarLocation": "top",
+//   "progressBarType": "pages"
+//   "progressBarShowPageTitles": true
 // };
 
 // export const applyHeaderAccentBackgroundColor = ClientFunction(() => {
@@ -215,7 +217,8 @@
 //         showQuestionNumbers: "on",
 //         autoFocusFirstQuestion: true,
 //         pages: testedPages,
-//         showProgressBar: "top"
+//         showProgressBar: true,
+//         progressBarLocation: "top",
 //       });
 //       await applyHeaderAccentBackgroundColor();
 //       await takeElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t, comparer); // progress
@@ -252,7 +255,8 @@
 //         await t.resizeWindow(1500, 720);
 //         const json = {
 //           "title": "American History",
-//           "showProgressBar": "top",
+//           "showProgressBar": true,
+//           "progressBarLocation": "top",
 //           showQuestionNumbers: "on",
 //           "pages": [
 //             {
@@ -434,7 +438,8 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         title: "Survey Title",
-//         showProgressBar: "top",
+//         showProgressBar: true,
+//         progressBarLocation: "top",
 //         progressBarType: "pages",
 //         // progressBarShowPageNumbers: true,
 //         pages: [
@@ -469,7 +474,8 @@
 //       await initSurvey(framework, {
 //         showQuestionNumbers: "on",
 //         title: "Survey Title",
-//         showProgressBar: "top",
+//         showProgressBar: true,
+//         progressBarLocation: "top",
 //         progressBarType: "questions",
 //         pages: [
 //           {
@@ -591,8 +597,9 @@
 //             "title": "Page 3"
 //           }
 //         ],
-//         "showProgressBar": "belowheader",
-//         "progressBarType": "buttons",
+//         "showProgressBar": true,
+//         "progressBarLocation": "belowheader",
+//         "progressBarType": "pages",
 //         "progressBarShowPageTitles": true,
 //         "widthMode": "static",
 //         "width": "800px"

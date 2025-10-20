@@ -33,12 +33,14 @@
 // });
 
 // const show_top_progress_bar = ClientFunction(() => {
-//   window["survey"].showProgressBar = "top";
+//   window["survey"].showProgressBar = true;
+//   window["survey"].progressBarLocation = "top";
 //   window["survey"].render();
 // });
 
 // const show_bottom_progress_bar = ClientFunction(() => {
-//   window["survey"].showProgressBar = "bottom";
+//   window["survey"].showProgressBar = true;
+//   window["survey"].progressBarLocation = "bottom";
 //   window["survey"].render();
 // });
 

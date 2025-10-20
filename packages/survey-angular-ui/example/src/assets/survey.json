@@ -1,6 +1,7 @@
 {
   "title": "American History",
-  "showProgressBar": "top",
+  "showProgressBar": true,
+  "progressBarLocation": "top",
   "showTimer": true,
   "timerLocation": "bottom",
   "timeLimit": 100,

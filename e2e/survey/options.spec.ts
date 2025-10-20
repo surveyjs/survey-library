@@ -181,7 +181,8 @@ frameworks.forEach(framework => {
       await expect(progressbar).toHaveCount(0);
 
       await page.evaluate(() => {
-        window["survey"].showProgressBar = "top";
+        window["survey"].showProgressBar = true;
+        window["survey"].progressBarLocation = "top";
         window["survey"].render();
       });
 
@@ -201,7 +202,8 @@ frameworks.forEach(framework => {
       await expect(progressbar).toHaveCount(0);
 
       await page.evaluate(() => {
-        window["survey"].showProgressBar = "bottom";
+        window["survey"].showProgressBar = true;
+        window["survey"].progressBarLocation = "bottom";
         window["survey"].render();
       });
 
@@ -227,7 +229,8 @@ frameworks.forEach(framework => {
       await expect(progressbar).toHaveCount(0);
 
       await page.evaluate(() => {
-        window["survey"].showProgressBar = "top";
+        window["survey"].showProgressBar = true;
+        window["survey"].progressBarLocation = "top";
         window["survey"].render();
       });
 

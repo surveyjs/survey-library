@@ -70,8 +70,10 @@ const json = {
       type: "text"
     }]
   }],
-  "showProgressBar": "top",
-  "progressBarType": "buttons"
+  "showProgressBar": true,
+  "progressBarLocation": "top",
+  "progressBarType": "pages",
+  "progressBarShowPageTitles": true
 };
 
 const applyHeaderAccentBackgroundColor = async (page) => {
@@ -216,7 +218,8 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "on",
         autoFocusFirstQuestion: true,
         pages: testedPages,
-        showProgressBar: "top"
+        showProgressBar: true,
+        progressBarLocation: "top"
       });
       await applyHeaderAccentBackgroundColor(page);
 
@@ -252,7 +255,8 @@ frameworks.forEach(framework => {
       // if (["knockout", "react", "angular"].includes(framework)) { // TODO: reanimate Vue after Vue3 supported
       const json = {
         "title": "American History",
-        "showProgressBar": "top",
+        "showProgressBar": true,
+        "progressBarLocation": "top",
         showQuestionNumbers: "on",
         "pages": [
           {
@@ -439,7 +443,8 @@ frameworks.forEach(framework => {
       const surveyJson = {
         showQuestionNumbers: "on",
         title: "Survey Title",
-        showProgressBar: "top",
+        showProgressBar: true,
+        progressBarLocation: "top",
         progressBarType: "pages",
         pages: [
           {
@@ -481,7 +486,8 @@ frameworks.forEach(framework => {
       const surveyJson = {
         showQuestionNumbers: "on",
         title: "Survey Title",
-        showProgressBar: "top",
+        showProgressBar: true,
+        progressBarLocation: "top",
         progressBarType: "questions",
         pages: [
           {
@@ -584,8 +590,9 @@ frameworks.forEach(framework => {
             title: "Page 3"
           }
         ],
-        showProgressBar: "belowheader",
-        progressBarType: "buttons",
+        showProgressBar: true,
+        progressBarLocation: "belowheader",
+        progressBarType: "pages",
         progressBarShowPageTitles: true,
         widthMode: "static",
         width: "800px"

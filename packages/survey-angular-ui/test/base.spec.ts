@@ -25,7 +25,7 @@ it("check survey renderCallback destroy if model is not defined", () => {
   const component = fixture.componentInstance;
   expect(() => { component.ngOnDestroy(); }).not.toThrow();
 });
-it("check model is subsribed to next component after destroy current component", () => {
+it("check model is subscribed correctly for multiple components", () => {
   const fixture1 = TestBed.createComponent(TestBase);
   const fixture2 = TestBed.createComponent(TestBase);
   const fixture3 = TestBed.createComponent(TestBase);
@@ -41,102 +41,72 @@ it("check model is subsribed to next component after destroy current component",
   fixture4.detectChanges();
 
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(true);
-  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(3);
+  expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(q["onPropertyValueCoreChanged"].length).toBe(4);
 
   fixture1.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(true);
-  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(2);
+  expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(q["onPropertyValueCoreChanged"].length).toBe(3);
 
   fixture2.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
-  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(1);
+  expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(true);
+  expect(q["onPropertyValueCoreChanged"].length).toBe(2);
 
   fixture4.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(true);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(0);
+  expect(q["onPropertyValueCoreChanged"].length).toBe(1);
 
   fixture3.destroy();
   expect(!!fixture1.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture2.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture3.componentInstance["isModelSubsribed"]).toBe(false);
   expect(!!fixture4.componentInstance["isModelSubsribed"]).toBe(false);
-  expect(fixture1.componentInstance["getBaseElementCallbacks"](q).length).toBe(0);
+  expect(q["onPropertyValueCoreChanged"]).toBe(undefined);
 });
-// it("Check shouldReattachChangeDetector flag", (done: any) => {
-//   const fixture = TestBed.createComponent(TestBase);
-//   const component = fixture.componentInstance;
-//   component.model = new QuestionTextModel("q1");
-//   fixture.detectChanges();
-//   let log = "";
-//   const oldReattach = component["changeDetectorRef"].reattach;
-//   component["changeDetectorRef"].reattach = () => {
-//     oldReattach.call(component["changeDetectorRef"]);
-//     log += "->reattached";
-//   };
-//   component.model.titleLocation = "left";
-//   setTimeout(() => {
-//     expect(log).toBe("->reattached");
-//     component.model.titleLocation = "top";
-//     component.shouldReattachChangeDetector = false;
-//     setTimeout(() => {
-//       expect(log).toBe("->reattached");
-//       done();
-//     }, 100);
-//   }, 100);
-// });
 
-class RecurciveModel extends Base {
-  constructor() {
-    super();
-    this.createNewArray("recursiveProperty");
-    this.getPropertyValue("recursiveProperty").push(1);
-  }
-  get recursiveProperty(): number {
-    let [a] = this.getPropertyValue("recursiveProperty").splice(0, 1);
-    a++;
-    this.getPropertyValue("recursiveProperty").push(a);
-    return this.getPropertyValue("recursiveProperty");
+@Component({
+  selector: "test-parent-component",
+  template: "<test-child-component [model]='model'></test-child-component>"
+})
+class TestParentComponent extends BaseAngular<Base> {
+  @Input() model!: Base;
+  protected override getModel(): Base {
+    return this.model;
   }
 }
 
 @Component({
-  selector: "sv-ng-test-base",
-  template: "<span>{{model.recursiveProperty}}</span>"
+  selector: "test-child-component",
+  template: "<span></span>"
 })
-class TestWithRecursiveProperty extends BaseAngular<RecurciveModel> {
-  @Input() model!: RecurciveModel;
-  public log: string = "";
-  protected override getModel(): RecurciveModel {
+class TestChildComponent extends BaseAngular<Base> {
+  @Input() model!: Base;
+  protected override getModel(): Base {
     return this.model;
   }
-  protected override afterUpdate(): void {
-    super.afterUpdate();
-    this.log += "->afterUpdate";
-  }
-
 }
 
-// it("Check shouldReattachChangeDetector flag", (done: any) => {
-//   const fixture = TestBed.createComponent(TestWithRecursiveProperty);
-//   const component = fixture.componentInstance;
-//   component.model = new RecurciveModel();
-//   fixture.detectChanges();
-//   component.ngAfterViewChecked();
-//   fixture.checkNoChanges();
-//   setTimeout(() => {
-//     expect(component.log).toBe("->afterUpdate");
-//     done();
-//   }, 100);
-// });
+it("check model is not subcribed for nested components", async () => {
+  await TestBed.configureTestingModule({
+    declarations: [TestParentComponent, TestChildComponent],
+  }).compileComponents();
+  const fixture = TestBed.createComponent(TestParentComponent);
+  const q = new QuestionTextModel("q1");
+  fixture.componentInstance.model = q;
+  fixture.detectChanges();
+  expect(q["onPropertyValueCoreChanged"].length).toBe(1);
+  expect(q["onPropertyValueCoreChanged"].hasFunc(fixture.componentInstance["onPropertyChangedCallback"]));
+  fixture.destroy();
+  expect(q["onPropertyValueCoreChanged"]).toBe(undefined);
+});

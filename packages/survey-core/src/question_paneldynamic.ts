@@ -1632,10 +1632,6 @@ export class QuestionPanelDynamicModel extends Question
     }
     return true;
   }
-
-  /**
-   * @deprecated Call the [`addPanel(undefined, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method instead.
-   */
   public addPanelUI(): PanelModel {
     return this.addPanel(undefined, true);
   }
@@ -1751,9 +1747,6 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
-  /**
-   * @deprecated Call the [`removePanel(value, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method instead.
-   */
   public removePanelUI(value: any): void {
     this.removePanel(value, this.isRequireConfirmOnDelete(value));
   }

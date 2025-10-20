@@ -3092,11 +3092,11 @@ QUnit.test("survey.onCurrentPageChanging, allow option (use it instead of allowC
   assert.equal(survey.currentPageNo, 0, "The second page again");
 });
 
-QUnit.test("survey.onCompleting, allowComplete option", function (assert) {
+QUnit.test("survey.onCompleting, allow option", function (assert) {
   var survey = twoPageSimplestSurvey();
   var allowComplete = false;
   survey.onCompleting.add(function (survey, options) {
-    options.allowComplete = allowComplete;
+    options.allow = allowComplete;
   });
   assert.equal(survey.state, "running", "It is running");
   survey.doComplete();
@@ -6611,15 +6611,15 @@ QUnit.test("Use send data to custom server", function (assert) {
   var onCompleteOptions = null;
   survey.onComplete.add(function (sender, options) {
     onCompleteOptions = options;
-    options.showDataSaving();
+    options.showSaveInProgress();
   });
   survey.data = { question1: "sss" };
   assert.equal(survey.completedState, "", "The complete state is empty");
   survey.doComplete();
   assert.equal(survey.completedState, "saving", "The complete state is saving");
-  onCompleteOptions.showDataSavingError();
+  onCompleteOptions.showSaveError();
   assert.equal(survey.completedState, "error", "The complete state is error");
-  onCompleteOptions.showDataSavingSuccess();
+  onCompleteOptions.showSaveSuccess();
   assert.equal(
     survey.completedState,
     "success",
@@ -6640,7 +6640,7 @@ QUnit.test("Notify the user about the status of sending data to custom server", 
   let onCompleteOptions: any = null;
   survey.onComplete.add(function (sender, options) {
     onCompleteOptions = options;
-    options.showDataSaving();
+    options.showSaveInProgress();
   });
   survey.data = { question1: "sss" };
   assert.equal(survey.completedState, "", "The complete state is empty");
@@ -6676,7 +6676,7 @@ QUnit.test("Notifier button", function (assert) {
   let onCompleteOptions: any = null;
   survey.onComplete.add(function (sender, options) {
     onCompleteOptions = options;
-    options.showDataSaving();
+    options.showSaveInProgress();
   });
   survey.data = { question1: "sss" };
   assert.equal(survey.completedState, "", "The complete state is empty");
@@ -6688,12 +6688,12 @@ QUnit.test("Notifier button", function (assert) {
   assert.equal(notifierLog, "The results are being saved on the server... - saving");
   notifierLog = "";
 
-  onCompleteOptions?.showDataSavingError();
+  onCompleteOptions?.showSaveError();
   assert.equal(survey.completedState, "error", "The complete state is error");
   assert.equal(notifierLog, "An error occurred and we could not save the results. - error");
   notifierLog = "";
 
-  onCompleteOptions?.showDataSavingSuccess();
+  onCompleteOptions?.showSaveSuccess();
   assert.equal(survey.completedState, "success", "The complete state is success");
   assert.equal(notifierLog, "The results were saved successfully! - success");
   notifierLog = "";
@@ -8940,7 +8940,7 @@ QUnit.test("Compete trigger and allowComplete false, Bug #3184", function (
   };
   var survey = new SurveyModel(json);
   survey.onCompleting.add((sender, options) => {
-    options.allowComplete = false;
+    options.allow = false;
   });
   survey.getQuestionByName("age").value = 10;
   assert.equal(survey.currentPageNo, 0);
@@ -11766,7 +11766,7 @@ QUnit.test("survey.navigateTo - calling logic", function (assert) {
   survey.clear();
   var completeOptions = null;
   survey.onComplete.add(function (sender, options) {
-    options.showDataSaving();
+    options.showSaveInProgress();
     completeOptions = options;
   });
   survey.doComplete();
@@ -11775,7 +11775,7 @@ QUnit.test("survey.navigateTo - calling logic", function (assert) {
     1,
     "onNavigate has been called one time only - wait for showDataSavingSuccess"
   );
-  completeOptions.showDataSavingSuccess();
+  completeOptions.showSaveSuccess();
   assert.equal(counter, 2, "onNavigate has been called two times");
 });
 
@@ -14786,7 +14786,7 @@ QUnit.test("Check onGetPanelTitleActions event", (assert) => {
   var panel = <PanelModel>survey.getPanelByName("panel1");
   var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = testActions;
+    options.actions = testActions;
   });
   assert.deepEqual(panel.getTitleActions(), testActions);
 });
@@ -14814,7 +14814,7 @@ QUnit.test("Check onGetPageTitleActions event", (assert) => {
   });
   var testActions = [{ title: "simple" }, { title: "simple2" }];
   survey.onGetPageTitleActions.add((sender, options) => {
-    options.titleActions = testActions;
+    options.actions = testActions;
   });
   var page = <PageModel>survey.pages[0];
   assert.deepEqual(page.getTitleActions(), testActions);
@@ -16213,7 +16213,7 @@ QUnit.test("Do panel click without actions, but if it has state", assert => {
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [];
+    options.actions = [];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleActions, false, "Delete all actions");
@@ -16234,7 +16234,7 @@ QUnit.test("Do not panel click with actions, but width 'default' state", assert 
     }]
   });
   survey.onGetPanelTitleActions.add((sender, options) => {
-    options.titleActions = [{ id: "action" }];
+    options.actions = [{ id: "action" }];
   });
   const panel = <PanelModel>survey.getPanelByName("panel");
   assert.equal(panel.hasTitleEvents, false, "hasTitleEvents should return false if question has 'default' state");

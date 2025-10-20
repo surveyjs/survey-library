@@ -190,7 +190,7 @@ QUnit.test(
     survey.showPreviewBeforeComplete = "showAllQuestions";
     var allowComplete = false;
     survey.onCompleting.add((sender, options) => {
-      options.allowComplete = allowComplete;
+      options.allow = allowComplete;
     });
     survey.currentPageNo = 1;
     survey.showPreview();
@@ -574,7 +574,7 @@ QUnit.test("showPreviewBeforeComplete = 'showAllQuestions' onShowingPreview even
     });
     var allowShowPreview = false;
     survey.onShowingPreview.add((sender, options) => {
-      options.allowShowPreview = allowShowPreview;
+      options.allow = allowShowPreview;
     });
     survey.showPreview();
     assert.equal(survey.state, "running", "We do not allow to show preview");

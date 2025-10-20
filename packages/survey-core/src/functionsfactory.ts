@@ -385,7 +385,7 @@ FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
   var res = createDate("function-today");
-  if (settings.localization.useLocalTimeZone) {
+  if (!settings.storeUtcDates) {
     res.setHours(0, 0, 0, 0);
   } else {
     res.setUTCHours(0, 0, 0, 0);

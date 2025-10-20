@@ -169,7 +169,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const survey = window["survey"];
         survey.onGetQuestionTitleActions.add((_, options) => {
-          options.titleActions = [
+          options.actions = [
             {
               title: "Click me",
               action: () => {

@@ -612,13 +612,13 @@ frameworks.forEach(framework => {
       await page.evaluate((json) => {
         window["survey"].onComplete.add((_, options) => {
           options.isCompleteOnTrigger = false;
-          options.showDataSaving();
+          options.showSaveInProgress();
           let fail = true;
           new Promise((resolve, reject) => {
             setTimeout(fail ? reject : resolve, 10000);
           }).then(
-            () => { options.showDataSavingSuccess(); },
-            () => { options.showDataSavingError(); }
+            () => { options.showSaveSuccess(); },
+            () => { options.showSaveError(); }
           );
         });
         window["survey"].fromJSON(json);
@@ -644,13 +644,13 @@ frameworks.forEach(framework => {
       await page.evaluate((json) => {
         window["survey"].onComplete.add((_, options) => {
           options.isCompleteOnTrigger = false;
-          options.showDataSaving();
+          options.showSaveInProgress();
           let fail = true;
           new Promise((resolve, reject) => {
             setTimeout(fail ? reject : resolve, 500);
           }).then(
-            () => { options.showDataSavingSuccess(); },
-            () => { options.showDataSavingError(); }
+            () => { options.showSaveSuccess(); },
+            () => { options.showSaveError(); }
           );
         });
         window["survey"].fromJSON(json);
@@ -680,13 +680,13 @@ frameworks.forEach(framework => {
       await page.evaluate((json) => {
         window["survey"].onComplete.add((_, options) => {
           options.isCompleteOnTrigger = false;
-          options.showDataSaving();
+          options.showSaveInProgress();
           let fail = false;
           new Promise((resolve, reject) => {
             setTimeout(fail ? reject : resolve, 500);
           }).then(
-            () => { options.showDataSavingSuccess(); },
-            () => { options.showDataSavingError(); }
+            () => { options.showSaveSuccess(); },
+            () => { options.showSaveError(); }
           );
         });
         window["survey"].fromJSON(json);

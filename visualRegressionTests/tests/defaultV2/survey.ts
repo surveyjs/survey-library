@@ -628,12 +628,12 @@
 //       await initSurvey(framework, notifierJson, {
 //         onComplete: (_sender, options) => {
 //           options.isCompleteOnTrigger = false;
-//           options.showDataSaving();
+//           options.showSaveInProgress();
 //           let fail = true;
 
 //           new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
-//             () => { options.showDataSavingSuccess(); },
-//             () => { options.showDataSavingError(); }
+//             () => { options.showSaveSuccess(); },
+//             () => { options.showSaveError(); }
 //           );
 //         }
 //       });
@@ -651,12 +651,12 @@
 //       await initSurvey(framework, notifierJson, {
 //         onComplete: (_sender, options) => {
 //           options.isCompleteOnTrigger = false;
-//           options.showDataSaving();
+//           options.showSaveInProgress();
 //           let fail = true;
 
 //           new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
-//             () => { options.showDataSavingSuccess(); },
-//             () => { options.showDataSavingError(); }
+//             () => { options.showSaveSuccess(); },
+//             () => { options.showSaveError(); }
 //           );
 //         }
 //       });
@@ -676,12 +676,12 @@
 //       await initSurvey(framework, notifierJson, {
 //         onComplete: (_sender, options) => {
 //           options.isCompleteOnTrigger = false;
-//           options.showDataSaving();
+//           options.showSaveInProgress();
 //           let fail = false;
 
 //           new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
-//             () => { options.showDataSavingSuccess(); },
-//             () => { options.showDataSavingError(); }
+//             () => { options.showSaveSuccess(); },
+//             () => { options.showSaveError(); }
 //           );
 //         }
 //       });

@@ -217,7 +217,7 @@ frameworks.forEach((framework) => {
 
   test("Check actions", async (t) => {
     await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
-      options.titleActions = [
+      options.actions = [
         {
           title: "Click me",
           action: () => {

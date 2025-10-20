@@ -409,7 +409,7 @@
 //                   }
 //                 ],
 //                 "panelCount": 20,
-//                 "renderMode": "tab"
+//                 "displayMode": "tab"
 //               }
 //             ]
 //           }

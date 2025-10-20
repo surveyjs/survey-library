@@ -401,7 +401,7 @@ frameworks.forEach(framework => {
                     "name": "question2"
                   }
                 ],
-                "renderMode": "progressTop"
+                "displayMode": "carousel"
               },
               {
                 "type": "paneldynamic",
@@ -419,7 +419,7 @@ frameworks.forEach(framework => {
                     "name": "question4"
                   }
                 ],
-                "renderMode": "progressTop"
+                "displayMode": "carousel"
               },
               {
                 "type": "paneldynamic",
@@ -441,7 +441,7 @@ frameworks.forEach(framework => {
                     "name": "question6"
                   }
                 ],
-                "renderMode": "progressTop"
+                "displayMode": "carousel"
               }
             ]
           }

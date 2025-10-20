@@ -823,7 +823,7 @@ var json = {
       type: "paneldynamic",
       name: "relatives",
       title: "Panel Dynamic",
-      renderMode: "progressTop",
+      displayMode: "carousel",
       templateTitle: "Information about: {panel.relativeType}",
       templateElements: [
         {
@@ -939,8 +939,8 @@ var json = {
         }
       ],
       panelCount: 2,
-      panelAddText: "Add a blood relative",
-      panelRemoveText: "Remove the relative"
+      addPanelText: "Add a blood relative",
+      removePanelText: "Remove the relative"
     },
     {
       type: "panel",

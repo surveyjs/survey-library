@@ -311,7 +311,7 @@ frameworks.forEach(framework => {
                 name: "question1",
                 templateElements: [{ type: "text", name: "question2" }],
                 panelCount: 20,
-                renderMode: "tab"
+                displayMode: "tab"
               }
             ]
           }

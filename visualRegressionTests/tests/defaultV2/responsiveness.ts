@@ -129,7 +129,7 @@
 //         type: "paneldynamic",
 //         name: "applications",
 //         title: "What application do you use?",
-//         renderMode: "progressTop",
+//         displayMode: "carousel",
 //         templateTitle: "{panel.application}",
 //         templateElements: [
 //           {
@@ -150,8 +150,8 @@
 //         ],
 //         panelCount: 2,
 //         noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
-//         panelAddText: "Add application",
-//         panelRemoveText: "Remove application"
+//         addPanelText: "Add application",
+//         removePanelText: "Remove application"
 //       },
 //     ]
 //   };
@@ -174,7 +174,7 @@
 //       await initSurvey(framework, panelDynamicJSON);
 //       await ClientFunction(() => {
 //         document.body.focus();
-//         (window as any).survey.getQuestionByName("applications").renderMode = "list";
+//         (window as any).survey.getQuestionByName("applications").displayMode = "list";
 //       })();
 //       await takeElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t, comparer);
 //     });
@@ -287,7 +287,7 @@
 //             ],
 //             addRowText: "Add a New Record",
 //             rowCount: 2,
-//             "addRowLocation": "top"
+//             "addRowButtonLocation": "top"
 //           },
 //         ]
 //       });

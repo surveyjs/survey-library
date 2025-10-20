@@ -11,7 +11,7 @@ var json = {
       type: "paneldynamic",
       name: "applications",
       title: "What application do you use?",
-      renderMode: "progressTop",
+      displayMode: "carousel",
       templateTitle: "{panel.application}",
       templateElements: [
         {
@@ -81,7 +81,7 @@ frameworks.forEach(framework => {
 
       await resetFocusToBody(page);
       await page.evaluate(() => {
-        (window as any).survey.getQuestionByName("applications").renderMode = "list";
+        (window as any).survey.getQuestionByName("applications").displayMode = "list";
       });
       await compareScreenshot(page, paneldynamicRoot, "paneldynamic-list.png");
     });
@@ -158,7 +158,7 @@ frameworks.forEach(framework => {
                 type: "paneldynamic",
                 name: "relatives",
                 title: "Panel Dynamic",
-                renderMode: "tab",
+                displayMode: "tab",
                 templateTitle: "Information about: {panel.relativeType}",
                 templateElements: [
                   {
@@ -418,7 +418,7 @@ frameworks.forEach(framework => {
                 ],
                 "panelCount": 4,
                 "minPanelCount": 4,
-                "renderMode": "tab"
+                "displayMode": "tab"
               }
             ]
           }

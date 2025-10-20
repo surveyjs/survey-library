@@ -4100,7 +4100,7 @@ QUnit.test("matrix dropdown + renderedTable + totals", function (assert) {
     "ABC:",
     "total text"
   );
-  matrix.columnLayout = "horizontal";
+  matrix.transposeData = false;
   assert.equal(
     matrix.renderedTable.showFooter,
     true,

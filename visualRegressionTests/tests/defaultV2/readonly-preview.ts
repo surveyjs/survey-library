@@ -424,7 +424,7 @@
 //                     "name": "question2"
 //                   }
 //                 ],
-//                 "renderMode": "progressTop"
+//                 "displayMode": "carousel"
 //               },
 //               {
 //                 "type": "paneldynamic",
@@ -442,7 +442,7 @@
 //                     "name": "question4"
 //                   }
 //                 ],
-//                 "renderMode": "progressTop"
+//                 "displayMode": "carousel"
 //               },
 //               {
 //                 "type": "paneldynamic",
@@ -464,7 +464,7 @@
 //                     "name": "question6"
 //                   }
 //                 ],
-//                 "renderMode": "progressTop"
+//                 "displayMode": "carousel"
 //               }
 //             ]
 //           }

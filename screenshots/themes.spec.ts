@@ -56,7 +56,7 @@ frameworks.forEach(framework => {
                 ],
                 "panelCount": 3,
                 "minPanelCount": 3,
-                "renderMode": "tab"
+                "displayMode": "tab"
               }
             ]
           },

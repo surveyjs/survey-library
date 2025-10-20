@@ -124,7 +124,7 @@ frameworks.forEach(framework => {
           type: "paneldynamic",
           name: "applications",
           title: "What application do you use?",
-          renderMode: "progressTop",
+          displayMode: "carousel",
           templateTitle: "{panel.application}",
           templateElements: [
             {
@@ -169,7 +169,7 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         document.body.focus();
-        (window as any).survey.getQuestionByName("applications").renderMode = "list";
+        (window as any).survey.getQuestionByName("applications").displayMode = "list";
       });
       await compareScreenshot(page, ".sd-question--paneldynamic", "responsiveness-paneldynamic-list.png");
     });

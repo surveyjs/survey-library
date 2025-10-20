@@ -662,7 +662,7 @@ frameworks.forEach((framework) => {
               "detailPanelMode": "underRowSingle",
               "cellType": "text",
               "rowCount": 1,
-              "addRowLocation": "top",
+              "addRowButtonLocation": "top",
               "hideColumnsIfEmpty": true,
               "detailPanelShowOnAdding": true
             }

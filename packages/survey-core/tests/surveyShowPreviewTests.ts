@@ -282,7 +282,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("showPreviewBeforeComplete = true set property", function(
+QUnit.test("showPreviewBeforeComplete = true set property ", function(
   assert
 ) {
   var survey = new SurveyModel({
@@ -293,6 +293,7 @@ QUnit.test("showPreviewBeforeComplete = true set property", function(
   });
   survey.setValue("q2", "va1");
   survey.showPreviewBeforeComplete = true;
+  survey.previewMode = "answeredQuestions";
   survey.currentPageNo = 1;
   survey.showPreview();
   const panels = survey.currentPage.elements;

@@ -78,7 +78,7 @@ registerMarkupTest(
         {
           type: "panel",
           name: "name",
-          showQuestionNumbers: false,
+          showQuestionNumbers: "off",
           startWithNewLine: false,
           elements: [
             {

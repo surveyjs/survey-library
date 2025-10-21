@@ -456,6 +456,37 @@ QUnit.test("Question Signature upload files", function (assert) {
   });
 });
 
+QUnit.test("Question Signature upload files Error", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        dataFormat: "svg",
+        storeDataAsText: false,
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
+  var errorIndex = 1;
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback([], ["Error " + (errorIndex ++)]);
+  });
+
+  const el = document.createElement("div");
+  el.append(document.createElement("canvas"));
+  q1.afterRenderQuestionElement(el);
+  q1.valueWasChangedFromLastUpload = true;
+  q1.onBlur({ target: null } as any);
+
+  assert.deepEqual(q1.errors.map(e => e.text), ["Error 1"]);
+  q1.valueWasChangedFromLastUpload = true;
+  q1.onBlur({ target: null } as any);
+  assert.deepEqual(q1.errors.map(e => e.text), ["Error 2"]);
+});
+
 QUnit.test("Question Signature upload files - and complete", function (assert) {
   var json = {
     questions: [
@@ -779,4 +810,50 @@ QUnit.test("do not init in design mode", (assert) => {
   assert.notOk(signaturepad["signaturePad"]);
 
   el.remove();
+});
+QUnit.test("Question Signature showPlaceholder on Error", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        dataFormat: "svg",
+        storeDataAsText: false,
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
+  var errorIndex = 1;
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback([], ["Error " + (errorIndex ++)]);
+  });
+
+  const el = document.createElement("div");
+  el.append(document.createElement("canvas"));
+  q1.afterRenderQuestionElement(el);
+
+  assert.equal(!!q1.nothingIsDrawn(), true);
+
+  const event = new CustomEvent("beginStroke", { bubbles: true, cancelable: true, detail: {} });
+  q1.signaturePad.dispatchEvent(event);
+
+  const event2 = new CustomEvent("endStroke", { bubbles: true, cancelable: true, detail: {} });
+  q1.signaturePad.dispatchEvent(event2);
+
+  assert.equal(q1.nothingIsDrawn(), false);
+
+  assert.deepEqual(q1.errors.map(e => e.text), []);
+
+  q1.valueWasChangedFromLastUpload = true;
+  q1.onBlur({ target: null } as any);
+  assert.ok(q1.hasDrawnStroke);
+  assert.equal(q1.nothingIsDrawn(), false);
+  assert.notOk(q1.value);
+  assert.deepEqual(q1.errors.map(e => e.text), ["Error 1"]);
+
+  q1.clearValue(true, true);
+  assert.notOk(q1.value);
+  assert.equal(q1.nothingIsDrawn(), true);
 });

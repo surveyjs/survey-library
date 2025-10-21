@@ -108,6 +108,7 @@ export class QuestionFileModelBase extends Question {
   }
   protected uploadFiles(files: File[]) {
     if (this.survey) {
+      this.errors = [];
       this.stateChanged("loading");
       this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
         if (Array.isArray(arg1)) {

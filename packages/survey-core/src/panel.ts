@@ -1460,7 +1460,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
 
   protected onRowsChanged(): void {
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson || !this.wasRendered) return;
     this.blockAnimations();
     this.setArrayPropertyDirectly("rows", this.buildRows());
     this.updateColumns();
@@ -1475,6 +1475,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.locCountRowUpdates--;
   }
   private updateRowsBeforeElementRemoved(element: IElement): void {
+    if (!this.wasRendered && this.rows.length === 0) return;
     const elementRow = this.findRowByElement(element);
     const elementRowIndex = this.rows.indexOf(elementRow);
     const elementIndexInRow = elementRow.elements.indexOf(element);

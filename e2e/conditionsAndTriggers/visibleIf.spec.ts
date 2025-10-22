@@ -3,7 +3,7 @@ import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../h
 const title = "visibleIf";
 
 const json = {
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   elements: [
     {
       type: "radiogroup",

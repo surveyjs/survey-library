@@ -1452,7 +1452,7 @@ QUnit.test(
           "type": "matrixdynamic",
           "name": "Current Level of Function",
           "title": "Matrix Dynamic (vertical columns)",
-          "columnLayout": "vertical",
+          "transposeData": true,
           "maxRowCount": 5,
           "columns": [
             {
@@ -3384,7 +3384,7 @@ QUnit.test("Nested pages", function (assert) {
 });
 QUnit.test("survey.onGetPanelNumber", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -3438,7 +3438,7 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
 });
 QUnit.test("panel.showQuestionNumbers: 'recursive'", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",

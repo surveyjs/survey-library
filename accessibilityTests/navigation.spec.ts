@@ -5,7 +5,8 @@ const title = "navigation";
 
 const json = {
   "progressBarType": "pages",
-  "showProgressBar": "top",
+  "showProgressBar": true,
+  "progressBarLocation": "top",
   "title": "Customer Satisfaction Survey",
   "pages": [{
     "navigationTitle": "Overall satisfaction",

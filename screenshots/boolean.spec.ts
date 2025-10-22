@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Check boolean question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [{ type: "boolean", name: "boolean_question", },]
       });
       const questionRoot = page.locator(".sd-question--boolean");
@@ -43,7 +43,7 @@ frameworks.forEach(framework => {
     test("Check boolean question - interchange buttons", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 800 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [{ type: "boolean", name: "boolean_question", swapOrder: true },] });
       const questionRoot = page.locator(".sd-question--boolean");
       await page.waitForTimeout(1000);
@@ -73,7 +73,7 @@ frameworks.forEach(framework => {
     test("Check radio boolean question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -102,7 +102,7 @@ frameworks.forEach(framework => {
     test("Check boolean question word-wrap", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         elements: [
           {
@@ -122,7 +122,7 @@ frameworks.forEach(framework => {
     test("Check boolean thumb position", async ({ page }) => {
       await page.setViewportSize({ width: 1400, height: 800 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "pages": [
           {
@@ -155,7 +155,7 @@ frameworks.forEach(framework => {
     test("Check boolean swapOrder thumb position", async ({ page }) => {
       await page.setViewportSize({ width: 1400, height: 800 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             type: "boolean",
@@ -180,7 +180,7 @@ frameworks.forEach(framework => {
       });
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",
@@ -206,12 +206,12 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",
             "name": "q1",
-            "titleLocation": "hidden",
+            "useTitleAsLabel": true,
             "isRequired": true,
             "renderAs": "checkbox"
           }
@@ -226,7 +226,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",

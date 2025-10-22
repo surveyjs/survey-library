@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Signature resize to mobile", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -43,7 +43,7 @@ frameworks.forEach(framework => {
     test("Signature scaled", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "900px",
         elements: [
           {
@@ -78,7 +78,7 @@ frameworks.forEach(framework => {
     test("Signature update from value", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "600px",
         elements: [
           {
@@ -102,7 +102,7 @@ frameworks.forEach(framework => {
     test("Signature loadingIndicator", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         width: "600px",
         elements: [
           {
@@ -127,7 +127,7 @@ frameworks.forEach(framework => {
     test("Signature loading preview", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "signaturepad",

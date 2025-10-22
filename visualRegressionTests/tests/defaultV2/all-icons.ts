@@ -13,7 +13,7 @@
 //       await t.resizeWindow(1920, 1080);
 
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         pages: [{
 //           name: "page1",
 //           elements: [{

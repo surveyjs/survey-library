@@ -7,7 +7,7 @@ const singleListItemHeight = 56;
 
 const jsonCloseOnSelectIsTrue = {
   autoFocusFirstQuestion: true,
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   elements: [
     {
       type: "tagbox",
@@ -49,7 +49,7 @@ const jsonCloseOnSelectIsTrue = {
 
 const jsonCloseOnSelectIsDefault = {
   autoFocusFirstQuestion: true,
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   elements: [
     {
       type: "tagbox",
@@ -184,7 +184,7 @@ frameworks.forEach((framework) => {
 
   test("tagbox popup position recalculate", async (t) => {
     await initSurvey(framework, {
-      showQuestionNumbers: "off",
+      showQuestionNumbers: false,
       elements: [
         {
           type: "tagbox",
@@ -453,7 +453,8 @@ frameworks.forEach((framework) => {
       ],
       "showCompletePage": false,
       "showQuestionNumbers": "off",
-      "showProgressBar": "top",
+      "showProgressBar": true,
+      "progressBarLocation": "top",
       "checkErrorsMode": "onComplete",
     };
     const popupContainer = Selector(".sv-popup__container").filterVisible();

@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
     test("Matrix checkboxes", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "autoFocusFirstQuestion": true,
         "pages": [
           {
@@ -172,7 +172,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1200, height: 1200 });
       await initSurvey(page, framework,
         {
-          showQuestionNumbers: "on",
+          showQuestionNumbers: true,
           pages: [
             {
               name: "page1",
@@ -519,7 +519,7 @@ frameworks.forEach(framework => {
     test("Matrix dropdown", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [
@@ -550,7 +550,7 @@ frameworks.forEach(framework => {
     test("Matrix detail row", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "matrixdynamic",
@@ -583,7 +583,7 @@ frameworks.forEach(framework => {
     test("Matrix detail questions in one row", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "matrixdynamic",
@@ -609,7 +609,7 @@ frameworks.forEach(framework => {
     test("Matrix many columns", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [
@@ -647,7 +647,7 @@ frameworks.forEach(framework => {
     test("Matrix row top align", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [
@@ -679,7 +679,7 @@ frameworks.forEach(framework => {
     test("Matrix alternate rows", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [
@@ -723,7 +723,7 @@ frameworks.forEach(framework => {
     test("Matrix dropdown row top align", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [
@@ -760,7 +760,7 @@ frameworks.forEach(framework => {
     test("Matrix fonts", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "pages": [
           {
@@ -790,7 +790,7 @@ frameworks.forEach(framework => {
     test("Matrix columns and row width", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "autoFocusFirstQuestion": false,
         "pages": [
@@ -817,7 +817,7 @@ frameworks.forEach(framework => {
     test("Matrix with description under input", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "autoFocusFirstQuestion": false,
         "pages": [
           {
@@ -843,7 +843,7 @@ frameworks.forEach(framework => {
     test("Matrix with boolean column", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         "elements": [
           {
@@ -871,7 +871,7 @@ frameworks.forEach(framework => {
     test("Matrix with checkboxes", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         "elements": [
           {
@@ -890,7 +890,7 @@ frameworks.forEach(framework => {
                 ]
               }
             ],
-            "columnLayout": "vertical",
+            "transposeData": true,
             "rows": [{ "value": "col", "text": "Col" }]
           }
         ],
@@ -905,7 +905,7 @@ frameworks.forEach(framework => {
     test("Matrix rubric alternate rows", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -914,7 +914,7 @@ frameworks.forEach(framework => {
                 "type": "matrix",
                 "name": "planningPerformance",
                 "title": "Question",
-                "hideNumber": true,
+                "showNumber": false,
                 "defaultValue": {
                   "Row 1": "Column 1",
                   "Row 2": "Column 2"
@@ -946,7 +946,7 @@ frameworks.forEach(framework => {
     test("Matrix in single page mode", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -1015,7 +1015,7 @@ frameworks.forEach(framework => {
     test("Check mobile multi select matrix with showHeader: false", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             "type": "matrixdropdown",
@@ -1045,7 +1045,7 @@ frameworks.forEach(framework => {
     test("matrix focus frame in one line", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",

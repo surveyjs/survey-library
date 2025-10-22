@@ -266,7 +266,7 @@ QUnit.test("check getItemClass in display mode", (assert) => {
     ],
   };
   const survey = new SurveyModel(json);
-  survey.mode = "display";
+  survey.readOnly = true;
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.itemHover = "sv_q_rating_hover";
   const item = q1.visibleRateValues[0];
@@ -425,7 +425,7 @@ QUnit.test("check stars highlighting", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "mouseIn #2 index=4");
 
   q1.onItemMouseOut(q1.renderedRateItems[1]);
-  survey.mode = "display";
+  survey.readOnly = true;
   q1.onItemMouseIn(q1.renderedRateItems[1]);
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "survey.mode=display index=0");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "survey.mode=display index=1");
@@ -524,7 +524,7 @@ QUnit.test("check stars styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
 
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected sv_q_readonly");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_readonly");
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_readonly");
@@ -612,7 +612,7 @@ QUnit.test("check stars for rateValues", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "item[3] is empty");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "item[4] is empty");
 
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected sv_q_readonly");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_readonly");
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_readonly", "item[2] is disabled not selected");
@@ -706,7 +706,7 @@ QUnit.test("check smileys styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_allowhover");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_allowhover");
 
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_readonly");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_readonly");
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_readonly");

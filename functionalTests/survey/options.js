@@ -3,7 +3,7 @@
 // const title = "options";
 
 // const change_question_required_text = ClientFunction(() => {
-//   window["survey"].requiredText = "some";  //
+//   window["survey"].requiredMark = "some";  //
 //   window["survey"].render();
 // });
 
@@ -33,12 +33,14 @@
 // });
 
 // const show_top_progress_bar = ClientFunction(() => {
-//   window["survey"].showProgressBar = "top";
+//   window["survey"].showProgressBar = true;
+//   window["survey"].progressBarLocation = "top";
 //   window["survey"].render();
 // });
 
 // const show_bottom_progress_bar = ClientFunction(() => {
-//   window["survey"].showProgressBar = "bottom";
+//   window["survey"].showProgressBar = true;
+//   window["survey"].progressBarLocation = "bottom";
 //   window["survey"].render();
 // });
 
@@ -50,7 +52,7 @@
 // const json = {
 //   title: "Software developer survey.",
 //   headerView: "basic",
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   pages: [
 //     {
 //       title: "What operating system do you use?",

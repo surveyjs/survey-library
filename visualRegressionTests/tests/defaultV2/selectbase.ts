@@ -15,7 +15,7 @@
 //       await setRowItemFlowDirection();
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "checkbox",
@@ -39,7 +39,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "checkbox",
@@ -65,7 +65,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             "type": "radiogroup",
@@ -92,7 +92,7 @@
 //       await takeElementScreenshot("radiogroup-col-count-0.png", Selector(".sd-question"), t, comparer);
 //       await ClientFunction(() => { (<any>window).survey.getQuestionByName("car").colCount = 4; })();
 //       await takeElementScreenshot("radiogroup-col-count-4.png", Selector(".sd-question"), t, comparer);
-//       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].showClearButton = true; })();
+//       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].allowClear = true; })();
 //       await takeElementScreenshot("radiogroup-clear-button", Selector(".sd-question"), t, comparer);
 //     });
 //   });
@@ -101,7 +101,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "radiogroup",
@@ -125,7 +125,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -157,7 +157,7 @@
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "pages": [
 //           {

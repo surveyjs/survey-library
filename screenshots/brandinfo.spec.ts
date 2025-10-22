@@ -11,7 +11,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
 
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         showBrandInfo: true,
         elements: [{
           type: "text",

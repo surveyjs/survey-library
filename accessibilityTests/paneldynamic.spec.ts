@@ -40,7 +40,6 @@ frameworks.forEach((framework) => {
                 "panelCount": 2,
                 "addPanelText": "Add a blood relative",
                 "removePanelText": "Remove the relative",
-                "renderMode": "progressTop",
                 "displayMode": "carousel"
               },
             ]

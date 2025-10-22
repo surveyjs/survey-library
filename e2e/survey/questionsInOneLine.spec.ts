@@ -4,7 +4,7 @@ const title = "questionsInOneLine and titles location";
 
 const json = {
   questionTitleLocation: "bottom",
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   pages: [
     {
       name: "Address",

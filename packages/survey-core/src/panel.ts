@@ -2240,7 +2240,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * - `"default"` - Inherits the setting from the parent panel, page, or survey.
    * - `"recursive"` - Applies recursive numbering to elements nested within this page/panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
    * - `"onpanel"` - Starts numbering within this page/panel from scratch.
-   * - `false` or `"off"` - Hides question numbers within this page/panel.
+   * - `"off"` - Hides question numbers within this page/panel.
    * @see [SurveyModel.showQuestionNumbers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers)
    * @see showNumber
    */

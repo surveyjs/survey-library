@@ -342,7 +342,7 @@ QUnit.test("single page survey in preview", function (assert) {
       }
     ],
     "questionsOnPageMode": "singlePage",
-    "showPreviewBeforeComplete": "showAllQuestions"
+    "showPreviewBeforeComplete": true,
   };
 
   let survey = new SurveyModel(json);

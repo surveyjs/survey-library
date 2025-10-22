@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
     test("Check simple question in small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         elements: [
           {
@@ -80,7 +80,7 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         elements: [
           {
@@ -97,7 +97,7 @@ frameworks.forEach(framework => {
     test("Check questions in one row in small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "text",
@@ -118,13 +118,13 @@ frameworks.forEach(framework => {
     });
 
     const panelDynamicJSON = {
-      showQuestionNumbers: "off",
+      showQuestionNumbers: false,
       elements: [
         {
           type: "paneldynamic",
           name: "applications",
           title: "What application do you use?",
-          renderMode: "progressTop",
+          displayMode: "carousel",
           templateTitle: "{panel.application}",
           templateElements: [
             {
@@ -169,7 +169,7 @@ frameworks.forEach(framework => {
 
       await page.evaluate(() => {
         document.body.focus();
-        (window as any).survey.getQuestionByName("applications").renderMode = "list";
+        (window as any).survey.getQuestionByName("applications").displayMode = "list";
       });
       await compareScreenshot(page, ".sd-question--paneldynamic", "responsiveness-paneldynamic-list.png");
     });
@@ -177,7 +177,7 @@ frameworks.forEach(framework => {
     test("Check matrix on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "matrix",
@@ -200,7 +200,7 @@ frameworks.forEach(framework => {
     test("Check matrix on small screen - alt rows", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "matrix",
@@ -224,7 +224,7 @@ frameworks.forEach(framework => {
     test("Check matrixdynamic on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "matrixdynamic",
@@ -262,7 +262,7 @@ frameworks.forEach(framework => {
     test("Check matrixdynamic on small screen with errors", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "matrixdynamic",
@@ -298,7 +298,7 @@ frameworks.forEach(framework => {
     test("Check matrixdynamic on small screen with errors bottom", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         questionErrorLocation: "bottom",
         elements: [
           {
@@ -335,7 +335,7 @@ frameworks.forEach(framework => {
     test("Check matrixdropdown on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "matrixdropdown",
@@ -368,7 +368,7 @@ frameworks.forEach(framework => {
     test("Check multipletext on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "multipletext",
@@ -397,7 +397,7 @@ frameworks.forEach(framework => {
     test("Check multipletext with inputType 'date' on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "multipletext",
@@ -433,7 +433,7 @@ frameworks.forEach(framework => {
     test("Check multicolumn checkbox question on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "checkbox",
@@ -452,7 +452,7 @@ frameworks.forEach(framework => {
     test("Check multicolumn checkbox question doesn't fit width", async ({ page }) => {
       await page.setViewportSize({ width: 1600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         "widthMode": "static",
         "width": "60%",
         elements: [
@@ -482,7 +482,7 @@ frameworks.forEach(framework => {
     test("Check image question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "image",
@@ -500,7 +500,7 @@ frameworks.forEach(framework => {
     test("Check ranking question on small screen", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -520,7 +520,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework,
         {
-          showQuestionNumbers: "on",
+          showQuestionNumbers: true,
           autoFocusFirstQuestion: true,
           description: "Survey Description",
           title: "Title",
@@ -574,7 +574,7 @@ frameworks.forEach(framework => {
           description: "Survey Description",
           title: "Title",
           widthMode: "static",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           elements: [{
             "type": "matrixdynamic",
             "name": "question1",
@@ -615,7 +615,7 @@ frameworks.forEach(framework => {
           description: "Survey Description",
           title: "Title",
           widthMode: "static",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           elements: [{
             "type": "matrixdropdown",
             "name": "question1",
@@ -659,7 +659,7 @@ frameworks.forEach(framework => {
           description: "Survey Description",
           title: "Title",
           widthMode: "static",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           elements: [{
             "type": "matrixdropdown",
             "name": "question1",
@@ -682,7 +682,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 1920 });
       await initSurvey(page, framework,
         {
-          showQuestionNumbers: "on",
+          showQuestionNumbers: true,
           "pages": [
             {
               "name": "page1",
@@ -711,7 +711,7 @@ frameworks.forEach(framework => {
     test("Check matrixdynamic with totals in one column in mobile mode", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "matrixdynamic", "name": "question1",

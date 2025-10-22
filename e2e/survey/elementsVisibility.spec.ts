@@ -3,7 +3,7 @@ import { frameworks, url, initSurvey, test, expect } from "../helper";
 const title = "Elements Visibility";
 
 const json = {
-  showQuestionNumbers: "on",
+  showQuestionNumbers: true,
   pages: [
     {
       elements: [

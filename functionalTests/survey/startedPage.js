@@ -11,7 +11,7 @@
 //       ],
 //     }
 //   ],
-//   firstPageIsStarted: true
+//   firstPageIsStartPage: true
 // };
 
 // frameworks.forEach((framework) => {

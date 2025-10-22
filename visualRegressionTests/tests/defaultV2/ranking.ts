@@ -14,7 +14,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -35,7 +35,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -52,7 +52,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -72,7 +72,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -91,7 +91,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -111,7 +111,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -152,7 +152,7 @@
 //   await wrapVisualTest(t, async (t, comparer) => {
 //     await t.resizeWindow(1920, 1080);
 //     await initSurvey(framework, {
-//       showQuestionNumbers: "off",
+//       showQuestionNumbers: false,
 //       questions: [
 //         {
 //           type: "ranking",
@@ -183,7 +183,7 @@
 //   await wrapVisualTest(t, async (t, comparer) => {
 //     await t.resizeWindow(1920, 1080);
 //     await initSurvey(framework, {
-//       showQuestionNumbers: "off",
+//       showQuestionNumbers: false,
 //       questions: [
 //         {
 //           type: "ranking",
@@ -216,7 +216,7 @@
 //   await wrapVisualTest(t, async (t, comparer) => {
 //     await t.resizeWindow(1920, 1080);
 //     await initSurvey(framework, {
-//       showQuestionNumbers: "off",
+//       showQuestionNumbers: false,
 //       questions: [
 //         {
 //           type: "ranking",
@@ -253,7 +253,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         questions: [
 //           {
 //             "type": "ranking",
@@ -283,7 +283,7 @@
 //     await registerCustomItemContentComponent(framework);
 //     await t.resizeWindow(1920, 1080);
 //     await initSurvey(framework, {
-//       showQuestionNumbers: "off",
+//       showQuestionNumbers: false,
 //       questions: [
 //         {
 //           type: "ranking",
@@ -304,7 +304,7 @@
 //       await registerCustomItemContentComponent(framework);
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",

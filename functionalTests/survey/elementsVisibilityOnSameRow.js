@@ -3,7 +3,7 @@
 // const title = "Elements Visibility on Same row";
 
 // const json = {
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   pages: [
 //     {
 //       elements: [

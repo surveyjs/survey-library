@@ -12,7 +12,7 @@ const json = {
           type: "paneldynamic",
           name: "relatives",
           title: "Please enter all blood relatives you know",
-          renderMode: "progressTop",
+          displayMode: "carousel",
           defaultValue: [
             {
               relativeType: "father",
@@ -259,7 +259,8 @@ const json2 = {
     {
       type: "paneldynamic",
       name: "panel",
-      renderMode: "progressTopBottom",
+      displayMode: "carousel",
+      progressBarLocation: "topBottom",
       templateElements: [
         { type: "text", name: "q1" },
       ],
@@ -316,7 +317,7 @@ const json3 = {
         { type: "text", name: "q2" },
       ],
       templateVisibleIf: "{panel.col1}='a'",
-      renderMode: "tab",
+      displayMode: "tab",
       templateTabTitle: "#{visiblePanelIndex}-{panelIndex}"
     },
   ],
@@ -344,9 +345,9 @@ frameworks.forEach((framework) => {
       .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).ok();
   });
-  test("templateVisibleIf renderMode: list", async (t) => {
+  test("templateVisibleIf displayMode: list", async (t) => {
     await ClientFunction(() => {
-      (window as any).survey.getQuestionByName("panel").renderMode = "list";
+      (window as any).survey.getQuestionByName("panel").displayMode = "list";
     })();
     const titleSelector = Selector("span").withText("q1");
     await t
@@ -473,7 +474,7 @@ frameworks.forEach((framework) => {
           type: "paneldynamic",
           name: "panel1",
           panelCount: 2,
-          renderMode: "tab",
+          displayMode: "tab",
           newPanelPosition: "next",
           templateElements: [
             {
@@ -517,14 +518,14 @@ frameworks.forEach((framework) => {
       panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
     });
   });
-  test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
+  test("Focus first input on adding a new panel, displayMode='tab'", async (t) => {
     await initSurvey(framework, {
       elements: [
         {
           type: "paneldynamic",
           name: "panel1",
           panelCount: 0,
-          renderMode: "tab",
+          displayMode: "tab",
           newPanelPosition: "next",
           templateElements: [
             {
@@ -567,7 +568,7 @@ frameworks.forEach((framework) => {
                   "name": "question2"
                 }
               ],
-              "renderMode": "tab"
+              "displayMode": "tab"
             }
           ]
         }
@@ -585,7 +586,7 @@ frameworks.forEach((framework) => {
 
     await t.expect(Selector(".sv-action.sv-dots").visible).ok();
   });
-  test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
+  test("Focus first input on adding a new panel, displayMode='tab'", async (t) => {
     await initSurvey(framework, {
       autoFocusFirstQuestion: true,
       elements: [

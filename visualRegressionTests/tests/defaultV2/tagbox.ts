@@ -16,7 +16,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -82,7 +82,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -113,7 +113,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -176,7 +176,7 @@
 //       await t.resizeWindow(800, 900);
 //       await initSurvey(framework, {
 //         focusFirstQuestionAutomatic: true,
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -227,7 +227,7 @@
 //       })();
 
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -281,7 +281,7 @@
 //         window["Survey"]._setIsTouch(true);
 //       })();
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -328,7 +328,7 @@
 //         window["Survey"]._setIsTouch(true);
 //       })();
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -389,7 +389,7 @@
 //       })();
 //       await initSurvey(framework,
 //         {
-//           showQuestionNumbers: "on",
+//           showQuestionNumbers: true,
 //           "elements": [{
 //             "type": "tagbox",
 //             "name": "q1",
@@ -404,7 +404,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 900);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -427,7 +427,7 @@
 //       await t.resizeWindow(600, 900);
 //       await initSurvey(framework, {
 //         focusFirstQuestionAutomatic: true,
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",
@@ -454,7 +454,7 @@
 
 //       await initSurvey(framework, {
 //         focusFirstQuestionAutomatic: true,
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         mode: "display",
 //         questions: [
 //           {
@@ -491,7 +491,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 900);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "tagbox",

@@ -3,7 +3,7 @@ import { frameworks, initSurvey, url, test, expect } from "../helper";
 const title = "questionTitlePattern";
 
 const json = {
-  showQuestionNumbers: "on",
+  showQuestionNumbers: true,
   questionStartIndex: "# 1.",
   requiredMark: "(*)",
   elements: [

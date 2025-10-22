@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
     test("Check survey advanced header inherit width from survey", async ({ page }) => {
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
@@ -46,7 +46,7 @@ frameworks.forEach(framework => {
       if (framework === "vue") return;
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
       if (framework === "vue") return;
       await page.setViewportSize({ width: 1200, height: 1000 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
@@ -128,7 +128,7 @@ frameworks.forEach(framework => {
     test("Check header background color modes", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Survey Title",
         description: "Survey description",
@@ -172,7 +172,7 @@ frameworks.forEach(framework => {
     test("Check header background color modes 2", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "description": "Building your own form management\nsystem has never been easier.",
         "logoPosition": "right",
         "pages": [

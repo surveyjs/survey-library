@@ -87,7 +87,8 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
       await page.setViewportSize({ width: 1600, height: 900 });
       await initSurvey(page, framework, {
-        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showPreviewBeforeComplete: true,
+        previewMode: "answeredQuestions",
         elements: [
           {
             type: "matrixdropdown",

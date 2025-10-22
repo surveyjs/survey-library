@@ -345,7 +345,7 @@ registerMarkupTests(
       ]
     },
     initSurvey: survey => {
-      survey.mode = "display";
+      survey.readOnly = true;
     },
     snapshot: "rating-display-mode",
   }]

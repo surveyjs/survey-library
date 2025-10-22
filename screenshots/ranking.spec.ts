@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
     test("Check ranking question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -32,7 +32,7 @@ frameworks.forEach(framework => {
     test("Check ranking question readonly", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -48,7 +48,7 @@ frameworks.forEach(framework => {
     test("Check ranking question items size", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -66,7 +66,7 @@ frameworks.forEach(framework => {
     test("Check ranking question selectToRankEnabled", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -83,7 +83,7 @@ frameworks.forEach(framework => {
     test("Check ranking question selectToRankEnabled vertical mode", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -101,7 +101,7 @@ frameworks.forEach(framework => {
     test("Check ranking question selectToRankEnabled narrow", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "pages": [
           {
             "name": "page1",
@@ -132,7 +132,7 @@ frameworks.forEach(framework => {
     test("Shortcut position due container layout", async ({ page }, testInfo) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -158,7 +158,7 @@ frameworks.forEach(framework => {
     test("Shortcut position due container layout (relative)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -184,7 +184,7 @@ frameworks.forEach(framework => {
     test("Shortcut position due container layout (scroll)", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -223,7 +223,7 @@ frameworks.forEach(framework => {
     test("Ranking theming", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             "type": "ranking",
@@ -248,7 +248,7 @@ frameworks.forEach(framework => {
       await registerCustomItemContentComponent(page, framework);
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",
@@ -267,7 +267,7 @@ frameworks.forEach(framework => {
     test("Ranking long items", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "ranking",

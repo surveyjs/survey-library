@@ -193,7 +193,7 @@ frameworks.forEach((framework) => {
   });
 });
 const json2 = {
-  "focusFirstQuestionAutomatic": true,
+  "autoFocusFirstQuestion": true,
   "elements": [{
     "type": "radiogroup",
     "name": "question2",

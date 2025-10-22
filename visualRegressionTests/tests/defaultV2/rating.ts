@@ -15,7 +15,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -49,7 +49,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -78,7 +78,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -104,7 +104,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -137,7 +137,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -174,7 +174,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "logoPosition": "right",
 //         "pages": [
 //           {
@@ -214,7 +214,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1000, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "panel",
@@ -240,7 +240,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1000, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         locale: "de",
 //         pages: [{
 //           name: "page1", elements: [
@@ -291,7 +291,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -331,7 +331,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -365,7 +365,7 @@
 //       });
 
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -394,7 +394,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -435,7 +435,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -475,7 +475,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -517,7 +517,7 @@
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -561,7 +561,7 @@
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -593,7 +593,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -624,7 +624,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {
@@ -674,7 +674,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         widthMode: "static",
 //         questions: [
 //           {
@@ -748,7 +748,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       const focusBody = ClientFunction(() => { document.body.focus(); });
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         questions: [
 //           {

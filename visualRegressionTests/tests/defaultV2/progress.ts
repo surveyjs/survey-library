@@ -15,8 +15,8 @@
 // }];
 
 // const json = {
-//   showQuestionNumbers: "on",
-//   focusFirstQuestionAutomatic: true,
+//   showQuestionNumbers: true,
+//   autoFocusFirstQuestion: true,
 //   "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
 //   "pages": [{
 //     "name": "page1",
@@ -70,8 +70,10 @@
 //       type: "text"
 //     }]
 //   }],
-//   "showProgressBar": "top",
-//   "progressBarType": "buttons"
+//   "showProgressBar": true,
+//   "progressBarLocation": "top",
+//   "progressBarType": "pages"
+//   "progressBarShowPageTitles": true
 // };
 
 // export const applyHeaderAccentBackgroundColor = ClientFunction(() => {
@@ -212,10 +214,11 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         showQuestionNumbers: true,
+//         autoFocusFirstQuestion: true,
 //         pages: testedPages,
-//         showProgressBar: "top"
+//         showProgressBar: true,
+//         progressBarLocation: "top",
 //       });
 //       await applyHeaderAccentBackgroundColor();
 //       await takeElementScreenshot("survey-without-tilte-and-with-progress.png", Selector(".sd-container-modern"), t, comparer); // progress
@@ -225,8 +228,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         showQuestionNumbers: true,
+//         autoFocusFirstQuestion: true,
 //         pages: testedPages
 //       });
 //       await applyHeaderAccentBackgroundColor();
@@ -237,8 +240,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         showQuestionNumbers: true,
+//         autoFocusFirstQuestion: true,
 //         title: "Test",
 //         pages: testedPages
 //       });
@@ -252,8 +255,9 @@
 //         await t.resizeWindow(1500, 720);
 //         const json = {
 //           "title": "American History",
-//           "showProgressBar": "top",
-//           showQuestionNumbers: "on",
+//           "showProgressBar": true,
+//           "progressBarLocation": "top",
+//           showQuestionNumbers: true,
 //           "pages": [
 //             {
 //               "elements": [
@@ -432,9 +436,10 @@
 //   test("Check survey with progress top pages - sticky", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         title: "Survey Title",
-//         showProgressBar: "top",
+//         showProgressBar: true,
+//         progressBarLocation: "top",
 //         progressBarType: "pages",
 //         // progressBarShowPageNumbers: true,
 //         pages: [
@@ -467,9 +472,10 @@
 //   test("Check survey with progress top questions - sticky", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         title: "Survey Title",
-//         showProgressBar: "top",
+//         showProgressBar: true,
+//         progressBarLocation: "top",
 //         progressBarType: "questions",
 //         pages: [
 //           {
@@ -503,7 +509,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1400, 800);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "title": "Sample Survey",
 //         "logoPosition": "right",
 //         "pages": [
@@ -591,8 +597,9 @@
 //             "title": "Page 3"
 //           }
 //         ],
-//         "showProgressBar": "belowheader",
-//         "progressBarType": "buttons",
+//         "showProgressBar": true,
+//         "progressBarLocation": "belowheader",
+//         "progressBarType": "pages",
 //         "progressBarShowPageTitles": true,
 //         "widthMode": "static",
 //         "width": "800px"

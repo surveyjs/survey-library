@@ -120,7 +120,7 @@ frameworks.forEach((framework) => {
     })();
 
     await initSurvey(framework, {
-      showQuestionNumbers: "off",
+      showQuestionNumbers: false,
       questions: [
         {
           type: "rating",

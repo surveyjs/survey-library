@@ -3,9 +3,9 @@
 // const title = "questionTitlePattern";
 
 // const json = {
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   questionStartIndex: "# 1.",
-//   requiredText: "(*)",
+//   requiredMark: "(*)",
 //   elements: [
 //     {
 //       type: "radiogroup",

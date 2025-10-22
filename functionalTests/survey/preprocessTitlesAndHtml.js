@@ -5,7 +5,7 @@
 // const json = {
 //   questionTitleTemplate: "{no}) {title} {require}:",
 //   questionStartIndex: "A",
-//   requiredText: "(*)",
+//   requiredMark: "(*)",
 //   pages: [
 //     {
 //       title: "This is the page {pageno} of {pagecount}.",

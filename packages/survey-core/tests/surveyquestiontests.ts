@@ -632,7 +632,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
+QUnit.test("Multiple Text Question: support autoAdvanceEnabled", function (
   assert
 ) {
   var mText = new QuestionMultipleTextModel("q1");
@@ -675,7 +675,7 @@ QUnit.test("Use timer to go next page", function (assert) {
         ],
       },
     ],
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   };
   const prevFunc = surveyTimerFunctions.safeTimeOut;
   let checkDelay: number = 0;
@@ -695,7 +695,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   surveyTimerFunctions.safeTimeOut = prevFunc;
   settings.autoAdvanceDelay = 0;
 });
-QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", function (assert) {
+QUnit.test("Radiogroup Question: support autoAdvanceEnabled + showOtherItem", function (assert) {
   var json = {
     pages: [
       {
@@ -717,7 +717,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", f
         ],
       },
     ],
-    goNextPageAutomatic: true,
+    autoAdvanceEnabled: true,
   };
   const survey = new SurveyModel(json);
   const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
@@ -731,7 +731,7 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + showOtherItem", f
 });
 
 QUnit.test(
-  "Radiogroup Question: support goNextPageAutomatic + showOtherItem + textUpdateMode = onTyping",
+  "Radiogroup Question: support autoAdvanceEnabled + showOtherItem + textUpdateMode = onTyping",
   function (assert) {
     var json = {
       pages: [
@@ -755,7 +755,7 @@ QUnit.test(
         },
       ],
       textUpdateMode: "onTyping",
-      goNextPageAutomatic: true,
+      autoAdvanceEnabled: true,
     };
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
@@ -1251,7 +1251,7 @@ QUnit.test("Checkbox store others value not in comment & defaultValue", function
     ],
   });
   var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.deepEqual(
     question.renderedValue,
     ["A", "B"],
@@ -2387,7 +2387,7 @@ QUnit.test("readOnlyCommentRenderMode", function (assert) {
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
   var qRadio = new QuestionRadiogroupModel("q2");
-  survey.mode = "display";
+  survey.readOnly = true;
 
   page.addElement(qComment);
   page.addElement(qRadio);
@@ -2408,7 +2408,7 @@ QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function (assert)
   var page = survey.addNewPage("p1");
   var qComment = new QuestionCommentModel("q1");
   var qText = new QuestionTextModel("q3");
-  survey.mode = "display";
+  survey.readOnly = true;
 
   page.addElement(qComment);
   page.addElement(qText);
@@ -2463,7 +2463,7 @@ QUnit.test("readOnlyCommentRenderMode+readOnlyTextRenderMode", function (assert)
   );
 
   settings.readOnlyCommentRenderMode = "div";
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(
     qComment["isReadOnlyRenderDiv"](),
     false,
@@ -2705,10 +2705,10 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "radiogroup.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
+  "radiogroup.choicesEnableIf, clear value on making the value disable, survey.clearDisabledChoices",
   function (assert) {
     var survey = new SurveyModel();
-    survey.clearValueOnDisableItems = true;
+    survey.clearDisabledChoices = true;
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionRadiogroupModel("bestCar");
     qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
@@ -2740,10 +2740,10 @@ QUnit.test(
   }
 );
 QUnit.test(
-  "checkbox.choicesEnableIf, clear value on making the value disable, survey.clearValueOnDisableItems",
+  "checkbox.choicesEnableIf, clear value on making the value disable, survey.clearDisabledChoices",
   function (assert) {
     var survey = new SurveyModel();
-    survey.clearValueOnDisableItems = true;
+    survey.clearDisabledChoices = true;
     var page = survey.addNewPage("p1");
     var qBestCar = new QuestionCheckboxModel("bestCar");
     qBestCar.choices = ["Audi", "BMW", "Mercedes", "Volkswagen"];
@@ -3060,9 +3060,9 @@ QUnit.test(
       false,
       "It is not readOnly by default"
     );
-    survey.mode = "display";
+    survey.readOnly = true;
     assert.equal(itemQuestion.isReadOnly, true, "survey mode is display");
-    survey.mode = "edit";
+    survey.readOnly = false;
     assert.equal(itemQuestion.isReadOnly, false, "survey mode is edit");
     question.readOnly = true;
     assert.equal(itemQuestion.isReadOnly, true, "question is readOnly");
@@ -3073,7 +3073,7 @@ QUnit.test(
   "isDisabledStyle isReadOnlyStyle properties",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionMultipleTextModel("q1");
     assert.equal(question.isDisabledStyle, false);
@@ -3092,7 +3092,7 @@ QUnit.test(
   "isPreviewStyle property",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionMultipleTextModel("q1");
     assert.equal(question.isPreviewStyle, false, "false if survey doesn't exist");
@@ -3110,7 +3110,7 @@ QUnit.test(
   "itemSvgIcon property",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionRadiogroupModel("q1");
     page.addQuestion(question);
@@ -3129,7 +3129,7 @@ QUnit.test(
   "Boolean Radiogroup Mode itemSvgIcon property",
   function (assert) {
     var survey = new SurveyModel();
-    survey.showPreviewBeforeComplete = "showAllQuestions";
+    survey.showPreviewBeforeComplete = true;
     var page = survey.addNewPage("p");
     var question = new QuestionBooleanModel("q1");
     question.renderAs = "radio";
@@ -5589,7 +5589,7 @@ QUnit.test(
       ],
     };
     var survey = new SurveyModel(json);
-    survey.mode = "display";
+    survey.readOnly = true;
     survey.data = { q1: 1, q2: 2, q3: 5 };
     assert.equal(
       survey.getValue("q3"),
@@ -8370,7 +8370,7 @@ QUnit.test("survey.validateVisitedEmptyFields #8640", function (assert) {
 });
 QUnit.test("Show parent number in the question Bug#8813, #1", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -8399,7 +8399,7 @@ QUnit.test("Show parent number in the question Bug#8813, #1", function (assert) 
 });
 QUnit.test("Show parent number in the question #8813, #2", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       {
@@ -8432,7 +8432,7 @@ QUnit.test("Show parent number in the question #8813, #2", function (assert) {
 });
 QUnit.test("Show parent number in the question #8813, #3", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       {

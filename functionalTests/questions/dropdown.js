@@ -709,7 +709,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -800,7 +800,7 @@ frameworks.forEach((framework) => {
 
   test("Select item after switching focus", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -848,7 +848,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -934,7 +934,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown SPACE press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -963,7 +963,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown SPACE press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -990,7 +990,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown search", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1064,7 +1064,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press with auto-generated list", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1144,7 +1144,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown reset filter string", async (t) => {
     const jsonWithDropdown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1204,7 +1204,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown clear value by keyboard", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1276,7 +1276,7 @@ frameworks.forEach((framework) => {
 
   test("Check popup scroll", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1467,7 +1467,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url}${framework}`)("Check popup height with lazy loading", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1560,7 +1560,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url}${framework}`)("Check popup height and position while searching", async (t) => {
     const json = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1720,7 +1720,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown popup close with mouse, bug #5860", async (t) => {
     const jsonWithDropDown = {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           type: "dropdown",
@@ -1900,7 +1900,7 @@ frameworks.forEach((framework) => {
 
   test("check dropdown after navigating between pages", async t => {
     const json = {
-      "focusFirstQuestionAutomatic": false,
+      "autoFocusFirstQuestion": false,
       "pages": [
         {
           "name": "page1",
@@ -1933,9 +1933,10 @@ frameworks.forEach((framework) => {
           ]
         }
       ],
-      "showCompletedPage": false,
+      "showCompletePage": false,
       "showQuestionNumbers": "off",
-      "showProgressBar": "top",
+      "showProgressBar": true,
+      "progressBarLocation": "top",
       "checkErrorsMode": "onComplete"
     };
     const popupContainer = Selector(".sv-popup__container").filterVisible();
@@ -2176,7 +2177,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk();
   });
 
-  test.page(`${url}${framework}`)("focusOnFirstError bricks dropdown popup if any errors are on the same page", async (t) => {
+  test.page(`${url}${framework}`)("autoFocusFirstError bricks dropdown popup if any errors are on the same page", async (t) => {
     await t.resizeWindow(800, 600);
     const json = {
       pages: [
@@ -2219,7 +2220,7 @@ frameworks.forEach((framework) => {
           ],
         },
       ],
-      focusOnFirstError: true,
+      autoFocusFirstError: true,
     };
     await initSurvey(framework, json, {
       "onValueChanged": (surveyModel) => { surveyModel.hasErrors(false, true); }

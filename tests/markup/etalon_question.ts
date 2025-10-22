@@ -5,7 +5,7 @@ registerMarkupTest(
   {
     name: "Test question title with html markup",
     json: {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       elements: [
         {
           name: "name",
@@ -27,7 +27,7 @@ registerMarkupTest(
   {
     name: "Test question with errors above v2",
     json: {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       elements: [
         {
           isRequired: true,
@@ -47,7 +47,7 @@ registerMarkupTest(
   {
     name: "Test question with errors below v2 markup",
     json: {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       elements: [
         {
           isRequired: true,
@@ -87,7 +87,7 @@ registerMarkupTest(
   {
     name: "Test question with indent",
     json: {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       elements: [
         {
           name: "name",
@@ -108,7 +108,7 @@ registerMarkupTest(
   {
     name: "Test question with label title tag",
     json: {
-      showQuestionNumbers: "off",
+      showQuestionNumbers: false,
       elements: [
         {
           name: "name",

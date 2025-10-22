@@ -8,16 +8,17 @@
 // });
 
 // const json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   width: "900px",
 //   questions: [
 //     {
 //       type: "Paneldynamic",
 //       title: "My Order",
 //       name: "order",
-//       renderMode: "progressBottom",
+//       displayMode: "carousel",
+//       progressBarLocation: "bottom",
 //       templateTitle: "{panel.itemName}",
-//       panelRemoveText: "Remove Item",
+//       removePanelText: "Remove Item",
 //       panelCount: 5,
 //       minWidth: "708px",
 //       maxWidth: "708px",

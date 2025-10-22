@@ -344,7 +344,7 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   const secondRow = q1.visibleRows[1];
   assert.equal(secondRow.isReadOnly, false, "Second visible row test isReadOnly, #1");
   assert.equal(secondRow.rowClasses.indexOf("disable_val") === -1, true, "Second row css #1");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(secondRow.isReadOnly, true, "Second visible row test isReadOnly, #2");
   assert.equal(secondRow.rowClasses.indexOf("disable_val") === -1, false, "Second row css #2");
 

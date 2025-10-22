@@ -10,7 +10,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "progressTop",
+          displayMode: "carousel",
           panelCount: 2,
         },
       ]
@@ -26,7 +26,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "progressTop",
+          displayMode: "carousel",
           panelCount: 2,
         },
       ]
@@ -58,7 +58,8 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "progressBottom",
+          displayMode: "carousel",
+          progressBarLocation: "bottom",
           panelCount: 2,
         },
       ]
@@ -74,7 +75,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "list",
+          displayMode: "list",
           panelCount: 2,
         },
       ]
@@ -90,7 +91,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "list",
+          displayMode: "list",
           panelCount: 2,
         },
       ]
@@ -106,7 +107,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "list",
+          displayMode: "list",
           templateElements: [
             {
               "type": "text",
@@ -133,7 +134,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "list",
+          displayMode: "list",
           removePanelButtonLocation: "right",
           templateElements: [
             {
@@ -210,7 +211,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "tab",
+          displayMode: "tab",
           panelCount: 2,
         },
       ]
@@ -230,7 +231,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "tab",
+          displayMode: "tab",
           tabAlign: "right",
           panelCount: 2,
         },
@@ -251,7 +252,7 @@ registerMarkupTests(
           type: "paneldynamic",
           name: "pd",
           titleLocation: "hidden",
-          renderMode: "tab",
+          displayMode: "tab",
           tabAlign: "left",
           panelCount: 2,
         },

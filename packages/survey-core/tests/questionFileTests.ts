@@ -1138,7 +1138,8 @@ QUnit.test("QuestionFile remove file by preview value", function (assert) {
 
 QUnit.test("QuestionFile download file content on preview, #1", function (assert) {
   var json = {
-    showPreviewBeforeComplete: "showAnsweredQuestions",
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions",
     elements: [
       {
         type: "file",
@@ -1173,7 +1174,8 @@ QUnit.test("QuestionFile download file content on preview, #1", function (assert
 
 QUnit.test("Check previewValue order is correct", (assert) => {
   const json = {
-    showPreviewBeforeComplete: "showAnsweredQuestions",
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions",
     elements: [
       {
         type: "file",
@@ -1207,7 +1209,8 @@ QUnit.test("Check previewValue order is correct", (assert) => {
 
 QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when the survey.onDownloadFile event is used", (assert) => {
   const json = {
-    showPreviewBeforeComplete: "showAnsweredQuestions",
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions",
     elements: [
       {
         type: "file",
@@ -1252,7 +1255,8 @@ QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when
 
 QUnit.test("Check file question navigator with different items count visible", (assert) => {
   const json = {
-    showPreviewBeforeComplete: "showAnsweredQuestions",
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions",
     elements: [
       {
         type: "file",
@@ -1351,7 +1355,8 @@ QUnit.test("Check file question navigator with different items count visible", (
 });
 QUnit.test("Check file question processResponsiveness method", (assert) => {
   const json = {
-    showPreviewBeforeComplete: "showAnsweredQuestions",
+    showPreviewBeforeComplete: true,
+    previewMode: "answeredQuestions",
     elements: [
       {
         type: "file",
@@ -1925,7 +1930,7 @@ QUnit.test("Acton takePhoto should be serialiazed", function (assert) {
 
 QUnit.test("Choose file action should have disabled class", function (assert) {
   const survey = new SurveyModel({
-    mode: "display",
+    readOnly: true,
     elements: [
       { type: "file", name: "q1", maxSize: 3 },
     ]
@@ -1933,9 +1938,9 @@ QUnit.test("Choose file action should have disabled class", function (assert) {
   survey.css = defaultCss;
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
-  survey.mode = "edit";
+  survey.readOnly = false;
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-action sd-file__choose-btn--text", "Enabled");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(question.getChooseFileCss(), "sd-file__choose-btn sd-file__choose-file-btn--disabled sd-action sd-file__choose-btn--text sd-action--disabled", "Disabled");
 });
 

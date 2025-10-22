@@ -55,7 +55,7 @@
 //         return;
 //       }
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         widthMode: "static",
 //         questions: [
 //           {

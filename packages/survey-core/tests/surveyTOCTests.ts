@@ -658,7 +658,7 @@ QUnit.test("survey.tryNavigateToPage respects validationAllowSwitchPages and val
   assert.equal(survey.tryNavigateToPage(survey.pages[1]), true, "navigate #9");
   assert.equal(survey.currentPageNo, 1, "currentPageNo #2");
 });
-QUnit.test("survey.tryNavigateToPage & survey.onValidatedErrorsOnCurrentPage, Bug#9241", function (assert) {
+QUnit.test("survey.tryNavigateToPage & survey.onValidatePage, Bug#9241", function (assert) {
   let json: any = {
     "pages": [
       {
@@ -695,7 +695,7 @@ QUnit.test("survey.tryNavigateToPage & survey.onValidatedErrorsOnCurrentPage, Bu
   };
   const survey = new SurveyModel(json);
   const logs = new Array<string>();
-  survey.onValidatedErrorsOnCurrentPage.add((sender, options) => {
+  survey.onValidatePage.add((sender, options) => {
     logs.push(options.page.name);
   });
   assert.equal(survey.tryNavigateToPage(survey.pages[1]), false, "try #1");

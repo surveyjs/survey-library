@@ -90,7 +90,8 @@
 //   });
 //   test("Check matrix fail when showing preview", async (t) => {
 //     await initSurvey(framework, {
-//       showPreviewBeforeComplete: "showAnsweredQuestions",
+//       showPreviewBeforeComplete: true,
+//       previewMode: "answeredQuestions",
 //       elements: [
 //         {
 //           type: "matrixdropdown",

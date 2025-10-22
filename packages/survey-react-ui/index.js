@@ -19,7 +19,8 @@ var getItemPrice = function (params) {
 Survey.FunctionFactory.Instance.register("getItemPrice", getItemPrice);
 
 var json = {
-  showProgressBar: "both",
+  showProgressBar: true,
+  progressBarLocation: "topBottom",
   description: "Survey Description",
   title: "Survey New Design Test",
   logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
@@ -525,7 +526,7 @@ var json = {
       type: "matrixdynamic",
       name: "Current Level of Function",
       title: "Matrix Dynamic (vertical columns)",
-      columnLayout: "vertical",
+      transposeData: true,
       minRowCount: 1,
       maxRowCount: 5,
       columns: [
@@ -823,7 +824,7 @@ var json = {
       type: "paneldynamic",
       name: "relatives",
       title: "Panel Dynamic",
-      renderMode: "progressTop",
+      displayMode: "carousel",
       templateTitle: "Information about: {panel.relativeType}",
       templateElements: [
         {
@@ -939,8 +940,8 @@ var json = {
         }
       ],
       panelCount: 2,
-      panelAddText: "Add a blood relative",
-      panelRemoveText: "Remove the relative"
+      addPanelText: "Add a blood relative",
+      removePanelText: "Remove the relative"
     },
     {
       type: "panel",
@@ -1030,12 +1031,12 @@ var json = {
 };
 
 json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",
             "name": "q1",
-            "titleLocation": "hidden",
+            "useTitleAsLabel": true,
             "isRequired": true,
             "renderAs": "checkbox"
           }

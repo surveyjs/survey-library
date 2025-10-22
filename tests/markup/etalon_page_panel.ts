@@ -8,7 +8,7 @@ registerMarkupTest(
         {
           type: "panel",
           name: "name",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           elements: [
             {
               type: "html",
@@ -41,7 +41,7 @@ registerMarkupTest(
           type: "panel",
           name: "name",
           titleLocation: "hidden",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           elements: [
             {
               "type": "text",
@@ -71,7 +71,7 @@ registerMarkupTest(
         {
           type: "panel",
           name: "name",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           startWithNewLine: false,
           elements: [
             {
@@ -106,7 +106,7 @@ registerMarkupTest(
         {
           type: "panel",
           name: "name",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           startWithNewLine: false,
           elements: [
             {
@@ -158,7 +158,7 @@ registerMarkupTest(
     name: "Test Page - start with new line with panel and titles",
     json: {
       gridLayoutEnabled: false,
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "elements": [
         {
           type: "text",
@@ -188,7 +188,7 @@ registerMarkupTest(
   {
     name: "Test Page - Text and Title",
     json: {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "elements": [
         {
           type: "text",
@@ -207,7 +207,7 @@ registerMarkupTest(
     name: "Test Page - start with new line Title",
     json: {
       gridLayoutEnabled: false,
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "elements": [
         {
           type: "text",
@@ -230,7 +230,7 @@ registerMarkupTest(
 registerMarkupTest({
   name: "Test Page - questionTitleWidth",
   json: {
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     "pages": [
       {
         "name": "page1",
@@ -260,7 +260,7 @@ registerMarkupTest(
           name: "name",
           title: "panel_title",
           description: "panel_description",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           startWithNewLine: false,
           elements: [
             {
@@ -288,7 +288,7 @@ registerMarkupTest(
           name: "name",
           isRequired: true,
           title: "panel_title",
-          showQuestionNumbers: "off",
+          showQuestionNumbers: false,
           startWithNewLine: false,
           elements: [
             {
@@ -309,7 +309,7 @@ registerMarkupTest(
   {
     name: "Test Panel - Panel title with number",
     json: {
-      showQuestionNumbers: "on",
+      showQuestionNumbers: true,
       "elements": [
         {
           type: "panel",

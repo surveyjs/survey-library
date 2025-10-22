@@ -2221,13 +2221,16 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (this.isQuestionIndexRecursive()) {
       let parentNo = this.calcNo();
       if (!!parentNo) {
-        if (!!no && parentNo[parentNo.length - 1] !== "." && no[0] !== ".") {
+        if (parentNo[parentNo.length - 1] !== "." && this.canAddDot(no)) {
           parentNo += ".";
         }
       }
       return parentNo + no;
     }
     return super.addNoFromChild(no);
+  }
+  private canAddDot(no: string): boolean {
+    return !!no && new RegExp("^[\\p{L}\\d]", "u").test(no[0]);
   }
   /**
    * Specifies whether to display survey element numbers within this page/panel and how to calculate them.

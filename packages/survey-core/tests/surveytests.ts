@@ -3710,6 +3710,66 @@ QUnit.test("question.no and survey.questionStartIndex and showQuestionNumbers 'r
   assert.equal(panel.no, "2.3", "panel, #1");
   assert.equal(q5.no, "2.3.1", "q5, #1");
 });
+QUnit.test("question.no and survey.questionStartIndex and showQuestionNumbers 'recursive' & panel recursive startIndex = ' a', Bug#10517", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1"
+      },
+      {
+        type: "text",
+        name: "q2"
+      },
+      {
+        type: "panel", name: "p1", title: "Panel", showQuestionNumbers: "recursive", questionStartIndex: " a",
+        elements: [
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ]
+      },
+      {
+        type: "panel", name: "p2", title: "Panel", showQuestionNumbers: "recursive", questionStartIndex: "_a",
+        elements: [
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" }
+        ]
+      },
+      {
+        type: "panel", name: "p3", title: "Panel", showQuestionNumbers: "recursive", questionStartIndex: "#a",
+        elements: [
+          { type: "text", name: "q7" },
+          { type: "text", name: "q8" }
+        ]
+      }
+    ],
+    showQuestionNumbers: "on",
+    questionStartIndex: "1.1"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  const q6 = survey.getQuestionByName("q6");
+  const q7 = survey.getQuestionByName("q7");
+  const q8 = survey.getQuestionByName("q8");
+  const p1 = survey.getPanelByName("p1");
+  const p2 = survey.getPanelByName("p2");
+  const p3 = survey.getPanelByName("p3");
+
+  assert.equal(q1.no, "1.1", "q1, #1");
+  assert.equal(q2.no, "1.2", "q2, #1");
+  assert.equal(p1.no, "1.3", "panel, #1");
+  assert.equal(q3.no, "1.3 a", "q3, #1");
+  assert.equal(q4.no, "1.3 b", "q4, #1");
+  assert.equal(p2.no, "1.4", "panel, #2");
+  assert.equal(q5.no, "1.4_a", "q5, #1");
+  assert.equal(q6.no, "1.4_b", "q6, #2");
+  assert.equal(p3.no, "1.5", "panel, #3");
+  assert.equal(q7.no, "1.5#a", "q7, #1");
+  assert.equal(q8.no, "1.5#b", "q8, #2");
+});
 QUnit.test("survey.onGetPageNumber event", function (assert) {
   const survey = new SurveyModel();
   survey.showPageNumbers = true;

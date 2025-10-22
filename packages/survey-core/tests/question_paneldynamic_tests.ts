@@ -23,7 +23,7 @@ import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from ".
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
 import { ValueGetter } from "../src/conditionProcessValue";
-import { template, templateSettings } from "lodash";
+import { min, template, templateSettings } from "lodash";
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
 QUnit.test("Create panels based on template on setting value", function(
@@ -7606,7 +7606,7 @@ QUnit.test("paneldynamic: check panelsAnimation", function (assert) {
   assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
   assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
 });
-QUnit.test("paneldynamic: Do not call onFirstRendered for hidden panels", function (assert) {
+QUnit.test("paneldynamic: Do not call onFirstRendered for hidden panels, Issue#10501", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -7657,7 +7657,35 @@ QUnit.test("paneldynamic: Do not call onFirstRendered for hidden panels", functi
   panel3.addPanel();
   assert.equal(panel3.panels[2].wasRendered, true, "panel3, #4");
 });
-
+QUnit.test("paneldynamic vs nested panels: Do not call onFirstRendered for hidden panels, Issue#10501", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        displayMode: "tab",
+        panelCount: 2,
+        templateElements: [
+          { name: "panel2", type: "paneldynamic",
+            panelCount: 1,
+            minPanelCount: 1,
+            templateElements: [
+              { name: "q1", type: "text" },
+            ],
+          }
+        ]
+      }
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel2 = <QuestionPanelDynamicModel>panel1.panels[0].getQuestionByName("panel2");
+  assert.equal(panel1.panels[0].wasRendered, true, "panel1, #1");
+  assert.equal(panel2.wasRendered, true, "panel2, #1");
+  assert.equal(panel2.panels[0].wasRendered, true, "panel2, internal panel, #1");
+  const q1 = panel2.panels[0].getQuestionByName("q1");
+  assert.equal(q1.wasRendered, true, "q1, #1");
+  assert.equal(panel2.panels[0].rows.length, 1, "panel2 internal panel.rows, #1");
+});
 QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   const survey = new SurveyModel({
     elements: [

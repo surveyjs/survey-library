@@ -47,7 +47,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.previousModel = undefined;
   }
   protected isBaseElementSubsribed(stateElement: Base) {
-    return !!(<any>stateElement).__ngImplemented;
+    return ((<any>stateElement).__ngImplementedCount ?? 0) > 0;
   }
   private onArrayChangedCallback = (stateElement: Base, options: IPropertyArrayValueChangedEvent) => {
     this.update(options.name);
@@ -55,16 +55,13 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   private onPropertyChangedCallback = (stateElement: Base, options: IPropertyValueChangedEvent) => {
     this.update(options.name);
   };
-  private afterViewCheckedCallback?: () => void;
   private makeBaseElementAngular(stateElement: T) {
     if (!!stateElement && !this.getIsModelRendering(stateElement)) {
       this.isModelSubsribed = true;
-      this.afterViewCheckedCallback = () => {
-        delete (<any>stateElement).__ngImplementLock;
-      };
       stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
       stateElement.addOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
       stateElement.enableOnElementRerenderedEvent();
+      (<any>stateElement).__ngImplementedCount = ((<any>stateElement).__ngImplementedCount ?? 0) + 1;
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
@@ -73,6 +70,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       stateElement.removeOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
       stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
       stateElement.disableOnElementRerenderedEvent();
+      if (((<any>stateElement).__ngImplementedCount ?? 0) - 1 <= 0) {
+        delete (<any>stateElement).__ngImplementedCount;
+      }
     }
   }
   private isUpdatesBlocked: boolean = false;
@@ -121,7 +121,6 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   override ngAfterViewChecked(): void {
     super.ngAfterViewChecked();
-    this.afterViewCheckedCallback && this.afterViewCheckedCallback();
     this.setIsModelRendering(false);
   }
 }

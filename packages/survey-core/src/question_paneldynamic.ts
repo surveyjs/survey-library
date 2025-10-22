@@ -2000,13 +2000,7 @@ export class QuestionPanelDynamicModel extends Question
   public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
-    if (this.panelCount < this.minPanelCount) {
-      this.panelCount = this.minPanelCount;
-    }
-    if (this.panelCount > this.maxPanelCount) {
-      this.panelCount = this.maxPanelCount;
-    }
-    this.buildPanelsFirstTime();
+    //this.buildPanelsFirstTime();
     super.onSurveyLoad();
   }
   private hasPanelBuildFirstTime: boolean;
@@ -2061,6 +2055,12 @@ export class QuestionPanelDynamicModel extends Question
     return !this.isLoadingFromJson && !this.useTemplatePanel;
   }
   protected onFirstRenderingCore(): void {
+    if (this.panelCount < this.minPanelCount) {
+      this.panelCount = this.minPanelCount;
+    }
+    if (this.panelCount > this.maxPanelCount) {
+      this.panelCount = this.maxPanelCount;
+    }
     super.onFirstRenderingCore();
     this.buildPanelsFirstTime();
     this.template.onFirstRendering();

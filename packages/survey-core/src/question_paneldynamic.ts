@@ -496,6 +496,12 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("templateVisibleIf", val);
     this.template.visibleIf = val;
   }
+  public get questionStartIndex(): string {
+    return this.template.questionStartIndex;
+  }
+  public set questionStartIndex(val: string) {
+    this.template.questionStartIndex = val;
+  }
   protected get items(): Array<ISurveyData> {
     var res = [];
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -1813,17 +1819,21 @@ export class QuestionPanelDynamicModel extends Question
     if (!panel) {
       panel = this.panelsCore[index];
     }
+    const sQN = this.showQuestionNumbers;
     if (this.survey) {
-      const updateIndeces = this.showQuestionNumbers === "onSurvey";
+      const updateIndeces = sQN === "onSurvey";
       if (isAdded) {
         this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
       } else {
         this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
       }
     }
-    if (isAdded && !!panel && this.showQuestionNumbers === "onPanel") {
+    if (isAdded && !!panel && (sQN === "onPanel" || sQN === "recursive")) {
       panel.setVisibleIndex(0);
     }
+  }
+  private recursiveNoCallback(): string {
+    return this.showQuestionNumbers === "recursive" ? this.no : "";
   }
   private getVisualPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -2332,6 +2342,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.setParentQuestion(this);
     panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
     panel.onGetQuestionTitleWidth = () => this.templateQuestionTitleWidth;
+    panel.recursiveNoCallback = () => this.recursiveNoCallback();
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
@@ -2904,8 +2915,12 @@ Serializer.addClass(
     {
       name: "showQuestionNumbers",
       default: "off",
-      choices: ["off", "onPanel", "onSurvey"],
+      choices: ["off", "onPanel", "onSurvey", "recursive"],
     },
+    { name: "questionStartIndex", visibleIf: (obj: QuestionPanelDynamicModel): boolean => {
+      const sQN = obj.showQuestionNumbers;
+      return sQN === "onPanel" || sQN === "recursive";
+    } },
     { name: "renderMode", visible: false, isSerializable: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {

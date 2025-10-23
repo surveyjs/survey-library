@@ -1828,6 +1828,15 @@ export class SurveyModel extends SurveyElementCore
   public set questionStartIndex(val: string) {
     this.setPropertyValue("questionStartIndex", val);
   }
+  getQuestionStartIndex(pageVisibleIndex: number): string {
+    if (pageVisibleIndex >= 0 && pageVisibleIndex < this.visiblePages.length) {
+      for (let i = pageVisibleIndex; i >= 0; i--) {
+        const page = this.visiblePages[i];
+        if (!!page.questionStartIndex) return page.questionStartIndex;
+      }
+    }
+    return this.questionStartIndex;
+  }
   /**
    * Specifies whether to store the "Other" option response in a separate property.
    *
@@ -6675,12 +6684,18 @@ export class SurveyModel extends SurveyElementCore
   }
   private updatePageVisibleIndexes(): void {
     this.updateButtonsVisibility();
-    var index = 0;
+    let index = 0;
+    let numIndex = 1;
+    this.pages.forEach(page => {
+    });
     for (var i = 0; i < this.pages.length; i++) {
       const page = this.pages[i];
       const isPageVisible = page.isVisible && (i > 0 || !page.isStartPage);
+      if (!!page.questionStartIndex) {
+        numIndex = 1;
+      }
       page.visibleIndex = isPageVisible ? index++ : -1;
-      page.num = isPageVisible ? page.visibleIndex + 1 : -1;
+      page.num = isPageVisible ? numIndex++ : -1;
     }
   }
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {

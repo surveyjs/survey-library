@@ -571,6 +571,7 @@ export class Question extends SurveyElement<Question>
   public getPanels(): Array<IPanel> {
     return null;
   }
+  protected getPageVisibleIndex(): number { return (<any>this.page)?.visibleIndex || -1; }
   public delete(doDispose: boolean = true): void {
     this.removeFromParent();
     if (doDispose) {

@@ -6987,6 +6987,40 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
   assert.equal(panel1.panels.length, 3, "It should be 3 panels");
 });
+QUnit.test("defaultExpression vs panelIndex & adding/removing rows, bug#10521", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          { "type": "text", "name": "q1" },
+          { "type": "text", "name": "q2", defaultValueExpression: "{panelIndex}" },
+          { "type": "expression", "name": "q3", expression: "{panelIndex}" },
+        ],
+        "panelCount": 2
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.panels[0].getQuestionByName("q1").value = "a";
+  panel.panels[1].getQuestionByName("q1").value = "b";
+  panel.addPanel();
+  panel.panels[2].getQuestionByName("q1").value = "c";
+  assert.equal(panel.panels.length, 3, "There are three panels");
+  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #1");
+  assert.equal(panel.panels[1].getQuestionByName("q2").value, "1", "q2.value #2");
+  assert.equal(panel.panels[2].getQuestionByName("q2").value, "2", "q2.value #3");
+  panel.panels[2].getQuestionByName("q2").inputValue = "2";
+  panel.removePanel(0);
+  assert.equal(panel.panels.length, 2, "There are two panels");
+  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #4");
+  assert.equal(panel.panels[1].getQuestionByName("q2").value, "1", "q2.value #5");
+  panel.removePanel(0);
+  assert.equal(panel.panels.length, 1, "There is one panel");
+  assert.equal(panel.panels[0].getQuestionByName("q1").value, "c", "q1.value #6");
+  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #6");
+});
 QUnit.test("templateElements question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     "elements": [{

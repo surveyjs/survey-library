@@ -462,7 +462,6 @@ Serializer.addClass(
     { name: "page", visible: false, isSerializable: false },
     { name: "showNumber", visible: false },
     { name: "showQuestionNumbers", visible: false },
-    { name: "questionStartIndex", visible: false },
     { name: "allowAdaptiveActions", visible: false },
     { name: "requiredErrorText:text", serializationProperty: "locRequiredErrorText", visible: false },
   ],

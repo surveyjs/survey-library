@@ -567,7 +567,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.questionOrder = val;
   }
   /**
-   * Specifies a number or letter used to start numbering of elements inside the panel.
+   * Specifies a number or letter used to start numbering of elements inside this page/panel.
    *
    * You can include desired prefixes and postfixes alongside the number or letter:
    *
@@ -576,8 +576,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * "questionStartIndex": "#3", // #3, #4, #5, ...
    * "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
    * ```
-   * Default value: `"1."` (inherited from `SurveyModel`'s `questionStartIndex` property)
-   * @see SurveyModel.questionStartIndex
+   * Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
    * @see showQuestionNumbers
    */
   public get questionStartIndex(): string {
@@ -2263,6 +2262,7 @@ export class PanelModel extends PanelModelBase implements IElement {
    * - `"off"` - Hides question numbers within this page/panel.
    * @see [SurveyModel.showQuestionNumbers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers)
    * @see showNumber
+   * @see questionStartIndex
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");

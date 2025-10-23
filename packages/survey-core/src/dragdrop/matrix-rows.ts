@@ -39,24 +39,24 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
 
     const matrices = [];
-    function fillMatricies(questions: Question[]) {
-      const ms = questions.filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
-      ms.forEach((m: QuestionMatrixDynamicModel) => {
-        matrices.push(m);
-        if (m.detailPanelMode !== "none") {
-          m.visibleRows.forEach(r => {
-            if (r.isDetailPanelShowing) {
-              fillMatricies(r.questions);
-            }
-          });
-        }
-      });
-    }
+    // function fillMatricies(questions: Question[]) {
+    //   const ms = questions.filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
+    //   ms.forEach((m: QuestionMatrixDynamicModel) => {
+    //     matrices.push(m);
+    //     if (m.detailPanelMode !== "none") {
+    //       m.visibleRows.forEach(r => {
+    //         if (r.isDetailPanelShowing) {
+    //           fillMatricies(r.questions);
+    //         }
+    //       });
+    //     }
+    //   });
+    // }
 
     if (this.survey.onMatrixRowDragOver.isEmpty) {
       matrices.push(this.parentElement);
     } else {
-      fillMatricies(this.survey.getAllQuestions());
+      this.fillMatricies(this.survey.getAllQuestions(), matrices);
     }
 
     this.matrixRowMap = {};
@@ -70,6 +70,20 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     });
 
     this.fromIndex = this.parentElement.visibleRows.indexOf(this.draggedElement);
+  }
+
+  private fillMatricies(questions: Question[], matrices: QuestionMatrixDynamicModel[]) {
+    const ms = questions.filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
+    ms.forEach((m: QuestionMatrixDynamicModel) => {
+      matrices.push(m);
+      if (m.detailPanelMode !== "none") {
+        m.visibleRows.forEach(r => {
+          if (r.isDetailPanelShowing) {
+            this.fillMatricies(r.questions, matrices);
+          }
+        });
+      }
+    });
   }
 
   private get shortcutClass(): string {
@@ -138,6 +152,49 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     if (isRootContentNode) return true;
     const rect = dropTargetNode.getBoundingClientRect();
     return clientY >= rect.y + rect.height / 2;
+  }
+
+  protected doDragOver() {
+    if (this.dropTarget && typeof this.dropTarget.isDetailPanelShowing !== "undefined" && this.parentElement.visibleRows.indexOf(this.dropTarget) === -1 && this.dropTarget.isDetailPanelShowing === false) {
+      const row = this.dropTarget;
+      const matrix = row.data;
+      // const rr = matrix.renderedTable.renderedRows[this.dropTarget.index];
+      // //  row.showDetailPanel();
+      // if (!rr.cells[2].isActionCell) return;
+      // const action = rr.cells[2].item.getData().actions[0];
+      // if (!action.visible) {
+      // // row.hideDetailPanel();
+      //   row.showDetailPanel();
+      // }
+
+      const renderedRow = matrix.renderedTable.rows.filter(r => r.row == row)[0];
+      const startAction = renderedRow?.cells[1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
+      const endAction = renderedRow.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
+      if (startAction?.visible || endAction?.visible) {
+        row.showDetailPanel();
+
+        // matrices.forEach(matrix => {
+        //   matrix.visibleRows.forEach(row => {
+        //     this.matrixRowMap[row.id] = { row, matrix };
+        //   });
+        //   if (matrix.visibleRows.length == 0) {
+        //     this.matrixRowMap[matrix.id] = { row: matrix, matrix };
+        //   }
+        // });
+
+        const matrices = [];
+        this.fillMatricies([matrix], matrices);
+        this.matrixRowMap = {};
+        matrices.forEach(matrix => {
+          matrix.visibleRows.forEach(row => {
+            this.matrixRowMap[row.id] = { row, matrix };
+          });
+          if (matrix.visibleRows.length == 0) {
+            this.matrixRowMap[matrix.id] = { row: matrix, matrix };
+          }
+        });
+      }
+    }
   }
 
   private removeGhost() {

@@ -39,20 +39,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
 
     const matrices = [];
-    // function fillMatricies(questions: Question[]) {
-    //   const ms = questions.filter(q => q.isDescendantOf("matrixdynamic") && (q as QuestionMatrixDynamicModel).allowRowReorder);
-    //   ms.forEach((m: QuestionMatrixDynamicModel) => {
-    //     matrices.push(m);
-    //     if (m.detailPanelMode !== "none") {
-    //       m.visibleRows.forEach(r => {
-    //         if (r.isDetailPanelShowing) {
-    //           fillMatricies(r.questions);
-    //         }
-    //       });
-    //     }
-    //   });
-    // }
-
     if (this.survey.onMatrixRowDragOver.isEmpty) {
       matrices.push(this.parentElement);
     } else {

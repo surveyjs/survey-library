@@ -52,7 +52,7 @@ QUnit.test("matrix.lockedRowCount", function (assert) {
   assert.equal(dd.canInsertIntoThisRow(<any>rows[1]), true, "row1");
 });
 
-// QUnit.test("doDragOver", function (assert) {
+// QUnit.only("doDragOver", function (assert) {
 //   const json = {
 //     "pages": [
 //       {
@@ -119,7 +119,7 @@ QUnit.test("matrix.lockedRowCount", function (assert) {
 //   const question: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
 //     survey.getQuestionByName("question1")
 //   );
-//   need to add show-detail action to every row
+//   // need to add show-detail action to every row
 //   debugger;
 //   let draggedRow = question.visibleRows[1];
 

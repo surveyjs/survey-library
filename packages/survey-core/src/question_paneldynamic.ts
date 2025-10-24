@@ -496,6 +496,19 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("templateVisibleIf", val);
     this.template.visibleIf = val;
   }
+  /**
+   * Specifies a number or letter used to start numbering of elements inside the dynamic panel.
+   *
+   * You can include desired prefixes and postfixes alongside the number or letter:
+   *
+   * ```js
+   * "questionStartIndex": "a.", // a., b., c., ...
+   * "questionStartIndex": "#3", // #3, #4, #5, ...
+   * "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
+   * ```
+   * Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
+   * @see showQuestionNumbers
+   */
   public get questionStartIndex(): string {
     return this.template.questionStartIndex;
   }
@@ -1333,9 +1346,12 @@ export class QuestionPanelDynamicModel extends Question
    *
    * Possible values:
    *
+   * - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
    * - `"onSurvey"` - Continues numbering across the entire survey.
    * - `"onPanel"` - Starts numbering within the dynamic panel from scratch.
    * - `"off"` (default) - Hides question numbers.
+   * @see questionStartIndex
+   * @see showNumber
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");

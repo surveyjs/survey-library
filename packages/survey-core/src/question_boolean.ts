@@ -360,11 +360,11 @@ Serializer.addClass(
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "label:text", serializationProperty: "locLabel", isSerializable: false, visible: false },
     {
-      name: "labelTrue:text",
+      name: "labelTrue",
       serializationProperty: "locLabelTrue",
     },
     {
-      name: "labelFalse:text",
+      name: "labelFalse",
       serializationProperty: "locLabelFalse",
     },
     "valueTrue",

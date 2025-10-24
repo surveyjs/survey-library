@@ -8726,7 +8726,7 @@ QUnit.test("Question.validate vs callback function and two different validates #
 
   FunctionFactory.Instance.unregister("asyncFunc");
 });
-QUnit.test("Question visibleIf && case-sensitive #10338", function (assert) {
+QUnit.test("Question visibleIf & case-sensitive #10338", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
@@ -8744,4 +8744,31 @@ QUnit.test("Question visibleIf && case-sensitive #10338", function (assert) {
   assert.equal(q2.isVisible, false, "q2.visible #3");
   q1.value = "a";
   assert.equal(q2.isVisible, false, "q2.visible #4");
+});
+QUnit.test("Question visibleIf & question name is number #10526", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "9",
+        choices: [1, 2]
+      },
+      {
+        type: "radiogroup",
+        name: "q1",
+        visibleIf: "{9} = 1",
+        choices: [
+          "ItemABCDEF",
+          "Item1"
+        ]
+      }
+    ]
+  });
+  survey.data = { "9": 1, q1: "ItemABCDEF" };
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.isVisible, true, "q1.visible #1");
+  survey.setValue("9", 2);
+  assert.equal(q1.isVisible, false, "q1.visible #2");
+  survey.setValue("9", 1);
+  assert.equal(q1.isVisible, true, "q1.visible #3");
 });

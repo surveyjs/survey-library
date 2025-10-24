@@ -71,6 +71,7 @@ import { ConsoleWarnings } from "../src/console-warnings";
 import { CustomError } from "../src/error";
 import { set } from "lodash";
 import { Action } from "../src/actions/action";
+import { NavigationActionBar } from "../src/navigation-bar";
 
 export default QUnit.module("Survey");
 
@@ -22976,4 +22977,20 @@ QUnit.test("Do not allow to set name vs |, #10424", function (assert) {
   assert.equal(question.name, "q1mode", "the | is removed, #5");
   question.name = "q2|mode";
   assert.equal(question.name, "q2mode", "the | is removed, #6");
+});
+QUnit.test("Create custom NavigationBar", function (assert) {
+  class CustomNavigationBar extends NavigationActionBar {
+    constructor(survey: SurveyModel) {
+      super(survey);
+    }
+    public customProp1: string = "checkThisProp";
+  }
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  survey.createNavigationBarCallback = () => new CustomNavigationBar(survey);
+  assert.ok(survey.navigationBar instanceof CustomNavigationBar, "navigationBar is CustomNavigationBar");
+  assert.equal((survey.navigationBar as CustomNavigationBar).customProp1, "checkThisProp", "customProp1 is set correctly");
 });

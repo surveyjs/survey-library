@@ -2237,16 +2237,19 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public addNoFromChild(no: string): string {
-    if (this.isQuestionIndexRecursive()) {
-      let parentNo = this.calcNo();
-      if (!!parentNo) {
-        if (parentNo[parentNo.length - 1] !== "." && this.canAddDot(no)) {
-          parentNo += ".";
-        }
+    let parentNo = this.getRecursiveNo();
+    if (!!parentNo) {
+      if (parentNo[parentNo.length - 1] !== "." && this.canAddDot(no)) {
+        parentNo += ".";
       }
       return parentNo + no;
     }
     return super.addNoFromChild(no);
+  }
+  public recursiveNoCallback: () => string;
+  private getRecursiveNo(): string {
+    if (this.recursiveNoCallback) return this.recursiveNoCallback();
+    return this.isQuestionIndexRecursive() ? this.calcNo() : "";
   }
   private canAddDot(no: string): boolean {
     return !!no && new RegExp("^[\\p{L}\\d]", "u").test(no[0]);

@@ -141,6 +141,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return clientY >= rect.y + rect.height / 2;
   }
 
+  private expandCollapseTimer = null;
+  private expandCollapseHandlingRow = null;
   protected doDragOver() {
     if (this.dropTarget && typeof this.dropTarget.isDetailPanelShowing !== "undefined" && this.parentElement.visibleRows.indexOf(this.dropTarget) === -1 && this.dropTarget.isDetailPanelShowing === false) {
       const row = this.dropTarget;
@@ -149,11 +151,22 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       const startAction = renderedRow?.cells[1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
       const endAction = renderedRow.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
 
-      if (startAction?.visible || endAction?.visible) {
-        const matrices = [];
-        row.showDetailPanel();
-        this.fillMatricies([matrix], matrices);
-        this.fillMatrixRowMap(matrices);
+      if ((startAction?.visible || endAction?.visible)) {
+
+        if (this.expandCollapseHandlingRow !== row.id) {
+          this.expandCollapseHandlingRow = row.id;
+          clearTimeout(this.expandCollapseTimer);
+          this.expandCollapseTimer = null;
+          this.expandCollapseTimer = setTimeout(()=>{
+            const matrices = [];
+            row.showDetailPanel();
+            this.fillMatricies([matrix], matrices);
+            this.fillMatrixRowMap(matrices);
+          }, 500);
+        }
+      } else {
+        clearTimeout(this.expandCollapseTimer);
+        this.expandCollapseTimer = null;
       }
     }
   }
@@ -239,5 +252,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       _body.style.userSelect = this.restoreUserSelectValue || "initial";
     }
     super.clear();
+    clearTimeout(this.expandCollapseTimer);
+    this.expandCollapseTimer = null;
   }
 }

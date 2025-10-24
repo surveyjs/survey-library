@@ -385,7 +385,9 @@ export class QuestionTextModel extends QuestionTextBase {
         value = this._inputValue;
       }
     }
-    this.value = value;
+    if (!Helpers.isTwoValueEquals(this.value, value)) {
+      this.value = value;
+    }
   }
   public getFilteredValue(): any {
     return this.getExpressionValue(this.value);

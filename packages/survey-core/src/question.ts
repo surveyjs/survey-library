@@ -738,6 +738,8 @@ export class Question extends SurveyElement<Question>
    *
    * Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
    * @see no
+   * @see showQuestionNumbers
+   * @see questionStartIndex
    */
   public get showNumber(): boolean {
     return this.getPropertyValue("showNumber");

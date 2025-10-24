@@ -1113,6 +1113,107 @@ QUnit.test("PanelDynamic, showQuestionNumbers onPanel in run-time, bug#9652", fu
   panel.addPanel();
   assert.equal(panel.panels[1].getQuestionByName("q2").no, "1.", "The number should be 2., #2");
 });
+QUnit.test("PanelDynamic, showQuestionNumbers recursive, Issue#10288", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "recursive",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.getQuestionByName("q2").no, "1.2.1", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "1.2.2", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "1.2.1", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "1.2.2", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+});
+QUnit.test("PanelDynamic, showQuestionNumbers recursive & questionStartIndex, Issue#10288", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "recursive",
+        questionStartIndex: " a",
+        templateTitle: "Panel Title #{panelIndex}",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.locTitle.textOrHtml, "Panel Title #1", "panel1 title");
+  assert.equal(panel2.locTitle.textOrHtml, "Panel Title #2", "panel2 title");
+  assert.equal(panel1.getQuestionByName("q2").no, "1.2 a", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "1.2 b", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+});
+QUnit.test("PanelDynamic, showQuestionNumbers onPanel & questionStartIndex, Issue#10288", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "onPanel",
+        questionStartIndex: "a",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.getQuestionByName("q2").no, "a", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "b", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "a", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "b", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+});
 
 QUnit.test("PanelDynamic, renderMode", function(assert) {
   var survey = new SurveyModel();

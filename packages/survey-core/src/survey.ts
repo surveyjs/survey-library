@@ -1198,7 +1198,7 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push({
       id: "buttons-navigation-top",
       component: "sv-action-bar",
-      getData: () => this.navigationBarTop
+      getData: () => this.navigationBar
     });
   }
   private tocModelValue: TOCModel;
@@ -2649,16 +2649,14 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: NavigationActionBar;
   public get navigationBar(): NavigationActionBar {
     if (!this.navigationBarValue) {
-      this.navigationBarValue = new NavigationActionBar(this);
+      this.navigationBarValue = this.createNavigationBar();
     }
     return this.navigationBarValue;
   }
-  private navigationBarTopValue: NavigationActionBar;
-  public get navigationBarTop(): NavigationActionBar {
-    if (!this.navigationBarTopValue) {
-      this.navigationBarTopValue = new NavigationActionBar(this);
-    }
-    return this.navigationBarTopValue;
+  public createNavigationBarCallback: () => NavigationActionBar;
+  protected createNavigationBar(): NavigationActionBar {
+    if (this.createNavigationBarCallback) return this.createNavigationBarCallback();
+    return new NavigationActionBar(this);
   }
   /**
    * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons. Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
@@ -2666,12 +2664,10 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
   public addNavigationItem(val: IAction): Action {
-    this.navigationBarTop.addAction(val);
     return this.navigationBar.addAction(val);
   }
   private removeNavigationItem(id: string): void {
-    this.navigationBar.removeActionById(id);
-    this.navigationBarTop.removeActionById(id);
+    this.navigationBarValue?.removeActionById(id);
   }
   /**
    * Gets or sets a caption for the Start button.
@@ -4989,7 +4985,6 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     updateBtn(this.navigationBar.getActionById("sv-singleinput-add"));
-    updateBtn(this.navigationBarTop.getActionById("sv-singleinput-add"));
   }
   public get isShowPrevButton(): boolean {
     return this.getPropertyValue("isShowPrevButton");

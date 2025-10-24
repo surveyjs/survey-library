@@ -242,6 +242,7 @@ export class VariableGetterContext extends ValueGetterContextCore {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
     if (name === "length" && (Array.isArray(obj) || typeof obj === "string")) return obj.length;
+    if (typeof obj !== "object") return undefined;
     let a = nameInLow[0];
     let A = name[0].toLocaleUpperCase();
     for (var key in obj) {

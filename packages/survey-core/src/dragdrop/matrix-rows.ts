@@ -58,17 +58,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     } else {
       this.fillMatricies(this.survey.getAllQuestions(), matrices);
     }
-
-    this.matrixRowMap = {};
-    matrices.forEach(matrix => {
-      matrix.visibleRows.forEach(row => {
-        this.matrixRowMap[row.id] = { row, matrix };
-      });
-      if (matrix.visibleRows.length == 0) {
-        this.matrixRowMap[matrix.id] = { row: matrix, matrix };
-      }
-    });
-
+    this.fillMatrixRowMap(matrices);
     this.fromIndex = this.parentElement.visibleRows.indexOf(this.draggedElement);
   }
 
@@ -82,6 +72,17 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
             this.fillMatricies(r.questions, matrices);
           }
         });
+      }
+    });
+  }
+
+  private fillMatrixRowMap(matrices: QuestionMatrixDynamicModel[]) {
+    matrices.forEach(matrix => {
+      matrix.visibleRows.forEach(row => {
+        this.matrixRowMap[row.id] = { row, matrix };
+      });
+      if (matrix.visibleRows.length == 0) {
+        this.matrixRowMap[matrix.id] = { row: matrix, matrix };
       }
     });
   }
@@ -158,41 +159,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     if (this.dropTarget && typeof this.dropTarget.isDetailPanelShowing !== "undefined" && this.parentElement.visibleRows.indexOf(this.dropTarget) === -1 && this.dropTarget.isDetailPanelShowing === false) {
       const row = this.dropTarget;
       const matrix = row.data;
-      // const rr = matrix.renderedTable.renderedRows[this.dropTarget.index];
-      // //  row.showDetailPanel();
-      // if (!rr.cells[2].isActionCell) return;
-      // const action = rr.cells[2].item.getData().actions[0];
-      // if (!action.visible) {
-      // // row.hideDetailPanel();
-      //   row.showDetailPanel();
-      // }
-
       const renderedRow = matrix.renderedTable.rows.filter(r => r.row == row)[0];
       const startAction = renderedRow?.cells[1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
       const endAction = renderedRow.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
+
       if (startAction?.visible || endAction?.visible) {
-        row.showDetailPanel();
-
-        // matrices.forEach(matrix => {
-        //   matrix.visibleRows.forEach(row => {
-        //     this.matrixRowMap[row.id] = { row, matrix };
-        //   });
-        //   if (matrix.visibleRows.length == 0) {
-        //     this.matrixRowMap[matrix.id] = { row: matrix, matrix };
-        //   }
-        // });
-
         const matrices = [];
+        row.showDetailPanel();
         this.fillMatricies([matrix], matrices);
-        this.matrixRowMap = {};
-        matrices.forEach(matrix => {
-          matrix.visibleRows.forEach(row => {
-            this.matrixRowMap[row.id] = { row, matrix };
-          });
-          if (matrix.visibleRows.length == 0) {
-            this.matrixRowMap[matrix.id] = { row: matrix, matrix };
-          }
-        });
+        this.fillMatrixRowMap(matrices);
       }
     }
   }

@@ -945,7 +945,7 @@ QUnit.test("PanelDynamic, question no", function(assert) {
   );
   assert.equal(question2.visibleIndex, 2, "off - question2.visibleIndex");
 
-  panel.showQuestionNumbers = "onPanel";
+  panel.showQuestionNumbers = "onpanel";
   assert.equal(question1.visibleIndex, 0, "onPanel - question1.visibleIndex");
   assert.equal(panel.visibleIndex, 1, "onPanel - panel.visibleIndex");
   assert.equal(
@@ -964,7 +964,7 @@ QUnit.test("PanelDynamic, question no", function(assert) {
   assert.equal(panelQuestion3.visibleIndex, 1, "onPanel - panelQuestion3.visibleIndex");
   panel.removePanel(2);
 
-  panel.showQuestionNumbers = "onSurvey";
+  panel.showQuestionNumbers = "default";
   assert.equal(question1.visibleIndex, 0, "onSurvey - question1.visibleIndex");
   assert.equal(panel.visibleIndex, -1, "onSurvey - panel.visibleIndex");
   assert.equal(
@@ -999,7 +999,7 @@ QUnit.test("PanelDynamic, question no", function(assert) {
   assert.equal(question2.visibleIndex, 2, "onSurvey, second panel is removed - question2.visibleIndex"
   );
 });
-QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function(assert) {
+QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time", function(assert) {
   const survey = new SurveyModel();
   survey.showQuestionNumbers = "on";
   survey.setDesignMode(true);
@@ -1026,7 +1026,7 @@ QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function
                 "name": "q2"
               }
             ],
-            "showQuestionNumbers": "onSurvey"
+            "showQuestionNumbers": "default"
           }
         ]
       }
@@ -1037,6 +1037,61 @@ QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time ", function
   const q2 = <Question>panel.templateElements[0];
   assert.equal(q1.no, "1.", "The number should be 1.");
   assert.equal(q2.no, "2.", "The number should be 2.");
+});
+QUnit.test("PanelDynamic, convert showQuestionNumbers 'onSurvey' into 'default', Issue#10531", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", showQuestionNumbers: "onSurvey" }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.showQuestionNumbers, "default", "'onSurvey' is converted into 'default'");
+  panel.showQuestionNumbers = "onSurvey";
+  assert.equal(panel.showQuestionNumbers, "default", "'onSurvey' is converted into 'default' again");
+});
+QUnit.test("PanelDynamic, convert showQuestionNumbers 'onPanel' into 'onpanel', Issue#10531", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic", name: "panel", showQuestionNumbers: "onPanel" }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.showQuestionNumbers, "onpanel", "'onPanel' is converted into 'onpanel'");
+  panel.showQuestionNumbers = "onPanel";
+  assert.equal(panel.showQuestionNumbers, "onpanel", "'onPanel' is converted into 'onpanel' again");
+});
+QUnit.test("PanelDynamic, showQuestionNumbers 'default' & survey.showQuestionNumber: 'recursive', Issue#10531", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "default",
+        questionStartIndex: " a",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.getQuestionByName("q2").no, "1.2 a", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "1.2 b", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
 });
 QUnit.test("PanelDynamic, showQuestionNumbers onSurvey in run-time, bug#9652", function(assert) {
   const survey = new SurveyModel({
@@ -1101,7 +1156,7 @@ QUnit.test("PanelDynamic, showQuestionNumbers onPanel in run-time, bug#9652", fu
                 "name": "q2"
               }
             ],
-            "showQuestionNumbers": "onPanel"
+            "showQuestionNumbers": "onpanel"
           }
         ]
       }
@@ -1181,14 +1236,14 @@ QUnit.test("PanelDynamic, showQuestionNumbers recursive & questionStartIndex, Is
   assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
   assert.equal(q4.no, "1.3", "q4 number");
 });
-QUnit.test("PanelDynamic, showQuestionNumbers onPanel & questionStartIndex, Issue#10288", function(assert) {
+QUnit.test("PanelDynamic, showQuestionNumbers onpanel & questionStartIndex, Issue#10288", function(assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
       {
         type: "paneldynamic",
         name: "panel",
-        showQuestionNumbers: "onPanel",
+        showQuestionNumbers: "onpanel",
         questionStartIndex: "a",
         panelCount: 2,
         templateElements: [

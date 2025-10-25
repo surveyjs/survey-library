@@ -131,7 +131,6 @@ export class ValueGetter {
     return path;
   }
   private getValueItem(name: string): IValueGetterItem {
-    name = name.trim();
     let index: number | undefined = undefined;
     if (name.lastIndexOf("]") === name.length - 1) {
       const ind = name.lastIndexOf("[");

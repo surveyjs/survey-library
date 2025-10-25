@@ -8772,3 +8772,49 @@ QUnit.test("Question visibleIf & question name is number #10526", function (asse
   survey.setValue("9", 1);
   assert.equal(q1.isVisible, true, "q1.visible #3");
 });
+QUnit.test("Question name starts with number vs dot #10532", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "1.name",
+        choices: [1, 2]
+      },
+      {
+        type: "text",
+        name: "q1",
+        visibleIf: "{1.name} = 1"
+      }
+    ]
+  });
+  const qnumber = survey.getQuestionByName("1.name");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.isVisible, false, "q1.visible #1");
+  qnumber.value = 1;
+  assert.equal(q1.isVisible, true, "q1.visible #2");
+  qnumber.value = 2;
+  assert.equal(q1.isVisible, false, "q1.visible #3");
+});
+QUnit.test("Question name starts with number vs space + dot #10532", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "1. name",
+        choices: [1, 2]
+      },
+      {
+        type: "text",
+        name: "q1",
+        visibleIf: "{1. name} = 1"
+      }
+    ]
+  });
+  const qnumber = survey.getQuestionByName("1. name");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.isVisible, false, "q1.visible #1");
+  qnumber.value = 1;
+  assert.equal(q1.isVisible, true, "q1.visible #2");
+  qnumber.value = 2;
+  assert.equal(q1.isVisible, false, "q1.visible #3");
+});

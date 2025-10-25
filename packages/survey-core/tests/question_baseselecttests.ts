@@ -4052,6 +4052,33 @@ QUnit.test("choice item elements & clearInvisible values in nested panels, Issue
   survey.doComplete();
   assert.deepEqual(survey.data, {}, "survey.data is empty");
 });
+QUnit.test("choice item elements  vs nested panels & clearInvisible is 'onHiddenContainer', Issue#10530", (assert) => {
+  const survey = new SurveyModel({
+    "clearInvisibleValues": "onHiddenContainer",
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          { value: "item1", elements: [
+            { type: "radiogroup", name: "q2", choices: [
+              { value: "item1", elements: [{ type: "text", name: "q2_1" }] }, { value: "item2" }
+            ] }] },
+          { value: "item2", elements: [{ type: "text", name: "q1_2" }] },
+          "item3"
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2_1 = survey.getQuestionByName("q2_1");
+  q1.clickItemHandler(q1.choices[0], true);
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  q2.clickItemHandler(q2.choices[0]);
+  q2_1.value = "abc";
+  q1.clickItemHandler(q1.choices[0], false);
+  assert.deepEqual(survey.data, {}, "survey.data is empty");
+});
 QUnit.test("choice item & dispose, Issue#10384", (assert) => {
   const survey = new SurveyModel({
     "elements": [

@@ -1305,7 +1305,6 @@ export class SurveyModel extends SurveyElementCore
   private updateCss() {
     this.rootCss = this.getRootCss();
     this.navigationBarValue?.updateCss();
-    this.navigationBarTopValue?.updateCss();
     this.updateCompletedPageCss();
     this.updateWrapperFormCss();
   }
@@ -2200,7 +2199,6 @@ export class SurveyModel extends SurveyElementCore
       this.updateProgressText();
     }
     this.navigationBarValue?.locStrsChanged();
-    this.navigationBarTopValue?.locStrsChanged();
   }
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.getSurveyMarkdownHtml(this, text, name, item);

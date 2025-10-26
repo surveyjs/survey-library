@@ -122,14 +122,6 @@ export class NavigationActionBar extends ActionContainer {
     this.containerCss = this.survey.css.footer;
     this._updateNavigationItemCssCallback();
   }
-
-  public removeActionById(id: string): boolean {
-    const action = this.getActionById(id);
-    if (!action) return false;
-    this.actions.splice(this.actions.indexOf(action), 1);
-    return true;
-  }
-
   public addAction(val: IAction): Action {
     if (!val.component) {
       val.component = "sv-nav-btn";

@@ -626,6 +626,9 @@ export class QuestionPanelDynamicModel extends Question
     if (curPanel) {
       curPanel.onHidingContent();
     }
+    if (!!val) {
+      val.onFirstRendering();
+    }
     this.setPropertyValue("currentPanel", val);
     this.updateRenderedPanels();
     this.updateFooterActions();

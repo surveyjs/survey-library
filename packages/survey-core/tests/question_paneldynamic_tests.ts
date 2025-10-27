@@ -3407,8 +3407,8 @@ QUnit.test("Panel dynamic nested dynamic panel and result, Bug#1514", function(
   var lsurvey = new SurveyModel(ljson);
   assert.deepEqual(
     lsurvey.data,
-    { dp1: [{ }] },
-    "Has only one element in they array"
+    { dp1: [{ dp2: [{ }] }] },
+    "Has only one element in the array"
   );
 
   var dp1 = <QuestionPanelDynamicModel>(
@@ -7824,6 +7824,33 @@ QUnit.test("paneldynamic vs nested panels: Do not call onFirstRendered for hidde
   const q1 = panel2.panels[0].getQuestionByName("q1");
   assert.equal(q1.wasRendered, true, "q1, #1");
   assert.equal(panel2.panels[0].rows.length, 1, "panel2 internal panel.rows, #1");
+});
+QUnit.test("paneldynamic: Render panel correctly, Issue#10501", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        displayMode: "tab",
+        panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text" }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.tabbedMenu?.actions.length, 2, "There are two tabs");
+  const panel1 = panel.visiblePanels[0];
+  const panel2 = panel.visiblePanels[1];
+  assert.equal(panel1.wasRendered, true, "panel1 was rendered");
+  assert.equal(panel2.wasRendered, false, "panel2 was not rendered");
+  assert.equal(panel2.visibleRows.length, 0, "panel2 has no rows");
+  panel.currentIndex = 1;
+  assert.equal(panel2.wasRendered, true, "panel2 was rendered");
+  assert.equal(panel2.visibleRows.length, 1, "panel2 has one row");
+  assert.equal(panel2.visibleRows[0].elements.length, 1, "panel2 first row has one element");
+  assert.equal(panel2.visibleRows[0].elements[0].name, "q1", "panel2 first row first element is q1");
 });
 QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   const survey = new SurveyModel({

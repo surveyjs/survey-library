@@ -10,7 +10,6 @@ import {
 
 import { ProcessValue, VariableGetterContext } from "../../src/conditionProcessValue";
 import { FunctionFactory } from "../../src/functionsfactory";
-import { values } from "lodash";
 import { settings } from "../../src/settings";
 import { Helpers } from "../../src/helpers";
 
@@ -1836,12 +1835,14 @@ QUnit.test("ExpressionRunner: do not convert to number extreme large strings", f
 });
 QUnit.test("No params for iif function, Bug#9674", function(assert) {
   let runner = new ExpressionRunner("iif()");
+  const values: any = {};
   assert.equal(runner.runValues(values), null, "Empty paramsters, #1");
   runner = new ExpressionRunner("iif('')");
   assert.equal(runner.runValues(values), null, "Empty paramsters, #2");
 });
 QUnit.test("No params for getDate function, Bug#9674", function(assert) {
-  let runner = new ExpressionRunner("getDate()");
+  const runner = new ExpressionRunner("getDate()");
+  const values: any = {};
   assert.equal(runner.runValues(values), null, "Empty paramsters, #1");
 });
 QUnit.test("Operand.addOperandsToList", function(assert) {

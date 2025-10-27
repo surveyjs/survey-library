@@ -85,7 +85,6 @@ import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ConsoleWarnings } from "./console-warnings";
-import { NavigationActionBar } from "./navigation-bar";
 
 class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
@@ -1304,8 +1303,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
-    this.navigationBarValue?.updateCss();
-    this.navigationBarTopValue?.updateCss();
+    this.updateNavigationCss();
     this.updateCompletedPageCss();
     this.updateWrapperFormCss();
   }
@@ -1344,6 +1342,45 @@ export class SurveyModel extends SurveyElementCore
   }
   public get bodyContainerCss(): string {
     return this.css.bodyContainer;
+  }
+  private get cssNavigationComplete() {
+    return this.getNavigationCss(
+      this.cssSurveyNavigationButton,
+      this.css.navigation.complete
+    );
+  }
+  private get cssNavigationPreview() {
+    return this.getNavigationCss(
+      this.cssSurveyNavigationButton,
+      this.css.navigation.preview
+    );
+  }
+  public get cssNavigationEdit() {
+    return this.getNavigationCss(
+      this.css.navigationButton,
+      this.css.navigation.edit
+    );
+  }
+  private get cssNavigationPrev() {
+    return this.getNavigationCss(
+      this.cssSurveyNavigationButton,
+      this.css.navigation.prev
+    );
+  }
+  private get cssNavigationStart() {
+    return this.getNavigationCss(
+      this.cssSurveyNavigationButton,
+      this.css.navigation.start
+    );
+  }
+  private get cssNavigationNext() {
+    return this.getNavigationCss(
+      this.cssSurveyNavigationButton,
+      this.css.navigation.next
+    );
+  }
+  private get cssSurveyNavigationButton(): string {
+    return new CssClassBuilder().append(this.css.navigationButton).append(this.css.bodyNavigationButton).toString();
   }
   @property() completedCss: string;
   @property() completedBeforeCss: string;
@@ -2200,7 +2237,6 @@ export class SurveyModel extends SurveyElementCore
       this.updateProgressText();
     }
     this.navigationBarValue?.locStrsChanged();
-    this.navigationBarTopValue?.locStrsChanged();
   }
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.getSurveyMarkdownHtml(this, text, name, item);
@@ -2639,24 +2675,21 @@ export class SurveyModel extends SurveyElementCore
       .append(btn).toString();
   }
 
-  public get cssNavigationEdit() {
-    return this.getNavigationCss(
-      this.css.navigationButton,
-      this.css.navigation.edit
-    );
-  }
-
-  private navigationBarValue: NavigationActionBar;
-  public get navigationBar(): NavigationActionBar {
+  private navigationBarValue: ActionContainer;
+  public get navigationBar(): ActionContainer {
     if (!this.navigationBarValue) {
       this.navigationBarValue = this.createNavigationBar();
+      this.navigationBarValue.locOwner = this;
+      this.updateNavigationCss();
     }
     return this.navigationBarValue;
   }
-  public createNavigationBarCallback: () => NavigationActionBar;
-  protected createNavigationBar(): NavigationActionBar {
+  public createNavigationBarCallback: () => ActionContainer;
+  protected createNavigationBar(): ActionContainer {
     if (this.createNavigationBarCallback) return this.createNavigationBarCallback();
-    return new NavigationActionBar(this);
+    const res = new ActionContainer();
+    res.setItems(this.createNavigationActions());
+    return res;
   }
   /**
    * Adds a custom navigation item similar to the Previous Page, Next Page, and Complete buttons. Accepts an object described in the [IAction](https://surveyjs.io/Documentation/Library?id=IAction) help section.
@@ -2664,10 +2697,92 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-changenavigation/ (linkStyle))
   */
   public addNavigationItem(val: IAction): Action {
+    if (!val.component) {
+      val.component = "sv-nav-btn";
+    }
+    if (!val.innerCss) {
+      val.innerCss = this.cssSurveyNavigationButton;
+    }
+    const originalActionFunc = val.action;
+    val.action = () => {
+      this.waitAndExecute(() => originalActionFunc());
+    };
     return this.navigationBar.addAction(val);
   }
   private removeNavigationItem(id: string): void {
     this.navigationBarValue?.removeActionById(id);
+  }
+  private _updateNavigationItemCssCallback: () => void;
+  protected createNavigationActions(): Array<IAction> {
+    const defaultComponent = "sv-nav-btn";
+    const navStart = new Action({
+      id: "sv-nav-start",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isStartPageActive),
+      visibleIndex: 10,
+      locTitle: this.locStartSurveyText,
+      action: () => this.start(),
+      component: defaultComponent
+    });
+    const navPrev = new Action({
+      id: "sv-nav-prev",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
+      visibleIndex: 20,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      locTitle: this.locPagePrevText,
+      action: () => this.performPrevious(),
+      component: defaultComponent
+    });
+    const navNext = new Action({
+      id: "sv-nav-next",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
+      visibleIndex: 30,
+      data: {
+        mouseDown: () => this.nextPageMouseDown(),
+      },
+      locTitle: this.locPageNextText,
+      action: () => this.nextPageUIClick(),
+      component: defaultComponent
+    });
+    const navPreview = new Action({
+      id: "sv-nav-preview",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
+      visibleIndex: 40,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      locTitle: this.locPreviewText,
+      action: () => this.showPreview(),
+      component: defaultComponent
+    });
+    const navComplete = new Action({
+      id: "sv-nav-complete",
+      visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+      visibleIndex: 50,
+      data: {
+        mouseDown: () => this.navigationMouseDown(),
+      },
+      locTitle: this.locCompleteText,
+      action: () => this.taskManager.waitAndExecute(() => this.tryComplete()),
+      component: defaultComponent
+    });
+    this._updateNavigationItemCssCallback = () => {
+      navStart.innerCss = this.cssNavigationStart;
+      navPrev.innerCss = this.cssNavigationPrev;
+      navNext.innerCss = this.cssNavigationNext;
+      navPreview.innerCss = this.cssNavigationPreview;
+      navComplete.innerCss = this.cssNavigationComplete;
+    };
+    return [navStart, navPrev, navNext, navPreview, navComplete];
+  }
+  private updateNavigationCss() {
+    const val = this.navigationBarValue;
+    if (!!val) {
+      val.cssClasses = this.css.actionBar;
+      val.containerCss = this.css.footer;
+      !!this._updateNavigationItemCssCallback && this._updateNavigationItemCssCallback();
+    }
   }
   /**
    * Gets or sets a caption for the Start button.

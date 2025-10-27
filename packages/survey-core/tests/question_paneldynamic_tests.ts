@@ -7678,6 +7678,7 @@ QUnit.test("paneldynamic vs nested panels: Do not call onFirstRendered for hidde
     ]
   });
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(panel1.tabbedMenu?.actions.length, 2, "There are two tabs");
   const panel2 = <QuestionPanelDynamicModel>panel1.panels[0].getQuestionByName("panel2");
   assert.equal(panel1.panels[0].wasRendered, true, "panel1, #1");
   assert.equal(panel2.wasRendered, true, "panel2, #1");

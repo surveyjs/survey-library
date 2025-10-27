@@ -18,7 +18,7 @@ var defaultHeight = 200;
  * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
  */
 export class QuestionSignaturePadModel extends QuestionFileModelBase {
-  @property({ defaultValue: false }) isDrawingValue: boolean;
+  @property({ defaultValue: false }) hasDrawnStroke: boolean;
   @property({ defaultValue: false }) isReadyForUpload: boolean;
 
   private getPenColorFromTheme(): string {
@@ -167,6 +167,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
         this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
         this.signaturePad.clear();
       }
+      this.hasDrawnStroke = false;
       this.valueWasChangedFromLastUpload = false;
       return;
     }
@@ -236,12 +237,11 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
     (signaturePad as any).addEventListener("beginStroke", () => {
       this.scaleCanvas();
-      this.isDrawingValue = true;
+      this.hasDrawnStroke = true;
       canvas.focus();
     }, { once: false });
 
     (signaturePad as any).addEventListener("endStroke", () => {
-      this.isDrawingValue = false;
       if (this.storeDataAsText) {
         this.updateValue();
       } else {
@@ -426,7 +426,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   public nothingIsDrawn(): boolean {
-    const isDrawing = this.isDrawingValue;
+    const isDrawing = this.hasDrawnStroke;
     const isEmpty = this.isEmpty();
     const isUploading = this.isUploading;
     const valueWasChangedFromLastUpload = this.valueWasChangedFromLastUpload;

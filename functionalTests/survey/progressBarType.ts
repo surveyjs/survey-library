@@ -4,7 +4,8 @@
 // const title = "progressBarType";
 
 // const json_questions = {
-//   showProgressBar: "top",
+//   showProgressBar: true,
+//   progressBarLocation: "top",
 //   progressBarType: "questions",
 //   pages: [
 //     {
@@ -38,7 +39,8 @@
 // };
 
 // const json_requiredQuestions = {
-//   showProgressBar: "top",
+//   showProgressBar: true,
+//   progressBarLocation: "top",
 //   progressBarType: "requiredQuestions",
 //   pages: [
 //     {

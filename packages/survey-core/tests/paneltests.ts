@@ -1452,7 +1452,7 @@ QUnit.test(
           "type": "matrixdynamic",
           "name": "Current Level of Function",
           "title": "Matrix Dynamic (vertical columns)",
-          "columnLayout": "vertical",
+          "transposeData": true,
           "maxRowCount": 5,
           "columns": [
             {
@@ -3384,7 +3384,7 @@ QUnit.test("Nested pages", function (assert) {
 });
 QUnit.test("survey.onGetPanelNumber", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -3438,7 +3438,7 @@ QUnit.test("survey.onGetPanelNumber", function (assert) {
 });
 QUnit.test("panel.showQuestionNumbers: 'recursive'", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       {
         type: "panel", name: "panel1", title: "Panel 1",
@@ -3738,4 +3738,69 @@ QUnit.test("Panel.validate vs callback function as a parameter #10307", function
   assert.deepEqual(callbackResults, [{ res: true, name: "" }], "callbackResults, #6");
 
   FunctionFactory.Instance.unregister("asyncFunc");
+});
+QUnit.test("page questionStartIndex, Issue#10523", function (assert) {
+  const survey = new SurveyModel({
+    pages: [{
+      elements: [
+        {
+          type: "text",
+          name: "q1"
+        }] },
+    {
+      elements: [
+        {
+          type: "text",
+          name: "q2"
+        }] },
+    {
+      questionStartIndex: "A.1",
+      elements: [
+        {
+          type: "panel", name: "p1", title: "Panel",
+          elements: [
+            { type: "text", name: "q3" },
+            { type: "text", name: "q4" }
+          ]
+        },
+      ] },
+    { elements: [
+      { type: "text", name: "q5" },
+      {
+        type: "panel", name: "p2", title: "Panel",
+        elements: [
+          { type: "text", name: "q6" },
+          { type: "text", name: "q7" }
+        ]
+      }]
+    }],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  assert.equal(survey.pages[1].visibleIndex, 1, "page2.visibleIndex, #1");
+  assert.equal(survey.pages[1].num, 2, "page2.num, #2");
+  assert.equal(survey.pages[2].questionStartIndex, "A.1", "questionStartIndex, #1");
+  assert.equal(survey.pages[2].visibleIndex, 2, "page2.visibleIndex, #1");
+  assert.equal(survey.pages[2].num, 1, "page2.num, #2");
+  assert.equal(survey.pages[3].visibleIndex, 3, "page3.visibleIndex, #1");
+  assert.equal(survey.pages[3].num, 2, "page3.num, #1");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  const q6 = survey.getQuestionByName("q6");
+  const q7 = survey.getQuestionByName("q7");
+  const p1 = survey.getPanelByName("p1");
+  const p2 = survey.getPanelByName("p2");
+
+  assert.equal(q1.no, "1.1", "q1, #1");
+  assert.equal(q2.no, "2.1", "q2, #1");
+  assert.equal(p1.no, "A.1", "panel1, #1");
+  assert.equal(q3.no, "A.1.1", "q3, #1");
+  assert.equal(q4.no, "A.1.2", "q4, #1");
+  assert.equal(q5.no, "B.1", "q5, #1");
+  assert.equal(p2.no, "B.2", "panel2, #1");
+  assert.equal(q6.no, "B.2.1", "q6, #1");
+  assert.equal(q7.no, "B.2.2", "q7, #1");
 });

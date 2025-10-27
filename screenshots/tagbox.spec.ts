@@ -12,7 +12,7 @@ frameworks.forEach(framework => {
     test("Check tagbox select question popup", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -43,7 +43,7 @@ frameworks.forEach(framework => {
     test("Check tagbox select question without clear button", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -61,7 +61,7 @@ frameworks.forEach(framework => {
     test("Check tagbox disabled items", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -92,7 +92,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 800, height: 900 });
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -119,7 +119,7 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 500, height: 700 });
 
       const json = {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -185,7 +185,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 900 });
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -223,7 +223,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 900, height: 900 });
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [{
           "type": "tagbox",
           "name": "q1",
@@ -238,7 +238,7 @@ frameworks.forEach(framework => {
     test("Check tagbox focused state", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 900 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -256,7 +256,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 600, height: 900 });
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",
@@ -276,7 +276,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 900, height: 400 });
       const json = {
         autoFocusFirstQuestion: true,
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         mode: "display",
         elements: [
           {
@@ -313,7 +313,7 @@ frameworks.forEach(framework => {
     test("Resize input & popup", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 900 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "tagbox",

@@ -299,7 +299,7 @@ const json3 = {
       "type": "matrixdynamic",
       "name": "matrix",
       "allowRowsDragAndDrop": true,
-      "columnLayout": "vertical",
+      "transposeData": true,
       "columns": [
         { cellType: "text", name: "col1" },
         { cellType: "text", name: "col2" },
@@ -328,7 +328,7 @@ frameworks.forEach((framework) => {
 });
 const json4 = {
   "textUpdateMode": "onTyping",
-  "focusFirstQuestionAutomatic": true,
+  "autoFocusFirstQuestion": true,
   "elements": [
     {
       "type": "matrixdynamic",
@@ -496,7 +496,7 @@ frameworks.forEach((framework) => {
   test("Focus remove or add button removing", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "matrixdynamic",
@@ -529,7 +529,7 @@ frameworks.forEach((framework) => {
   test("Focus remove or add button removing - no header", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "matrixdynamic",
@@ -563,7 +563,7 @@ frameworks.forEach((framework) => {
   test("Focus remove or add button removing for horizontal columns layout", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       elements: [
         {
           type: "matrixdynamic",
@@ -662,14 +662,14 @@ frameworks.forEach((framework) => {
               "detailPanelMode": "underRowSingle",
               "cellType": "text",
               "rowCount": 1,
-              "addRowLocation": "top",
+              "addRowButtonLocation": "top",
               "hideColumnsIfEmpty": true,
               "detailPanelShowOnAdding": true
             }
           ]
         }
       ],
-      "showNavigationButtons": "none",
+      "showNavigationButtons": false,
       "showQuestionNumbers": "off"
     });
     await t.resizeWindow(600, 1080);

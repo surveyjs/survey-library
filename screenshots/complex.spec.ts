@@ -4,14 +4,15 @@ import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from
 const title = "Complex Screenshot";
 
 const json = {
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   width: "900px",
   elements: [
     {
       type: "Paneldynamic",
       title: "My Order",
       name: "order",
-      renderMode: "progressBottom",
+      displayMode: "carousel",
+      progressBarLocation: "bottom",
       templateTitle: "{panel.itemName}",
       removePanelText: "Remove Item",
       panelCount: 5,

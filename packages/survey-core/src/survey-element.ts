@@ -847,9 +847,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public setVisibleIndex(index: number): number {
     return 0;
   }
+  protected getPageVisibleIndex(): number { return -1; }
   protected getStartIndex(): string {
     if (!!this.parent) return this.parent.getQuestionStartIndex();
-    if (!!this.survey) return this.survey.questionStartIndex;
+    if (!!this.survey) return this.survey.getQuestionStartIndex(this.getPageVisibleIndex());
     return "";
   }
   public delete(doDispose: boolean): void { }

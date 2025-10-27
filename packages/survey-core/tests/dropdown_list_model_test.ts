@@ -971,9 +971,9 @@ QUnit.test("Dropdown should not be open on click in preview mode", (assert) => {
   assert.notOk(popupModel.isVisible);
 });
 
-QUnit.test("Dropdown should not be open on click in display mode", (assert) => {
+QUnit.test("Dropdown should not be open on click in read-only mode", (assert) => {
   const survey = new SurveyModel(jsonDropdown);
-  survey.mode = "display";
+  survey.readOnly = true;
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 

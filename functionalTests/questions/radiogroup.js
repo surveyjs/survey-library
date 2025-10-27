@@ -529,7 +529,7 @@ frameworks.forEach(framework => {
           type: "radiogroup",
           name: "q1",
           choices: ["item1", "item2", "item3"],
-          showClearButton: true,
+          allowClear: true,
           showCommentArea: true
         }
       ]

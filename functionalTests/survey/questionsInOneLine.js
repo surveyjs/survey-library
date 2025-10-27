@@ -9,7 +9,7 @@
 
 // const json = {
 //   questionTitleLocation: "bottom",
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   pages: [
 //     {
 //       name: "Address",

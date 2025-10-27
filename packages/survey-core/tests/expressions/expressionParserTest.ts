@@ -521,21 +521,21 @@ QUnit.test("Run today function", function(assert) {
 QUnit.test("Compare date with today", function(assert) {
   const todayDate = new Date();
   todayDate.setHours(0, 0, 0, 0);
-  const yearsterDay = new Date();
-  yearsterDay.setDate(yearsterDay.getDate() - 1);
-  yearsterDay.setHours(0, 0, 0, 0);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setHours(0, 0, 0, 0);
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setHours(0, 0, 0, 0);
   var condition = new ConditionRunner("{d} < today()");
-  const val = { d: yearsterDay };
+  const val = { d: yesterday };
   assert.equal(condition.runValues(val), true, "yesterday < today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), false, "todayDate < today");
   assert.equal(condition.runValues(val), false, "tomorrow < today");
 
   condition = new ConditionRunner("{d} <= today()");
-  val.d = yearsterDay;
+  val.d = yesterday;
   assert.equal(condition.runValues(val), true, "yesterday <= today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), true, "todayDate <= today");
@@ -543,7 +543,7 @@ QUnit.test("Compare date with today", function(assert) {
   assert.equal(condition.runValues(val), false, "tomorrow <= today");
 
   condition = new ConditionRunner("{d} >= today()");
-  val.d = yearsterDay;
+  val.d = yesterday;
   assert.equal(condition.runValues(val), false, "yesterday >= today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), true, "todayDate >= today");
@@ -551,7 +551,7 @@ QUnit.test("Compare date with today", function(assert) {
   assert.equal(condition.runValues(val), true, "tomorrow >= today");
 
   condition = new ConditionRunner("{d} > today()");
-  val.d = yearsterDay;
+  val.d = yesterday;
   assert.equal(condition.runValues(val), false, "yesterday > today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), false, "todayDate > today");
@@ -559,25 +559,25 @@ QUnit.test("Compare date with today", function(assert) {
   assert.equal(condition.runValues(val), true, "tomorrow > today");
 });
 
-QUnit.test("Compare date with today, settings.useLocalTimeZone = false", function(assert) {
-  settings.useLocalTimeZone = false;
+QUnit.test("Compare date with today, settings.storeUtcDates = true", function(assert) {
+  settings.storeUtcDates = true;
   const todayDate = new Date();
   todayDate.setUTCHours(0, 0, 0, 0);
-  const yearsterDay = new Date();
-  yearsterDay.setDate(yearsterDay.getDate() - 1);
-  yearsterDay.setUTCHours(0, 0, 0, 0);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setUTCHours(0, 0, 0, 0);
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   tomorrow.setUTCHours(0, 0, 0, 0);
   var condition = new ConditionRunner("{d} < today()");
-  const val = { d: yearsterDay };
+  const val = { d: yesterday };
   assert.equal(condition.runValues(val), true, "yesterday < today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), false, "todayDate < today");
   assert.equal(condition.runValues(val), false, "tomorrow < today");
 
   condition = new ConditionRunner("{d} <= today()");
-  val.d = yearsterDay;
+  val.d = yesterday;
   assert.equal(condition.runValues(val), true, "yesterday <= today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), true, "todayDate <= today");
@@ -585,7 +585,7 @@ QUnit.test("Compare date with today, settings.useLocalTimeZone = false", functio
   assert.equal(condition.runValues(val), false, "tomorrow <= today");
 
   condition = new ConditionRunner("{d} >= today()");
-  val.d = yearsterDay;
+  val.d = yesterday;
   assert.equal(condition.runValues(val), false, "yesterday >= today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), true, "todayDate >= today");
@@ -593,13 +593,13 @@ QUnit.test("Compare date with today, settings.useLocalTimeZone = false", functio
   assert.equal(condition.runValues(val), true, "tomorrow >= today");
 
   condition = new ConditionRunner("{d} > today()");
-  val.d = yearsterDay;
+  val.d = yesterday;
   assert.equal(condition.runValues(val), false, "yesterday > today");
   val.d = todayDate;
   assert.equal(condition.runValues(val), false, "todayDate > today");
   val.d = tomorrow;
   assert.equal(condition.runValues(val), true, "tomorrow > today");
-  settings.useLocalTimeZone = true;
+  settings.storeUtcDates = false;
 });
 
 QUnit.test("Run age function with empty value", function(assert) {

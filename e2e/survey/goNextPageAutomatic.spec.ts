@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
-const title = "goNextPageAutomatic";
+const title = "autoAdvanceEnabled";
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
@@ -20,7 +20,7 @@ frameworks.forEach((framework) => {
           }
         ],
         "autoFocusFirstQuestion": true,
-        "goNextPageAutomatic": true,
+        "autoAdvanceEnabled": true,
         "questionsOnPageMode": "questionPerPage",
       };
       await initSurvey(page, framework, json);

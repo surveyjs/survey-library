@@ -2,7 +2,7 @@ import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "focus input with Error";
 const json1 = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   "pages": [
     {
       "name": "page1",
@@ -36,7 +36,7 @@ const json1 = {
   "checkErrorsMode": "onComplete"
 };
 const json2 = {
-  focusFirstQuestionAutomatic: true,
+  autoFocusFirstQuestion: true,
   "pages": [
     {
       "name": "page1",

@@ -155,7 +155,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     actions: Array<IAction>,
     question?: QuestionPanelDynamicModel
   ): Array<IAction>;
-  questionStartIndex: string;
+  getQuestionStartIndex(pageVisibleIndex: number): string;
   showQuestionNumbers: string | boolean;
   questionTitleLocation: string;
   questionDescriptionLocation: string;

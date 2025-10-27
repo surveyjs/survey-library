@@ -420,7 +420,7 @@ QUnit.test("Composite: content questions numbering", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },
@@ -483,7 +483,7 @@ QUnit.test("Composite: content questions recursive numbering, Bug#10218", functi
     },
   });
   var survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "customerinfo", name: "q2" },
@@ -1756,7 +1756,7 @@ QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
     ],
   });
   var survey = new SurveyModel({
-    showPreviewBeforeComplete: "showAllQuestions",
+    showPreviewBeforeComplete: true,
     elements: [{ type: "fullname", name: "name" }],
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
@@ -1809,7 +1809,7 @@ QUnit.test(
       ],
     });
     var survey = new SurveyModel({
-      showPreviewBeforeComplete: "showAllQuestions",
+      showPreviewBeforeComplete: true,
       clearInvisibleValues: "onHiddenContainer",
       elements: [{ type: "fullname", name: "name" }],
     });
@@ -3417,7 +3417,7 @@ QUnit.test("Single: showPreviewBeforeComplete Bug#8005", function (assert) {
   });
   const survey = new SurveyModel({
     elements: [{ type: "test", name: "question1" }],
-    showPreviewBeforeComplete: "showAllQuestions"
+    showPreviewBeforeComplete: true,
   });
   survey.getQuestionByName("question1").value = 1;
   survey.showPreview();
@@ -3441,7 +3441,7 @@ QUnit.test("Single: validate", function (assert) {
   });
   const survey = new SurveyModel({
     elements: [{ type: "test", name: "question1" }],
-    showPreviewBeforeComplete: "showAllQuestions"
+    showPreviewBeforeComplete: true,
   });
   const q = survey.getQuestionByName("question1");
   q.value = 2;

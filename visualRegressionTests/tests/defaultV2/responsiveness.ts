@@ -15,8 +15,8 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         showQuestionNumbers: true,
+//         autoFocusFirstQuestion: true,
 //         questions: [
 //           {
 //             type: "text",
@@ -32,7 +32,7 @@
 //   test("Check simple question on smartphone screen", async (t) => {
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await initSurvey(framework, {
-//         focusFirstQuestionAutomatic: true,
+//         autoFocusFirstQuestion: true,
 //         "elements": [{
 //           "name": "username",
 //           "type": "text",
@@ -84,8 +84,8 @@
 //         document.body.setAttribute("dir", "rtl");
 //       })();
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
-//         focusFirstQuestionAutomatic: true,
+//         showQuestionNumbers: true,
+//         autoFocusFirstQuestion: true,
 //         questions: [
 //           {
 //             type: "text",
@@ -101,7 +101,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         questions: [
 //           {
 //             type: "text",
@@ -123,13 +123,13 @@
 //   });
 
 //   const panelDynamicJSON = {
-//     showQuestionNumbers: "off",
+//     showQuestionNumbers: false,
 //     questions: [
 //       {
 //         type: "paneldynamic",
 //         name: "applications",
 //         title: "What application do you use?",
-//         renderMode: "progressTop",
+//         displayMode: "carousel",
 //         templateTitle: "{panel.application}",
 //         templateElements: [
 //           {
@@ -150,8 +150,8 @@
 //         ],
 //         panelCount: 2,
 //         noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
-//         panelAddText: "Add application",
-//         panelRemoveText: "Remove application"
+//         addPanelText: "Add application",
+//         removePanelText: "Remove application"
 //       },
 //     ]
 //   };
@@ -174,7 +174,7 @@
 //       await initSurvey(framework, panelDynamicJSON);
 //       await ClientFunction(() => {
 //         document.body.focus();
-//         (window as any).survey.getQuestionByName("applications").renderMode = "list";
+//         (window as any).survey.getQuestionByName("applications").displayMode = "list";
 //       })();
 //       await takeElementScreenshot("responsiveness-paneldynamic-list.png", Selector(".sd-question--paneldynamic"), t, comparer);
 //     });
@@ -183,7 +183,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrix",
@@ -213,7 +213,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrix",
@@ -244,7 +244,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -287,7 +287,7 @@
 //             ],
 //             addRowText: "Add a New Record",
 //             rowCount: 2,
-//             "addRowLocation": "top"
+//             "addRowButtonLocation": "top"
 //           },
 //         ]
 //       });
@@ -302,7 +302,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -340,7 +340,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questionErrorLocation: "bottom",
 //         elements: [
 //           {
@@ -379,7 +379,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdropdown",
@@ -418,7 +418,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "multipletext",
@@ -457,7 +457,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "multipletext",
@@ -494,7 +494,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "checkbox",
@@ -514,7 +514,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         "widthMode": "static",
 //         "width": "60%",
 //         questions: [
@@ -547,7 +547,7 @@
 //             "colCount": 5
 //           }
 //         ],
-//         "focusFirstQuestionAutomatic": true // do not remove, it is need to check container clipping
+//         "autoFocusFirstQuestion": true // do not remove, it is need to check container clipping
 //       });
 //       await takeElementScreenshot("responsiveness-checkbox-col-count-5-wide.png", Selector(".sd-question"), t, comparer);
 //       await t.resizeWindow(1000, 1080);
@@ -560,7 +560,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         questions: [
 //           {
 //             type: "image",
@@ -580,7 +580,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         questions: [
 //           {
 //             type: "ranking",
@@ -601,8 +601,8 @@
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework,
 //         {
-//           showQuestionNumbers: "on",
-//           focusFirstQuestionAutomatic: true,
+//           showQuestionNumbers: true,
+//           autoFocusFirstQuestion: true,
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
@@ -661,7 +661,7 @@
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
-//           showQuestionNumbers: "off",
+//           showQuestionNumbers: false,
 //           elements: [{
 //             "type": "matrixdynamic",
 //             "name": "question1",
@@ -714,7 +714,7 @@
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
-//           showQuestionNumbers: "off",
+//           showQuestionNumbers: false,
 //           elements: [{
 //             "type": "matrixdropdown",
 //             "name": "question1",
@@ -768,7 +768,7 @@
 //           description: "Survey Description",
 //           title: "Title",
 //           widthMode: "static",
-//           showQuestionNumbers: "off",
+//           showQuestionNumbers: false,
 //           elements: [{
 //             "type": "matrixdropdown",
 //             "name": "question1",
@@ -804,7 +804,7 @@
 //       await t.resizeWindow(600, 1920);
 //       await initSurvey(framework,
 //         {
-//           showQuestionNumbers: "on",
+//           showQuestionNumbers: true,
 //           "pages": [
 //             {
 //               "name": "page1",
@@ -852,7 +852,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(600, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrixdynamic", "name": "question1",

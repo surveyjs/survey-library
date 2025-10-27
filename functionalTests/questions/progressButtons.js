@@ -32,8 +32,10 @@ const json = {
       ]
     }
   ],
-  showProgressBar: "top",
-  progressBarType: "buttons"
+  showProgressBar: true,
+  progressBarLocation: "top",
+  progressBarType: "pages",
+  progressBarShowPageTitles: true
 };
 
 frameworks.forEach((framework) => {

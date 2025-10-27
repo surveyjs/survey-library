@@ -3,7 +3,7 @@
 // const title = "visibleIf";
 
 // var json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   questions: [
 //     {
 //       type: "radiogroup",

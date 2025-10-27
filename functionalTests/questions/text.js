@@ -193,7 +193,7 @@ frameworks.forEach((framework) => {
     const characterCounter = Selector(".sd-remaining-character-counter");
 
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           name: "name",
@@ -221,7 +221,7 @@ frameworks.forEach((framework) => {
   });
   test("Allow Space As Answer", async (t) => {
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           name: "name",
@@ -246,7 +246,7 @@ frameworks.forEach((framework) => {
     const oldTimeZone = await getTimeZone();
     await setTimeZoneUnsafe(t, "America/Los_Angeles");
     await initSurvey(framework, {
-      focusFirstQuestionAutomatic: true,
+      autoFocusFirstQuestion: true,
       questions: [
         {
           "type": "text",
@@ -298,7 +298,7 @@ frameworks.forEach((framework) => {
         }
       ],
       checkErrorsMode: "onValueChanged",
-      focusFirstQuestionAutomatic: true
+      autoFocusFirstQuestion: true
     });
 
     await t

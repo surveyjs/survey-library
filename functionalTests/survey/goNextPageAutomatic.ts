@@ -1,6 +1,6 @@
 // import { url, initSurvey, frameworks, getSurveyResult } from "../helper";
 
-// const title = "goNextPageAutomatic";
+// const title = "autoAdvanceEnabled";
 
 // const json = {
 //   "pages": [
@@ -18,8 +18,8 @@
 //       ]
 //     }
 //   ],
-//   "focusFirstQuestionAutomatic": true,
-//   "goNextPageAutomatic": true,
+//   "autoFocusFirstQuestion": true,
+//   "autoAdvanceEnabled": true,
 //   "questionsOnPageMode": "questionPerPage",
 // };
 

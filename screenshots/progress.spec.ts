@@ -15,7 +15,7 @@ const testedPages = [{
 }];
 
 const json = {
-  showQuestionNumbers: "on",
+  showQuestionNumbers: true,
   autoFocusFirstQuestion: true,
   "title": "Minimum data reporting form - for suspected and probable cases of COVID-19",
   "pages": [{
@@ -70,8 +70,7 @@ const json = {
       type: "text"
     }]
   }],
-  "showProgressBar": "top",
-  "progressBarType": "buttons"
+  "showProgressBar": true
 };
 
 const applyHeaderAccentBackgroundColor = async (page) => {
@@ -92,7 +91,6 @@ frameworks.forEach(framework => {
     test("Check survey with progress top", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
-      newJSON.progressBarType = "pages";
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -105,14 +103,11 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress bottom", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      const newJSON = { ...json };
-      newJSON.showProgressBar = "bottom";
-      newJSON.progressBarType = "pages";
-
-      await initSurvey(page, framework, newJSON);
+      await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.currentPageNo = 1;
+        (<any>window).survey.progressBarLocation = "bottom";
       });
 
       await compareScreenshot(page, ".sd-container-modern", "survey-progress-bar-bottom.png");
@@ -123,8 +118,7 @@ frameworks.forEach(framework => {
       const newJSON = { ...json };
       newJSON["showBrandInfo"] = true;
       newJSON["fitToContainer"] = true;
-      newJSON.showProgressBar = "bottom";
-      newJSON.progressBarType = "pages";
+      newJSON["progressBarLocation"] = "bottom";
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -146,7 +140,10 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress top buttons", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
-      await initSurvey(page, framework, json);
+      const newJSON = { ...json };
+      newJSON["progressBarShowPageTitles"] = true;
+
+      await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
 
       await page.click("li:nth-child(2)");
@@ -165,6 +162,7 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.progressBarShowPageNumbers = true;
+        (<any>window).survey.progressBarShowPageTitles = true;
       });
 
       await page.click("li:nth-child(2)");
@@ -182,7 +180,8 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        (<any>window).survey.showProgressBar = "topBottom";
+        (<any>window).survey.progressBarLocation = "topBottom";
+        (<any>window).survey.progressBarShowPageTitles = true;
       });
 
       await page.click("li:nth-child(2)");
@@ -199,7 +198,6 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
       newJSON["showTOC"] = true;
-      newJSON.progressBarType = "pages";
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -213,10 +211,10 @@ frameworks.forEach(framework => {
     test("Check survey without title and with progress", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         pages: testedPages,
-        showProgressBar: "top"
+        showProgressBar: true
       });
       await applyHeaderAccentBackgroundColor(page);
 
@@ -226,7 +224,7 @@ frameworks.forEach(framework => {
     test("Check survey without title and progress", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         pages: testedPages
       });
@@ -238,7 +236,7 @@ frameworks.forEach(framework => {
     test("Check survey with title and without progress", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         title: "Test",
         pages: testedPages
@@ -252,8 +250,8 @@ frameworks.forEach(framework => {
       // if (["knockout", "react", "angular"].includes(framework)) { // TODO: reanimate Vue after Vue3 supported
       const json = {
         "title": "American History",
-        "showProgressBar": "top",
-        showQuestionNumbers: "on",
+        "showProgressBar": true,
+        showQuestionNumbers: true,
         "pages": [
           {
             "elements": [
@@ -316,7 +314,6 @@ frameworks.forEach(framework => {
     test("Check survey with custom navigation", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
-      newJSON.progressBarType = "pages";
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -334,7 +331,6 @@ frameworks.forEach(framework => {
     test("Check survey with progress top pages - hover", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
-      newJSON.progressBarType = "pages";
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -358,7 +354,8 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.currentPageNo = 1;
-        window["survey"].progressBarShowPageNumbers = true;
+        (<any>window).survey.progressBarShowPageTitles = true;
+        (<any>window).survey.progressBarShowPageNumbers = true;
       });
 
       await page.hover(".sd-progress-buttons__list li:nth-child(1)");
@@ -375,7 +372,6 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
 
       const newJSON = { ...json };
-      newJSON.progressBarType = "pages";
       newJSON["progressBarInheritWidthFrom"] = "survey";
       newJSON["widthMode"] = "static";
 
@@ -399,7 +395,6 @@ frameworks.forEach(framework => {
     test("Check survey with progress top - RTL", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       const newJSON = { ...json };
-      newJSON.progressBarType = "pages";
 
       await page.evaluate(() => {
         document.body.setAttribute("dir", "rtl");
@@ -419,7 +414,6 @@ frameworks.forEach(framework => {
       });
       await page.setViewportSize({ width: 800, height: 1080 });
       const newJSON = { ...json };
-      newJSON.progressBarType = "pages";
 
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
@@ -437,10 +431,9 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress top pages - sticky", async ({ page }) => {
       const surveyJson = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         title: "Survey Title",
-        showProgressBar: "top",
-        progressBarType: "pages",
+        showProgressBar: true,
         pages: [
           {
             name: "p1",
@@ -479,9 +472,9 @@ frameworks.forEach(framework => {
 
     test("Check survey with progress top questions - sticky", async ({ page }) => {
       const surveyJson = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         title: "Survey Title",
-        showProgressBar: "top",
+        showProgressBar: true,
         progressBarType: "questions",
         pages: [
           {
@@ -522,7 +515,7 @@ frameworks.forEach(framework => {
     test("Check progress top buttons sticky has background", async ({ page }) => {
       await page.setViewportSize({ width: 1400, height: 800 });
       const surveyJson = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         title: "Sample Survey",
         logoPosition: "right",
         pages: [
@@ -584,8 +577,8 @@ frameworks.forEach(framework => {
             title: "Page 3"
           }
         ],
-        showProgressBar: "belowheader",
-        progressBarType: "buttons",
+        showProgressBar: true,
+        progressBarLocation: "belowheader",
         progressBarShowPageTitles: true,
         widthMode: "static",
         width: "800px"
@@ -713,6 +706,7 @@ frameworks.forEach(framework => {
           },
           "headerView": "basic"
         };
+        (<any>window).survey.progressBarShowPageTitles = true;
         (<any>window).survey.progressBarShowPageNumbers = true;
         (<any>window).survey.applyTheme(theme);
       });

@@ -13,7 +13,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         elements: [
 //           {
@@ -39,7 +39,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         elements: [
 //           {
@@ -79,12 +79,12 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
 //             name: "Current Level of Function",
-//             columnLayout: "vertical",
+//             "transposeData": true,
 //             rowCount: 3,
 //             columns: [
 //               {
@@ -132,7 +132,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         elements: [
 //           {
@@ -176,7 +176,7 @@
 //       await t.resizeWindow(1920, 1080);
 //       await initSurvey(framework, {
 //         questionErrorLocation: "bottom",
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         width: "900px",
 //         elements: [
 //           {
@@ -223,7 +223,7 @@
 //         return;
 //       }
 //       await t.resizeWindow(1280, 1100);
-//       await initSurvey(framework, { showQuestionNumbers: "on", "pages": [{ "name": "page1", "elements": [{ "type": "matrixdynamic", "name": "relatives", "title": "Please enter all blood relatives you know", "columns": [{ "name": "relativeType", "title": "Relative", "cellType": "dropdown", "isRequired": true, "choices": ["father", "mother", "brother", "sister", "son", "daughter"] }, { "name": "firstName", "title": "First name", "cellType": "text", "isRequired": true }, { "name": "lastName", "title": "Last name", "cellType": "text", "isRequired": true }], "detailElements": [{ "type": "radiogroup", "name": "isalive", "startWithNewLine": false, "title": "Alive?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "dropdown", "name": "liveage", "visibleIf": "{row.isalive} = 'Yes'", "startWithNewLine": false, "title": "Age", "isRequired": true, "choicesMin": 1, "choicesMax": 115 }, { "type": "dropdown", "name": "deceasedage", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Deceased Age", "isRequired": true, "choices": [{ "value": -1, "text": "Unknown" }], "choicesMin": 1, "choicesMax": 115 }, { "type": "radiogroup", "name": "causeofdeathknown", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Cause of Death Known?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "text", "name": "causeofdeath", "visibleIf": "{row.isalive} = 'No' and {row.causeofdeathknown} = 'Yes'", "startWithNewLine": false, "title": "Cause of Death", "isRequired": true }], "detailPanelMode": "underRow", "addRowText": "Add a blood relative", "removeRowText": "Remove the relative", "allowRowReorder": true }] }], "checkErrorsMode": "onValueChanged" });
+//       await initSurvey(framework, { showQuestionNumbers: true, "pages": [{ "name": "page1", "elements": [{ "type": "matrixdynamic", "name": "relatives", "title": "Please enter all blood relatives you know", "columns": [{ "name": "relativeType", "title": "Relative", "cellType": "dropdown", "isRequired": true, "choices": ["father", "mother", "brother", "sister", "son", "daughter"] }, { "name": "firstName", "title": "First name", "cellType": "text", "isRequired": true }, { "name": "lastName", "title": "Last name", "cellType": "text", "isRequired": true }], "detailElements": [{ "type": "radiogroup", "name": "isalive", "startWithNewLine": false, "title": "Alive?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "dropdown", "name": "liveage", "visibleIf": "{row.isalive} = 'Yes'", "startWithNewLine": false, "title": "Age", "isRequired": true, "choicesMin": 1, "choicesMax": 115 }, { "type": "dropdown", "name": "deceasedage", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Deceased Age", "isRequired": true, "choices": [{ "value": -1, "text": "Unknown" }], "choicesMin": 1, "choicesMax": 115 }, { "type": "radiogroup", "name": "causeofdeathknown", "visibleIf": "{row.isalive} = 'No'", "startWithNewLine": false, "title": "Cause of Death Known?", "isRequired": true, "choices": ["Yes", "No"], "colCount": 0 }, { "type": "text", "name": "causeofdeath", "visibleIf": "{row.isalive} = 'No' and {row.causeofdeathknown} = 'Yes'", "startWithNewLine": false, "title": "Cause of Death", "isRequired": true }], "detailPanelMode": "underRow", "addRowText": "Add a blood relative", "removeRowText": "Remove the relative", "allowRowReorder": true }] }], "checkErrorsMode": "onValueChanged" });
 
 //       const matrixdynamicRoot = Selector(".sd-question");
 //       await resetFocusToBody();
@@ -238,7 +238,7 @@
 //         return;
 //       }
 //       await t.resizeWindow(1280, 1100);
-//       await initSurvey(framework, { showQuestionNumbers: "on", elements: [{ type: "matrixdynamic", name: "question1", allowRowReorder: true, defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }], columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }] }] });
+//       await initSurvey(framework, { showQuestionNumbers: true, elements: [{ type: "matrixdynamic", name: "question1", allowRowReorder: true, defaultValue: [{ col1: "Row1 value" }, { col1: "Row2 value" }, { col1: "Row3 value" }], columns: [{ "name": "col1", "title": "Column 1", "cellType": "text" }] }] });
 //       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].lockedRowCount = 1; })();
 
 //       const matrixdynamicRoot = Selector(".sd-question");
@@ -257,7 +257,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -335,7 +335,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             type: "matrixdynamic",
@@ -362,7 +362,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "off",
+//         showQuestionNumbers: false,
 //         elements: [
 //           {
 //             "type": "matrixdropdown",
@@ -409,7 +409,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 1100);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         pages: [
 //           {
 //             name: "page1",

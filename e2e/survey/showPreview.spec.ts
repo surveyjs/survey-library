@@ -22,7 +22,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       await page.evaluate(() => {
-        window["survey"].showPreviewBeforeComplete = "showAllQuestions";
+        window["survey"].showPreviewBeforeComplete = true;
         window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;
       });
 
@@ -51,7 +51,8 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       await page.evaluate(() => {
-        window["survey"].showPreviewBeforeComplete = "showAnsweredQuestions";
+        window["survey"].showPreviewBeforeComplete = true;
+        window["survey"].previewMode = "answeredQuestions";
         window["survey"].currentPageNo = window["survey"].visiblePageCount - 1;
       });
 
@@ -90,7 +91,7 @@ frameworks.forEach((framework) => {
             ],
           },
         ],
-        showPreviewBeforeComplete: "showAllQuestions",
+        showPreviewBeforeComplete: true
       });
       await page.click("input[value=Preview]");
       const editButtons = await page.locator("input[title=Edit]").count();

@@ -30,7 +30,7 @@ var jsonCheckbox2 = {
       type: "boolean",
       name: "bool",
       title: "Are you 21 or older?",
-      titleLocation: "hidden",
+      useTitleAsLabel: true,
       renderAs: "checkbox",
     },
   ],
@@ -217,7 +217,7 @@ frameworks.forEach((framework) => {
 
   test("Check actions", async (t) => {
     await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
-      options.titleActions = [
+      options.actions = [
         {
           title: "Click me",
           action: () => {

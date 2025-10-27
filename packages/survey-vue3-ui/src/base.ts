@@ -1,4 +1,9 @@
-import { Base, Question, LocalizableString } from "survey-core";
+import {
+  Base,
+  Question,
+  LocalizableString,
+  type IPropertyArrayValueChangedEvent,
+} from "survey-core";
 import {
   ref,
   isRef,
@@ -12,6 +17,7 @@ import {
   onBeforeUpdate,
   onUpdated,
   onBeforeMount,
+  triggerRef,
 } from "vue";
 
 class NextRenderManager {
@@ -29,44 +35,20 @@ class NextRenderManager {
   }
 }
 
-interface CoreRef<T = any>  {
-  ref: Ref<T>,
-  clear?: () => void;
-}
-
-function isCoreRef(coreRef: any) {
-  return typeof coreRef == "object" && coreRef !== null && isRef(coreRef.ref);
-}
-function unCoreRef(val: any) {
-  if(isCoreRef(val)) {
-    return unref(val.ref);
-  } else {
-    return val;
-  }
-}
-
-function useCoreRef(options: {
+function useCoreRef<T = any>(options: {
   initialValue: any;
-  surveyElement: Base,
+  surveyElement: Base;
   isUpdateAllowed: () => boolean;
   nextRenderManager: NextRenderManager;
-  isArray?: boolean
-}): CoreRef {
+}): Ref<T> {
   let value = options.initialValue;
-  let clear!: () => void;
-  return { ref: customRef((tracker, trigger) => {
+  return customRef<T>((tracker, trigger) => {
     const update = () => {
       if (options.isUpdateAllowed()) {
         trigger();
         options.nextRenderManager.add();
       }
-    }
-    if (options.isArray) {
-      options.surveyElement.addOnArrayChangedCallback(value, update)
-      clear = () => {
-        options.surveyElement.removeOnArrayChangedCallback(value, update) 
-      }
-    }
+    };
     return {
       get() {
         tracker();
@@ -79,62 +61,70 @@ function useCoreRef(options: {
           update();
         }
       },
-    };}), clear };
+    };
+  });
 }
-
-export function makeReactive(
-  surveyElement: Base) {
+export function makeReactive(surveyElement: Base) {
   if (!surveyElement) return;
-  (surveyElement as any).__vueUpdatesLock = (surveyElement as any).__vueUpdatesLock ?? 0;
-  (surveyElement as any).__vueImplemented = (surveyElement as any).__vueImplemented ?? 0;
+  (surveyElement as any).__vueUpdatesLock =
+    (surveyElement as any).__vueUpdatesLock ?? 0;
+  (surveyElement as any).__vueImplemented =
+    (surveyElement as any).__vueImplemented ?? 0;
   if ((surveyElement as any).__vueImplemented <= 0) {
     const isUpdateAllowed = () => (surveyElement as any).__vueUpdatesLock <= 0;
     const nextRenderManager = new NextRenderManager(surveyElement);
-    surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
+    const onArrayChanged = (_: Base, options: IPropertyArrayValueChangedEvent) => {
+      const arrRef = options.valueFromHash;
+      if (isUpdateAllowed() && isRef(arrRef)) {
+        triggerRef(arrRef);
+        nextRenderManager.add();
+      }
+    };
+    const setRef = (hash: any, key: string, initVal?: any): void => {
       hash[key] = useCoreRef({
-        initialValue: [],
+        initialValue: initVal === undefined ? hash[key] : initVal,
         surveyElement,
         isUpdateAllowed,
-        nextRenderManager,
-        isArray: true
+        nextRenderManager
       });
-      return unCoreRef(hash[key]);
+    };
+    surveyElement.addOnArrayChangedCallback(onArrayChanged);
+    surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
+      setRef(hash, key, []);
+      return unref(hash[key]);
     };
     surveyElement.iteratePropertiesHash((hash, key) => {
-      hash[key] = useCoreRef({
-        initialValue: hash[key],
-        surveyElement,
-        isUpdateAllowed,
-        nextRenderManager,
-        isArray: Array.isArray(hash[key])
-      });
+      setRef(hash, key);
     });
     surveyElement.getPropertyValueCoreHandler = (hash, key) => {
-      if (!isCoreRef(hash[key])) {
-        hash[key] = useCoreRef({
-          initialValue: hash[key],
-          surveyElement,
-          isUpdateAllowed,
-          nextRenderManager,
-        });
+      if (!isRef(hash[key])) {
+        setRef(hash, key);
       }
-      return unCoreRef(hash[key]);
+      return unref(hash[key]);
     };
-    surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
-      if (isCoreRef(hash[key])) {
-        hash[key].ref.value = val;
+     surveyElement.setPropertyValueCoreHandler = (hash, key, val) => {
+      if (isRef(hash[key])) {
+        hash[key].value = val;
       } else {
-        hash[key] = useCoreRef({
-          initialValue: hash[key],
-          surveyElement,
-          isUpdateAllowed,
-          nextRenderManager,
-        });
+        setRef(hash, key, val);
       }
       nextRenderManager.add();
     };
+    (surveyElement as any).__vueClear = () => {
+      surveyElement.iteratePropertiesHash((hash, key) => {
+        hash[key] = unref(hash[key]);
+      });
+      delete (surveyElement as any).__vueClear;
+      delete (surveyElement as any).__vueUpdatesLock;
+      delete (surveyElement as any).__vueImplemented;
+      surveyElement.removeOnArrayChangedCallback(onArrayChanged);
+      surveyElement.createArrayCoreHandler = undefined as any;
+      surveyElement.getPropertyValueCoreHandler = undefined as any;
+      surveyElement.setPropertyValueCoreHandler = undefined as any;
+      surveyElement.disableOnElementRerenderedEvent();
+    };
+    surveyElement.enableOnElementRerenderedEvent();
   }
-  surveyElement.enableOnElementRerenderedEvent();
   (surveyElement as any).__vueImplemented++;
 }
 
@@ -148,30 +138,21 @@ export function unMakeReactive(surveyElement?: Base) {
     (surveyElement as any).__vueImplemented ?? 0;
   (surveyElement as any).__vueImplemented--;
   if ((surveyElement as any).__vueImplemented <= 0) {
-    surveyElement.iteratePropertiesHash((hash, key) => {
-      if (isCoreRef(hash[key]) && typeof hash[key].clear == "function") {
-        hash[key].clear();
-      }
-      hash[key] = unCoreRef(hash[key]);
-    });
-    delete (surveyElement as any).__vueUpdatesLock;
-    delete (surveyElement as any).__vueImplemented;
-    surveyElement.createArrayCoreHandler = undefined as any;
-    surveyElement.getPropertyValueCoreHandler = undefined as any;
-    surveyElement.setPropertyValueCoreHandler = undefined as any;
-    surveyElement.disableOnElementRerenderedEvent();
+    if (typeof (surveyElement as any).__vueClear == "function") {
+      (surveyElement as any).__vueClear();
+    }
   }
 }
 
 function blockUpdates(model: any) {
-    if(model && model.__vueUpdatesLock !== undefined) {
-      model.__vueUpdatesLock++;
-    }
+  if (model && model.__vueUpdatesLock !== undefined) {
+    model.__vueUpdatesLock++;
+  }
 }
 function releaseUpdates(model: any) {
-    if(model && model.__vueUpdatesLock !== undefined) {
-      model.__vueUpdatesLock--;
-    }
+  if (model && model.__vueUpdatesLock !== undefined) {
+    model.__vueUpdatesLock--;
+  }
 }
 
 // by convention, composable function names start with "use"
@@ -200,12 +181,12 @@ export function useBase<T extends Base>(
 
   onBeforeUpdate(() => {
     blockUpdates(currentModel);
-  }) 
+  });
   onUpdated(() => {
     releaseUpdates(currentModel);
   });
-  onBeforeMount(() => blockUpdates(currentModel))
-  onMounted(() => releaseUpdates(currentModel))
+  onBeforeMount(() => blockUpdates(currentModel));
+  onMounted(() => releaseUpdates(currentModel));
   onBeforeUnmount(() => {
     if (!isOnBeforeUnmountCalled) {
       const model = getModel();

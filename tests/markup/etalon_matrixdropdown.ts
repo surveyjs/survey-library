@@ -74,7 +74,7 @@ registerMarkupTests(
             type: "matrixdropdown",
             name: "m",
             cellType: "text",
-            columnLayout: "vertical",
+            transposeData: true,
             "columns": ["Col 1", "Col 2"],
             "rows": [
               "Row 1",

@@ -1471,7 +1471,7 @@ QUnit.test("Check readOnly tagbox with markdown", function (assert) {
   });
   const q1 = survey.getQuestionByName("q1") as QuestionTagboxModel;
 
-  survey.mode = "display";
+  survey.readOnly = true;
   survey.data = { q1: ["item1", "item2", "item3"] };
 
   assert.equal(q1.displayValue, "item1 |  item2 |  item3");

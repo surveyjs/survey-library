@@ -571,6 +571,7 @@ export class Question extends SurveyElement<Question>
   public getPanels(): Array<IPanel> {
     return null;
   }
+  protected getPageVisibleIndex(): number { return (<any>this.page)?.visibleIndex || -1; }
   public delete(doDispose: boolean = true): void {
     this.removeFromParent();
     if (doDispose) {
@@ -737,6 +738,8 @@ export class Question extends SurveyElement<Question>
    *
    * Default value: `false` (inherited from the `SurveyModel`'s [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property)
    * @see no
+   * @see showQuestionNumbers
+   * @see questionStartIndex
    */
   public get showNumber(): boolean {
     return this.getPropertyValue("showNumber");
@@ -2810,8 +2813,8 @@ export class Question extends SurveyElement<Question>
    * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
-  public validate(fireCallback: boolean = true, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
-    return this.validateCore(fireCallback, true, focusOnFirstError, isOnValueChanged, callbackResult);
+  public validate(fireCallback: boolean = true, focusFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
+    return this.validateCore(fireCallback, true, focusFirstError, isOnValueChanged, callbackResult);
   }
   private validateCore(fireCallback: boolean, isRoot: boolean, focusOnFirstError: boolean = false, isOnValueChanged: boolean = false, callbackResult?: (res: boolean, question: Question) => void): boolean {
     if (isRoot && isOnValueChanged && !!this.parent) {

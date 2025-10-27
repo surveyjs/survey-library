@@ -1,10 +1,10 @@
 // import { url, initSurvey, frameworks, getSurveyResult } from "../helper";
 // import { Selector, ClientFunction } from "testcafe";
 
-// const title = "focusFirstQuestionAutomatic";
+// const title = "autoFocusFirstQuestion";
 
 // const json = {
-//   focusFirstQuestionAutomatic: true,
+//   autoFocusFirstQuestion: true,
 //   pages: [
 //     {
 //       elements: [
@@ -204,7 +204,7 @@
 //       return window["survey_focusedName"];
 //     });
 //     await initSurvey(framework, {
-//       focusFirstQuestionAutomatic: true,
+//       autoFocusFirstQuestion: true,
 //       pages: [
 //         {
 //           elements: [
@@ -279,7 +279,7 @@
 //   });
 //   test("survey.validateVisitedEmptyFields #8640", async t => {
 //     await initSurvey(framework, {
-//       focusFirstQuestionAutomatic: true,
+//       autoFocusFirstQuestion: true,
 //       checkErrorsMode: "onValueChanged",
 //       validateVisitedEmptyFields: true,
 //       elements: [

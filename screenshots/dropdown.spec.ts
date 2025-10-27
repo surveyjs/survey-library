@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
     test("Check dropdown select question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -36,7 +36,7 @@ frameworks.forEach(framework => {
     test("Check dropdown question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -59,7 +59,7 @@ frameworks.forEach(framework => {
     test("Check dropdown question input", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -82,7 +82,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -115,7 +115,7 @@ frameworks.forEach(framework => {
     test("Check dropdown select question popup", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -135,7 +135,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -153,7 +153,7 @@ frameworks.forEach(framework => {
     test("Check dropdown select question with long text", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -198,7 +198,7 @@ frameworks.forEach(framework => {
     test("Check dropdown disabled items", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -226,7 +226,7 @@ frameworks.forEach(framework => {
     test("Check dropdown selected items", async ({ page }) => {
       await page.setViewportSize({ width: 500, height: 300 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -248,7 +248,7 @@ frameworks.forEach(framework => {
     test("Check dropdown empty list", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -273,7 +273,7 @@ frameworks.forEach(framework => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       const json = {
         autoFocusFirstQuestion: false,
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -321,7 +321,7 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "dropdown",
@@ -342,7 +342,7 @@ frameworks.forEach(framework => {
     test("Dropdown search with spaces", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -365,7 +365,7 @@ frameworks.forEach(framework => {
     test("Check dropdown with custom component input height", async ({ page }) => {
       await registerCustomItemComponent(page, framework);
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         autoFocusFirstQuestion: true,
         elements: [
           {
@@ -393,7 +393,7 @@ frameworks.forEach(framework => {
         window["Survey"]._setIsTouch(true);
       });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             type: "dropdown",
@@ -418,7 +418,7 @@ frameworks.forEach(framework => {
     test("Check long text in disabled dropdown question", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "logoPosition": "right",
         "mode": "display",
         "pages": [
@@ -449,7 +449,7 @@ frameworks.forEach(framework => {
     test("Check dropdown readonly with empty placeholder", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [
           {
             "type": "dropdown",

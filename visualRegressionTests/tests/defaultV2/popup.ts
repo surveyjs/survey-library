@@ -6,7 +6,7 @@
 // fixture`${title}`.page`${url}`;
 
 // const json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   questions: [
 //     {
 //       name: "often",
@@ -326,7 +326,7 @@
 //       await initSurvey(framework, json, {
 //         onGetQuestionTitleActions: (_, opt) => {
 //           const json = {
-//             showQuestionNumbers: "on",
+//             showQuestionNumbers: true,
 //             elements: [
 //               {
 //                 type: "dropdown",
@@ -369,7 +369,7 @@
 //             showTitle: true,
 //             action: () => {
 //               const model = new window["Survey"].Model(json);
-//               model.focusFirstQuestionAutomatic = false;
+//               model.autoFocusFirstQuestion = false;
 //               window["Survey"].settings.showDialog({
 //                 componentName: "survey",
 //                 data: {
@@ -394,7 +394,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1000, 600);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -409,7 +409,7 @@
 //                   }
 //                 ],
 //                 "panelCount": 20,
-//                 "renderMode": "tab"
+//                 "displayMode": "tab"
 //               }
 //             ]
 //           }

@@ -169,7 +169,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const survey = window["survey"];
         survey.onGetQuestionTitleActions.add((_, options) => {
-          options.titleActions = [
+          options.actions = [
             {
               title: "Click me",
               action: () => {
@@ -188,7 +188,7 @@ frameworks.forEach((framework) => {
               type: "boolean",
               name: "bool",
               title: "21",
-              titleLocation: "hidden",
+              useTitleAsLabel: true,
               renderAs: "checkbox",
             },
           ],
@@ -252,7 +252,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
 
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           {
             "type": "boolean",

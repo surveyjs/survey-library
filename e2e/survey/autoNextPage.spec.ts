@@ -5,8 +5,9 @@ const title = "autoNextPage";
 const json = {
   autoFocusFirstQuestion: true,
   title: "American History",
-  showProgressBar: "bottom",
-  goNextPageAutomatic: true,
+  showProgressBar: true,
+  progressBarLocation: "bottom",
+  autoAdvanceEnabled: true,
   pages: [
     {
       elements: [
@@ -61,7 +62,7 @@ const json = {
 
 const json2 = {
   autoFocusFirstQuestion: true,
-  goNextPageAutomatic: true,
+  autoAdvanceEnabled: true,
   pages: [
     {
       elements: [
@@ -78,7 +79,7 @@ const json2 = {
 
 const json3 = {
   autoFocusFirstQuestion: true,
-  goNextPageAutomatic: true,
+  autoAdvanceEnabled: true,
   pages: [
     {
       elements: [

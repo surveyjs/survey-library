@@ -566,6 +566,25 @@ export class PanelModelBase extends SurveyElement<Question>
   public set questionsOrder(val: string) {
     this.questionOrder = val;
   }
+  /**
+   * Specifies a number or letter used to start numbering of elements inside this page/panel.
+   *
+   * You can include desired prefixes and postfixes alongside the number or letter:
+   *
+   * ```js
+   * "questionStartIndex": "a.", // a., b., c., ...
+   * "questionStartIndex": "#3", // #3, #4, #5, ...
+   * "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
+   * ```
+   * Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
+   * @see showQuestionNumbers
+   */
+  public get questionStartIndex(): string {
+    return this.getPropertyValue("questionStartIndex", "");
+  }
+  public set questionStartIndex(val: string) {
+    this.setPropertyValue("questionStartIndex", val);
+  }
   public addNoFromChild(no: string): string { return no; }
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";
@@ -2219,16 +2238,22 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.notifySurveyOnVisibilityChanged();
   }
   public addNoFromChild(no: string): string {
-    if (this.isQuestionIndexRecursive()) {
-      let parentNo = this.calcNo();
-      if (!!parentNo) {
-        if (!!no && parentNo[parentNo.length - 1] !== "." && no[0] !== ".") {
-          parentNo += ".";
-        }
+    let parentNo = this.getRecursiveNo();
+    if (!!parentNo) {
+      if (parentNo[parentNo.length - 1] !== "." && this.canAddDot(no)) {
+        parentNo += ".";
       }
       return parentNo + no;
     }
     return super.addNoFromChild(no);
+  }
+  public recursiveNoCallback: () => string;
+  private getRecursiveNo(): string {
+    if (this.recursiveNoCallback) return this.recursiveNoCallback();
+    return this.isQuestionIndexRecursive() ? this.calcNo() : "";
+  }
+  private canAddDot(no: string): boolean {
+    return !!no && new RegExp("^[\\p{L}\\d]", "u").test(no[0]);
   }
   /**
    * Specifies whether to display survey element numbers within this page/panel and how to calculate them.
@@ -2238,9 +2263,10 @@ export class PanelModel extends PanelModelBase implements IElement {
    * - `"default"` - Inherits the setting from the parent panel, page, or survey.
    * - `"recursive"` - Applies recursive numbering to elements nested within this page/panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
    * - `"onpanel"` - Starts numbering within this page/panel from scratch.
-   * - `false` or `"off"` - Hides question numbers within this page/panel.
+   * - `"off"` - Hides question numbers within this page/panel.
    * @see [SurveyModel.showQuestionNumbers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers)
    * @see showNumber
+   * @see questionStartIndex
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
@@ -2249,26 +2275,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     this.setPropertyValue("showQuestionNumbers", value);
     this.notifySurveyOnVisibilityChanged();
   }
-  /**
-   * Specifies a number or letter used to start numbering of elements inside the panel.
-   *
-   * You can include desired prefixes and postfixes alongside the number or letter:
-   *
-   * ```js
-   * "questionStartIndex": "a.", // a., b., c., ...
-   * "questionStartIndex": "#3", // #3, #4, #5, ...
-   * "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
-   * ```
-   * Default value: `"1."` (inherited from `SurveyModel`'s `questionStartIndex` property)
-   * @see SurveyModel.questionStartIndex
-   * @see showQuestionNumbers
-   */
-  public get questionStartIndex(): string {
-    return this.getPropertyValue("questionStartIndex", "");
-  }
-  public set questionStartIndex(val: string) {
-    this.setPropertyValue("questionStartIndex", val);
-  }
+  protected getPageVisibleIndex(): number { return (<any>this.page)?.visibleIndex || -1; }
   getQuestionStartIndex(): string {
     const res = this.questionStartIndex;
     if (!!res && this.isQuestionIndexOnPanel && this.isComplexIndex(res))

@@ -8,14 +8,14 @@
 // });
 
 // var json = {
-//   showQuestionNumbers: "off",
+//   showQuestionNumbers: false,
 //   width: "900px",
 //   questions: [
 //     {
 //       type: "paneldynamic",
 //       name: "applications",
 //       title: "What application do you use?",
-//       renderMode: "progressTop",
+//       displayMode: "carousel",
 //       templateTitle: "{panel.application}",
 //       templateElements: [
 //         {
@@ -36,7 +36,7 @@
 //       ],
 //       panelCount: 2,
 //       noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
-//       panelAddText: "Add application",
+//       addPanelText: "Add application",
 //       panelRemoveText: "Remove application",
 //       maxWidth: "768px",
 //       minWidth: "768px",
@@ -80,7 +80,7 @@
 //       const paneldynamicRoot = Selector(".sd-question--paneldynamic");
 //       await ClientFunction(() => {
 //         document.body.focus();
-//         (window as any).survey.getQuestionByName("applications").renderMode = "list";
+//         (window as any).survey.getQuestionByName("applications").displayMode = "list";
 //       })();
 //       await takeElementScreenshot("paneldynamic-list.png", paneldynamicRoot, t, comparer);
 //     });
@@ -114,7 +114,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     elements: [
 //       {
 //         type: "panel",
@@ -165,7 +165,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     "logoPosition": "right",
 //     "pages": [
 //       {
@@ -175,7 +175,7 @@
 //             type: "paneldynamic",
 //             name: "relatives",
 //             title: "Panel Dynamic",
-//             renderMode: "tab",
+//             displayMode: "tab",
 //             templateTitle: "Information about: {panel.relativeType}",
 //             templateElements: [
 //               {
@@ -286,7 +286,7 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
+//     showQuestionNumbers: true,
 //     "logoPosition": "right",
 //     "pages": [
 //       {
@@ -393,8 +393,8 @@
 
 // frameworks.forEach(framework => {
 //   const json = {
-//     showQuestionNumbers: "on",
-//     "focusFirstQuestionAutomatic": true,
+//     showQuestionNumbers: true,
+//     "autoFocusFirstQuestion": true,
 //     "pages": [
 //       {
 //         "name": "page1",
@@ -442,7 +442,7 @@
 //     await wrapVisualTest(t, async (t, comparer) => {
 //       await t.resizeWindow(1280, 900);
 //       await initSurvey(framework, {
-//         showQuestionNumbers: "on",
+//         showQuestionNumbers: true,
 //         "pages": [
 //           {
 //             "name": "page1",
@@ -458,7 +458,7 @@
 //                 ],
 //                 "panelCount": 4,
 //                 "minPanelCount": 4,
-//                 "renderMode": "tab"
+//                 "displayMode": "tab"
 //               }
 //             ]
 //           }

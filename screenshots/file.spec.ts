@@ -4,7 +4,7 @@ import { frameworks, url, initSurvey, resetFocusToBody, compareScreenshot } from
 const title = "File Screenshot";
 
 const json = {
-  showQuestionNumbers: "off",
+  showQuestionNumbers: false,
   width: "900px",
   elements: [{
     type: "file",
@@ -258,7 +258,7 @@ frameworks.forEach(framework => {
     test("Check file question placeholder mobile", async ({ page }) => {
       await page.setViewportSize({ width: 600, height: 1000 });
       const json = {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         elements: [{
           type: "file",
           title: "Upload everything what you'd like to.",
@@ -283,7 +283,7 @@ frameworks.forEach(framework => {
 
     test("Check file question different width", async ({ page }) => {
       const json = {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         widthMode: "responsive",
         elements: [
           {
@@ -346,7 +346,7 @@ frameworks.forEach(framework => {
     test("Check file question camera", async ({ page }) => {
       await page.setViewportSize({ width: 1980, height: 1000 });
       const json = {
-        showQuestionNumbers: "off",
+        showQuestionNumbers: false,
         widthMode: "900px",
         elements: [{
           type: "file",

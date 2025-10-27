@@ -496,6 +496,25 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("templateVisibleIf", val);
     this.template.visibleIf = val;
   }
+  /**
+   * Specifies a number or letter used to start numbering of elements inside the dynamic panel.
+   *
+   * You can include desired prefixes and postfixes alongside the number or letter:
+   *
+   * ```js
+   * "questionStartIndex": "a.", // a., b., c., ...
+   * "questionStartIndex": "#3", // #3, #4, #5, ...
+   * "questionStartIndex": "(B)." // (B)., (C)., (D)., ...
+   * ```
+   * Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
+   * @see showQuestionNumbers
+   */
+  public get questionStartIndex(): string {
+    return this.template.questionStartIndex;
+  }
+  public set questionStartIndex(val: string) {
+    this.template.questionStartIndex = val;
+  }
   protected get items(): Array<ISurveyData> {
     var res = [];
     for (var i = 0; i < this.panelsCore.length; i++) {
@@ -1333,9 +1352,12 @@ export class QuestionPanelDynamicModel extends Question
    *
    * Possible values:
    *
+   * - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
    * - `"onSurvey"` - Continues numbering across the entire survey.
    * - `"onPanel"` - Starts numbering within the dynamic panel from scratch.
    * - `"off"` (default) - Hides question numbers.
+   * @see questionStartIndex
+   * @see showNumber
    */
   public get showQuestionNumbers(): string {
     return this.getPropertyValue("showQuestionNumbers");
@@ -1638,16 +1660,12 @@ export class QuestionPanelDynamicModel extends Question
     }
     return true;
   }
-
-  /**
-   * @deprecated Call the [`addPanel(undefined, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanel) method instead.
-   */
   public addPanelUI(): PanelModel {
     return this.addPanel(undefined, true);
   }
   /**
    * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
-   * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value.
+   * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `displayMode` value.
    * @param runAdditionalActions *(Optional)* Pass `true` if you want to perform additional actions: check whether a new panel [can be added](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#canAddPanel), expand and focus the new panel, and run animated effects. Default value: `false` (the listed actions are skipped).
    * @see panelCount
    * @see panels
@@ -1758,9 +1776,6 @@ export class QuestionPanelDynamicModel extends Question
     if (this.currentIndex < 0) return;
     this.currentIndex--;
   }
-  /**
-   * @deprecated Call the [`removePanel(value, true)`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanel) method instead.
-   */
   public removePanelUI(value: any): void {
     this.removePanel(value, this.isRequireConfirmOnDelete(value));
   }
@@ -1827,17 +1842,21 @@ export class QuestionPanelDynamicModel extends Question
     if (!panel) {
       panel = this.panelsCore[index];
     }
+    const sQN = this.showQuestionNumbers;
     if (this.survey) {
-      const updateIndeces = this.showQuestionNumbers === "onSurvey";
+      const updateIndeces = sQN === "onSurvey";
       if (isAdded) {
         this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
       } else {
         this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
       }
     }
-    if (isAdded && !!panel && this.showQuestionNumbers === "onPanel") {
+    if (isAdded && !!panel && (sQN === "onPanel" || sQN === "recursive")) {
       panel.setVisibleIndex(0);
     }
+  }
+  private recursiveNoCallback(): string {
+    return this.showQuestionNumbers === "recursive" ? this.no : "";
   }
   private getVisualPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -2343,6 +2362,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.setParentQuestion(this);
     panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
     panel.onGetQuestionTitleWidth = () => this.templateQuestionTitleWidth;
+    panel.recursiveNoCallback = () => this.recursiveNoCallback();
     return panel;
   }
   private getTemplateQuestionTitleLocation(): string {
@@ -2915,8 +2935,12 @@ Serializer.addClass(
     {
       name: "showQuestionNumbers",
       default: "off",
-      choices: ["off", "onPanel", "onSurvey"],
+      choices: ["off", "onPanel", "onSurvey", "recursive"],
     },
+    { name: "questionStartIndex", visibleIf: (obj: QuestionPanelDynamicModel): boolean => {
+      const sQN = obj.showQuestionNumbers;
+      return sQN === "onPanel" || sQN === "recursive";
+    } },
     { name: "renderMode", visible: false, isSerializable: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },
     {

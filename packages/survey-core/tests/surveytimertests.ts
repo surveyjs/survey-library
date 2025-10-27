@@ -397,7 +397,7 @@ QUnit.test("Start timer automatically if there is the start page", function(
   survey.pages[0].addNewQuestion("text");
   survey.pages[1].addNewQuestion("text");
   survey.firstPageIsStartPage = true;
-  survey.showTimerPanel = "top";
+  survey.showTimer = true;
   survey.start();
   doTimer(3);
   assert.equal(survey.timeSpent, 3, "Timer was started");
@@ -408,7 +408,7 @@ QUnit.test("Allow to modify timeSpent property", (assert) => {
   var survey = new SurveyModel();
   survey.addNewPage("p1");
   survey.pages[0].addNewQuestion("text");
-  survey.showTimerPanel = "top";
+  survey.showTimer = true;
   survey.timeSpent = 100;
   survey.startTimer();
   assert.equal(survey.timeSpent, 100, "Timer has initial value");
@@ -619,7 +619,7 @@ QUnit.test("Do not start timer if the survey in the display mode", function (ass
   survey.pages[0].addNewQuestion("text");
   survey.timeLimit = 10;
   survey.timeLimitPerPage = 7;
-  survey.mode = "display";
+  survey.readOnly = true;
   survey.startTimer();
   doTimer(5);
   assert.equal(survey.timeSpent, 0, "Timmer is not started");

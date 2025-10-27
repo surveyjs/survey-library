@@ -13,7 +13,7 @@ frameworks.forEach(framework => {
     test("Check image question", async ({ page }) => {
       await page.setViewportSize({ width: 1920, height: 1080 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         widthMode: "responsive",
         elements: [
           {
@@ -37,7 +37,7 @@ frameworks.forEach(framework => {
     test("Check image in-row question", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           {
             type: "image",
@@ -65,7 +65,7 @@ frameworks.forEach(framework => {
     test("Check image loading is broken", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         elements: [
           { "type": "image", "name": "noimage",
             "imageLink": "https://surveyjs.io/Cos/image-picker/panda.jpg"
@@ -81,7 +81,7 @@ frameworks.forEach(framework => {
     test("Check image question responsive width when image is located in row with multiple elements", async ({ page }) => {
       await page.setViewportSize({ width: 800, height: 600 });
       await initSurvey(page, framework, {
-        showQuestionNumbers: "on",
+        showQuestionNumbers: true,
         "elements": [
           { "type": "text", "name": "q1", },
           {

@@ -203,6 +203,12 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     this.actions = items;
     return res;
   }
+  public removeActionById(id: string): boolean {
+    const index = this.getActionIndexById(id);
+    if (index < 0) return false;
+    this.actions.splice(index, 1);
+    return true;
+  }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     const newActions: Array<T> = [];
     items.forEach(item => {
@@ -263,10 +269,14 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
   public resetResponsivityManager(): void { }
   public getActionById(id: string): T {
+    const index = this.getActionIndexById(id);
+    return index > -1 ? this.actions[index] : null;
+  }
+  private getActionIndexById(id: string): number {
     for (var i = 0; i < this.actions.length; i++) {
-      if (this.actions[i].id === id) return this.actions[i];
+      if (this.actions[i].id === id) return i;
     }
-    return null;
+    return -1;
   }
   public dispose(): void {
     super.dispose();

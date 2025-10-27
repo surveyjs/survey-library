@@ -8,7 +8,7 @@
 // });
 
 // const json = {
-//   showQuestionNumbers: "on",
+//   showQuestionNumbers: true,
 //   showBrandInfo: true,
 //   questions: [{
 //     type: "text",

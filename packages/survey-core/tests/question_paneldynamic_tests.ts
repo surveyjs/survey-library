@@ -888,7 +888,7 @@ QUnit.test("PanelDynamic in design time", function(assert) {
   question.panelCount = 0;
   assert.equal(question.panels.length, 1, "There are still one panel");
   assert.equal(question.currentIndex, -1, "It is -1 in list mode");
-  question.renderMode = "progressTop";
+  question.displayMode = "carousel";
   assert.equal(
     question.panels.length,
     1,
@@ -1113,6 +1113,107 @@ QUnit.test("PanelDynamic, showQuestionNumbers onPanel in run-time, bug#9652", fu
   panel.addPanel();
   assert.equal(panel.panels[1].getQuestionByName("q2").no, "1.", "The number should be 2., #2");
 });
+QUnit.test("PanelDynamic, showQuestionNumbers recursive, Issue#10288", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "recursive",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.getQuestionByName("q2").no, "1.2.1", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "1.2.2", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "1.2.1", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "1.2.2", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+});
+QUnit.test("PanelDynamic, showQuestionNumbers recursive & questionStartIndex, Issue#10288", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "recursive",
+        questionStartIndex: " a",
+        templateTitle: "Panel Title #{panelIndex}",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.locTitle.textOrHtml, "Panel Title #1", "panel1 title");
+  assert.equal(panel2.locTitle.textOrHtml, "Panel Title #2", "panel2 title");
+  assert.equal(panel1.getQuestionByName("q2").no, "1.2 a", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "1.2 b", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+});
+QUnit.test("PanelDynamic, showQuestionNumbers onPanel & questionStartIndex, Issue#10288", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        showQuestionNumbers: "onPanel",
+        questionStartIndex: "a",
+        panelCount: 2,
+        templateElements: [
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(panel1.getQuestionByName("q2").no, "a", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "b", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "a", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "b", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+});
 
 QUnit.test("PanelDynamic, renderMode", function(assert) {
   var survey = new SurveyModel();
@@ -1134,7 +1235,7 @@ QUnit.test("PanelDynamic, renderMode", function(assert) {
     null,
     "list mode doesn't support currentPanel"
   );
-  panel.renderMode = "progressTop";
+  panel.displayMode = "carousel";
   assert.equal(panel.currentIndex, 0, "list mode doesn't support currentIndex");
   assert.equal(
     panel.currentPanel.id,
@@ -1167,7 +1268,7 @@ QUnit.test("PanelDynamic, renderMode", function(assert) {
   panel.removePanel(2);
   assert.equal(panel.currentIndex, 1, "The last  panel is removed");
 });
-QUnit.test("PanelDynamic, renderMode is not list + hasError", function(assert) {
+QUnit.test("PanelDynamic, displayMode is not list + hasError", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");
   var panel = <QuestionPanelDynamicModel>(
@@ -1178,7 +1279,7 @@ QUnit.test("PanelDynamic, renderMode is not list + hasError", function(assert) {
   )).isRequired = true;
   panel.template.addNewQuestion("text", "panelq2");
   panel.panelCount = 2;
-  panel.renderMode = "progressTop";
+  panel.displayMode = "carousel";
   panel.currentIndex = 1;
   assert.equal(panel.currentIndex, 1, "go to the second panel");
   panel.validate(true, true);
@@ -1700,7 +1801,7 @@ QUnit.test(
         },
         {
           type: "paneldynamic",
-          renderMode: "list",
+          displayMode: "list",
           allowAddPanel: false,
           allowRemovePanel: false,
           name: "arrray_employer_info",
@@ -1791,7 +1892,7 @@ QUnit.test("PanelDynamic vs MatrixDynamic onValueChanged, bug#9130", function(as
       },
       {
         type: "paneldynamic",
-        renderMode: "list",
+        displayMode: "list",
         allowAddPanel: false,
         allowRemovePanel: false,
         name: "arrray_employer_info",
@@ -2443,7 +2544,7 @@ QUnit.test("Dynamic Panel, survey in readonly mode, Bug#1051", function(
     false,
     "The question is not readonly"
   );
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(question.isReadOnly, true, "The standard question is readonly");
   assert.equal(
     panel.panels[0].questions[0].isReadOnly,
@@ -2497,7 +2598,7 @@ QUnit.test(
       false,
       "The question is not readonly again"
     );
-    survey.mode = "display";
+    survey.readOnly = true;
     assert.equal(
       question.isReadOnly,
       true,
@@ -2558,7 +2659,7 @@ QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", function(
         elements: [
           {
             type: "paneldynamic",
-            renderMode: "list",
+            displayMode: "list",
             name: "arrray_employer_info",
             valueName: "employers",
             templateElements: [
@@ -2595,7 +2696,7 @@ QUnit.test("Dynamic Panel, doesn't work with isSinglePage, Bug#T1527", function(
     ],
   };
   var survey = new SurveyModel(json);
-  survey.mode = "display";
+  survey.readOnly = true;
 
   survey.data = {
     employers: [
@@ -3073,7 +3174,7 @@ QUnit.test("copyDefaultValueFromLastEntry property && showOtherItem", function(a
   panel1.getQuestionByName("q2").value = "other";
   panel1.getQuestionByName("q2").otherValue = "comment2";
   let counter = 0;
-  survey.onDynamicPanelItemValueChanged.add((sender, options) => {
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
     counter ++;
   });
   question.addPanel();
@@ -3130,7 +3231,7 @@ QUnit.test("Panel dynamic and survey.data setup", function(assert) {
     elements: [
       {
         type: "paneldynamic",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         name: "p1",
         panelCount: 2,
         templateElements: [
@@ -3396,7 +3497,7 @@ QUnit.test(
     };
     var survey = new SurveyModel(json);
     var changedValue = null;
-    survey.onDynamicPanelItemValueChanged.add(function(sender, options) {
+    survey.onDynamicPanelValueChanged.add(function(sender, options) {
       if (options.name != "q1") return;
       var q2 = options.panel.getQuestionByName("q2");
       q2.value = [1, 2, 3];
@@ -3513,7 +3614,7 @@ QUnit.test("goToNextPanel method", function(assert) {
       {
         type: "paneldynamic",
         name: "pd",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         panelCount: 2,
         templateElements: [
           {
@@ -3552,7 +3653,7 @@ QUnit.test("do not add new panel for list", function(assert) {
       {
         type: "paneldynamic",
         name: "pd",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         panelCount: 1,
         templateElements: [
           {
@@ -3585,7 +3686,7 @@ QUnit.test("do not add new panel for list", function(assert) {
 
   survey = new SurveyModel(json);
   panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
-  panelDynamic.renderMode = "list";
+  panelDynamic.displayMode = "list";
   panelDynamic.addPanelUI();
   assert.equal(panelDynamic.panelCount, 2, "Do not check for list mode");
 });
@@ -3596,7 +3697,7 @@ QUnit.test("addPanel(index, skipvalidation)", function(assert) {
       {
         type: "paneldynamic",
         name: "pd",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         panelCount: 1,
         templateElements: [
           { type: "text", name: "q1", isRequired: true }
@@ -3629,7 +3730,7 @@ QUnit.test("goToPrevPanel method", function(assert) {
       {
         type: "paneldynamic",
         name: "pd",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         panelCount: 2,
         templateElements: [
           {
@@ -3847,7 +3948,7 @@ QUnit.test(
           type: "paneldynamic",
           name: "relatives",
           title: "Please enter all blood relatives you know",
-          renderMode: "progressTop",
+          displayMode: "carousel",
           templateTitle: "Information about: {panel.relativeType}",
           templateElements: [
             {
@@ -4391,7 +4492,7 @@ QUnit.test("currentPanel is templatePanel in design-mode", function(assert) {
       {
         type: "paneldynamic",
         name: "measurements",
-        renderMode: "tab",
+        displayMode: "tab",
         templateElements: [
           {
             type: "text",
@@ -4529,7 +4630,7 @@ QUnit.test("Avoid stack-overflow", function(assert) {
       },
     ],
   });
-  survey.onDynamicPanelItemValueChanged.add((sender, options) => {
+  survey.onDynamicPanelValueChanged.add((sender, options) => {
     if (options.name == "q1") {
       options.panel.getQuestionByName("q2").value = "2";
     }
@@ -4724,7 +4825,8 @@ QUnit.test(
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAnsweredQuestions",
+      showPreviewBeforeComplete: true,
+      previewMode: "answeredQuestions",
     });
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
     panel.addPanel();
@@ -4750,7 +4852,8 @@ QUnit.test(
           ],
         },
       ],
-      showPreviewBeforeComplete: "showAnsweredQuestions",
+      showPreviewBeforeComplete: true,
+      previewMode: "answeredQuestions",
     });
     survey.onDynamicPanelAdded.add(function (survey, options) {
       options.panel.questions[0].choices.push(new ItemValue(2, "Item2"));
@@ -5153,7 +5256,7 @@ QUnit.test("Check go prev/next", function(assert) {
         type: "paneldynamic",
         name: "rootPanel",
         panelCount: 2,
-        renderMode: "progressTop",
+        displayMode: "carousel",
         templateElements: [
           { type: "text", name: "q1" },
         ],
@@ -5361,7 +5464,7 @@ QUnit.test("Check progress", function (assert) {
       {
         type: "paneldynamic",
         name: "progress_panel",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         templateElements: [
           { type: "text", name: "panel_q1" },
           { type: "text", name: "panel_q2" }
@@ -5384,7 +5487,7 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
       {
         type: "paneldynamic",
         name: "progress_panel",
-        renderMode: "progressTop",
+        displayMode: "carousel",
         templateElements: [
           { type: "text", name: "panel_q1" },
         ],
@@ -5414,11 +5517,11 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   assert.equal(panel.footerToolbar.actions[3].visible, true, "prev (icon) btn is visible in legacy mode");
   assert.equal(panel.footerToolbar.actions[5].visible, true, "next (icon) btn is visible in legacy mode");
   panel["legacyNavigation"] = false;
-  panel.renderMode = "list";
+  panel.displayMode = "list";
   assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in list mode");
   assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in list mode");
   assert.equal(panel.canAddPanel, true, "can always add panel in list mode");
-  panel.renderMode = "progressTop";
+  panel.displayMode = "carousel";
   panel.isMobile = true;
   assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
 });
@@ -5428,7 +5531,8 @@ QUnit.test("paneldynamic add new button is not visible for progress render mode,
       {
         type: "paneldynamic",
         name: "progress_panel",
-        renderMode: "progressTopBottom",
+        diplayMode: "carousel",
+        progressBarLocation: "topBottom",
         templateElements: [
           { type: "text", name: "panel_q1" },
         ],
@@ -5746,7 +5850,7 @@ QUnit.test("Error in nested dynamic collapsed panel", (assert) => {
   survey.tryComplete();
   assert.equal(childPanel.state, "expanded", "child panel state is expanded now");
 });
-QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop", (assert) => {
+QUnit.test("Error in nested dynamic collapsed panel && displayMode - carousel", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -5769,7 +5873,7 @@ QUnit.test("Error in nested dynamic collapsed panel && renderMode - progressTop"
           "panelCount": 1
         }],
         "panelCount": 1,
-        "renderMode": "progressTop"
+        "displayMode": "carousel"
       }]
   });
   const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
@@ -5808,7 +5912,7 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
   assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for readonly");
-  survey.mode = "display";
+  survey.readOnly = true;
   assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for readonly");
 });
 QUnit.test("Carry forward in panel dynamic", function (assert) {
@@ -5874,14 +5978,14 @@ QUnit.test("Doesn't update value correctly for nested matrix with expressions, b
   assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 10, col2: 20 }] }] }, "survey.data");
 });
 
-QUnit.test("renderMode: tab, issue#5829", function (assert) {
+QUnit.test("displayMode: tab, issue#5829", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
         type: "paneldynamic",
         name: "relatives",
         title: "Panel Dynamic",
-        renderMode: "tab",
+        displayMode: "tab",
         templateTitle: "Information about: {panel.relativeType}",
         templateElements: [
           {
@@ -6028,14 +6132,14 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
   assert.equal(panel.currentIndex, 0, "currentIndex is 0");
 });
 
-QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", function (assert) {
+QUnit.test("displayMode: tab, check panelTabToolbar containerCss issue#5829", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
         type: "paneldynamic",
         name: "relatives",
         title: "Panel Dynamic",
-        renderMode: "tab",
+        displayMode: "tab",
         tabAlign: "left"
       }
     ],
@@ -6053,7 +6157,7 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
   assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--center", "tabAlign default value is center");
 });
 
-QUnit.test("renderMode: tab check disableHide property", function (assert) {
+QUnit.test("displayMode: tab check disableHide property", function (assert) {
   const oldUpdate = AdaptiveActionContainer.prototype["update"];
   AdaptiveActionContainer.prototype["update"] = function (options) {
     if (!!options.updateResponsivenessMode) {
@@ -6066,7 +6170,7 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
         type: "paneldynamic",
         name: "relatives",
         title: "Panel Dynamic",
-        renderMode: "tab",
+        displayMode: "tab",
         templateTitle: "Information about: {panel.relativeType}",
         templateElements: [
           {
@@ -6116,13 +6220,13 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
   AdaptiveActionContainer.prototype["update"] = oldUpdate;
 });
 
-QUnit.test("renderMode: tab check hasTabbedMenu property", function (assert) {
+QUnit.test("displayMode: tab check hasTabbedMenu property", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
         type: "paneldynamic",
         name: "relatives",
-        renderMode: "tab",
+        displayMode: "tab",
         templateElements: [
           {
             type: "text",
@@ -6147,7 +6251,7 @@ QUnit.test("question.cssHeader class", function (assert) {
         type: "paneldynamic",
         name: "relatives",
         title: "Panel Dynamic",
-        renderMode: "tab",
+        displayMode: "tab",
         tabAlign: "left"
       }
     ],
@@ -6165,7 +6269,7 @@ QUnit.test("question.cssHeader class", function (assert) {
   panel.titleLocation = "hidden";
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
-  panel.renderMode = "tab";
+  panel.displayMode = "tab";
   panel.titleLocation = "top";
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
 
@@ -6173,13 +6277,13 @@ QUnit.test("question.cssHeader class", function (assert) {
   assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
 
 });
-QUnit.test("renderMode: tab & silent validation, Bug#8752", function (assert) {
+QUnit.test("displayMode: tab & silent validation, Bug#8752", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
         type: "paneldynamic",
         name: "panel1",
-        renderMode: "tab",
+        displayMode: "tab",
         templateElements: [
           {
             type: "text",
@@ -6216,8 +6320,8 @@ QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
   assert.equal(panel.hasTitleOnLeftTop, false, "titleLocation hidden");
 
-  panel.renderMode = "tab";
-  assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is tab");
+  panel.displayMode = "tab";
+  assert.equal(panel.hasTitleOnLeftTop, false, "displayMode is tab");
 
   panel.addPanel();
   assert.equal(panel.panels.length, 1, "There is one panel");
@@ -6357,7 +6461,7 @@ QUnit.test("Pass isMobile to the nested questions", function (assert) {
   const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
   assert.equal(innerMatrix.isMobile, true, "innerMatrix is mobile");
 });
-QUnit.test("renderMode: tab, tabbedMenu&titles", function (assert) {
+QUnit.test("displayMode: tab, tabbedMenu&titles", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6367,7 +6471,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles", function (assert) {
           { type: "text", name: "q2" }
         ],
         panelCount: 2,
-        renderMode: "tab"
+        displayMode: "tab"
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
@@ -6382,7 +6486,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles", function (assert) {
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
 });
-QUnit.test("renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
+QUnit.test("displayMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6392,7 +6496,7 @@ QUnit.test("renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (ass
           { type: "text", name: "q2" }
         ],
         panelCount: 2,
-        renderMode: "tab",
+        displayMode: "tab",
         templateTabTitle: "#{panelIndex} {panel.q1}"
       }],
   });
@@ -6422,7 +6526,7 @@ QUnit.test("renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (ass
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });
-QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
+QUnit.test("displayMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6432,7 +6536,7 @@ QUnit.test("renderMode: tab, tabbedMenu&titles&survey.onGetPanelDynamicTabTitle"
           { type: "text", name: "q2" }
         ],
         panelCount: 2,
-        renderMode: "tab"
+        displayMode: "tab"
       }],
   });
   survey.onGetDynamicPanelTabTitle.add((sender, options) => {
@@ -6491,7 +6595,7 @@ QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
           { type: "text", name: "q2" }
         ],
         panelCount: 3,
-        renderMode: "tab",
+        displayMode: "tab",
         templateVisibleIf: "{panel.q1}='a'"
       }],
   });
@@ -6535,7 +6639,7 @@ QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
           { type: "text", name: "q2" }
         ],
         panelCount: 3,
-        renderMode: "tab"
+        displayMode: "tab"
       }],
   });
   assert.equal(questionName, "panel", "question is correct");
@@ -6554,7 +6658,7 @@ QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
   assert.equal(panelIndex, 2, "panelIndex #4");
   assert.equal(panelIndexOf, 2, "panelIndexOf #4");
 });
-QUnit.test("templateVisibleIf & renderMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
+QUnit.test("templateVisibleIf & displayMode: tab, tabbedMenu&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6565,7 +6669,7 @@ QUnit.test("templateVisibleIf & renderMode: tab, tabbedMenu&templateTabTitle in 
         ],
         panelCount: 3,
         templateVisibleIf: "{panel.q1}='a'",
-        renderMode: "tab",
+        displayMode: "tab",
         templateTabTitle: "#{visiblePanelIndex}-{panelIndex} {panel.q1}"
       }],
   });
@@ -6604,7 +6708,7 @@ QUnit.test("Using visiblePanelIndex in the expression in panel dynamic,Bug#9874"
   assert.equal(panel.panels[1].getQuestionByName("q1").value, 1, "visiblePanelIndex is 1");
   assert.equal(panel.panels[2].getQuestionByName("q1").value, 2, "visiblePanelIndex is 2");
 });
-QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceholder in JSON", function (assert) {
+QUnit.test("templateVisibleIf & displayMode: tab, templateTabTitle&tabTitlePlaceholder in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -6614,7 +6718,7 @@ QUnit.test("templateVisibleIf & renderMode: tab, templateTabTitle&tabTitlePlaceh
           { type: "text", name: "q2" }
         ],
         panelCount: 2,
-        renderMode: "tab",
+        displayMode: "tab",
         tabTitlePlaceholder: "Empty value",
         templateTabTitle: "{panel.q1}"
       }],
@@ -6648,7 +6752,7 @@ QUnit.test("templateVisibleIf & tabbedMenu", function (assert) {
         ],
         panelCount: 3,
         templateVisibleIf: "{panel.q1}='a'",
-        renderMode: "progressTop"
+        displayMode: "carousel"
       }],
   });
   var oldCss = survey.css;
@@ -6698,7 +6802,7 @@ QUnit.test("templateVisibleIf & tabs action click, bug#8430", function (assert) 
         ],
         panelCount: 4,
         templateVisibleIf: "{panel.q1}!='a'",
-        renderMode: "tab"
+        displayMode: "tab"
       }],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
@@ -6740,7 +6844,7 @@ QUnit.test("newPanelPosition & add panel button visibility", function (assert) {
     elements: [
       { type: "paneldynamic",
         name: "panel",
-        renderMode: "tab",
+        displayMode: "tab",
         newPanelPosition: "next",
         templateElements: [
           { type: "text", name: "q1" }
@@ -6984,6 +7088,40 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
   assert.equal(panel1.panels.length, 3, "It should be 3 panels");
 });
+QUnit.test("defaultExpression vs panelIndex & adding/removing rows, bug#10521", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          { "type": "text", "name": "q1" },
+          { "type": "text", "name": "q2", defaultValueExpression: "{panelIndex}" },
+          { "type": "expression", "name": "q3", expression: "{panelIndex}" },
+        ],
+        "panelCount": 2
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.panels[0].getQuestionByName("q1").value = "a";
+  panel.panels[1].getQuestionByName("q1").value = "b";
+  panel.addPanel();
+  panel.panels[2].getQuestionByName("q1").value = "c";
+  assert.equal(panel.panels.length, 3, "There are three panels");
+  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #1");
+  assert.equal(panel.panels[1].getQuestionByName("q2").value, "1", "q2.value #2");
+  assert.equal(panel.panels[2].getQuestionByName("q2").value, "2", "q2.value #3");
+  panel.panels[2].getQuestionByName("q2").inputValue = "2";
+  panel.removePanel(0);
+  assert.equal(panel.panels.length, 2, "There are two panels");
+  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #4");
+  assert.equal(panel.panels[1].getQuestionByName("q2").value, "1", "q2.value #5");
+  panel.removePanel(0);
+  assert.equal(panel.panels.length, 1, "There is one panel");
+  assert.equal(panel.panels[0].getQuestionByName("q1").value, "c", "q1.value #6");
+  assert.equal(panel.panels[0].getQuestionByName("q2").value, "0", "q2.value #6");
+});
 QUnit.test("templateElements question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     "elements": [{
@@ -7011,7 +7149,7 @@ QUnit.test("templateElements question.onHidingContent", function (assert) {
       "name": "panel",
       "type": "paneldynamic",
       "panelCount": 2,
-      "renderMode": "tab",
+      "displayMode": "tab",
       "templateElements": [
         {
           "name": "q1",
@@ -7559,7 +7697,7 @@ QUnit.test("paneldynamic: check renderedPanels", function (assert) {
   question.addPanel(1);
   assert.equal(question.renderedPanels.length, 2);
   assert.deepEqual(question.renderedPanels, question.visiblePanels);
-  question.renderMode = "tabs";
+  question.displayMode = "tab";
   assert.equal(question.renderedPanels.length, 1);
   assert.deepEqual(question.renderedPanels[0], question.visiblePanels[0]);
   question.currentIndex = 1;
@@ -7594,15 +7732,15 @@ QUnit.test("paneldynamic: check panelsAnimation", function (assert) {
   assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
   assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
 
-  question.renderMode = "tabs";
+  question.displayMode = "tab";
   assert.notOk(question["panelsAnimation"] instanceof AnimationGroup);
   assert.ok(question["panelsAnimation"] instanceof AnimationTab);
 
-  question.renderMode = "progressTop";
+  question.displayMode = "carousel";
   assert.notOk(question["panelsAnimation"] instanceof AnimationGroup);
   assert.ok(question["panelsAnimation"] instanceof AnimationTab);
 
-  question.renderMode = "list";
+  question.displayMode = "list";
   assert.ok(question["panelsAnimation"] instanceof AnimationGroup);
   assert.notOk(question["panelsAnimation"] instanceof AnimationTab);
 });
@@ -7729,7 +7867,7 @@ QUnit.test("paneldynamic: check panelsAnimation options", function (assert) {
   leaveOptions.onAfterRunAnimation && leaveOptions.onAfterRunAnimation(panelContainer2);
   assert.notOk(panelContainer2.style.getPropertyValue("--animation-height-to"));
 
-  question.renderMode = "progressTop";
+  question.displayMode = "carousel";
   question.currentIndex = 0;
   question["_renderedPanels"] = [question.panels[0], question.panels[1]];
   panelContainer1.style.height = "20px";
@@ -8111,7 +8249,7 @@ QUnit.test("default value for maxPanelCount, Bug#9000", function (assert) {
 });
 QUnit.test("Do not serialize renderMode & showProgressBar", function (assert) {
   const survey = new SurveyModel({
-    elements: [{ type: "paneldynamic", name: "panel1", renderMode: "progressTop", showProgressBar: false }]
+    elements: [{ type: "paneldynamic", name: "panel1", displayMode: "carousel", showProgressBar: false }]
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   assert.equal(panel.renderMode, "progressTop", "renderMode is set");
@@ -8126,7 +8264,7 @@ QUnit.test("Do not serialize renderMode & showProgressBar", function (assert) {
 });
 QUnit.test("A Dynamic Panel question number is updated when adding a new panel Bug#9401", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "question1" },
       { type: "paneldynamic", name: "panel1",
@@ -8141,7 +8279,7 @@ QUnit.test("A Dynamic Panel question number is updated when adding a new panel B
 });
 QUnit.test("A Dynamic Panel question & showNumber=false Bug#10479.1", function (assert) {
   const survey = new SurveyModel({
-    showQuestionNumbers: "on",
+    showQuestionNumbers: true,
     elements: [
       { type: "text", name: "q1" },
       { type: "paneldynamic", name: "panel1", showNumber: false,

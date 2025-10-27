@@ -1,6 +1,7 @@
-import { ChangeDetectorRef, Component, DoCheck, OnChanges, OnDestroy, SimpleChange, ViewContainerRef } from "@angular/core";
-import { ArrayChanges, Base, IOnArrayChangedEvent, ISurvey, SurveyModel } from "survey-core";
+import { ChangeDetectorRef, Component, DoCheck, OnDestroy, ViewContainerRef } from "@angular/core";
+import { Base, IPropertyArrayValueChangedEvent, ISurvey } from "survey-core";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
+import { IPropertyValueChangedEvent } from "survey-core/typings/src/base";
 
 @Component({
   template: ""
@@ -24,19 +25,19 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.onModelChanged();
       this.previousModel = this.getModel();
     }
-    this.setIsRendering(true);
+    this.setIsModelRendering(true);
   }
 
   protected onModelChanged() { }
 
-  private setIsRendering(val: boolean) {
+  private setIsModelRendering(val: boolean) {
     const model = this.getModel();
     if (!!model) {
       (<any>model).isRendering = val;
     }
   }
-  private getIsRendering() {
-    const model = this.getModel();
+  private getIsModelRendering(stateElement?: Base) {
+    const model = stateElement ?? this.getModel();
     return !!model && !!(<any>model).isRendering;
   }
   private isDestroyed: boolean = false;
@@ -45,85 +46,49 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.unMakeBaseElementAngular(this.getModel());
     this.previousModel = undefined;
   }
-  private makeBaseElementAngularCallback?: () => void;
   protected isBaseElementSubsribed(stateElement: Base) {
-    return !!(<any>stateElement).__ngImplemented;
+    return ((<any>stateElement).__ngImplementedCount ?? 0) > 0;
   }
-  private getBaseElementCallbacks(stateElement: Base): Array<() => void> {
-    (<any>stateElement).__ngSubscribers = (<any>stateElement).__ngSubscribers ?? [];
-    return ((<any>stateElement).__ngSubscribers);
-  }
-  private onArrayChangedCallback = (stateElement: Base, options: IOnArrayChangedEvent) => {
+  private onArrayChangedCallback = (stateElement: Base, options: IPropertyArrayValueChangedEvent) => {
+    this.update(options.name);
+  };
+  private onPropertyChangedCallback = (stateElement: Base, options: IPropertyValueChangedEvent) => {
     this.update(options.name);
   };
   private makeBaseElementAngular(stateElement: T) {
-    this.makeBaseElementAngularCallback = () => {
+    if (!!stateElement && !this.getIsModelRendering(stateElement)) {
       this.isModelSubsribed = true;
-      (<any>stateElement).__ngImplemented = true;
-      stateElement.iteratePropertiesHash((hash, key) => {
-        var val: any = hash[key];
-        if (Array.isArray(val)) {
-          var val: any = val;
-          stateElement.addOnArrayChangedCallback(val, this.onArrayChangedCallback);
-        }
-      });
-      stateElement.setPropertyValueCoreHandler = (
-        hash: any,
-        key: string,
-        val: any
-      ) => {
-        if (hash[key] !== val) {
-          hash[key] = val;
-          this.update(key);
-        }
-      };
+      stateElement.addOnArrayChangedCallback(this.onArrayChangedCallback);
+      stateElement.addOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
       stateElement.enableOnElementRerenderedEvent();
-    };
-    if (!!stateElement) {
-      if (!(<any>stateElement).__ngImplemented) {
-        this.makeBaseElementAngularCallback();
-      } else {
-        this.getBaseElementCallbacks(stateElement).push(this.makeBaseElementAngularCallback);
-      }
+      (<any>stateElement).__ngImplementedCount = ((<any>stateElement).__ngImplementedCount ?? 0) + 1;
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
-    if (!!stateElement) {
-      if (this.isModelSubsribed) {
-        this.isModelSubsribed = false;
-        (<any>stateElement).__ngImplemented = false;
-        stateElement.setPropertyValueCoreHandler = <any>undefined;
-        stateElement.iteratePropertiesHash((hash, key) => {
-          var val: any = hash[key];
-          if (Array.isArray(val)) {
-            var val: any = val;
-            stateElement.removeOnArrayChangedCallback(val, this.onArrayChangedCallback);
-          }
-        });
-        stateElement.disableOnElementRerenderedEvent();
-        const callbacks = this.getBaseElementCallbacks(stateElement);
-        const callback = callbacks.shift();
-        callback && callback();
-      } else if (this.makeBaseElementAngularCallback) {
-        const callbacks = this.getBaseElementCallbacks(stateElement);
-        const index = callbacks.indexOf(this.makeBaseElementAngularCallback);
-        if (index > -1) {
-          callbacks.splice(index, 1);
-        }
+    if (!!stateElement && this.isModelSubsribed) {
+      this.isModelSubsribed = false;
+      stateElement.removeOnPropertyValueChangedCallback(this.onPropertyChangedCallback);
+      stateElement.removeOnArrayChangedCallback(this.onArrayChangedCallback);
+      stateElement.disableOnElementRerenderedEvent();
+      if (((<any>stateElement).__ngImplementedCount ?? 0) - 1 <= 0) {
+        delete (<any>stateElement).__ngImplementedCount;
       }
     }
   }
+  private isUpdatesBlocked: boolean = false;
 
   protected update(key?: string): void {
-    if (this.getIsRendering()) return;
-    this.beforeUpdate();
+    if (this.getIsModelRendering() || this.isUpdatesBlocked) return;
     if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
+      this.beforeUpdate();
       this.detectChanges();
       this.afterUpdate(true);
     } else {
+      this.isUpdatesBlocked = true;
       queueMicrotask(() => {
         if (!this.isDestroyed) {
-          this.setIsRendering(true);
+          this.isUpdatesBlocked = false;
+          this.beforeUpdate();
           this.detectChanges();
           this.afterUpdate();
         }
@@ -145,10 +110,10 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   protected beforeUpdate(): void {
-    this.setIsRendering(true);
+    this.setIsModelRendering(true);
   }
   protected afterUpdate(isSync: boolean = false): void {
-    this.setIsRendering(false);
+    this.setIsModelRendering(false);
     const model = this.getModel();
     if (model && !this.isDestroyed) {
       model.afterRerender();
@@ -156,6 +121,6 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
   override ngAfterViewChecked(): void {
     super.ngAfterViewChecked();
-    this.setIsRendering(false);
+    this.setIsModelRendering(false);
   }
 }

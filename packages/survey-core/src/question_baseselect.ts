@@ -995,6 +995,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
         item.panelFirstRendering();
       }
     });
+    if (this.isClearValueOnHidden) {
+      this.clearValuesInVisiblePanels("onHiddenContainer");
+    }
   }
   protected getChoiceValue(choice: ItemValue, val: any, objOnComment: boolean): any {
     const isObj = typeof val === "object";
@@ -2127,6 +2130,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected clearValueIfInvisibleCore(reason: string): void {
     super.clearValueIfInvisibleCore(reason);
     this.clearIncorrectValues();
+    this.clearValuesInVisiblePanels(reason);
+  }
+  private clearValuesInVisiblePanels(reason: string): void {
     this.doForPanels(false, (p) => {
       p.questions.forEach((q) => { q.clearValue(); });
       p.questions.forEach((q) => { q.clearValueIfInvisible(reason); });

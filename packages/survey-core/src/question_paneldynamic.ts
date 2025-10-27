@@ -1346,10 +1346,11 @@ export class QuestionPanelDynamicModel extends Question
    *
    * Possible values:
    *
+   * - `"off"` (default) - Hides question numbers.
    * - `"default"` - Inherits the setting from the parent panel, page, or survey.
    * - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
    * - `"onpanel"` - Starts numbering within the dynamic panel from scratch.
-   * - `"off"` (default) - Hides question numbers.
+   * - `"onSurvey"` - Obsolete. Use the `"default"` value instead.
    * @see questionStartIndex
    * @see showNumber
    */

@@ -1037,6 +1037,15 @@ QUnit.test("PanelDynamic, showQuestionNumbers onSurvey & design time", function(
   const q2 = <Question>panel.templateElements[0];
   assert.equal(q1.no, "1.", "The number should be 1.");
   assert.equal(q2.no, "2.", "The number should be 2.");
+  //Fix bug#10539
+  survey.showQuestionNumbers = "recursive";
+  assert.equal(panel.no, "2.", "The panel number should be 2. #2");
+  assert.equal(q2.no, "2.1.", "The number should be 2.1.");
+  survey.showQuestionNumbers = "off";
+  assert.equal(q2.no, "", "The number should be empty for q2.");
+  survey.showQuestionNumbers = "on";
+  assert.equal(q2.no, "2.", "The number should be 2. #2");
+
 });
 QUnit.test("PanelDynamic, convert showQuestionNumbers 'onSurvey' into 'default', Issue#10531", function(assert) {
   const survey = new SurveyModel({

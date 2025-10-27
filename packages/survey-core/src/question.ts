@@ -2121,10 +2121,10 @@ export class Question extends SurveyElement<Question>
    * @see visibleIf
    */
   public get no(): string {
-    return this.getPropertyValue("no");
+    return this.getPropertyValue("no", undefined, () => this.calcNo());
   }
   private calcNo(): string {
-    if (!this.hasTitle || !this.showNumber) return "";
+    if (!this.hasTitle || !this.showNumber || this.visibleIndex < 0) return "";
     let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
     if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);
@@ -3158,7 +3158,7 @@ export class Question extends SurveyElement<Question>
       val = -1;
     }
     this.setPropertyValue("visibleIndex", val);
-    this.setPropertyValue("no", this.calcNo());
+    this.resetPropertyValue("no");
     return val < 0 ? 0 : 1;
   }
   protected isVisibleIndexNegative(val: number): boolean {

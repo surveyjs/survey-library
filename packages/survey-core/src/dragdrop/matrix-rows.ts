@@ -144,19 +144,18 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   private expandCollapseTimer = null;
   private expandCollapseHandlingRow = null;
   protected doDragOver() {
-    if (this.dropTarget && typeof this.dropTarget.isDetailPanelShowing !== "undefined" && this.parentElement.visibleRows.indexOf(this.dropTarget) === -1 && this.dropTarget.isDetailPanelShowing === false) {
+    if (this.dropTarget && typeof this.dropTarget.isDetailPanelShowing !== "undefined" && this.dropTarget.isDetailPanelShowing === false) {
       const row = this.dropTarget;
       const matrix = row.data;
       const renderedRow = matrix.renderedTable.rows.filter(r => r.row == row)[0];
       const startAction = renderedRow?.cells[1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
-      const endAction = renderedRow.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
+      const endAction = renderedRow?.cells[renderedRow.cells.length - 1]?.item?.value?.actions?.filter(a => a.id == "show-detail")[0];
 
       if ((startAction?.visible || endAction?.visible)) {
 
         if (this.expandCollapseHandlingRow !== row.id) {
           this.expandCollapseHandlingRow = row.id;
-          clearTimeout(this.expandCollapseTimer);
-          this.expandCollapseTimer = null;
+          this.clearExpandCollapseTimeout();
           this.expandCollapseTimer = setTimeout(()=>{
             const matrices = [];
             row.showDetailPanel();
@@ -165,8 +164,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
           }, 500);
         }
       } else {
-        clearTimeout(this.expandCollapseTimer);
-        this.expandCollapseTimer = null;
+        this.clearExpandCollapseTimeout();
       }
     }
   }
@@ -252,7 +250,12 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       _body.style.userSelect = this.restoreUserSelectValue || "initial";
     }
     super.clear();
+    this.clearExpandCollapseTimeout();
+  }
+
+  private clearExpandCollapseTimeout() {
     clearTimeout(this.expandCollapseTimer);
     this.expandCollapseTimer = null;
+    this.expandCollapseHandlingRow = null;
   }
 }

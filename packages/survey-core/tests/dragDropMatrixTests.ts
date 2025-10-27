@@ -52,84 +52,116 @@ QUnit.test("matrix.lockedRowCount", function (assert) {
   assert.equal(dd.canInsertIntoThisRow(<any>rows[1]), true, "row1");
 });
 
-// QUnit.only("doDragOver", function (assert) {
-//   const json = {
-//     "pages": [
-//       {
-//         "name": "page1",
-//         "elements": [
-//           {
-//             "type": "matrixdynamic",
-//             "name": "question1",
-//             "columns": [
-//               {
-//                 "name": "Column 1"
-//               },
-//               {
-//                 "name": "Column 2"
-//               },
-//               {
-//                 "name": "Column 3"
-//               }
-//             ],
-//             "detailElements": [
-//               {
-//                 "type": "matrixdynamic",
-//                 "name": "question2",
-//                 "columns": [
-//                   {
-//                     "name": "Column 1"
-//                   },
-//                   {
-//                     "name": "Column 2"
-//                   },
-//                   {
-//                     "name": "Column 3"
-//                   }
-//                 ],
-//                 "choices": [
-//                   1,
-//                   2,
-//                   3,
-//                   4,
-//                   5
-//                 ],
-//                 "allowRowReorder": true
-//               }
-//             ],
-//             "detailPanelMode": "underRow",
-//             "choices": [
-//               1,
-//               2,
-//               3,
-//               4,
-//               5
-//             ],
-//             "allowRowReorder": true
-//           }
-//         ]
-//       }
-//     ],
-//     "headerView": "advanced"
-//   };
-//   const survey = new SurveyModel(json);
-//   const ddHelper = new DragDropMatrixRows(survey);
-//   assert.equal(Object.keys(ddHelper["matrixRowMap"]).length, 0, "initial state");
+QUnit.test("doDragOver", function (assert) {
+  const done = assert.async();
 
-//   const question: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
-//     survey.getQuestionByName("question1")
-//   );
-//   // need to add show-detail action to every row
-//   debugger;
-//   let draggedRow = question.visibleRows[1];
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "question0",
+            "columns": [
+              {
+                "name": "Column 1"
+              },
+              {
+                "name": "Column 2"
+              },
+              {
+                "name": "Column 3"
+              }
+            ],
+            "choices": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "allowRowReorder": true
+          },
+          {
+            "type": "matrixdynamic",
+            "name": "question1",
+            "columns": [
+              {
+                "name": "Column 1"
+              },
+              {
+                "name": "Column 2"
+              },
+              {
+                "name": "Column 3"
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "matrixdynamic",
+                "name": "question2",
+                "columns": [
+                  {
+                    "name": "Column 1"
+                  },
+                  {
+                    "name": "Column 2"
+                  },
+                  {
+                    "name": "Column 3"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "allowRowReorder": true
+              }
+            ],
+            "detailPanelMode": "underRow",
+            "choices": [
+              1,
+              2,
+              3,
+              4,
+              5
+            ],
+            "allowRowReorder": true
+          }
+        ]
+      }
+    ],
+    "headerView": "advanced"
+  };
+  const survey = new SurveyModel(json);
+  const ddHelper = new DragDropMatrixRows(survey);
+  assert.equal(Object.keys(ddHelper["matrixRowMap"]).length, 0, "initial state");
 
-//   const innerRow = question.visibleRows[0];
-//   innerRow.showDetailPanel();
-//   let dropRow = innerRow["detailPanelValue"].questions[0].visibleRows[0];
-//   ddHelper["parentElement"] = question;
-//   ddHelper.draggedElement = draggedRow;
-//   ddHelper.dropTarget = dropRow;
-//   ddHelper["doDragOver"]();
+  const question0: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("question0")
+  );
+  const question1: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("question1")
+  );
+  // need to add show-detail action to every row
+  let draggedRow = question0.visibleRows[0];
 
-//   assert.equal(Object.keys(ddHelper["matrixRowMap"]).length, 4, "matrices prepared for drag");
-// });
+  const innerRow = question1.visibleRows[0];
+  // innerRow.showDetailPanel();
+  //let dropRow = innerRow["detailPanelValue"].questions[0].visibleRows[0];
+  let dropRow = innerRow;
+
+  ddHelper["parentElement"] = question1;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper.dropTarget = dropRow;
+  ddHelper["doDragOver"]();
+
+  setTimeout(() => {
+    assert.equal(Object.keys(ddHelper["matrixRowMap"]).length, 4, "matrices prepared for drag");
+    done();
+  }, 2000);
+});

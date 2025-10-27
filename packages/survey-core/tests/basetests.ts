@@ -7,7 +7,6 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
-import { set } from "lodash";
 export * from "../src/localization/german";
 
 export default QUnit.module("Base");

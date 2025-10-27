@@ -69,7 +69,6 @@ import { _setIsTouch } from "../src/utils/devices";
 import { oldDefaultTheme, setOldTheme } from "./oldTheme";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { CustomError } from "../src/error";
-import { set } from "lodash";
 import { Action } from "../src/actions/action";
 import { ActionContainer } from "../src/actions/container";
 

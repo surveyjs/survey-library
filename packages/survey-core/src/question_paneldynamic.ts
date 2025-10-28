@@ -1378,7 +1378,9 @@ export class QuestionPanelDynamicModel extends Question
     }
     return res;
   }
-  protected notifySurveyOnChildrenVisibilityChanged(): boolean { return this.getShowQuestionNumbers() === "default"; }
+  protected notifySurveyOnChildrenVisibilityChanged(): boolean {
+    return this.showQuestionNumbers === "default";
+  }
   /**
    * Specifies the location of the Remove Panel button relative to panel content.
    *
@@ -1504,11 +1506,14 @@ export class QuestionPanelDynamicModel extends Question
     return this.displayMode === "tab" && !this.isSingleInputActive;
   }
   public setVisibleIndex(val: number): number {
-    if (this.isVisibleIndexNegative(val)) return super.setVisibleIndex(-1);
+    const panels = this.isDesignMode ? [this.template] : this.visiblePanelsCore;
+    if (this.isVisibleIndexNegative(val)) {
+      panels.forEach(panel => panel.setVisibleIndex(-1));
+      return super.setVisibleIndex(-1);
+    }
     const sqn = this.getShowQuestionNumbers();
     const onSurveyNumbering = sqn === "default";
     let startIndex = onSurveyNumbering ? val : 0;
-    const panels = this.isDesignMode ? [this.template] : this.visiblePanelsCore;
     for (let i = 0; i < panels.length; i++) {
       let counter = this.setPanelVisibleIndex(panels[i], startIndex, sqn != "off");
       if (onSurveyNumbering) {

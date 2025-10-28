@@ -543,7 +543,7 @@ export class Base implements IObjectValueContext {
             array.splice(0, 0, ...newVal);
             return array;
           } else {
-            this.setPropertyValueDirectly(name, newVal);
+            this.setPropertyValueDirectly(name, newVal, true);
             return newVal;
           }
         }
@@ -594,7 +594,7 @@ export class Base implements IObjectValueContext {
   public geValueFromHash(): any {
     return this.propertyHash["value"];
   }
-  protected setPropertyValueCore(propertiesHash: any, name: string, val: any): void {
+  protected setPropertyValueCore(propertiesHash: any, name: string, val: any, isCalcValue?: boolean): void {
     let reportError = false;
     if (this.setPropertyValueCoreHandler) {
       reportError = this.isDisposedValue;
@@ -604,7 +604,7 @@ export class Base implements IObjectValueContext {
     } else {
       if (propertiesHash[name] !== val) {
         propertiesHash[name] = val;
-        if (!!this.onPropertyValueCoreChanged) {
+        if (!isCalcValue && !!this.onPropertyValueCoreChanged) {
           reportError = this.isDisposedValue;
           if (!reportError) {
             this.onPropertyValueCoreChanged.fire(this, { name, newValue: val });
@@ -669,8 +669,8 @@ export class Base implements IObjectValueContext {
       arrayInfo ? sendNotification && arrayInfo.onPush : null
     );
   }
-  protected setPropertyValueDirectly(name: string, val: any): void {
-    this.setPropertyValueCore(this.propertyHash, name, val);
+  protected setPropertyValueDirectly(name: string, val: any, isCalcValue?: boolean): void {
+    this.setPropertyValueCore(this.propertyHash, name, val, isCalcValue);
   }
   protected clearPropertyValue(name: string) {
     this.setPropertyValueCore(this.propertyHash, name, null);

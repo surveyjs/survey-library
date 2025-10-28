@@ -354,6 +354,33 @@ QUnit.test("Base hash values - onPropertyValueCoreChanged event", function (asse
   base.value1 = 10;
   assert.deepEqual(names, ["value1", "value1"], "#4");
 });
+QUnit.test("Base hash values - onPropertyValueCoreChanged event, do not call on caculdated function", function (assert) {
+  class BaseTesterWithCalc extends BaseTester {
+    public get value1(): number {
+      return this.getPropertyValue("value1", 1);
+    }
+    public get value2(): number {
+      return this.getPropertyValue("value2", undefined, () => this.value1 + 1);
+    }
+  }
+  const base = new BaseTesterWithCalc();
+  const names = new Array<string>();
+  const onPropertyValueChanged = (sender: Base, options: IPropertyValueChangedEvent) => {
+    names.push(options.name);
+  };
+  base.addOnPropertyValueChangedCallback(onPropertyValueChanged);
+  assert.equal(names.length, 0);
+  assert.equal(base.value2, 2, "initial calculated value");
+  assert.equal(names.length, 0);
+  base.setPropertyValue("value1", 5);
+  assert.deepEqual(names, ["value1"], "#1");
+  assert.equal(base.value2, 2, "calculated value is not changed");
+  assert.deepEqual(names, ["value1"], "#2");
+  base.setPropertyValue("value2", 15);
+  assert.deepEqual(names, ["value1", "value2"], "#3");
+  assert.equal(base.value2, 15, "set value");
+  assert.deepEqual(names, ["value1", "value2"], "#4");
+});
 
 QUnit.test("Base localizable string", function (assert) {
   var base = new BaseTester();

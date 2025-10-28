@@ -1355,10 +1355,11 @@ export class QuestionPanelDynamicModel extends Question
    *
    * Possible values:
    *
-   * - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
-   * - `"onSurvey"` - Continues numbering across the entire survey.
-   * - `"onPanel"` - Starts numbering within the dynamic panel from scratch.
    * - `"off"` (default) - Hides question numbers.
+   * - `"default"` - Inherits the setting from the parent panel, page, or survey.
+   * - `"recursive"` - Applies recursive numbering to elements nested within the dynamic panel (for example, 1 -> 1.1 -> 1.1.1, etc.).
+   * - `"onpanel"` - Starts numbering within the dynamic panel from scratch.
+   * - `"onSurvey"` - Obsolete. Use the `"default"` value instead.
    * @see questionStartIndex
    * @see showNumber
    */
@@ -1366,12 +1367,29 @@ export class QuestionPanelDynamicModel extends Question
     return this.getPropertyValue("showQuestionNumbers");
   }
   public set showQuestionNumbers(val: string) {
+    if (!val) {
+      val = "off";
+    }
+    val = val.toLowerCase();
+    if (val === "onsurvey") {
+      val = "default";
+    }
     this.setPropertyValue("showQuestionNumbers", val);
     if (!this.isLoadingFromJson && this.survey) {
       this.survey.questionVisibilityChanged(this, this.visible, true);
     }
   }
-  protected notifySurveyOnChildrenVisibilityChanged(): boolean { return this.showQuestionNumbers === "onSurvey"; }
+  private getShowQuestionNumbers(): string {
+    const res = this.showQuestionNumbers;
+    if (res === "default") {
+      const sqn = this.survey?.showQuestionNumbers;
+      if (sqn === "recursive") return sqn;
+    }
+    return res;
+  }
+  protected notifySurveyOnChildrenVisibilityChanged(): boolean {
+    return this.showQuestionNumbers === "default";
+  }
   /**
    * Specifies the location of the Remove Panel button relative to panel content.
    *
@@ -1497,12 +1515,16 @@ export class QuestionPanelDynamicModel extends Question
     return this.displayMode === "tab" && !this.isSingleInputActive;
   }
   public setVisibleIndex(val: number): number {
-    if (this.isVisibleIndexNegative(val)) return super.setVisibleIndex(-1);
-    const onSurveyNumbering = this.showQuestionNumbers === "onSurvey";
-    let startIndex = onSurveyNumbering ? val : 0;
     const panels = this.isDesignMode ? [this.template] : this.visiblePanelsCore;
+    if (this.isVisibleIndexNegative(val)) {
+      panels.forEach(panel => panel.setVisibleIndex(-1));
+      return super.setVisibleIndex(-1);
+    }
+    const sqn = this.getShowQuestionNumbers();
+    const onSurveyNumbering = sqn === "default";
+    let startIndex = onSurveyNumbering ? val : 0;
     for (let i = 0; i < panels.length; i++) {
-      let counter = this.setPanelVisibleIndex(panels[i], startIndex, this.showQuestionNumbers != "off");
+      let counter = this.setPanelVisibleIndex(panels[i], startIndex, sqn != "off");
       if (onSurveyNumbering) {
         startIndex += counter;
       }
@@ -1845,21 +1867,21 @@ export class QuestionPanelDynamicModel extends Question
     if (!panel) {
       panel = this.panelsCore[index];
     }
-    const sQN = this.showQuestionNumbers;
+    const sQN = this.getShowQuestionNumbers();
     if (this.survey) {
-      const updateIndeces = sQN === "onSurvey";
+      const updateIndeces = sQN === "default";
       if (isAdded) {
         this.survey.dynamicPanelAdded(this, index, panel, updateIndeces);
       } else {
         this.survey.dynamicPanelRemoved(this, index, panel, updateIndeces);
       }
     }
-    if (isAdded && !!panel && (sQN === "onPanel" || sQN === "recursive")) {
+    if (isAdded && !!panel && (sQN === "onpanel" || sQN === "recursive")) {
       panel.setVisibleIndex(0);
     }
   }
   private recursiveNoCallback(): string {
-    return this.showQuestionNumbers === "recursive" ? this.no : "";
+    return this.getShowQuestionNumbers() === "recursive" ? this.no : "";
   }
   private getVisualPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
@@ -2938,11 +2960,11 @@ Serializer.addClass(
     {
       name: "showQuestionNumbers",
       default: "off",
-      choices: ["off", "onPanel", "onSurvey", "recursive"],
+      choices: ["default", "onpanel", "recursive", "off"],
     },
     { name: "questionStartIndex", visibleIf: (obj: QuestionPanelDynamicModel): boolean => {
       const sQN = obj.showQuestionNumbers;
-      return sQN === "onPanel" || sQN === "recursive";
+      return sQN === "onpanel" || sQN === "recursive";
     } },
     { name: "renderMode", visible: false, isSerializable: false },
     { name: "displayMode", default: "list", choices: ["list", "carousel", "tab"] },

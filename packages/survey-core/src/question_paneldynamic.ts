@@ -626,6 +626,9 @@ export class QuestionPanelDynamicModel extends Question
     if (curPanel) {
       curPanel.onHidingContent();
     }
+    if (!!val) {
+      val.onFirstRendering();
+    }
     this.setPropertyValue("currentPanel", val);
     this.updateRenderedPanels();
     this.updateFooterActions();
@@ -650,8 +653,14 @@ export class QuestionPanelDynamicModel extends Question
     } else {
       this.renderedPanels = [];
     }
+    this.renderedPanels.forEach(panel => this.panelOnFirstRendering(panel));
   }
-
+  private panelOnFirstRendering(panel: PanelModel) {
+    if (panel) {
+      panel.onFirstRendering();
+      panel.locStrsChanged();
+    }
+  }
   public set renderedPanels(val: Array<PanelModel>) {
     if (this.renderedPanels.length == 0 || val.length == 0) {
       this.blockAnimations();
@@ -1695,6 +1704,7 @@ export class QuestionPanelDynamicModel extends Question
       if (!this.canLeaveCurrentPanel()) return null;
     }
     const newPanel = this.addPanelCore(index);
+    this.panelOnFirstRendering(newPanel);
     if (isUI) {
       if (this.displayMode === "list" && this.panelsState !== "default") {
         newPanel.expand();
@@ -2034,14 +2044,21 @@ export class QuestionPanelDynamicModel extends Question
   public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
-    if (this.panelCount < this.minPanelCount) {
-      this.panelCount = this.minPanelCount;
+    const newPanelCount = this.adjustPanelCount();
+    if (newPanelCount > -1) {
+      this.setPropertyValue("panelCount", newPanelCount);
     }
-    if (this.panelCount > this.maxPanelCount) {
-      this.panelCount = this.maxPanelCount;
-    }
-    this.buildPanelsFirstTime();
     super.onSurveyLoad();
+  }
+  private adjustPanelCount(): number {
+    const pnlCount = this.getPropertyValue("panelCount");
+    if (pnlCount < this.minPanelCount) {
+      return this.minPanelCount;
+    }
+    if (pnlCount > this.maxPanelCount) {
+      return this.maxPanelCount;
+    }
+    return -1;
   }
   private hasPanelBuildFirstTime: boolean;
   private isBuildingPanelsFirstTime: boolean;
@@ -2098,15 +2115,10 @@ export class QuestionPanelDynamicModel extends Question
     super.onFirstRenderingCore();
     this.buildPanelsFirstTime();
     this.template.onFirstRendering();
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelsCore[i].onFirstRendering();
-    }
   }
   public localeChanged(): void {
     super.localeChanged();
-    for (var i = 0; i < this.panelsCore.length; i++) {
-      this.panelsCore[i].localeChanged();
-    }
+    this.panelsCore.forEach(panel => panel.localeChanged());
   }
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
@@ -2359,10 +2371,6 @@ export class QuestionPanelDynamicModel extends Question
     panel.updateCustomWidgets();
     panel.questions.forEach(q => q.setParentQuestion(this));
     new QuestionPanelDynamicItem(this, panel);
-    if (this.wasRendered) {
-      panel.onFirstRendering();
-      panel.locStrsChanged();
-    }
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };

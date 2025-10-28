@@ -2051,10 +2051,11 @@ export class QuestionPanelDynamicModel extends Question
     super.onSurveyLoad();
   }
   private adjustPanelCount(): number {
-    if (this.panelCount < this.minPanelCount) {
+    const pnlCount = this.getPropertyValue("panelCount");
+    if (pnlCount < this.minPanelCount) {
       return this.minPanelCount;
     }
-    if (this.panelCount > this.maxPanelCount) {
+    if (pnlCount > this.maxPanelCount) {
       return this.maxPanelCount;
     }
     return -1;

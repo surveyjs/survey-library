@@ -832,7 +832,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.wasRenderedValue = false;
   }
   public onFirstRendering(): void {
-    if (!this.wasRendered) {
+    if (!this.wasRendered && !this.isLoadingFromJson) {
       this.wasRenderedValue = true;
       this.onFirstRenderingCore();
     }

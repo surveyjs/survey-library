@@ -299,6 +299,8 @@ The SurveyJS expression engine is built upon the <a href="https://github.com/peg
 | `allof` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
 | `#` | Disables type conversion for a referenced value (e.g., string values `"true"`, `"false"`, `"123"` won't be converted to corresponding Boolean and numeric values). | `"{#q1}"` |
 
+> Comparison operations are case-sensitive.
+
 ### Built-In Functions
 
 Functions allow you to perform additional calculations within an expression. One expression can contain multiple function calls.

@@ -716,6 +716,21 @@ QUnit.test("Action enable active update same function", function (assert) {
   assert.equal(action.active, false, "active 3");
   assert.equal(action.enabled, false, "enabled 3");
 });
+QUnit.test("Action, support multiple language in title, issue#10291", function (assert) {
+  let action = new Action({ title: "title" });
+  assert.equal(action.title, "title", "default title");
+  assert.equal(action.locTitle.getLocaleText(""), "title", "en title #1");
+  action.locTitle.setLocaleText("de", "title-de");
+  assert.equal(action.locTitle.getLocaleText("de"), "title-de", "de title #1");
+  action = new Action({ titleValues: { default: "title1", de: "title1-de" } });
+  assert.equal(action.title, "title1", "default title #2");
+  assert.equal(action.locTitle.getLocaleText("de"), "title1-de", "de title #2");
+  assert.deepEqual(action.titleValues, { default: "title1", de: "title1-de" }, "titleValues");
+  action.titleValues = { default: "title2", fr: "title2-fr" };
+  assert.equal(action.title, "title2", "default title #3");
+  assert.equal(action.locTitle.getLocaleText("fr"), "title2-fr", "fr title #3");
+  assert.deepEqual(action.titleValues, { default: "title2", fr: "title2-fr" }, "titleValues #2");
+});
 QUnit.test("Update via function - nested dependencies", function (assert) {
   const base1 = new BaseTester1();
   let updaterCallCount1 = 0;

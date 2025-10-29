@@ -37,6 +37,7 @@ export interface IAction {
    * @see disableShrink
    */
   title?: string;
+  titleValues?: { [locale: string]: string };
   locTitle?: LocalizableString;
   locTitleName?: string;
   /**
@@ -301,6 +302,12 @@ export abstract class BaseAction extends Base implements IAction {
   public set title(val: string) {
     this.setTitle(val);
   }
+  public get titleValues(): { [locale: string]: string } {
+    return this.locTitle.getJson();
+  }
+  public set titleValues(val: { [locale: string]: string }) {
+    this.locTitle.setJson(val);
+  }
   public set cssClasses(val: ActionBarCssClasses) {
     this.cssClassesValue = val;
   }
@@ -431,10 +438,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     const innerItem: IAction = (innerItemData instanceof Action) ? innerItemData.innerItem : innerItemData;
     this.innerItem = innerItem;
     this.locTitle = !!innerItem ? innerItem["locTitle"] : null;
-    //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        if (key === "locTitle" || key === "title" && !!this.locTitle && !!this.title) continue;
+        if (key === "locTitle" || key === "title" && !!this.title) continue;
         (<any>this)[key] = (<any>innerItem)[key];
       }
     }

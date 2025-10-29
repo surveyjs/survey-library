@@ -144,6 +144,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   private expandCollapseTimer = null;
   private expandCollapseHandlingRow = null;
   protected doDragOver() {
+    if (this.survey.onMatrixRowDragOver.isEmpty) return;
     if (this.dropTarget && typeof this.dropTarget.isDetailPanelShowing !== "undefined" && this.dropTarget.isDetailPanelShowing === false) {
       const row = this.dropTarget;
       const matrix = row.data;

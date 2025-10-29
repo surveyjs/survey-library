@@ -139,6 +139,7 @@ QUnit.test("doDragOver", function (assert) {
   };
   const survey = new SurveyModel(json);
   const ddHelper = new DragDropMatrixRows(survey);
+  survey.onMatrixRowDragOver.add(()=>{});
   assert.equal(Object.keys(ddHelper["matrixRowMap"]).length, 0, "initial state");
 
   const question0: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(

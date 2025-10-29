@@ -2207,14 +2207,11 @@ export class Question extends SurveyElement<Question>
    * | Dynamic Panel | `Array<object>` |
    * | Expression | `string` \| `number` \| `boolean` |
    * | File Upload | `File` \| `Array<File>` |
-   * | HTML | (no value) |
-   * | Image | (no value) |
    * | Image Picker | <code>Array&lt;string &#124; number&gt;</code> |
    * | Long Text | `string` |
    * | Multi-Select Dropdown | <code>Array&lt;string &#124; number&gt;</code> |
    * | Multi-Select Matrix | `object` |
    * | Multiple Textboxes | `Array<string>` |
-   * | Panel | (no value) |
    * | Radio Button Group | `string` \| `number` |
    * | Ranking | <code>Array&lt;string &#124; number&gt;</code> |
    * | Rating Scale | `number` \| `string` |
@@ -2223,6 +2220,7 @@ export class Question extends SurveyElement<Question>
    * | Single-Line Input | `string` \| `number` \| `Date` |
    * | Single-Select Matrix | `object` |
    * | Yes/No (Boolean) | `boolean` \| `string` |
+   * @hidefor QuestionImageModel, QuestionHtmlModel
    */
   public get value(): any {
     return this.getValueCore();

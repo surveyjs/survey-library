@@ -3,7 +3,7 @@ import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "boolean";
 
 var json = {
-  questions: [
+  elements: [
     {
       type: "boolean",
       name: "bool",
@@ -14,7 +14,7 @@ var json = {
 };
 
 var jsonCheckbox = {
-  questions: [
+  elements: [
     {
       type: "boolean",
       name: "bool",
@@ -37,7 +37,7 @@ var jsonCheckbox2 = {
 };
 
 var jsonRadio = {
-  questions: [
+  elements: [
     {
       type: "boolean",
       name: "bool",

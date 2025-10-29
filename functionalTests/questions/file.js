@@ -3,7 +3,7 @@ import { ClientFunction, fixture, Selector, test } from "testcafe";
 const title = "file";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "file",
       title: "Please upload your photo",

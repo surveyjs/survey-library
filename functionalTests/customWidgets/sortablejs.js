@@ -3,7 +3,7 @@ import { frameworks, url_test, initSurvey, checkSurveyWithEmptyQuestion, explici
 const title = "sortablejs";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "sortablelist",
       name: "lifepriopity",

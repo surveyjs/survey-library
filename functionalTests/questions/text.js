@@ -3,7 +3,7 @@ import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "text";
 
 const json = {
-  questions: [
+  elements: [
     {
       name: "name",
       type: "text",
@@ -194,7 +194,7 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -222,7 +222,7 @@ frameworks.forEach((framework) => {
   test("Allow Space As Answer", async (t) => {
     await initSurvey(framework, {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           name: "name",
           type: "text",
@@ -247,7 +247,7 @@ frameworks.forEach((framework) => {
     await setTimeZoneUnsafe(t, "America/Los_Angeles");
     await initSurvey(framework, {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           "type": "text",
           "name": "monthInput",

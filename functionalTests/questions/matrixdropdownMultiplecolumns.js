@@ -3,7 +3,7 @@ import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "matrixdropdownMultiplecolumns";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "matrixdropdown",
       name: "question1",

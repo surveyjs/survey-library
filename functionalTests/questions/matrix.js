@@ -5,7 +5,7 @@ const assert = require("assert");
 const title = "matrix";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "matrix",
       name: "Quality",

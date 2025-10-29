@@ -5,7 +5,7 @@ const assert = require("assert");
 const title = "radiogroup";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "radiogroup",
       name: "car",
@@ -282,7 +282,7 @@ frameworks.forEach(framework => {
       title: "Survey New Design Test",
       description: "Survey Description",
       logoPosition: "left",
-      questions: [
+      elements: [
         {
           type: "checkbox",
           name: "car",

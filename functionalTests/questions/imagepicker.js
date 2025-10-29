@@ -5,7 +5,7 @@ const assert = require("assert");
 const title = "imagepicker";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "imagepicker",
       name: "choosepicture",
@@ -109,7 +109,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
     async (ctx) => {
       const json = {
-        questions: [
+        elements: [
           {
             "type": "imagepicker",
             "name": "imagepicker",

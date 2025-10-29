@@ -5,13 +5,13 @@ const assert = require("assert");
 const title = "rating";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "rating",
       name: "satisfaction",
       title: "How satisfied are you with the Product?",
-      mininumRateDescription: "Not Satisfied",
-      maximumRateDescription: "Completely satisfied"
+      minRateDescription: "Not Satisfied",
+      maxRateDescription: "Completely satisfied"
     }
   ]
 };
@@ -121,7 +121,7 @@ frameworks.forEach((framework) => {
 
     await initSurvey(framework, {
       showQuestionNumbers: false,
-      questions: [
+      elements: [
         {
           type: "rating",
           name: "satisfaction",
@@ -135,7 +135,7 @@ frameworks.forEach((framework) => {
   });
 
   var jsonR = {
-    questions: [
+    elements: [
       {
         "type": "rating",
         "name": "q1"
@@ -159,14 +159,14 @@ frameworks.forEach((framework) => {
   });
 
   const jsonStars = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "satisfaction",
         rateType: "stars",
         title: "How satisfied are you with the Product?",
-        mininumRateDescription: "Not Satisfied",
-        maximumRateDescription: "Completely satisfied"
+        minRateDescription: "Not Satisfied",
+        maxRateDescription: "Completely satisfied"
       }
     ]
   };
@@ -192,14 +192,14 @@ frameworks.forEach((framework) => {
   });
 
   const jsonSmileys = {
-    questions: [
+    elements: [
       {
         type: "rating",
         name: "satisfaction",
         rateType: "smileys",
         title: "How satisfied are you with the Product?",
-        mininumRateDescription: "Not Satisfied",
-        maximumRateDescription: "Completely satisfied"
+        minRateDescription: "Not Satisfied",
+        maxRateDescription: "Completely satisfied"
       }
     ]
   };
@@ -287,15 +287,15 @@ frameworks.forEach((framework) => {
 
   test("readonly", async (t) => {
     const json = {
-      questions: [
+      elements: [
         {
           type: "rating",
           name: "satisfaction",
           readOnly: true,
           defaultValue: "3",
           title: "How satisfied are you with the Product?",
-          mininumRateDescription: "Not Satisfied",
-          maximumRateDescription: "Completely satisfied"
+          minRateDescription: "Not Satisfied",
+          maxRateDescription: "Completely satisfied"
         }
       ]
     };
@@ -310,15 +310,15 @@ frameworks.forEach((framework) => {
 
   test("readonly:keyboard disabled", async (t) => {
     const json = {
-      questions: [
+      elements: [
         {
           type: "rating",
           name: "satisfaction",
           readOnly: true,
           defaultValue: "3",
           title: "How satisfied are you with the Product?",
-          mininumRateDescription: "Not Satisfied",
-          maximumRateDescription: "Completely satisfied"
+          minRateDescription: "Not Satisfied",
+          maxRateDescription: "Completely satisfied"
         }
       ]
     };

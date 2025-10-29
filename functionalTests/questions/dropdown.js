@@ -18,7 +18,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       const json = {
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "car",
@@ -246,7 +246,7 @@ frameworks.forEach((framework) => {
 
   test("open popup and blur", async (t) => {
     const json = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "car",
@@ -281,7 +281,7 @@ frameworks.forEach((framework) => {
     })();
     await t.resizeWindow(750, 900);
     const json = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "car",
@@ -316,7 +316,7 @@ frameworks.forEach((framework) => {
     })();
     await t.resizeWindow(750, 900);
     const json = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "car",
@@ -351,7 +351,7 @@ frameworks.forEach((framework) => {
 
   test("click on question title state editable", async (t) => {
     const json = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "car",
@@ -400,7 +400,7 @@ frameworks.forEach((framework) => {
       title: "Survey New Design Test",
       description: "Survey Description",
       logoPosition: "left",
-      questions: [
+      elements: [
         {
           type: "dropdown",
           renderAs: "select",
@@ -462,7 +462,7 @@ frameworks.forEach((framework) => {
 
   test("placeholder changed", async t => {
     const currentJson = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -494,7 +494,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown popup width", async (t) => {
     await t.resizeWindow(1280, 1100);
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -535,7 +535,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown disabled items", async (t) => {
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           renderAs: "select",
@@ -631,7 +631,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown clear button", async (t) => {
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -670,7 +670,7 @@ frameworks.forEach((framework) => {
     await registerCustomItemComponent(framework);
 
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -710,7 +710,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown key press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "DropdownSearchEnabledFalse",
@@ -801,7 +801,7 @@ frameworks.forEach((framework) => {
   test("Select item after switching focus", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -849,7 +849,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "DropdownSearchEnabledFalse",
@@ -935,7 +935,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown SPACE press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "q1",
@@ -964,7 +964,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown SPACE press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "q1",
@@ -991,7 +991,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown search", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "Dropdown",
@@ -1065,7 +1065,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown key press with auto-generated list", async (t) => {
     const json = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "dropdown",
@@ -1087,7 +1087,7 @@ frameworks.forEach((framework) => {
 
   test("Check reset focused item - no focus on first popup", async (t) => {
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "Dropdown",
@@ -1145,7 +1145,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown reset filter string", async (t) => {
     const jsonWithDropdown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "Dropdown",
@@ -1205,7 +1205,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown clear value by keyboard", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -1277,7 +1277,7 @@ frameworks.forEach((framework) => {
   test("Check popup scroll", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "Dropdown",
@@ -1384,7 +1384,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check rating as dropdown", async (t) => {
 
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           name: "name",
           type: "rating",
@@ -1468,7 +1468,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check popup height with lazy loading", async (t) => {
     const json = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "country",
@@ -1561,7 +1561,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check popup height and position while searching", async (t) => {
     const json = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "country",
@@ -1689,7 +1689,7 @@ frameworks.forEach((framework) => {
 
   test("do not render list items if the popup is closed", async (t) => {
     const json = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "car",
@@ -1721,7 +1721,7 @@ frameworks.forEach((framework) => {
   test("Check dropdown popup close with mouse, bug #5860", async (t) => {
     const jsonWithDropDown = {
       autoFocusFirstQuestion: true,
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "Dropdown",
@@ -1781,7 +1781,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown close popup on selected item click", async (t) => {
     const jsonWithDropdown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "Dropdown",
@@ -1812,7 +1812,7 @@ frameworks.forEach((framework) => {
 
   test("Recalculate popup position after window resize", async t => {
     const json = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -2014,7 +2014,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check dropdown popup opens after beak click", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -2060,7 +2060,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check dropdown popup tab navigation", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",
@@ -2099,7 +2099,7 @@ frameworks.forEach((framework) => {
   test.page(`${url}${framework}`)("Check dropdown popup opens after beak click - search enabled", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
-      questions: [
+      elements: [
         {
           type: "dropdown",
           name: "cars",

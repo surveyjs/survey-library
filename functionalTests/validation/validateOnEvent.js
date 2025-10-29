@@ -30,7 +30,7 @@ const setupSurvey = ClientFunction(() => {
 });
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "multipletext",
       name: "pricelimit",

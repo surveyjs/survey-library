@@ -3,7 +3,7 @@ import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "button-group";
 
 var json = {
-  questions: [
+  elements: [
     {
       type: "buttongroup",
       name: "radio",

@@ -3,7 +3,7 @@ import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "matrixrubric";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "matrix",
       name: "Quality",

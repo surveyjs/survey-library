@@ -5,7 +5,7 @@ const assert = require("assert");
 const title = "multipletext";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "multipletext",
       name: "pricelimit",
@@ -54,7 +54,7 @@ frameworks.forEach(framework => {
 frameworks.forEach((framework) => {
 
   const localJson = {
-    questions: [
+    elements: [
       {
         type: "multipletext",
         name: "pricelimit",

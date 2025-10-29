@@ -32,7 +32,7 @@ const setupSurvey = ClientFunction(() => {
 });
 
 const json = {
-  questions: [{ type: "text", name: "country", title: "Type a country:" }]
+  elements: [{ type: "text", name: "country", title: "Type a country:" }]
 };
 
 frameworks.forEach(framework => {

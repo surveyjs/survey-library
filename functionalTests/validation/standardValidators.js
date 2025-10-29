@@ -3,7 +3,7 @@ import { Selector, fixture, ClientFunction, test } from "testcafe";
 const title = "standardValidators";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "text",
       name: "email",

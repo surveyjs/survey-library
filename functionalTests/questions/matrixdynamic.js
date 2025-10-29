@@ -5,7 +5,7 @@ const title = "matrixdynamic";
 const matrixRowSelector = Selector(".sd-table__row");
 const matrixButton = Selector(".sd-matrixdynamic__btn");
 const json = {
-  questions: [
+  elements: [
     {
       type: "matrixdynamic",
       name: "teachersRate",

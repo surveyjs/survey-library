@@ -25,7 +25,7 @@ var json = {
   title: "Survey New Design Test",
   logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
   logoPosition: "left",
-  questions: [
+  elements: [
     {
       name: "signature",
       type: "signaturepad",
@@ -1044,7 +1044,7 @@ json = {
 };
 
 // json = {
-//       questions: [
+//       elements: [
 //         {
 //           name: "name",
 //           type: "boolean",

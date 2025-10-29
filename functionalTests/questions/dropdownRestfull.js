@@ -3,7 +3,7 @@ import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "dropdownRestful";
 
 const jsonRenderAsSelect = {
-  questions: [
+  elements: [
     {
       type: "dropdown",
       renderAs: "select",
@@ -74,7 +74,7 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
       await initSurvey(framework, {
-        questions: [
+        elements: [
           {
             type: "dropdown",
             name: "country",
@@ -135,7 +135,7 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
       await initSurvey(framework, {
-        questions: [
+        elements: [
           {
             type: "tagbox",
             name: "q1",

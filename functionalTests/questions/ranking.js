@@ -344,7 +344,7 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${urlV2}${framework}`.beforeEach(
     async (ctx) => {
       const json = {
-        questions: [
+        elements: [
           {
             "type": "ranking",
             "name": "ranking",

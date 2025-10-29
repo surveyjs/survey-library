@@ -3,7 +3,7 @@ import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQues
 const title = "image";
 
 const json = {
-  questions: [
+  elements: [
     {
       type: "image",
       name: "image",

@@ -441,11 +441,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!!innerItem) {
       for (var key in innerItem) {
         if (key === "locTitle" || key === "title" && !!this.title) continue;
-        if (key === "titleValues") {
-          this.locTitle.setJson(innerItem["titleValues"]);
-        } else {
-          (<any>this)[key] = (<any>innerItem)[key];
-        }
+        (<any>this)[key] = (<any>innerItem)[key];
       }
     }
     if (!!this.locTitleName) {

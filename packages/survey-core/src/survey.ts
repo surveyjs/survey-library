@@ -550,13 +550,13 @@ export class SurveyModel extends SurveyElementCore
    */
   public onOpenFileChooser: EventBase<SurveyModel, OpenFileChooserEvent> = this.addEvent<SurveyModel, OpenFileChooserEvent>();
   /**
-   * An event that is raised when a File Upload or Signature Pad question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
+   * An event that is raised when a [File Upload](https://surveyjs.io/form-library/documentation/api-reference/file-model) or [Signature](https://surveyjs.io/form-library/documentation/api-reference/signature-pad-model) question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [File Upload Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    *
-   * [Signature Pad Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
+   * [Signature Demo](https://surveyjs.io/form-library/examples/upload-signature-pad-data-to-server/ (linkStyle))
    * @see uploadFiles
    * @see onDownloadFile
    * @see onClearFiles

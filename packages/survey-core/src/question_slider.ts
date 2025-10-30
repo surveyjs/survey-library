@@ -903,6 +903,18 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
   private get isLabelsShowValueText(): boolean {
     return !!this.customLabels.find(l => l.showValue);
   }
+
+  public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
+    if (this.autoGenerate === true) {
+      const index = this.generatedLabels.indexOf(item);
+      this.autoGenerate = false;
+      this.setPropertyValue("customLabels", this.calcGeneratedLabels());
+      item = this.customLabels[index];
+    }
+    if (name === "text" && Number.isFinite(+newValue)) { item.value = +newValue; }
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+
+  }
 }
 
 function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any {

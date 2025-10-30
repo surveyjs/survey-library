@@ -2346,3 +2346,42 @@ QUnit.test("QuestionFile show loading indicator remove file", function (assert) 
   assert.deepEqual(q1.value.map(f => f.name), []);
   assert.notOk(q1.showLoadingIndicator);
 });
+
+QUnit.test("check source type option in onUploadFiles event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        name: "q1",
+        storeDataAsText: false,
+        allowMultiple: true
+      }
+    ]
+  });
+  survey.onOpenFileChooser.add((_, options) => {
+    options.callback([{ name: "from_chooser" } as File]);
+  });
+  let log = "";
+  survey.onUploadFiles.add((_, options) => {
+    log += `->${options.sourceType}: `;
+    options.files.forEach((file) => {
+      log += file.name;
+    });
+  });
+  const question = survey.getAllQuestions()[0] as QuestionFileModel;
+  question["cameraValue"] = { snap: (_, callback) => {
+    callback(new Blob());
+  } } as Camera;
+
+  const root = document.createElement("div");
+  const input = document.createElement("input");
+  input.id = question.inputId;
+  root.appendChild(input);
+  question.afterRenderQuestionElement(root);
+  question.chooseFile({ preventDefault: () => {}, stopImmediatePropagation: () => {} } as any);
+  assert.equal(log, "->file: from_chooser");
+  log = "";
+  question.setPropertyValue("isPlayingVideo", true);
+  question.snapPicture();
+  assert.equal(log, "->camera: snap_picture.png");
+});

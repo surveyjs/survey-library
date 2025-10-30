@@ -114,7 +114,7 @@ export class QuestionFileModelBase extends Question {
       );
     }
   }
-  protected uploadFiles(files: File[]) {
+  protected uploadFiles(files: File[], sourceType?: string) {
     if (this.survey) {
       this.errors = [];
       this.stateChanged("loading");
@@ -139,7 +139,7 @@ export class QuestionFileModelBase extends Question {
           this.stateChanged("error");
         }
         this.stateChanged("loaded");
-      });
+      }, sourceType);
     }
   }
   protected loadPreview(newValue: any): void { }
@@ -377,7 +377,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     const blobCallback = (blob: Blob | null): void => {
       if (blob) {
         const file = new File([blob], "snap_picture.png", { type: "image/png" });
-        this.loadFiles([file]);
+        this.loadFiles([file], "camera");
       }
     };
     this.camera.snap(this.videoHtmlElement, blobCallback);
@@ -584,7 +584,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     event.stopImmediatePropagation();
     if (inputElement) {
       if (this.survey) {
-        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, elementType: this.getType(), propertyName: this.name });
+        this.survey.chooseFiles(inputElement, files => this.loadFiles(files, "file"), { element: this, elementType: this.getType(), propertyName: this.name });
       } else {
         inputElement.click();
       }
@@ -799,7 +799,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Loads multiple files into the question.
    * @param files An array of [File](https://developer.mozilla.org/en-US/docs/Web/API/File) objects.
    */
-  public loadFiles(files: File[]) {
+  public loadFiles(files: File[], sourceType?: string) {
     if (!this.survey) {
       return;
     }
@@ -825,7 +825,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           fileReader.readAsDataURL(file);
         });
       } else {
-        this.uploadFiles(files);
+        this.uploadFiles(files, sourceType);
       }
     };
     if (this.allowMultiple) {

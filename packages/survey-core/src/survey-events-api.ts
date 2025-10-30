@@ -555,6 +555,7 @@ export interface UploadFilesEvent extends LoadFilesEvent {
    * An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    */
   files: Array<File>;
+  sourceType?: string;
 }
 export interface OpenFileChooserEvent {
   /**

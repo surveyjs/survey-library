@@ -6063,7 +6063,7 @@ export class SurveyModel extends SurveyElementCore
    * @see downloadFile
    */
   public uploadFiles(question: QuestionFileModel | QuestionSignaturePadModel, name: string, files: File[],
-    callback: (data: any | Array<any>, errors?: any | Array<any>) => any): void {
+    callback: (data: any | Array<any>, errors?: any | Array<any>) => any, sourceType?: string): void {
     if (this.onUploadFiles.isEmpty) {
       callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
@@ -6071,6 +6071,7 @@ export class SurveyModel extends SurveyElementCore
         this.onUploadFiles.fire(this, {
           question: question,
           name: name,
+          sourceType: sourceType,
           files: files || [],
           callback: (status, data) => {
             callback(status, data);

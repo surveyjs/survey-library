@@ -911,7 +911,13 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       this.setPropertyValue("customLabels", this.calcGeneratedLabels());
       item = this.customLabels[index];
     }
-    if (name === "text" && Number.isFinite(+newValue)) { item.value = +newValue; }
+    if (name === "text") {
+      if (Number.isFinite(+newValue)) {
+        item.value = +newValue;
+      } else {
+        item.text = newValue;
+      }
+    }
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
 
   }

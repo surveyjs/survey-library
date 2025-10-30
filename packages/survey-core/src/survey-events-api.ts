@@ -363,7 +363,7 @@ export interface ValidatePanelEvent extends PanelEventMixin {
 }
 export interface ErrorCustomTextEvent {
   /**
-   * A validation error type: `"required"`, `"requireoneanswer"`, `"requirenumeric"`, `"exceedsize"`, `"webrequest"`, `"webrequestempty"`, `"otherempty"`, `"uploadingfile"`, `"requiredinallrowserror"`, `"minrowcounterror"`, `"keyduplicationerror"`, or `"custom"`
+   * A validation error type: `"required"`, `"requireoneanswer"`, `"requirenumeric"`, `"exceedsize"`, `"webrequest"`, `"webrequestempty"`, `"otherempty"`, `"uploadingfile"`, `"requiredinallrowserror"`, `"minrowcounterror"`, `"keyduplicationerror"`, or `"custom"`.
    */
   name: string;
   /**
@@ -555,6 +555,11 @@ export interface UploadFilesEvent extends LoadFilesEvent {
    * An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    */
   files: Array<File>;
+  /**
+   * Indicates the origin of the uploaded files.\
+   * Possible values: `"file"`, `"camera"`, or `"signature"`.
+   */
+  sourceType?: string;
 }
 export interface OpenFileChooserEvent {
   /**

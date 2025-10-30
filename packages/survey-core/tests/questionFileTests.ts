@@ -7,6 +7,7 @@ import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 export * from "../src/localization/german";
 export default QUnit.module("Survey_QuestionFile");
 
@@ -2345,4 +2346,55 @@ QUnit.test("QuestionFile show loading indicator remove file", function (assert) 
   callback();
   assert.deepEqual(q1.value.map(f => f.name), []);
   assert.notOk(q1.showLoadingIndicator);
+});
+
+QUnit.test("check source type option in onUploadFiles event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        name: "q1",
+        storeDataAsText: false,
+        allowMultiple: true
+      },
+      {
+        type: "signaturepad",
+        name: "q2",
+        storeDataAsText: false,
+      }
+    ]
+  });
+  survey.onOpenFileChooser.add((_, options) => {
+    options.callback([{ name: "from_chooser" } as File]);
+  });
+  let log = "";
+  survey.onUploadFiles.add((_, options) => {
+    log += `->${options.sourceType}: `;
+    options.files.forEach((file) => {
+      log += file.name;
+    });
+  });
+  const file = survey.getAllQuestions()[0] as QuestionFileModel;
+  const signature = survey.getAllQuestions()[1] as QuestionSignaturePadModel;
+  file["cameraValue"] = { snap: (_, callback) => {
+    callback(new Blob());
+  } } as Camera;
+
+  const root = document.createElement("div");
+  const input = document.createElement("input");
+  input.id = file.inputId;
+  root.appendChild(input);
+  file.afterRenderQuestionElement(root);
+  file.chooseFile({ preventDefault: () => {}, stopImmediatePropagation: () => {} } as any);
+  assert.equal(log, "->file: from_chooser");
+  log = "";
+  file.setPropertyValue("isPlayingVideo", true);
+  file.snapPicture();
+  assert.equal(log, "->camera: snap_picture.png");
+  log = "";
+  signature["signaturePad"] = { toDataURL: () => "data:image/jpeg;base64," };
+  signature["valueWasChangedFromLastUpload"] = true;
+  signature["element"] = document.createElement("div");
+  signature["onBlurCore"]({ relatedTarget: document.createElement("div") });
+  assert.equal(log, "->signature: q2.png");
 });

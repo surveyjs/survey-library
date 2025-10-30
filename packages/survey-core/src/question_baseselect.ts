@@ -157,8 +157,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   public renderedChoicesChangedCallback: () => void;
   private commentAreaModelValues: HashTable<TextAreaModel>;
   private filteredChoicesValue: Array<ItemValue>;
-  private conditionChoicesVisibleIfRunner: ConditionRunner;
-  private conditionChoicesEnableIfRunner: ConditionRunner;
   private otherItemValue: ItemValue;
   private choicesFromUrl: Array<ItemValue>;
   private cachedValueForUrlRequests: any;
@@ -728,8 +726,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.runItemsCondition(properties);
   }
   protected runItemsCondition(properties: HashTable<any>): boolean {
-    this.setConditionalChoicesRunner();
-    var hasChanges = this.runConditionsForItems(properties);
+    const hasChanges = this.runConditionsForItems(properties);
     if (
       !!this.filteredChoicesValue &&
       this.filteredChoicesValue.length === this.activeChoices.length
@@ -743,10 +740,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return hasChanges;
   }
   protected runItemsEnableCondition(properties: HashTable<any>): any {
-    this.setConditionalEnableChoicesRunner();
-    var hasChanged = ItemValue.runEnabledConditionsForItems(
+    const condition = this.getChoicesCondition("choicesEnableIf");
+    const hasChanged = ItemValue.runEnabledConditionsForItems(
       this.activeChoices,
-      this.conditionChoicesEnableIfRunner,
+      condition,
       properties,
       (item: ItemValue, val: boolean): boolean => {
         return val && this.onEnableItemCallBack(item);
@@ -786,27 +783,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return [];
   }
-  private setConditionalChoicesRunner() {
-    const expression = this.getExpressionFromSurvey("choicesVisibleIf");
+  private getChoicesCondition(propertyName: string): ConditionRunner {
+    const expression = this.getExpressionFromSurvey(propertyName);
     if (expression) {
-      if (!this.conditionChoicesVisibleIfRunner) {
-        this.conditionChoicesVisibleIfRunner = new ConditionRunner(expression);
-      }
-      this.conditionChoicesVisibleIfRunner.expression = expression;
-    } else {
-      this.conditionChoicesVisibleIfRunner = null;
+      return new ConditionRunner(expression);
     }
-  }
-  private setConditionalEnableChoicesRunner() {
-    const expression = this.getExpressionFromSurvey("choicesEnableIf");
-    if (expression) {
-      if (!this.conditionChoicesEnableIfRunner) {
-        this.conditionChoicesEnableIfRunner = new ConditionRunner(expression);
-      }
-      this.conditionChoicesEnableIfRunner.expression = expression;
-    } else {
-      this.conditionChoicesEnableIfRunner = null;
-    }
+    return null;
   }
   private canSurveyChangeItemVisibility(): boolean {
     return !!this.survey && this.survey.canChangeChoiceItemsVisibility();
@@ -819,12 +801,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private runConditionsForItems(properties: HashTable<any>): boolean {
     this.filteredChoicesValue = [];
     const calcVisibility = this.changeItemVisibility();
+    const condition = this.areInvisibleElementsShowing ? null : this.getChoicesCondition("choicesVisibleIf");
     return ItemValue.runConditionsForItems(
       this.activeChoices,
       this.getFilteredChoices(),
-      this.areInvisibleElementsShowing
-        ? null
-        : this.conditionChoicesVisibleIfRunner,
+      condition,
       properties,
       !this.survey || !this.survey.areInvisibleElementsShowing,
       (item: ItemValue, val: boolean): boolean => {

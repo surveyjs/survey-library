@@ -450,7 +450,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     if (!this.storeDataAsText) {
       if (!this.element.contains(event.relatedTarget)) {
         if (!this.valueWasChangedFromLastUpload) return;
-        this.uploadFiles([dataUrl2File(this.signaturePad.toDataURL(this.getFormat()), this.name + "." + correctFormatData(this.dataFormat), this.getFormat())]);
+        this.uploadFiles([dataUrl2File(this.signaturePad.toDataURL(this.getFormat()), this.name + "." + correctFormatData(this.dataFormat), this.getFormat())], "signature");
         this.valueWasChangedFromLastUpload = false;
       }
     }

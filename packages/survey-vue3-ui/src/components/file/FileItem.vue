@@ -13,6 +13,8 @@
         :href="item.content"
         :title="item.name"
         :download="item.name"
+        target="_blank"
+        rel="noreferrer"
         :style="{ width: question.imageWidth }"
         >{{ item.name }}</a
       >
@@ -61,6 +63,8 @@
         :href="item.content"
         :title="item.name"
         :download="item.name"
+        target="_blank"
+        rel="noreferrer"
         :style="{ width: question.imageWidth }"
         >{{ item.name }}</a
       >

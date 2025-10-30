@@ -25,6 +25,8 @@ export class SurveyFileItem extends SurveyElementBase<{ question: QuestionFileMo
           }}
           title={val.name}
           download={val.name}
+          target="_blank"
+          rel="noreferrer"
           style={{ width: this.question.imageWidth }}
         >
           {val.name}

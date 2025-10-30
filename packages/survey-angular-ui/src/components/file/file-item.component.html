@@ -2,7 +2,7 @@
     <span [class]="question.cssClasses.previewItem" (click)="question.doDownloadFileFromContainer($event)">
         <div *ngIf="item.name && question.cssClasses.fileSign" [class]="question.cssClasses.fileSign">
             <a (click)="question.doDownloadFile($event, item)" [attr.href]="item.content | safeUrl"
-                [attr.title]="item.name" [attr.download]="item.name" [style.width]="question.imageWidth">{{
+                [attr.title]="item.name" [attr.download]="item.name" target="_blank" rel="noreferrer" [style.width]="question.imageWidth">{{
                 item.name
                 }}</a>
         </div>
@@ -21,7 +21,7 @@
         </div>
         <div *ngIf="item.name && question.cssClasses.fileSignBottom" [class]="question.cssClasses.fileSignBottom">
             <a (click)="question.doDownloadFile($event, item)" [attr.href]="item.content | safeUrl"
-                [attr.title]="item.name" [attr.download]="item.name" [style.width]="question.imageWidth">{{
+                [attr.title]="item.name" [attr.download]="item.name" target="_blank" rel="noreferrer" [style.width]="question.imageWidth">{{
                 item.name
                 }}</a>
         </div>

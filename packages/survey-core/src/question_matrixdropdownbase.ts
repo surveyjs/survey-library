@@ -1057,7 +1057,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.dispose();
     this.clearGeneratedRows();
   }
-  public get hasSingleInput(): boolean { return false; }
   public get isContainer(): boolean { return true; }
   public get isRowsDynamic(): boolean {
     return false;

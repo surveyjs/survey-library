@@ -301,7 +301,6 @@ export class QuestionPanelDynamicModel extends Question
     });
   }
   public get isCompositeQuestion(): boolean { return true; }
-  public get hasSingleInput(): boolean { return false; }
   public get isContainer(): boolean { return true; }
   public getFirstQuestionToFocus(withError: boolean): Question {
     for (var i = 0; i < this.visiblePanelsCore.length; i++) {

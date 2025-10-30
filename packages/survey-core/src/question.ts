@@ -1095,12 +1095,6 @@ export class Question extends SurveyElement<Question>
       this.currentSingleInputQuestion.singleInputAddItemCore();
     }
   }
-  public singleInputRemoveItem(): void {
-    const q = this.singleInputQuestion;
-    if (q && q !== this.singleInputParentQuestion) {
-      this.singleInputRemoveItemCore(q);
-    }
-  }
   public get singleInputLocTitle(): LocalizableString {
     return this.getPropertyValue("singleInputLocTitle", undefined, () => {
       return this.getSingleQuestionLocTitle();
@@ -1234,7 +1228,6 @@ export class Question extends SurveyElement<Question>
   }
   protected getSingleInputAddTextCore(): string { return undefined; }
   protected singleInputAddItemCore(): void {}
-  protected singleInputRemoveItemCore(question: Question): void {}
   private setSingleInputQuestionCore(question: Question): void {
     this.onBeforeSetSingleInputQuestion(question);
     this.setPropertyValue("singleInputQuestion", question);
@@ -1281,7 +1274,7 @@ export class Question extends SurveyElement<Question>
    * @see titleLocation
    */
   public get hasTitle(): boolean {
-    return this.getTitleLocation() !== "hidden" || this.singleInputHideHeader;
+    return this.getTitleLocation() !== "hidden" && !this.singleInputHideHeader;
   }
   /**
    * Sets question title location relative to the input field. Overrides the `questionTitleLocation` property specified for the question's container (survey, page, or panel).

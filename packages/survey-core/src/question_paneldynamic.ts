@@ -1303,11 +1303,6 @@ export class QuestionPanelDynamicModel extends Question
   protected singleInputAddItemCore(): void {
     this.addPanelUI();
   }
-  protected singleInputRemoveItemCore(question: Question): void {
-    const panel = this.getPanelByQuestion(question);
-    const index = this.visiblePanelsCore.indexOf(panel);
-    this.removePanelUI(index);
-  }
   protected getSingleQuestionOnChange(index: number): Question {
     const panels = this.visiblePanelsCore;
     if (panels.length > 0) {

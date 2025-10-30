@@ -798,9 +798,6 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected singleInputAddItemCore(): void {
     this.addRowUI();
   }
-  protected singleInputRemoveItemCore(question: Question): void {
-    this.removeRowUI(this.getRowByQuestion(question));
-  }
   protected getSingleQuestionOnChange(index: number): Question {
     const rows = this.visibleRows;
     if (rows.length > 0) {

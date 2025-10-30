@@ -939,6 +939,7 @@ export class Question extends SurveyElement<Question>
     }
     return undefined;
   }
+  //#region singleInput
   public get singleInputQuestion(): Question {
     const survey = this.survey;
     if (!survey || !survey.isSingleVisibleInput) return undefined;
@@ -1117,11 +1118,11 @@ export class Question extends SurveyElement<Question>
       return this.createSingleInputActions();
     });
   }
-  public get singleInputHideHeader(): boolean {
+  private get singleInputHideHeader(): boolean {
     const childQ = this.singleInputQuestion?.singleInputQuestion;
     return !!childQ && this.singleInputQuestion !== this;
   }
-  private set sinleInputHasActions(val: boolean) {
+  private set singleInputHasActions(val: boolean) {
     this.setPropertyValue("singleInputHasActions", val);
   }
   private get singleInputParentQuestion(): Question {
@@ -1141,7 +1142,7 @@ export class Question extends SurveyElement<Question>
       if (this.singleInputActions) {
         this.singleInputActions.actions = actions;
       }
-      this.sinleInputHasActions = actions.length > 0 ? true : undefined;
+      this.singleInputHasActions = actions.length > 0 ? true : undefined;
     }
   }
   private getSingleQuestionActions(): Array<Action> {
@@ -1271,6 +1272,7 @@ export class Question extends SurveyElement<Question>
     this.setSingleInputQuestion(questions[index], skip < 0);
     return true;
   }
+  //#endregion
   /**
    * Returns `false` if the `titleLocation` property is set to `"hidden"` or if the question cannot have a title (for example, an [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question).
    *
@@ -1279,7 +1281,7 @@ export class Question extends SurveyElement<Question>
    * @see titleLocation
    */
   public get hasTitle(): boolean {
-    return this.getTitleLocation() !== "hidden";
+    return this.getTitleLocation() !== "hidden" || this.singleInputHideHeader;
   }
   /**
    * Sets question title location relative to the input field. Overrides the `questionTitleLocation` property specified for the question's container (survey, page, or panel).

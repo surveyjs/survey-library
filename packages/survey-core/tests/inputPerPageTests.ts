@@ -1282,7 +1282,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
     assert.equal(panel.singleInputActions.actions[1].title, storeTitle, "singleInputActions[1].title" + postFix);
   };
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
-  assert.equal(panel.singleInputHideHeader, false, "root.singleInputHideHeader, #1");
+  assert.equal(panel.hasTitle, false, "root.hasTitle, #1");
   panel.singleInputQuestion.value = "John";
 
   survey.performNext();

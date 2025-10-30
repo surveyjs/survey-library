@@ -10,7 +10,7 @@
       [css]="model.cssClasses"
     ></sv-breadcrumbs>
     <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
-    <div [element]="model" *ngIf="!model.singleInputHideHeader && model.hasTitleOnLeftTop" sv-ng-element-header></div>
+    <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
     <sv-single-input-summary
       *ngIf="!!model.singleInputSummary"
       [model]="model.singleInputSummary"

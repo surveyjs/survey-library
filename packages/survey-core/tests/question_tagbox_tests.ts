@@ -378,8 +378,6 @@ QUnit.test("lazy loading: several loading", assert => {
 
 QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert => {
   const newValueDebouncedInputValue = 2 * onChoicesLazyLoadCallbackTimeOut;
-  const oldValueDebouncedInputValue = settings.dropdownSearchDelay;
-  settings.dropdownSearchDelay = newValueDebouncedInputValue;
   const done1 = assert.async();
   const done2 = assert.async();
   const done3 = assert.async();
@@ -405,12 +403,12 @@ QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert =
   setTimeout(() => {
     assert.equal(question.choices.length, 25, "show popup after request");
     assert.equal(question.choices[0].value, 1, "show popup after request");
-
+    settings.dropdownSearchDelay = newValueDebouncedInputValue;
     question.dropdownListModel.filterString = "2";
     setTimeout(() => {
       assert.equal(question.choices.length, 25, "filter is 2");
       assert.equal(question.choices[0].value, 1, "filter is 2");
-
+      settings.dropdownSearchDelay = newValueDebouncedInputValue;
       question.dropdownListModel.filterString = "22";
       setTimeout(() => {
         assert.equal(question.choices.length, 25, "filter is 22 before request");
@@ -420,7 +418,7 @@ QUnit.test("lazy loading + change filter string + dropdownSearchDelay", assert =
           assert.equal(question.choices.length, 25, "filter is 22 after request");
           assert.equal(question.choices[0].value, 22, "filter is 22 after request");
 
-          settings.dropdownSearchDelay = oldValueDebouncedInputValue;
+          settings.dropdownSearchDelay = 0;
           done4();
         }, onChoicesLazyLoadCallbackTimeOut + newValueDebouncedInputValue);
         done3();

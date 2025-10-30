@@ -28,7 +28,7 @@
     />
     <SvComponent
       :is="'survey-element-header'"
-      v-if="!element.singleInputHideHeader && element.hasTitleOnLeftTop"
+      v-if="element.hasTitleOnLeftTop"
       :element="element"
       :css="element.cssClasses"
     />

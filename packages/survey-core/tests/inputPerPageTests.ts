@@ -273,7 +273,7 @@ QUnit.test("singleInput and panel dynamic & add panels in navigation bar", asser
     ],
     questionsOnPageMode: "inputPerPage"
   });
-  const panel1 = survey.getQuestionByName("panel1");
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const bar = survey.navigationBar;
   assert.ok(bar.getActionById("sv-singleinput-add"), "addBtn exists, #1");
   assert.equal(panel1.singleInputQuestion.name, "panel1", "singleInputQuestion, #1");
@@ -292,7 +292,7 @@ QUnit.test("singleInput and panel dynamic & add panels in navigation bar", asser
   addBtn.action();
   assert.equal(panel1.panelCount, 3, "New panel is added, #3");
   assert.equal(addBtn.visible, false, "addBtn visible #3");
-  panel1.singleInputRemoveItem();
+  panel1.removePanel(0);
   assert.equal(panel1.panelCount, 2, "Last panel is removed");
   assert.equal(addBtn.visible, false, "addBtn visible #4");
   survey.performNext();
@@ -311,7 +311,7 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
     ],
     questionsOnPageMode: "inputPerPage"
   });
-  const panel1 = survey.getQuestionByName("panel1");
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   assert.equal(panel1.panelCount, 0, "panelCount #1");
   const bar = survey.navigationBar;
   const addBtn = bar.getActionById("sv-singleinput-add");
@@ -330,7 +330,7 @@ QUnit.test("singleInput and panel dynamic & empty panel/add panel/remove panel",
   assert.equal(panel1.singleInputQuestion.name, "q1", "singleInputQuestion, #2");
   assert.equal(survey.isShowPrevButton, true, "prev buttton, #2");
   assert.equal(survey.isShowNextButton, true, "next buttton, #2");
-  panel1.singleInputRemoveItem();
+  panel1.removePanel(0);
   assert.equal(panel1.panelCount, 0, "panelCount #3");
   assert.equal(addBtn.visible, true, "addBtn visible #3");
   assert.equal(survey.currentSingleQuestion.name, "panel1", "currentSingleQuestion, #3");
@@ -607,7 +607,7 @@ QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar",
     ],
     questionsOnPageMode: "inputPerPage"
   });
-  const matrix1 = survey.getQuestionByName("matrix1");
+  const matrix1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix1");
   const bar = survey.navigationBar;
   assert.equal(matrix1.singleInputQuestion.name, "matrix1", "singleInputQuestion is empty, #1");
   matrix1.addRow();
@@ -631,7 +631,7 @@ QUnit.test("singleInput and matrix dynamic & add/remove rows in navigation bar",
   addBtn.action();
   assert.equal(matrix1.rowCount, 2, "New row is added");
   assert.equal(addBtn.visible, false, "addBtn visible #3");
-  matrix1.singleInputRemoveItem();
+  matrix1.removeRow(0);
   assert.equal(matrix1.rowCount, 1, "Last row is removed");
   assert.equal(addBtn.visible, false, "addBtn visible #4");
   survey.performNext();
@@ -1282,7 +1282,7 @@ QUnit.test("singleInput & two nested elements & actions", assert => {
     assert.equal(panel.singleInputActions.actions[1].title, storeTitle, "singleInputActions[1].title" + postFix);
   };
   assert.equal(panel.singleInputQuestion.name, "buyerName", "root.singleInputQuestion.name, #1");
-  assert.equal(panel.singleInputHideHeader, false, "root.singleInputHideHeader, #1");
+  assert.equal(panel.hasTitle, true, "root.hasTitle, #1");
   panel.singleInputQuestion.value = "John";
 
   survey.performNext();

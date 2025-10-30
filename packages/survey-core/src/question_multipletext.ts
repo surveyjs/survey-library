@@ -464,7 +464,6 @@ export class QuestionMultipleTextModel extends Question
   public get isAllowTitleLeft(): boolean {
     return false;
   }
-  public get hasSingleInput(): boolean { return false; }
   public get isContainer(): boolean { return true; }
   onSurveyLoad() {
     this.editorsOnSurveyLoad();

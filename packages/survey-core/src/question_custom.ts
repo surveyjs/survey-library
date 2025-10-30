@@ -514,7 +514,7 @@ export abstract class QuestionCustomModelBase extends Question
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;
-    this.locQuestionTitle = this.createLocalizableString("questionTitle", this);
+    this.locQuestionTitle = this.createLocalizableString("questionTitle");
     this.locQuestionTitle.setJson(this.customQuestion.defaultQuestionTitle);
     this.createWrapper();
     SurveyElement.CreateDisabledDesignElements = false;

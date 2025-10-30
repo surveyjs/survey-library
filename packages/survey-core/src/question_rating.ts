@@ -87,7 +87,7 @@ export class QuestionRatingModel extends Question {
     super(name);
 
     this.createItemValues("rateValues");
-    this.createLocalizableString("ratingOptionsCaption", this, false, true);
+    this.createLocString({ name: "ratingOptionsCaption", defaultStr: true });
     this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.resetRenderedItems());

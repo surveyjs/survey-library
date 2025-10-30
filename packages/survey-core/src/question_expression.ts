@@ -14,7 +14,7 @@ export class QuestionExpressionModel extends Question {
   private isExecutionLocked: boolean;
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("format", this);
+    this.createLocalizableString("format");
     this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
       this.updateFormatedValue();
     });

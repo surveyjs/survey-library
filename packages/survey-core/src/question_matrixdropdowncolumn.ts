@@ -127,8 +127,8 @@ export class MatrixDropdownColumn extends Base
   constructor(name: string, title?: string, colOwner?: IMatrixColumnOwner) {
     super();
     this.colOwnerValue = colOwner;
-    this.createLocalizableString("totalFormat", this);
-    this.createLocalizableString("cellHint", this);
+    this.createLocalizableString("totalFormat");
+    this.createLocalizableString("cellHint");
     this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
     this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
     this.updateTemplateQuestion(undefined, name, title);

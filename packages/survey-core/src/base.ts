@@ -938,12 +938,18 @@ export class Base implements IObjectValueContext {
     if (!str || !str.format) return "";
     return str.format(...args);
   }
+  protected createLocString(parameters: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, defaultStr?: boolean | string }): LocalizableString {
+    return this.createLocalizableString(parameters.name, parameters.owner, parameters.useMarkDown, parameters.defaultStr);
+  }
   protected createLocalizableString(
     name: string,
-    owner: ILocalizableOwner,
+    owner?: ILocalizableOwner,
     useMarkDown: boolean = false,
     defaultStr: boolean | string = false
   ): LocalizableString {
+    if (!owner) {
+      owner = <ILocalizableOwner>(<any>this);
+    }
     let locName = undefined;
     if (defaultStr) {
       locName = defaultStr === true ? name : defaultStr;

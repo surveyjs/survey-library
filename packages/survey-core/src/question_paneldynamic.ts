@@ -276,16 +276,17 @@ export class QuestionPanelDynamicModel extends Question
       this.rebuildPanels();
     };
 
-    this.createLocalizableString("confirmDeleteText", this, false, "confirmDelete");
-    this.createLocalizableString("keyDuplicationError", this, false, true);
-    this.createLocalizableString("addPanelText", this, false, "addPanel");
-    this.createLocalizableString("removePanelText", this, false, "removePanel");
-    this.createLocalizableString("prevPanelText", this, false, "pagePrevText");
-    this.createLocalizableString("nextPanelText", this, false, "pageNextText");
-    this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
-    this.createLocalizableString("editPanelText", this, false, "editText");
-    this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
-    this.createLocalizableString("tabTitlePlaceholder", this, true, "tabTitlePlaceholder");
+    this.createLocString({ name: "confirmDeleteText", defaultStr: "confirmDelete" });
+    this.createLocString({ name: "keyDuplicationError", defaultStr: true });
+    this.createLocString({ name: "addPanelText", defaultStr: "addPanel" });
+    this.createLocString({ name: "removePanelText", defaultStr: "removePanel" });
+    this.createLocString({ name: "prevPanelText", defaultStr: "pagePrevText" });
+    this.createLocString({ name: "nextPanelText", defaultStr: "pageNextText" });
+    this.createLocString({ name: "noEntriesText", defaultStr: "noEntriesText" });
+    this.createLocString({ name: "editPanelText", defaultStr: "editText" });
+
+    this.createLocString({ name: "templateTabTitle", defaultStr: "panelDynamicTabTextFormat", useMarkDown: true });
+    this.createLocString({ name: "tabTitlePlaceholder", defaultStr: "tabTitlePlaceholder", useMarkDown: true });
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });

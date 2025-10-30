@@ -64,7 +64,7 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
 export class HtmlConditionItem extends ExpressionItem {
   constructor(expression: string = null, html: string = null) {
     super(expression);
-    this.createLocalizableString("html", this);
+    this.createLocalizableString("html");
     this.html = html;
   }
   public getType(): string {
@@ -93,7 +93,7 @@ export class HtmlConditionItem extends ExpressionItem {
 export class UrlConditionItem extends ExpressionItem {
   constructor(expression: string = null, url: string = null) {
     super(expression);
-    this.createLocalizableString("url", this);
+    this.createLocalizableString("url");
     this.url = url;
   }
   public getType(): string {

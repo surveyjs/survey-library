@@ -341,9 +341,9 @@ export class Question extends SurveyElement<Question>
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("commentText", this, true, true);
-    this.createLocalizableString("requiredErrorText", this);
-    this.createLocalizableString("commentPlaceholder", this);
-    this.createLocalizableString("defaultDisplayValue", this);
+    this.createLocalizableString("requiredErrorText");
+    this.createLocalizableString("commentPlaceholder");
+    this.createLocalizableString("defaultDisplayValue");
     this.addTriggersInfo();
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();

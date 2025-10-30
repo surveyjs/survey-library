@@ -16,7 +16,7 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   constructor(value: any, text?: string, protected typeName?: string
   ) {
     super(value, text, typeName);
-    this.createLocalizableString("imageLink", this, false);
+    this.createLocalizableString("imageLink");
   }
   protected getBaseType(): string { return "imageitemvalue"; }
   /**

@@ -209,9 +209,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     });
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
-    var locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
+    const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
-    this.createLocalizableString("otherPlaceholder", this, false, true);
+    this.createLocString({ name: "otherPlaceholder", defaultStr: true });
     this.otherItemValue.setLocText(locOtherText);
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
       return this.createItemValue(value);

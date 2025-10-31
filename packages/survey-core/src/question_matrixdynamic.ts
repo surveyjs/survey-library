@@ -96,13 +96,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   constructor(name: string) {
     super(name);
     this.initialRowCount = this.getDefaultPropertyValue("rowCount");
-    this.createLocString({ name: "confirmDeleteText", defaultStr: "confirmDelete" });
+    this.createLocStr({ name: "confirmDeleteText", translationName: "confirmDelete" });
     this.createLocalizableString("addRowText").onGetTextCallback = (text: string): string => {
       return !!text ? text : this.defaultAddRowText;
     };
-    this.createLocString({ name: "removeRowText", defaultStr: "removeRow" });
-    this.createLocString({ name: "noRowsText", defaultStr: true });
-    this.createLocString({ name: "editRowText", defaultStr: "editText" });
+    this.createLocStr({ name: "removeRowText", translationName: "removeRow" });
+    this.createLocStr({ name: "noRowsText", isTranslated: true });
+    this.createLocStr({ name: "editRowText", translationName: "editText" });
     this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
     this.registerPropertyChangedHandlers(["allowRowReorder", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
     this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });

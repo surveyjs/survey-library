@@ -23,7 +23,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   constructor(name: string) {
     super(name);
-    this.createLocString({ name: "placeholder", defaultStr: true });
+    this.createLocStr({ name: "placeholder", isTranslated: true });
     this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();

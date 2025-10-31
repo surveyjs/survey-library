@@ -16,7 +16,7 @@ export class FlowPanelModel extends PanelModel {
   public onCustomHtmlProducing: () => string;
   constructor(name: string = "") {
     super(name);
-    this.createLocString({ name: "content", useMarkDown: true });
+    this.createLocStr({ name: "content", useMarkDown: true });
     this.registerPropertyChangedHandlers(["content"], () => {
       this.onContentChanged();
     });

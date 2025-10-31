@@ -3,7 +3,7 @@ import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase, ComputedUpdater, Base } from "./base";
-import { UploadingFileError, ExceedSizeError } from "./error";
+import { UploadingFileError, ExceedSizeError, ExceedFilesCountError } from "./error";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { classesToSelector, confirmActionAsync, detectIEOrEdge, isElementVisible, loadFileFromBase64 } from "./utils/utils";
@@ -574,6 +574,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
   }
+  public get maxFiles(): number {
+    return this.getPropertyValue("maxFiles");
+  }
+  public set maxFiles(val: number) {
+    this.setPropertyValue("maxFiles", val);
+  }
   public chooseFile(event: MouseEvent): void {
     if (!this.rootElement) return;
 
@@ -890,7 +896,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
-    (files || []).forEach((file) => {
+    files = files || [];
+    if (this.maxFiles > 0 && this.maxFiles < files.length) {
+      this.errors.push(new ExceedFilesCountError(this.maxFiles, this));
+    }
+    files.forEach((file) => {
       if (this.maxSize > 0 && file.size > this.maxSize) {
         this.errors.push(new ExceedSizeError(this.maxSize, this));
       }
@@ -1240,6 +1250,7 @@ Serializer.addClass(
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
     { name: "maxSize:number", default: 0 },
+    { name: "maxFiles:number", default: -1, visibleIf: (obj): boolean => obj.allowMultiple },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },

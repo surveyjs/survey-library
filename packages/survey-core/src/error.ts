@@ -65,6 +65,18 @@ export class ExceedSizeError extends SurveyError {
     return value.toFixed(fixed[i]) + " " + sizes[i];
   }
 }
+export class ExceedFilesCountError extends SurveyError {
+  constructor(private maxFiles: number, errorOwner: ISurveyErrorOwner = null) {
+    super(null, errorOwner);
+    this.locText.text = this.getText();
+  }
+  public getErrorType(): string {
+    return "exceedfilescount";
+  }
+  public getDefaultText(): string {
+    return (<any>this.getLocalizationString("exceedMaxFiles"))["format"](this.maxFiles);
+  }
+}
 export class WebRequestError extends SurveyError {
   constructor(
     public status: string,

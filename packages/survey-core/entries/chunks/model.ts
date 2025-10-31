@@ -122,7 +122,8 @@ export {
   AnswerRequiredError,
   OneAnswerRequiredError,
   RequreNumericError,
-  ExceedSizeError
+  ExceedSizeError,
+  ExceedFilesCountError
 } from "../../src/error";
 export {
   ILocalizableOwner,

@@ -434,6 +434,53 @@ QUnit.test(
     q1.clear();
   }
 );
+QUnit.test("QuestionFile upload files that exceed maxFiles, Issue #10549", function (assert) {
+  const json = {
+    elements: [
+      {
+        type: "file",
+        allowMultiple: true,
+        name: "image1",
+        storeDataAsText: false,
+        maxFiles: 2
+      },
+    ],
+  };
+
+  const survey = new SurveyModel(json);
+  const q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+  assert.equal(q1.maxFiles, 2, "maxFiles is set correctly");
+
+  var loadedFilesCount = 0;
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback("success", options.files.map((file) => {
+      loadedFilesCount++;
+      return { file: file, content: file.name + "_url" };
+    })
+    );
+  });
+
+  q1.loadFiles([<any>{ name: "f1", type: "t1" },
+    <any>{ name: "f2", type: "t2" }]);
+  assert.equal(q1.errors.length, 0, "one error");
+  assert.equal(loadedFilesCount, 2, "two files loaded");
+
+  loadedFilesCount = 0;
+
+  q1.loadFiles([<any>{ name: "f1", type: "t1" },
+    <any>{ name: "f2", type: "t2" }, <any>{ name: "f3", type: "t3" }]);
+  assert.equal(q1.errors.length, 1, "one error");
+  assert.equal(q1.errors[0].locText.text, "The maximum number of files you can upload is 2.", "error text");
+  assert.equal(loadedFilesCount, 0, "no files loaded");
+
+  var loadedFilesCount = 0;
+  q1.loadFiles([<any>{ name: "f1", type: "t1" }]);
+  assert.equal(q1.errors.length, 0, "no error");
+  assert.equal(loadedFilesCount, 1, "one file loaded");
+
+  q1.clear();
+}
+);
 
 QUnit.test("QuestionFile canPreviewImage", function (assert) {
   var q1: QuestionFileModel = new QuestionFileModel("image1");

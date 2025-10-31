@@ -938,11 +938,11 @@ export class Base implements IObjectValueContext {
     if (!str || !str.format) return "";
     return str.format(...args);
   }
-  protected createLocStr(params: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, translationName?: string, isTranslated?: boolean }): LocalizableString {
-    if (params.isTranslated && !params.translationName) {
-      params.translationName = params.name;
+  protected createLocStr(params: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
+    if (params.hasTranslation && !params.translationKey) {
+      params.translationKey = params.name;
     }
-    return this.createLocalizableString(params.name, params.owner, params.useMarkDown, params.translationName);
+    return this.createLocalizableString(params.name, params.owner, params.useMarkDown, params.translationKey);
   }
   protected createLocalizableString(
     name: string,

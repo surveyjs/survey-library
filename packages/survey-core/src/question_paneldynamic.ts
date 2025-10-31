@@ -276,17 +276,17 @@ export class QuestionPanelDynamicModel extends Question
       this.rebuildPanels();
     };
 
-    this.createLocStr({ name: "confirmDeleteText", translationName: "confirmDelete" });
-    this.createLocStr({ name: "keyDuplicationError", isTranslated: true });
-    this.createLocStr({ name: "addPanelText", translationName: "addPanel" });
-    this.createLocStr({ name: "removePanelText", translationName: "removePanel" });
-    this.createLocStr({ name: "prevPanelText", translationName: "pagePrevText" });
-    this.createLocStr({ name: "nextPanelText", translationName: "pageNextText" });
-    this.createLocStr({ name: "noEntriesText", translationName: "noEntriesText" });
-    this.createLocStr({ name: "editPanelText", translationName: "editText" });
+    this.createLocStr({ name: "confirmDeleteText", translationKey: "confirmDelete" });
+    this.createLocStr({ name: "keyDuplicationError", hasTranslation: true });
+    this.createLocStr({ name: "addPanelText", translationKey: "addPanel" });
+    this.createLocStr({ name: "removePanelText", translationKey: "removePanel" });
+    this.createLocStr({ name: "prevPanelText", translationKey: "pagePrevText" });
+    this.createLocStr({ name: "nextPanelText", translationKey: "pageNextText" });
+    this.createLocStr({ name: "noEntriesText", translationKey: "noEntriesText" });
+    this.createLocStr({ name: "editPanelText", translationKey: "editText" });
 
-    this.createLocStr({ name: "templateTabTitle", translationName: "panelDynamicTabTextFormat", useMarkDown: true });
-    this.createLocStr({ name: "tabTitlePlaceholder", translationName: "tabTitlePlaceholder", useMarkDown: true });
+    this.createLocStr({ name: "templateTabTitle", translationKey: "panelDynamicTabTextFormat", useMarkDown: true });
+    this.createLocStr({ name: "tabTitlePlaceholder", translationKey: "tabTitlePlaceholder", useMarkDown: true });
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });

@@ -249,8 +249,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   constructor(name: string) {
     super(name);
-    this.createLocStr({ name: "takePhotoCaption", isTranslated: true });
-    this.createLocStr({ name: "clearCaption", isTranslated: true });
+    this.createLocStr({ name: "takePhotoCaption", hasTranslation: true });
+    this.createLocStr({ name: "clearCaption", hasTranslation: true });
     this.actionsContainer = new ActionContainer();
     this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({

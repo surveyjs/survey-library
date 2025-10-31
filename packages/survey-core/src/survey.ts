@@ -1011,12 +1011,12 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("loadingHtml", "loadingSurvey", "loading");
     this.createLocalizableString("emptySurveyText", this, true, "emptySurvey");
     this.createLocalizableString("logo");
-    this.createLocStr({ name: "startSurveyText", isTranslated: true });
-    this.createLocStr({ name: "pagePrevText", isTranslated: true });
-    this.createLocStr({ name: "pageNextText", isTranslated: true });
-    this.createLocStr({ name: "completeText", isTranslated: true });
-    this.createLocStr({ name: "previewText", isTranslated: true });
-    this.createLocStr({ name: "editText", isTranslated: true });
+    this.createLocStr({ name: "startSurveyText", hasTranslation: true });
+    this.createLocStr({ name: "pagePrevText", hasTranslation: true });
+    this.createLocStr({ name: "pageNextText", hasTranslation: true });
+    this.createLocStr({ name: "completeText", hasTranslation: true });
+    this.createLocStr({ name: "previewText", hasTranslation: true });
+    this.createLocStr({ name: "editText", hasTranslation: true });
     this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.timerModelValue = new SurveyTimerModel(this);

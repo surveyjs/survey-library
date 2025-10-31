@@ -211,7 +211,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setNewRestfulProperty();
     const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
-    this.createLocStr({ name: "otherPlaceholder", isTranslated: true });
+    this.createLocStr({ name: "otherPlaceholder", hasTranslation: true });
     this.otherItemValue.setLocText(locOtherText);
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
       return this.createItemValue(value);

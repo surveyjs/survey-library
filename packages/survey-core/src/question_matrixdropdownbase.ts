@@ -1018,8 +1018,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   constructor(name: string) {
     super(name);
     this.createItemValues("choices");
-    this.createLocStr({ name: "placeholder", isTranslated: true });
-    this.createLocStr({ name: "keyDuplicationError", isTranslated: true });
+    this.createLocStr({ name: "placeholder", hasTranslation: true });
+    this.createLocStr({ name: "keyDuplicationError", hasTranslation: true });
     this.createLocalizableString("singleInputTitleTemplate", new MatrixSingleInputLocOwner(this), true, this.getSingleInputTitleTemplate());
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;

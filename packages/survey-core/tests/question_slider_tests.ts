@@ -960,3 +960,21 @@ QUnit.test("Preview", (assert) => {
   slider.handleOnChange(event, 0);
   assert.deepEqual(slider.renderedValue, [0], "the value doesn't changed");
 });
+
+QUnit.test("itemValuePropertyChanged for labels inplace editing in Creator https://github.com/surveyjs/survey-creator/issues/7205", (assert) => {
+  let q1 = new QuestionSliderModel("q1");
+  q1.labelCount = 1;
+  const label1 = q1.generatedLabels[0];
+  label1.text = "min";
+  assert.equal(q1.autoGenerate, false);
+  assert.equal(q1.customLabels[0].text, "min");
+  assert.equal(q1.customLabels[0].value, 0);
+
+  let q2 = new QuestionSliderModel("q2");
+  q2.labelCount = 1;
+  const label2 = q2.generatedLabels[0];
+  label2.text = "5";
+  assert.equal(q2.autoGenerate, false);
+  assert.equal(q2.customLabels[0].text, "5");
+  assert.equal(q2.customLabels[0].value, 5);
+});

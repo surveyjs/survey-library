@@ -722,14 +722,14 @@ QUnit.test("Action, support multiple language in title, issue#10291", function (
   assert.equal(action.locTitle.getLocaleText(""), "title", "en title #1");
   action.locTitle.setLocaleText("de", "title-de");
   assert.equal(action.locTitle.getLocaleText("de"), "title-de", "de title #1");
-  action = new Action({ titleValues: { default: "title1", de: "title1-de" } });
+  action = new Action({ titles: { default: "title1", de: "title1-de" } });
   assert.equal(action.title, "title1", "default title #2");
   assert.equal(action.locTitle.getLocaleText("de"), "title1-de", "de title #2");
-  assert.deepEqual(action.titleValues, { default: "title1", de: "title1-de" }, "titleValues");
-  action.titleValues = { default: "title2", fr: "title2-fr" };
+  assert.deepEqual(action.titles, { default: "title1", de: "title1-de" }, "titles");
+  action.titles = { default: "title2", fr: "title2-fr" };
   assert.equal(action.title, "title2", "default title #3");
   assert.equal(action.locTitle.getLocaleText("fr"), "title2-fr", "fr title #3");
-  assert.deepEqual(action.titleValues, { default: "title2", fr: "title2-fr" }, "titleValues #2");
+  assert.deepEqual(action.titles, { default: "title2", fr: "title2-fr" }, "titles #2");
 });
 QUnit.test("Update via function - nested dependencies", function (assert) {
   const base1 = new BaseTester1();

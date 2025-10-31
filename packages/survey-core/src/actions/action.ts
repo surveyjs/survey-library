@@ -37,7 +37,7 @@ export interface IAction {
    * @see disableShrink
    */
   title?: string;
-  titleValues?: { [locale: string]: string };
+  titles?: { [locale: string]: string };
   locTitle?: LocalizableString;
   locTitleName?: string;
   /**
@@ -302,10 +302,10 @@ export abstract class BaseAction extends Base implements IAction {
   public set title(val: string) {
     this.setTitle(val);
   }
-  public get titleValues(): { [locale: string]: string } {
+  public get titles(): { [locale: string]: string } {
     return this.locTitle.getJson();
   }
-  public set titleValues(val: { [locale: string]: string }) {
+  public set titles(val: { [locale: string]: string }) {
     this.locTitle.setJson(val);
   }
   public set cssClasses(val: ActionBarCssClasses) {

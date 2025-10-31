@@ -1034,6 +1034,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
           );
         }
       };
+      (<Question>el).onGetNoCallback = (no: string): string => { return this.no; };
     }
   }
   public updateElementCss(reNew?: boolean): void {

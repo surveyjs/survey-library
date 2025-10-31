@@ -4219,3 +4219,51 @@ QUnit.test("Composite: panel dynamic & changing panel count, Bug#10403", functio
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: PanelDynamic, showQuestionNumbers recursive & questionStartIndex, Bug#10288", function(assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: {
+      type: "paneldynamic",
+      showQuestionNumbers: "recursive",
+      questionStartIndex: " a",
+      templateTitle: "Panel Title #{panelIndex}",
+      panelCount: 2,
+      templateElements: [
+        { type: "text", name: "q2" },
+        { type: "text", name: "q3" }
+      ]
+    } });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "newquestion",
+        name: "panel",
+      },
+      { type: "text", name: "q4" }
+    ],
+    showQuestionNumbers: "recursive",
+    questionStartIndex: "1.1"
+  });
+  const singleQuestion = <QuestionCustomModel>survey.getQuestionByName("panel");
+  assert.equal(singleQuestion.wasRendered, true, "single question was rendered");
+  const panel = singleQuestion.contentQuestion;
+  assert.equal(panel.showQuestionNumbers, "recursive", "content question showQuestionNumbers");
+  assert.equal(panel.wasRendered, true, "panel was rendered");
+  const panel1 = panel.panels[0];
+  const panel2 = panel.panels[1];
+  const q1 = survey.getQuestionByName("q1");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.no, "1.1", "q1 number");
+  assert.equal(panel.no, "1.2", "panel number");
+  assert.equal(singleQuestion.no, "1.2", "single question number");
+  assert.equal(panel1.locTitle.textOrHtml, "Panel Title #1", "panel1 title");
+  assert.equal(panel2.locTitle.textOrHtml, "Panel Title #2", "panel2 title");
+  assert.equal(panel1.getQuestionByName("q2").no, "1.2 a", "panel1.q2 number");
+  assert.equal(panel1.getQuestionByName("q3").no, "1.2 b", "panel1.q3 number");
+  assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
+  assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
+  assert.equal(q4.no, "1.3", "q4 number");
+  ComponentCollection.Instance.clear();
+});

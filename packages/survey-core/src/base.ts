@@ -939,7 +939,7 @@ export class Base implements IObjectValueContext {
     return str.format(...args);
   }
   protected createLocStr(params: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, translationName?: string, isTranslated?: boolean }): LocalizableString {
-    if (params.isTranslated) {
+    if (params.isTranslated && !params.translationName) {
       params.translationName = params.name;
     }
     return this.createLocalizableString(params.name, params.owner, params.useMarkDown, params.translationName);

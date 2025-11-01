@@ -393,7 +393,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
-    this.createLocalizableString("requiredErrorText", this);
+    this.createLocalizableString("requiredErrorText");
     this.createLocalizableString("navigationTitle", this, true).onGetTextCallback = (text: string) => {
       return text || this.title || this.name;
     };

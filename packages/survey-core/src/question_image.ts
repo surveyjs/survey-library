@@ -20,11 +20,11 @@ export class QuestionImageModel extends QuestionNonValue {
 
   constructor(name: string) {
     super(name);
-    const locImageLink = this.createLocalizableString("imageLink", this, false);
+    const locImageLink = this.createLocalizableString("imageLink");
     locImageLink.onGetTextCallback = (text: string): string => {
       return getCorrectImageLink(text, this.contentMode == "youtube");
     };
-    this.createLocalizableString("altText", this, false);
+    this.createLocalizableString("altText");
     this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
   public getType(): string {

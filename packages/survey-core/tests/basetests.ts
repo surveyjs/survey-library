@@ -261,7 +261,7 @@ class BaseTester extends Base implements ILocalizableOwner {
         deletedItem.isDeleted = true;
       }
     );
-    this.createLocalizableString("title", this);
+    this.createLocalizableString("title");
   }
   public get value1(): number {
     return this.getPropertyValue("value1", 1);

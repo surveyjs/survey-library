@@ -13,8 +13,7 @@ export class QuestionHtmlModel extends QuestionNonValue {
   public ignoreHtmlProgressing: boolean;
   constructor(name: string) {
     super(name);
-    var locHtml = this.createLocalizableString("html", this);
-    locHtml.onGetTextCallback = (str: string): string => {
+    this.createLocalizableString("html").onGetTextCallback = (str: string): string => {
       return !!this.survey && !this.ignoreHtmlProgressing
         ? this.processHtml(str)
         : str;

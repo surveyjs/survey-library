@@ -2110,9 +2110,17 @@ export class Question extends SurveyElement<Question>
   public get no(): string {
     return this.getPropertyValue("no", undefined, () => this.calcNo());
   }
+  onGetNoCallback : (no: string) => string;
   private calcNo(): string {
-    if (!this.hasTitle || !this.showNumber || this.visibleIndex < 0) return "";
-    let no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    let no = "";
+    const hasTitle = this.hasTitle && this.showNumber && this.visibleIndex >= 0;
+    if (hasTitle) {
+      no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
+    }
+    if (this.onGetNoCallback) {
+      no = this.onGetNoCallback(no);
+    }
+    if (!hasTitle) return no;
     if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);
     }

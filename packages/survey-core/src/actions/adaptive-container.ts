@@ -26,7 +26,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
         item.mode = "popup";
-        hiddenItems.push(item.innerItem);
+        hiddenItems.push(item);
       }
       visibleItemsCount--;
     });

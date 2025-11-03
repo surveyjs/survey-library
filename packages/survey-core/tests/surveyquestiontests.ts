@@ -4359,7 +4359,19 @@ QUnit.test("QuestionText min/max properties and global setting", function (
   settings.minDate = "";
   settings.maxDate = "";
 });
-
+QUnit.test("QuestionText min/max properties for date-time and browser errors, bug#10561", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", inputType: "date", name: "q1", min: "2020-01-01", minErrorText: "min error" },
+    ],
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.value = "2019-05-05";
+  q1.onKeyUp({ target: { validationMessage: "test error message" } });
+  q1.validate();
+  assert.equal(q1.errors.length, 1, "There is one error");
+  assert.equal(q1.errors[0].text, "min error", "use minErrorText instead of browser message");
+});
 QUnit.test("Question defaultValue as expression", function (assert) {
   var survey = new SurveyModel({
     elements: [{ type: "text", name: "q", defaultValue: "=1+2" }],

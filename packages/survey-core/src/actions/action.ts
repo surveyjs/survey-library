@@ -255,7 +255,11 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
-  public id: string;
+  private idValue: string;
+  public get id(): string { return this.getId(); }
+  public set id(val: string) { this.setId(val); }
+  protected getId(): string { return this.idValue; }
+  protected setId(val: string): void { this.idValue = val; }
   @property() iconName: string;
   @property({ defaultValue: 24 }) iconSize: number | string;
   @property() markerIconName: string;
@@ -475,7 +479,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
 
   location?: string;
-  @property() id: string;
+  protected getId(): string { return this.getPropertyValue("id"); }
+  protected setId(val: string): void { this.setPropertyValue("id", val); }
   @property({ defaultValue: true }) private _visible: boolean;
   @property({
     onSet: (_, target: Action) => {

@@ -520,6 +520,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showProgressBar
    * @see progressBarLocation
    * @see progressBarType
+   * @see getProgressInfo
    */
   public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>();
   /**
@@ -3079,6 +3080,7 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarLocation
    * @see progressBarType
    * @see progressValue
+   * @see getProgressInfo
    */
   public get showProgressBar(): boolean {
     return this.getPropertyValue("showProgressBar");
@@ -5471,6 +5473,28 @@ export class SurveyModel extends SurveyElementCore
   public get processedLoadingHtml(): string {
     return this.locLoadingHtml.textOrHtml;
   }
+  /**
+   * Returns an object that provides information about survey progress.
+   *
+   * The returned object includes the following properties:
+   *
+   * - `questionCount`: `number`\
+   * The total number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are excluded.
+   *
+   * - `answeredQuestionCount`: `number`\
+   * The number of questions that have been answered.
+   *
+   * - `requiredQuestionCount`: `number`\
+   * The number of questions marked as required.
+   *
+   * - `requiredAnsweredQuestionCount`: `number`\
+   * The number of required questions that have been answered.
+   * @returns An object containing survey progress information.
+   * @see showProgressBar
+   * @see progressValue
+   * @see progressText
+   * @see onGetProgressText
+   */
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
     return SurveyElement.getProgressInfoByElements(pages, false);
@@ -5483,6 +5507,7 @@ export class SurveyModel extends SurveyElementCore
    * @see progressValue
    * @see showProgressBar
    * @see progressBarType
+   * @see getProgressInfo
    */
   public get progressText(): string {
     return this.progressBar.progressText;
@@ -5492,6 +5517,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showProgressBar
    * @see progressBarType
    * @see progressText
+   * @see getProgressInfo
    */
   public get progressValue(): number {
     return this.getPropertyValue("progressValue", undefined, () => this.getProgress());

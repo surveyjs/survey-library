@@ -443,11 +443,11 @@ export interface GetPanelNumberEvent extends PanelEventMixin {
 }
 export interface GetProgressTextEvent {
   /**
-   * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
+   * The total number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are excluded.
    */
   questionCount: number;
   /**
-   * The number of answered questions.
+   * The number of questions that have been answered.
    */
   answeredQuestionCount: number;
   /**
@@ -455,7 +455,7 @@ export interface GetProgressTextEvent {
    */
   requiredQuestionCount: number;
   /**
-   * The number of answered questions marked as required.
+   * The number of required questions that have been answered.
    */
   requiredAnsweredQuestionCount: number;
   /**

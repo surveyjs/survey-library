@@ -18,17 +18,21 @@ export class SurveyQuestionSelectbase extends SurveyQuestionElementBase {
   }
   protected renderElement(): React.JSX.Element {
     var cssClasses = this.question.cssClasses;
+
+    const a11yAttributes = {
+      role: this.question.a11y_input_ariaRole,
+      "aria-required": this.question.a11y_input_ariaRequired,
+      "aria-label": this.question.a11y_input_ariaLabel,
+      "aria-labelledby": this.question.a11y_input_ariaLabelledBy,
+      "aria-describedby": this.question.a11y_input_ariaDescribedBy,
+      "aria-invalid": this.question.a11y_input_ariaInvalid,
+      "aria-errormessage": this.question.a11y_input_ariaErrormessage,
+    };
     return (
       <fieldset
         className={this.question.getSelectBaseRootCss()}
         ref={(fieldset) => (this.setControl(fieldset))}
-        role={this.question.a11y_input_ariaRole}
-        aria-required={this.question.a11y_input_ariaRequired}
-        aria-label={this.question.a11y_input_ariaLabel}
-        aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-        aria-describedby={this.question.a11y_input_ariaDescribedBy}
-        aria-invalid={this.question.a11y_input_ariaInvalid}
-        aria-errormessage={this.question.a11y_input_ariaErrormessage}
+        {...a11yAttributes}
       >
         {this.renderHeader()}
         {this.question.hasColumns

@@ -2,13 +2,7 @@
   <fieldset
     :class="question.getSelectBaseRootCss()"
     ref="root"
-    :role="question.a11y_input_ariaRole"
-    :aria-required="question.a11y_input_ariaRequired"
-    :aria-label="question.a11y_input_ariaLabel"
-    :aria-labelledby="question.a11y_input_ariaLabelledBy"
-    :aria-describedby="question.a11y_input_ariaDescribedBy"
-    :aria-invalid="question.a11y_input_ariaInvalid"
-    :aria-errormessage="question.a11y_input_ariaErrormessage"
+    v-bind="a11yAttributes"
   >
     <legend v-if="showLegend" class="sv-hidden">
       {{ question.locTitle.renderedHtml }}
@@ -117,5 +111,15 @@ const getItemValueComponentData = (item: ItemValue) => {
       data: props.question.getItemValueWrapperComponentData(item),
     },
   };
+};
+
+const a11yAttributes = {
+  role: props.question.a11y_input_ariaRole,
+  "aria-required": props.question.a11y_input_ariaRequired,
+  "aria-label": props.question.a11y_input_ariaLabel,
+  "aria-labelledby": props.question.a11y_input_ariaLabelledBy,
+  "aria-describedby": props.question.a11y_input_ariaDescribedBy,
+  "aria-invalid": props.question.a11y_input_ariaInvalid,
+  "aria-errormessage": props.question.a11y_input_ariaErrormessage,
 };
 </script>

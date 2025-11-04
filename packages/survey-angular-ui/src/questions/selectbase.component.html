@@ -1,11 +1,5 @@
 <fieldset [class]="model.getSelectBaseRootCss()" #contentElement 
-  [attr.role]="model.a11y_input_ariaRole"
-  [attr.aria-required]="model.a11y_input_ariaRequired"
-  [attr.aria-label]="model.a11y_input_ariaLabel"
-  [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
-  [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
-  [attr.aria-invalid]="model.a11y_input_ariaInvalid"
-  [attr.aria-errormessage]="model.a11y_input_ariaErrormessage"
+  [attributesDirective]="a11yAttributes"
 >
   <legend *ngIf="showLegend" class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
   <ng-container *ngIf="model.hasHeadItems">

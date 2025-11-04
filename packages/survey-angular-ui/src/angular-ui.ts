@@ -90,6 +90,7 @@ export * from "./questions/multipletextitem.component";
 export * from "./questions/multipletextrow.component";
 export * from "./errors.component";
 export * from "./utils/dynamic.directive";
+export * from "./utils/attributes.directive";
 export * from "./questions/ranking.component";
 export * from "./questions/ranking-item.component";
 export * from "./questions/ranking-item-content.component";

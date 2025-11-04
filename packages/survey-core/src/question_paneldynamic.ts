@@ -385,6 +385,7 @@ export class QuestionPanelDynamicModel extends Question
   public get template(): PanelModel {
     return this.templateValue;
   }
+  public getPanelInDesignMode() : PanelModel { return this.template; }
   public getPanels(): Array<IPanel> {
     return [this.template];
   }

@@ -3444,6 +3444,18 @@ export class Question extends SurveyElement<Question>
   //EO a11y
 
   //new a11y
+  public get a11yAttributes() {
+    return {
+      role: this.a11y_input_ariaRole,
+      "aria-required": this.a11y_input_ariaRequired,
+      "aria-label": this.a11y_input_ariaLabel,
+      "aria-labelledby": this.a11y_input_ariaLabelledBy,
+      "aria-describedby": this.a11y_input_ariaDescribedBy,
+      "aria-invalid": this.a11y_input_ariaInvalid,
+      "aria-errormessage": this.a11y_input_ariaErrormessage
+    };
+  }
+
   public get a11y_input_ariaRole(): string {
     return null;
   }

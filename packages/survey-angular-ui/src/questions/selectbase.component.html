@@ -1,5 +1,5 @@
 <fieldset [class]="model.getSelectBaseRootCss()" #contentElement 
-  [attributesDirective]="a11yAttributes"
+  [attributesDirective]="model.a11yAttributes"
 >
   <legend *ngIf="showLegend" class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
   <ng-container *ngIf="model.hasHeadItems">

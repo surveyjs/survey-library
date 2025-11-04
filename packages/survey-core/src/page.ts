@@ -70,6 +70,7 @@ export class PageModel extends PanelModel implements IPage {
   public getTemplate(): string {
     return this.isPanel ? "panel" : super.getTemplate();
   }
+  public getPanelInDesignMode(): PanelModel { return null; }
   public get no(): string {
     if (!this.canShowPageNumber() || !this.survey) return "";
     let no = this.isStartPage ? "" : this.num + ". ";

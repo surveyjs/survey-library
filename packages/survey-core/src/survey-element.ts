@@ -357,6 +357,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.onParentQuestionChanged();
   }
   protected onParentQuestionChanged(): void { }
+  public getPanelInDesignMode(): PanelModel { return null; }
   public updateElementVisibility(): void {
     this.setPropertyValue("isVisible", this.isVisible);
   }

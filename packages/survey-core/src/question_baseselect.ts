@@ -2522,6 +2522,22 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
   protected getSearchableItemValueKeys(keys: Array<string>) {
     keys.push("choices");
   }
+
+  private _a11yAttributes = null;
+  public get a11yAttributes() {
+    if (!this._a11yAttributes) {
+      this._a11yAttributes = {
+        role: this.a11y_input_ariaRole,
+        "aria-required": this.a11y_input_ariaRequired,
+        "aria-label": this.a11y_input_ariaLabel,
+        "aria-labelledby": this.a11y_input_ariaLabelledBy,
+        "aria-describedby": this.a11y_input_ariaDescribedBy,
+        "aria-invalid": this.a11y_input_ariaInvalid,
+        "aria-errormessage": this.a11y_input_ariaErrormessage
+      };
+    }
+    return this._a11yAttributes;
+  }
 }
 
 function checkCopyPropVisibility(obj: any, mode: string): boolean {

@@ -24,18 +24,6 @@ export class SelectBaseComponent<T extends QuestionSelectBase> extends QuestionA
     return index;
   }
 
-  public get a11yAttributes() {
-    return {
-      role: this.model.a11y_input_ariaRole,
-      "aria-required": this.model.a11y_input_ariaRequired,
-      "aria-label": this.model.a11y_input_ariaLabel,
-      "aria-labelledby": this.model.a11y_input_ariaLabelledBy,
-      "aria-describedby": this.model.a11y_input_ariaDescribedBy,
-      "aria-invalid": this.model.a11y_input_ariaInvalid,
-      "aria-errormessage": this.model.a11y_input_ariaErrormessage,
-    };
-  }
-
   public getItemValueComponentName(item: ItemValue): string {
     return this.model.getItemValueWrapperComponentName(item) || this.getDefaultComponentName();
   }

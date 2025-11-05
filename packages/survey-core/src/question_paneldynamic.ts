@@ -285,8 +285,8 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocString({ name: "noEntriesText", translationKey: "noEntriesText" });
     this.createLocString({ name: "editPanelText", translationKey: "editText" });
 
-    this.createLocString({ name: "templateTabTitle", translationKey: "panelDynamicTabTextFormat", useMarkDown: true });
-    this.createLocString({ name: "tabTitlePlaceholder", translationKey: "tabTitlePlaceholder", useMarkDown: true });
+    this.createLocString({ name: "templateTabTitle", translationKey: "panelDynamicTabTextFormat", supportsMarkdown: true });
+    this.createLocString({ name: "tabTitlePlaceholder", translationKey: "tabTitlePlaceholder", supportsMarkdown: true });
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });

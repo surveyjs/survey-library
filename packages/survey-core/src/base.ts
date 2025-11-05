@@ -938,16 +938,16 @@ export class Base implements IObjectValueContext {
     if (!str || !str.format) return "";
     return str.format(...args);
   }
-  protected createLocString(params: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
+  protected createLocString(params: { name: string, owner?: ILocalizableOwner, supportsMarkdown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
     if (params.hasTranslation && !params.translationKey) {
       params.translationKey = params.name;
     }
-    return this.createLocalizableString(params.name, params.owner, params.useMarkDown, params.translationKey);
+    return this.createLocalizableString(params.name, params.owner, params.supportsMarkdown, params.translationKey);
   }
   protected createLocalizableString(
     name: string,
     owner?: ILocalizableOwner,
-    useMarkDown: boolean = false,
+    supportsMarkdown: boolean = false,
     defaultStr: boolean | string = false
   ): LocalizableString {
     if (!owner) {
@@ -957,7 +957,7 @@ export class Base implements IObjectValueContext {
     if (defaultStr) {
       locName = defaultStr === true ? name : defaultStr;
     }
-    const locStr = new LocalizableString(owner, useMarkDown, name, locName);
+    const locStr = new LocalizableString(owner, supportsMarkdown, name, locName);
     locStr.onStrChanged = (oldValue: string, newValue: string) => {
       this.propertyValueChanged(name, oldValue, newValue);
     };

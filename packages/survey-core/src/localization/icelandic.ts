@@ -99,6 +99,8 @@ export var icelandicSurveyStrings = {
   urlGetChoicesError: "Beiðninng skilaði engum gögnum eða slóðinn var röng",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Skráinn skal ekki vera stærri en {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Hámarksfjöldi skráa sem þú getur hlaðið upp er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Ekki er hægt að hlaða upp skrám. Vinsamlegast bættu við rekli fyrir 'onUploadFiles' atvikið.",
   // "Response required: enter another value."

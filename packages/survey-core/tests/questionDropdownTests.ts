@@ -2800,3 +2800,17 @@ QUnit.test("Dropdown with Lazy Loading applies additional client-side filtering 
   assert.equal(list.actions.length, 4);
   assert.equal(list.actions.filter(item => list.isItemVisible(item)).length, 4);
 });
+QUnit.test("Dropdown getInputId & getFirstInputElementId, bug#10567", assert => {
+  const q: any = new QuestionDropdownModel("q1");
+  assert.equal(q.getInputId(), q.id + "i_0", "getInputId #1");
+  assert.equal(q.getFirstInputElementId(), q.id + "i_0", "getFirstInputElementId #1");
+  q.searchEnabled = false;
+  assert.equal(q.getInputId(), q.id + "i_0", "getInputId #2");
+  assert.equal(q.getFirstInputElementId(), q.id + "i", "getFirstInputElementId #2");
+  q.searchEnabled = true;
+  assert.equal(q.getInputId(), q.id + "i_0", "getInputId #3");
+  assert.equal(q.getFirstInputElementId(), q.id + "i_0", "getFirstInputElementId #3");
+  q.renderAs = "select";
+  assert.equal(q.getInputId(), q.id + "i", "getInputId #4");
+  assert.equal(q.getFirstInputElementId(), q.id + "i", "getFirstInputElementId #4");
+});

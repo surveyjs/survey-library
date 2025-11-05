@@ -482,7 +482,7 @@ export class QuestionTextModel extends QuestionTextBase {
       if (this.isStepNumberIncorrect) {
         errors.push(new CustomError(this.getStepErrorText(), this));
       }
-      if (!!this.dateValidationMessage) {
+      if (errors.length === 0 && !!this.dateValidationMessage) {
         errors.push(new CustomError(this.dateValidationMessage, this));
       }
     }

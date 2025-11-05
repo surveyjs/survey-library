@@ -897,7 +897,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;
     files = files || [];
-    if (this.maxFiles > 0 && this.maxFiles < files.length) {
+    const curFiles = Array.isArray(this.value) ? this.value.length : 0;
+    if (this.maxFiles > 0 && this.maxFiles < files.length + curFiles) {
       this.errors.push(new ExceedFilesCountError(this.maxFiles, this));
     }
     files.forEach((file) => {

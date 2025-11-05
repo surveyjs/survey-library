@@ -938,7 +938,7 @@ export class Base implements IObjectValueContext {
     if (!str || !str.format) return "";
     return str.format(...args);
   }
-  protected createLocStr(params: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
+  protected createLocString(params: { name: string, owner?: ILocalizableOwner, useMarkDown?: boolean, translationKey?: string, hasTranslation?: boolean }): LocalizableString {
     if (params.hasTranslation && !params.translationKey) {
       params.translationKey = params.name;
     }

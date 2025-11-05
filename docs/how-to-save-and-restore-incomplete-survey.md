@@ -28,13 +28,16 @@ fetch("https://example.com/api/surveys/" + SURVEY_ID)
   })
   .catch(error => console.error(error));
 
-function saveSurveyData (survey) {
+function saveSurveyData(survey, options) {
   const data = survey.data;
   data.pageNo = survey.currentPageNo;
-  window.localStorage.setItem(STORAGE_ITEM_KEY, JSON.stringify(data));
+  if (options.name) {
+    data.lastVisitedQuestion = options.name;
+  }
+  window.localStorage.setItem(storageItemKey, JSON.stringify(data));
 }
 
-function submitSurveyData (data) {
+function submitSurveyData(data) {
   fetch(ENDPOINT_URL, {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
@@ -48,7 +51,7 @@ function submitSurveyData (data) {
     .catch(error => console.error(error));
 }
 
-function restoreSurveyData (survey) {
+function restoreSurveyData(survey) {
   const prevData = window.localStorage.getItem(STORAGE_ITEM_KEY) || null;
   if (prevData) {
     const data = JSON.parse(prevData);
@@ -56,10 +59,15 @@ function restoreSurveyData (survey) {
     if (data.pageNo) {
       survey.currentPageNo = data.pageNo;
     }
+    if (data.lastVisitedQuestion) {
+      setTimeout(() => {
+        survey.focusQuestion(data.lastVisitedQuestion);
+      }, 500);     
+    }
   }
 }
 
-// Save survey results when users change a question value...
+// Save survey results and the last visited question name when users change a question value...
 survey.onValueChanged.add(saveSurveyData);
 // ... and switch to the next page
 survey.onCurrentPageChanged.add(saveSurveyData);
@@ -97,13 +105,16 @@ fetch("https://example.com/api/surveys/" + SURVEY_ID)
   })
   .catch(error => console.error(error));
 
-function saveSurveyData (survey) {
+function saveSurveyData(survey, options) {
   const data = survey.data;
   data.pageNo = survey.currentPageNo;
+  if (options.name) {
+    data.lastVisitedQuestion = options.name;
+  }
   submitSurveyData(data);
 }
 
-function submitSurveyData (data) {
+function submitSurveyData(data) {
   fetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -114,7 +125,7 @@ function submitSurveyData (data) {
     .catch(error => console.error(error));
 }
 
-function restoreSurveyData (survey) {
+function restoreSurveyData(survey) {
   fetch(ENDPOINT_URL)
     .then(response => response.json())
     .then(prevData => {
@@ -123,6 +134,11 @@ function restoreSurveyData (survey) {
         survey.data = data;
         if (data.pageNo) {
           survey.currentPageNo = data.pageNo;
+        }
+        if (data.lastVisitedQuestion) {
+          setTimeout(() => {
+            survey.focusQuestion(data.lastVisitedQuestion);
+          }, 500);     
         }
       }
     })

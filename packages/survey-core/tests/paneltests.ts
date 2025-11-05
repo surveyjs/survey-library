@@ -3804,3 +3804,7 @@ QUnit.test("page questionStartIndex, Issue#10523", function (assert) {
   assert.equal(q6.no, "B.2.1", "q6, #1");
   assert.equal(q7.no, "B.2.2", "q7, #1");
 });
+QUnit.test("Panel/Page getPanelInDesignMode", function (assert) {
+  assert.notOk(new PageModel("p1").getPanelInDesignMode(), "page returns null");
+  assert.equal(new PanelModel("p1").getPanelInDesignMode().name, "p1", "panel returns itself");
+});

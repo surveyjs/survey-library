@@ -2215,6 +2215,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   public moveTo(container: IPanel, insertBefore: any = null): boolean {
     return this.moveToBase(this.parent, container, insertBefore);
   }
+  public getPanelInDesignMode(): PanelModel { return this; }
   /**
    * Returns the visible index of the panel in the survey. Commonly it is -1 and it doesn't show.
    * You have to set showNumber to true to show index/numbering for the Panel

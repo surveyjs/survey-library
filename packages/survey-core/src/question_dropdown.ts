@@ -23,7 +23,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   constructor(name: string) {
     super(name);
-    this.createLocStr({ name: "placeholder", hasTranslation: true });
+    this.createLocString({ name: "placeholder", hasTranslation: true });
     this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
@@ -265,7 +265,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.getLocalizableString("readOnlyText");
   }
   protected calculateReadOnlyText(): string {
-    if (this.renderAs == "select") {
+    if (!this.useDropdownList) {
       if (this.isOtherSelected) return this.otherText;
       if (this.isNoneSelected) return this.noneText;
       if (!!this.selectedItem) return this.selectedItemText;
@@ -431,10 +431,14 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
 
   protected getFirstInputElementId(): string {
-    return this.inputId + (this.searchEnabled || this.allowCustomChoices ? "_0" : "");
+    return this.getInputIdCore(this.searchEnabled || this.allowCustomChoices);
   }
   public getInputId() {
-    return this.inputId + "_0";
+    return this.getInputIdCore(true);
+  }
+  private getInputIdCore(addPostFix: boolean): string {
+    const postFix = addPostFix && this.useDropdownList ? "_0" : "";
+    return this.inputId + postFix;
   }
   public clearValue(keepComment?: boolean, fromUI?: boolean): void {
     super.clearValue(keepComment, fromUI);

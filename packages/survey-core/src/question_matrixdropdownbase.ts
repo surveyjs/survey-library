@@ -1018,8 +1018,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   constructor(name: string) {
     super(name);
     this.createItemValues("choices");
-    this.createLocStr({ name: "placeholder", hasTranslation: true });
-    this.createLocStr({ name: "keyDuplicationError", hasTranslation: true });
+    this.createLocString({ name: "placeholder", hasTranslation: true });
+    this.createLocString({ name: "keyDuplicationError", hasTranslation: true });
     this.createLocalizableString("singleInputTitleTemplate", new MatrixSingleInputLocOwner(this), true, this.getSingleInputTitleTemplate());
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
@@ -1217,8 +1217,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.detailPanelValue;
   }
   public getPanels(): Array<IPanel> {
-    return [this.detailPanel];
+    const pnl = this.getPanelInDesignMode();
+    return !!pnl ? [pnl] : null;
   }
+  public getPanelInDesignMode(): PanelModel { return this.detailPanelMode !== "none" ? this.detailPanel : null; }
   /**
    * An array of survey elements (questions and panels) to be displayed in detail sections.
    *

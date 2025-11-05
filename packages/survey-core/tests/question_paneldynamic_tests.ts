@@ -8991,3 +8991,8 @@ QUnit.test("Panel dynamic vs visibleIf & dots in question names, Bug#10505", fun
   q088_5.value = false;
   assert.equal(q090.isVisible, true, "q090 visible #5");
 });
+QUnit.test("paneldynamic getPanelInDesignMode", function (assert) {
+  assert.notOk(new QuestionTextModel("q1").getPanelInDesignMode(), "text returns null");
+  const q1 = new QuestionPanelDynamicModel("q1");
+  assert.strictEqual(q1.getPanelInDesignMode(), q1.template, "returns tempalte");
+});

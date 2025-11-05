@@ -25,13 +25,18 @@ QUnit.test(" 213 123sad d213 sadsd", function (assert) {
 });
 QUnit.test("allowAdaptiveActions", function (assert) {
   const matrix = new QuestionMatrixDropdownModelBase("q1");
+  matrix.detailPanelMode = "underRow";
   assert.equal(matrix.allowAdaptiveActions, false, "matrix.allowAdaptiveActions");
   assert.equal(matrix.getPanels()[0]["allowAdaptiveActions"], true, "matrix.panel.allowAdaptiveActions");
 
   matrix.allowAdaptiveActions = false;
   assert.equal(matrix.allowAdaptiveActions, false, "matrix.allowAdaptiveActions");
   assert.equal(matrix.getPanels()[0]["allowAdaptiveActions"], false, "matrix.panel.allowAdaptiveActions");
-
+  matrix.detailPanelMode = "none";
+  matrix.allowAdaptiveActions = true;
+  assert.equal(matrix.allowAdaptiveActions, true, "matrix.allowAdaptiveActions, #1");
+  matrix.allowAdaptiveActions = false;
+  assert.equal(matrix.allowAdaptiveActions, false, "matrix.allowAdaptiveActions, #2");
 });
 
 QUnit.test("verticalLayout when isMobile set 'true'", function (assert) {
@@ -2381,4 +2386,16 @@ QUnit.test("Do not send data notification on creating detail panel, Bug#10253", 
   survey.tryComplete();
   assert.equal(survey.state, "completed", "survey.state");
   assert.equal(counter, 0, "#2");
+});
+QUnit.test("matrices getPanelInDesignMode", function (assert) {
+  const q1 = new QuestionMatrixDropdownModel("q1");
+  assert.notOk(q1.getPanelInDesignMode(), "#1");
+  q1.detailPanelMode = "underRow";
+  assert.ok(q1.getPanelInDesignMode(), "#2");
+  assert.strictEqual(q1.getPanelInDesignMode(), q1.detailPanel, "#3");
+  q1.detailPanelMode = "none";
+  assert.notOk(q1.getPanelInDesignMode(), "#4");
+  q1.detailPanelMode = "underRowSingle";
+  assert.ok(q1.getPanelInDesignMode(), "#5");
+  assert.strictEqual(q1.getPanelInDesignMode(), q1.detailPanel, "#6");
 });

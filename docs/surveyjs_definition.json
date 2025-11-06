@@ -2498,6 +2498,9 @@
                 "maxSize": {
                     "type": "number"
                 },
+                "maxFiles": {
+                    "type": "number"
+                },
                 "needConfirmRemoveFile": {
                     "type": "boolean"
                 },

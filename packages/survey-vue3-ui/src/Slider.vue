@@ -3,7 +3,7 @@
         <input v-if="question.sliderType !== 'single' && question.allowDragRange" ref="rangeInputRef"
         name="range-input" :class="question.cssClasses.input" type="range" tabIndex="-1" 
         :min="question.min" :max="question.max" :step="question.step" aria-hidden="true"
-        id="sjs-slider-input-range-input"
+        :id="question.id + '-sjs-slider-input-range-input'"
         @input="(e)=>{question.handleRangeOnChange(e as InputEvent)}"
         @pointerdown="(e)=>{question.handleRangePointerDown(e, rootRef as HTMLElement)}"
         @pointerup="(e)=>{question.handleRangePointerUp(e, rootRef as HTMLElement)}" />
@@ -15,7 +15,7 @@
             <div :class="question.cssClasses.rangeTrack" :style="{ left: question.getTrackPercentLeft() + '%', right: question.getTrackPercentRight() + '%' }" ></div>
             
             <template v-for="(value, i) in question.renderedValue" :key="i">
-              <input :class="question.cssClasses.input" :id="'sjs-slider-input-' + i" type="range" :value="value" 
+              <input :class="question.cssClasses.input" :id="question.id + '-sjs-slider-input-' + i" type="range" :value="value" 
                 :min="question.min" :max="question.max" :step="question.step" :disabled="question.isDisabledAttr"
                 @input="(e)=>{question.handleOnChange(e as InputEvent, i)}"
                 @pointerdown="(e)=>{question.handlePointerDown(e)}"

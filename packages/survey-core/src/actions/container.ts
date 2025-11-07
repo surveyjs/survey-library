@@ -193,7 +193,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return this.cssClassesValue;
   }
   private createAction(item: IAction): T {
-    return <T>(item instanceof BaseAction ? item : new Action(item));
+    return <T>(item instanceof BaseAction ? item : this.createActionCore(item));
+  }
+  protected createActionCore(item: IAction): Action {
+    return new Action(item);
   }
   public addAction(val: IAction, sortByVisibleIndex = true): T {
     const res: T = this.createAction(val);

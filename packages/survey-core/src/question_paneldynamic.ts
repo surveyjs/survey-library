@@ -252,7 +252,7 @@ export class QuestionPanelDynamicModel extends Question
   implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
-  private changingValueQuestion: Question;
+  private changingValueQuestions: Array<Question>;
 
   renderModeChangedCallback: () => void;
   panelCountChangedCallback: () => void;
@@ -2167,7 +2167,9 @@ export class QuestionPanelDynamicModel extends Question
     return res;
   }
   private updatePanelsContainsErrors() {
-    var question = this.changingValueQuestion;
+    const qs = this.changingValueQuestions;
+    if (!Array.isArray(qs) || qs.length === 0) return;
+    var question = qs[0];
     var parent = <PanelModel>question.parent;
     while(!!parent) {
       parent.updateContainsErrors();
@@ -2176,16 +2178,28 @@ export class QuestionPanelDynamicModel extends Question
     this.updateContainsErrors();
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    if (this.isValueChangingInternally || this.isBuildingPanelsFirstTime) return true;
+    if (this.isValueChangingInternally && !this.hasInputInChangedQuestions() || this.isBuildingPanelsFirstTime) return true;
     let res = true;
-    if (!!this.changingValueQuestion) {
-      const qRes = this.changingValueQuestion.validateElement(context);
+    const qs = this.changingValueQuestions;
+    if (Array.isArray(qs)) {
+      let qRes = true;
+      qs.forEach(q => {
+        qRes = q.validateElement(context) && qRes;
+      });
       res = !this.hasKeysDuplicated(context) && qRes;
       this.updatePanelsContainsErrors();
     } else {
       res = this.validateInPanels(context);
     }
     return super.validateElementCore(context) && res;
+  }
+  private hasInputInChangedQuestions(): boolean {
+    const qs = this.changingValueQuestions;
+    if (!Array.isArray(qs) || qs.length === 0) return false;
+    for (let i = 0; i < qs.length; i++) {
+      if (qs[i].hasInput) return true;
+    }
+    return false;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -2316,10 +2330,8 @@ export class QuestionPanelDynamicModel extends Question
     var question = <Question>panel.getQuestionByValueName(this.keyName);
     if (!question || question.isEmpty()) return false;
     var value = question.value;
-    if (
-      !!this.changingValueQuestion &&
-      question != this.changingValueQuestion
-    ) {
+    const qs = this.changingValueQuestions;
+    if (Array.isArray(qs) && qs.indexOf(question) < 0) {
       question.validateElement(context);
     }
     for (var i = 0; i < keyValues.length; i++) {
@@ -2536,12 +2548,13 @@ export class QuestionPanelDynamicModel extends Question
       delete qValue[index][name];
     }
     if (index >= 0 && index < this.panelsCore.length) {
-      this.changingValueQuestion = this.panelsCore[index].getQuestionByValueName(
-        name
-      );
+      if (!Array.isArray(this.changingValueQuestions)) {
+        this.changingValueQuestions = [];
+      }
+      this.changingValueQuestions.push(this.panelsCore[index].getQuestionByValueName(name));
     }
     this.value = qValue;
-    this.changingValueQuestion = null;
+    this.changingValueQuestions = null;
     this.isSetPanelItemData[name]--;
     if (this.isSetPanelItemData[name] - 1) {
       delete this.isSetPanelItemData[name];

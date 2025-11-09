@@ -4207,7 +4207,60 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Expression validator error message not displayed when condition fails on value changed #10586", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "inputType": "number",
+            "validators": [
+              {
+                "type": "expression",
+                "expression": "{panel.q1} empty or {panel.q1} <> {panel.q2}"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "name": "q2",
+            "inputType": "number",
+            "validators": [
+              {
+                "type": "expression",
+                "expression": "{panel.q2} empty or {panel.q1} <> {panel.q2}"
+              }
+            ]
+          },
+          {
+            "type": "expression",
+            "name": "q3",
+            "expression": "{panel.q2} - {panel.q1}"
+          }
+        ]
+      }
+    ],
+    "checkErrorsMode": "onValueChanged"
+  });
 
+  const panelDynamic = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panelDynamic.addPanel();
+  const q1 = panelDynamic.panels[0].getQuestionByName("q1");
+  const q2 = panelDynamic.panels[0].getQuestionByName("q2");
+  q1.value = 1;
+  q2.value = 1;
+  assert.equal(q2.errors.length, 1, "There is error in q2");
+  q1.value = 2;
+  assert.equal(q2.errors.length, 0, "There is no error in q2");
+  q1.value = 1;
+  assert.equal(q1.errors.length, 1, "There is error in q1");
+  q2.value = 2;
+  assert.equal(q1.errors.length, 0, "There is no error in q1");
+});
 QUnit.test(
   "Paneldynamic duplicate key value error with checkErrorsMode: onValueChanging",
   function(assert) {

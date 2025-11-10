@@ -1,7 +1,8 @@
 {
   "name": "survey-js-ui",
   "version": "2.3.14",
-  "description": "A free MIT-licensed UI component that renders dynamic, interactive JSON-based forms and surveys in apps build with HTML, CSS, and JavaScript (without frontend frameworks). You can use it to collect responses from users and send them to your own database.",
+  "license": "MIT",
+  "description": "A free MIT-licensed UI component that renders dynamic, interactive JSON-based forms and surveys in apps built with HTML, CSS, and JavaScript. You can use it to collect responses from users and send them to your own database.",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "keywords": [
@@ -33,7 +34,6 @@
     "javascript",
     "typescript"
   ],
-  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/surveyjs/survey-creator.git"

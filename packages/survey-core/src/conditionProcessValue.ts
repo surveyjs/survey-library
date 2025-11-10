@@ -237,7 +237,7 @@ export class VariableGetterContext extends ValueGetterContextCore {
       res.isFound = false;
     }
   }
-  private getValueByItemCore(obj: any, name: string): any {
+  protected getValueByItemCore(obj: any, name: string): any {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
     if (name === "length" && (Array.isArray(obj) || typeof obj === "string")) return obj.length;
@@ -252,6 +252,15 @@ export class VariableGetterContext extends ValueGetterContextCore {
       }
     }
     return undefined;
+  }
+}
+export class PropertyGetterContext extends VariableGetterContext {
+  constructor(private obj: any) {
+    super(obj);
+  }
+  protected getValueByItemCore(obj: any, name: string): any {
+    if (!obj || !name) return undefined;
+    return obj[name];
   }
 }
 export class VariableGetterContextEx extends VariableGetterContext {

@@ -768,3 +768,10 @@ QUnit.test("getSupportedValidators for text based on inputType, #10440", (assert
   q.inputType = "url";
   assert.deepEqual(q.getSupportedValidators(), ["expression", "text", "regex"], "inputType=url");
 });
+QUnit.test("Could not change the value from upper case into lower case, #10590", (assert) => {
+  const q = new QuestionTextModel("q1");
+  q.inputValue = "TEST";
+  assert.equal(q.value, "TEST", "value is set to upper case");
+  q.inputValue = "test";
+  assert.equal(q.value, "test", "value is changed to lower case");
+});

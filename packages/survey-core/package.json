@@ -1,9 +1,9 @@
 {
   "name": "survey-core",
   "version": "2.3.14",
+  "license": "MIT",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
-  "license": "MIT",
   "description": "A framework-independent core package of the SurveyJS Form Library component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
   "keywords": [
     "survey",
@@ -32,7 +32,6 @@
     "javascript",
     "typescript"
   ],
-  "license": "MIT",
   "scripts": {
     "build": "webpack --env buildType=dev --env emitDeclarations --env emitNonSourceFiles && webpack --env buildType=prod && rollup -c",
     "build:i18n": "webpack --config ./webpack.i18n.config.js --env buildType=dev && webpack --config ./webpack.i18n.config.js --env buildType=prod && rollup -c rollup.i18n.config.js",

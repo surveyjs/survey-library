@@ -502,6 +502,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   * @see maxFiles
    */
   public get allowMultiple(): boolean {
     return this.getPropertyValue("allowMultiple");
@@ -567,6 +568,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * Default value: 0 (unlimited)
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   * @see maxFiles
    */
   public get maxSize(): number {
     return this.getPropertyValue("maxSize");
@@ -574,6 +576,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
   }
+  /**
+   * Maximum number of files a user can upload. Applies only if [`allowMultiple`](https://surveyjs.io/form-library/documentation/api-reference/file-model#allowMultiple) is `true`.
+   *
+   * Default value: 1000
+   * @see maxSize
+   */
   public get maxFiles(): number {
     return this.getPropertyValue("maxFiles");
   }
@@ -1251,7 +1259,7 @@ Serializer.addClass(
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
     { name: "maxSize:number", default: 0 },
-    { name: "maxFiles:number", default: -1, visibleIf: (obj): boolean => obj.allowMultiple },
+    { name: "maxFiles:number", default: 1000, visibleIf: (obj): boolean => obj.allowMultiple },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },

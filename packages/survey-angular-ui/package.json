@@ -3,7 +3,7 @@
   "version": "2.3.14",
   "description": "A free MIT-licensed Angular UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
   "homepage": "https://surveyjs.io/",
-  "author": "DevSoft Baltic OÜ <info@devsoftbaltic.com>",
+  "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "keywords": [
     "angular",
     "survey",

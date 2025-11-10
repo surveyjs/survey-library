@@ -2,7 +2,7 @@
 <div [class]="model.rootCss" #contentElement>
   <input *ngIf="model.sliderType !== 'single' && model.allowDragRange" #rangeInputRef
   name="range-input" [class]="model.cssClasses.input" type="range" tabIndex="-1"
-  id="sjs-slider-input-range-input"
+  [attr.id]="model.id + '-sjs-slider-input-range-input'"
   [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" aria-hidden="true"
   (input)="model.handleRangeOnChange($any($event))"
   (pointerdown)="model.handleRangePointerDown($any($event), rootRef)"
@@ -15,7 +15,7 @@
       <div [class]="model.cssClasses.rangeTrack" [style]="{ left: model.getTrackPercentLeft() + '%', right: model.getTrackPercentRight() + '%' }" ></div>
 
        <ng-container *ngFor="let value of valueArray; index as i; trackBy: trackByRenderedValue;">
-        <input [class]="model.cssClasses.input" [attr.id]="'sjs-slider-input-' + i" type="range" [value]="value" 
+        <input [class]="model.cssClasses.input" [attr.id]="model.id + '-sjs-slider-input-' + i" type="range" [value]="value" 
           [attr.min]="model.min" [attr.max]="model.max" [attr.step]="model.step" [disabled]="model.isDisabledAttr"
           (input)="model.handleOnChange($any($event), i)"
           (pointerdown)="model.handlePointerDown($any($event))"

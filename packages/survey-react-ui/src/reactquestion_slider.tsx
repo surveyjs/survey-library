@@ -93,12 +93,12 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
     const {
       renderedMax: max, renderedMin: min, step, cssClasses, isDisabledAttr, renderedValue,
       handleOnChange, handlePointerDown, handlePointerUp, handleKeyDown, handleKeyUp,
-      handleOnFocus, handleOnBlur
+      handleOnFocus, handleOnBlur, id
     } = this.question;
 
     const value = renderedValue[i];
 
-    const input = <input className={cssClasses.input} id={"sjs-slider-input-" + i} type="range"
+    const input = <input className={cssClasses.input} id={id + "-sjs-slider-input-" + i} type="range"
       min={min} max={max} step={step} value={value}
       onChange={ (e)=>{ handleOnChange(e.nativeEvent as InputEvent, i); } }
       onPointerDown={ (e)=>{ handlePointerDown(e.nativeEvent); } } onPointerUp={ (e)=>{ e.stopPropagation(); handlePointerUp(e.nativeEvent); } }
@@ -116,8 +116,8 @@ export class SurveyQuestionSlider extends SurveyQuestionElementBase {
   }
 
   private getRangeInput() {
-    const { renderedMax: max, renderedMin: min, step, cssClasses, handleRangeOnChange, handleRangePointerDown, handleRangePointerUp } = this.question;
-    return <input name={"range-input"} id={"sjs-slider-input-range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" aria-hidden="true"
+    const { renderedMax: max, renderedMin: min, step, cssClasses, handleRangeOnChange, handleRangePointerDown, handleRangePointerUp, id } = this.question;
+    return <input name={"range-input"} id={id + "-sjs-slider-input-range-input"} ref={this.rangeInputRef} className={cssClasses.input} type="range" aria-hidden="true"
       min={min} max={max} step={step} tabIndex={-1} onChange={(e)=>{ handleRangeOnChange(e.nativeEvent as InputEvent); }}
       onPointerDown={ (e)=>{ e.persist(); handleRangePointerDown(e.nativeEvent, this.control); } }
       onPointerUp={(e)=>{ handleRangePointerUp(e.nativeEvent, this.control); }} />;

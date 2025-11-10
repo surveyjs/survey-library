@@ -1,9 +1,10 @@
 {
     "name": "survey-react-ui",
     "version": "2.3.14",
-    "description": "A free MIT-licensed React UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
     "homepage": "https://surveyjs.io/",
     "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
+    "license": "MIT",
+    "description": "A free MIT-licensed React UI component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
     "keywords": [
         "react",
         "survey",
@@ -32,7 +33,6 @@
         "javascript",
         "typescript"
   ],
-  "license": "MIT",
     "files": [
         "**/*"
     ],

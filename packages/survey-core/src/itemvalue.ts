@@ -13,14 +13,17 @@ import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
 
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+    const name = path.length > 0 ? path[0].name : "";
     if (path.length === 1) {
-      const name = path[0].name;
       if (name === "item" || name === "choice") return { isFound: true, value: this.item.value, context: this };
+    }
+    if (path.length > 1 && (name === "$item" || name === "$choice")) {
+      return new PropertyGetterContext(this.item).getValue(path.slice(1), true, -1, false);
     }
     const owner: any = this.item.locOwner;
     if (owner && owner.getValueGetterContext) {

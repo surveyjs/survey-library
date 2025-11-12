@@ -142,6 +142,18 @@ export async function getQuestionJson(page) {
   });
 }
 
+export async function setOptions(page: Page, questionName: string, modValue: any) {
+  await page.evaluate(([questionName, modValue]) => {
+    const mergeOptions = function (obj1, obj2) {
+      for (const attrname in obj2) {
+        obj1[attrname] = obj2[attrname];
+      }
+    };
+    const q = window["survey"].getQuestionByName(questionName);
+    mergeOptions(q, modValue);
+  }, [questionName, modValue]);
+}
+
 export async function checkSurveyWithEmptyQuestion(page) {
   const requiredMessage = page.locator(".sv-string-viewer").getByText("Response required.");
   await expect(requiredMessage).toHaveCount(0);

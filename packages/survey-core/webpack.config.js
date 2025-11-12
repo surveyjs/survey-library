@@ -25,7 +25,7 @@ var buildPlatformJson = {
   "license": "MIT",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
-  "description": "A framework-independent core package of the SurveyJS Form Library component that renders dynamic, interactive JSON-based forms and surveys. You can use it to collect responses from users and send them to your own database.",
+  "description": "A framework-independent core of the SurveyJS Form Library that works with rendering packages. Use it to integrate dynamic, interactive JSON-based forms and surveys into your app, collect user responses, and send them to your own database.",
   "keywords": [
     "survey",
     "form",

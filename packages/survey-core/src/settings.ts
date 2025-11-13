@@ -868,4 +868,12 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
+  acceptedFileCategories: {
+    image: [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".svg"],
+    video: [".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".webm"],
+    audio: [".mp3", ".wav", ".aac", ".ogg", ".wma", ".flac"],
+    document: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".odt"],
+    archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
+  },
+  acceptedFileCustomCategory: "custom"
 };

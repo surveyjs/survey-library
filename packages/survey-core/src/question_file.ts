@@ -22,6 +22,7 @@ export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
   return new File([buffer], fileName, { type: type });
 }
+const customCategory = settings.acceptedFileCustomCategory;
 /**
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
@@ -251,6 +252,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super(name);
     this.createLocString({ name: "takePhotoCaption", hasTranslation: true });
     this.createLocString({ name: "clearCaption", hasTranslation: true });
+    this.createNewArray("acceptedCategories");
+    this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
+    //TODO make this property on demand
     this.actionsContainer = new ActionContainer();
     this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({
@@ -542,6 +546,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
   }
+  public get acceptedCategories(): Array<string> {
+    return this.getPropertyValue("acceptedCategories");
+  }
+  public set acceptedCategories(val: Array<string>) {
+    this.setPropertyValue("acceptedCategories", val);
+  }
+  private updateAcceptedCategories(): void {
+    if (this.acceptedTypes && this.acceptedCategories.indexOf(customCategory) < 0) {
+      this.acceptedCategories.push(customCategory);
+    }
+  }
   /**
    * An [accept](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
    *
@@ -552,6 +567,22 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public set acceptedTypes(val: string) {
     this.setPropertyValue("acceptedTypes", val);
+  }
+  public get renderedAcceptedTypes(): string {
+    const res = [];
+    this.acceptedCategories.forEach(category => {
+      const categoryTypes = settings.acceptedFileCategories[category];
+      if (!!categoryTypes) {
+        res.push(...categoryTypes);
+      }
+    });
+    const customTypes = this.acceptedTypes || "";
+    customTypes.split(",").forEach(type => {
+      if (type && res.indexOf(type) < 0) {
+        res.push(type);
+      }
+    });
+    return res.length > 0 ? res.join(",") : undefined;
   }
   /**
    * Specifies whether to show a preview of image files.
@@ -1029,6 +1060,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
+    this.updateAcceptedCategories();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);
@@ -1255,7 +1287,24 @@ Serializer.addClass(
     },
     "imageHeight",
     "imageWidth",
-    "acceptedTypes",
+    { name: "acceptedCategories:set", choices: () => {
+      const res = [];
+      for (let key in settings.acceptedFileCategories) res.push(key);
+      res.push(customCategory);
+      return res;
+    },
+    onSerializeValue: (obj) => {
+      const res = [];
+      obj.acceptedCategories.forEach((category: string) => {
+        if (!!settings.acceptedFileCategories[category]) {
+          res.push(category);
+        }
+      });
+      return res;
+    } },
+    { name: "acceptedTypes", dependsOn: "acceptedCategories", visibleIf: (obj: any) => {
+      return obj.acceptedCategories.indexOf(customCategory) > -1;
+    } },
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
     { name: "maxSize:number", default: 0 },

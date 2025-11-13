@@ -2484,7 +2484,7 @@ QUnit.test("check source type option in onUploadFiles event", function (assert) 
   signature["onBlurCore"]({ relatedTarget: document.createElement("div") });
   assert.equal(log, "->signature: q2.png");
 });
-QUnit.test("questionFile acceptedCategories property", function (assert) {
+QUnit.test("questionFile acceptedCategories property, Issue#10602", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1", acceptedCategories: ["document"] },

@@ -252,7 +252,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super(name);
     this.createLocString({ name: "takePhotoCaption", hasTranslation: true });
     this.createLocString({ name: "clearCaption", hasTranslation: true });
-    this.createNewArray("acceptedCategories");
+    this.createNewArray("acceptedCategories", undefined, (val) => {
+      if (val === customCategory) {
+        this.acceptedTypes = undefined;
+      }
+    });
     this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
     //TODO make this property on demand
     this.actionsContainer = new ActionContainer();

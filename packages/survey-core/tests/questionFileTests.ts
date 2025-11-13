@@ -2515,4 +2515,7 @@ QUnit.test("questionFile acceptedCategories property, Issue#10602", function (as
   assert.deepEqual(q2.acceptedCategories, ["document", "custom", "unknown"], "q2 categories after adding unknown category");
   assert.deepEqual(q2.toJSON(), { name: "q2", acceptedCategories: ["document"], acceptedTypes: ".pdf,.jpeg" }, "q2 json");
   assert.deepEqual(q4.toJSON(), { name: "q4", acceptedTypes: ".doc,.txt" }, "q4 json");
+  q2.acceptedCategories.splice(1, 2);
+  assert.deepEqual(q2.acceptedCategories, ["document"], "q2 categories after splicing");
+  assert.notOk(q2.acceptedTypes, "q2 acceptedTypes after splicing");
 });

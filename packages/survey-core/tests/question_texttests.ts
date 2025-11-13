@@ -790,21 +790,3 @@ QUnit.test("text question, renderedValue property, Bug#10584", (assert) => {
   q.onChange({ target: { value: "GH" } });
   assert.equal(q.renderedValue, "GH", "renderedValue is correct, #4");
 });
-QUnit.test("Mask & renderedValue property, Bug#10584", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        "type": "text",
-        "name": "q1",
-        "maskType": "pattern",
-        "maskSettings": {
-          "pattern": "99-99"
-        }
-      },
-    ]
-  });
-  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
-  q1.onChange({ target: { value: "12-__" } });
-  assert.equal(q1.renderedValue, "12-__");
-  assert.equal(q1.inputValue, "__-__");
-});

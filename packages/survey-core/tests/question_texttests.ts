@@ -789,4 +789,6 @@ QUnit.test("text question, renderedValue property, Bug#10584", (assert) => {
   assert.equal(q.renderedValue, "EF", "renderedValue is correct, #3");
   q.onChange({ target: { value: "GH" } });
   assert.equal(q.renderedValue, "GH", "renderedValue is correct, #4");
+  q.renderedValue = "IJ";
+  assert.equal(q.inputValue, "IJ", "inputValue is correct, #5");
 });

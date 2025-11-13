@@ -377,6 +377,9 @@ export class QuestionTextModel extends QuestionTextBase {
   public get renderedValue(): string {
     return this.maskTypeIsEmpty ? this.getPropertyValue("renderedValue") : this.inputValue;
   }
+  public set renderedValue(val: string) {
+    this.inputValue = val;
+  }
   protected setRenderedValue(val: string) {
     this.setPropertyValue("renderedValue", val);
   }

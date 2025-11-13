@@ -367,33 +367,44 @@ export class QuestionTextModel extends QuestionTextBase {
     return isMinMaxType(this);
   }
 
-  @property() _inputValue: string;
   public get maskInstance(): IInputMask {
     return this.maskSettings;
   }
+  private setInputValue(val: string) {
+    this.setPropertyValue("inputValue", val);
+    this.setRenderedValue(val);
+  }
+  public get renderedValue(): string {
+    return this.maskTypeIsEmpty ? this.getPropertyValue("renderedValue") : this.inputValue;
+  }
+  public set renderedValue(val: string) {
+    this.inputValue = val;
+  }
+  protected setRenderedValue(val: string) {
+    this.setPropertyValue("renderedValue", val);
+  }
   public get inputValue(): string {
-    if (!this._inputValue && !this.maskTypeIsEmpty) return this.maskInstance.getMaskedValue("");
-    return this._inputValue;
+    const res = this.getPropertyValue("inputValue");
+    if (!res && !this.maskTypeIsEmpty) return this.maskInstance.getMaskedValue("");
+    return res;
   }
   public set inputValue(val: string) {
     let value = val;
-    this._inputValue = val;
+    let inputVal = val;
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
-      this._inputValue = this.maskInstance.getMaskedValue(value);
+      inputVal = this.maskInstance.getMaskedValue(value);
       if (!!value && this.maskSettings.saveMaskedValue) {
-        value = this._inputValue;
+        value = inputVal;
       }
     }
+    this.setInputValue(inputVal);
     if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
       this.value = value;
     }
   }
   public getFilteredValue(): any {
-    return this.getExpressionValue(this.value);
-  }
-  //TODO remove this method in the future
-  getExpressionValue(val: any): any {
+    const val = this.value;
     if (!this.maskTypeIsEmpty && this.maskSettings.saveMaskedValue)
       return this.maskInstance.getUnmaskedValue(val);
     return val;
@@ -411,14 +422,13 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   private updateInputValue() {
-    const _value = this.value;
-    if (this.maskTypeIsEmpty) {
-      this._inputValue = _value;
-    } else if (this.maskSettings.saveMaskedValue) {
-      this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
-    } else {
-      this._inputValue = this.maskInstance.getMaskedValue(_value);
-    }
+    this.setInputValue(this.getInputValueFromValue());
+  }
+  private getInputValueFromValue(): string {
+    const res = this.value;
+    if (this.maskTypeIsEmpty) return res;
+    if (this.maskSettings.saveMaskedValue) return (res !== undefined && res !== null) ? res : this.maskInstance.getMaskedValue("");
+    return this.maskInstance.getMaskedValue(res);
   }
   private hasToConvertToUTC(val: any): boolean {
     return settings.storeUtcDates && this.isDateTimeLocaleType() && !!val;
@@ -678,7 +688,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
 
   private updateValueOnEvent(event: any) {
-    const newValue = event.target.value;
+    const newValue = this.getValueFromEvent(event);
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
     }
@@ -689,7 +699,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }, 1);
     }
-    this.updateRemainingCharacterCounter(event.target.value);
+    this.updateRemainingCharacterCounter(this.getValueFromEvent(event));
   };
   public onKeyUp = (event: any) => {
     this.updateDateValidationMessage(event);
@@ -703,7 +713,7 @@ export class QuestionTextModel extends QuestionTextBase {
         this.updateValueOnEvent(event);
       }
     }
-    this.updateRemainingCharacterCounter(event.target.value);
+    this.updateRemainingCharacterCounter(this.getValueFromEvent(event));
   };
   private updateDateValidationMessage(event: any): void {
     this.dateValidationMessage = this.isDateInputType && !!event.target ? event.target.validationMessage : undefined;
@@ -725,6 +735,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   };
   public onChange = (event: any): void => {
+    this.setRenderedValue(this.getValueFromEvent(event));
     this.updateDateValidationMessage(event);
     const elementIsFocused = event.target === settings.environment.root.activeElement;
     if (elementIsFocused) {
@@ -734,16 +745,16 @@ export class QuestionTextModel extends QuestionTextBase {
     } else {
       this.updateValueOnEvent(event);
     }
-    this.updateRemainingCharacterCounter(event.target.value);
+    this.updateRemainingCharacterCounter(this.getValueFromEvent(event));
   };
   protected onBlurCore(event: any): void {
     this.updateDateValidationMessage(event);
     this.updateValueOnEvent(event);
-    this.updateRemainingCharacterCounter(event.target.value);
+    this.updateRemainingCharacterCounter(this.getValueFromEvent(event));
     super.onBlurCore(event);
   }
   protected onFocusCore(event: any): void {
-    this.updateRemainingCharacterCounter(event.target.value);
+    this.updateRemainingCharacterCounter(this.getValueFromEvent(event));
     super.onFocusCore(event);
   }
   public afterRenderQuestionElement(el: HTMLElement) {

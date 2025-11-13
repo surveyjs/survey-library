@@ -1560,16 +1560,19 @@ export class Question extends SurveyElement<Question>
     return false;
   }
   public get isContainer(): boolean { return false; }
+  protected getValueFromEvent(event: any): any {
+    return event?.target?.value;
+  }
   public onCommentInput(event: any): void {
     if (this.isInputTextUpdate) {
       if (event.target) {
-        this.comment = event.target.value;
+        this.comment = this.getValueFromEvent(event);
       }
     }
   }
   public onCommentChange(event: any): void {
-    this.comment = event.target.value;
-    if (this.comment !== event.target.value) {
+    this.comment = this.getValueFromEvent(event);
+    if (this.comment !== this.getValueFromEvent(event)) {
       event.target.value = this.comment;
     }
   }
@@ -3012,7 +3015,6 @@ export class Question extends SurveyElement<Question>
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
   get requireStrictCompare(): boolean { return false; }
-  getExpressionValue(val: any): any { return val; }
   private getDataLocNotification(): any {
     return this.isInputTextUpdate ? "text" : false;
   }

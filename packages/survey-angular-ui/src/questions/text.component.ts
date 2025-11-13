@@ -12,7 +12,7 @@ export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
   @ViewChild("inputElement") inputElementRef!: ElementRef<HTMLDivElement>;
 
   get value(): string {
-    return this.model.inputValue ?? "";
+    return this.model.renderedValue ?? "";
   }
 
   blur(event: any): void {

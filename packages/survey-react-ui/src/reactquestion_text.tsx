@@ -73,7 +73,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
     this.question.inputValue = newValue;
   }
   protected getValueCore(): any {
-    return this.question.inputValue;
+    return this.question.renderedValue;
   }
   private renderDataList(): React.JSX.Element | null {
     if (!this.question.dataListId) return null;

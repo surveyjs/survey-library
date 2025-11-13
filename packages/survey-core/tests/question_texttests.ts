@@ -775,3 +775,20 @@ QUnit.test("Could not change the value from upper case into lower case, #10590",
   q.inputValue = "test";
   assert.equal(q.value, "test", "value is changed to lower case");
 });
+QUnit.test("text question, renderedValue property, Bug#10584", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", defaultValue: "AB" }
+    ]
+  });
+  const q = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q.renderedValue, "AB", "renderedValue is correct");
+  q.value = "CD";
+  assert.equal(q.renderedValue, "CD", "renderedValue is correct, #2");
+  q.inputValue = "EF";
+  assert.equal(q.renderedValue, "EF", "renderedValue is correct, #3");
+  q.onChange({ target: { value: "GH" } });
+  assert.equal(q.renderedValue, "GH", "renderedValue is correct, #4");
+  q.renderedValue = "IJ";
+  assert.equal(q.inputValue, "IJ", "inputValue is correct, #5");
+});

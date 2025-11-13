@@ -1874,7 +1874,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   private onOtherValueInput(item: ItemValue, event: any): void {
     if (this.isInputTextUpdate && event.target) {
-      this.setCommentValueCore(item, event.target.value);
+      this.setCommentValueCore(item, this.getValueFromEvent(event));
     }
   }
   private onOtherValueChange(item: ItemValue, event: any): void {

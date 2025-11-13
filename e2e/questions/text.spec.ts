@@ -1,7 +1,14 @@
+import { Page } from "playwright/test";
 import { frameworks, url, initSurvey, getSurveyData, test, expect } from "../helper";
 
 const title = "text";
-
+async function fullQuestionRerender(page: Page, name: string): Promise<void> {
+  await page.evaluate(([name]) => {
+    const q = window["survey"].getQuestionByName(name);
+    q.readOnly = true;
+    q.readOnly = false;
+  }, [name]);
+}
 const json = {
   "pages": [
     {
@@ -72,6 +79,56 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyData(page);
       expect(surveyResult.question2).toEqual("#000000");
       expect(surveyResult.question3).toEqual(undefined);
+    });
+    test("Do not lost the value is being entered on re-rendering the question, Bug#10584", async ({ page }) => {
+      const locJSON = {
+        "elements": [
+          { "type": "text", "name": "q1" },
+          { "type": "text", "name": "q2", "maskType": "pattern", "maskSettings": { "pattern": "99-99" } },
+          { "type": "text", "name": "q3", "inputType": "time" },
+          { "type": "comment", "name": "q4" }]
+      };
+      await initSurvey(page, framework, locJSON);
+
+      const q1 = page.locator("input").first();
+      await q1.focus();
+      await q1.fill("Test");
+      await fullQuestionRerender(page, "q1");
+      await page.keyboard.type("A");
+      await page.keyboard.press("Tab");
+      /*
+      const q2 = page.locator("input").nth(1);
+      await q2.focus();
+      await page.keyboard.type("1");
+      await page.keyboard.type("2");
+      await fullQuestionRerender(page, "q2");
+      await page.keyboard.press("ArrowRight"); await page.keyboard.press("ArrowRight"); await page.keyboard.press("ArrowRight");
+      await page.keyboard.type("3");
+      await page.keyboard.type("4");
+      await page.keyboard.press("Tab");
+*/
+      const q3 = page.locator("input").nth(2);
+      await q3.focus();
+      await page.keyboard.type("1");
+      await page.keyboard.type("0");
+      await fullQuestionRerender(page, "q3");
+      await page.keyboard.type("2");
+      await page.keyboard.type("5");
+      await page.keyboard.type("P");
+      await page.keyboard.press("Tab");
+
+      const q4 = page.locator("textarea").nth(0);
+      await q4.focus();
+      await q4.fill("Test");
+      await fullQuestionRerender(page, "q4");
+      await page.keyboard.type("B");
+      await page.keyboard.press("Tab");
+
+      const surveyResult = await getSurveyData(page);
+      expect(surveyResult.q1).toBe("TestA");
+      // expect(surveyResult.q2).toBe("1234");
+      expect(surveyResult.q3).toBe("22:25");
+      expect(surveyResult.q4).toBe("TestB");
     });
   });
 });

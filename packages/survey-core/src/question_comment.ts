@@ -50,7 +50,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       ariaInvalid: () => this.a11y_input_ariaInvalid,
       ariaErrormessage: () => this.a11y_input_ariaErrormessage,
       getTextValue: () => { return this.value; },
-      onTextAreaChange: (e) => { updateQuestionValue(e.target.value); },
+      onTextAreaChange: (e) => { updateQuestionValue(this.getValueFromEvent(e)); },
       onTextAreaInput: (event) => { this.onInput(event); },
       onTextAreaKeyDown: (event) => { this.onKeyDown(event); },
       onTextAreaFocus: (event) => { this.onFocus(event); },
@@ -143,9 +143,10 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.element = undefined;
   }
   public onInput(event: any): void {
+    const val = this.getValueFromEvent(event);
     if (this.isInputTextUpdate)
-      this.value = event.target.value;
-    this.updateRemainingCharacterCounter(event.target.value);
+      this.value = val;
+    this.updateRemainingCharacterCounter(val);
   }
   protected onBlurCore(event: any): void {
     super.onBlurCore(event);

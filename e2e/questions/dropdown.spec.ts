@@ -1244,6 +1244,7 @@ frameworks.forEach((framework) => {
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
+      await page.waitForTimeout(500);
       await expect(dropdown1.locator(".sv-list__empty-container")).toBeVisible();
       const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight1).toEqual(singleListItemHeight);
@@ -1368,6 +1369,7 @@ frameworks.forEach((framework) => {
 
       await page.keyboard.press("Tab");
       await page.keyboard.press("2");
+      await page.waitForTimeout(500);
       await expect(dropdown1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
       await expect(dropdown1.locator(".sv-list__empty-container")).not.toBeVisible();

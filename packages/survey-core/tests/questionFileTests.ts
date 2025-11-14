@@ -2518,4 +2518,8 @@ QUnit.test("questionFile acceptedCategories property, Issue#10602", function (as
   q2.acceptedCategories.splice(1, 2);
   assert.deepEqual(q2.acceptedCategories, ["document"], "q2 categories after splicing");
   assert.notOk(q2.acceptedTypes, "q2 acceptedTypes after splicing");
+
+  q4.acceptedCategories = ["archive"];
+  assert.deepEqual(q4.acceptedCategories, ["archive", "custom"], "q4 categories after setting archive category");
+  assert.equal(q4.acceptedTypes, ".doc,.txt", "q4 acceptedTypes after setting archive category");
 });

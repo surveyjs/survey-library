@@ -22,7 +22,7 @@ export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
   return new File([buffer], fileName, { type: type });
 }
-const customCategory = settings.acceptedFileCustomCategory;
+const customCategory = settings.customFileCategoryName;
 /**
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
@@ -550,6 +550,23 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
   }
+  /**
+   * An array of predefined file category names used to control which files users can upload.
+   *
+   * Supported categories:
+   *
+   * | Category name | File types |
+   * | ------------- | ---------- |
+   * | `"image"` | .png, .jpg, .jpeg, .gif, .bmp, .tiff, .svg |
+   * | `"video"` | .mp4, .avi, .mov, .wmv, .flv, .mkv, .webm |
+   * | `"audio"` | .mp3, .wav, .aac, .ogg, .wma, .flac |
+   * | `"document"` | .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt, .rtf, .odt |
+   * | `"archive"` | .zip, .rar, .7z, .tar, .gz |
+   *
+   * To allow specific file extensions, use the [`acceptedTypes`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedTypes) property. This property can be used together with `acceptedCategories` to define a combined set of allowed files.
+   *
+   * To add or remove file extensions within a category, modify the [`acceptedFileCategories`](https://surveyjs.io/form-library/documentation/api-reference/settings#acceptedFileCategories) object in the global settings.
+   */
   public get acceptedCategories(): Array<string> {
     return this.getPropertyValue("acceptedCategories");
   }
@@ -562,9 +579,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   }
   /**
-   * An [accept](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
+   * An [`accept`](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
+   * @see acceptedCategories
    */
   public get acceptedTypes(): string {
     return this.getPropertyValue("acceptedTypes");

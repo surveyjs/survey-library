@@ -868,6 +868,21 @@ export var settings = {
    * @see [settings.serialization](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization)
    */
   parseNumber: (stringValue: any, numericValue: number): number => { return numericValue; },
+  /**
+   * Defines the file type categories used by the [`acceptedCategories`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedCategories) property of [File Upload](https://surveyjs.io/form-library/examples/file-upload/) questions.
+   *
+   * This property is an object whose keys are category names and whose values are arrays of file extensions. The default structure is shown below:
+   *
+   * ```js
+   * {
+   *   image: [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".svg"],
+   *   video: [".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".webm"],
+   *   audio: [".mp3", ".wav", ".aac", ".ogg", ".wma", ".flac"],
+   *   document: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".odt"],
+   *   archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
+   * }
+   * ```
+   */
   acceptedFileCategories: {
     image: [".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".svg"],
     video: [".mp4", ".avi", ".mov", ".wmv", ".flv", ".mkv", ".webm"],
@@ -875,5 +890,5 @@ export var settings = {
     document: [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".txt", ".rtf", ".odt"],
     archive: [".zip", ".rar", ".7z", ".tar", ".gz"]
   },
-  acceptedFileCustomCategory: "custom"
+  customFileCategoryName: "custom"
 };

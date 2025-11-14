@@ -1135,6 +1135,11 @@ QUnit.test("Get variables in expression", function(assert) {
   assert.equal(vars[0], "val1", "the first variable");
   assert.equal(vars[5], "val6", "the last variable");
 });
+QUnit.test("Support negative index in arrays, Issue#10607", function(assert) {
+  const runner = new ExpressionRunner("{val1[-1]} + {val1[-3]} + {val1[0]}");
+  const values = { val1: [10, 20, 30, 40, 50] };
+  assert.equal(runner.runValues(values), 50 + 30 + 10, "50 + 30 + 10 = 90");
+});
 QUnit.test("Test binary operator anyof", function(assert) {
   var runner = new ConditionRunner("{value} anyof ['a', 'b']");
   var values = { value: ["a", "c"] };

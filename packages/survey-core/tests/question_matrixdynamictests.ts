@@ -11117,3 +11117,21 @@ QUnit.test("SurveyError.notificationType & validate in matrices, Bug#10436", fun
   assert.equal(rows[1].getQuestionByColumnName("col1").isEmpty(), true, "row 1 is empty");
   assert.equal(rows[2].getQuestionByColumnName("col1").isEmpty(), true, "row 2 is empty");
 });
+QUnit.test("Use -1 as the last row in the expression, Issue#10607", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 3,
+        columns: [
+          { name: "col1", cellType: "text" }
+        ]
+      },
+      { type: "expression", name: "expr", expression: "{matrix[-1].col1}" }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  survey.setValue("matrix", [{ col1: "row1" }, { col1: "row2" }, { col1: "row3" }]);
+  const rows = matrix.visibleRows;
+  assert.equal(survey.getValue("expr"), "row3", "The last row value is correct");
+  rows[2].getQuestionByColumnName("col1").value = "row3-modified";
+  assert.equal(survey.getValue("expr"), "row3-modified", "The last row value is correct after modification");
+});

@@ -190,6 +190,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         this.renderedValue = newValue;
       }
     }
+    if (checked) {
+      this.onItemClicked(item);
+    }
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;

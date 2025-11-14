@@ -853,7 +853,7 @@ QUnit.test("Question Signature showPlaceholder on Error", function (assert) {
   assert.notOk(q1.value);
   assert.deepEqual(q1.errors.map(e => e.text), ["Error 1"]);
 
-  q1.clearValue(true, true);
+  q1.clearValue(true);
   assert.notOk(q1.value);
   assert.equal(q1.nothingIsDrawn(), true);
 });

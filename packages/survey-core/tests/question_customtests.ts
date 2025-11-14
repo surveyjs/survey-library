@@ -19,6 +19,7 @@ import { StylesManager } from "@legacy/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
 import { QuestionFileModel } from "../src/question_file";
 import { ConsoleWarnings } from "../src/console-warnings";
+import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("custom questions");
 
@@ -3666,6 +3667,50 @@ QUnit.test("Composite: isMobile flag, Bug#9927", function (assert) {
   assert.equal(q1.contentPanel.getQuestionByName("item1").isMobile, false);
   assert.equal(q1.contentPanel.getQuestionByName("item2").isMobile, false);
   ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: Do not focus element on setting defaultValue & on setting value to survey.data, Bug#10016", (assert) => {
+  const oldFunc = SurveyElement.FocusElement;
+  let counter = 0;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    counter ++;
+    return true;
+  };
+  ComponentCollection.Instance.add({
+    name: "customcheckbox",
+    questionJSON: {
+      "type": "checkbox",
+      "choices": [
+        "Item 1",
+        "Item 2",
+        "Item 3"
+      ],
+      "showOtherItem": true
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "customcheckbox", name: "q1" }]
+  });
+
+  survey.data = { "q1-Comment": "3",
+    "q1": [
+      "Item 2",
+      "Item 3",
+      "other"
+    ],
+  };
+
+  assert.equal(counter, 0, "Do not focus element on setting value from survey.data");
+  const q1 = survey.getQuestionByName("q1");
+  const question = <QuestionCheckboxModel>q1.contentQuestion;
+  question.clearValue();
+  question.clickItemHandler(question.choices[0], true);
+  assert.equal(counter, 0, "It is not other item");
+  question.clickItemHandler(question.otherItem, true);
+  assert.equal(counter, 1, "Focus on setting the question value");
+  assert.deepEqual(question.renderedValue, ["Item 1", "other"], "check question initial value");
+
+  ComponentCollection.Instance.clear();
+  SurveyElement.FocusElement = oldFunc;
 });
 QUnit.test("Single: supportAutoAdvance/supportGoNextPageAutomatic, bug#10149", function (assert) {
   ComponentCollection.Instance.add({

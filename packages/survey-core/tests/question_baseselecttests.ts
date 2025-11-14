@@ -432,7 +432,7 @@ QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem"
   assert.equal(question.visibleChoices[1].value, "Item2");
 });
 
-QUnit.test("check focus comment of other select", (assert) => {
+QUnit.test("check focus comment of other select, checkbox", (assert) => {
   const survey = new SurveyModel({
     questions: [
       {
@@ -444,19 +444,23 @@ QUnit.test("check focus comment of other select", (assert) => {
     ]
   });
   let counter = 0;
-  const q = survey.getQuestionByName("q1");
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q["focusOtherComment"] = () => {
     counter++;
   };
   assert.equal(counter, 0);
-  q.value = ["other"];
-  assert.equal(counter, 1);
-  q.value = ["other", "item1"];
-  assert.equal(counter, 1);
-  q.value = ["item1"];
-  assert.equal(counter, 1);
-  q.value = ["item1", "other"];
-  assert.equal(counter, 2);
+  q.clickItemHandler(q.otherItem, true);
+  assert.deepEqual(q.value, ["other"], "value #1");
+  assert.equal(counter, 1, "focusOtherComment called #1");
+  q.clickItemHandler(q.choices[0], true);
+  assert.deepEqual(q.value, ["other", "item1"], "value #2");
+  assert.equal(counter, 1, "focusOtherComment called #2");
+  q.clickItemHandler(q.otherItem, false);
+  assert.deepEqual(q.value, ["item1"], "value #3");
+  assert.equal(counter, 1, "focusOtherComment called #3");
+  q.clickItemHandler(q.otherItem, true);
+  assert.deepEqual(q.value, ["item1", "other"], "value #4");
+  assert.equal(counter, 2, "focusOtherComment called #4");
 });
 QUnit.test("check separateSpecialChoices property visibility", (assert) => {
   assert.notOk(Serializer.findProperty("selectbase", "separateSpecialChoices").visible);
@@ -465,7 +469,7 @@ QUnit.test("check separateSpecialChoices property visibility", (assert) => {
   assert.notOk(Serializer.findProperty("imagepicker", "separateSpecialChoices").visible);
   assert.notOk(Serializer.findProperty("dropdown", "separateSpecialChoices").visible);
 });
-QUnit.test("check focus comment of other select", (assert) => {
+QUnit.test("check focus comment of other select, checkbox & radiogroup", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {

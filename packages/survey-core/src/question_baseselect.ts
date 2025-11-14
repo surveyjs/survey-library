@@ -590,9 +590,6 @@ export class QuestionSelectBase extends Question {
     return this.otherValueCore;
   }
   protected selectOtherValueFromComment(val: boolean): void {
-    if(val) {
-      this.prevIsOtherSelected = true;
-    }
     this.value = val ? this.otherItem.value : undefined;
   }
   private isSettingComment: boolean = false;
@@ -2054,13 +2051,10 @@ export class QuestionSelectBase extends Question {
   private focusOtherComment() {
     SurveyElement.FocusElement(this.otherId, false, this.survey?.rootElement);
   }
-  private prevIsOtherSelected: boolean = false;
-  protected onValueChanged(): void {
-    super.onValueChanged();
-    if (!this.isDesignMode && !this.prevIsOtherSelected && this.isOtherSelected) {
+  protected onItemClicked(item: ItemValue): void {
+    if (this.isOtherItem(item)) {
       this.focusOtherComment();
     }
-    this.prevIsOtherSelected = this.isOtherSelected;
   }
   protected getDefaultItemComponent(): string {
     return "";

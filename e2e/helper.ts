@@ -36,7 +36,7 @@ export async function compareScreenshot(page: Page, elementSelector: string | Lo
 }
 
 export function getVisibleListItemByText(page: Page, text: string): Locator {
-  return page.locator(".sv-popup__container").filter({ visible: true }).locator(`text=${text}`);
+  return page.locator(".sv-popup__container").filter({ visible: true }).getByRole("option", { name: text, exact: true });
 }
 
 export async function resetFocusToBody(page: Page): Promise<void> {
@@ -140,6 +140,18 @@ export async function getQuestionJson(page) {
   return await page.evaluate(() => {
     return JSON.stringify(window["survey"].getAllQuestions()[0].toJSON());
   });
+}
+
+export async function setOptions(page: Page, questionName: string, modValue: any) {
+  await page.evaluate(([questionName, modValue]) => {
+    const mergeOptions = function (obj1, obj2) {
+      for (const attrname in obj2) {
+        obj1[attrname] = obj2[attrname];
+      }
+    };
+    const q = window["survey"].getQuestionByName(questionName);
+    mergeOptions(q, modValue);
+  }, [questionName, modValue]);
 }
 
 export async function checkSurveyWithEmptyQuestion(page) {

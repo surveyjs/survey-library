@@ -20,47 +20,50 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     const video = this.question.isPlayingVideo ? this.renderVideo() : null;
     const fileDecorator = this.question.showFileDecorator ? this.renderFileDecorator() : null;
     const fileNavigator = this.question.fileNavigatorVisible ? (<SurveyActionBar model={this.question.fileNavigator}></SurveyActionBar>) : null;
+    const acceptedTypes = this.question.renderedAcceptedTypes;
+    const className = !this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss();
+    const style = this.isDisplayMode ? { color: "transparent" } : {};
     let fileInput;
     if (this.question.isReadOnlyAttr) {
       fileInput = <input
         readOnly
         type="file"
-        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+        className={className}
         id={this.question.inputId}
         ref={input => (this.setControl(input))}
-        style={!this.isDisplayMode ? {} : { color: "transparent" }}
+        style={style}
         multiple={this.question.allowMultiple}
         placeholder={this.question.title}
-        accept={this.question.acceptedTypes}
+        accept={acceptedTypes}
       />;
     } else if (this.question.isDisabledAttr) {
       fileInput = <input
         disabled
         type="file"
-        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+        className={className}
         id={this.question.inputId}
         ref={input => (this.setControl(input))}
-        style={!this.isDisplayMode ? {} : { color: "transparent" }}
+        style={style}
         multiple={this.question.allowMultiple}
         placeholder={this.question.title}
-        accept={this.question.acceptedTypes}
+        accept={acceptedTypes}
       />;
     } else if (this.question.hasFileUI) {
       fileInput = <input
         type="file"
         disabled={this.isDisplayMode}
         tabIndex={-1}
-        className={!this.isDisplayMode ? this.question.cssClasses.fileInput : this.question.getReadOnlyFileCss()}
+        className={className}
         id={this.question.inputId}
         ref={input => (this.setControl(input))}
-        style={!this.isDisplayMode ? {} : { color: "transparent" }}
+        style={style}
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
         aria-errormessage={this.question.ariaErrormessage}
         multiple={this.question.allowMultiple}
         title={this.question.inputTitle}
-        accept={this.question.acceptedTypes}
+        accept={acceptedTypes}
         capture={this.question.renderCapture as "user" | "environment"}
       />;
     } else {

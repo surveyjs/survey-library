@@ -2484,3 +2484,42 @@ QUnit.test("check source type option in onUploadFiles event", function (assert) 
   signature["onBlurCore"]({ relatedTarget: document.createElement("div") });
   assert.equal(log, "->signature: q2.png");
 });
+QUnit.test("questionFile acceptedCategories property, Issue#10602", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", acceptedCategories: ["document"] },
+      { type: "file", name: "q2", acceptedCategories: ["document"], acceptedTypes: ".pdf,.jpeg" },
+      { type: "file", name: "q3", acceptedTypes: ".pdf,.jpeg" },
+      { type: "file", name: "q4" }
+    ]
+  });
+  const documentTypes = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.odt";
+  const q1 = survey.getQuestionByName("q1") as QuestionFileModel;
+  const q2 = survey.getQuestionByName("q2") as QuestionFileModel;
+  const q3 = survey.getQuestionByName("q3") as QuestionFileModel;
+  const q4 = survey.getQuestionByName("q4") as QuestionFileModel;
+  assert.equal(q1.renderedAcceptedTypes, documentTypes, "#1");
+  assert.equal(q2.renderedAcceptedTypes, documentTypes + ",.jpeg", "#2");
+  assert.equal(q3.renderedAcceptedTypes, ".pdf,.jpeg", "#3");
+  assert.strictEqual(q4.renderedAcceptedTypes, undefined, "#4");
+
+  assert.equal(q1.acceptedCategories.length, 1, "q1 categories count");
+  assert.equal(q2.acceptedCategories.length, 2, "q2 categories count");
+  assert.equal(q2.acceptedCategories[1], "custom", "q2 second category");
+  assert.equal(q3.acceptedCategories.length, 1, "q3 categories count");
+  assert.equal(q3.acceptedCategories[0], "custom", "q3 first category");
+  assert.equal(q4.acceptedCategories.length, 0, "q4 categories count");
+  q4.acceptedTypes = ".doc,.txt";
+  assert.deepEqual(q4.acceptedCategories, ["custom"], "q4 categories after setting acceptedTypes");
+  q2.acceptedCategories.push("unknown");
+  assert.deepEqual(q2.acceptedCategories, ["document", "custom", "unknown"], "q2 categories after adding unknown category");
+  assert.deepEqual(q2.toJSON(), { name: "q2", acceptedCategories: ["document"], acceptedTypes: ".pdf,.jpeg" }, "q2 json");
+  assert.deepEqual(q4.toJSON(), { name: "q4", acceptedTypes: ".doc,.txt" }, "q4 json");
+  q2.acceptedCategories.splice(1, 2);
+  assert.deepEqual(q2.acceptedCategories, ["document"], "q2 categories after splicing");
+  assert.notOk(q2.acceptedTypes, "q2 acceptedTypes after splicing");
+
+  q4.acceptedCategories = ["archive"];
+  assert.deepEqual(q4.acceptedCategories, ["archive", "custom"], "q4 categories after setting archive category");
+  assert.equal(q4.acceptedTypes, ".doc,.txt", "q4 acceptedTypes after setting archive category");
+});

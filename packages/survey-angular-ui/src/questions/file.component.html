@@ -3,7 +3,7 @@
     tabindex="-1" type="file" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
     [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
     [attr.aria-errormessage]="model.ariaErrormessage" [attr.multiple]="model.multipleRendered"
-    [attr.title]="model.inputTitle" [attr.accept]="model.acceptedTypes" [attr.capture]="model.renderCapture" />
+    [attr.title]="model.inputTitle" [attr.accept]="model.renderedAcceptedTypes" [attr.capture]="model.renderCapture" />
   <input *ngIf="model.isReadOnlyAttr" type="file" readonly [class]="model.getReadOnlyFileCss()"
     [attr.id]="model.inputId" [attr.multiple]="model.multipleRendered" [attr.placeholder]="model.title"
     style="color: transparent" />

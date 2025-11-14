@@ -1236,15 +1236,14 @@ frameworks.forEach((framework) => {
         window["survey"].fromJSON(json);
       }, json);
 
+      await page.setViewportSize({ width: 1280, height: 900 });
+
       const popupContainer = page.locator(".sv-popup__container");
       const dropdown1 = popupContainer.nth(0);
       const dropdown2 = popupContainer.nth(1);
 
-      await page.setViewportSize({ width: 1280, height: 900 });
-
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowDown");
-      await page.waitForTimeout(500);
       await expect(dropdown1.locator(".sv-list__empty-container")).toBeVisible();
       const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
       expect(offsetHeight1).toEqual(singleListItemHeight);

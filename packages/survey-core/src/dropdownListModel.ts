@@ -219,6 +219,7 @@ export class DropdownListModel extends Base {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
+        this.question.onItemSelected(item);
         if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
         this.popupModel.hide();
       };

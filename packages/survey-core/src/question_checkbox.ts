@@ -191,7 +191,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     }
     if (checked) {
-      this.onItemClicked(item);
+      this.onItemSelected(item);
     }
   }
   protected isItemSelectedCore(item: ItemValue): boolean {

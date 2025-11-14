@@ -64,7 +64,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public clickItemHandler(item: ItemValue): void {
     if (this.isReadOnlyAttr) return;
     this.renderedValue = item.value;
-    this.onItemClicked(item);
+    this.onItemSelected(item);
   }
 
   protected getDefaultTitleActions(): Array<Action> {

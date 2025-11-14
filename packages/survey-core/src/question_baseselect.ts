@@ -2051,7 +2051,7 @@ export class QuestionSelectBase extends Question {
   private focusOtherComment() {
     SurveyElement.FocusElement(this.otherId, false, this.survey?.rootElement);
   }
-  protected onItemClicked(item: ItemValue): void {
+  public onItemSelected(item: ItemValue): void {
     if (this.isOtherItem(item)) {
       this.focusOtherComment();
     }

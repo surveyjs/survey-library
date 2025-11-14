@@ -36,7 +36,7 @@ export async function compareScreenshot(page: Page, elementSelector: string | Lo
 }
 
 export function getVisibleListItemByText(page: Page, text: string): Locator {
-  return page.locator(".sv-popup__container").filter({ visible: true }).locator(`text=${text}`);
+  return page.locator(".sv-popup__container").filter({ visible: true }).getByRole("option", { name: text, exact: true });
 }
 
 export async function resetFocusToBody(page: Page): Promise<void> {

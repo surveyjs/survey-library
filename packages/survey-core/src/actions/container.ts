@@ -195,7 +195,9 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   private createAction(item: IAction): T {
     return <T>(item instanceof BaseAction ? item : this.createActionCore(item));
   }
+  public createActionCallback: ((item: IAction) => Action) | null = null;
   protected createActionCore(item: IAction): Action {
+    if (this.createActionCallback) return this.createActionCallback(item);
     return new Action(item);
   }
   public addAction(val: IAction, sortByVisibleIndex = true): T {

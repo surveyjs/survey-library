@@ -577,3 +577,20 @@ QUnit.test("Check actions container update method", (assert) => {
   assert.equal(responsivityLog, "->called:true");
 
 });
+QUnit.test("Make sure that createActionCore is called for bars & list", (assert) => {
+  class TestLocContainer extends AdaptiveActionContainer {
+    protected createActionCore(item: IAction): Action {
+      const res = super.createActionCore(item);
+      res.template = "custom";
+      return res;
+    }
+  }
+  const container = new TestLocContainer();
+  container.setItems([{ id: "test" }]);
+  assert.equal(container.actions[0].template, "custom");
+  container.addAction({ id: "test2" });
+  assert.equal(container.actions[1].template, "custom");
+  const list = container.hiddenItemsListModel;
+  list.addAction({ id: "test3" });
+  assert.equal(list.actions[0].template, "custom");
+});

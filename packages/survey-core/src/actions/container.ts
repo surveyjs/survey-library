@@ -193,10 +193,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     return this.cssClassesValue;
   }
   private createAction(item: IAction): T {
-    return <T>(item instanceof BaseAction ? item : this.createActionCore(item));
+    return <T>(item instanceof BaseAction ? item : this.createActionCore(this, item));
   }
   public createActionCallback: ((item: IAction) => Action) | null = null;
-  protected createActionCore(item: IAction): Action {
+  protected createActionCore(owner: Base, item: IAction): Action {
     if (this.createActionCallback) return this.createActionCallback(item);
     return new Action(item);
   }

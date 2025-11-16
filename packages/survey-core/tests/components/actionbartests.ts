@@ -6,7 +6,7 @@ import { PopupModel } from "../../src/popup";
 import { ListModel } from "../../src/list";
 import { settings } from "../../src/settings";
 import { PageModel } from "../../src/page";
-import { ComputedUpdater } from "../../src/base";
+import { Base, ComputedUpdater } from "../../src/base";
 import { SurveyModel } from "../../src/survey";
 import { surveyLocalization } from "../../src/surveyStrings";
 import { ResponsivityManager } from "../../src/utils/responsivity-manager";
@@ -579,8 +579,8 @@ QUnit.test("Check actions container update method", (assert) => {
 });
 QUnit.test("Make sure that createActionCore is called for bars & list", (assert) => {
   class TestLocContainer extends AdaptiveActionContainer {
-    protected createActionCore(item: IAction): Action {
-      const res = super.createActionCore(item);
+    protected createActionCore(owner: Base, item: IAction): Action {
+      const res = super.createActionCore(owner, item);
       res.template = "custom";
       return res;
     }

@@ -522,6 +522,7 @@ QUnit.test("convertDateToString/convertDateTimeToString functions", function(ass
   const d = new Date(2022, 11, 24, 10, 55, 33, 3);
   assert.equal(Helpers.convertDateToString(d), "2022-12-24", "convertDateToString");
   assert.equal(Helpers.convertDateTimeToString(d), "2022-12-24 10:55", "convertDateTimeToString");
+  assert.equal(Helpers.convertDateTimeToString(d, true), "2022-12-24T10:55", "convertDateTimeToString, isLocalIso");
 });
 QUnit.test("sumAnyValues", function(assert) {
   assert.equal(Helpers.sumAnyValues(1, 2), 3, "1 + 2");

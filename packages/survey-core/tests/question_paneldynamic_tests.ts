@@ -9049,3 +9049,35 @@ QUnit.test("paneldynamic getPanelInDesignMode", function (assert) {
   const q1 = new QuestionPanelDynamicModel("q1");
   assert.strictEqual(q1.getPanelInDesignMode(), q1.template, "returns tempalte");
 });
+QUnit.test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "expression",
+            "name": "q2",
+            "expression": "{panel.q1} + {prevPanel.q1} + {nextPanel.q1}"
+          }
+        ],
+        "panelCount": 4
+      }
+    ]
+  });
+
+  const dp = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  dp.panels[0].getQuestionByName("q1").value = 10;
+  dp.panels[1].getQuestionByName("q1").value = 20;
+  dp.panels[2].getQuestionByName("q1").value = 30;
+  dp.panels[3].getQuestionByName("q1").value = 40;
+  assert.equal(dp.panels[0].getQuestionByName("q2").value, 10 + 20, "panel 0: only nextPanel");
+  assert.equal(dp.panels[1].getQuestionByName("q2").value, 10 + 20 + 30, "panel 1: prevPanel & nextPanel");
+  assert.equal(dp.panels[2].getQuestionByName("q2").value, 20 + 30 + 40, "panel 2: prevPanel & nextPanel");
+  assert.equal(dp.panels[3].getQuestionByName("q2").value, 30 + 40, "panel 3: only prevPanel");
+});

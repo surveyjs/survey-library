@@ -11117,3 +11117,36 @@ QUnit.test("SurveyError.notificationType & validate in matrices, Bug#10436", fun
   assert.equal(rows[1].getQuestionByColumnName("col1").isEmpty(), true, "row 1 is empty");
   assert.equal(rows[2].getQuestionByColumnName("col1").isEmpty(), true, "row 2 is empty");
 });
+QUnit.test("Panel dynamic vs prevRow & nextRow in expression, Issue#10606", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "cellType": "text",
+            "name": "col1"
+          },
+          {
+            "cellType": "expression",
+            "name": "col2",
+            "expression": "{row.col1} + {prevRow.col1} + {nextRow.col1}"
+          }
+        ],
+        "rowCount": 4
+      }
+    ]
+  });
+
+  const dp = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = dp.visibleRows;
+  dp.visibleRows[0].getQuestionByName("col1").value = 10;
+  dp.visibleRows[1].getQuestionByName("col1").value = 20;
+  dp.visibleRows[2].getQuestionByName("col1").value = 30;
+  dp.visibleRows[3].getQuestionByName("col1").value = 40;
+  assert.equal(rows[0].getQuestionByName("col2").value, 10 + 20, "row 0: only nextRow");
+  assert.equal(rows[1].getQuestionByName("col2").value, 10 + 20 + 30, "row 1: prevRow & nextRow");
+  assert.equal(rows[2].getQuestionByName("col2").value, 20 + 30 + 40, "row 2: prevRow & nextRow");
+  assert.equal(rows[3].getQuestionByName("col2").value, 30 + 40, "row 3: only prevRow");
+});

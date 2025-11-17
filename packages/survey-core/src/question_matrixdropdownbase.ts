@@ -201,6 +201,9 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   }
   protected getIndex(): number { return this.row.rowIndex - 1; }
   protected getQuestionData(): Question { return <Question>(<any>this.row.data); }
+  private get visibleIndex(): number {
+    return this.getQuestionData().visibleRows.indexOf(this.row);
+  }
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     if (path.length === 0) return undefined;
     const setVar = settings.expressionVariables;
@@ -212,6 +215,17 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
       if (path[0].name === setVar.matrix) {
         const matrix = this.row.data;
         return { isFound: true, context: matrix.getValueGetterContext(), value: matrix.getFilteredData() };
+      }
+    }
+    if (path.length > 1) {
+      const dIndex = path[0].name === setVar.prevRow ? -1 : path[0].name === setVar.nextRow ? 1 : 0;
+      if (dIndex !== 0) {
+        const index = this.visibleIndex + dIndex;
+        const matrix = this.getQuestionData();
+        if (index < 0 || index >= matrix.visibleRows.length) return { isFound: true, value: undefined, context: this };
+        const row = matrix.visibleRows[index];
+        path[0].name = setVar.row;
+        return row.getValueGetterContext().getValue(path, isRoot, index, createObjects);
       }
     }
     if (path.length > 1 && path[0].name === setVar.totalRow) {
@@ -252,7 +266,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
       return this.row.rowIndex;
     }
     if (name === setVar.visibleRowIndex.toLocaleLowerCase()) {
-      return this.getQuestionData().visibleRows.indexOf(this.row) + 1;
+      return this.visibleIndex + 1;
     }
     if ([setVar.item, setVar.rowName.toLocaleLowerCase(), setVar.rowValue.toLocaleLowerCase()].indexOf(name) > -1) {
       return this.row.rowName;

@@ -46,6 +46,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     }
     this.fillMatrixRowMap(matrices);
     this.fromIndex = this.parentElement.visibleRows.indexOf(this.draggedElement);
+    this.draggedElement.hideDetailPanel();
   }
 
   private fillMatricies(questions: Question[], matrices: QuestionMatrixDynamicModel[]) {

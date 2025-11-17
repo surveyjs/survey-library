@@ -61,6 +61,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       items: [],
       allowSelection: false
     });
+    this.hiddenItemsListModel.createActionCallback = (item: IAction) => this.createActionCore(this.hiddenItemsListModel, item);
   }
   public get hiddenItemsListModel(): ListModel {
     return this.dotsItem.data as ListModel;

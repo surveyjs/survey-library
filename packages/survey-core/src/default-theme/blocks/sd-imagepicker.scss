@@ -132,6 +132,10 @@
     opacity: 0.5;
   }
 }
+.sd-imagepicker__text {
+  white-space: normal;
+  text-align: center;
+}
 
 .sd-imagepicker__column {
   display: flex;
@@ -154,6 +158,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+    white-space: nowrap;
   }
 }
 

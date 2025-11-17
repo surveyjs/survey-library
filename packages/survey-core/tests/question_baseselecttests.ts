@@ -1424,6 +1424,25 @@ QUnit.test("choicesFromQuestion & choicesVisibleIf", function (assert) {
   assert.equal(q3.visibleChoices[0].value, 2, "q3 choices[0], #2");
   assert.equal(q3.visibleChoices[1].value, 3, "q3 choices[1], #2");
 });
+QUnit.test("Use {$item.prop} in expression", function (assert) {
+  Serializer.addProperty("itemvalue", "prop1:number");
+  const survey = new SurveyModel({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3] },
+      { type: "checkbox", name: "q2", choices: [{ value: 1, prop1: 1 }, { value: 2, prop1: 2 }, { value: 3, prop1: 3 }], choicesVisibleIf: "{$item.prop1} = {q1}" }
+    ],
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.equal(q2.visibleChoices.length, 0, "q2 visibleChoices length #1");
+  q1.value = 2;
+  assert.equal(q2.visibleChoices.length, 1, "q2 visibleChoices length #2");
+  assert.equal(q2.visibleChoices[0].value, 2, "q2 visibleChoices[0] value");
+  q1.value = 3;
+  assert.equal(q2.visibleChoices.length, 1, "q2 visibleChoices length #3");
+  assert.equal(q2.visibleChoices[0].value, 3, "q2 visibleChoices[0] value #2");
+  Serializer.removeProperty("itemvalue", "prop1");
+});
 QUnit.test("choicesFromQuestion & showOtherItem & mode=selected", function (assert) {
   const survey = new SurveyModel({
     elements: [

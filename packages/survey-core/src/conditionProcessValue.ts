@@ -137,7 +137,7 @@ export class ValueGetter {
       if (ind > -1) {
         const indexStr = name.substring(ind + 1, name.length - 1);
         index = Helpers.getNumber(indexStr);
-        if (isNaN(index) || index < 0) {
+        if (isNaN(index)) {
           index = undefined;
         }
         if (index !== undefined) {
@@ -230,14 +230,18 @@ export class VariableGetterContext extends ValueGetterContextCore {
   }
   protected updateItemByIndex(index: number, res: IValueGetterInfo): void {
     const v = res.value;
-    if (Array.isArray(v) && index < v.length) {
-      res.value = v[index];
-      res.isFound = true;
-    } else {
-      res.isFound = false;
+    res.isFound = false;
+    if (Array.isArray(v)) {
+      if (index < 0) {
+        index = v.length + index;
+      }
+      if (index > -1 && index < v.length) {
+        res.value = v[index];
+        res.isFound = true;
+      }
     }
   }
-  private getValueByItemCore(obj: any, name: string): any {
+  protected getValueByItemCore(obj: any, name: string): any {
     if (!obj || !name) return undefined;
     const nameInLow = name.toLowerCase();
     if (name === "length" && (Array.isArray(obj) || typeof obj === "string")) return obj.length;
@@ -252,6 +256,15 @@ export class VariableGetterContext extends ValueGetterContextCore {
       }
     }
     return undefined;
+  }
+}
+export class PropertyGetterContext extends VariableGetterContext {
+  constructor(private obj: any) {
+    super(obj);
+  }
+  protected getValueByItemCore(obj: any, name: string): any {
+    if (!obj || !name) return undefined;
+    return obj[name];
   }
 }
 export class VariableGetterContextEx extends VariableGetterContext {

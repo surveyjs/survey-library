@@ -22,6 +22,7 @@ export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
   return new File([buffer], fileName, { type: type });
 }
+const customCategory = settings.customFileCategoryName;
 /**
  * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
  */
@@ -251,6 +252,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super(name);
     this.createLocString({ name: "takePhotoCaption", hasTranslation: true });
     this.createLocString({ name: "clearCaption", hasTranslation: true });
+    this.createNewArray("acceptedCategories", undefined, (val) => {
+      if (val === customCategory) {
+        this.acceptedTypes = undefined;
+      }
+    });
+    this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
+    //TODO make this property on demand
     this.actionsContainer = new ActionContainer();
     this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({
@@ -543,15 +551,63 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("imageWidth", val);
   }
   /**
-   * An [accept](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
+   * An array of predefined file category names used to control which files users can upload.
+   *
+   * Supported categories:
+   *
+   * | Category name | File types |
+   * | ------------- | ---------- |
+   * | `"image"` | .png, .jpg, .jpeg, .gif, .bmp, .tiff, .svg |
+   * | `"video"` | .mp4, .avi, .mov, .wmv, .flv, .mkv, .webm |
+   * | `"audio"` | .mp3, .wav, .aac, .ogg, .wma, .flac |
+   * | `"document"` | .pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt, .rtf, .odt |
+   * | `"archive"` | .zip, .rar, .7z, .tar, .gz |
+   *
+   * To allow specific file extensions, use the [`acceptedTypes`](https://surveyjs.io/form-library/documentation/api-reference/file-model#acceptedTypes) property. This property can be used together with `acceptedCategories` to define a combined set of allowed files.
+   *
+   * To add or remove file extensions within a category, modify the [`acceptedFileCategories`](https://surveyjs.io/form-library/documentation/api-reference/settings#acceptedFileCategories) object in the global settings.
+   */
+  public get acceptedCategories(): Array<string> {
+    return this.getPropertyValue("acceptedCategories");
+  }
+  public set acceptedCategories(val: Array<string>) {
+    this.setPropertyValue("acceptedCategories", val);
+    if (!this.isLoadingFromJson) {
+      this.updateAcceptedCategories();
+    }
+  }
+  private updateAcceptedCategories(): void {
+    if (this.acceptedTypes && this.acceptedCategories.indexOf(customCategory) < 0) {
+      this.acceptedCategories.push(customCategory);
+    }
+  }
+  /**
+   * An [`accept`](https://www.w3schools.com/tags/att_input_accept.asp) attribute value for the underlying `<input>` element.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
+   * @see acceptedCategories
    */
   public get acceptedTypes(): string {
     return this.getPropertyValue("acceptedTypes");
   }
   public set acceptedTypes(val: string) {
     this.setPropertyValue("acceptedTypes", val);
+  }
+  public get renderedAcceptedTypes(): string {
+    const res = [];
+    this.acceptedCategories.forEach(category => {
+      const categoryTypes = settings.acceptedFileCategories[category];
+      if (!!categoryTypes) {
+        res.push(...categoryTypes);
+      }
+    });
+    const customTypes = this.acceptedTypes || "";
+    customTypes.split(",").forEach(type => {
+      if (type && res.indexOf(type) < 0) {
+        res.push(type);
+      }
+    });
+    return res.length > 0 ? res.join(",") : undefined;
   }
   /**
    * Specifies whether to show a preview of image files.
@@ -1029,6 +1085,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
+    this.updateAcceptedCategories();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);
@@ -1255,7 +1312,24 @@ Serializer.addClass(
     },
     "imageHeight",
     "imageWidth",
-    "acceptedTypes",
+    { name: "acceptedCategories:set", choices: () => {
+      const res = [];
+      for (let key in settings.acceptedFileCategories) res.push(key);
+      res.push(customCategory);
+      return res;
+    },
+    onSerializeValue: (obj) => {
+      const res = [];
+      obj.acceptedCategories.forEach((category: string) => {
+        if (!!settings.acceptedFileCategories[category]) {
+          res.push(category);
+        }
+      });
+      return res;
+    } },
+    { name: "acceptedTypes", dependsOn: "acceptedCategories", visibleIf: (obj: any) => {
+      return obj.acceptedCategories.indexOf(customCategory) > -1;
+    } },
     { name: "storeDataAsText:boolean", default: true },
     { name: "waitForUpload:boolean", default: false },
     { name: "maxSize:number", default: 0 },

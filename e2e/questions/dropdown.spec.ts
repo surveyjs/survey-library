@@ -1242,7 +1242,7 @@ frameworks.forEach((framework) => {
       const dropdown1 = popupContainer.nth(0);
       const dropdown2 = popupContainer.nth(1);
 
-      await page.keyboard.press("Tab");
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(dropdown1.locator(".sv-list__empty-container")).toBeVisible();
       const offsetHeight1 = await dropdown1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -1366,7 +1366,7 @@ frameworks.forEach((framework) => {
 
       await page.setViewportSize({ width: 1280, height: 900 });
 
-      await page.keyboard.press("Tab");
+      await expect(page.locator(".sd-dropdown__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await page.waitForTimeout(500);
       await expect(dropdown1).toBeVisible();

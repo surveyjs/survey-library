@@ -58,6 +58,16 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
     }
     const expVar = settings.expressionVariables;
     const panelPrefix = expVar.panel;
+    if (path.length > 1) {
+      const dIndex = path[0].name === expVar.prevPanel ? -1 : path[0].name === expVar.nextPanel ? 1 : 0;
+      if (dIndex !== 0) {
+        const index = this.visiblePanelIndex + dIndex;
+        if (index < 0 || index >= this.getPanels(true).length) return { isFound: true, value: undefined, context: this };
+        const panel = this.getPanels(true)[index];
+        path[0].name = panelPrefix;
+        return (<any>panel.data).getValueGetterContext().getValue(path, isRoot, index, createObjects);
+      }
+    }
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === expVar.parentPanel.toLocaleLowerCase()) {
       const q = <Question>(<any>this.item.data);
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {

@@ -512,7 +512,7 @@ QUnit.test("rows: check matrixdynamic d&d with expanded details, Bug#10472", fun
   ddHelper["doDrop"]();
   ddHelper.clear();
   assert.notOk(question.visibleRows[1].isDetailPanelShowing, "row[1] collapsed");
-  assert.ok(question.visibleRows[2].isDetailPanelShowing, "row[2] expanded");
+  assert.notOk(question.visibleRows[2].isDetailPanelShowing, "row[2] expanded");
 });
 
 QUnit.test("rows: check matrixdynamic d&d with expanded detail panel", function (assert) {

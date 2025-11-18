@@ -775,3 +775,47 @@ QUnit.test("Could not change the value from upper case into lower case, #10590",
   q.inputValue = "test";
   assert.equal(q.value, "test", "value is changed to lower case");
 });
+QUnit.test("inputType='datetime-local' &currentDate() function, #10610", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        inputType: "datetime-local",
+        defaultValueExpression: "currentDate()"
+      },
+      {
+        type: "text",
+        name: "q2",
+        inputType: "datetime-local",
+        setValueExpression: "currentDate()"
+      },
+      {
+        type: "text",
+        name: "q3",
+        inputType: "datetime-local"
+      },
+      {
+        type: "expression",
+        name: "exp1",
+        expression: "currentDate() = {q1}"
+      },
+      {
+        type: "expression",
+        name: "exp2",
+        expression: "{q1} = {q2}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const exp1 = survey.getQuestionByName("exp1");
+  const exp2 = survey.getQuestionByName("exp2");
+  assert.ok(q1.value.indexOf("T") > -1, "q1 T is present in the value");
+  assert.ok(q2.value.indexOf("T") > -1, "q2 T is present in the value");
+  q3.value = new Date().toString();
+  assert.ok(q3.value.indexOf("T") > -1, "q3 T is present in the value");
+  assert.equal(exp1.value, true, "exp1 is true");
+  assert.equal(exp2.value, true, "exp2 is true");
+});

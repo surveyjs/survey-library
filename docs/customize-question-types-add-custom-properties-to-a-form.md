@@ -146,7 +146,7 @@ Serializer.addClass(
 
 Follow the steps below to add a custom localizable property to a new class:
 
-1. Call the `this.createLocalizableString(name, owner)` method in the class constructor to create a `LocalizableString` instance. This instance contains its own inner dictionary with translations of a particular string for different locales.
+1. Call the `this.createLocString(config)` method in the class constructor to create a `LocalizableString` instance. This instance contains its own inner dictionary with translations of a particular string for different locales.
 2. Add a getter/setter pair that returns and sets localized text and a getter that returns the `LocalizableString` instance itself.
 3. In serialization settings, set the `serializationProperty` setting to the name of the getter that returns the `LocalizableString` instance.
 
@@ -157,7 +157,7 @@ export class MyCustomClass extends Question {
   constructor() {
     super();
     // Step 1: Create a `LocalizableString` instance
-    this.createLocalizableString("myLocalizableProperty", this);
+    this.createLocString({ name: "myLocalizableProperty" });
   }
   getType() {
     return "my-custom-class";

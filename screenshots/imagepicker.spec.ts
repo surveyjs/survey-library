@@ -276,5 +276,46 @@ frameworks.forEach(framework => {
       const questionRoot = page.locator(".sd-imagepicker");
       await compareScreenshot(page, questionRoot, "imagepicker-question-columns-long-label.png");
     });
+    test("Check image picker colCount 0 and long label text", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "imagepicker",
+                "name": "best_picture",
+                "title": "Question 1",
+                "showNumber": false,
+                "choices": [
+                  {
+                    "value": "item_1",
+                    "text": "very long text very long text very long text very long text very long text very long text",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/panda.jpg"
+                  },
+                  {
+                    "value": "item_2",
+                    "text": "not too long text",
+                    "imageLink": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+                  },
+                ],
+                "showLabel": true,
+                "multiSelect": true
+              },
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "width": "1000",
+        "widthMode": "static"
+      });
+      await page.waitForLoadState("networkidle");
+
+      const questionRoot = page.locator(".sd-imagepicker");
+      await compareScreenshot(page, questionRoot, "imagepicker-question-col-count-0-long-label.png");
+    });
   });
 });

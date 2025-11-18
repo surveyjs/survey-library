@@ -16,7 +16,7 @@
       :aria-errormessage="question.ariaErrormessage"
       :multiple="question.allowMultiple"
       v-bind:title="question.inputTitle"
-      v-bind:accept="question.acceptedTypes"
+      v-bind:accept="question.renderedAcceptedTypes"
       :capture="(question.renderCapture as any)"
     />
     <input

@@ -10,7 +10,9 @@ export interface IEqualValuesParameters {
   doNotConvertNumbers?: boolean;
 }
 export function createDate(reason: string, val?: number | string | Date): Date {
-  if (!val) return new Date();
+  if (!val) {
+    return settings.onDateCreated(new Date(), reason, val);
+  }
   if (!settings.storeUtcDates && typeof val === "string" && isISODateOnly(val)) {
     val += "T00:00:00";
   }
@@ -431,16 +433,17 @@ export class Helpers {
     };
     return date.getFullYear() + "-" + toStr(date.getMonth() + 1) + "-" + toStr(date.getDate());
   }
-  public static convertDateTimeToString(date: Date): string {
+  public static convertDateTimeToString(date: Date, isLocal?: boolean): string {
     const toStr = (val: number): string => {
       if (val < 10) return "0" + val.toString();
       return val.toString();
     };
-    return this.convertDateToString(date) + " " + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
+    const seperator = isLocal ? "T" : " ";
+    return this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
   }
   public static convertValToQuestionVal(val: any, inputType?: string): any {
     if (val instanceof Date) {
-      if (inputType === "datetime-local") return Helpers.convertDateTimeToString(val);
+      if (inputType === "datetime-local") return Helpers.convertDateTimeToString(val, true);
       return Helpers.convertDateToString(val);
     }
     return this.getUnbindValue(val);

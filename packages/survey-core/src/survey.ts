@@ -1238,7 +1238,6 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * A list of errors in a survey JSON schema.
-   * @see ensureUniqueNames
    */
   public jsonErrors: Array<JsonError> = null;
 

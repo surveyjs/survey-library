@@ -665,9 +665,21 @@ export class OperandMaker {
   }
   static convertValForDateCompare(val: any, second: any): any {
     if (second instanceof Date && typeof val === "string") {
-      let res = createDate("expression-operand", val);
+      const res = createDate("expression-operand", val);
+      if (second.getHours() > 0 || second.getMinutes() > 0 || second.getSeconds() > 0) return res;
       res.setHours(0, 0, 0);
       return res;
+    }
+    if (typeof second === "string" && val instanceof Date) {
+      if (second.length < 17) {
+        val.setSeconds(0, 0);
+      }
+      if (second.length < 14) {
+        val.setMinutes(0, 0);
+      }
+      if (second.length < 11) {
+        val.setHours(0, 0);
+      }
     }
     return val;
   }

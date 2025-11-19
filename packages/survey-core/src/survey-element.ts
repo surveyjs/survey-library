@@ -469,6 +469,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get hasStateButton(): boolean {
     return this.isExpanded || this.isCollapsed;
   }
+  public getState(): any {
+    if(this.state !== "default") {
+      return { state: this.state }
+    }
+    return undefined;
+  }
+  public setState(data: any): void {
+    if(data && data.state) {
+      this.state = data.state;
+    }
+  }
   public get shortcutText(): string {
     return this.title || this.name;
   }

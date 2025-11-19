@@ -307,6 +307,8 @@ export interface ISurveyElement extends IShortcutText {
   isExpanded: boolean;
   expand(): void;
   collapse(): void;
+  getState(): any;
+  setState(data: any): void;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;

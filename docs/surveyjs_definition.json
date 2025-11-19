@@ -2489,6 +2489,18 @@
                 "imageWidth": {
                     "type": "string"
                 },
+                "acceptedCategories": {
+                    "type": "array",
+                    "items": "string",
+                    "enum": [
+                        "image",
+                        "video",
+                        "audio",
+                        "document",
+                        "archive",
+                        "custom"
+                    ]
+                },
                 "acceptedTypes": {
                     "type": "string"
                 },

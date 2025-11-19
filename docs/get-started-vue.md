@@ -143,7 +143,7 @@ createApp(App).use(surveyPlugin).mount('#app');
 
 If you replicate the code correctly, you should see the following survey:
 
-<img src="./images/get-started-primitive-survey.png" alt="Get Started with SurveyJS - Primitive Survey" width="772" height="513">
+![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
 <details>
     <summary>View Full Code</summary>  
@@ -244,7 +244,7 @@ const alertResults = (sender: any) => {
 </template>
 ```
 
-<img src="./images/get-started-primitive-survey-alert.png" alt="Get Started with SurveyJS - Survey Results" width="772" height="516">
+![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
 As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 

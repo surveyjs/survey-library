@@ -11,7 +11,7 @@ Question properties define a question's contents, behavior, and appearance. Pred
 
 In SurveyJS, each question type is implemented by a specific class. These classes can inherit properties from one or more base classes. You can find the inheritance chain of each class in its API reference. For example, the following image illustrates the inheritance chain of the [`QuestionTextModel`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) class:
 
-<img src="../images/class-inheritance-chain.png" alt="The inheritance chain of survey element classes" width="1544" height="722">
+<img src="images/class-inheritance-chain.png" alt="The inheritance chain of survey element classes" width="1544" height="722">
 
 To add a custom property to an existing class, call the `addProperty(className, propMeta)` method on the `Serializer` object. This method has the following parameters:
 
@@ -606,7 +606,7 @@ Serializer.addProperty("itemvalue", {
 });
 ```
 
-<img src="../images/locationInTable.png" width="1544" height="884" alt="SurveyJS Form Builder: locationInTable property">
+<img src="images/locationInTable.png" width="1544" height="884" alt="SurveyJS Form Builder: locationInTable property">
 
 ### `maxLength`
 
@@ -723,7 +723,7 @@ Serializer.addProperty("question",
 
 If you specify `overridingProperty`, the Property Grid disables the current property and displays a jump link to the overriding property:
 
-<img src="../images/property-grid-overridding-properties.png" alt="Survey Creator - Property Grid with overridden properties" width="1544" height="734">
+<img src="images/property-grid-overridding-properties.png" alt="Survey Creator - Property Grid with overridden properties" width="1544" height="734">
 
 ### `onSetValue`
 

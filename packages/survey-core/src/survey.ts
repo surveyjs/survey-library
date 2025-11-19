@@ -3369,7 +3369,7 @@ export class SurveyModel extends SurveyElementCore
   public getState(): any {
     const res: any = {};
     if(this.lastActiveQuestion) {
-      res.lastActive = this.lastActiveQuestion.name;
+      res.lastActive = this.lastActiveQuestion.rootParentQuestion.name;
     }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {

@@ -1965,6 +1965,24 @@ QUnit.test("Check objHash, Bug#10463", function (assert) {
   assert.equal(cache3, cache5, "change attachData back -> do not change cache");
 });
 
+QUnit.test("Don't request options via choicesByUrl if onChoicesLazyLoad is enabled.", function (assert) {
+  const question = new QuestionDropdownModelTester("q1");
+  const survey = new SurveyModel();
+  survey.addNewPage("1");
+  survey.pages[0].addQuestion(question);
+
+  question.fromJSON({
+    choicesLazyLoadEnabled: true,
+    choicesByUrl: {
+      url: "allcountries",
+      path: "RestResponse;result",
+      attachData: true,
+    },
+  });
+  question.onSurveyLoad();
+  assert.equal(question.visibleChoices.length, 0, "Choices has not loaded");
+});
+
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }

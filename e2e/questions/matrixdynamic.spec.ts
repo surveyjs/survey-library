@@ -33,3 +33,34 @@ frameworks.forEach((framework) => {
     });
   });
 });
+frameworks.forEach((framework) => {
+  test.describe(`${framework} ${title}`, () => {
+    test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10622", async ({ page }) => {
+      await page.goto(`${url}${framework}`);
+      const json = {
+        elements: [
+          { type: "matrixdynamic", name: "matrix", rowCount: 2,
+            columns: [
+              { name: "col1", cellType: "text", defaultValue: "abc" }
+            ]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      const removeButtons = page.locator("button[title='Remove']");
+      await expect(removeButtons).toHaveCount(2);
+      await removeButtons.nth(0).click();
+      await expect(removeButtons).toHaveCount(1);
+      await removeButtons.nth(0).click();
+      await expect(removeButtons).toHaveCount(0);
+      await page.evaluate(() => {
+        window.survey.getQuestionByName("matrix").value = [{ col1: "row1" }];
+      });
+      await expect(removeButtons).toHaveCount(1);
+
+      await page.click("input[value=Complete]");
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({ matrix: [{ col1: "row1" }] });
+    });
+  });
+});

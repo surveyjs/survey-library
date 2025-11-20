@@ -131,6 +131,8 @@ frameworks.forEach((framework) => {
     });
 
     test("tagbox popup position recalculate", async ({ page }) => {
+      await page.setViewportSize({ width: 800, height: 600 });
+
       await initSurvey(page, framework, {
         showQuestionNumbers: false,
         elements: [
@@ -147,8 +149,6 @@ frameworks.forEach((framework) => {
       const selectedItems = page.locator(".sv-tagbox__item");
       const questionTagbox = page.locator(".sd-tagbox");
       const popupContainer = page.locator(".sv-popup__container").filter({ visible: true });
-
-      await page.setViewportSize({ width: 800, height: 600 });
       await expect(selectedItems).toHaveCount(0);
 
       await questionTagbox.click();
@@ -176,11 +176,10 @@ frameworks.forEach((framework) => {
       const questionValueInput = page.locator(".sd-tagbox__value input");
       const questionHint = page.locator(".sd-tagbox__hint");
 
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Shift+Tab");
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(28);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(popupContainer).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
@@ -267,12 +266,11 @@ frameworks.forEach((framework) => {
       const questionValueInput = page.locator(".sd-tagbox__value input");
       const questionHint = page.locator(".sd-tagbox__hint");
 
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Shift+Tab");
       await expect(popupContainer).not.toBeVisible();
       await expect(listItems).toHaveCount(28);
       await expect(listItems.filter({ visible: true })).toHaveCount(0);
 
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(popupContainer).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
@@ -441,6 +439,8 @@ frameworks.forEach((framework) => {
     });
 
     test("Check popup height with lazy loading", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+
       const json = {
         autoFocusFirstQuestion: true,
         elements: [
@@ -493,8 +493,7 @@ frameworks.forEach((framework) => {
       const listItems = page.locator(".sv-list__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
-      await page.setViewportSize({ width: 1280, height: 900 });
-
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(tagbox1.locator(".sv-list__empty-container")).toBeVisible();
       const offsetHeight1 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -516,7 +515,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(26);
 
       await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
       const offsetTop2 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop2).toBeLessThan(200);
       const offsetHeight3 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -531,7 +530,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(51);
 
       await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 2300; });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
       const offsetTop3 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop3).toBeLessThan(200);
       const offsetHeight4 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -568,7 +567,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(31);
 
       await tagbox2.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
       await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
       const offsetTop5 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop5).toBe(0);
@@ -588,6 +587,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Check popup height and position while searching", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
       const json = {
         autoFocusFirstQuestion: true,
         elements: [
@@ -618,10 +618,7 @@ frameworks.forEach((framework) => {
       const listItems = page.locator(".sv-list__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Shift+Tab");
-      await page.setViewportSize({ width: 1280, height: 900 });
-
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(tagbox1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);
@@ -670,6 +667,8 @@ frameworks.forEach((framework) => {
     });
 
     test("Check popup height with lazy loading, if closeOnSelect is false", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+
       const json = {
         autoFocusFirstQuestion: true,
         elements: [
@@ -729,8 +728,7 @@ frameworks.forEach((framework) => {
       const listItems = page.locator(".sv-list__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
-      await page.setViewportSize({ width: 1280, height: 900 });
-
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("ArrowDown");
       await expect(tagbox1.locator(".sv-list__empty-container")).toBeVisible();
       const offsetHeight1 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -752,7 +750,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(26);
 
       await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
       const offsetTop2 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop2).toBeLessThan(200);
       const offsetHeight3 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -767,7 +765,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(51);
 
       await tagbox1.locator(".sv-list").evaluate((el) => { el.scrollTop = 2300; });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
       const offsetTop3 = await tagbox1.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop3).toBeLessThan(200);
       const offsetHeight4 = await tagbox1.locator(".sv-popup__scrolling-content").evaluate((el) => (el as HTMLElement).offsetHeight);
@@ -804,7 +802,7 @@ frameworks.forEach((framework) => {
       await expect(listItems.filter({ visible: true })).toHaveCount(31);
 
       await tagbox2.locator(".sv-list").evaluate((el) => { el.scrollTop = 1000; });
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(1000);
       await expect(tagbox2.locator(".sv-list__empty-container")).not.toBeVisible();
       const offsetTop5 = await tagbox2.evaluate((el) => (el as HTMLElement).offsetTop);
       await expect(offsetTop5).toBe(0);
@@ -824,6 +822,7 @@ frameworks.forEach((framework) => {
     });
 
     test("Check popup height and position while searching, if closeOnSelect is false", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
       const json = {
         autoFocusFirstQuestion: true,
         elements: [
@@ -854,9 +853,7 @@ frameworks.forEach((framework) => {
       const listItems = page.locator(".sv-list__item span");
       const tagboxQuestion2 = page.locator(".sd-tagbox").nth(1);
 
-      await page.setViewportSize({ width: 1280, height: 900 });
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Shift+Tab");
+      await expect(page.locator(".sd-tagbox__filter-string-input").first()).toBeFocused();
       await page.keyboard.press("2");
       await expect(tagbox1).toBeVisible();
       await expect(listItems.filter({ visible: true })).toHaveCount(10);

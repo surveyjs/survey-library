@@ -169,6 +169,12 @@ export async function getData(page) {
   });
 }
 
+export async function getTimeZone(page: Page): Promise<string> {
+  return await page.evaluate(() => {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  });
+}
+
 export async function setRowItemFlowDirection(page) {
   await page.evaluate(() => {
     window["Survey"].settings.itemFlowDirection = "row";

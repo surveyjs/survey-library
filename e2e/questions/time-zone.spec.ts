@@ -31,6 +31,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("2");
       await page.keyboard.press("4");
       await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
       expect(await page.locator("input").nth(0).inputValue()).toBe("2024-03");
       await page.locator("input[value=Complete]").click();
 
@@ -69,6 +70,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("1234");
       await page.keyboard.press("Tab");
       await page.keyboard.type("2022");
+      await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       expect(await page.locator("input").nth(0).inputValue()).toBe("12:34");
       expect(await page.locator("input").nth(1).inputValue()).toBe("2022");

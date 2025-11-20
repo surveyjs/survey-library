@@ -25,11 +25,15 @@ frameworks.forEach((framework) => {
       expect(await getTimeZone(page)).toBe("America/Los_Angeles");
       await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("M");
+      await page.waitForTimeout(500);
       await page.keyboard.press("Tab");
+      await page.waitForTimeout(500);
+      await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("2");
       await page.keyboard.press("0");
       await page.keyboard.press("2");
       await page.keyboard.press("4");
+      await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       expect(await page.locator("input").nth(0).inputValue()).toBe("2024-03");

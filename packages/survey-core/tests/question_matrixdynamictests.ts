@@ -11171,7 +11171,7 @@ QUnit.test("Use -1 as the last row in the expression, Issue#10607", function(ass
 QUnit.test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10622", function(assert) {
   const survey = new SurveyModel({
     elements: [
-      { type: "matrixdynamic", name: "matrix", rowCount: 1,
+      { type: "matrixdynamic", name: "matrix", rowCount: 2,
         columns: [
           { name: "col1", cellType: "text", defaultValue: "abc" }
         ]
@@ -11179,6 +11179,7 @@ QUnit.test("Matrix is not re-create rows on setting value after the matrix value
     ]
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.removeRow(0);
   assert.equal(matrix.visibleRows.length, 1, "There is one default row");
   matrix.addRow();
   matrix.visibleRows[1].getQuestionByColumnName("col1").value = "def";

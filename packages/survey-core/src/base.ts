@@ -526,6 +526,9 @@ export class Base implements IObjectValueContext {
    */
   public getPropertyValue(name: string, defaultValue?: any, calcFunc?: ()=> any): any {
     const res = this.getPropertyValueWithoutDefault(name);
+    if (!!calcFunc && this.isDisposedValue) {
+      calcFunc = undefined;
+    }
     if (!!calcFunc && Array.isArray(res) && res.length === 0 && (<any>res).isReset === true) {
       delete (<any>res).isReset;
       this.setArrayPropertyDirectly(name, calcFunc(), false);

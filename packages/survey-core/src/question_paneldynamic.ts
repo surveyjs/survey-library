@@ -654,9 +654,9 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public getState(): any {
-    let result = super.getState()
+    let result = super.getState();
     const index = this.currentIndex;
-    if(index > 0) {
+    if (index > 0) {
       result = result || {};
       result.currentIndex = index;
     }
@@ -664,7 +664,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public setState(state: any): void {
     super.setState(state);
-    if(state.currentIndex) {
+    if (state.currentIndex) {
       this.currentIndex = state.currentIndex;
     }
   }

@@ -3368,14 +3368,14 @@ export class SurveyModel extends SurveyElementCore
   }
   public getState(): any {
     const res: any = {};
-    if(this.lastActiveQuestion) {
+    if (this.lastActiveQuestion) {
       res.lastActive = this.lastActiveQuestion.rootParentQuestion.name;
     }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
         const s = e.getState();
-        if(s) {
-          res[type] = res[type] || {}
+        if (s) {
+          res[type] = res[type] || {};
           res[type][e.name] = s;
         }
       });
@@ -3386,17 +3386,17 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   public setState(state: any): void {
-    if(typeof state !== "object" || !state) return;
+    if (typeof state !== "object" || !state) return;
     const setElementsStates = (states, fn) => {
-      for(const name in (states || {})) { 
+      for (const name in (states || {})) {
         fn(name)?.setState(states[name]);
       }
     };
     setElementsStates(state["pages"], this.getPageByName.bind(this));
     setElementsStates(state["panels"], this.getPanelByName.bind(this));
     setElementsStates(state["questions"], this.getQuestionByName.bind(this));
-    if(state.lastActive) {
-       this.getQuestionByName(state.lastActive)?.focus();
+    if (state.lastActive) {
+      this.getQuestionByName(state.lastActive)?.focus();
     }
   }
   private isSettingDataValue: boolean;

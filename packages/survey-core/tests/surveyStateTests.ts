@@ -1,8 +1,5 @@
-
-import { Question } from "../src/question";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
-import { SurveyElement } from "../src/survey-element";
 
 export default QUnit.module("SurveyStateTest");
 
@@ -20,9 +17,9 @@ QUnit.test("restore element state property", function (assert) {
   quesiton.collapse();
   assert.deepEqual(quesiton.getState(), { state: "collapsed" }, "quesiton state is no undefined");
   assert.deepEqual(page.getState(), undefined, "page state is undefined #2");
-  assert.deepEqual(survey.getState(), { questions: { question1: { state: "collapsed" }}}, "survey state is no undefined");
+  assert.deepEqual(survey.getState(), { questions: { question1: { state: "collapsed" } } }, "survey state is no undefined");
 
-  survey.setState({ questions: { question1: { state: "expanded" }}});
+  survey.setState({ questions: { question1: { state: "expanded" } } });
   assert.equal(quesiton.isExpanded, true, "quesiton is expanded");
 });
 
@@ -31,20 +28,20 @@ QUnit.test("restore last focused question state", function (assert) {
     pages: [
       {
         elements: [
-          { type: "text", name: "q1"},
-          { type: "text", name: "q2"}
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
         ]
       },
       {
         elements: [
-          { type: "text", name: "q3"},
-          { type: "text", name: "q4"}
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
         ]
       },
       {
         elements: [
-          { type: "text", name: "q5"},
-          { type: "text", name: "q6"}
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" }
         ]
       }
     ]
@@ -52,13 +49,13 @@ QUnit.test("restore last focused question state", function (assert) {
 
   let survey = new SurveyModel(config);
   assert.deepEqual(survey.getState(), {}, "there is no state");
-  survey.whenQuestionFocusIn(survey.getQuestionByName("q3"))
+  survey.whenQuestionFocusIn(survey.getQuestionByName("q3"));
   assert.deepEqual(survey.getState(), { "lastActive": "q3" }, "there is no state");
 
   survey = new SurveyModel(config);
   assert.deepEqual(survey.getState(), {}, "there is no state #2");
   assert.equal(survey.currentPageNo, 0, "survey on first page");
-  survey.setState({ "lastActive": "q5" })
+  survey.setState({ "lastActive": "q5" });
   assert.equal(survey.currentPageNo, 2, "survey on last page");
 });
 
@@ -83,19 +80,19 @@ QUnit.test("restore active element in dynamic panel", function (assert) {
     pages: [
       {
         elements: [
-          { type: "text", name: "q1"},
-          { type: "text", name: "q2"}
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
         ]
       },
       {
         elements: [
-          { type: "text", name: "q3"},
-          { 
-            type: "paneldynamic", 
-            name: "q4", 
+          { type: "text", name: "q3" },
+          {
+            type: "paneldynamic",
+            name: "q4",
             templateElements: [
-              { type: "text", name: "q5"},
-              { type: "text", name: "q6"}
+              { type: "text", name: "q5" },
+              { type: "text", name: "q6" }
             ],
             panelCount: 3,
             displayMode: "tab"
@@ -112,12 +109,12 @@ QUnit.test("restore active element in dynamic panel", function (assert) {
   panel.currentIndex = 1;
 
   survey.whenQuestionFocusIn(panel.panels[1].getQuestionByName("q6"));
-  assert.deepEqual(survey.getState(), { questions: { q4: { currentIndex: 1 }}, lastActive: "q4" }, "survey state with last active");
+  assert.deepEqual(survey.getState(), { questions: { q4: { currentIndex: 1 } }, lastActive: "q4" }, "survey state with last active");
 
   survey = new SurveyModel(config);
-  survey.setState({ questions: { q4: { currentIndex: 1 }}, lastActive: "q4" });
+  survey.setState({ questions: { q4: { currentIndex: 1 } }, lastActive: "q4" });
   assert.equal(survey.currentPageNo, 1, "survey current page numbers is 1");
- 
+
   panel = survey.getQuestionByName("q4");
-  assert.equal(panel.currentIndex, 1, "panel current index is 1");  
+  assert.equal(panel.currentIndex, 1, "panel current index is 1");
 });

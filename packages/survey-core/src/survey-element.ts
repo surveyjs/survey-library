@@ -470,13 +470,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.isExpanded || this.isCollapsed;
   }
   public getState(): any {
-    if(this.state !== "default") {
-      return { state: this.state }
+    if (this.state !== "default") {
+      return { state: this.state };
     }
     return undefined;
   }
   public setState(data: any): void {
-    if(data && data.state) {
+    if (data && data.state) {
       this.state = data.state;
     }
   }

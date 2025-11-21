@@ -11168,3 +11168,30 @@ QUnit.test("Use -1 as the last row in the expression, Issue#10607", function(ass
   rows[2].getQuestionByColumnName("col1").value = "row3-modified";
   assert.equal(survey.getValue("expr"), "row3-modified", "The last row value is correct after modification");
 });
+QUnit.test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10622", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 2,
+        columns: [
+          { name: "col1", cellType: "text", defaultValue: "abc" }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.removeRow(0);
+  assert.equal(matrix.visibleRows.length, 1, "There is one default row");
+  matrix.addRow();
+  matrix.visibleRows[1].getQuestionByColumnName("col1").value = "def";
+  assert.deepEqual(matrix.value, [{ col1: "abc" }, { col1: "def" }], "The value is correct before setting empty array");
+  assert.equal(matrix.renderedTable.rows.length, 4, "There are two data rows before setting empty array");
+  matrix.removeRow(1);
+  matrix.removeRow(0);
+  assert.deepEqual(matrix.value, [], "The value is empty array");
+  assert.equal(matrix.visibleRows.length, 0, "There is no rows");
+  assert.equal(matrix.renderedTable.rows.length, 0, "There are no data rows");
+  matrix.value = [{ col1: "row1" }];
+  assert.equal(matrix.visibleRows.length, 1, "There is one row after setting value");
+  assert.equal(matrix.visibleRows[0].getQuestionByColumnName("col1").value, "row1", "The row value is correct");
+  assert.equal(matrix.renderedTable.rows.length, 2, "There is one data row");
+});

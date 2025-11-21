@@ -995,9 +995,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected isRowChanging = false;
   columnsChangedCallback: () => void;
   onRenderedTableResetCallback: () => void;
-  onRenderedTableCreatedCallback: (
-    table: QuestionMatrixDropdownRenderedTable
-  ) => void;
   onCellCreatedCallback: (options: any) => void;
   onCellValueChangedCallback: (options: any) => void;
   onHasDetailPanelCallback: (row: MatrixDropdownRowModelBase) => boolean;
@@ -1310,12 +1307,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
-  private get renderedTableValue(): QuestionMatrixDropdownRenderedTable {
-    return this.getPropertyValue("renderedTable", null);
-  }
-  private set renderedTableValue(val: QuestionMatrixDropdownRenderedTable) {
-    this.setPropertyValue("renderedTable", val);
-  }
   protected clearRowsAndResetRenderedTable() {
     this.clearGeneratedRows();
     this.resetRenderedTable();
@@ -1323,13 +1314,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   //For internal use
   public resetRenderedTable(columnVisibilityChanged?: boolean): void {
-    if (!this.renderedTableValue) return;
+    if (!this.isRendredTableCreated) return;
     if (this.lockResetRenderedTable || this.isUpdateLocked) {
       if (columnVisibilityChanged) {
-        this.renderedTableValue.requireReset();
+        this.renderedTable.requireReset();
       }
     } else {
-      this.renderedTableValue = null;
+      this.resetPropertyValue("renderedTable");
       this.fireCallback(this.onRenderedTableResetCallback);
     }
   }
@@ -1342,16 +1333,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.clearGeneratedRows();
   }
   protected get isRendredTableCreated(): boolean {
-    return !!this.renderedTableValue;
+    return !!this.getPropertyValueWithoutDefault("renderedTable");
   }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
-    if (!this.renderedTableValue && !this.isDisposed) {
-      this.renderedTableValue = this.createRenderedTable();
-      if (!!this.onRenderedTableCreatedCallback) {
-        this.onRenderedTableCreatedCallback(this.renderedTableValue);
-      }
-    }
-    return this.renderedTableValue;
+    return this.getPropertyValue("renderedTable", undefined, () => this.createRenderedTable());
   }
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);

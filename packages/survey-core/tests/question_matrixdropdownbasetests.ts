@@ -53,11 +53,11 @@ QUnit.test("verticalLayout when isMobile set 'true'", function (assert) {
   });
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   matrix.renderedTable;
-  assert.ok(!!matrix["renderedTableValue"]);
+  assert.ok(!!matrix.getPropertyValue("renderedTable"));
   assert.notOk(matrix.isColumnLayoutHorizontal);
   matrix.isMobile = true;
   assert.ok(matrix.isColumnLayoutHorizontal);
-  assert.notOk(!!matrix["renderedTableValue"]);
+  assert.notOk(!!matrix.getPropertyValue("renderedTable"));
 });
 QUnit.test("Change templateQuestion on changing cellType faster reacting onPropertyChanged", function (assert) {
   const column = new MatrixDropdownColumn("col1");
@@ -390,7 +390,7 @@ QUnit.test("Incorrect default value in matrix dropdown", function (assert) {
   });
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   matrix.renderedTable;
-  assert.ok(!!matrix["renderedTableValue"]);
+  assert.ok(!!matrix.getPropertyValue("renderedTable"));
 });
 QUnit.test("Incorrect default value in matrix dynamic", function (assert) {
   var survey = new SurveyModel({
@@ -410,7 +410,7 @@ QUnit.test("Incorrect default value in matrix dynamic", function (assert) {
   });
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   matrix.renderedTable;
-  assert.ok(!!matrix["renderedTableValue"]);
+  assert.ok(!!matrix.getPropertyValue("renderedTable"));
 });
 QUnit.test("matrix dropdown getElementsInDesign", function (assert) {
   var survey = new SurveyModel({

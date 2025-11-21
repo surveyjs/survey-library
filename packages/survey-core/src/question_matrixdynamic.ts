@@ -732,6 +732,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.removeRowCore(index);
     this.singleInputOnRemoveItem(index);
     this.onEndRowRemoving(row);
+    if (this.initialRowCount > this.rowCount) {
+      this.initialRowCount = this.rowCount;
+    }
   }
   private removeRowCore(index: number) {
     var row = this.visibleRows

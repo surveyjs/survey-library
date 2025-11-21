@@ -49,6 +49,10 @@ frameworks.forEach((framework) => {
       await page.screenshot({ path: "test-results/timezone/timezone-3-0-tab.png", fullPage: true });
       await page.keyboard.press("Tab");
       await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });
+
+      await page.fill('input[type="month"]', "2024-03");
+      await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });
+
       expect(await page.locator("input").nth(0).inputValue()).toBe("2024-03");
       await page.locator("input[value=Complete]").click();
 

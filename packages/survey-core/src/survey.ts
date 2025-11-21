@@ -3396,6 +3396,7 @@ export class SurveyModel extends SurveyElementCore
     setElementsStates(state["panels"], this.getPanelByName.bind(this));
     setElementsStates(state["questions"], this.getQuestionByName.bind(this));
     if (state.lastActive) {
+      // If we focused dynamic pannel?
       this.getQuestionByName(state.lastActive)?.focus();
     }
   }

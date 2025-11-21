@@ -27,35 +27,16 @@ frameworks.forEach((framework) => {
 
       expect(await getTimeZone(page)).toBe("America/Los_Angeles");
       await expect(page.locator(".sd-text").first()).toBeFocused();
-      await page.screenshot({ path: "test-results/timezone/timezone-1-0.png", fullPage: true });
       await page.keyboard.press("m");
-      await page.screenshot({ path: "test-results/timezone/timezone-1-1-m.png", fullPage: true });
       await page.keyboard.press("a");
-      await page.screenshot({ path: "test-results/timezone/timezone-1-2-a.png", fullPage: true });
       await page.keyboard.press("r");
-      await page.screenshot({ path: "test-results/timezone/timezone-1-3-a.png", fullPage: true });
-      await page.keyboard.press("c");
-      await page.screenshot({ path: "test-results/timezone/timezone-1-4-c.png", fullPage: true });
-      await page.keyboard.press("h");
-      await page.screenshot({ path: "test-results/timezone/timezone-1-5-h.png", fullPage: true });
       await page.keyboard.press("Tab");
-      await page.screenshot({ path: "test-results/timezone/timezone-2-0-tab.png", fullPage: true });
       await page.keyboard.press("2");
-      await page.screenshot({ path: "test-results/timezone/timezone-2-1-2.png", fullPage: true });
       await page.keyboard.press("0");
-      await page.screenshot({ path: "test-results/timezone/timezone-2-2-0.png", fullPage: true });
       await page.keyboard.press("2");
-      await page.screenshot({ path: "test-results/timezone/timezone-2-3-2.png", fullPage: true });
       await page.keyboard.press("4");
-      await page.screenshot({ path: "test-results/timezone/timezone-2-4-4.png", fullPage: true });
       await page.keyboard.press("Tab");
-      await page.screenshot({ path: "test-results/timezone/timezone-3-0-tab.png", fullPage: true });
       await page.keyboard.press("Tab");
-      await page.screenshot({ path: "test-results/timezone/timezone-4-0.png", fullPage: true });
-
-      await page.fill('input[type="month"]', "2024-03");
-      await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });
-
       expect(await page.locator("input").nth(0).inputValue()).toBe("2024-03");
       await page.locator("input[value=Complete]").click();
 

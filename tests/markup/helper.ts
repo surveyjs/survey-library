@@ -148,6 +148,8 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         oldStr = sortInlineStyles(oldStr);
         newstr = removeInputValueAttributeForSlider(newstr);
         oldStr = removeInputValueAttributeForSlider(oldStr);
+        newstr = removeActionsIdAttribute(newstr);
+        oldStr = removeActionsIdAttribute(oldStr);
 
         assert.equal(newstr, oldStr,
           newstr == oldStr ?
@@ -421,6 +423,17 @@ function removeInputValueAttributeForSlider(str: string) {
   div.querySelectorAll("*").forEach(el => {
     if (el.tagName.toLowerCase() === "input") {
       el.removeAttribute("value");
+    }
+  });
+  return div.innerHTML;
+}
+
+function removeActionsIdAttribute(str: string) {
+  const div = document.createElement("div");
+  div.innerHTML = str;
+  div.querySelectorAll("*").forEach(el => {
+    if (el.classList.contains("sv-action")) {
+      el.removeAttribute("id");
     }
   });
   return div.innerHTML;

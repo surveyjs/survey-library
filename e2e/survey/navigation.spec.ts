@@ -120,7 +120,7 @@ frameworks.forEach(framework => {
 
     test("check disable/enable navigation item", async ({ page }) => {
       await initSurvey(page, framework, json);
-      const btnSelector = page.locator("#sv-nav-complete input");
+      const btnSelector = page.locator("input[value='Complete']");
       await expect(btnSelector).not.toHaveAttribute("disabled");
       await page.evaluate(() => {
         window["survey"].navigationBarValue.actions[4].enabled = false;

@@ -8239,6 +8239,29 @@ QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
   panel.validate(true);
   assert.equal(panel.getFirstQuestionToFocus(true).name, "panel", "#5");
 });
+QUnit.test("getFirstQuestionToFocus, Bug#8764", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 3,
+        displayMode: "tab",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  });
+
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.currentIndex = 1;
+
+  const q1 = panel.panels[1].getQuestionByName("q1");
+  assert.equal(panel.getFirstQuestionToFocus(false).id, q1.id, "#1");
+  assert.equal((<any>panel).getFirstInputElementId(), q1.inputId, "#2");
+});
 QUnit.test("defaultRowValue in dynamic panel, Bug#8819", function (assert) {
   const survey = new SurveyModel({
     "elements": [

@@ -974,7 +974,7 @@ export class Question extends SurveyElement<Question>
   protected createSingleInputSummary(): QuestionSingleInputSummary {
     return undefined;
   }
-  private get rootParentQuestion(): Question {
+  public get rootParentQuestion(): Question {
     let res: Question = this;
     while(!!res.parentQuestion) {
       res = res.parentQuestion;

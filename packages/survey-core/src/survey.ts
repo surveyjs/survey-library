@@ -3366,6 +3366,40 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
+  public getState(): any {
+    const res: any = {};
+    if (this.lastActiveQuestion) {
+      res.lastActive = this.lastActiveQuestion.rootParentQuestion.name;
+    }
+    const getElementsStates = (type: string, arr: ISurveyElement[]) => {
+      arr.forEach(e => {
+        const s = e.getState();
+        if (s) {
+          res[type] = res[type] || {};
+          res[type][e.name] = s;
+        }
+      });
+    };
+    getElementsStates("pages", this.pages);
+    getElementsStates("panels", this.getAllPanels());
+    getElementsStates("questions", this.getAllQuestions());
+    return res;
+  }
+  public setState(state: any): void {
+    if (typeof state !== "object" || !state) return;
+    const setElementsStates = (states, fn) => {
+      for (const name in (states || {})) {
+        fn(name)?.setState(states[name]);
+      }
+    };
+    setElementsStates(state["pages"], this.getPageByName.bind(this));
+    setElementsStates(state["panels"], this.getPanelByName.bind(this));
+    setElementsStates(state["questions"], this.getQuestionByName.bind(this));
+    if (state.lastActive) {
+      // If we focused dynamic pannel?
+      this.getQuestionByName(state.lastActive)?.focus();
+    }
+  }
   private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
@@ -4094,6 +4128,7 @@ export class SurveyModel extends SurveyElementCore
     this.isLoading = false;
     this.completedByTriggers = undefined;
     this.skippedPages = [];
+    this.lastActiveQuestion = undefined;
     if (clearData) {
       this.setDataCore(null, true);
     }
@@ -5734,7 +5769,9 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
   }
+  private lastActiveQuestion: Question;
   whenQuestionFocusIn(question: Question) {
+    this.lastActiveQuestion = question;
     this.onFocusInQuestion.fire(this, {
       question: question
     });
@@ -6193,7 +6230,7 @@ export class SurveyModel extends SurveyElementCore
    * @see addPage
    * @see createNewPage
    */
-  public addNewPage(name: string = null, index: number = -1) {
+  public addNewPage(name: string = null, index: number = -1): PageModel {
     var page = this.createNewPage(name);
     this.addPage(page, index);
     return page;

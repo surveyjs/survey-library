@@ -314,14 +314,17 @@ export class QuestionPanelDynamicModel extends Question
   public get isCompositeQuestion(): boolean { return true; }
   public get isContainer(): boolean { return true; }
   public getFirstQuestionToFocus(withError: boolean): Question {
-    for (var i = 0; i < this.visiblePanelsCore.length; i++) {
-      const res = this.visiblePanelsCore[i].getFirstQuestionToFocus(withError);
+    const panels = this.currentPanel ? [this.currentPanel] : this.visiblePanelsCore;
+    for (let panel of panels) {
+      const res = panel.getFirstQuestionToFocus(withError);
       if (!!res) return res;
     }
     if (this.showAddPanelButton && (!withError || this.currentErrorCount > 0)) return this;
     return null;
   }
   protected getFirstInputElementId(): string {
+    const question = this.getFirstQuestionToFocus(false);
+    if (question && question !== this) return question.inputId;
     if (this.showAddPanelButton) return this.addButtonId;
     return super.getFirstInputElementId();
   }
@@ -651,6 +654,21 @@ export class QuestionPanelDynamicModel extends Question
         visiblePanelIndex: index
       };
       this.survey.dynamicPanelCurrentIndexChanged(this, options);
+    }
+  }
+  public getState(): any {
+    let result = super.getState();
+    const index = this.currentIndex;
+    if (index > 0) {
+      result = result || {};
+      result.currentIndex = index;
+    }
+    return result;
+  }
+  public setState(state: any): void {
+    super.setState(state);
+    if (state.currentIndex) {
+      this.currentIndex = state.currentIndex;
     }
   }
 

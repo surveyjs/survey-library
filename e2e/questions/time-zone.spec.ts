@@ -4,7 +4,10 @@ const title = "Text question in western timezone";
 
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
-    test.use({ timezoneId: "America/Los_Angeles" });
+    test.use({
+      locale: "en-US",
+      timezoneId: "America/Los_Angeles"
+    });
 
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
@@ -48,7 +51,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.screenshot({ path: "test-results/timezone/timezone-3-0-tab.png", fullPage: true });
       await page.keyboard.press("Tab");
-      await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });
+      await page.screenshot({ path: "test-results/timezone/timezone-4-0.png", fullPage: true });
 
       await page.fill('input[type="month"]', "2024-03");
       await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });

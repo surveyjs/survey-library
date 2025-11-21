@@ -1887,7 +1887,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode)
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode || this.choicesLazyLoadEnabled)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()

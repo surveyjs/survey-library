@@ -29,15 +29,19 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("r");
       await page.keyboard.press("c");
       await page.keyboard.press("h");
+      await page.screenshot({ path: "test-results/timezone/timezone-1.png", fullPage: true });
       await page.keyboard.press("Tab");
+      await page.screenshot({ path: "test-results/timezone/timezone-2.png", fullPage: true });
       await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("2");
       await page.keyboard.press("0");
       await page.keyboard.press("2");
       await page.keyboard.press("4");
+      await page.screenshot({ path: "test-results/timezone/timezone-3.png", fullPage: true });
       await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
+      await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });
       expect(await page.locator("input").nth(0).inputValue()).toBe("2024-03");
       await page.locator("input[value=Complete]").click();
 

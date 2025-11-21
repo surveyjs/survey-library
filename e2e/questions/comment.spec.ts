@@ -19,6 +19,129 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
     });
 
+    test("check comment existing", async ({ page }) => {
+      const json = {
+        elements: [
+          {
+            "type": "radiogroup",
+            "name": "radiogroup",
+            "choices": [1, 2, 3],
+            "showCommentArea": true
+          },
+          {
+            "type": "checkbox",
+            "name": "checkbox",
+            "choices": [1, 2, 3],
+            "showCommentArea": true
+          },
+          {
+            "type": "dropdown",
+            "name": "dropdown",
+            "choices": [1, 2, 3],
+            "showCommentArea": true
+          },
+          {
+            "type": "rating",
+            "name": "rating",
+            "showCommentArea": true
+          },
+          {
+            "type": "ranking",
+            "name": "ranking",
+            "choices": [1, 2, 3],
+            "showCommentArea": true
+          },
+          {
+            "type": "boolean",
+            "name": "boolean",
+            "showCommentArea": true
+          },
+          {
+            "type": "matrix",
+            "name": "matrix",
+            "showCommentArea": true,
+            "rows": [1, 2],
+            "columns": [1, 2]
+          },
+          {
+            "type": "matrixdynamic",
+            "name": "matrixdynamic",
+            "showCommentArea": true,
+            "columns": [{ name: "col1" }]
+          },
+          {
+            "type": "matrixdropdown",
+            "name": "matrixdropdown",
+            "showCommentArea": true,
+            "columns": [{ name: "col1" }],
+            "rows": [1, 2]
+          },
+          {
+            "type": "paneldynamic",
+            "name": "paneldynamic",
+            "showCommentArea": true,
+            "templateElements": [
+              { "type": "text", "name": "q7" }
+            ]
+          },
+          {
+            "type": "file",
+            "name": "file",
+            "showCommentArea": true
+          },
+          {
+            "type": "text",
+            "name": "text",
+            "showCommentArea": true
+          },
+          {
+            "type": "comment",
+            "name": "comment",
+            "showCommentArea": true
+          },
+          {
+            "type": "html",
+            "name": "html",
+            "showCommentArea": true
+          },
+          {
+            "type": "image",
+            "name": "image",
+            "showCommentArea": true
+          },
+          {
+            "type": "expression",
+            "name": "expression",
+            "showCommentArea": true
+          },
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => {
+        const survey = window["survey"];
+        //survey.readOnly = true;
+        survey.getAllQuestions().forEach(q => { q.id = q.name; });
+        //survey.readOnly = false;
+      });
+
+      await expect(page.locator("#radiogroup_comment")).toBeVisible();
+      await expect(page.locator("#checkbox_comment")).toBeVisible();
+      await expect(page.locator("#dropdown_comment")).toBeVisible();
+      await expect(page.locator("#rating_comment")).toBeVisible();
+      await expect(page.locator("#ranking_comment")).toBeVisible();
+      await expect(page.locator("#boolean_comment")).toBeVisible();
+      await expect(page.locator("#matrix_comment")).toBeVisible();
+      await expect(page.locator("#matrixdropdown_comment")).toBeVisible();
+      await expect(page.locator("#matrixdynamic_comment")).toBeVisible();
+      await expect(page.locator("#paneldynamic_comment")).toBeVisible();
+      await expect(page.locator("#file_comment")).toBeVisible();
+      await expect(page.locator("#text_comment")).not.toBeVisible();
+      await expect(page.locator("#comment_comment")).not.toBeVisible();
+      await expect(page.locator("#html_comment")).not.toBeVisible();
+      await expect(page.locator("#image_comment")).not.toBeVisible();
+      await expect(page.locator("#expression_comment")).not.toBeVisible();
+    });
+
     test("autoGrowComment & acceptCarriageReturn", async ({ page }) => {
       await initSurvey(page, framework, {
         "autoGrowComment": true,

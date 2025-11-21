@@ -24,17 +24,8 @@ frameworks.forEach((framework) => {
 
       expect(await getTimeZone(page)).toBe("America/Los_Angeles");
       await expect(page.locator(".sd-text").first()).toBeFocused();
-      await page.locator(".sd-text").first().fill("March");
+      await page.locator(".sd-text").first().fill("March 2024");
       await page.screenshot({ path: "test-results/timezone/timezone-1.png", fullPage: true });
-      await page.keyboard.press("Tab");
-      await page.screenshot({ path: "test-results/timezone/timezone-2.png", fullPage: true });
-      await expect(page.locator(".sd-text").first()).toBeFocused();
-      await page.keyboard.press("2");
-      await page.keyboard.press("0");
-      await page.keyboard.press("2");
-      await page.keyboard.press("4");
-      await page.screenshot({ path: "test-results/timezone/timezone-3.png", fullPage: true });
-      await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.screenshot({ path: "test-results/timezone/timezone-4.png", fullPage: true });

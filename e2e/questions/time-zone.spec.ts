@@ -2,10 +2,10 @@ import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone
 
 const title = "Text question in western timezone";
 
-test.use({ timezoneId: "America/Los_Angeles" });
-
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
+    test.use({ timezoneId: "America/Los_Angeles" });
+
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
     });
@@ -24,11 +24,7 @@ frameworks.forEach((framework) => {
 
       expect(await getTimeZone(page)).toBe("America/Los_Angeles");
       await expect(page.locator(".sd-text").first()).toBeFocused();
-      await page.keyboard.press("M");
-      await page.keyboard.press("a");
-      await page.keyboard.press("r");
-      await page.keyboard.press("c");
-      await page.keyboard.press("h");
+      await page.locator(".sd-text").first().fill("March");
       await page.screenshot({ path: "test-results/timezone/timezone-1.png", fullPage: true });
       await page.keyboard.press("Tab");
       await page.screenshot({ path: "test-results/timezone/timezone-2.png", fullPage: true });

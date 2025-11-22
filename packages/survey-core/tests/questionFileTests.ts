@@ -2523,3 +2523,20 @@ QUnit.test("questionFile acceptedCategories property, Issue#10602", function (as
   assert.deepEqual(q4.acceptedCategories, ["archive", "custom"], "q4 categories after setting archive category");
   assert.equal(q4.acceptedTypes, ".doc,.txt", "q4 acceptedTypes after setting archive category");
 });
+QUnit.test("questionFile acceptedTypes property as an array, Bug#10627", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", acceptedCategories: ["document"], acceptedTypes: [".pdf", ".jpeg"] },
+      { type: "file", name: "q2", acceptedTypes: [".pdf", ".jpeg"] }
+    ]
+  });
+  const documentTypes = ".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.rtf,.odt";
+  const q1 = survey.getQuestionByName("q1") as QuestionFileModel;
+  const q2 = survey.getQuestionByName("q2") as QuestionFileModel;
+  assert.equal(q1.renderedAcceptedTypes, documentTypes + ",.jpeg", "#1");
+  assert.equal(q2.renderedAcceptedTypes, ".pdf,.jpeg", "#2");
+  q2.acceptedTypes = <any>[".doc", ".txt"];
+  assert.deepEqual(q2.acceptedCategories, ["custom"], "q2 categories after setting acceptedTypes");
+  assert.deepEqual(q2.toJSON(), { name: "q2", acceptedTypes: [".doc", ".txt"] }, "q2 json");
+  assert.equal(q2.renderedAcceptedTypes, ".doc,.txt", "#4");
+});

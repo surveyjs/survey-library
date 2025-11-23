@@ -816,7 +816,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     for (let colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       const question = cells[colIndex].question;
-      if (!question || !question.visible) continue;
+      if (!question || !question.isVisible) continue;
       if (!!context && context.isOnValueChanged === true && question.isEmpty())
         continue;
       res = question.validateElement(context) && res;

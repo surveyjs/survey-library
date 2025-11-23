@@ -1804,8 +1804,7 @@ QUnit.test("choicesByUrl + clear invsible values", function(assert) {
   assert.equal(question2.isEmpty(), true, "Value is empty, locale choices");
 });
 
-// TODO comment unexpected empty string (in base)
-QUnit.skip("matrix dynamic and has other, Bug #2854", function(assert) {
+QUnit.test("matrix dynamic and has other, Bug#2854", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");
   var question = new QuestionMatrixDynamicModelTester("q1");
@@ -1835,6 +1834,7 @@ QUnit.skip("matrix dynamic and has other, Bug #2854", function(assert) {
     "Choices are loaded, + showOtherItem"
   );
   assert.equal(cellDropdown.value, "Afghanistan");
+  assert.equal(cellDropdown.comment, "Comment");
   survey.doComplete();
   assert.deepEqual(survey.data, data, "value is not changed");
 });

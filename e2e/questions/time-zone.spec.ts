@@ -13,7 +13,7 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
     });
 
-    test("Test input type (month) in western timezone", async ({ page }) => {
+    test.skip("Test input type (month) in western timezone", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [

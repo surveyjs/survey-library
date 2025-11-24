@@ -8,7 +8,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  IPlainDataOptions
+  IPlainDataOptions, IElementUIState
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -656,8 +656,8 @@ export class QuestionPanelDynamicModel extends Question
       this.survey.dynamicPanelCurrentIndexChanged(this, options);
     }
   }
-  public getState(): any {
-    let result = super.getState();
+  protected getUIState(): any {
+    let result = super.getUIState();
     const index = this.currentIndex;
     if (index > 0) {
       result = result || {};
@@ -665,8 +665,8 @@ export class QuestionPanelDynamicModel extends Question
     }
     return result;
   }
-  public setState(state: any): void {
-    super.setState(state);
+  protected setUIState(state: any): void {
+    super.setUIState(state);
     if (state.currentIndex) {
       this.currentIndex = state.currentIndex;
     }

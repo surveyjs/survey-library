@@ -21,7 +21,7 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult
+  ITextProcessorResult, ISurveyUIState
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -3366,14 +3366,14 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
-  public getState(): any {
-    const res: any = {};
+  public get uiState(): ISurveyUIState {
+    const res: ISurveyUIState = {};
     if (this.lastActiveQuestion) {
       res.lastActive = this.lastActiveQuestion.rootParentQuestion.name;
     }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
-        const s = e.getState();
+        const s = e.uiState;
         if (s) {
           res[type] = res[type] || {};
           res[type][e.name] = s;
@@ -3385,11 +3385,14 @@ export class SurveyModel extends SurveyElementCore
     getElementsStates("questions", this.getAllQuestions());
     return res;
   }
-  public setState(state: any): void {
+  public set uiState(state: ISurveyUIState) {
     if (typeof state !== "object" || !state) return;
     const setElementsStates = (states, fn) => {
       for (const name in (states || {})) {
-        fn(name)?.setState(states[name]);
+        const elem: ISurveyElement = fn(name);
+        if (elem) {
+          elem.uiState = states[name];
+        }
       }
     };
     setElementsStates(state["pages"], this.getPageByName.bind(this));

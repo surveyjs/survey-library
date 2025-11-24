@@ -12,7 +12,7 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
-  ITitleOwner
+  ITitleOwner, IElementUIState
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
@@ -469,13 +469,19 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get hasStateButton(): boolean {
     return this.isExpanded || this.isCollapsed;
   }
-  public getState(): any {
+  public get uiState(): IElementUIState {
+    return this.getUIState();
+  }
+  public set uiState(data: IElementUIState) {
+    this.setUIState(data);
+  }
+  protected getUIState(): IElementUIState {
     if (this.state !== "default") {
       return { state: this.state };
     }
     return undefined;
   }
-  public setState(data: any): void {
+  protected setUIState(data: IElementUIState): void {
     if (data && data.state) {
       this.state = data.state;
     }

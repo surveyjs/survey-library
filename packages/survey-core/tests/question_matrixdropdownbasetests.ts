@@ -2443,7 +2443,7 @@ QUnit.test("survey.showInvisibleElements property, do not hide columns when true
   assert.equal(matrix.visibleRows.length, 1, "There is one visible row, #2");
 });
 QUnit.test("Matrix cell values are not cleared when columns are hidden despite clearInvisibleValues: 'onHiddenContainer' Bug#10618", function(assert) {
-    const survey = new SurveyModel({
+  const survey = new SurveyModel({
     "elements": [
       {
         "type": "matrixdropdown",
@@ -2487,7 +2487,7 @@ QUnit.test("Matrix cell values are not cleared when columns are hidden despite c
   matrix.visibleRows[0].getQuestionByName("col1").value = 2;
 
   assert.equal(matrix.visibleRows.length, 1, "#6");
-  //TODO assert.equal(matrix.visibleColumns.length, 1, "#7");
+
   assert.deepEqual(matrix.value, { row1: { col1: 2 } }, "#8");
 
   assert.equal(matrix.visibleRows[0].getQuestionByName("col2").isVisible, false, "#9");

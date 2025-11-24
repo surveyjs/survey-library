@@ -171,7 +171,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     const hasColumnsChanged = this.runConditionsForColumns(properties);
     hasChanges = hasColumnsChanged || hasChanges;
     if (hasChanges) {
-      if (this.isClearValueOnHidden && hasColumnsChanged) {
+      if (this.isClearValueOnHidden) {
         this.clearInvisibleColumnValues();
       }
       this.clearGeneratedRows();

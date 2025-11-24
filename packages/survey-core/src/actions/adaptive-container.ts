@@ -51,7 +51,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     super();
 
     this.dotsItem = createDropdownActionModelAdvanced({
-      id: "dotsItem",
+      id: "dotsItem-id" + this.id++,
       css: "sv-dots",
       innerCss: "sv-dots__item",
       iconName: "icon-more",

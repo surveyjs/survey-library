@@ -1092,6 +1092,10 @@ export interface ElementContentVisibilityChangedEvent {
    */
   element: ISurveyElement;
 }
+export interface UIStateChangedEvent {
+  reason: string;
+  element?: ISurveyElement;
+}
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**
    * A question's display text. You can assign a custom value to this parameter.

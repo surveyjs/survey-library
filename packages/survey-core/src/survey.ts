@@ -69,7 +69,7 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
-  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent
+  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -964,6 +964,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
   public onElementContentVisibilityChanged: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  public onUIStateChanged: EventBase<SurveyModel, UIStateChangedEvent> = this.addEvent<SurveyModel, UIStateChangedEvent>();
 
   /**
    * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
@@ -5772,7 +5773,14 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
   }
-  private lastActiveQuestion: Question;
+  private lastActiveQuestionValue: Question;
+  private get lastActiveQuestion(): Question {
+    return this.lastActiveQuestionValue;
+  }
+  private set lastActiveQuestion(val: Question) {
+    this.lastActiveQuestionValue = val;
+    this.doUIStateChanged("lastActive", val);
+  }
   whenQuestionFocusIn(question: Question) {
     this.lastActiveQuestion = question;
     this.onFocusInQuestion.fire(this, {
@@ -5934,6 +5942,7 @@ export class SurveyModel extends SurveyElementCore
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void {
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
+    this.doUIStateChanged("currentIndex", question);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
@@ -5944,6 +5953,11 @@ export class SurveyModel extends SurveyElementCore
       this.currentPage.ensureRowsVisibility();
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
+    this.doUIStateChanged("state", element);
+  }
+  private doUIStateChanged(reason: string, element: ISurveyElement): void {
+    if (this.onUIStateChanged.isEmpty) return;
+    this.onUIStateChanged.fire(this, { reason, element });
   }
   public getUpdatedPanelFooterActions(
     panel: PanelModel,

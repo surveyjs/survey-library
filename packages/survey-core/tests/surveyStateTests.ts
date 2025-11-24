@@ -1,5 +1,6 @@
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
+import { UIStateChangedEvent } from "../src/survey-events-api";
 
 export default QUnit.module("SurveyStateTest");
 
@@ -117,4 +118,40 @@ QUnit.test("restore active element in dynamic panel", function (assert) {
 
   panel = survey.getQuestionByName("q4");
   assert.equal(panel.currentIndex, 1, "panel current index is 1");
+});
+
+QUnit.test("onUIStateChanged event test", function (assert) {
+  const config = {
+    elements: [
+      { type: "text", name: "q1", state: "collapsed" },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        templateElements: [
+          { type: "text", name: "q3" },
+          { type: "text", name: "q4" }
+        ],
+        panelCount: 3,
+        displayMode: "tab"
+      }
+    ]
+  };
+
+  const survey = new SurveyModel(config);
+  let events: any[] = [];
+  survey.onUIStateChanged.add((sender, options: UIStateChangedEvent) => {
+    events.push({ reason: options.reason, name: options.element.name });
+  });
+
+  survey.getQuestionByName("q1").expand();
+
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  panel.currentIndex = 1;
+  survey.whenQuestionFocusIn(panel.currentPanel.getQuestionByName("q4"));
+
+  assert.deepEqual(events, [
+    { reason: "state", name: "q1" },
+    { reason: "currentIndex", name: "q2" },
+    { reason: "lastActive", name: "q4" }
+  ], "check received events");
 });

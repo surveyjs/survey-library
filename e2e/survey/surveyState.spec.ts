@@ -26,9 +26,7 @@ frameworks.forEach((framework) => {
 
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
-        window["survey"].setState({
-          lastActive: "q4"
-        });
+        window["survey"].uiState = { lastActive: "q4" };
       });
       await page.waitForTimeout(100);
       await page.keyboard.type("abc");
@@ -82,7 +80,7 @@ frameworks.forEach((framework) => {
 
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
-        window["survey"].setState({
+        window["survey"].uiState = {
           panels: {
             panel1: { state: "expanded" },
           },
@@ -90,7 +88,7 @@ frameworks.forEach((framework) => {
             q5: { currentIndex: 1 }
           },
           lastActive: "q5"
-        });
+        };
       });
       await page.waitForTimeout(100);
       const q3 = page.locator("div[data-name=q3] input");

@@ -142,6 +142,12 @@ export async function getQuestionJson(page) {
   });
 }
 
+export async function getPanelJson(page) {
+  return await page.evaluate(() => {
+    return JSON.stringify(window["survey"].getAllPanels()[0].toJSON());
+  });
+}
+
 export async function setOptions(page: Page, questionName: string, modValue: any) {
   await page.evaluate(([questionName, modValue]) => {
     const mergeOptions = function (obj1, obj2) {

@@ -1,6 +1,6 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, test, expect, checkSurveyData } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, test, expect } from "../helper";
 
-const title = "matrix";
+const title = "matrixrubric";
 
 const json = {
   elements: [
@@ -21,6 +21,36 @@ const json = {
         { value: "better than others", text: "Product is better than other products on the market" },
         { value: "easy to use", text: "Product is easy to use" },
       ],
+      cells: {
+        affordable: {
+          1: "1x1",
+          2: "1x2",
+          3: "1x3",
+          4: "1x4",
+          5: "1x3",
+        },
+        "does what it claims": {
+          1: "2x1",
+          2: "2x2",
+          3: "2x3",
+          4: "2x4",
+          5: "2x3",
+        },
+        "better than others": {
+          1: "3x1",
+          2: "3x2",
+          3: "3x3",
+          4: "3x4",
+          5: "3x3",
+        },
+        "easy to use": {
+          1: "4x1",
+          2: "4x2",
+          3: "4x3",
+          4: "4x4",
+          5: "4x3",
+        }
+      }
     },
   ],
 };
@@ -33,7 +63,7 @@ frameworks.forEach((framework) => {
     });
 
     test("choose value", async ({ page }) => {
-      await page.locator("tr").filter({ hasText: "Product is easy to use" }).locator(".sd-item__decorator").nth(4).click();
+      await page.locator("tbody tr:nth-child(4) td:nth-child(6)").click();
       await page.locator("input[value=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
@@ -41,10 +71,13 @@ frameworks.forEach((framework) => {
     });
 
     test("choose several values", async ({ page }) => {
-      await page.locator("tr").filter({ hasText: "Product does what it claims" }).locator(".sd-item__decorator").nth(3).click();
-      await page.locator("tr").filter({ hasText: "Product is easy to use" }).locator(".sd-item__decorator").nth(4).click();
+      const firstCellSelector = page.locator("tbody tr:nth-child(2) td:nth-child(5)");
+      const secondCellSelector = page.locator("tbody tr:nth-child(4) td:nth-child(6)");
+      await firstCellSelector.click();
+      await expect(firstCellSelector).toHaveClass(/sd-matrix__text--checked/);
+      await secondCellSelector.click();
+      await expect(secondCellSelector).toHaveClass(/sd-matrix__text--checked/);
       await page.locator("input[value=Complete]").click();
-
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality).toEqual({
         "does what it claims": 4,
@@ -60,10 +93,10 @@ frameworks.forEach((framework) => {
       let surveyResult = await getSurveyResult(page);
       expect(typeof surveyResult).toBe("undefined");
 
-      await page.locator("tr").filter({ hasText: "Product is affordable" }).locator(".sd-item__decorator").nth(2).click();
-      await page.locator("tr").filter({ hasText: "Product does what it claims" }).locator(".sd-item__decorator").nth(3).click();
-      await page.locator("tr").filter({ hasText: "Product is better than other" }).locator(".sd-item__decorator").nth(1).click();
-      await page.locator("tr").filter({ hasText: "Product is easy to use" }).locator(".sd-item__decorator").nth(4).click();
+      await page.locator("tbody tr:nth-child(1) td:nth-child(4)").click();
+      await page.locator("tbody tr:nth-child(2) td:nth-child(5)").click();
+      await page.locator("tbody tr:nth-child(3) td:nth-child(3)").click();
+      await page.locator("tbody tr:nth-child(4) td:nth-child(6)").click();
       await page.locator("input[value=Complete]").click();
 
       surveyResult = await getSurveyResult(page);
@@ -74,27 +107,6 @@ frameworks.forEach((framework) => {
         "easy to use": 5,
       });
     });
-
-    test("checked class", async ({ page }) => {
-      const isCheckedClassExistsByIndex = async (index: number) => {
-        return await page.evaluate((index) => {
-          const element = document.querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`);
-          return element?.classList.contains("sd-radio--checked") || false;
-        }, index);
-      };
-
-      expect(await isCheckedClassExistsByIndex(2)).toBe(false);
-      expect(await isCheckedClassExistsByIndex(3)).toBe(false);
-
-      await page.locator("tr").filter({ hasText: "Product is affordable" }).locator(".sd-item__decorator").nth(1).click();
-      expect(await isCheckedClassExistsByIndex(2)).toBe(true);
-      expect(await isCheckedClassExistsByIndex(3)).toBe(false);
-
-      await page.locator("tr").filter({ hasText: "Product is affordable" }).locator(".sd-item__decorator").nth(2).click();
-      expect(await isCheckedClassExistsByIndex(2)).toBe(false);
-      expect(await isCheckedClassExistsByIndex(3)).toBe(true);
-    });
-
     test("isAnswered for matrix with loading answers from data - #2239", async ({ page }) => {
       await page.evaluate(() => {
         window["survey"].data = {
@@ -130,8 +142,8 @@ frameworks.forEach((framework) => {
 
       var outerSelector = ".sd-question__title";
       var innerSelector = ".sv-string-editor";
-      await page.locator(outerSelector).first().click();
-      await page.locator(outerSelector + " " + innerSelector).first().fill(newTitle);
+      await page.locator(outerSelector).click();
+      await page.locator(outerSelector + " " + innerSelector).fill(newTitle);
       await page.locator("body").click({ position: { x: 0, y: 0 } });
 
       questionValue = await getQuestionValue(page);
@@ -179,80 +191,24 @@ frameworks.forEach((framework) => {
       json = JSON.parse(questionJson);
       expect(json.rows[0].text).toBe(newTitle);
     });
-  });
-});
 
-const json2 = {
-  "autoFocusFirstQuestion": true,
-  "elements": [{
-    "type": "radiogroup",
-    "name": "question2",
-    "defaultValue": "Item1",
-    "choices": [
-      "Item1",
-      "Item2",
-      "Item3"
-    ]
-  },
-  {
-    "type": "matrix",
-    "name": "question1",
-    "columns": ["Col1"],
-    "rows": [
-      { value: "Row1", enableIf: "{question2} = 'Item2'" }
-    ]
-  }]
-};
+    test("click on cell title state editable", async ({ page }) => {
+      var newTitle = "MyText";
+      var questionJson = await getQuestionJson(page);
+      var json = JSON.parse(questionJson);
+      var questionValue = await getQuestionValue(page);
+      expect(questionValue).toBeUndefined();
 
-frameworks.forEach(framework => {
-  test.describe(`${framework} ${title}`, () => {
-    test("Matrix row enableIf", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
-      await initSurvey(page, framework, json2);
-      const inputButton = page.locator("input[value=\"Col1\"]");
-      await expect(inputButton).toBeVisible();
-      await expect(inputButton).toHaveAttribute("disabled", "");
-      await page.keyboard.press("ArrowDown");
-      await expect(inputButton).not.toHaveAttribute("disabled", "");
-      await page.keyboard.press("ArrowUp");
-      await expect(inputButton).toHaveAttribute("disabled", "");
-    });
+      var selector = ".sd-matrix__table tbody tr:nth-child(4) td:nth-child(6) .sv-string-editor";
+      await page.locator(selector).click();
+      await page.locator(selector).fill(newTitle);
+      await page.locator("body").click({ position: { x: 0, y: 0 } });
 
-    test("check matrix cellType: checkbox keyboard navigation", async ({ page }) => {
-      await page.goto(`${url}${framework}`);
-      await page.setViewportSize({ width: 1920, height: 1080 });
-      const json = {
-        elements: [
-          {
-            "type": "matrix",
-            "name": "question1",
-            "columns": [
-              "Column 1",
-              "Column 2",
-              "Column 3"
-            ],
-            "rows": [
-              "Row 1",
-              "Row 2"
-            ],
-            "cellType": "checkbox"
-          }
-        ]
-      };
-      await initSurvey(page, framework, json);
-      await page.focus(".sd-item__control");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Space");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Space");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Space");
-      await checkSurveyData(page, {
-        question1: {
-          "Row 1": ["Column 2", "Column 3"],
-          "Row 2": ["Column 1"]
-        },
-      });
+      questionValue = await getQuestionValue(page);
+      expect(questionValue).toBeUndefined();
+      questionJson = await getQuestionJson(page);
+      json = JSON.parse(questionJson);
+      expect(json.cells["easy to use"][5]).toBe(newTitle);
     });
   });
 });

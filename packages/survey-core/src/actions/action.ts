@@ -361,6 +361,7 @@ export abstract class BaseAction extends Base implements IAction {
       .append(this.css)
       .append("sv-action--space", this.needSpace)
       .append("sv-action--hidden", !this.isVisible)
+      .append(`sv-action--${this.id}`, !!this.id)
       .toString();
   }
   public getTooltip(): string {

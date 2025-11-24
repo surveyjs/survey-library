@@ -5780,10 +5780,11 @@ QUnit.test("checkbox vs valuePropertyName and rendering panels, Bug#10633", (ass
   q.clickItemHandler(q.choices[0], true);
   assert.equal(panel.panelCount, 1, "There are two panels");
   q.clickItemHandler(q.choices[1], true);
-  assert.equal(panel.panelCount, 2, "There are two panels");
-  assert.equal(panel.panels[0].wasRendered, true, "panel1 is rendered");
-  assert.equal(panel.panels[1].wasRendered, true, "panel2 is rendered");
-  const panel2 = panel.panels[1];
+  const panels = panel.getPropertyValue("panels");
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal(panels[0].wasRendered, true, "panel1 is rendered");
+  assert.equal(panels[1].wasRendered, true, "panel2 is rendered");
+  const panel2 = panels[1];
   const rows = panel2.visibleRows;
   assert.equal(rows.length, 1, "panel2 rows count");
   assert.equal(rows[0].visibleElements.length, 1, "panel2 first row elements count");

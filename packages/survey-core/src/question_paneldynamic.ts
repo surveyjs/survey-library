@@ -657,14 +657,14 @@ export class QuestionPanelDynamicModel extends Question
   @propertyArray({}) private _renderedPanels: Array<PanelModel> = [];
 
   private updateRenderedPanels() {
+    let panels: Array<PanelModel> = [];
     if (this.isRenderModeList) {
-      this.renderedPanels = [].concat(this.visiblePanels);
+      panels = [].concat(this.visiblePanels);
     } else if (this.currentPanel) {
-      this.renderedPanels = [this.currentPanel];
-    } else {
-      this.renderedPanels = [];
+      panels = [this.currentPanel];
     }
-    this.renderedPanels.forEach(panel => this.panelOnFirstRendering(panel));
+    panels.forEach(panel => this.panelOnFirstRendering(panel));
+    this.renderedPanels = panels;
   }
   private panelOnFirstRendering(panel: PanelModel) {
     if (panel) {

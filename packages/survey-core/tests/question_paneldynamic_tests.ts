@@ -5754,6 +5754,43 @@ QUnit.test("checkbox vs valuePropertyName and display text and useDisplayValuesI
   assert.equal(p1_q1.locTitle.renderedHtml, 1, "title for question in panel1");
   assert.equal(p2_q1.locTitle.renderedHtml, 3, "title for question in panel2");
 });
+QUnit.test("checkbox vs valuePropertyName and rendering panels, Bug#10633", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valueName: "data1",
+        valuePropertyName: "fruit"
+      },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        valueName: "data1",
+        templateTitle: "{panel.fruit}",
+        templateElements: [
+          { type: "text", name: "panel_q1" },
+        ],
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  q.clickItemHandler(q.choices[0], true);
+  assert.equal(panel.panelCount, 1, "There are two panels");
+  q.clickItemHandler(q.choices[1], true);
+  const panels = panel.getPropertyValue("panels");
+  assert.equal(panels.length, 2, "There are two panels");
+  assert.equal(panels[0].wasRendered, true, "panel1 is rendered");
+  assert.equal(panels[1].wasRendered, true, "panel2 is rendered");
+  const panel2 = panels[1];
+  const rows = panel2.visibleRows;
+  assert.equal(rows.length, 1, "panel2 rows count");
+  assert.equal(rows[0].visibleElements.length, 1, "panel2 first row elements count");
+  assert.equal(rows[0].visibleElements[0].name, "panel_q1", "panel2 first row first element name");
+  assert.equal((<any>rows[0].visibleElements[0]).wasRendered, true, "panel2 first row first element wasRendered");
+});
 QUnit.test("Incorrect default value in panel dynamic", (assert) => {
   const survey = new SurveyModel({
     elements: [

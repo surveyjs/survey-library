@@ -279,6 +279,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.waitForTimeout(200);
       await page.keyboard.press("Space");
+      await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
       await page.keyboard.press("2");
       await page.keyboard.press("3");
@@ -317,6 +318,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.waitForTimeout(200);
       await page.keyboard.press("Space");
+      await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
       await page.keyboard.press("2");
       await page.keyboard.press("3");
@@ -355,6 +357,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.waitForTimeout(200);
       await page.keyboard.press("Space");
+      await expect(page.getByRole("textbox", { name: "row 1, column name" })).toBeFocused();
       await page.keyboard.press("1");
       await page.keyboard.press("2");
       await page.keyboard.press("3");
@@ -633,6 +636,7 @@ frameworks.forEach((framework) => {
     });
 
     test("visibleIf columns mobile", async ({ page }) => {
+      await page.setViewportSize({ width: 600, height: 1080 });
       await initSurvey(page, framework, {
         "elements": [
           {
@@ -647,11 +651,10 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-
       await page.evaluate(() => (window as any).survey.setIsMobile(true));
-      const textSelector = page.locator("input[type='text']").filter({ visible: true });
-      await page.setViewportSize({ width: 600, height: 1080 });
       await page.waitForTimeout(500);
+
+      const textSelector = page.locator("input[type='text']").filter({ visible: true });
       expect(await page.locator("tbody tr").nth(0).locator("td").count()).toBe(2);
       expect(await page.locator("tbody tr").nth(1).locator("td").count()).toBe(2);
       expect(await page.locator("tbody tr").nth(2).locator("td").count()).toBe(2);
@@ -730,6 +733,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window.survey.getQuestionByName("matrix").value = [{ col1: "row1" }];
       });
+      await page.waitForTimeout(500);
       await expect(removeButtons).toHaveCount(1);
 
       await page.click("input[value=Complete]");

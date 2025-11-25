@@ -964,6 +964,26 @@ export class SurveyModel extends SurveyElementCore
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
   public onElementContentVisibilityChanged: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  /**
+   * An event that is raised when the [state of the survey UI](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) changes.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * To access the current UI state, use the [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) property:
+   *
+   * ```js
+   * // ...
+   * // Omitted: `SurveyModel` creation
+   * // ...
+   *
+   * survey.onUIStateChanged.add((_, options) => {
+   *   const state = survey.uiState;
+   *   // Save the state in a storage
+   * });
+   * ```
+   *
+   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   */
   public onUIStateChanged: EventBase<SurveyModel, UIStateChangedEvent> = this.addEvent<SurveyModel, UIStateChangedEvent>();
 
   /**
@@ -3367,6 +3387,13 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
+  /**
+   * Represents the current state of the survey UI.
+   *
+   * The state includes information about expanded/collapsed question boxes, the last visited question, and the last active panel in [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model). Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   *
+   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   */
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
     if (this.lastActiveQuestion) {

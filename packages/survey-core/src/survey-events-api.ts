@@ -1098,8 +1098,14 @@ export interface ElementContentVisibilityChangedEvent {
   element: ISurveyElement;
 }
 export interface UIStateChangedEvent {
-  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex";
+  /**
+   * A survey element whose state change triggered the event.
+   */
   element?: ISurveyElement;
+  /**
+   * The name of the UI state property that changed.
+   */
+  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**

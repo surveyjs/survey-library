@@ -420,18 +420,8 @@ frameworks.forEach((framework) => {
                 "name": "matrix",
                 "titleLocation": "hidden",
                 "verticalAlign": "top",
-                "columns": [
-                  {
-                    "name": "header",
-                    "cellType": "text",
-                  },
-                ],
-                "detailElements": [
-                  {
-                    "name": "detail",
-                    "type": "text",
-                  },
-                ],
+                "columns": [{ "name": "header", "cellType": "text" }],
+                "detailElements": [{ "name": "detail", "type": "text" }],
                 "detailPanelMode": "underRowSingle",
                 "cellType": "text",
                 "rowCount": 1,
@@ -448,12 +438,12 @@ frameworks.forEach((framework) => {
       await page.setViewportSize({ width: 600, height: 1080 });
       await page.waitForTimeout(500);
       await page.locator("button").filter({ hasText: "Add Row" }).click();
-      await expect(page.locator("#show-detail-mobile").filter({ visible: true }).nth(0)).toContainText("Show Details");
-      await expect(page.locator("#show-detail-mobile").filter({ visible: true }).nth(1)).toContainText("Hide Details");
+      await expect(page.locator("button[title='Show Details']").filter({ visible: true }).first()).toContainText("Show Details");
+      await expect(page.locator("button[title='Hide Details']").filter({ visible: true }).first()).toContainText("Hide Details");
 
-      await page.locator("#show-detail-mobile button").filter({ visible: true }).nth(0).click();
-      await expect(page.locator("#show-detail-mobile").filter({ visible: true }).nth(0)).toContainText("Hide Details");
-      await expect(page.locator("#show-detail-mobile").filter({ visible: true }).nth(1)).toContainText("Show Details");
+      await page.locator("button[title='Show Details']").filter({ visible: true }).first().click();
+      await expect(page.locator("button[title='Hide Details']").filter({ visible: true }).first()).toContainText("Hide Details");
+      await expect(page.locator("button[title='Show Details']").filter({ visible: true }).first()).toContainText("Show Details");
     });
   });
 });

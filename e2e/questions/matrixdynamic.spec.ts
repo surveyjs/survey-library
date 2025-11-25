@@ -268,8 +268,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.waitForTimeout(500);
-
+      await expect(page.locator(".sd-input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
@@ -307,8 +306,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.waitForTimeout(500);
-
+      await expect(page.locator(".sd-input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
@@ -346,8 +344,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.waitForTimeout(500);
-
+      await expect(page.locator(".sd-input").first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
@@ -553,7 +550,7 @@ frameworks.forEach((framework) => {
         ]
       };
       await initSurvey(page, framework, json4);
-      await page.waitForTimeout(500);
+      await expect(page.locator(".sd-input").first()).toBeFocused();
 
       await page.keyboard.press("a");
       await page.keyboard.press("b");

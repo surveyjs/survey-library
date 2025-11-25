@@ -767,6 +767,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.push(
           new Action({
             id: "remove-row",
+            css: "sv-action--remove-row",
             location: "end",
             enabled: !this.matrix.isInputReadOnly,
             component: "sv-matrix-remove-button",
@@ -777,6 +778,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.push(
           new Action({
             id: "remove-row",
+            css: "sv-action--remove-row",
             iconName: "icon-delete-24x24",
             iconSize: "auto",
             component: "sv-action-bar-item",

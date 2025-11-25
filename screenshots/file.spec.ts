@@ -73,7 +73,10 @@ frameworks.forEach(framework => {
 
       await page.setInputFiles(".sd-file input", "../../screenshots/files/SingleImage.jpg");
       await page.click(".sd-file input[type=file] + div label");
-      await page.click(".sd-file #prevPage");
+
+      const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").filter({ visible: true }).first();
+      await prevButton.click({ force: true });
+      //await page.click(".sd-file #prevPage");
       await compareScreenshot(page, questionRoot, "file-question-multiple-navigator.png");
     });
 
@@ -222,10 +225,13 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile.png");
 
-      await page.click(".sd-file #nextPage");
+      const prevButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").first();
+      const nextButton = page.locator(".sd-file__drag-area > .sv-action-bar").locator(".sv-action").last();
+
+      await nextButton.click();
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile-next.png");
-      await page.click(".sd-file #prevPage");
-      await page.click(".sd-file #prevPage");
+      await prevButton.click();
+      await prevButton.click();
       await compareScreenshot(page, questionRoot, "file-question-multiple-mobile-prev.png");
     });
 

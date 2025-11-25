@@ -566,7 +566,8 @@ frameworks.forEach(framework => {
         ],
       });
 
-      await page.click("#show-detail >> nth=0");
+      const showDetailsBtn = page.locator("button[title='Show Details']").first();
+      await showDetailsBtn.click();
       await page.click("body", { position: { x: 5, y: 5 } });
 
       const questionRoot = page.locator(".sd-question");
@@ -599,7 +600,8 @@ frameworks.forEach(framework => {
         ],
       });
 
-      await page.click("#show-detail >> nth=0");
+      const showDetailsBtn = page.locator("button[title='Show Details']").first();
+      await showDetailsBtn.click();
       await page.click("body", { position: { x: 5, y: 5 } });
 
       const questionRoot = page.locator(".sd-question");

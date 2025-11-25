@@ -263,6 +263,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({
       id: "fileIndex",
+      css: "sv-action--file-index",
       title: this.getFileIndexCaption(),
       enabled: false
     });

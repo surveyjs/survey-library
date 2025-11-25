@@ -734,6 +734,7 @@ frameworks.forEach((framework) => {
         window.survey.getQuestionByName("matrix").value = [{ col1: "row1" }];
       });
       await page.waitForTimeout(500);
+      expect(await page.getByRole("textbox", { name: "row 0, column col1" }).inputValue()).toBe("row1");
       await expect(removeButtons).toHaveCount(1);
 
       await page.click("input[value=Complete]");

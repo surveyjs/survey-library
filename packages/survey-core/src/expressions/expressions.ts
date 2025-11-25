@@ -616,6 +616,9 @@ export class OperandMaker {
       }
       return false;
     },
+    noneof: function(left: any, right: any): boolean {
+      return !OperandMaker.binaryFunctions.anyof(left, right);
+    },
     allof: function(left: any, right: any): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return false;
       if (!Array.isArray(right))

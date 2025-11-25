@@ -12,7 +12,7 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
-  ITitleOwner
+  ITitleOwner, IElementUIState
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
@@ -468,6 +468,23 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get hasStateButton(): boolean {
     return this.isExpanded || this.isCollapsed;
+  }
+  public get uiState(): IElementUIState {
+    return this.getUIState();
+  }
+  public set uiState(data: IElementUIState) {
+    this.setUIState(data);
+  }
+  protected getUIState(): IElementUIState {
+    if (this.state !== "default") {
+      return { collapsed: this.state === "collapsed" };
+    }
+    return undefined;
+  }
+  protected setUIState(data: IElementUIState): void {
+    if (data && data.collapsed !== undefined) {
+      this.state = data.collapsed ? "collapsed" : "expanded";
+    }
   }
   public get shortcutText(): string {
     return this.title || this.name;

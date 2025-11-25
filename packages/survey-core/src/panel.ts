@@ -1811,7 +1811,6 @@ export class PanelModelBase extends SurveyElement<Question>
       this.questions.forEach(q => q.onHidingContent());
     }
   }
-
   /**
    * Returns `true` if the panel/page is visible or the survey is currently in design mode.
    *

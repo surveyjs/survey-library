@@ -1,13 +1,18 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IDropdownMenuOptions, IElement, IPanel, IQuestion, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
+import {
+  IElement,
+  IPanel,
+  ISurveyElement,
+  IValueItemCustomPropValues
+} from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionSelectBase } from "./question_baseselect";
-import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
+import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -1091,6 +1096,16 @@ export interface ElementContentVisibilityChangedEvent {
    * A survey element that was expanded or collapsed.
    */
   element: ISurveyElement;
+}
+export interface UIStateChangedEvent {
+  /**
+   * A survey element whose state change triggered the event.
+   */
+  element?: ISurveyElement;
+  /**
+   * The name of the UI state property that changed.
+   */
+  changedProperty: "collapsed" | "activeElementName" | "activePanelIndex";
 }
 export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
   /**

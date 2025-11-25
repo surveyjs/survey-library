@@ -21,7 +21,7 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult
+  ITextProcessorResult, ISurveyUIState
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -69,7 +69,7 @@ import {
   GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, GetExpressionDisplayValueEvent, CheckSingleInputPerPageModeEvent,
   GetLoopQuestionsEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent,
   PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, OpenDropdownMenuEvent, ResizeEvent, GetTitleActionsEventMixin, ProgressTextEvent, ScrollingElementToTopEvent,
-  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent
+  IsAnswerCorrectEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, CreateCustomChoiceItemEvent, MatrixRowDragOverEvent, ExpressionRunningEvent, UIStateChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -964,6 +964,27 @@ export class SurveyModel extends SurveyElementCore
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
   public onElementContentVisibilityChanged: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
+  /**
+   * An event that is raised when the [state of the survey UI](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) changes.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * To access the current UI state, use the [`uiState`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) property:
+   *
+   * ```js
+   * // ...
+   * // Omitted: `SurveyModel` creation
+   * // ...
+   *
+   * survey.onUIStateChanged.add((_, options) => {
+   *   const state = survey.uiState;
+   *   // Save the state in a storage
+   * });
+   * ```
+   *
+   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   */
+  public onUIStateChanged: EventBase<SurveyModel, UIStateChangedEvent> = this.addEvent<SurveyModel, UIStateChangedEvent>();
 
   /**
    * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
@@ -3366,6 +3387,50 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
+  /**
+   * Represents the current state of the survey UI.
+   *
+   * The state includes information about expanded/collapsed question boxes, the last visited question, and the last active panel in [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model). Handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event to track changes and persist the state for later restoration.
+   *
+   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   */
+  public get uiState(): ISurveyUIState {
+    const res: ISurveyUIState = {};
+    if (this.lastActiveQuestion) {
+      res.activeElementName = this.lastActiveQuestion.rootParentQuestion.name;
+    }
+    const getElementsStates = (type: string, arr: ISurveyElement[]) => {
+      arr.forEach(e => {
+        const s = e.uiState;
+        if (s) {
+          res[type] = res[type] || {};
+          res[type][e.name] = s;
+        }
+      });
+    };
+    getElementsStates("pages", this.pages);
+    getElementsStates("panels", this.getAllPanels());
+    getElementsStates("questions", this.getAllQuestions());
+    return res;
+  }
+  public set uiState(state: ISurveyUIState) {
+    if (typeof state !== "object" || !state) return;
+    const setElementsStates = (states, fn) => {
+      for (const name in (states || {})) {
+        const elem: ISurveyElement = fn(name);
+        if (elem) {
+          elem.uiState = states[name];
+        }
+      }
+    };
+    setElementsStates(state["pages"], this.getPageByName.bind(this));
+    setElementsStates(state["panels"], this.getPanelByName.bind(this));
+    setElementsStates(state["questions"], this.getQuestionByName.bind(this));
+    if (state.activeElementName) {
+      // If we focused dynamic pannel?
+      this.getQuestionByName(state.activeElementName)?.focus();
+    }
+  }
   private isSettingDataValue: boolean;
   public setDataCore(data: any, clearData: boolean = false): void {
     if (clearData) {
@@ -4094,6 +4159,7 @@ export class SurveyModel extends SurveyElementCore
     this.isLoading = false;
     this.completedByTriggers = undefined;
     this.skippedPages = [];
+    this.lastActiveQuestion = undefined;
     if (clearData) {
       this.setDataCore(null, true);
     }
@@ -5734,7 +5800,16 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
   }
+  private lastActiveQuestionValue: Question;
+  private get lastActiveQuestion(): Question {
+    return this.lastActiveQuestionValue;
+  }
+  private set lastActiveQuestion(val: Question) {
+    this.lastActiveQuestionValue = val;
+    this.doUIStateChanged("activeElementName", val);
+  }
   whenQuestionFocusIn(question: Question) {
+    this.lastActiveQuestion = question;
     this.onFocusInQuestion.fire(this, {
       question: question
     });
@@ -5894,6 +5969,7 @@ export class SurveyModel extends SurveyElementCore
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void {
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
+    this.doUIStateChanged("activePanelIndex", question);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
@@ -5904,6 +5980,11 @@ export class SurveyModel extends SurveyElementCore
       this.currentPage.ensureRowsVisibility();
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
+    this.doUIStateChanged("collapsed", element);
+  }
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex", element: ISurveyElement): void {
+    if (this.onUIStateChanged.isEmpty) return;
+    this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }
   public getUpdatedPanelFooterActions(
     panel: PanelModel,
@@ -6193,7 +6274,7 @@ export class SurveyModel extends SurveyElementCore
    * @see addPage
    * @see createNewPage
    */
-  public addNewPage(name: string = null, index: number = -1) {
+  public addNewPage(name: string = null, index: number = -1): PageModel {
     var page = this.createNewPage(name);
     this.addPage(page, index);
     return page;

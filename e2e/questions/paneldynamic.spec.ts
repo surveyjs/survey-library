@@ -299,7 +299,7 @@ frameworks.forEach((framework) => {
 
     test("templateVisibleIf", async ({ page }) => {
       await initSurvey(page, framework, json3);
-      const addNewSelector = page.locator("button").filter({ hasText: "Add new" });
+      const addNewSelector = page.getByRole("button", { name: "Add new" });
       await expect(addNewSelector).toHaveCount(1);
       await expect(page.locator("span").filter({ hasText: "#1-2" })).not.toBeVisible();
       await page.waitForTimeout(500);
@@ -538,19 +538,12 @@ frameworks.forEach((framework) => {
           }
         ]
       });
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-      await page.locator("button").filter({ hasText: "Add new" }).click();
-
+      for (let i = 0; i < 10; i++) {
+        await page.getByRole("button", { name: "Add new" }).click();
+      }
       await expect(page.getByRole("button", { name: "More" })).toBeVisible();
     });
-    test("Focus first input on adding a new panel with autoFocusFirstQuestion", async ({ page }) => {
+    test("Focus first input on adding a new panel by keyboard", async ({ page }) => {
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [
@@ -567,7 +560,9 @@ frameworks.forEach((framework) => {
           }
         ]
       });
+      await expect(page.getByRole("button", { name: "Add new" })).toBeFocused();
       await page.keyboard.press("Space");
+      await expect(page.getByRole("textbox", { name: "name" })).toBeFocused();
       await page.keyboard.type("123");
       await page.locator(".sd-navigation__complete-btn").click();
 
@@ -592,6 +587,7 @@ frameworks.forEach((framework) => {
           }
         ]
       });
+      await expect(page.getByRole("textbox", { name: "name" }).first()).toBeFocused();
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
@@ -600,8 +596,9 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Space");
       await page.waitForTimeout(200);
       await page.keyboard.press("Space");
-      await page.waitForTimeout(200);
+      await expect(page.getByRole("button", { name: "Add new" })).toBeFocused();
       await page.keyboard.press("Space");
+      await expect(page.getByRole("textbox", { name: "name" }).first()).toBeFocused();
       await page.keyboard.type("123");
       await page.locator(".sd-navigation__complete-btn").click();
 

@@ -391,8 +391,8 @@ frameworks.forEach(framework => {
       await page.waitForTimeout(1000);
       await compareScreenshot(page, page.locator(".sv-popup--confirm .sv-popup__body-content"), "paneldynamic-confirm-dialog.png");
 
-      await page.evaluate(() => {
-        const applyButton = document.querySelector("#apply");
+      await page.evaluate(async () => {
+        const applyButton = document.querySelector("button[title='OK']");
         const spanText = applyButton?.querySelector("span");
         if (spanText) spanText.innerText = "A very long long long long long text";
       });

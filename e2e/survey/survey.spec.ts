@@ -159,8 +159,8 @@ frameworks.forEach((framework) => {
         showQuestionNumbers: false,
       });
 
-      await page.click("#sv-nav-preview input");
-      await page.click("#sv-nav-complete input");
+      await page.getByRole("button", { name: "Preview" }).click();
+      await page.click("input[value='Complete']");
     });
   });
 });

@@ -230,8 +230,11 @@ export class MatrixDropdownColumn extends Base
     return true;
   }
   public get isColumnVisible(): boolean {
-    if (this.isDesignMode) return true;
+    if (this.areInvisibleElementsShowing) return true;
     return this.visible && this.hasVisibleCell;
+  }
+  private get areInvisibleElementsShowing(): boolean {
+    return this.getSurvey()?.areInvisibleElementsShowing;
   }
   /**
    * Gets or sets column visibility.

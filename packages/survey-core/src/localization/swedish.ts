@@ -99,6 +99,8 @@ export var swedishSurveyStrings = {
   urlGetChoicesError: "Antingen returnerade förfrågan ingen data eller så är egenskapen 'path' inte korrekt",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstorleken får ej överstiga {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Det maximala antalet filer du kan ladda upp är {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Filer kan inte laddas upp. Lägg till en hanterare för händelsen 'onUploadFiles'.",
   // "Response required: enter another value."

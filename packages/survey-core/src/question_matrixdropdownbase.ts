@@ -364,7 +364,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-      if (!question.isEmpty()) {
+      if (!question.isEmpty() && question.isVisible) {
         result[question.getValueName()] = isFiltered ? question.getFilteredValue() : question.value;
       }
       if (
@@ -816,7 +816,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     for (let colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       const question = cells[colIndex].question;
-      if (!question || !question.visible) continue;
+      if (!question || !question.isVisible) continue;
       if (!!context && context.isOnValueChanged === true && question.isEmpty())
         continue;
       res = question.validateElement(context) && res;
@@ -2810,12 +2810,21 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
-  protected clearInvisibleValuesInRows(): void {
-    if (this.isEmpty() || !this.isRowsFiltered()) return;
+  private isSharedQuestions(): boolean {
     const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
-    if (sharedQuestions.length < 2) {
-      this.value = this.getFilteredData();
+    return sharedQuestions.length > 1;
+  }
+  protected clearInvisibleValuesInRows(): void {
+    if (this.isEmpty()) return;
+    if (!this.isSharedQuestions()) {
+      const data = this.getFilteredData();
+      if (!this.isTwoValueEquals(data, this.value)) {
+        this.value = data;
+      }
     }
+  }
+  protected clearInvisibleColumnValues(): void {
+    this.clearInvisibleValuesInRows();
   }
   protected isRowsFiltered(): boolean {
     return this.visibleRows !== this.generatedVisibleRows;

@@ -602,12 +602,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
         res.push(...categoryTypes);
       }
     });
-    const customTypes = this.acceptedTypes || "";
-    customTypes.split(",").forEach(type => {
-      if (type && res.indexOf(type) < 0) {
-        res.push(type);
-      }
-    });
+    const addTypes = (types: Array<string>) => {
+      types.forEach(type => {
+        if (type && res.indexOf(type) < 0) {
+          res.push(type);
+        }
+      });
+    };
+    if (Array.isArray(this.acceptedTypes)) {
+      addTypes(this.acceptedTypes);
+    } else {
+      addTypes((this.acceptedTypes || "").split(","));
+    }
     return res.length > 0 ? res.join(",") : undefined;
   }
   /**

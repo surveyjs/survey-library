@@ -617,7 +617,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get areInvisibleElementsShowing(): boolean {
     const pQ = this.parentQuestion as any;
     if (!!pQ && pQ.areInvisibleElementsShowing === false) return false;
-    return !!this.survey && this.survey.areInvisibleElementsShowing && !this.isContentElement;
+    return !!this.survey && this.survey.areInvisibleElementsShowing && (!this.isDesignMode || !this.isContentElement);
   }
   public get isVisible(): boolean {
     return true;

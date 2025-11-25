@@ -2399,3 +2399,98 @@ QUnit.test("matrices getPanelInDesignMode", function (assert) {
   assert.ok(q1.getPanelInDesignMode(), "#5");
   assert.strictEqual(q1.getPanelInDesignMode(), q1.detailPanel, "#6");
 });
+QUnit.test("survey.showInvisibleElements property, do not hide columns when true, Bug#10631", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "q1",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col2",
+            "visibleIf": "{row.col1} = 1"
+          },
+          {
+            "name": "col3",
+            "visibleIf": "{row.col2} = 1"
+          }
+        ],
+        "cellType": "text",
+        "rows": [
+          "row1",
+          {
+            "value": "row2",
+            "visibleIf": "{q1.row1.col1} = 1"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleColumns.length, 1, "There is one visible column, #1");
+  assert.equal(matrix.visibleRows.length, 1, "There is one visible row, #1");
+  survey.showInvisibleElements = true;
+  assert.equal(matrix.visibleColumns.length, 3, "There are three visible columns");
+  const rows = matrix.visibleRows;
+  assert.equal(rows[0].cells[1].question.isVisible, true, "row 1, cell 2 is visible");
+  assert.equal(rows[0].cells[2].question.isVisible, true, "row 1, cell 3 is visible");
+  assert.equal(rows.length, 2, "There are two visible rows");
+  survey.showInvisibleElements = false;
+  assert.equal(matrix.visibleColumns.length, 1, "There is one visible column, #2");
+  assert.equal(matrix.visibleRows.length, 1, "There is one visible row, #2");
+});
+QUnit.test("Matrix cell values are not cleared when columns are hidden despite clearInvisibleValues: 'onHiddenContainer' Bug#10618", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "q1",
+        "columns": [
+          {
+            "name": "col1"
+          },
+          {
+            "name": "col2",
+            "visibleIf": "{row.col1} = 1"
+          },
+          {
+            "name": "col3",
+            "visibleIf": "{row.col2} = 1"
+          }
+        ],
+        "cellType": "text",
+        "rows": [
+          "row1",
+          {
+            "value": "row2",
+            "visibleIf": "{q1.row1.col1} = 1"
+          }
+        ]
+      }
+    ],
+    "clearInvisibleValues": "onHiddenContainer"
+  });
+
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleRows.length, 1, "#1");
+  matrix.visibleRows[0].getQuestionByName("col1").value = 1;
+  assert.equal(matrix.visibleRows.length, 2, "#3");
+  assert.equal(matrix.visibleColumns.length, 2, "#4");
+
+  matrix.visibleRows[0].getQuestionByName("col2").value = 2;
+  matrix.visibleRows[1].getQuestionByName("col1").value = 1;
+
+  assert.deepEqual(matrix.value, { row1: { col1: 1, col2: 2 }, row2: { col1: 1 } }, "#5");
+  matrix.visibleRows[0].getQuestionByName("col1").value = 2;
+
+  assert.equal(matrix.visibleRows.length, 1, "#6");
+
+  assert.deepEqual(matrix.value, { row1: { col1: 2 } }, "#8");
+
+  assert.equal(matrix.visibleRows[0].getQuestionByName("col2").isVisible, false, "#9");
+
+  assert.deepEqual(matrix.rows[1].isVisible, false, "#10");
+});

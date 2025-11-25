@@ -799,6 +799,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         actions.unshift(
           new Action({
             id: "show-detail-mobile",
+            css: "sv-action--show-detail-mobile",
             title: <any>new ComputedUpdater(() => row.isDetailPanelShowing ? this.matrix.getLocalizationString("hideDetails") : this.matrix.getLocalizationString("showDetails")),
             showTitle: true,
             location: "end",

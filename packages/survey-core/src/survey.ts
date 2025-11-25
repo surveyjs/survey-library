@@ -3370,7 +3370,7 @@ export class SurveyModel extends SurveyElementCore
   public get uiState(): ISurveyUIState {
     const res: ISurveyUIState = {};
     if (this.lastActiveQuestion) {
-      res.lastActive = this.lastActiveQuestion.rootParentQuestion.name;
+      res.activeElementName = this.lastActiveQuestion.rootParentQuestion.name;
     }
     const getElementsStates = (type: string, arr: ISurveyElement[]) => {
       arr.forEach(e => {
@@ -3399,9 +3399,9 @@ export class SurveyModel extends SurveyElementCore
     setElementsStates(state["pages"], this.getPageByName.bind(this));
     setElementsStates(state["panels"], this.getPanelByName.bind(this));
     setElementsStates(state["questions"], this.getQuestionByName.bind(this));
-    if (state.lastActive) {
+    if (state.activeElementName) {
       // If we focused dynamic pannel?
-      this.getQuestionByName(state.lastActive)?.focus();
+      this.getQuestionByName(state.activeElementName)?.focus();
     }
   }
   private isSettingDataValue: boolean;
@@ -5779,7 +5779,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private set lastActiveQuestion(val: Question) {
     this.lastActiveQuestionValue = val;
-    this.doUIStateChanged("lastActive", val);
+    this.doUIStateChanged("activeElementName", val);
   }
   whenQuestionFocusIn(question: Question) {
     this.lastActiveQuestion = question;
@@ -5942,7 +5942,7 @@ export class SurveyModel extends SurveyElementCore
   dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void {
     options.question = question;
     this.onDynamicPanelCurrentIndexChanged.fire(this, options);
-    this.doUIStateChanged("currentIndex", question);
+    this.doUIStateChanged("activePanelIndex", question);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
@@ -5953,11 +5953,11 @@ export class SurveyModel extends SurveyElementCore
       this.currentPage.ensureRowsVisibility();
     }
     this.onElementContentVisibilityChanged.fire(this, { element });
-    this.doUIStateChanged("state", element);
+    this.doUIStateChanged("collapsed", element);
   }
-  private doUIStateChanged(reason: string, element: ISurveyElement): void {
+  private doUIStateChanged(reason: "collapsed" | "activeElementName" | "activePanelIndex", element: ISurveyElement): void {
     if (this.onUIStateChanged.isEmpty) return;
-    this.onUIStateChanged.fire(this, { reason, element });
+    this.onUIStateChanged.fire(this, { changedProperty: reason, element });
   }
   public getUpdatedPanelFooterActions(
     panel: PanelModel,

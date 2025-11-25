@@ -5,7 +5,7 @@ const title = "Restore survey state";
 frameworks.forEach((framework) => {
 
   test.describe(`${framework} ${title}`, () => {
-    test("restore lastActive state and focus", async ({ page }) => {
+    test("restore activeElementName state and focus", async ({ page }) => {
       await page.goto(`${url}${framework}`);
       const json = {
         pages: [
@@ -26,7 +26,7 @@ frameworks.forEach((framework) => {
 
       await initSurvey(page, framework, json);
       await page.evaluate(() => {
-        window["survey"].uiState = { lastActive: "q4" };
+        window["survey"].uiState = { activeElementName: "q4" };
       });
       await page.waitForTimeout(100);
       await page.keyboard.type("abc");
@@ -82,12 +82,12 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window["survey"].uiState = {
           panels: {
-            panel1: { state: "expanded" },
+            panel1: { collapsed: false },
           },
           questions: {
-            q5: { currentIndex: 1 }
+            q5: { activePanelIndex: 1 }
           },
-          lastActive: "q5"
+          activeElementName: "q5"
         };
       });
       await page.waitForTimeout(100);

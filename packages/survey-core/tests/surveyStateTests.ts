@@ -16,12 +16,11 @@ QUnit.test("restore element state property", function (assert) {
   assert.deepEqual(survey.uiState, {}, "there is no state #2");
 
   quesiton.collapse();
-  assert.deepEqual(quesiton.uiState, { state: "collapsed" }, "quesiton state is no undefined");
-  assert.deepEqual(page.uiState, undefined, "page state is undefined #2");
-  assert.deepEqual(survey.uiState, { questions: { question1: { state: "collapsed" } } }, "survey state is no undefined");
+  assert.deepEqual(quesiton.uiState, { collapsed: true }, "quesiton state is no undefined");
+  assert.deepEqual(survey.uiState, { questions: { question1: { collapsed: true } } }, "survey state is no undefined");
 
-  survey.uiState = { questions: { question1: { state: "expanded" } } };
-  assert.equal(quesiton.isExpanded, true, "quesiton is expanded");
+  survey.uiState = { questions: { question1: { collapsed: false } } };
+  assert.equal(quesiton.isExpanded, true, "question is expanded");
 });
 
 QUnit.test("restore last focused question state", function (assert) {
@@ -51,12 +50,12 @@ QUnit.test("restore last focused question state", function (assert) {
   let survey = new SurveyModel(config);
   assert.deepEqual(survey.uiState, {}, "there is no state");
   survey.whenQuestionFocusIn(survey.getQuestionByName("q3"));
-  assert.deepEqual(survey.uiState, { "lastActive": "q3" }, "there is no state");
+  assert.deepEqual(survey.uiState, { "activeElementName": "q3" }, "there is no state");
 
   survey = new SurveyModel(config);
   assert.deepEqual(survey.uiState, {}, "there is no state #2");
   assert.equal(survey.currentPageNo, 0, "survey on first page");
-  survey.uiState = { "lastActive": "q5" };
+  survey.uiState = { "activeElementName": "q5" };
   assert.equal(survey.currentPageNo, 2, "survey on last page");
 });
 
@@ -70,9 +69,9 @@ QUnit.test("restore current index in dynamic pannel", function (assert) {
   panel.displayMode = "tab";
   panel.currentIndex = 1;
 
-  assert.deepEqual(panel.uiState, { currentIndex: 1 }, "panel current index is 1");
+  assert.deepEqual(panel.uiState, { activePanelIndex: 1 }, "panel current index is 1");
 
-  panel.uiState = { currentIndex: 2 };
+  panel.uiState = { activePanelIndex: 2 };
   assert.equal(panel.currentIndex, 2, "panel current index is 2");
 });
 
@@ -110,10 +109,10 @@ QUnit.test("restore active element in dynamic panel", function (assert) {
   panel.currentIndex = 1;
 
   survey.whenQuestionFocusIn(panel.panels[1].getQuestionByName("q6"));
-  assert.deepEqual(survey.uiState, { questions: { q4: { currentIndex: 1 } }, lastActive: "q4" }, "survey state with last active");
+  assert.deepEqual(survey.uiState, { questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" }, "survey state with last active");
 
   survey = new SurveyModel(config);
-  survey.uiState = { questions: { q4: { currentIndex: 1 } }, lastActive: "q4" };
+  survey.uiState = { questions: { q4: { activePanelIndex: 1 } }, activeElementName: "q4" };
   assert.equal(survey.currentPageNo, 1, "survey current page numbers is 1");
 
   panel = survey.getQuestionByName("q4");
@@ -140,7 +139,7 @@ QUnit.test("onUIStateChanged event test", function (assert) {
   const survey = new SurveyModel(config);
   let events: any[] = [];
   survey.onUIStateChanged.add((sender, options: UIStateChangedEvent) => {
-    events.push({ reason: options.reason, name: options.element.name });
+    events.push({ reason: options.changedProperty, name: options.element.name });
   });
 
   survey.getQuestionByName("q1").expand();
@@ -150,8 +149,8 @@ QUnit.test("onUIStateChanged event test", function (assert) {
   survey.whenQuestionFocusIn(panel.currentPanel.getQuestionByName("q4"));
 
   assert.deepEqual(events, [
-    { reason: "state", name: "q1" },
-    { reason: "currentIndex", name: "q2" },
-    { reason: "lastActive", name: "q4" }
+    { reason: "collapsed", name: "q1" },
+    { reason: "activePanelIndex", name: "q2" },
+    { reason: "activeElementName", name: "q4" }
   ], "check received events");
 });

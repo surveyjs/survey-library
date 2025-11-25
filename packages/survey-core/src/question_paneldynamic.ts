@@ -661,14 +661,14 @@ export class QuestionPanelDynamicModel extends Question
     const index = this.currentIndex;
     if (index > 0) {
       result = result || {};
-      result.currentIndex = index;
+      result.activePanelIndex = index;
     }
     return result;
   }
   protected setUIState(state: any): void {
     super.setUIState(state);
-    if (state.currentIndex) {
-      this.currentIndex = state.currentIndex;
+    if (state.activePanelIndex) {
+      this.currentIndex = state.activePanelIndex;
     }
   }
 

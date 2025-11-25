@@ -477,13 +477,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getUIState(): IElementUIState {
     if (this.state !== "default") {
-      return { state: this.state };
+      return { collapsed: this.state === "collapsed" };
     }
     return undefined;
   }
   protected setUIState(data: IElementUIState): void {
-    if (data && data.state) {
-      this.state = data.state;
+    if (data && data.collapsed !== undefined) {
+      this.state = data.collapsed ? "collapsed" : "expanded";
     }
   }
   public get shortcutText(): string {

@@ -91,7 +91,7 @@
 //           {
 //             "type": "image",
 //             "name": "q2",
-//             "imageLink": "http://localhost:8080/testCafe/resources/small_Dashka.jpg",
+//             "imageLink": "http://localhost:8080/testCafe/resources/logo.jpg",
 //             "startWithNewLine": false
 //           }
 //         ]

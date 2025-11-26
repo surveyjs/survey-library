@@ -573,8 +573,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   public set acceptedCategories(val: Array<string>) {
     this.setPropertyValue("acceptedCategories", val);
-    if (!this.isLoadingFromJson) {
-      this.updateAcceptedCategories();
+    if (!this.isLoadingFromJson && (!Array.isArray(val) || val.indexOf(customCategory) < 0)) {
+      this.acceptedTypes = undefined;
     }
   }
   private updateAcceptedCategories(): void {

@@ -137,8 +137,9 @@
       "Title": "Troubleshooting"
     },
     {
-      "Name": "api",
+      "Name": "api-reference",
       "Title": "Form Library API",
+      "UseInPath": true,
       "Items": [
         {
           "Name": "classes",

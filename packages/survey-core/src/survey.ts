@@ -5832,7 +5832,11 @@ export class SurveyModel extends SurveyElementCore
     return options.visible;
   }
   loadQuestionChoices(options: { question: Question, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
-    this.onChoicesLazyLoad.fire(this, options);
+    if (this.onChoicesLazyLoad.isEmpty) {
+      options.setItems([], 0);
+    } else {
+      this.onChoicesLazyLoad.fire(this, options);
+    }
   }
   getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void {
     if (this.onGetChoiceDisplayValue.isEmpty) {

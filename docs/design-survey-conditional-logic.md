@@ -55,18 +55,18 @@ Certain question types can contain multiple values. Use a dot symbol to access a
     <tbody>
       <tr>
         <td><a href="/Documentation/Library?id=questionmultipletextmodel">Multiple Textboxes</a></td>
-        <td><code>{questionname.itemname}</code></td>
+        <td><code>{qid.itemid}</code></td>
       </tr>
       <tr>
         <td><a href="/Documentation/Library?id=questionmatrixmodel">Single-Select Matrix</a></td>
-        <td><code>{questionname.rowname}</code></td>
+        <td><code>{maxtrixid.rowid}</code></td>
       </tr>
       <tr>
         <td rowspan="2" style="vertical-align:middle"><a href="/Documentation/Library?id=questionmatrixdropdownmodel">Multi-Select Matrix</a></td>
-        <td><code>{questionname.rowname.columnname}</code></td>
+        <td><code>{maxtrixid.rowid.columnid}</code></td>
       </tr>
       <tr>
-        <td><code>{questionname-total.columnname}</code> (accesses a cell in the total row)</td>
+        <td><code>{maxtrixid-total.columnid}</code> (accesses a cell in the total row)</td>
       </tr>
     </tbody>
   </table>
@@ -74,7 +74,7 @@ Certain question types can contain multiple values. Use a dot symbol to access a
 
 [View Demo](https://surveyjs.io/form-library/examples/use-and-represent-complex-questions-in-expressions/ (linkStyle))
 
-In question types whose value is an array, you can use zero-based indexes to access a specific item, question, or cell:
+In question types whose value is an array, you can use zero-based indexes to access a specific item, question, or matrix cell:
 
 <div class="v2-class---doc-table-container">
   <table class="v2-class---doc-table-container__table">
@@ -82,20 +82,32 @@ In question types whose value is an array, you can use zero-based indexes to acc
       <tr>
         <th>Question Type</th>
         <th>Syntax</th>
+        <th>Description</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td><a href="https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model">Checkboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model">Image Picker</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model">Multiple Textboxes</a>, <br><a href="https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model">Ranking</a></td>
-        <td style="vertical-align:middle"><code>{questionname[index]}</code></td>
+        <td style="vertical-align:middle"><code>{qid[index]}</code></td>
+        <td style="vertical-align:middle">Accesses a specific choice option or text box value.</td>
       </tr>
       <tr>
-        <td><a href="/Documentation/Library?id=questionpaneldynamicmodel">Dynamic Panel</a></td>
-        <td style="vertical-align:middle"><code>{dynamicpanelname[index].questionname}</code></td>
+        <td style="vertical-align:middle" rowspan="2"><a href="/Documentation/Library?id=questionpaneldynamicmodel">Dynamic Panel</a></td>
+        <td style="vertical-align:middle"><code>{dpanelid[index].qid}</code></td>
+        <td>Accesses a question in a specific panel.</td>
       </tr>
       <tr>
-        <td><a href="/Documentation/Library?id=questionmatrixdynamicmodel">Dynamic Matrix</a></td>
-        <td style="vertical-align:middle"><code>{dynamicmatrixname[rowindex].columnname}</code></td>
+        <td style="vertical-align:middle"><code>{dpanelid[-1].qid}</code><br><code>{dpanelid[-2].qid}</code><br>...</td>
+        <td style="vertical-align:middle">Accesses a question in the last panel, the panel before the last, and so on.</td>
+      </tr>
+      <tr>
+        <td rowspan="2" style="vertical-align:middle"><a href="/Documentation/Library?id=questionmatrixdynamicmodel">Dynamic Matrix</a></td>
+        <td style="vertical-align:middle"><code>{dmatrixid[rowindex].columnid}</code></td>
+        <td style="vertical-align:middle">Accesses a specific matrix cell.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{dmatrixid[-1].columnid}</code><br><code>{dmatrixid[-2].columnid}</code><br>...</td>
+        <td style="vertical-align:middle">Accesses a cell in the last row, the row before the last, and so on.</td>
       </tr>
     </tbody>
   </table>
@@ -114,9 +126,17 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
     </thead>
     <tbody>
       <tr>
-        <td rowspan="3" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
-        <td><code>{row.columnname}</code></td>
+        <td rowspan="5" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
+        <td><code>{row.columnid}</code></td>
         <td>Accesses a cell in the same row.</td>
+      </tr>
+      <tr>
+        <td><code>{prevRow.columnid}</code></td>
+        <td>Accesses a cell in the previous row.</td>
+      </tr>
+      <tr>
+        <td><code>{nextRow.columnid}</code></td>
+        <td>Accesses a cell in the next row.</td>
       </tr>
       <tr>
         <td style="vertical-align:middle"><code>{rowName}</code></td>
@@ -127,18 +147,26 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
         <td>Accesses the row title (the <code>text</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array).</td>
       </tr>
       <tr>
-        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
-        <td><code>{panel.questionname}</code></td>
-        <td>Accesses a question within the same panel.</td>
+        <td rowspan="4" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
+        <td><code>{panel.qid}</code></td>
+        <td>Accesses a question in the same panel.</td>
       </tr>
       <tr>
-        <td style="vertical-align:middle"><code>{parentPanel.questionname}</code></td>
-        <td>Accesses a question within a parent Dynamic Panel.<br>Applies when one Dynamic Panel question is nested in another.</td>
+        <td><code>{prevPanel.qid}</code></td>
+        <td>Accesses a question in the previous panel.</td>
+      </tr>
+      <tr>
+        <td><code>{nextPanel.qid}</code></td>
+        <td>Accesses a question in the next panel.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{parentPanel.qid}</code></td>
+        <td>Accesses a question in a parent Dynamic Panel.<br>Applies when one Dynamic Panel question is nested in another.</td>
       </tr>
       <tr>
         <td><a href="/form-library/documentation/customize-question-types/create-composite-question-types">Composite questions</a></td>
-        <td><code>{composite.questionname}</code></td>
-        <td>Accesses a question within the same composite question.</td>
+        <td style="vertical-align:middle"><code>{composite.qid}</code></td>
+        <td>Accesses a question in the same composite question.</td>
       </tr>
     </tbody>
   </table>

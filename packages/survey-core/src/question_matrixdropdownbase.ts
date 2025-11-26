@@ -364,7 +364,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-      if (!question.isEmpty() && question.isVisible) {
+      if (!question.isEmpty()) {
         result[question.getValueName()] = isFiltered ? question.getFilteredValue() : question.value;
       }
       if (
@@ -2810,21 +2810,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
-  private isSharedQuestions(): boolean {
-    const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
-    return sharedQuestions.length > 1;
-  }
   protected clearInvisibleValuesInRows(): void {
-    if (this.isEmpty()) return;
-    if (!this.isSharedQuestions()) {
-      const data = this.getFilteredData();
-      if (!this.isTwoValueEquals(data, this.value)) {
-        this.value = data;
-      }
+    if (this.isEmpty() || !this.isRowsFiltered()) return;
+    const sharedQuestions = this.survey?.questionsByValueName(this.getValueName()) || [];
+    if (sharedQuestions.length < 2) {
+      this.value = this.getFilteredData();
     }
-  }
-  protected clearInvisibleColumnValues(): void {
-    this.clearInvisibleValuesInRows();
   }
   protected isRowsFiltered(): boolean {
     return this.visibleRows !== this.generatedVisibleRows;

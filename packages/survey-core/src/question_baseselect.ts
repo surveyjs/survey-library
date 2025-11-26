@@ -937,7 +937,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateChoicesDependedQuestions();
     this.updateChoicesPanels();
-    if (!this.showCommentArea && updateComment && !this.isOtherSelected && !!this.otherValue) {
+    if (this.showCommentArea || !updateComment) return;
+    if (!this.isOtherSelected && !!this.otherValue) {
       this.makeCommentEmpty = true;
       this.otherValueCore = "";
       this.setPropertyValue("comment", "");
@@ -1971,7 +1972,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
           if (hasChanged) {
             this.value = newValue.value;
           } else {
-            this.setQuestionValue(newValue.value, true, false);
+            this.setQuestionValue(newValue.value);
           }
         } finally {
           this.allowNotifyValueChanged = true;

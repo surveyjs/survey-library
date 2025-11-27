@@ -99,6 +99,8 @@ export var bulgarianStrings = {
   urlGetChoicesError: "Заявката не връща данни или частта 'path' (път до търсения ресурс на сървъра) е неправилно зададена",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Размерът на файла следва да не превишава {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Максималният брой файлове, които можете да качите, е {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Файловете не могат да бъдат качени. Моля, добавете манипулатор за събитието \"onUploadFiles\".",
   // "Response required: enter another value."

@@ -99,6 +99,8 @@ export var norwegianSurveyStrings = {
   urlGetChoicesError: "Forespørselen returnerte tomme data, eller 'sti' -egenskapen er feil",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstørrelsen bør ikke overstige {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksimalt antall filer du kan laste opp er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Filer kan ikke lastes opp. Legg til et behandlingsprogram for onUploadFiles-hendelsen.",
   // "Response required: enter another value."

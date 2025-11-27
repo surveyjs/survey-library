@@ -1,38 +1,44 @@
-/* eslint-disable no-console */
 import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone } from "../helper";
 
 const title = "Text question in western timezone";
 
+test.use({
+  locale: "en-US",
+  timezoneId: "America/Los_Angeles"
+});
+
 frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
-    test.use({
-      locale: "en-US",
-      timezoneId: "America/Los_Angeles"
-    });
-
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
     });
 
+    test("input type month", async ({ page }) => {
+      await page.evaluate(() => {
+        const inputContainer = document.createElement("div");
+        inputContainer.classList.add("input-month");
+
+        const label = document.createElement("label");
+        const input = document.createElement("input");
+        input.value = "2001-06";
+
+        label.setAttribute("for", "bday-month");
+        label.textContent = "What month were you born in?";
+
+        input.setAttribute("id", "bday-month");
+        input.setAttribute("type", "month");
+        input.setAttribute("name", "bday-month");
+
+        inputContainer.appendChild(label);
+        inputContainer.appendChild(input);
+        document.body.appendChild(inputContainer);
+      });
+
+      await page.locator(".input-month").screenshot({ path: "test-results/timezone/timezone-month.png" });
+      // await page.screenshot({ path: "test-results/timezone/timezone-month.png", fullPage: true });
+    });
+
     test("Test input type (month) in western timezone", async ({ page }) => {
-      const userAgent = await page.evaluate(() => navigator.userAgent);
-      console.log("User Agent:", userAgent);
-
-      const platform = await page.evaluate(() => navigator.platform);
-      console.log("Platform:", platform);
-
-      const language = await page.evaluate(() => navigator.language);
-      console.log("Language:", language);
-
-      const geolocation = await page.evaluate(() => navigator.geolocation);
-      console.log("geolocation:", geolocation);
-
-      const appName = await page.evaluate(() => navigator.appName);
-      console.log("appName:", appName);
-
-      const appVersion = await page.evaluate(() => navigator.appVersion);
-      console.log("appVersion:", appVersion);
-
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [
@@ -50,6 +56,8 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("a");
       await page.keyboard.press("r");
       await page.keyboard.press("Tab");
+
+      await page.screenshot({ path: "test-results/timezone/timezone-1.png", fullPage: true });
       await page.keyboard.press("2");
       await page.keyboard.press("0");
       await page.keyboard.press("2");

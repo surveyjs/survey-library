@@ -1979,6 +1979,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.locator(".sd-dropdown").click();
       await getVisibleListItemByText(page, "Other").click();
+      await expect(page.getByRole("textbox", { name: "row row1, column col1" })).toBeFocused();
       await page.keyboard.type("ABC");
       await page.locator(".sd-navigation__complete-btn").click();
 

@@ -307,6 +307,16 @@ export interface ISurveyElement extends IShortcutText {
   isExpanded: boolean;
   expand(): void;
   collapse(): void;
+  uiState: IElementUIState;
+}
+export interface IElementUIState {
+  collapsed?: boolean;
+  activePanelIndex?: number; // For Dynamic panel only, current Tab index
+}
+export interface ISurveyUIState {
+  panels?: { [key:string]: IElementUIState };
+  questions?: { [key:string]: IElementUIState };
+  activeElementName?: string;
 }
 export interface IElement extends IConditionRunner, ISurveyElement {
   visible: boolean;

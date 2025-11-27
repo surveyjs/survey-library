@@ -99,6 +99,8 @@ export var swahiliStrings = {
   urlGetChoicesError: "Ombi lilirudisha data tupu au the 'path' mali ya njia sio sahihi",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Saizi ya faili haipaswi kuzidi {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Idadi ya juu ya faili unazoweza kupakia ni {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Faili haziwezi kupakiwa. Tafadhali ongeza kishiko kwa tukio la 'onUploadFiles'.",
   // "Response required: enter another value."

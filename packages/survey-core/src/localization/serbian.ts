@@ -99,6 +99,8 @@ export var serbianStrings = {
   urlGetChoicesError: "Zahtev nije pronašao podatke, ili je putanja netačna",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Veličina fajla ne bi trebalo da prelazi {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksimalan broj fajlova koje možete da otpremite je {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Nije moguće otpremiti datoteke. Dodajte rukovaoca za događaj \"onUploadFiles\".",
   // "Response required: enter another value."

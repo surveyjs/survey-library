@@ -982,7 +982,7 @@ export class SurveyModel extends SurveyElementCore
    * });
    * ```
    *
-   * [View Demo](https://form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/save-and-restore-user-responses-to-complete-survey/ (linkStyle))
    */
   public onUIStateChanged: EventBase<SurveyModel, UIStateChangedEvent> = this.addEvent<SurveyModel, UIStateChangedEvent>();
 

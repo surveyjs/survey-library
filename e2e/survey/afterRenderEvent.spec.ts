@@ -37,10 +37,10 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
-        (window as any).Survey.onAfterRenderQuestion.add((_, options) => {
+        (window as any).survey.onAfterRenderQuestion.add((_, options) => {
           options.htmlElement.setAttribute("test", "true");
         });
-        (window as any).Survey.fromJSON(json);
+        (window as any).survey.fromJSON(json);
       }, json);
 
       await page.locator("label").first().click();
@@ -83,7 +83,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
-        (window as any).Survey.onAfterRenderQuestion.add((_, options) => {
+        (window as any).survey.onAfterRenderQuestion.add((_, options) => {
           if (options.question.name == "question4a") {
             var title = options.htmlElement.querySelector("input[value='valueYes']");
             title.style.color = "tomato";
@@ -92,7 +92,7 @@ frameworks.forEach((framework) => {
             options.htmlElement.style.border = "1px solid #CCC";
           }
         });
-        (window as any).Survey.fromJSON(json);
+        (window as any).survey.fromJSON(json);
       }, json);
 
       const questionSelector = page.locator(".sd-question");

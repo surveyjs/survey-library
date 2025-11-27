@@ -228,6 +228,7 @@ export {
   QuestionImagePickerModel,
   ImageItemValue
 } from "../../src/question_imagepicker";
+export { QuestionImageMapModel } from "../../src/question_imagemap";
 export { QuestionImageModel } from "../../src/question_image";
 export { QuestionSignaturePadModel } from "../../src/question_signaturepad";
 export {

@@ -1680,7 +1680,20 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
   assert.notOk(question["waitingChoicesByURL"]);
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
 });
-
+QUnit.test("isReady flag + there is no onChoicesLazyLoad & onGetChoiceDisplayValue, Bug#10642", assert => {
+  const json = {
+    elements: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  survey.data = { "q1": "ford" };
+  assert.ok(question.isReady, "There is no onGetChoiceDisplayValue, isReady = true");
+  assert.equal(question.displayValue, "ford", "displayValue is correct");
+});
 QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
   const json = {
     elements: [{

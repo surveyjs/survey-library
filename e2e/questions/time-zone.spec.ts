@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone } from "../helper";
 
 const title = "Text question in western timezone";
@@ -13,7 +14,25 @@ frameworks.forEach((framework) => {
       await page.goto(`${url}${framework}`);
     });
 
-    test.skip("Test input type (month) in western timezone", async ({ page }) => {
+    test("Test input type (month) in western timezone", async ({ page }) => {
+      const userAgent = await page.evaluate(() => navigator.userAgent);
+      console.log("User Agent:", userAgent);
+
+      const platform = await page.evaluate(() => navigator.platform);
+      console.log("Platform:", platform);
+
+      const language = await page.evaluate(() => navigator.language);
+      console.log("Language:", language);
+
+      const geolocation = await page.evaluate(() => navigator.geolocation);
+      console.log("geolocation:", geolocation);
+
+      const appName = await page.evaluate(() => navigator.appName);
+      console.log("appName:", appName);
+
+      const appVersion = await page.evaluate(() => navigator.appVersion);
+      console.log("appVersion:", appVersion);
+
       await initSurvey(page, framework, {
         autoFocusFirstQuestion: true,
         elements: [

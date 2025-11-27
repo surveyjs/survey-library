@@ -3067,6 +3067,58 @@ QUnit.test("survey.onCurrentPageChanging, allowChanging option", function (
   survey.prevPage();
   assert.equal(survey.currentPageNo, 0, "The second page again");
 });
+QUnit.test("survey.onCurrentPageChanging, allowChanging option", (assert) => {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      { name: "page3", elements: [{ type: "text", name: "q3" }] }
+    ],
+  });
+  const messages: Array<any> = [];
+  survey.notify = (message: string, type: string) => {
+    messages.push({ message, type });
+  };
+  const prevAction = survey.navigationBar.getActionById("sv-nav-prev");
+  const nextAction = survey.navigationBar.getActionById("sv-nav-next");
+  let callbackFunc: (result: boolean, message?: string) => void = () => {};
+  survey.onCurrentPageChanging.add(function (survey, options) {
+    options.waitForCallback = true;
+    callbackFunc = options.completeCallback;
+  });
+  assert.equal(survey.currentPageNo, 0, "The first page");
+
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "Still the first page, we are waiting for a callback");
+  assert.equal(survey.getPropertyValue("isNavigation"), true, "isCurrentPageChanging = true, #1");
+  assert.equal(nextAction.enabled, false, "next action is disabled during navigation, #1");
+  callbackFunc(true);
+  assert.equal(survey.getPropertyValue("isNavigation"), false, "isCurrentPageChanging = false, #1");
+  assert.equal(survey.currentPageNo, 1, "The second page");
+  assert.equal(nextAction.enabled, true, "next action is enabled after navigation, #1");
+
+  survey.nextPage();
+  assert.equal(survey.getPropertyValue("isNavigation"), true, "isCurrentPageChanging = true, #2");
+  assert.equal(nextAction.enabled, false, "next action is disabled during navigation, #2");
+  assert.equal(prevAction.enabled, false, "prev action is disabled during navigation, #2");
+  assert.equal(survey.currentPageNo, 1, "Still the second page, we are waiting for a callback");
+  callbackFunc(false);
+  assert.equal(survey.getPropertyValue("isNavigation"), false, "isCurrentPageChanging = false, #2");
+  assert.equal(nextAction.enabled, true, "next action is enabled after navigation, #2");
+  assert.equal(prevAction.enabled, true, "prev action is enabled after navigation, #2");
+  assert.equal(survey.currentPageNo, 1, "We do not move from the second page");
+
+  assert.deepEqual(messages, [], "There is no messages yet");
+  survey.nextPage();
+  callbackFunc(false, "Test error");
+  survey.nextPage();
+  callbackFunc(true, "Saving text");
+  assert.deepEqual(messages, [
+    { message: "Test error", type: "error" },
+    { message: "Saving text", type: "success" }
+  ]);
+  assert.equal(survey.currentPageNo, 2, "We are on the last page now");
+});
 
 QUnit.test("survey.onCurrentPageChanging, allow option (use it instead of allowChanging)", function (
   assert

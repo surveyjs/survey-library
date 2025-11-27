@@ -2747,6 +2747,7 @@ export class SurveyModel extends SurveyElementCore
     const navPrev = new Action({
       id: "sv-nav-prev",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
       visibleIndex: 20,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -2758,6 +2759,7 @@ export class SurveyModel extends SurveyElementCore
     const navNext = new Action({
       id: "sv-nav-next",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
       visibleIndex: 30,
       data: {
         mouseDown: () => this.nextPageMouseDown(),
@@ -2769,6 +2771,7 @@ export class SurveyModel extends SurveyElementCore
     const navPreview = new Action({
       id: "sv-nav-preview",
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
       visibleIndex: 40,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -2780,6 +2783,7 @@ export class SurveyModel extends SurveyElementCore
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
       visibleIndex: 50,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -3808,16 +3812,23 @@ export class SurveyModel extends SurveyElementCore
       this.currentSingleElement = newPage.getFirstVisibleElement();
       return;
     }
-    var oldValue = this.currentPage;
-    if (!this.isShowingPreview && !curEl && !this.currentPageChanging(newPage, oldValue)) return;
-    this.setPropertyValue("currentPage", newPage);
-    if (!!newPage) {
-      newPage.onFirstRendering();
-      newPage.updateCustomWidgets();
-    }
-    this.locStrsChanged();
-    if (!this.isShowingPreview) {
-      this.currentPageChanged(newPage, oldValue);
+    let oldValue = this.currentPage;
+    const options = this.createPageChangeEventOptions(newPage, oldValue);
+    const changingFunc = () => {
+      this.setPropertyValue("currentPage", newPage);
+      if (!!newPage) {
+        newPage.onFirstRendering();
+        newPage.updateCustomWidgets();
+      }
+      this.locStrsChanged();
+      if (!this.isShowingPreview) {
+        this.currentPageChanged(newPage, oldValue);
+      }
+    };
+    if (this.isShowingPreview || !!curEl) {
+      changingFunc();
+    } else {
+      this.currentPageChanging(options, changingFunc);
     }
   }
   /**
@@ -4197,19 +4208,39 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  protected currentPageChanging(newValue: PageModel, oldValue: PageModel, newQuestion?: Question, oldQuestion?: Question): boolean {
-    const options = this.createPageChangeEventOptions(newValue, oldValue, newQuestion, oldQuestion);
-    return this.currentPageChangingFromOptions(options);
+  private get isNavigation(): boolean {
+    return this.getPropertyValue("isNavigation", false);
   }
-  private currentPageChangingFromOptions(options: any): boolean {
+  private set isNavigation(val: boolean) {
+    this.setPropertyValue("isNavigation", val);
+  }
+  private currentPageChanging(options: any, onSuccess: () => void): void {
     options.allow = true;
     options.allowChanging = true;
+    options.waitForCallback = false;
+    const doChange = () => {
+      const allow = options.allowChanging && options.allow;
+      if (allow) {
+        if (options.newCurrentPage !== options.oldCurrentPage) {
+          this.isCurrentPageRendering = true;
+        }
+        onSuccess();
+      }
+    };
+    options.completeCallback = (result: boolean, message?: string) => {
+      options.allow = result;
+      doChange();
+      this.isNavigation = false;
+      if (!!message) {
+        this.notify(message, result ? "success" : "error");
+      }
+    };
     this.onCurrentPageChanging.fire(this, options);
-    const allow = options.allowChanging && options.allow;
-    if (allow && options.newCurrentPage !== options.oldCurrentPage) {
-      this.isCurrentPageRendering = true;
+    if (!options.waitForCallback) {
+      doChange();
+    } else {
+      this.isNavigation = true;
     }
-    return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
@@ -5046,26 +5077,33 @@ export class SurveyModel extends SurveyElementCore
       const oldValQuestion = oldVal?.isQuestion ? <Question>oldVal : undefined;
       const page = <PageModel>(<any>val)?.page;
       const options: any = !!page && !!oldVal ? this.createPageChangeEventOptions(page, <PageModel>(<any>oldVal).page, valQuestion, oldValQuestion) : undefined;
-      if (!!options && !this.currentPageChangingFromOptions(options)) return;
-      this.currentSingleElementValue = val;
-      if (!!val) {
-        if (this.isSingleVisibleInput && val.isQuestion) {
-          (<Question>val).onSetAsSingleInput();
-        }
-        page.updateRows();
-        if (page !== this.currentPage) {
-          this.currentPage = page;
-        } else {
-          if (!!valQuestion && this.autoFocusFirstQuestion) {
-            valQuestion.focus();
+      const changingFunc = () => {
+        this.currentSingleElementValue = val;
+        if (!!val) {
+          if (this.isSingleVisibleInput && val.isQuestion) {
+            (<Question>val).onSetAsSingleInput();
           }
+          page.updateRows();
+          if (page !== this.currentPage) {
+            this.currentPage = page;
+          } else {
+            if (!!valQuestion && this.autoFocusFirstQuestion) {
+              valQuestion.focus();
+            }
+          }
+          this.updateButtonsVisibility();
+          if (!!options) {
+            this.onCurrentPageChanged.fire(this, options);
+          }
+        } else {
+          this.visiblePages.forEach(page => page.updateRows());
         }
-        this.updateButtonsVisibility();
-        if (!!options) {
-          this.onCurrentPageChanged.fire(this, options);
-        }
+      };
+
+      if (!options) {
+        changingFunc();
       } else {
-        this.visiblePages.forEach(page => page.updateRows());
+        this.currentPageChanging(options, changingFunc);
       }
     }
   }

@@ -3,7 +3,7 @@
     return tail.reduce(
       function(result, elements) {
         return new BinaryOperand(elements[1], result, elements[3], isArithmeticOp);
-      }, 
+      },
       head);
   }
 
@@ -79,6 +79,7 @@ BinFunctions
   / ("notcontains"i / "notcontain"i)  { return "notcontains"; }
   / ("anyof"i)  {return "anyof"; }
   / ("allof"i)  {return "allof"; }
+  / ("noneof"i)  {return "noneof"; }
 
 Factor
   = "(" _ expr:Expression _ ")"? { return expr; }
@@ -98,7 +99,7 @@ UnFunctions
   = ("empty"i)    { return "empty"; }
   / ("notempty"i) { return "notempty"; }
 
-Atom 
+Atom
   = _ ("undefined" / "null") { return null; }
   / _ value:ConstValue       { return new Const(value); }
   / _ "{" value:ValueInput "}" { return new Variable(value); }
@@ -136,9 +137,9 @@ LogicValue
   / "false"i { return false; }
 
 ArithmeticValue
-  = "0x" Digits          { return parseInt(text(), 16); } 
+  = "0x" Digits          { return parseInt(text(), 16); }
   / sign:[-]? num:Number { return sign == null ? num : -num; }
-  
+
 Number
   = Digits "." Digits     { return parseFloat(text()); }
   / NonZeroDigits Digits? { return parseInt(text(), 10); }

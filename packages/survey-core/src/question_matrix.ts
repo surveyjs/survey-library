@@ -618,12 +618,19 @@ export class QuestionMatrixModel
     this.nestedQuestionsValue = res;
     return res;
   }
-  public resetSingleInput(): void {
-    super.resetSingleInput();
+  private disposeNestedQuestions(): void {
     if (this.nestedQuestionsValue) {
       this.nestedQuestionsValue.forEach(q => q.dispose());
       this.nestedQuestionsValue = null;
     }
+  }
+  public resetSingleInput(): void {
+    this.disposeNestedQuestions();
+    super.resetSingleInput();
+  }
+  public dispose(): void {
+    this.disposeNestedQuestions();
+    super.dispose();
   }
   //#region For simple radiogroup questions setSurveyImpl
   getSurveyData(): ISurveyData { return this; }

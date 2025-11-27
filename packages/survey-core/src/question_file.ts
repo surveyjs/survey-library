@@ -421,8 +421,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
-    this.prevFileAction.iconName = this.cssClasses.leftIconId;
-    this.nextFileAction.iconName = this.cssClasses.rightIconId;
+    this.prevFileAction.iconName = cssClasses.leftIconId;
+    this.nextFileAction.iconName = cssClasses.rightIconId;
     this.updateCurrentMode();
   }
   private getFileIndexCaption(): string {

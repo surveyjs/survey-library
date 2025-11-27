@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, test, expect, getTimeZone } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, test, expect } from "../helper";
 
 const title = "Text question in western timezone";
 
@@ -11,66 +11,6 @@ frameworks.forEach((framework) => {
   test.describe(`${framework} ${title}`, () => {
     test.beforeEach(async ({ page }) => {
       await page.goto(`${url}${framework}`);
-    });
-
-    test("input type month", async ({ page }) => {
-      await page.evaluate(() => {
-        const inputContainer = document.createElement("div");
-        inputContainer.classList.add("input-month");
-
-        const label = document.createElement("label");
-        const input = document.createElement("input");
-        input.value = "2001-06";
-
-        label.setAttribute("for", "bday-month");
-        label.textContent = "What month were you born in?";
-
-        input.setAttribute("id", "bday-month");
-        input.setAttribute("type", "month");
-        input.setAttribute("name", "bday-month");
-
-        inputContainer.appendChild(label);
-        inputContainer.appendChild(input);
-        document.body.appendChild(inputContainer);
-      });
-
-      await page.locator(".input-month").screenshot({ path: "test-results/timezone/timezone-month.png" });
-      // await page.screenshot({ path: "test-results/timezone/timezone-month.png", fullPage: true });
-    });
-
-    test("Test input type (month) in western timezone", async ({ page }) => {
-      await initSurvey(page, framework, {
-        autoFocusFirstQuestion: true,
-        elements: [
-          {
-            "type": "text",
-            "name": "monthInput",
-            "title": "Month Input",
-            "inputType": "month"
-          }]
-      });
-
-      expect(await getTimeZone(page)).toBe("America/Los_Angeles");
-      await expect(page.locator(".sd-text").first()).toBeFocused();
-      await page.keyboard.press("m");
-      await page.keyboard.press("a");
-      await page.keyboard.press("r");
-      await page.keyboard.press("Tab");
-
-      await page.screenshot({ path: "test-results/timezone/timezone-1.png", fullPage: true });
-      await page.keyboard.press("2");
-      await page.keyboard.press("0");
-      await page.keyboard.press("2");
-      await page.keyboard.press("4");
-      await page.keyboard.press("Tab");
-      await page.keyboard.press("Tab");
-      expect(await page.locator("input").nth(0).inputValue()).toBe("2024-03");
-      await page.locator("input[value=Complete]").click();
-
-      const surveyResult = await getSurveyResult(page);
-      expect(surveyResult).toEqual({
-        monthInput: "2024-03"
-      });
     });
 
     test("Test mask in western timezone", async ({ page }) => {

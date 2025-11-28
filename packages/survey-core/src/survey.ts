@@ -6699,19 +6699,30 @@ export class SurveyModel extends SurveyElementCore
     }
     this.isTriggerIsRunning = true;
     this.triggerKeys = key;
-    var properties = this.getFilteredProperties();
-    let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    for (let i = 0; i < this.triggers.length; i++) {
-      const trigger = this.triggers[i];
-      if (isQuestionInvalid && trigger.requireValidQuestion) continue;
-      const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
-        keys: this.triggerKeys, properties: properties };
-      trigger.checkExpression(options);
+    const properties = this.getFilteredProperties();
+    const options = { isOnNextPage: isOnNextPage, isOnComplete: isOnComplete, isOnNavigation: isOnNavigation,
+      keys: this.triggerKeys, properties: properties };
+    let originalKeys = Helpers.createCopy(this.triggerKeys);
+    const maxIterations = 3;
+    for (let i = 0; i < maxIterations; i++) {
+      this.runSurveyTriggers(options, isQuestionInvalid);
+      if (this.isCompleted || Helpers.isTwoValueEquals(originalKeys, this.triggerKeys)) break;
+      this.triggerKeys = Helpers.createDiff(this.triggerKeys, originalKeys);
+      originalKeys = Helpers.createCopy(this.triggerKeys);
     }
+    let prevCanBeCompleted = this.canBeCompletedByTrigger;
     if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
+  }
+  private runSurveyTriggers(options: any, isQuestionInvalid: boolean): void {
+    for (let i = 0; i < this.triggers.length; i++) {
+      const trigger = this.triggers[i];
+      if (isQuestionInvalid && trigger.requireValidQuestion) continue;
+      options.keys = this.triggerKeys;
+      trigger.checkExpression(options);
+    }
   }
   private checkTriggersAndRunConditions(name: string, newValue: any, oldValue: any): void {
     var triggerKeys: { [index: string]: any } = {};

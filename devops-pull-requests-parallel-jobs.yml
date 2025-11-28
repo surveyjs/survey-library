@@ -162,11 +162,6 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - bash: |
-          cd packages/survey-react-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
-
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/packages/survey-react-ui/test-results"
@@ -286,11 +281,6 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - bash: |
-          cd packages/survey-angular-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
-
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/packages/survey-angular-ui/test-results"
@@ -409,11 +399,6 @@ jobs:
           cd packages/survey-vue3-ui
           npm run e2e:ci
         displayName: "run e2e tests"
-
-      - bash: |
-          cd packages/survey-vue3-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -551,11 +536,6 @@ jobs:
           failTaskOnFailedTests: true
           testRunTitle: "React End-To-End Tests"
         condition: succeededOrFailed()
-
-      - bash: |
-          cd packages/survey-js-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:

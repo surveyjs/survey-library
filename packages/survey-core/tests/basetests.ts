@@ -92,6 +92,7 @@ QUnit.test("Add async event", function (assert) {
   let fireResult = event.fire(null, options, () => { counter++; });
   fireResult.then((options) => {
     assert.equal(options.counter, 2, "function called 2 times");
+    assert.equal(counter, 1, "onAsyncCallbacks called one time #2");
     done();
   });
   assert.equal(counter, 1, "onAsyncCallbacks called one time");

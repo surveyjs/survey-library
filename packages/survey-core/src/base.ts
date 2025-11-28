@@ -1400,3 +1400,21 @@ export class EventBase<Sender, Options = any> extends Event<
   Sender,
   Options
 > { }
+
+export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
+  public async fire(sender: Sender, options: Options, onAsyncCallbacks?: () => void): Promise<Options> {
+    if (!this.callbacks) return options;
+    let isNotified = false;
+    const callbacks = [].concat(this.callbacks);
+    for (var i = 0; i < callbacks.length; i++) {
+      let res = callbacks[i](sender, options);
+      if (res && res instanceof Promise) {
+        onAsyncCallbacks && onAsyncCallbacks();
+        isNotified = true;
+        await res;
+      }
+      if (!this.callbacks) return options;
+    }
+    return options;
+  }
+}

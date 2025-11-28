@@ -1,4 +1,4 @@
-import { ComputedUpdater, Base, Event, ArrayChanges, IPropertyArrayValueChangedEvent, EventBase, IPropertyValueChangedEvent } from "../src/base";
+import { ComputedUpdater, Base, Event, ArrayChanges, IPropertyArrayValueChangedEvent, EventBase, IPropertyValueChangedEvent, EventAsync } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
@@ -63,7 +63,58 @@ QUnit.test("Do not add function with the same instance several times", function 
   event.fire(null, null);
   assert.equal(counter, 1, "function should not be called the second time");
 });
-
+QUnit.test("Add async event", function (assert) {
+  let done = assert.async();
+  interface ResultOptions {
+    counter: number;
+  }
+  var event = new EventAsync<any, ResultOptions>();
+  var func1 = (sender: any, options: ResultOptions) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        options.counter++;
+        resolve(null);
+      }, 1);
+    });
+  };
+  var func2 = (sender: any, options: ResultOptions) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        options.counter++;
+        resolve(null);
+      }, 1);
+    });
+  };
+  var options: ResultOptions = { counter: 0 };
+  let counter = 0;
+  event.add(func1);
+  event.add(func2);
+  let fireResult = event.fire(null, options, () => { counter++; });
+  fireResult.then((options) => {
+    assert.equal(options.counter, 2, "function called 2 times");
+    done();
+  });
+  assert.equal(counter, 1, "onAsyncCallbacks called one time");
+});
+QUnit.test("Add sync functions to async event", function (assert) {
+  let done = assert.async();
+  interface ResultOptions {
+    counter: number;
+  }
+  var event = new EventAsync<any, ResultOptions>();
+  var func1 = (sender: any, options: ResultOptions) => { options.counter++; };
+  var func2 = (sender: any, options: ResultOptions) => { options.counter++; };
+  var options: ResultOptions = { counter: 0 };
+  let counter = 0;
+  event.add(func1);
+  event.add(func2);
+  let fireResult = event.fire(null, options, () => { counter++; });
+  fireResult.then((options) => {
+    assert.equal(options.counter, 2, "function called 2 times");
+    done();
+  });
+  assert.equal(counter, 0, "onAsyncCallbacks called one time");
+});
 QUnit.test("Item value & dynamic separator, #10424", function (assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");

@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, JsonError, Serializer, property, propertyArray } from "./jsonobject";
-import { Base, EventBase, ComputedUpdater } from "./base";
+import { Base, EventBase, ComputedUpdater, EventAsync } from "./base";
 import {
   ISurvey,
   ISurveyData,
@@ -274,7 +274,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    * @see prevPage
    **/
-  public onCurrentPageChanging: EventBase<SurveyModel, CurrentPageChangingEvent> = this.addEvent<SurveyModel, CurrentPageChangingEvent>();
+  public onCurrentPageChanging: EventAsync<SurveyModel, CurrentPageChangingEvent> = this.addAsyncEvent<SurveyModel, CurrentPageChangingEvent>();
   /**
    * An event that is raised after the current page is switched.
    *
@@ -4217,8 +4217,7 @@ export class SurveyModel extends SurveyElementCore
   private currentPageChanging(options: any, onSuccess: () => void): void {
     options.allow = true;
     options.allowChanging = true;
-    options.waitForCallback = false;
-    const doChange = () => {
+    const onComplete = () => {
       const allow = options.allowChanging && options.allow;
       if (allow) {
         if (options.newCurrentPage !== options.oldCurrentPage) {
@@ -4226,21 +4225,12 @@ export class SurveyModel extends SurveyElementCore
         }
         onSuccess();
       }
-    };
-    options.completeCallback = (result: boolean, message?: string) => {
-      options.allow = result;
-      doChange();
-      this.isNavigation = false;
-      if (!!message) {
-        this.notify(message, result ? "success" : "error");
+      if (!!options.message) {
+        this.notify(options.message, options.allow ? "success" : "error");
       }
+      this.isNavigation = false;
     };
-    this.onCurrentPageChanging.fire(this, options);
-    if (!options.waitForCallback) {
-      doChange();
-    } else {
-      this.isNavigation = true;
-    }
+    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.isNavigation = true);
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);

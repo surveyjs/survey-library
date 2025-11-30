@@ -230,8 +230,7 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * @deprecated Use `options.allow` instead.
    */
   allowChanging: boolean;
-  waitForCallback: boolean;
-  completeCallback: (result: boolean, message?: string) => void;
+  message?: string;
 }
 export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**

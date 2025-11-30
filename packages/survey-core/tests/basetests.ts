@@ -7,6 +7,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
+import { set } from "lodash";
 export * from "../src/localization/german";
 
 export default QUnit.module("Base");
@@ -64,38 +65,39 @@ QUnit.test("Do not add function with the same instance several times", function 
   assert.equal(counter, 1, "function should not be called the second time");
 });
 QUnit.test("Add async event", function (assert) {
-  let done = assert.async();
+  const done = assert.async();
   interface ResultOptions {
     counter: number;
   }
   var event = new EventAsync<any, ResultOptions>();
-  var func1 = (sender: any, options: ResultOptions) => {
+  var func1 = (sender: any, options: ResultOptions): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         options.counter++;
-        resolve(null);
-      }, 1);
+        resolve();
+      }, 0);
     });
   };
-  var func2 = (sender: any, options: ResultOptions) => {
+  var func2 = (sender: any, options: ResultOptions): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         options.counter++;
-        resolve(null);
-      }, 1);
+        resolve();
+      }, 0);
     });
   };
   var options: ResultOptions = { counter: 0 };
-  let counter = 0;
+  let completeCounter = 0;
+  let firstAsyncCounter = 0;
   event.add(func1);
   event.add(func2);
-  let fireResult = event.fire(null, options, () => { counter++; });
-  fireResult.then((options) => {
+  event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
+  setTimeout(() => {
     assert.equal(options.counter, 2, "function called 2 times");
-    assert.equal(counter, 1, "onAsyncCallbacks called one time #2");
+    assert.equal(firstAsyncCounter, 1, "onAsyncCallbacks called one time #2");
     done();
-  });
-  assert.equal(counter, 1, "onAsyncCallbacks called one time");
+  }, 10);
+  assert.equal(firstAsyncCounter, 1, "onAsyncCallbacks called one time");
 });
 QUnit.test("Add sync functions to async event", function (assert) {
   let done = assert.async();
@@ -109,11 +111,13 @@ QUnit.test("Add sync functions to async event", function (assert) {
   let counter = 0;
   event.add(func1);
   event.add(func2);
-  let fireResult = event.fire(null, options, () => { counter++; });
-  fireResult.then((options) => {
+  let completeCounter = 0;
+  let firstAsyncCounter = 0;
+  event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
+  setTimeout(() => {
     assert.equal(options.counter, 2, "function called 2 times");
     done();
-  });
+  }, 0);
   assert.equal(counter, 0, "onAsyncCallbacks called one time");
 });
 QUnit.test("Item value & dynamic separator, #10424", function (assert) {

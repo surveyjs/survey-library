@@ -356,6 +356,11 @@ export class Base implements IObjectValueContext {
     this.eventList.push(res);
     return res;
   }
+  protected addAsyncEvent<T, Options = any>(): EventAsync<T, Options> {
+    const res = new EventAsync<T, Options>();
+    this.eventList.push(res);
+    return res;
+  }
   protected onBaseCreating(): void { }
   /**
    * Returns the object type as it is used in the JSON schema.
@@ -1402,18 +1407,27 @@ export class EventBase<Sender, Options = any> extends Event<
 > { }
 
 export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
-  public async fire(sender: Sender, options: Options, onAsyncCallback?: () => void): Promise<Options> {
-    if (!this.callbacks) return options;
-    const callbacks = [].concat(this.callbacks);
-    for (var i = 0; i < callbacks.length; i++) {
-      let res = callbacks[i](sender, options);
-      if (res && res instanceof Promise) {
-        onAsyncCallback && onAsyncCallback();
-        onAsyncCallback = null;
-        await res;
-      }
-      if (!this.callbacks) return options;
+  public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {
+    if (!this.callbacks) {
+      onComplete && onComplete();
+      return;
     }
-    return options;
+    const callbacks = [].concat(this.callbacks);
+    const promises: Array<Promise<any>> = [];
+    for (var i = 0; i < callbacks.length; i++) {
+      const res = callbacks[i](sender, options);
+      if (res && res instanceof Promise) {
+        promises.push(res);
+      }
+      if (!this.callbacks) return;
+    }
+    if (promises.length > 0) {
+      onFirstAsync && onFirstAsync();
+      Promise.all(promises).then(() => {
+        onComplete && onComplete();
+      });
+    } else {
+      onComplete && onComplete();
+    }
   }
 }

@@ -69,8 +69,8 @@ QUnit.test("Add async event", function (assert) {
   interface ResultOptions {
     counter: number;
   }
-  var event = new EventAsync<any, ResultOptions>();
-  var func1 = (sender: any, options: ResultOptions): Promise<void> => {
+  const event = new EventAsync<any, ResultOptions>();
+  const func1 = (sender: any, options: ResultOptions): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         options.counter++;
@@ -78,7 +78,7 @@ QUnit.test("Add async event", function (assert) {
       }, 0);
     });
   };
-  var func2 = (sender: any, options: ResultOptions): Promise<void> => {
+  const func2 = (sender: any, options: ResultOptions): Promise<void> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         options.counter++;
@@ -86,7 +86,7 @@ QUnit.test("Add async event", function (assert) {
       }, 0);
     });
   };
-  var options: ResultOptions = { counter: 0 };
+  const options: ResultOptions = { counter: 0 };
   let completeCounter = 0;
   let firstAsyncCounter = 0;
   event.add(func1);
@@ -100,25 +100,21 @@ QUnit.test("Add async event", function (assert) {
   assert.equal(firstAsyncCounter, 1, "onAsyncCallbacks called one time");
 });
 QUnit.test("Add sync functions to async event", function (assert) {
-  let done = assert.async();
   interface ResultOptions {
     counter: number;
   }
-  var event = new EventAsync<any, ResultOptions>();
-  var func1 = (sender: any, options: ResultOptions) => { options.counter++; };
-  var func2 = (sender: any, options: ResultOptions) => { options.counter++; };
-  var options: ResultOptions = { counter: 0 };
-  let counter = 0;
+  const event = new EventAsync<any, ResultOptions>();
+  const func1 = (sender: any, options: ResultOptions) => { options.counter++; };
+  const func2 = (sender: any, options: ResultOptions) => { options.counter++; };
+  const options: ResultOptions = { counter: 0 };
   event.add(func1);
   event.add(func2);
   let completeCounter = 0;
   let firstAsyncCounter = 0;
   event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
-  setTimeout(() => {
-    assert.equal(options.counter, 2, "function called 2 times");
-    done();
-  }, 0);
-  assert.equal(counter, 0, "onAsyncCallbacks called one time");
+  assert.equal(options.counter, 2, "function called 2 times");
+  assert.equal(firstAsyncCounter, 0, "onAsyncCallbacks called one time");
+  assert.equal(completeCounter, 1, "onComplete called one time");
 });
 QUnit.test("Item value & dynamic separator, #10424", function (assert) {
   var value = new ItemValue("Item");

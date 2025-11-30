@@ -2747,7 +2747,7 @@ export class SurveyModel extends SurveyElementCore
     const navPrev = new Action({
       id: "sv-nav-prev",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowPrevButton),
-      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 20,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -2759,7 +2759,7 @@ export class SurveyModel extends SurveyElementCore
     const navNext = new Action({
       id: "sv-nav-next",
       visible: <any>new ComputedUpdater<boolean>(() => this.isShowNextButton),
-      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 30,
       data: {
         mouseDown: () => this.nextPageMouseDown(),
@@ -2771,7 +2771,7 @@ export class SurveyModel extends SurveyElementCore
     const navPreview = new Action({
       id: "sv-nav-preview",
       visible: <any>new ComputedUpdater<boolean>(() => this.isPreviewButtonVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 40,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -2783,7 +2783,7 @@ export class SurveyModel extends SurveyElementCore
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigation),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.isNavigationBlocked),
       visibleIndex: 50,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -4208,11 +4208,11 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  private get isNavigation(): boolean {
-    return this.getPropertyValue("isNavigation", false);
+  private get isNavigationBlocked(): boolean {
+    return this.getPropertyValue("isNavigationBlocked", false);
   }
-  private set isNavigation(val: boolean) {
-    this.setPropertyValue("isNavigation", val);
+  private set isNavigationBlocked(val: boolean) {
+    this.setPropertyValue("isNavigationBlocked", val);
   }
   private currentPageChanging(options: any, onSuccess: () => void): void {
     options.allow = true;
@@ -4228,9 +4228,9 @@ export class SurveyModel extends SurveyElementCore
       if (!!options.message) {
         this.notify(options.message, options.allow ? "success" : "error");
       }
-      this.isNavigation = false;
+      this.isNavigationBlocked = false;
     };
-    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.isNavigation = true);
+    this.onCurrentPageChanging.fire(this, options, () => onComplete(), () => this.isNavigationBlocked = true);
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);

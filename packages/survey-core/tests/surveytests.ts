@@ -3095,21 +3095,21 @@ QUnit.test("survey.onCurrentPageChanging async calls, Issue#10645", (assert) => 
   allowChanging = true;
   survey.nextPage();
   assert.equal(survey.currentPageNo, 0, "Still the first page, we are waiting for a callback");
-  assert.equal(survey.getPropertyValue("isNavigation"), true, "isCurrentPageChanging = true, #1");
+  assert.equal(survey.getPropertyValue("isNavigationBlocked"), true, "isCurrentPageChanging = true, #1");
   assert.equal(nextAction.enabled, false, "next action is disabled during navigation, #1");
   setTimeout(() => {
-    assert.equal(survey.getPropertyValue("isNavigation"), false, "isCurrentPageChanging = false, #1");
+    assert.equal(survey.getPropertyValue("isNavigationBlocked"), false, "isCurrentPageChanging = false, #1");
     assert.equal(survey.currentPageNo, 1, "The second page");
     assert.equal(nextAction.enabled, true, "next action is enabled after navigation, #1");
 
     allowChanging = false;
     survey.nextPage();
-    assert.equal(survey.getPropertyValue("isNavigation"), true, "isCurrentPageChanging = true, #2");
+    assert.equal(survey.getPropertyValue("isNavigationBlocked"), true, "isCurrentPageChanging = true, #2");
     assert.equal(nextAction.enabled, false, "next action is disabled during navigation, #2");
     assert.equal(prevAction.enabled, false, "prev action is disabled during navigation, #2");
     assert.equal(survey.currentPageNo, 1, "Still the second page, we are waiting for a callback");
     setTimeout(() => {
-      assert.equal(survey.getPropertyValue("isNavigation"), false, "isCurrentPageChanging = false, #2");
+      assert.equal(survey.getPropertyValue("isNavigationBlocked"), false, "isCurrentPageChanging = false, #2");
       assert.equal(nextAction.enabled, true, "next action is enabled after navigation, #2");
       assert.equal(prevAction.enabled, true, "prev action is enabled after navigation, #2");
       assert.equal(survey.currentPageNo, 1, "We do not move from the second page");

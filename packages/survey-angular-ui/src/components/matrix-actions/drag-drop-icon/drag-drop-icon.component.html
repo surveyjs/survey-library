@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div>
+  <div (pointerdown)="question.onPointerDown($event, row)">
     <svg *ngIf="question.iconDragElement" [class]="question.cssClasses.dragElementDecorator">
       <use [attr.xlink:href]="question.iconDragElement"></use>
     </svg>

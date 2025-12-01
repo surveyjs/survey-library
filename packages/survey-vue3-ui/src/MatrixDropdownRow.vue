@@ -1,7 +1,6 @@
 <template>
   <tr
     :data-sv-drop-target-matrix-row="row.dropTargetId"
-    @pointerdown="question.onPointerDown($event, row.row)"
     :class="row.className"
     v-if="row.visible"
     ref="root"

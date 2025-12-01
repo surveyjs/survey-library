@@ -1419,6 +1419,18 @@ export class EventAsync<Sender, Options = any> extends EventBase <Sender, Option
       doComplete();
       return;
     }
+    const doPromise = (promise: Promise<any>) => {
+      promise.then(() => {
+        const index = promises.indexOf(promise);
+        if (index > -1) {
+          promises.splice(index, 1);
+          doComplete();
+          if (promises.length > 0) {
+            doPromise(promises[0]);
+          }
+        }
+      });
+    };
     const callbacks = [].concat(this.callbacks);
     for (var i = 0; i < callbacks.length; i++) {
       const res = callbacks[i](sender, options);
@@ -1426,13 +1438,9 @@ export class EventAsync<Sender, Options = any> extends EventBase <Sender, Option
         onFirstAsync && onFirstAsync();
         onFirstAsync = null;
         promises.push(res);
-        res.then(() => {
-          const index = promises.indexOf(res);
-          if (index > -1) {
-            promises.splice(index, 1);
-            doComplete();
-          }
-        });
+        if (promises.length === 1) {
+          doPromise(promises[0]);
+        }
       }
       if (!this.callbacks) return;
     }

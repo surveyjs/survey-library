@@ -99,6 +99,8 @@ export var koreanStrings = {
   urlGetChoicesError: "비어있는 데이터를 요청했거나 잘못된 속성의 경로입니다.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "파일 크기가 {0}을 초과 할 수 없습니다.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "업로드할 수 있는 최대 파일 수는 {0}입니다.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "파일을 업로드할 수 없습니다. 'onUploadFiles'이벤트에 대한 핸들러를 추가하십시오.",
   // "Response required: enter another value."

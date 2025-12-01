@@ -12,7 +12,7 @@ const setupSurvey = async (page: Page) => {
       if (!countryName) options.complete();
       //call the ajax method
       window["$"].ajax({
-        url: "http://127.0.0.1:8080/testCafe/countriesMock.json"
+        url: "http://127.0.0.1:8080/test-resources/countriesMock.json"
       }).then(function(data) {
         var found = false;
         var countries = data.RestResponse.result;

@@ -63,7 +63,7 @@
             "assets": [
               "./example/src/favicon.ico",
               "./example/src/assets",
-              "./example/src/testCafe"
+              "./example/src/test-resources"
             ],
             "styles": [
               "./example/src/styles.scss"

@@ -1418,19 +1418,22 @@ export class EventAsync<Sender, Options = any> extends EventBase <Sender, Option
     for (var i = 0; i < callbacks.length; i++) {
       const res = callbacks[i](sender, options);
       if (res && res instanceof Promise) {
+        onFirstAsync && onFirstAsync();
+        onFirstAsync = null;
         promises.push(res);
+        res.then(() => {
+          const index = promises.indexOf(res);
+          if (index > -1) {
+            promises.splice(index, 1);
+            if (promises.length === 0) {
+              onComplete();
+            }
+          }
+        });
       }
       if (!this.callbacks) return;
     }
-    if (promises.length > 0) {
-      onFirstAsync && onFirstAsync();
-      const perform = async (): Promise<void> => {
-        for (let i = 0; i < promises.length; i++) {
-          await promises[i];
-        }
-      };
-      perform().then(() => { onComplete(); });
-    } else {
+    if (promises.length === 0) {
       onComplete();
     }
   }

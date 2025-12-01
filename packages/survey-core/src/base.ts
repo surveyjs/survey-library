@@ -1408,42 +1408,27 @@ export class EventBase<Sender, Options = any> extends Event<
 
 export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
   public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {
-    const promises: Array<Promise<any>> = [];
-    const doComplete = () => {
-      if (onComplete && promises.length === 0) {
-        onComplete();
-        onComplete = null;
-      }
-    };
+    onComplete = onComplete || (() => { });
     if (!this.callbacks) {
-      doComplete();
+      onComplete();
       return;
     }
-    const doPromise = (promise: Promise<any>) => {
-      promise.then(() => {
-        const index = promises.indexOf(promise);
-        if (index > -1) {
-          promises.splice(index, 1);
-          doComplete();
-          if (promises.length > 0) {
-            doPromise(promises[0]);
-          }
-        }
-      });
-    };
+    const promises: Array<Promise<any>> = [];
     const callbacks = [].concat(this.callbacks);
     for (var i = 0; i < callbacks.length; i++) {
       const res = callbacks[i](sender, options);
       if (res && res instanceof Promise) {
-        onFirstAsync && onFirstAsync();
-        onFirstAsync = null;
         promises.push(res);
-        if (promises.length === 1) {
-          doPromise(promises[0]);
-        }
       }
       if (!this.callbacks) return;
     }
-    doComplete();
+    if (promises.length > 0) {
+      onFirstAsync && onFirstAsync();
+      Promise.all(promises).then(() => {
+        onComplete();
+      });
+    } else {
+      onComplete();
+    }
   }
 }

@@ -1408,13 +1408,18 @@ export class EventBase<Sender, Options = any> extends Event<
 
 export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
   public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {
-    onComplete = onComplete || (() => { });
+    const promises: Array<Promise<any>> = [];
+    const doComplete = () => {
+      if (onComplete && promises.length === 0) {
+        onComplete();
+        onComplete = null;
+      }
+    };
     if (!this.callbacks) {
-      onComplete();
+      doComplete();
       return;
     }
     const callbacks = [].concat(this.callbacks);
-    const promises: Array<Promise<any>> = [];
     for (var i = 0; i < callbacks.length; i++) {
       const res = callbacks[i](sender, options);
       if (res && res instanceof Promise) {
@@ -1425,16 +1430,12 @@ export class EventAsync<Sender, Options = any> extends EventBase <Sender, Option
           const index = promises.indexOf(res);
           if (index > -1) {
             promises.splice(index, 1);
-            if (promises.length === 0) {
-              onComplete();
-            }
+            doComplete();
           }
         });
       }
       if (!this.callbacks) return;
     }
-    if (promises.length === 0) {
-      onComplete();
-    }
+    doComplete();
   }
 }

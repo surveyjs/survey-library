@@ -293,6 +293,32 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-error__item").filter({ hasText: "Max error" })).not.toBeVisible();
     });
 
+    test("Invalid date saved in state bug#10663", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            type: "text",
+            name: "question1",
+            title: "Enter Month and Year",
+            inputType: "month",
+          }
+        ]
+      });
+
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("ArrowUp");
+      await page.keyboard.press("Tab");
+      await page.keyboard.type("021");
+      await page.keyboard.press("Tab");
+      await page.keyboard.press("Tab");
+
+      await page.locator("input[value=Complete]").click();
+
+      const result = await getSurveyResult(page);
+
+      expect(result).toEqual({ question1: "0021-01" });
+    });
+
     test("focus but not enter value in readonly text question", async ({ page }) => {
       const json = {
         "pages": [

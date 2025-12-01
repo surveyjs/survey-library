@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, doDrag, setData, doDragDrop } from "../e2e/helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -493,6 +493,74 @@ frameworks.forEach(framework => {
       });
       const matrixdynamicRoot = page.locator(".sd-question");
       await compareScreenshot(page, matrixdynamicRoot, "matrixdropdown-rating-mobile.png");
+    });
+
+    test("DnD: Matrixdynamic inside Matrixdynamic", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      const json = {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "parent",
+            "columns": [
+              {
+                "name": "parent-text",
+                "cellType": "text"
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "matrixdynamic",
+                "name": "child",
+                "columns": [
+                  {
+                    "name": "child-text",
+                    "cellType": "text",
+                  }
+                ],
+                "rowCount": 2,
+                "allowRowReorder": true
+              }
+            ],
+            "detailPanelMode": "underRowSingle",
+            "detailPanelShowOnAdding": true,
+            "rowCount": 2,
+            "allowRowReorder": true
+          }
+        ]
+      };
+
+      const data = {
+        "parent": [
+          {
+            "parent-text": "parent text 1",
+            "child": [
+              {
+                "child-text": "child text 1"
+              },
+              {
+                "child-text": "child text 2"
+              }
+            ]
+          },
+          {
+            "parent-text": "parent text 2"
+          }
+        ]
+      };
+
+      await initSurvey(page, framework, json);
+      await setData(page, data);
+
+      await page.getByRole("button", { name: "Show Details" }).first().click();
+      const row1 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(0);
+      const row2 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(1);
+      const dragIcon = row1.locator(".sd-table__cell--drag .sd-drag-element__svg");
+
+      await row1.hover();
+      await doDragDrop({ page, element: dragIcon, target: row2 });
+
+      await compareScreenshot(page, ".sd-question", "dnd-matrixdynamic-inside-matrixdynamic.png", 0);
     });
   });
 });

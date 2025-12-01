@@ -731,7 +731,7 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ matrix: [{ col1: "row1" }] });
     });
-    test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10657", async ({ page }) => {
+    test("Matrix focus the first visible and enabled cell on focusing matrix, Bug#10657", async ({ page }) => {
       const json = {
         pages: [
           { elements: [{ type: "text", name: "q1" }] },
@@ -746,6 +746,7 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         window.survey.getQuestionByName("matrix").focus();
       });
+      await page.waitForTimeout(500);
       await page.keyboard.type("row1col2");
       await page.keyboard.press("Tab");
 

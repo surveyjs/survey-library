@@ -2458,24 +2458,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
-    return this.getFirstCellQuestion(withError);
+    return this.getFirstCellQuestion(withError, true);
   }
   protected getFirstInputElementId(): string {
-    var question = this.getFirstCellQuestion(false);
+    var question = this.getFirstCellQuestion(false, true);
     return question ? question.inputId : super.getFirstInputElementId();
   }
   protected getFirstErrorInputElementId(): string {
-    var question = this.getFirstCellQuestion(true);
+    var question = this.getFirstCellQuestion(true, true);
     return question ? question.inputId : super.getFirstErrorInputElementId();
   }
-  protected getFirstCellQuestion(onError: boolean): Question {
+  protected getFirstCellQuestion(onError: boolean, generateRows?: boolean): Question {
+    if (generateRows) {
+      this.generateVisibleRowsIfNeeded();
+    }
     if (!this.generatedVisibleRows) return null;
     for (var i = 0; i < this.generatedVisibleRows.length; i++) {
       var cells = this.generatedVisibleRows[i].cells;
       for (var colIndex = 0; colIndex < cells.length; colIndex++) {
-        if (!onError) return cells[colIndex].question;
-        if (cells[colIndex].question.currentErrorCount > 0)
-          return cells[colIndex].question;
+        const q = cells[colIndex].question;
+        if (q.isVisible && !q.isReadOnly && (!onError || q.currentErrorCount > 0)) return q;
       }
     }
     return null;

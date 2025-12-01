@@ -731,5 +731,27 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ matrix: [{ col1: "row1" }] });
     });
+    test("Matrix is not re-create rows on setting value after the matrix value is empty array, Bug#10657", async ({ page }) => {
+      const json = {
+        pages: [
+          { elements: [{ type: "text", name: "q1" }] },
+          {
+            elements: [
+              { type: "matrixdynamic", name: "matrix", rowCount: 1,
+                columns: [{ name: "col1", cellType: "text", visible: false }, { name: "col2", cellType: "text" }]
+              }
+            ] }]
+      };
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => {
+        window.survey.getQuestionByName("matrix").focus();
+      });
+      await page.keyboard.type("row1col2");
+      await page.keyboard.press("Tab");
+
+      await page.click("input[value=Complete]");
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({ matrix: [{ col2: "row1col2" }] });
+    });
   });
 });

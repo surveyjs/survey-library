@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
           {
             "type": "image",
             "name": "q2",
-            "imageLink": "http://localhost:8080/testCafe/resources/logo.jpg",
+            "imageLink": "http://localhost:8080/test-resources/logo.jpg",
             "startWithNewLine": false
           }
         ]

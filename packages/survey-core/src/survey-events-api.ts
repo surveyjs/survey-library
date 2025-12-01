@@ -230,6 +230,7 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * @deprecated Use `options.allow` instead.
    */
   allowChanging: boolean;
+  message?: string;
 }
 export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**

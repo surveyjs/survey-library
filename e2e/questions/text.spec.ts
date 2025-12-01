@@ -308,7 +308,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("Tab");
-      await page.keyboard.type("021");
+      await page.keyboard.type("133");
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
 
@@ -316,7 +316,7 @@ frameworks.forEach((framework) => {
 
       const result = await getSurveyResult(page);
 
-      expect(result).toEqual({ question1: "0021-01" });
+      expect(result).toEqual({ question1: "0133-01" });
     });
 
     test("focus but not enter value in readonly text question", async ({ page }) => {

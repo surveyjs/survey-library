@@ -8359,8 +8359,9 @@ QUnit.test("Focus first visible enabled cell on focusing matrix, Bug#10657", (as
     ],
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
   matrix.focus();
-  assert.equal(focusedQuestionId, matrix.visibleRows[0].cells[2].question.inputId, "focus correct value");
+  assert.equal(focusedQuestionId, rows[0].cells[2].question.inputId, "focus correct value");
   SurveyElement.FocusElement = oldFunc;
 });
 QUnit.test(

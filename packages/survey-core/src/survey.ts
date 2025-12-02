@@ -222,7 +222,7 @@ export class SurveyModel extends SurveyElementCore
    * @see doComplete
    * @see autoAdvanceAllowComplete
    */
-  public onCompleting: EventBase<SurveyModel, CompletingEvent> = this.addEvent<SurveyModel, CompletingEvent>();
+  public onCompleting: EventAsync<SurveyModel, CompletingEvent> = this.addAsyncEvent<SurveyModel, CompletingEvent>();
   /**
    * An event that is raised after the survey is completed. Use this event to send survey results to the server.
    *
@@ -4843,11 +4843,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      const res = this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
-      if (res) {
-        this.cancelPreview();
-      }
-      return res;
+      return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
     }
     this.doNextPage();
     return true;
@@ -5311,20 +5307,23 @@ export class SurveyModel extends SurveyElementCore
    * @param completeTrigger For internal use.
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    */
-  public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean {
+  public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean | undefined {
     if (this.isCompleted) return;
-    if (!this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger)) {
-      this.isCompleted = false;
-      return false;
-    }
-    this.checkOnPageTriggers(true);
-    this.stopTimer();
-    this.notifyQuestionsOnHidingContent(this.currentPage);
-    this.isCompleted = true;
-    this.clearUnusedValues();
-    this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
-    this.setCookie();
-    return true;
+
+    return this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger, (allow) => {
+      if (allow) {
+        this.checkOnPageTriggers(true);
+        this.stopTimer();
+        this.notifyQuestionsOnHidingContent(this.currentPage);
+        this.isCompleted = true;
+        this.clearUnusedValues();
+        this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
+        this.setCookie();
+        this.cancelPreview();
+      } else {
+        this.isCompleted = false;
+      }
+    });
   }
   private saveDataOnComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger) {
     let previousCookie = this.hasCookie;
@@ -5364,15 +5363,25 @@ export class SurveyModel extends SurveyElementCore
       this.navigateTo();
     }
   }
-  private checkOnCompletingEvent(isCompleteOnTrigger: boolean, completeTrigger?: Trigger): boolean {
-    var options = {
+  private checkOnCompletingEvent(isCompleteOnTrigger: boolean, completeTrigger: Trigger, onComplete: (allow: boolean) => void): boolean | undefined {
+    let result: boolean | undefined = undefined;
+    const options: CompletingEvent = {
       allowComplete: true,
       allow: true,
       isCompleteOnTrigger: isCompleteOnTrigger,
       completeTrigger: completeTrigger
     };
-    this.onCompleting.fire(this, options);
-    return options.allowComplete && options.allow;
+    const doCompleteFunc = () => {
+      this.isNavigationBlocked = false;
+      const allow = options.allowComplete && options.allow;
+      if (!!options.message) {
+        this.notify(options.message, allow ? "success" : "error");
+      }
+      result = allow;
+      onComplete(allow);
+    };
+    this.onCompleting.fire(this, options, doCompleteFunc, () => this.isNavigationBlocked = true);
+    return result;
   }
   /**
    * Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).

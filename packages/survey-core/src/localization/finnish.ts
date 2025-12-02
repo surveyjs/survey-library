@@ -99,6 +99,8 @@ export var finnishSurveyStrings = {
   urlGetChoicesError: "Pyyntö palautti tyhjän tiedoston tai 'path'-asetus on väärä",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Tiedoston koko ei saa olla suurempi kuin {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Tiedostojen enimmäismäärä, jonka voit ladata, on {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle.",
   // "Response required: enter another value."

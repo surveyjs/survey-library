@@ -410,12 +410,19 @@ export class FunctionOperand extends Operand {
         onComplete(item);
       };
     }
-    return FunctionFactory.Instance.run(
+    let res = FunctionFactory.Instance.run(
       this.originalValue,
       this.parameters.evaluate(processValue),
       properties,
       this.parameters.values
     );
+    if (res instanceof Promise) {
+      res.then((value) => {
+        properties.returnResult(value);
+      });
+      return undefined;
+    }
+    return res;
   }
   public toString(func: (op: Operand) => string = undefined): string {
     if (!!func) {

@@ -672,21 +672,19 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
-  private isCssValueCalculating: boolean;
   public get cssClassesValue(): any {
-    let res = this.getPropertyValueWithoutDefault("cssClassesValue");
-    if (!res && !this.isCssValueCalculating) {
-      this.isCssValueCalculating = true;
-      res = this.createCssClassesValue();
-      this.isCssValueCalculating = false;
-    }
-    return res;
+    return this.getPropertyValue("cssClassesValue", undefined, () => this.createCssClassesValue());
   }
+  private isCalculatingCssClasses: boolean;
   private createCssClassesValue(): any {
+    const callOnCalc = this.isCalculatingCssClasses;
+    this.isCalculatingCssClasses = true;
     const res = this.calcCssClasses(this.css);
-    this.setPropertyValue("cssClassesValue", res);
-    this.onCalcCssClasses(res);
-    this.updateElementCssCore(this.cssClassesValue);
+    if (!callOnCalc) {
+      this.onCalcCssClasses(res);
+    }
+    this.updateElementCssCore(res);
+    this.isCalculatingCssClasses = false;
     return res;
   }
   protected onCalcCssClasses(classes: any): void {}
@@ -703,11 +701,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get cssClasses(): any {
-    const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
-    if (!this.cssClassesValue) {
-      this.createCssClassesValue();
-    }
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {

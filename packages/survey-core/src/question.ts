@@ -662,7 +662,7 @@ export class Question extends SurveyElement<Question>
       }
     }
     if (val !== this.visible && this.areInvisibleElementsShowing) {
-      this.updateQuestionCss(true);
+      this.updateQuestionCss();
     }
   }
   /**
@@ -1804,24 +1804,22 @@ export class Question extends SurveyElement<Question>
     if (this.wasRendered) {
       super.updateElementCss(reNew);
       if (reNew) {
-        this.updateQuestionCss(true);
+        this.updateQuestionCss();
       }
     } else {
       this.clearCssClasses();
     }
     this.resetIndents();
   }
-  protected updateQuestionCss(reNew?: boolean): void {
-    if (this.isLoadingFromJson || !this.survey) return;
+  private updateQuestionCss(): void {
+    if (this.isLoadingFromJson || !this.survey || this.isDisposed) return;
     if (this.wasRendered) {
       this.updateElementCssCore(this.cssClasses);
-    } else {
-      this.isRequireUpdateElements = true;
     }
   }
   private ensureElementCss() {
     if (!this.cssClassesValue) {
-      this.updateQuestionCss(true);
+      this.updateQuestionCss();
     }
   }
   protected updateElementCssCore(cssClasses: any): void {

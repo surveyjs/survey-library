@@ -125,6 +125,7 @@ export interface CompletingEvent extends CompleteBaseEvent {
    * @deprecated Use `options.allow` instead.
    */
   allowComplete: boolean;
+  message?: string;
 }
 export interface CompleteEvent extends CompleteBaseEvent {
   /**

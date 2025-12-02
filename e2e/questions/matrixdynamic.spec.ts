@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, getVisibleListItemByText, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, getVisibleListItemByText, test, expect, setData, getData, doDragDrop } from "../helper";
 
 const title = "matrixdynamic";
 
@@ -753,6 +753,90 @@ frameworks.forEach((framework) => {
       await page.click("input[value=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ matrix: [{ col2: "row1col2" }] });
+    });
+    test("DnD: Matrixdynamic inside Matrixdynamic", async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 1100 });
+      const json = {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "name": "parent",
+            "columns": [
+              {
+                "name": "parent-text",
+                "cellType": "text"
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "matrixdynamic",
+                "name": "child",
+                "columns": [
+                  {
+                    "name": "child-text",
+                    "cellType": "text",
+                  }
+                ],
+                "rowCount": 2,
+                "allowRowReorder": true
+              }
+            ],
+            "detailPanelMode": "underRowSingle",
+            "detailPanelShowOnAdding": true,
+            "rowCount": 2,
+            "allowRowReorder": true
+          }
+        ]
+      };
+
+      const data = {
+        "parent": [
+          {
+            "parent-text": "parent text 1",
+            "child": [
+              {
+                "child-text": "child text 1"
+              },
+              {
+                "child-text": "child text 2"
+              }
+            ]
+          },
+          {
+            "parent-text": "parent text 2"
+          }
+        ]
+      };
+
+      await initSurvey(page, framework, json);
+      await setData(page, data);
+
+      await page.getByRole("button", { name: "Show Details" }).first().click();
+      const row1 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(0);
+      const row2 = page.locator(".sd-matrixdynamic .sd-matrixdynamic tbody tr").nth(1);
+      const dragIcon = row1.locator(".sd-table__cell--drag .sd-drag-element__svg");
+
+      await row1.hover();
+      await doDragDrop({ page, element: dragIcon, target: row2 });
+
+      expect(await getData(page)).toEqual({
+        "parent": [
+          {
+            "parent-text": "parent text 1",
+            "child": [
+              {
+                "child-text": "child text 2"
+              },
+              {
+                "child-text": "child text 1"
+              },
+            ]
+          },
+          {
+            "parent-text": "parent text 2"
+          }
+        ]
+      });
     });
   });
 });

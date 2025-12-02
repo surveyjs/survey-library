@@ -1,5 +1,5 @@
 import * as React from "react";
-import { QuestionMatrixDropdownModelBase } from "survey-core";
+import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "survey-core";
 import { ReactElementFactory } from "../../../element-factory";
 import { ReactSurveyElement } from "../../../reactquestion_element";
 
@@ -7,8 +7,11 @@ export class SurveyQuestionMatrixDynamicDragDropIcon extends ReactSurveyElement 
   private get question(): QuestionMatrixDropdownModelBase {
     return this.props.item.data.question;
   }
+  private get row(): MatrixDropdownRowModelBase {
+    return this.props.item.data.row;
+  }
   protected renderElement(): React.JSX.Element | null {
-    return <div>{this.renderIcon()}</div>;
+    return <div onPointerDown={(event: any) => { this.question.onPointerDown(event.nativeEvent, this.row); }}>{this.renderIcon()}</div>;
   }
   protected renderIcon(): React.JSX.Element {
     if (this.question.iconDragElement) {

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @pointerdown="question.onPointerDown($event, row)">
     <svg
       v-if="question.iconDragElement"
       :class="question.cssClasses.dragElementDecorator"
@@ -14,5 +14,5 @@
 import type { Action } from "survey-core";
 import { useMatrixAction } from "../matrix-action";
 const props = defineProps<{ item: Action }>();
-const { question } = useMatrixAction(props, false);
+const { question, row } = useMatrixAction(props, true);
 </script>

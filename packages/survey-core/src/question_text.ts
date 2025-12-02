@@ -643,7 +643,10 @@ export class QuestionTextModel extends QuestionTextBase {
       const d = this.createDate(newValue);
       const isUtc = d.toISOString().indexOf(newValue) == 0 && newValue.indexOf("T") == -1;
       const month = isUtc ? d.getUTCMonth() : d.getMonth();
-      const year = isUtc ? d.getUTCFullYear() : d.getFullYear();
+      let year = (isUtc ? d.getUTCFullYear() : d.getFullYear()).toString();
+      while(year.length < 4) {
+        year = "0" + year;
+      }
       const m = month + 1;
       return year + "-" + (m < 10 ? "0" : "") + m;
     }

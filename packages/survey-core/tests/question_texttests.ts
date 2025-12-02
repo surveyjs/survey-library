@@ -479,6 +479,16 @@ QUnit.test("inputType='month' and today function, #8552", function(assert) {
   const etalon = new Date().getFullYear() + "-" + (m < 10 ? "0" : "") + m;
   assert.equal(q1.value, etalon, "today works correctly for month input");
 });
+QUnit.test("inputType='month' and when year is less than 1000 (4 digits) Bug#10663", function(assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      { "type": "text", "name": "q1", "inputType": "month" },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  q1.inputValue = "0133-5";
+  assert.equal(q1.value, "0133-05", "the value is correct #3");
+});
 QUnit.test("inputType='date' invalid value, #8617", function(assert) {
   const survey = new SurveyModel({
     "elements": [

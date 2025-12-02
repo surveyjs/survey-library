@@ -2429,3 +2429,161 @@ QUnit.test("Do not show summary page on request, Issue#10435", assert => {
   assert.equal(survey.currentSingleQuestion.name, "q3", "currentSingleQuestion is q3, #3");
   assert.equal(addBtn.visible, false, "addBtn.visible, #3");
 });
+QUnit.test("Cannot read properties of undefined  with survey.data, Bug #10653", assert => {
+  const survey = new SurveyModel({
+    questionsOnPageMode: "inputPerPage",
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "matrix",
+            name: "qualities",
+            title:
+            "Please indicate if you agree or disagree with the following statements",
+            columns: [
+              {
+                value: 5,
+                text: "Strongly agree",
+              },
+              {
+                value: 4,
+                text: "Agree",
+              },
+              {
+                value: 3,
+                text: "Neutral",
+              },
+              {
+                value: 2,
+                text: "Disagree",
+              },
+              {
+                value: 1,
+                text: "Strongly disagree",
+              },
+            ],
+            rows: [
+              {
+                value: "affordable",
+                text: "Product is affordable",
+              },
+              {
+                value: "does-what-it-claims",
+                text: "Product does what it claims",
+              },
+              {
+                value: "better-than-others",
+                text: "Product is better than other products on the market",
+              },
+              {
+                value: "easy-to-use",
+                text: "Product is easy to use",
+              },
+            ],
+          },
+          {
+            type: "rating",
+            name: "satisfaction-score",
+            title: "How satisfied are you with our product?",
+            minRateDescription: "Not satisfied",
+            maxRateDescription: "Completely satisfied",
+          },
+          {
+            type: "rating",
+            name: "recommend",
+            visibleIf: "{satisfaction-score} > 3",
+            title:
+            "How likely are you to recommend our product to a friend or co-worker?",
+            minRateDescription: "Will not recommend",
+            maxRateDescription: "I will recommend",
+          },
+          {
+            type: "comment",
+            name: "suggestions",
+            title: "What would make you more satisfied with our product?",
+          },
+        ],
+      },
+      {
+        name: "page2",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "price-comparison",
+            title: "Compared to our competitors, do you feel our product is:",
+            choices: [
+              "Less expensive",
+              "Priced about the same",
+              "More expensive",
+              "Not sure",
+            ],
+          },
+          {
+            type: "radiogroup",
+            name: "current-price",
+            title: "Do you feel our current price is merited by our product?",
+            choices: [
+              {
+                value: "correct",
+                text: "Yes, the price is about right",
+              },
+              {
+                value: "low",
+                text: "No, the price is too low for your product",
+              },
+              {
+                value: "high",
+                text: "No, the price is too high for your product",
+              },
+            ],
+          },
+          {
+            type: "multipletext",
+            name: "price-limits",
+            title:
+            "What is the highest and lowest price you would pay for a product like ours?",
+            items: [
+              {
+                name: "highest",
+                title: "Highest",
+              },
+              {
+                name: "lowest",
+                title: "Lowest",
+              },
+            ],
+            itemTitleWidth: "60px",
+          },
+        ],
+      },
+      {
+        name: "page3",
+        elements: [
+          {
+            type: "text",
+            name: "email",
+            title:
+            "Please leave your email address if you would like us to contact you.",
+          },
+        ],
+      },
+    ],
+  });
+  survey.setIsMobile(true);
+  survey.data = {
+    qualities: {
+      affordable: 3,
+      "does-what-it-claims": 5,
+      "better-than-others": 3,
+      "easy-to-use": 2,
+    },
+    "satisfaction-score": 4,
+  };
+  assert.equal(survey.currentSingleQuestion.name, "qualities", "currentSingleQuestion is qualities, #1");
+  assert.ok(survey.currentSingleQuestion.cssClasses, "cssClasses is defined");
+  const affordable = survey.currentSingleQuestion.singleInputQuestion;
+  assert.equal(affordable.name, "affordable", "singleInputQuestion is affordable, #1");
+  assert.ok(affordable.cssClasses, "singleInputQuestion cssClasses is defined");
+  assert.ok(affordable.cssRoot, "singleInputQuestion cssRoot is defined");
+});

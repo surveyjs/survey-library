@@ -952,7 +952,7 @@ QUnit.test("locString.lastLocChanged: string", function (assert) {
   locString.clear();
   assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #9");
 });
-QUnit.test("test getStringViewerClassName", function (assert) {
+QUnit.test("test getStringViewerClassName", (assert) => {
   const owner = new LocalizableOwnerTester("");
   const locStr = new LocalizableString(owner, true);
   assert.equal(locStr.getStringViewerClassName(), "sv-string-viewer", "default class name");
@@ -961,6 +961,6 @@ QUnit.test("test getStringViewerClassName", function (assert) {
   const q1 = new QuestionTextModel("q1");
   assert.equal(q1.locTitle.allowLineBreaks, true, "question title allowLineBreaks");
   assert.equal(q1.locTitle.getStringViewerClassName(), "sv-string-viewer sv-string-viewer--multiline", "question title class name");
-  assert.equal(q1.locTitle.getStringViewerClassName("test"), "test sv-string-viewer--multiline", "question title class name, use custom class name");
-  assert.equal(q1.locTitle.getStringViewerClassName(""), " sv-string-viewer--multiline", "question title class name, use empty custom class name");
+  assert.equal(q1.locTitle.getStringViewerClassName("testClass"), "testClass", "question title class name, use custom class name");
+  assert.equal(q1.locTitle.getStringViewerClassName(""), "", "question title class name, use empty custom class name");
 });

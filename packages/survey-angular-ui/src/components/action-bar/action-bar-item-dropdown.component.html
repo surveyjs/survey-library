@@ -1,7 +1,7 @@
 <ng-template #template>
     <button type="button" (click)="model.action(model, model.getIsTrusted($event))" [key2click]="{ processEsc: false, disableTabStop: model.disableTabStop }" [class]="model.getActionBarItemCss()" [title]="model.tooltip || model.title" [disabled]="model.disabled" [attr.role]="model.ariaRole">
         <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>
-        <sv-ng-string *ngIf="model.hasTitle" [model]="model.locTitle" [textClass]="model.getActionBarItemTitleCss()"></sv-ng-string>
+        <sv-ng-string-viewer *ngIf="model.hasTitle" [model]="model.locTitle"></sv-ng-string-viewer>
     </button>
     <sv-ng-popup [popupModel]="model.popupModel"></sv-ng-popup>
 </ng-template>

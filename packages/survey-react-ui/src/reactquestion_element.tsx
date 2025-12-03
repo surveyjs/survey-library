@@ -8,14 +8,12 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   public static renderLocString(
     locStr: LocalizableString,
     style: any = null,
-    key?: string,
-    textClass?: string
+    key?: string
   ): React.JSX.Element {
     return ReactElementFactory.Instance.createElement(locStr.renderAs, {
       locStr: locStr.renderAsData,
       style: style,
-      key: key,
-      textClass: textClass,
+      key: key
     });
   }
   public static renderQuestionDescription(question: Question | PanelModel): React.JSX.Element {
@@ -138,9 +136,9 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   protected renderLocString(
     locStr: LocalizableString,
     style: any = null,
-    key?: string, textClass?: string
+    key?: string
   ): React.JSX.Element {
-    return SurveyElementBase.renderLocString(locStr, style, key, textClass);
+    return SurveyElementBase.renderLocString(locStr, style, key);
   }
   private canMakeReact(stateElement: Base): boolean {
     return !!stateElement && !!stateElement.iteratePropertiesHash;

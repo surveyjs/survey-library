@@ -247,9 +247,10 @@ export class SurveyModel extends SurveyElementCore
    *     if (!response.ok) {
    *       options.allow = false;
    *       options.message = "Could not post the survey results";
+   *     } else {
+   *       // Optionally show a success message
+   *       options.message = "Your data has been saved";
    *     }
-   *     // Optionally show a success message
-   *     options.message = "Your data has been saved";
    *   } catch (e) {
    *     options.allow = false;
    *     options.message = e.message;

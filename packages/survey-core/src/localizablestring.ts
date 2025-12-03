@@ -77,7 +77,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public getIsMultiple(): boolean { return false; }
   public getStringViewerClassName(textClass?: string): string {
-    if (textClass === undefined) return textClass;
+    if (textClass !== undefined) return textClass;
     return "sv-string-viewer" + (this.allowLineBreaks ? " sv-string-viewer--multiline" : "");
   }
   public get locale(): string {

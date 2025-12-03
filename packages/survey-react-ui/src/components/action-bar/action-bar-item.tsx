@@ -6,7 +6,7 @@ import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
-import { renderLocString } from "src/string-viewer";
+import { renderLocString } from "../../string-viewer";
 
 interface IActionBarItemProps {
   item: Action;

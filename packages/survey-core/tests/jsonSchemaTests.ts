@@ -184,6 +184,7 @@ QUnit.test("generate survey schema", function (assert) {
   assert.ok(propChoices.items.anyOf, "choices items is anyOf");
   assert.equal(propChoices.items.anyOf[0].$ref, "choiceitem", "item is  choiceitem");
   assert.equal(propChoices.items.anyOf[1].type, "string", "item can be string also");
+  assert.equal(propChoices.items.anyOf[2].type, "number", "item can be number also");
   assert.notOk(selectBaseProps.name, "The property name should be in question");
   assert.notOk(selectBaseProps.showCommentArea, "The property showCommentArea should be in question");
 

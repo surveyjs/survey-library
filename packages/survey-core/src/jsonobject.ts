@@ -1593,7 +1593,7 @@ export class JsonMetadata {
         } else {
           const refClas = { $ref: this.getChemeRefName(prop.className, isRoot) };
           if (!settings.serialization.itemValueSerializeAsObject && this.isDescendantOf(prop.className, "itemvalue")) {
-            res.items = { anyOf: [refClas, { type: "string" }] };
+            res.items = { anyOf: [refClas, { type: "string" }, { type: "number" }] };
           } else {
             res.items = refClas;
           }

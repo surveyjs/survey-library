@@ -238,7 +238,7 @@ export class SurveyModel extends SurveyElementCore
    * // Omitted: `SurveyModel` creation
    * // ...
    *
-   * survey.onCompleting.add((_, options) => {
+   * survey.onCompleting.add(async (_, options) => {
    *   return await postJson(surveyServiceUrl + "/post/", {
    *     postId: surveyPostId,
    *     surveyResult: JSON.stringify(survey.data)
@@ -330,7 +330,7 @@ export class SurveyModel extends SurveyElementCore
    * // Omitted: `SurveyModel` creation
    * // ...
    *
-   * survey.onCurrentPageChanging.add((_, options) => {
+   * survey.onCurrentPageChanging.add(async (_, options) => {
    *   return await postJson(surveyServiceUrl + "/post/page-number/", {
    *     postId: surveyPostId,
    *     lastActivePageIndex: options.oldCurrentPage.visibleIndex

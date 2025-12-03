@@ -88,7 +88,8 @@ export class SurveyActionBarItem extends SurveyElementBase<
   renderText() {
     if (!this.item.hasTitle) return null;
     const titleClass = this.item.getActionBarItemTitleCss();
-    return <span className={titleClass}>{this.item.title}</span>;
+    const text = this.renderLocString(this.item.locTitle);
+    return <span className={titleClass}>{text}</span>;
   }
 
   renderButtonContent() {

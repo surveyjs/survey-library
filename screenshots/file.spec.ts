@@ -375,6 +375,7 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
+      await page.waitForTimeout(1000);
 
       const questionRoot = page.locator(".sd-question");
       await page.evaluate(() => {

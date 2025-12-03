@@ -76,6 +76,13 @@ export class LocalizableString implements ILocalizableString {
     this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }
+  public getStringViewerClassName(textClass?: string): string {
+    let className = textClass !== undefined ? textClass : "sv-string-viewer";
+    if (this.allowLineBreaks) {
+      className += " sv-string-viewer--multiline";
+    }
+    return className;
+  }
   public get locale(): string {
     if (this.owner && this.owner.getLocale) {
       const res = this.owner.getLocale();

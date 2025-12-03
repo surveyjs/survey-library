@@ -84,14 +84,11 @@ export class SurveyActionBarItem extends SurveyElementBase<
   renderElement() {
     return <>{this.renderInnerButton()}</>;
   }
-
   renderText() {
     if (!this.item.hasTitle) return null;
-    const titleClass = this.item.getActionBarItemTitleCss();
-    const text = this.renderLocString(this.item.locTitle);
-    return <span className={titleClass}>{text}</span>;
+    const titleClass = this.item.getActionBarItemTitleCss() || "";
+    return this.renderLocString(this.item.locTitle, null, undefined, titleClass);
   }
-
   renderButtonContent() {
     const text = this.renderText();
     const svgIcon = !!this.item.iconName ? (

@@ -25,8 +25,7 @@
       :size="item.iconSize"
       :title="item.tooltip || item.title"
     ></SvComponent>
-
-    <span v-if="item.hasTitle" :class="item.getActionBarItemTitleCss()"><SvComponent :is="'survey-string'" :locString="item.locTitle" /></span>
+    <SvComponent v-if="item.hasTitle" :is="'survey-string'" :locString="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
   </button>
   <SvComponent :is="'sv-popup'" :model="item.popupModel"></SvComponent>
 </template>

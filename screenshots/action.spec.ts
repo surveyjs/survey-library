@@ -31,15 +31,19 @@ frameworks.forEach(framework => {
               new creator.Action({ locTitle: survey.pages[1].locTitle })]
             }
           );
-          options.titleActions = [item];
+          options.titleActions = [item, new creator.Action({ locTitle: survey.pages[1].locTitle })];
         });
         survey.fromJSON(json);
       }, json);
       const popupSelector = page.locator(".sv-popup .sv-popup__container").first();
-      const clickButton = page.locator(".sd-action").first();
+      const dropdownButton = page.locator(".sd-action").first();
+      const simpleButton = page.locator(".sd-action").nth(1);
 
-      await compareScreenshot(page, clickButton, "dropdown-button.png");
-      await clickButton.click();
+      await expect(dropdownButton).toBeVisible();
+      await expect(simpleButton).toBeVisible();
+      await compareScreenshot(page, simpleButton, "simple-button.png");
+      await compareScreenshot(page, dropdownButton, "dropdown-button.png");
+      await dropdownButton.click();
       await expect(popupSelector).toBeVisible();
       await compareScreenshot(page, popupSelector, "dropdown-popup.png");
     });

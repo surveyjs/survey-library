@@ -38,9 +38,7 @@
       :title="item.tooltip || item.title"
     ></SvComponent>
 
-    <span v-if="item.hasTitle" :class="item.getActionBarItemTitleCss()">{{
-      item.title
-    }}</span>
+    <SvComponent v-if="item.hasTitle" :is="'survey-string'" :locString="item.locTitle" :textClass="item.getActionBarItemTitleCss()" />
   </button>
 </template>
 <script lang="ts">

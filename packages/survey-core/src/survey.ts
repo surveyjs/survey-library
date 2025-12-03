@@ -218,6 +218,47 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised before the survey is completed. Use this event to prevent survey completion.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * This event supports asynchronous operations. To run async logic, return a Promise from the handler. The survey will wait for the Promise to resolve before completing. To block completion, set `options.allow` to `false`; to display a notification (error or success), assign a string to `options.message`.
+   *
+   * The example below shows how to submit survey results asynchronously before completion:
+   *
+   * ```js
+   * function postJson(url, data) {
+   *   return fetch(url, {
+   *     method: "POST",
+   *     headers: { "Content-Type": "application/json; charset=utf-8" },
+   *     body: JSON.stringify(data)
+   *   });
+   * }
+   *
+   * // ...
+   * // Omitted: `SurveyModel` creation
+   * // ...
+   *
+   * survey.onCompleting.add(async (_, options) => {
+   *   return await postJson(surveyServiceUrl + "/post/", {
+   *     postId: surveyPostId,
+   *     surveyResult: JSON.stringify(survey.data)
+   *   })
+   *     .then(response => {
+   *       if (!response.ok) {
+   *         options.allow = false;
+   *         options.message = "Could not post the survey results";
+   *         return;
+   *       }
+   *       // Optionally show a success message
+   *       options.message = "Your data has been saved";
+   *     })
+   *     .catch(error => {
+   *       options.allow = false;
+   *       options.message = error;
+   *       console.error(error);
+   *     });
+   * });
+   * ```
    * @see onComplete
    * @see doComplete
    * @see autoAdvanceAllowComplete
@@ -270,6 +311,43 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before the current page is switched.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * This event supports asynchronous operations. To run async logic, return a Promise from the handler. The survey will wait for the Promise to resolve before switching pages. To block navigation, set `options.allow` to `false`; to display an error or notification message, assign a string to `options.message`.
+   *
+   * The example below shows how to save the last active page number on a server before switching pages:
+   *
+   * ```js
+   * function postJson(url, data) {
+   *   return fetch(url, {
+   *     method: "POST",
+   *     headers: { "Content-Type": "application/json; charset=utf-8" },
+   *     body: JSON.stringify(data)
+   *   });
+   * }
+   *
+   * // ...
+   * // Omitted: `SurveyModel` creation
+   * // ...
+   *
+   * survey.onCurrentPageChanging.add(async (_, options) => {
+   *   return await postJson(surveyServiceUrl + "/post/page-number/", {
+   *     postId: surveyPostId,
+   *     lastActivePageIndex: options.oldCurrentPage.visibleIndex
+   *   })
+   *     .then(response => {
+   *       if (!response.ok) {
+   *         options.allow = false;
+   *         options.message = "Could not save the last page number";
+   *       }
+   *     })
+   *     .catch(error => {
+   *       options.allow = false;
+   *       options.message = error;
+   *       console.error(error);
+   *     });
+   * });
+   * ```
    * @see currentPageNo
    * @see nextPage
    * @see prevPage

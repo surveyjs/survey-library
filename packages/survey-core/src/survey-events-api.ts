@@ -122,10 +122,13 @@ export interface CompletingEvent extends CompleteBaseEvent {
    */
   allow: boolean;
   /**
+   * A notification message to display when survey results cannot be saved or after they have been saved successfully.
+   */
+  message?: string;
+  /**
    * @deprecated Use `options.allow` instead.
    */
   allowComplete: boolean;
-  message?: string;
 }
 export interface CompleteEvent extends CompleteBaseEvent {
   /**
@@ -228,10 +231,13 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    */
   allow: boolean;
   /**
+   * A notification message to display when the page cannot be switched.
+   */
+  message?: string;
+  /**
    * @deprecated Use `options.allow` instead.
    */
   allowChanging: boolean;
-  message?: string;
 }
 export interface ValueChangeBaseEvent extends QuestionEventMixin {
   /**

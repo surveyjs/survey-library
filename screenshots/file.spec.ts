@@ -375,32 +375,37 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
+      await page.waitForTimeout(1000);
 
       const questionRoot = page.locator(".sd-question");
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
       });
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-camera-mode.png");
 
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
       });
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-both-mode.png");
 
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true);
       });
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-video.png");
 
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", false);
       });
-
+      await page.waitForTimeout(1000);
       await page.setInputFiles(".sd-file input", "../../screenshots/files/Read Me.txt");
       await page.click(".sd-file input[type=file] + div label");
       await page.evaluate(() => {
         (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
       });
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-both-mode-answered.png");
     });
   });

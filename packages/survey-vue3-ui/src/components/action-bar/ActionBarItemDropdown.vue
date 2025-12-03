@@ -39,6 +39,8 @@ import { key2ClickDirective as vKey2click } from "@/directives/key2click";
 import SvComponent from "@/SvComponent.vue";
 import { useBase } from "@/base";
 import { type Action, ActionDropdownViewModel } from "survey-core";
+import StringViewer from "@/StringViewer.vue";
+
 const props = defineProps<{ item: Action }>();
 let viewModel = undefined as any as ActionDropdownViewModel;
 

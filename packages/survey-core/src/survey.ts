@@ -221,7 +221,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * This event supports asynchronous operations. To run async logic, return a Promise from the handler. The survey will wait for the Promise to resolve before completing. To block completion, set `options.allow` to `false`; to display a notification (error or success), assign a string to `options.message`.
+   * This event supports asynchronous operations. Declare the handler as `async` to run asynchronous logic; the survey will wait for the handler to resolve before completing. To block survey completion, set `options.allow` to `false`; to display an error or notification message, assign a string to `options.message`.
    *
    * The example below shows how to submit survey results asynchronously before completion:
    *
@@ -239,24 +239,22 @@ export class SurveyModel extends SurveyElementCore
    * // ...
    *
    * survey.onCompleting.add(async (_, options) => {
-   *   return await postJson(surveyServiceUrl + "/post/", {
-   *     postId: surveyPostId,
-   *     surveyResult: JSON.stringify(survey.data)
-   *   })
-   *     .then(response => {
-   *       if (!response.ok) {
-   *         options.allow = false;
-   *         options.message = "Could not post the survey results";
-   *         return;
-   *       }
-   *       // Optionally show a success message
-   *       options.message = "Your data has been saved";
-   *     })
-   *     .catch(error => {
-   *       options.allow = false;
-   *       options.message = error;
-   *       console.error(error);
+   *   try {
+   *     const response = await postJson(surveyServiceUrl + "/post/", {
+   *       postId: surveyPostId,
+   *       surveyResult: JSON.stringify(survey.data)
    *     });
+   *     if (!response.ok) {
+   *       options.allow = false;
+   *       options.message = "Could not post the survey results";
+   *     }
+   *     // Optionally show a success message
+   *     options.message = "Your data has been saved";
+   *   } catch (e) {
+   *     options.allow = false;
+   *     options.message = e.message;
+   *     console.error(e.message);
+   *   }
    * });
    * ```
    * @see onComplete
@@ -313,7 +311,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * This event supports asynchronous operations. To run async logic, return a Promise from the handler. The survey will wait for the Promise to resolve before switching pages. To block navigation, set `options.allow` to `false`; to display an error or notification message, assign a string to `options.message`.
+   * This event supports asynchronous operations. Declare the handler as `async` to run asynchronous logic; the survey will wait for the handler to resolve before switching pages. To block navigation, set `options.allow` to `false`; to display an error or notification message, assign a string to `options.message`.
    *
    * The example below shows how to save the last active page number on a server before switching pages:
    *
@@ -331,21 +329,20 @@ export class SurveyModel extends SurveyElementCore
    * // ...
    *
    * survey.onCurrentPageChanging.add(async (_, options) => {
-   *   return await postJson(surveyServiceUrl + "/post/page-number/", {
-   *     postId: surveyPostId,
-   *     lastActivePageIndex: options.oldCurrentPage.visibleIndex
-   *   })
-   *     .then(response => {
-   *       if (!response.ok) {
-   *         options.allow = false;
-   *         options.message = "Could not save the last page number";
-   *       }
-   *     })
-   *     .catch(error => {
-   *       options.allow = false;
-   *       options.message = error;
-   *       console.error(error);
+   *   try {
+   *     const response = await postJson(surveyServiceUrl + "/post/page-number/", {
+   *       postId: surveyPostId,
+   *       lastActivePageIndex: options.oldCurrentPage.visibleIndex
    *     });
+   *     if (!response.ok) {
+   *       options.allow = false;
+   *       options.message = "Could not save the last page number";
+   *     }
+   *   } catch (e) {
+   *     options.allow = false;
+   *     options.message = e.message;
+   *     console.error(e.message);
+   *   }
    * });
    * ```
    * @see currentPageNo

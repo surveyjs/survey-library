@@ -733,14 +733,12 @@ frameworks.forEach((framework) => {
     });
     test("Matrix focus the first visible and enabled cell on focusing matrix, Bug#10657", async ({ page }) => {
       const json = {
-        pages: [
-          { elements: [{ type: "text", name: "q1" }] },
-          {
-            elements: [
-              { type: "matrixdynamic", name: "matrix", rowCount: 1,
-                columns: [{ name: "col1", cellType: "text", visible: false }, { name: "col2", cellType: "text" }]
-              }
-            ] }]
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 1,
+            columns: [{ name: "col1", cellType: "text", visible: false }, { name: "col2", cellType: "text" }]
+          }
+        ]
       };
       await initSurvey(page, framework, json);
       await page.evaluate(() => {

@@ -32,6 +32,27 @@ export class QuestionImageMapModel extends Question {
     this.renderSelectedCanvas();
   }
 
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "multiSelect") {
+      this.clearValue();
+      // let value = this.value;
+      // if (newValue === false) {
+      //   this.value = value && value.length ? value[0] : undefined;
+      // } else {
+      //   this.value = value ? [value] : [];
+      // }
+    }
+  }
+
+  protected getValueCore() {
+    var value = super.getValueCore();
+    if (!this.multiSelect && Array.isArray(value) && value.length === 0) {
+      return undefined;
+    }
+    return value;
+  }
+
   public afterRenderQuestionElement(el: HTMLElement) {
     if (DomWindowHelper.isAvailable()) {
       if (!!el) {
@@ -170,7 +191,15 @@ export class QuestionImageMapModel extends Question {
     this.setPropertyValue("imageMap", val);
   }
 
+  @property() multiSelect: boolean;
+
   public mapItemTooggle(item: ImageMapItem): void {
+
+    if (!this.multiSelect) {
+      this.value = item.value;
+      return;
+    }
+
     if (this.isItemSelected(item)) {
       const newValue = (this.value || []).filter((e: any) => e !== item.value);
       this.value = newValue.length ? newValue : undefined;
@@ -180,6 +209,9 @@ export class QuestionImageMapModel extends Question {
   }
 
   public isItemSelected(item: ImageMapItem): boolean {
+    if (!this.multiSelect) {
+      return this.value === item.value;
+    }
     return (this.value || []).includes(item.value);
   }
 }
@@ -209,15 +241,15 @@ export class ImageMapItem extends ItemValue {
 Serializer.addClass("imagemapitem",
   [
     { name: "shape", choices: ["circle", "rect", "poly"], default: "poly" },
-    { name: "coords:string" },
+    { name: "coords:string", locationInTable: "detail" },
 
-    { name: "hoverStrokeColor:color", default: "rgba(255, 0, 0, 1)" },
-    { name: "hoverStrokeSize:number", default: 1 },
-    { name: "hoverFillColor:color", default: "rgba(255, 0, 0, 0.25)" },
+    { name: "hoverStrokeColor:color", default: "rgba(255, 0, 0, 1)", locationInTable: "detail" },
+    { name: "hoverStrokeSize:number", default: 1, locationInTable: "detail" },
+    { name: "hoverFillColor:color", default: "rgba(255, 0, 0, 0.25)", locationInTable: "detail" },
 
-    { name: "selectedStrokeColor:color", default: "rgba(0, 0, 0, 1)" },
-    { name: "selectedStrokeSize:number", default: 1 },
-    { name: "selectedFillColor:color", default: "rgba(0, 0, 0, 0.25)" },
+    { name: "selectedStrokeColor:color", default: "rgba(0, 0, 0, 1)", locationInTable: "detail" },
+    { name: "selectedStrokeSize:number", default: 1, locationInTable: "detail" },
+    { name: "selectedFillColor:color", default: "rgba(0, 0, 0, 0.25)", locationInTable: "detail" },
   ],
   () => new ImageMapItem(""),
   "itemvalue"
@@ -226,8 +258,9 @@ Serializer.addClass("imagemapitem",
 Serializer.addClass(
   "imagemap",
   [
-    { name: "imageLink:file" },
-    { name: "imageMap:imagemapitem[]" },
+    { name: "imageLink:file", category: "general" },
+    { name: "imageMap:imagemapitem[]", category: "general" },
+    { name: "multiSelect:boolean", default: true, category: "general" }
   ],
   () => new QuestionImageMapModel(""),
   "question"

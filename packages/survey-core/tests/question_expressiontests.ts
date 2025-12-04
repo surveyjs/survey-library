@@ -1,7 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
 import { FunctionFactory } from "../src/functionsfactory";
-import { set } from "lodash";
 
 export default QUnit.module("QuestionExpression");
 

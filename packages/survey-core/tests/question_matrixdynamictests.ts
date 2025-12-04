@@ -8334,6 +8334,36 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Focus first visible enabled cell on focusing matrix, Bug#10657", (assert) => {
+  let focusedQuestionId = "";
+  const oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        cellType: "text",
+        rowCount: 1,
+        columns: [
+          { name: "col1", visible: false },
+          { name: "col2", readOnly: true },
+          { name: "col3" },
+          { name: "col4" },
+        ],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  matrix.focus();
+  assert.equal(focusedQuestionId, rows[0].cells[2].question.inputId, "focus correct value");
+  SurveyElement.FocusElement = oldFunc;
+});
 QUnit.test(
   "Matrixdynamic onMatrixValueChanging - do not call event on clear empty cell",
   function (assert) {

@@ -731,7 +731,27 @@ frameworks.forEach((framework) => {
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ matrix: [{ col1: "row1" }] });
     });
+    test("Matrix focus the first visible and enabled cell on focusing matrix, Bug#10657", async ({ page }) => {
+      const json = {
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "matrixdynamic", name: "matrix", rowCount: 1,
+            columns: [{ name: "col1", cellType: "text", visible: false }, { name: "col2", cellType: "text" }]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.evaluate(() => {
+        window.survey.getQuestionByName("matrix").focus();
+      });
+      await page.waitForTimeout(500);
+      await page.keyboard.type("row1col2");
+      await page.keyboard.press("Tab");
 
+      await page.click("input[value=Complete]");
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({ matrix: [{ col2: "row1col2" }] });
+    });
     test("DnD: Matrixdynamic inside Matrixdynamic", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 1100 });
       const json = {

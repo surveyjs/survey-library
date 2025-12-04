@@ -12,9 +12,8 @@ import type { LocalizableString } from "survey-core";
 import { useLocString } from "./base";
 const props = defineProps<{
   locString: LocalizableString;
+  textClass?: string;
 }>();
 const renderedHtml = useLocString(() => props.locString);
-const className = props.locString.allowLineBreaks
-  ? "sv-string-viewer sv-string-viewer--multiline"
-  : "sv-string-viewer";
+const className = props.locString.getStringViewerClassName(props.textClass);
 </script>

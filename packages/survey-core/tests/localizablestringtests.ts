@@ -11,6 +11,7 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { englishStrings } from "../src/localization/english";
 import { Base } from "../src/base";
 import { SurveyElement, SurveyElementCore } from "../src/survey-element";
+import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("LocalizableString");
 
@@ -950,4 +951,16 @@ QUnit.test("locString.lastLocChanged: string", function (assert) {
   assert.equal(locString.lastChangedLoc, "fr", "lastLocChanged #8");
   locString.clear();
   assert.equal(locString.lastChangedLoc, undefined, "lastLocChanged #9");
+});
+QUnit.test("test getStringViewerClassName", (assert) => {
+  const owner = new LocalizableOwnerTester("");
+  const locStr = new LocalizableString(owner, true);
+  assert.equal(locStr.getStringViewerClassName(), "sv-string-viewer", "default class name");
+  assert.equal(locStr.getStringViewerClassName("testClass"), "testClass", "custom class name");
+  assert.equal(locStr.getStringViewerClassName(""), "", "empty class name");
+  const q1 = new QuestionTextModel("q1");
+  assert.equal(q1.locTitle.allowLineBreaks, true, "question title allowLineBreaks");
+  assert.equal(q1.locTitle.getStringViewerClassName(), "sv-string-viewer sv-string-viewer--multiline", "question title class name");
+  assert.equal(q1.locTitle.getStringViewerClassName("testClass"), "testClass", "question title class name, use custom class name");
+  assert.equal(q1.locTitle.getStringViewerClassName(""), "", "question title class name, use empty custom class name");
 });

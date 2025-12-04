@@ -9,12 +9,13 @@ import { AngularComponentFactory } from "./component-factory";
 })
 export class StringViewerComponent implements DoCheck {
   @Input() model!: LocalizableString;
+  @Input() textClass: string | undefined;
   className: string = "";
   private previousModel: LocalizableString | undefined;
   constructor(private changeDetectorRef: ChangeDetectorRef) {}
   ngDoCheck(): void {
     if (this.model !== this.previousModel) {
-      this.className = this.model.allowLineBreaks ? "sv-string-viewer sv-string-viewer--multiline" : "sv-string-viewer";
+      this.className = this.model.getStringViewerClassName(this.textClass);
       if (!!this.previousModel) {
         this.clearOnChanged(this.previousModel);
       }

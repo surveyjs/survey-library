@@ -1,6 +1,6 @@
 <ng-template #template>
   <button type="button" (click)="model.doAction($event)" (mousedown)="model.doMouseDown($event)" (focus)="model.doFocus($event)" [key2click]="{ processEsc: false, disableTabStop: model.disableTabStop }" [class]="model.getActionBarItemCss()" [attr.title]="model.tooltip || model.title" [attr.aria-checked]="model.ariaChecked" [attr.aria-expanded]="model.ariaExpanded" [attr.role]="model.ariaRole" [disabled]="model.disabled">
     <svg *ngIf="model.iconName" [iconName]="model.iconName" [size]="model.iconSize" [title]="model.tooltip || model.title" [class]="model.cssClasses.itemIcon" sv-ng-svg-icon></svg>
-    <sv-ng-string-viewer *ngIf="model.hasTitle" [model]="model.locTitle" [textClass]="model.getActionBarItemTitleCss()"></sv-ng-string-viewer>
+    <sv-ng-string-viewer style="display:contents" *ngIf="model.hasTitle" [model]="model.locTitle" [textClass]="model.getActionBarItemTitleCss()"></sv-ng-string-viewer>
   </button>
 <ng-template>

@@ -2297,7 +2297,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   private calcNo(): string {
     let no = this.hasTitle ? Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex()) : "";
     if (this.onGetNoCallback) {
-      no = this.onGetNoCallback(no);
+      return this.onGetNoCallback(no);
     }
     if (!!this.parent) {
       no = (<any>this.parent).addNoFromChild(no);

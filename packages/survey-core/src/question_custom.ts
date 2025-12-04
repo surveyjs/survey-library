@@ -282,6 +282,7 @@ export interface ICustomQuestionTypeConfiguration {
   valueFromQuestion?: (val: any) => any;
   getValue?: (val: any) => any;
   setValue?: (val: any) => any;
+  isCalculatingNo?: (question: Question, res: boolean) => boolean;
 }
 
 export class ComponentQuestionJSON {
@@ -395,6 +396,10 @@ export class ComponentQuestionJSON {
       this.dynamicProperties = this.calcDynamicProperties();
     }
     return this.dynamicProperties;
+  }
+  public isCalculatingNo(question: Question, res: boolean): boolean {
+    const cal = this.json.isCalculatingNo;
+    return !!cal ? cal(question, res) : res;
   }
   private calcDynamicProperties(): Array<JsonObjectProperty> {
     const baseProps = this.json.inheritBaseProps;
@@ -1188,6 +1193,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     });
     this.setAfterRenderCallbacks(res);
     return res;
+  }
+  protected getHasTitleOnCalcNo(): boolean {
+    const res = super.getHasTitleOnCalcNo();
+    return (!!this.customQuestion) ? this.customQuestion.isCalculatingNo(this, res) : res;
   }
   protected onReadOnlyChanged() {
     if (!!this.contentPanel) {

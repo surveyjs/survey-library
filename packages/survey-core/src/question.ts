@@ -58,6 +58,13 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     const expVar = settings.expressionVariables;
     if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue(index);
+    //TODO make it more generic by supporting $name.property
+    if (path.length === 2 && path[0].name === "$" + expVar.question && path[1].name === "no") {
+      return { isFound: true, context: this, value: this.question.no, requireStrictCompare: false };
+    }
+    if (path.length === 2 && path[0].name === "$" + expVar.parent && path[1].name === "no") {
+      return { isFound: true, context: this, value: this.question.parentQuestion?.no || "", requireStrictCompare: false };
+    }
     if (path.length > 1 && path[0].name === expVar.panel) {
       const panel: any = this.question.parent;
       if (panel && panel.isPanel) {
@@ -2111,12 +2118,12 @@ export class Question extends SurveyElement<Question>
   onGetNoCallback : (no: string) => string;
   private calcNo(): string {
     let no = "";
-    const hasTitle = this.hasTitle && this.showNumber && this.visibleIndex >= 0;
+    const hasTitle = this.getHasTitleOnCalcNo() && this.showNumber && this.visibleIndex >= 0;
     if (hasTitle) {
       no = Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex());
     }
     if (this.onGetNoCallback) {
-      no = this.onGetNoCallback(no);
+      return this.onGetNoCallback(no);
     }
     if (!hasTitle) return no;
     if (!!this.parent) {
@@ -2126,6 +2133,9 @@ export class Question extends SurveyElement<Question>
       no = this.survey.getUpdatedQuestionNo(this, no);
     }
     return no;
+  }
+  protected getHasTitleOnCalcNo(): boolean {
+    return this.hasTitle;
   }
   public onSurveyLoad(): void {
     this.isCustomWidgetRequested = false;
@@ -3154,7 +3164,7 @@ export class Question extends SurveyElement<Question>
   }
   protected isVisibleIndexNegative(val: number): boolean {
     return val < 0 || !this.isVisible ||
-      (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
+      (!this.getHasTitleOnCalcNo() && !settings.numbering.includeQuestionsWithHiddenTitle) ||
       (!this.showNumber && !settings.numbering.includeQuestionsWithHiddenNumber);
   }
   public removeElement(element: IElement): boolean {

@@ -6,7 +6,7 @@ import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
 import { SvgIcon } from "../svg-icon/svg-icon";
 import { SurveyActionBarSeparator } from "./action-bar-separator";
-import { renderLocString } from "../../string-viewer";
+import { SurveyLocStringViewer } from "../../string-viewer";
 
 interface IActionBarItemProps {
   item: Action;
@@ -87,7 +87,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
   }
   renderText() {
     if (!this.item.hasTitle) return null;
-    return renderLocString(this.item.locTitle, this.item.getActionBarItemTitleCss());
+    return <SurveyLocStringViewer locStr={this.item.locTitle} textClass={this.item.getActionBarItemTitleCss()} />;
   }
   renderButtonContent() {
     const text = this.renderText();

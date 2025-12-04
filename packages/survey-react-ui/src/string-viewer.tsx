@@ -2,14 +2,6 @@ import * as React from "react";
 import { LocalizableString } from "survey-core";
 import { ReactElementFactory } from "./element-factory";
 
-export function renderLocString(locStr: LocalizableString, className: string, style?: any, ref?: React.Ref<HTMLSpanElement>): React.JSX.Element {
-  if (locStr.hasHtml) {
-    let htmlValue = { __html: locStr.renderedHtml };
-    return <span ref={ref} className={className} style={style} dangerouslySetInnerHTML={htmlValue} />;
-  }
-  return <span ref={ref} className={className} style={style}>{locStr.renderedHtml}</span>;
-}
-
 export class SurveyLocStringViewer extends React.Component<any, any> {
   constructor(props: any) {
     super(props);
@@ -21,6 +13,9 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   }
   private get style(): any {
     return this.props.style;
+  }
+  private get textClass(): string {
+    return this.props.textClass;
   }
   componentDidMount() {
     this.reactOnStrChanged();
@@ -52,7 +47,12 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     return strEl;
   }
   protected renderString(): React.JSX.Element {
-    return renderLocString(this.locStr, this.locStr.getStringViewerClassName(), this.style, this.rootRef);
+    const className = this.locStr.getStringViewerClassName(this.textClass);
+    if (this.locStr.hasHtml) {
+      let htmlValue = { __html: this.locStr.renderedHtml };
+      return <span ref={this.rootRef} className={className} style={this.style} dangerouslySetInnerHTML={htmlValue} />;
+    }
+    return <span ref={this.rootRef} className={className} style={this.style}>{this.locStr.renderedHtml}</span>;
   }
 }
 

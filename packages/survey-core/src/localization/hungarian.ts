@@ -99,6 +99,8 @@ export var hungarianSurveyStrings = {
   urlGetChoicesError: "A lekérdezés üres adattal tért vissza, vagy a 'path' paraméter helytelen.",
   // "The file size should not exceed {0}."
   exceedMaxSize: "A méret nem lehet nagyobb, mint {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "A maximális fájlszám, amit feltölthetsz, {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "A fájlok nem tölthetők fel. Adjon hozzá egy kezelőt az \"onUploadFiles\" eseményhez.",
   // "Response required: enter another value."

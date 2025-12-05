@@ -65,6 +65,7 @@ frameworks.forEach(framework => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
       });
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-multiple.png");
 
       await page.hover(".sd-file .sd-file__preview-item");
@@ -135,6 +136,7 @@ frameworks.forEach(framework => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.value = [].concat(question.value).sort((a: any, b: any) => order.indexOf(a.name) - order.indexOf(b.name));
       });
+      await page.waitForTimeout(1000);
       await compareScreenshot(page, questionRoot, "file-question-multiple-small-images.png");
 
       await page.evaluate(() => {

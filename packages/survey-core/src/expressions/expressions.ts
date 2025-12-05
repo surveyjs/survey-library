@@ -213,20 +213,19 @@ export class ArrayOperand extends Operand {
   public getType(): string {
     return "array";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
+  public toString(func: (op: Operand) => string = undefined, noBrackets?: boolean): string {
     if (!!func) {
-      var res = func(this);
+      const res = func(this);
       if (!!res) return res;
     }
-    return (
-      "[" +
-      this.values
-        .map(function(el: Operand) {
-          return el.toString(func);
-        })
-        .join(", ") +
-      "]"
-    );
+
+    let res = this.values
+      .map(function(el: Operand) {
+        return el.toString(func);
+      })
+      .join(", ");
+
+    return !noBrackets ? "[" + res + "]" : res;
   }
 
   public evaluate(processValue?: ProcessValue): Array<any> {
@@ -277,7 +276,7 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value.toString();
+    return this.value === "" ? "''" : this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
@@ -429,7 +428,8 @@ export class FunctionOperand extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.originalValue + "(" + this.parameters.toString(func) + ")";
+
+    return this.originalValue + "(" + this.parameters.toString(func, true) + ")";
   }
   public setVariables(variables: Array<string>): void {
     this.parameters.setVariables(variables);

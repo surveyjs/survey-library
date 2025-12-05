@@ -276,7 +276,7 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value.toString();
+    return this.value === "" ? "''" : this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);

@@ -33,9 +33,20 @@ QUnit.test("Logic Operands", function(assert) {
   assert.equal(expression.evaluate(), true);
 });
 
-QUnit.test("Logic Operands", function(assert) {
-
+QUnit.test("FunctionOperand.toString Operands", function(assert) {
   const expression = "iif(({q1} == 1), 'Yes', 'No')";
+  const op = <Operand>parse(expression);
+  assert.equal(op.toString(), expression);
+});
+
+QUnit.test("ParametersOperand empty string", function(assert) {
+  const expression = "iif(({q1} == 1), 'Yes', '')";
+  const op = <Operand>parse(expression);
+  assert.equal(op.toString(), expression);
+});
+
+QUnit.test("ConstOperand empty string", function(assert) {
+  const expression = "({q1} == '')";
   const op = <Operand>parse(expression);
   assert.equal(op.toString(), expression);
 });

@@ -618,6 +618,7 @@ export var settings = {
   },
   expressionVariables: {
     question: "self",
+    parent: "parent",
     matrix: "matrix",
     composite: "composite",
     item: "item",

@@ -1,8 +1,6 @@
 import { Helpers } from "./helpers";
-import { Question } from "./question";
-import { PanelModel } from "./panel";
-import { ISurvey, ISurveyImpl, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
-import { IObjectValueContext, ProcessValue, ValueGetter } from "./conditionProcessValue";
+import { ISurvey, ITextProcessor, ITextProcessorProp, ITextProcessorResult } from "./base-interfaces";
+import { IObjectValueContext, ValueGetter } from "./conditionProcessValue";
 
 export class TextPreProcessorItem {
   public start: number;
@@ -106,6 +104,7 @@ export class TextPreProcessor {
 }
 export class TextContextProcessor implements ITextProcessor {
   private textPreProcessor: TextPreProcessor;
+  private context: IObjectValueContext;
   constructor(private obj: IObjectValueContext) {
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
@@ -118,6 +117,7 @@ export class TextContextProcessor implements ITextProcessor {
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     if (!params.runAtDesign && this.survey?.isDesignMode) return { hasAllValuesOnLastRun: true, text: params.text };
+    this.context = params.context;
     return this.textPreProcessor.processTextEx(params);
   }
   private get survey(): ISurvey {
@@ -126,7 +126,8 @@ export class TextContextProcessor implements ITextProcessor {
   }
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     const name = textValue.name.toLocaleLowerCase();
-    const res = new ValueGetter().getValueInfo({ name: name, context: this.obj.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
+    const context = this.context || this.obj;
+    const res = new ValueGetter().getValueInfo({ name: name, context: context.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
     if (res.isFound) {
       textValue.isExists = res.isFound;
       textValue.value = res.value;

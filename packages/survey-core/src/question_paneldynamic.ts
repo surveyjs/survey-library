@@ -2329,10 +2329,9 @@ export class QuestionPanelDynamicModel extends Question
     if (!qValue || !Array.isArray(qValue)) {
       qValue = [];
     }
-    if (qValue.length <= index) {
-      for (var i = qValue.length; i <= index; i++) {
-        qValue.push({});
-      }
+    const lValue = Math.max(index + 1, items.length);
+    for (var i = qValue.length; i < lValue; i++) {
+      qValue.push({});
     }
     if (!qValue[index]) qValue[index] = {};
     const oldVal = qValue[index][name];

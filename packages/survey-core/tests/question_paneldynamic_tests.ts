@@ -8053,3 +8053,32 @@ QUnit.test("paneldynamic nested question valueName & clearIncorrectValues, Bug#1
   survey.clearIncorrectValues();
   assert.deepEqual(survey.getValue("panel"), [{ q1Value: 1 }, { q1Value: 2 }], "survey.data #2");
 });
+QUnit.test("nested paneldynamic editing a value, Bug#10674", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "panelCount": 1,
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "innerPanel",
+            "panelCount": 5,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+                "valueName": "q1Value"
+              }
+            ] }]
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
+  assert.equal(innerPanel.panelCount, 5, "There are 5 inner panels");
+  innerPanel.panels[0].getQuestionByName("q1").value = 10;
+  assert.equal(innerPanel.panelCount, 5, "There are still 5 inner panels");
+  assert.deepEqual(survey.data, { rootPanel: [{ innerPanel: [{ q1Value: 10 }, {}, {}, {}, {}] }] }, "set value in the first inner panel");
+});

@@ -9141,3 +9141,32 @@ QUnit.test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", 
   assert.equal(dp.panels[2].getQuestionByName("q2").value, 20 + 30 + 40, "panel 2: prevPanel & nextPanel");
   assert.equal(dp.panels[3].getQuestionByName("q2").value, 30 + 40, "panel 3: only prevPanel");
 });
+QUnit.test("Nested paneldynamic editing a value. The bug was in V1, add unit test only, Bug#10674", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "panelCount": 1,
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "innerPanel",
+            "panelCount": 5,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+                "valueName": "q1Value"
+              }
+            ] }]
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
+  assert.equal(innerPanel.panelCount, 5, "There are 5 inner panels");
+  innerPanel.panels[0].getQuestionByName("q1").value = 10;
+  assert.equal(innerPanel.panelCount, 5, "There are still 5 inner panels");
+  assert.deepEqual(survey.data, { rootPanel: [{ innerPanel: [{ q1Value: 10 }, {}, {}, {}, {}] }] }, "set value in the first inner panel");
+});

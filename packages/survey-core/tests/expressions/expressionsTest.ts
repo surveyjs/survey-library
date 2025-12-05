@@ -1,9 +1,9 @@
 import {
   Const,
-  Variable,
   BinaryOperand,
-  FunctionOperand
+  Operand
 } from "../../src/expressions/expressions";
+import { parse } from "../../src/expressions/expressionParser";
 
 export default QUnit.module("Expressions");
 
@@ -31,4 +31,11 @@ QUnit.test("Logic Operands", function(assert) {
   );
   assert.equal(expression.toString(), "(true and (1 < 2))");
   assert.equal(expression.evaluate(), true);
+});
+
+QUnit.test("Logic Operands", function(assert) {
+
+  const expression = "iif(({q1} == 1), 'Yes', 'No')";
+  const op = <Operand>parse(expression);
+  assert.equal(op.toString(), expression);
 });

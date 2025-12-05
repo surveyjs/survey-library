@@ -1,0 +1,31 @@
+.sd-imagemap {
+    position: relative;
+}
+
+.sd-imagemap-background {
+    display: block;
+    width: 100%;
+}
+
+.sd-imagemap-canvas-selected {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.sd-imagemap-canvas-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.sd-imagemap-map {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}

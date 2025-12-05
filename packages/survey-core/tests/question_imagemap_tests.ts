@@ -51,21 +51,9 @@ QUnit.test("Register and load from json", function (assert) {
   assert.equal(q1.imageMap[0].value, "val1", "[0].value must be val1");
   assert.equal(q1.imageMap[0].shape, "poly", "default shape must be poly");
   assert.equal(q1.imageMap[0].coords, "x1,y1,x2,y2,x3,y3,x4,y4", "coords must be set");
-  assert.equal(q1.imageMap[0].hoverStrokeColor, "rgba(255, 0, 0, 1)", "default hoverStrokeColor must be rgba(255, 0, 0, 1)");
-  assert.equal(q1.imageMap[0].hoverStrokeSize, 1, "default hoverStrokeSize must be 1");
-  assert.equal(q1.imageMap[0].hoverFillColor, "rgba(255, 0, 0, 0.25)", "default hoverFillColor must be rgba(255, 0, 0, 0.25)");
-  assert.equal(q1.imageMap[0].selectedStrokeColor, "rgba(0, 0, 0, 1)", "default selectedStrokeColor must be rgba(0, 0, 0, 1)");
-  assert.equal(q1.imageMap[0].selectedStrokeSize, 1, "default selectedStrokeSize must be 1");
-  assert.equal(q1.imageMap[0].selectedFillColor, "rgba(0, 0, 0, 0.25)", "default selectedFillColor must be rgba(0, 0, 0, 0.25)");
 
   assert.equal(q1.imageMap[1].value, "val2", "[1].value must be val2");
   assert.equal(q1.imageMap[1].shape, "rect", "second item shape must be rect");
-  assert.equal(q1.imageMap[1].hoverStrokeColor, "#ffff00", "second item hoverStrokeColor must be #ffff00");
-  assert.equal(q1.imageMap[1].hoverStrokeSize, 2, "second item hoverStrokeSize must be 2");
-  assert.equal(q1.imageMap[1].hoverFillColor, "#FF00FF", "second item hoverFillColor must be #FF00FF");
-  assert.equal(q1.imageMap[1].selectedStrokeColor, "#00FFFF", "second item selectedStrokeColor must be #00FFFF");
-  assert.equal(q1.imageMap[1].selectedStrokeSize, 3, "second item selectedStrokeSize must be 3");
-  assert.equal(q1.imageMap[1].selectedFillColor, "#0000FF", "second item selectedFillColor must be #0000FF");
 });
 
 QUnit.test("Check toggle and multiSelect change", function (assert) {
@@ -198,4 +186,127 @@ QUnit.test("Check init", function (assert) {
   }, 10);
 
   model.initImageMap(container);
+});
+
+QUnit.test("Check map render", function (assert) {
+
+  var done = assert.async();
+  const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"></svg>');
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageMap: [
+          {
+            "value": "val1",
+            "coords": "100,200,300,400"
+          },
+          {
+            "value": "val2",
+            "shape": "rect",
+            "coords": "100,200,300,400"
+          },
+          {
+            "value": "val3",
+            "shape": "circle",
+            "coords": "150,200,100"
+          },
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  let container = document.createElement("div");
+  container.innerHTML = `
+    <img id="imagemap-${ q1.id }-background" src="${ imageDataURL }" />
+    <canvas id="imagemap-${ q1.id }-canvas-selected"></canvas>
+    <canvas id="imagemap-${ q1.id }-canvas-hover"></canvas>
+    <map></map>
+  `;
+
+  q1.initImageMap(container);
+
+  setTimeout(() =>{
+
+    let map = container.querySelector("map");
+
+    assert.equal(
+      map?.innerHTML,
+      "<area shape=\"poly\" coords=\"100,200,300,400\" data-value=\"val1\"><area shape=\"rect\" coords=\"100,200,300,400\" data-value=\"val2\"><area shape=\"circle\" coords=\"150,200,100\" data-value=\"val3\">",
+      "Map render correct");
+
+    q1.backgroundImage.width = 200;
+    q1.renderImageMap();
+    assert.equal(
+      map?.innerHTML,
+      "<area shape=\"poly\" coords=\"50,100,150,200\" data-value=\"val1\"><area shape=\"rect\" coords=\"50,100,150,200\" data-value=\"val2\"><area shape=\"circle\" coords=\"75,100,50\" data-value=\"val3\">",
+      "Map render correct (smaller)");
+
+    q1.backgroundImage.width = 800;
+    q1.renderImageMap();
+    assert.equal(
+      map?.innerHTML,
+      "<area shape=\"poly\" coords=\"200,400,600,800\" data-value=\"val1\"><area shape=\"rect\" coords=\"200,400,600,800\" data-value=\"val2\"><area shape=\"circle\" coords=\"300,400,200\" data-value=\"val3\">",
+      "Map render correct (bigger)");
+
+    done();
+  }, 10);
+});
+
+QUnit.test("Check draw styles", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        imageMap: [
+          {
+            value: "val1",
+            coords: "x1,y1,x2,y2"
+          },
+          {
+            value: "val2",
+            coords: "x1,y1,x2,y2",
+            hoverStrokeColor: "#FF0000",
+            hoverStrokeSize: 1,
+            hoverFillColor: "#FFFF00",
+            selectedStrokeColor: "#00FF00",
+            selectedStrokeSize: 1,
+            selectedFillColor: "#00FFFF"
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  assert.deepEqual(q1.imageMap[0].getHoverStyle(model), {
+    "fillColor": "#FF00FF",
+    "strokeColor": "#FF00FF",
+    "strokeLineWidth": 2
+  }, "default hover style");
+
+  assert.deepEqual(q1.imageMap[0].getSelectedStyle(model), {
+    "fillColor": "#FF00FF",
+    "strokeColor": "#FF00FF",
+    "strokeLineWidth": 2
+  }, "default selected style");
+
+  assert.deepEqual(q1.imageMap[1].getHoverStyle(model), {
+    "fillColor": "#FFFF00",
+    "strokeColor": "#FF0000",
+    "strokeLineWidth": 1
+  }, "defined hover style");
+
+  assert.deepEqual(q1.imageMap[1].getSelectedStyle(model), {
+    "fillColor": "#00FFFF",
+    "strokeColor": "#00FF00",
+    "strokeLineWidth": 1
+  }, "defined selected style");
 });

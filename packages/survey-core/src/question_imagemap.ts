@@ -2,6 +2,9 @@ import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
+import { SurveyModel } from "./survey";
+
+type DrawStyle = { strokeColor: string, fillColor: string, strokeLineWidth: number }
 
 export class QuestionImageMapModel extends Question {
   constructor(name: string) { super(name); }
@@ -79,11 +82,7 @@ export class QuestionImageMapModel extends Question {
       let target = event.target as HTMLElement;
       let value = target.dataset.value;
       for (const item of this.imageMap.filter(i => i.value === value)) {
-        this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), {
-          strokeColor: item.hoverStrokeColor,
-          strokeLineWidth: item.hoverStrokeSize,
-          fillColor: item.hoverFillColor,
-        });
+        this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle(this.survey as SurveyModel));
       }
     };
 
@@ -103,7 +102,7 @@ export class QuestionImageMapModel extends Question {
     return coords.map((coord) => coord * scale);
   }
 
-  public drawShape(canvas: HTMLCanvasElement, shape: string, coords: number[], style: { strokeColor: string, fillColor: string, strokeLineWidth: number }): void {
+  public drawShape(canvas: HTMLCanvasElement, shape: string, coords: number[], style: DrawStyle): void {
 
     let ctx = canvas.getContext("2d");
 
@@ -158,11 +157,7 @@ export class QuestionImageMapModel extends Question {
     if (!this.imageMap) return;
     for (const item of this.imageMap) {
       if (!this.isItemSelected(item)) continue;
-      this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), {
-        strokeColor: item.selectedStrokeColor,
-        strokeLineWidth: item.selectedStrokeSize,
-        fillColor: item.selectedFillColor,
-      });
+      this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), item.getSelectedStyle(this.survey as SurveyModel));
     }
   }
 
@@ -229,6 +224,22 @@ export class ImageMapItem extends ItemValue {
   @property() hoverStrokeSize: number;
   @property() hoverFillColor: string;
 
+  public getHoverStyle(survey: SurveyModel): DrawStyle {
+    return {
+      strokeColor: this.getPropertyValue("hoverStrokeColor") ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
+      fillColor: this.getPropertyValue("hoverFillColor") ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
+      strokeLineWidth: this.getPropertyValue("hoverStrokeSize") ?? 2
+    };
+  }
+
+  public getSelectedStyle(survey: SurveyModel): DrawStyle {
+    return {
+      strokeColor: this.getPropertyValue("selectedStrokeColor") ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
+      fillColor: this.getPropertyValue("selectedFillColor") ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
+      strokeLineWidth: this.getPropertyValue("selectedStrokeSize") ?? 2
+    };
+  }
+
   @property() selectedStrokeColor: string;
   @property() selectedStrokeSize: number;
   @property() selectedFillColor: string;
@@ -239,13 +250,13 @@ Serializer.addClass("imagemapitem",
     { name: "shape", choices: ["circle", "rect", "poly"], default: "poly" },
     { name: "coords:string", locationInTable: "detail" },
 
-    { name: "hoverStrokeColor:color", default: "rgba(255, 0, 0, 1)", locationInTable: "detail" },
-    { name: "hoverStrokeSize:number", default: 1, locationInTable: "detail" },
-    { name: "hoverFillColor:color", default: "rgba(255, 0, 0, 0.25)", locationInTable: "detail" },
+    { name: "hoverStrokeColor:color", locationInTable: "detail" },
+    { name: "hoverStrokeSize:number", locationInTable: "detail" },
+    { name: "hoverFillColor:color", locationInTable: "detail" },
 
-    { name: "selectedStrokeColor:color", default: "rgba(0, 0, 0, 1)", locationInTable: "detail" },
-    { name: "selectedStrokeSize:number", default: 1, locationInTable: "detail" },
-    { name: "selectedFillColor:color", default: "rgba(0, 0, 0, 0.25)", locationInTable: "detail" },
+    { name: "selectedStrokeColor:color", locationInTable: "detail" },
+    { name: "selectedStrokeSize:number", locationInTable: "detail" },
+    { name: "selectedFillColor:color", locationInTable: "detail" },
   ],
   () => new ImageMapItem(""),
   "itemvalue"

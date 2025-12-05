@@ -25,16 +25,16 @@ export class SurveyQuestionImageMap extends SurveyQuestionElementBase {
   public renderElement(): React.JSX.Element {
 
     return (
-      <div style={{ position: "relative", userSelect: "none" }} ref={(root) => (this.setControl(root))}>
+      <div className={this.question.cssClasses.root} ref={(root) => (this.setControl(root))}>
 
-        <img id={`imagemap-${this.question.id}-background`} style={{ display: "block", width: "100%" }} src={this.question.imageLink} />
+        <img className={this.question.cssClasses.background} id={`imagemap-${this.question.id}-background`} src={this.question.imageLink} />
 
-        <canvas id={`imagemap-${this.question.id}-canvas-selected`} style={{ position: "absolute", top: 0, left: 0, width: "100%" }}></canvas>
+        <canvas className={this.question.cssClasses.canvas.selected} id={`imagemap-${this.question.id}-canvas-selected`}></canvas>
 
-        <canvas id={`imagemap-${this.question.id}-canvas-hover`} style={{ position: "absolute", top: 0, left: 0, width: "100%" }}></canvas>
+        <canvas className={this.question.cssClasses.canvas.hover} id={`imagemap-${this.question.id}-canvas-hover`}></canvas>
 
         <img
-          style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", opacity: 0 }}
+          className={this.question.cssClasses.map}
           src={this.question.imageLink}
           useMap={`#imagemap-${ this.question.id }`}
         />

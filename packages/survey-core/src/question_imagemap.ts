@@ -36,12 +36,6 @@ export class QuestionImageMapModel extends Question {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "multiSelect") {
       this.clearValue();
-      // let value = this.value;
-      // if (newValue === false) {
-      //   this.value = value && value.length ? value[0] : undefined;
-      // } else {
-      //   this.value = value ? [value] : [];
-      // }
     }
   }
 
@@ -146,6 +140,7 @@ export class QuestionImageMapModel extends Question {
 
   public renderImageMap(): void {
     this.imageMapMap.innerHTML = "";
+    if (!this.imageMap) return;
     for (let item of this.imageMap) {
       let area = DomDocumentHelper.createElement("area") as HTMLAreaElement;
       area.shape = item.shape;
@@ -160,6 +155,7 @@ export class QuestionImageMapModel extends Question {
     this.clearCanvas(this.selectedCanvas);
     this.selectedCanvas.width = this.backgroundImage.naturalWidth;
     this.selectedCanvas.height = this.backgroundImage.naturalHeight;
+    if (!this.imageMap) return;
     for (const item of this.imageMap) {
       if (!this.isItemSelected(item)) continue;
       this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), {

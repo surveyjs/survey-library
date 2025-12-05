@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { Helpers } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
 import { Question, QuestionValueGetterContext } from "./question";
 import {
@@ -575,9 +575,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set detailPanelShowOnAdding(val: boolean) {
     this.setPropertyValue("detailPanelShowOnAdding", val);
   }
-  protected hasRowsAsItems(): boolean {
-    return false;
-  }
+  protected runConditionsForColumns(properties: HashTable<any>): boolean { return false; }
   public unbindValue() {
     this.clearGeneratedRows();
     this.clearPropertyValue("value");

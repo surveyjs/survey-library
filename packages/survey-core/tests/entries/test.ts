@@ -50,6 +50,7 @@ export * from "../question_matrix_base_tests";
 export * from "../question_matrix_tests";
 export * from "../question_tagbox_tests";
 export * from "../question_comment_tests";
+export * from "../question_imagemap_tests";
 export * from "../cssClassBuilderTests";
 export * from "../listModelTests";
 export * from "../dropdown_list_model_test";

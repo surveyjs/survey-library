@@ -19,10 +19,11 @@ export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
   getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
     const name = path.length > 0 ? path[0].name : "";
+    const expVar = settings.expressionVariables;
     if (path.length === 1) {
-      if (name === "item" || name === "choice") return { isFound: true, value: this.item.value, context: this };
+      if ([expVar.item, expVar.choice].indexOf(name.toLocaleLowerCase()) > -1) return { isFound: true, value: this.item.value, context: this };
     }
-    if (path.length > 1 && (name === "$item" || name === "$choice")) {
+    if (path.length > 1 && ([`$${expVar.item}`, `$${expVar.choice}`].indexOf(name.toLocaleLowerCase()) > -1)) {
       return new PropertyGetterContext(this.item).getValue(path.slice(1), true, -1, false);
     }
     const owner: any = this.item.locOwner;

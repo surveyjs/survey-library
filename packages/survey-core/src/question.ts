@@ -18,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -59,11 +59,11 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     const expVar = settings.expressionVariables;
     if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue(index);
     //TODO make it more generic by supporting $name.property
-    if (path.length === 2 && path[0].name === "$" + expVar.question && path[1].name === "no") {
-      return { isFound: true, context: this, value: this.question.no, requireStrictCompare: false };
+    if (path.length > 1 && path[0].name === "$" + expVar.question) {
+      return new PropertyGetterContext(this.question).getValue(path.slice(1), isRoot, index, createObjects);
     }
-    if (path.length === 2 && path[0].name === "$" + expVar.parent && path[1].name === "no") {
-      return { isFound: true, context: this, value: this.question.parentQuestion?.no || "", requireStrictCompare: false };
+    if (path.length > 1 && path[0].name === "$" + expVar.parent && !!this.question.parentQuestion) {
+      return new PropertyGetterContext(this.question.parentQuestion).getValue(path.slice(1), isRoot, index, createObjects);
     }
     if (path.length > 1 && path[0].name === expVar.panel) {
       const panel: any = this.question.parent;

@@ -4278,7 +4278,7 @@ QUnit.test("Composite: allow to make the custom number rendering", function (ass
       question.contentPanel.showQuestionNumbers = "recursive";
       question.contentPanel.getQuestionByName("q1").onGetNoCallback = (no: string): string => question.no;
     },
-    isCalculatingNo: (question: Question, res: boolean): boolean => true
+    numberQuestionsWithHiddenTitle: true
   });
   const survey = new SurveyModel({
     showQuestionNumbers: "recursive",

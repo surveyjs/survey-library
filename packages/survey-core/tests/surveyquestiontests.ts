@@ -5242,6 +5242,29 @@ QUnit.test("Base Select Question: choicesFromQuestionMode", function (assert) {
     "Appy choicesFromQuestionMode and choicesVisibleIf"
   );
 });
+QUnit.test("Case insensitive variables names in item and choice Bug#10677", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3, 4, 5] },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [1, 2, 3, 4, 5],
+        choicesVisibleIf: "{Item} > {q1}",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+
+  assert.equal(q2.visibleChoices.length, 0, "There is no selected");
+
+  q1.value = 1;
+  assert.equal(q2.visibleChoices.length, 4, "There are four items > 1");
+
+  q1.value = 3;
+  assert.equal(q2.visibleChoices.length, 2, "There are two items > 3");
+});
 QUnit.test("Base Select Question: choicesFromQuestion double tunnel", function (
   assert
 ) {

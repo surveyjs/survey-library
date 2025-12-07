@@ -404,8 +404,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isExpanded
    */
   public get isCollapsed(): boolean {
-    return this.state === "collapsed" && !this.isDesignMode;
+    return this.state === "collapsed" && !this.isDesignMode && !this.isSingleInputMode;
   }
+  protected get isSingleInputMode(): boolean { return this.survey?.isSingleVisibleInput; }
   /**
    * Returns `true` if the survey element is expanded.
    * @hidefor PageModel
@@ -416,7 +417,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isCollapsed
    */
   public get isExpanded(): boolean {
-    return this.state === "expanded";
+    return this.state === "expanded" && !this.isSingleInputMode;
   }
   /**
    * Collapses the survey element.
@@ -714,7 +715,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
   public getCssTitleExpandableSvg(): string {
-    if (this.state === "default") return null;
+    if (this.state === "default" || this.isSingleInputMode) return null;
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }

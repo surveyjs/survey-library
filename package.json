@@ -180,7 +180,7 @@
     "postcss-calc": "9.0.1",
     "postcss-cli": "10.1.0",
     "postcss-fail-on-warn": "0.2.1",
-    "preact": "^10.21.0",
+    "preact": "10.27.2",
     "puppeteer": "22.13.1",
     "qunit": "2.14.0",
     "react": "17.0.1",

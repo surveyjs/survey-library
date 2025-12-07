@@ -1619,7 +1619,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     const isColumnChanged = this.runConditionsForColumns(properties);
     do {
       prevTotalValue = Helpers.getUnbindValue(this.totalValue);
-      isRowVisiblilityChanged = this.runCellsCondition(properties);
+      isRowVisiblilityChanged = this.runCellsCondition(properties) || isRowVisiblilityChanged;
       this.runTotalsCondition(properties);
       counter++;
     } while(

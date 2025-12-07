@@ -8853,3 +8853,32 @@ QUnit.test("Question name starts with number vs space + dot #10532", function (a
   qnumber.value = 2;
   assert.equal(q1.isVisible, false, "q1.visible #3");
 });
+QUnit.test("Access question & survey properties, #10532", function (assert) {
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        title: "{$self.choices[1].text}",
+        choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }]
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: "{$q1.choices[0].text}"
+      },
+      {
+        type: "text",
+        name: "q3",
+        title: "{$survey.title}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.locTitle.renderedHtml, "Item 2", "q1 title is correct");
+  assert.equal(q2.locTitle.renderedHtml, "Item 1", "q2 title is correct");
+  assert.equal(q3.locTitle.renderedHtml, "Survey Title", "q3 title is correct");
+});

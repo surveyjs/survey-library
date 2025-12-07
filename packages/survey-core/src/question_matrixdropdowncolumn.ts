@@ -9,7 +9,7 @@ import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -35,7 +35,14 @@ export class MatrixColumnGetterContext implements IValueGetterContext {
   }
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (path.length === 1 && ["name", "item"].indexOf(path[0].name) > -1)
+    const name = path.length > 0 ? path[0].name.toLocaleLowerCase() : "";
+    const expVar = settings.expressionVariables;
+    const isColumnVar = [expVar.self, expVar.column].indexOf(name) > -1;
+    if (params.isProperty && path.length > 1 && isColumnVar) {
+      params.path = path.slice(1);
+      return new PropertyGetterContext(this.column).getValue(params);
+    }
+    if (path.length === 1 && ["name", "item"].indexOf(name) > -1)
       return { isFound: true, value: this.column.name };
     return undefined;
   }
@@ -704,7 +711,7 @@ export class MatrixDropdownColumn extends Base
     return !!this.colOwner ? this.colOwner.getRendererContext(locStr) : locStr;
   }
   public getProcessedText(text: string): string {
-    return this.colOwner ? this.colOwner.getProcessedText(text) : text;
+    return this.colOwner ? this.colOwner.getProcessedText(text, this) : text;
   }
   public createCellQuestion(row: MatrixDropdownRowModelBase): Question {
     var qType = this.calcCellQuestionType(row);

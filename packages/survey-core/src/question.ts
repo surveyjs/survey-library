@@ -62,14 +62,14 @@ export class QuestionValueGetterContext implements IValueGetterContext {
     if (params.isProperty && path.length > 1) {
       params.path = path.slice(1);
       params.isRoot = false;
-      if (path[0].name === expVar.question) {
+      if (path[0].name === expVar.self) {
         return new PropertyGetterContext(this.question).getValue(params);
       }
       if (path[0].name === expVar.parent && !!this.question.parentQuestion) {
         return new PropertyGetterContext(this.question.parentQuestion).getValue(params);
       }
     }
-    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue(index);
+    if (path.length === 0 || (path.length === 1 && path[0].name === expVar.self)) return this.getQuestionValue(index);
     if (path.length > 1 && path[0].name === expVar.panel) {
       params.isRoot = false;
       const panel: any = this.question.parent;
@@ -166,6 +166,7 @@ export class QuestionArrayGetterContext extends ValueGetterContextCore {
       const qName = q.getFilteredName().toLocaleLowerCase();
       if (qName.toLocaleLowerCase() === lowName) {
         res.isFound = true;
+        res.obj = q;
         res.context = q.getValueGetterContext(qName.endsWith(unWrappedNameSuffix));
         break;
       }

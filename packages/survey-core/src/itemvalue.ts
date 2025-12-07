@@ -19,9 +19,9 @@ export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    const name = path.length > 0 ? path[0].name : "";
+    const name = path.length > 0 ? path[0].name.toLocaleLowerCase() : "";
     const expVar = settings.expressionVariables;
-    const isItemVar = [expVar.item, expVar.choice].indexOf(name.toLocaleLowerCase()) > -1;
+    const isItemVar = [expVar.item, expVar.choice, expVar.self].indexOf(name) > -1;
     if (path.length === 1 && isItemVar) {
       return { isFound: true, value: this.item.value, context: this };
     }
@@ -64,7 +64,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return !!this.locOwner ? this.locOwner.getRendererContext(locStr, this) : locStr;
   }
   public getProcessedText(text: string): string {
-    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
+    return this.locOwner ? this.locOwner.getProcessedText(text, this) : text;
   }
 
   public static get Separator() {

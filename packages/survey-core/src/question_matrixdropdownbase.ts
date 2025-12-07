@@ -63,7 +63,7 @@ export interface IMatrixDropdownData extends IObjectValueContext {
   getMarkdownHtml(text: string, name: string, item?: any): string;
   getRenderer(name: string): string;
   getRendererContext(locStr: LocalizableString): any;
-  getProcessedText(text: string): string;
+  getProcessedText(text: string, context?: any): string;
   getParentTextProcessor(): ITextProcessor;
   getSharedQuestionByName(columnName: string, row: MatrixDropdownRowModelBase): Question;
   runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void;
@@ -258,6 +258,7 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
     const qs = this.row.getQuestionsByValueName(name, true);
     if (qs.length > 0) {
       res.isFound = true;
+      res.obj = qs[0];
       res.context = qs[0].getValueGetterContext();
     }
   }
@@ -766,7 +767,7 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     return this.data ? this.data.getRendererContext(locStr) : locStr;
   }
   public getProcessedText(text: string): string {
-    return this.data ? this.data.getProcessedText(text) : text;
+    return this.data ? this.data.getProcessedText(text, this) : text;
   }
   public locStrsChanged() {
     for (var i = 0; i < this.cells.length; i++) {

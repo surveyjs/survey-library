@@ -33,6 +33,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
       const itemName = row.rowName?.toString() || "";
       if (itemName.toLocaleLowerCase() === name) {
         res.isFound = true;
+        res.obj = row;
         res.context = row.getValueGetterContext();
         return;
       }

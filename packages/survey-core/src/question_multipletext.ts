@@ -36,6 +36,7 @@ export class MultipleTextValueGetterContext extends ValueGetterContextCore {
       const q = items[i].question;
       if (q.getValueName() === name) {
         res.isFound = true;
+        res.obj = q;
         res.context = q.getValueGetterContext();
         return;
       }

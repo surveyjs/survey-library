@@ -6,6 +6,7 @@ export interface IValueGetterItem {
   index?: number;
 }
 export interface IValueGetterInfo {
+  obj?: IObjectValueContext;
   context?: IValueGetterContext;
   requireStrictCompare?: boolean;
   isFound?: boolean;
@@ -172,6 +173,10 @@ export class ValueGetterContextCore implements IValueGetterContext {
     while(pIndex < path.length) {
       pIndex = this.checkValueByPath(path, pIndex, res);
       if (!res.isFound) return undefined;
+      if (params.isProperty) {
+        if (!!res.obj) return new PropertyGetterContext(res.obj).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+        if (!res.context) return undefined;
+      }
       const item = path[pIndex];
       pIndex++;
       if (res.context !== this && !!res.context) {

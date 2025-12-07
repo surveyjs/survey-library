@@ -105,17 +105,21 @@ export class TextPreProcessor {
 export class TextContextProcessor implements ITextProcessor {
   private textPreProcessor: TextPreProcessor;
   private context: IObjectValueContext;
+  public onProcess: (textValue: TextPreProcessorValue) => void;
   constructor(private obj: IObjectValueContext) {
     this.textPreProcessor = new TextPreProcessor();
     this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
       this.getProcessedTextValue(textValue);
+      if (!textValue.isExists && !!this.onProcess) {
+        this.onProcess(textValue);
+      }
     };
   }
-  processText(text: string, returnDisplayValue: boolean): string {
+  public processText(text: string, returnDisplayValue: boolean): string {
     const params: ITextProcessorProp = { text: text, returnDisplayValue: returnDisplayValue };
     return this.processTextEx(params).text;
   }
-  processTextEx(params: ITextProcessorProp): ITextProcessorResult {
+  public processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     if (!params.runAtDesign && this.survey?.isDesignMode) return { hasAllValuesOnLastRun: true, text: params.text };
     this.context = params.context;
     return this.textPreProcessor.processTextEx(params);

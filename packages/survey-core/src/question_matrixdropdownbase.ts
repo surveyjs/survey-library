@@ -19,7 +19,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { ConditionRunner } from "./conditions";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
 
 export interface IMatrixDropdownData extends IObjectValueContext {
@@ -204,7 +204,8 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
   private get visibleIndex(): number {
     return this.getQuestionData().visibleRows.indexOf(this.row);
   }
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
     if (path.length === 0) return undefined;
     const setVar = settings.expressionVariables;
     if (path.length === 1) {
@@ -225,29 +226,30 @@ export class MatrixRowGetterContext extends QuestionItemValueGetterContext {
         if (index < 0 || index >= matrix.visibleRows.length) return { isFound: true, value: undefined, context: this };
         const row = matrix.visibleRows[index];
         path[0].name = setVar.row;
-        return row.getValueGetterContext().getValue(path, isRoot, index, createObjects);
+        params.index = index;
+        return row.getValueGetterContext().getValue(params);
       }
     }
     if (path.length > 1 && path[0].name === setVar.totalRow) {
       const totalRow = <IObjectValueContext>(<any>this.row.data).visibleTotalRow;
       if (!!totalRow) {
         path[0].name = "row";
-        return totalRow.getValueGetterContext().getValue(path, isRoot, index, createObjects);
+        return totalRow.getValueGetterContext().getValue(params);
       }
     }
     const isRowPrefix = path[0].name === setVar.row;
-    if (isRowPrefix || !isRoot) {
+    if (isRowPrefix || !params.isRoot) {
       if (isRowPrefix) {
         path.shift();
       }
-      let res = super.getValue(path, isRoot, index, createObjects);
+      let res = super.getValue(params);
       if (!!res && res.isFound) return res;
       const allValues = this.row.getAllValues();
-      if (isRoot) {
+      if (params.isRoot) {
         res = this.getValueFromBindedQuestions(path, allValues);
         if (!!res) return res;
       }
-      return new VariableGetterContext(allValues).getValue(path, isRoot, index, createObjects);
+      return new VariableGetterContext(allValues).getValue(params);
     }
     return undefined;
   }

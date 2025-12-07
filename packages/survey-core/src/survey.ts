@@ -29,7 +29,7 @@ import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
 import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -91,7 +91,8 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     super();
   }
 
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
     if (path.length === 1) {
       const name = path[0].name;
       let val: any = this.getBuiltInVariableValue(name);
@@ -100,11 +101,11 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       }
       if (val !== undefined) return { value: val, isFound: true };
     }
-    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot, index, createObjects);
+    let res = new VariableGetterContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
-    res = super.getValue(path, isRoot, index, createObjects);
+    res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot, index, createObjects);
+    return new VariableGetterContext(this.valuesHash).getValue(params);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;

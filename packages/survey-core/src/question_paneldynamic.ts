@@ -31,7 +31,7 @@ import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -48,7 +48,8 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
   }
   protected getIndex(): number { return this.panelIndex; }
   protected getQuestionData(): Question { return <Question>(<any>this.item.data); }
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
     if (path.length === 0) return undefined;
     if (path.length === 1) {
       const val = this.getPanelValue(path[0].name);
@@ -65,30 +66,33 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
         if (index < 0 || index >= this.getPanels(true).length) return { isFound: true, value: undefined, context: this };
         const panel = this.getPanels(true)[index];
         path[0].name = panelPrefix;
-        return (<any>panel.data).getValueGetterContext().getValue(path, isRoot, index, createObjects);
+        params.index = index;
+        return (<any>panel.data).getValueGetterContext().getValue(params);
       }
     }
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === expVar.parentPanel.toLocaleLowerCase()) {
       const q = <Question>(<any>this.item.data);
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
         path[0].name = panelPrefix;
-        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(path, true, index, createObjects);
+        params.isRoot = true;
+        return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(params);
       }
     }
     const panel = this.item.panel;
     const isPanelPrefix = path[0].name === panelPrefix;
-    if (isPanelPrefix || !isRoot) {
+    if (isPanelPrefix || !params.isRoot) {
       if (isPanelPrefix) {
         path.shift();
       }
-      const res = new QuestionArrayGetterContext(panel.questions).getValue(path, false, index, createObjects);
+      const res = new QuestionArrayGetterContext(panel.questions).getValue(params);
       if (!!res && res.isFound) return res;
       const allValues = this.item.getAllValues();
-      if (isRoot) {
+      if (params.isRoot) {
         const res = this.getValueFromBindedQuestions(path, allValues);
         if (!!res) return res;
       }
-      return new VariableGetterContext(allValues).getValue(path, false, index, createObjects);
+      params.isRoot = false;
+      return new VariableGetterContext(allValues).getValue(params);
     }
     return undefined;
   }
@@ -129,17 +133,20 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    const index = params.index;
     if (index > -1) {
       const pd = <QuestionPanelDynamicModel>this.question;
       if (index >= 0 && index < pd.panels.length) {
         const item = <QuestionPanelDynamicItem>pd.panels[index].data;
-        return item.getValueGetterContext().getValue(path, false, index, createObjects);
+        params.isRoot = false;
+        return item.getValueGetterContext().getValue(params);
       }
       return { isFound: false, value: undefined, context: this };
     }
-    return super.getValue(path, isRoot, index, createObjects);
+    return super.getValue(params);
   }
 }
 

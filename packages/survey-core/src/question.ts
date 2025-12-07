@@ -18,7 +18,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, ProcessValue, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ITheme } from "./themes";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
@@ -55,21 +55,28 @@ interface ITriggerExpressionInfo {
 
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question, protected isUnwrapped?: boolean) {}
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    const index = params.index;
     const expVar = settings.expressionVariables;
+    if (params.isProperty && path.length > 1) {
+      params.path = path.slice(1);
+      params.isRoot = false;
+      if (path[0].name === expVar.question) {
+        return new PropertyGetterContext(this.question).getValue(params);
+      }
+      if (path[0].name === expVar.parent && !!this.question.parentQuestion) {
+        return new PropertyGetterContext(this.question.parentQuestion).getValue(params);
+      }
+    }
     if (path.length === 0 || (path.length === 1 && path[0].name === expVar.question)) return this.getQuestionValue(index);
-    //TODO make it more generic by supporting $name.property
-    if (path.length > 1 && path[0].name === "$" + expVar.question) {
-      return new PropertyGetterContext(this.question).getValue(path.slice(1), isRoot, index, createObjects);
-    }
-    if (path.length > 1 && path[0].name === "$" + expVar.parent && !!this.question.parentQuestion) {
-      return new PropertyGetterContext(this.question.parentQuestion).getValue(path.slice(1), isRoot, index, createObjects);
-    }
     if (path.length > 1 && path[0].name === expVar.panel) {
+      params.isRoot = false;
       const panel: any = this.question.parent;
       if (panel && panel.isPanel) {
         path.shift();
-        return new QuestionArrayGetterContext(panel.questions).getValue(path, false, index, createObjects);
+        return params.isProperty ? new PropertyGetterContext(panel).getValue(params) :
+          new QuestionArrayGetterContext(panel.questions).getValue(params);
       }
     }
     if (!this.question.isEmpty()) {
@@ -78,7 +85,8 @@ export class QuestionValueGetterContext implements IValueGetterContext {
         if (!Array.isArray(val || index >= val.length)) return undefined;
         val = val[index];
       }
-      return new VariableGetterContext(val).getValue(path, false, index, createObjects);
+      params.isProperty = false;
+      return new VariableGetterContext(val).getValue(params);
     }
     return undefined;
   }
@@ -90,7 +98,7 @@ export class QuestionValueGetterContext implements IValueGetterContext {
   getQuestion(): IQuestion { return this.question; }
   protected getSurveyValue(path: Array<IValueGetterItem>, index?: number): IValueGetterInfo {
     const survey = this.question.getSurvey();
-    if (survey) return (<any>survey).getValueGetterContext().getValue(path, false, index, false);
+    if (survey) return (<any>survey).getValueGetterContext().getValue({ path, isRoot: false, index });
     return undefined;
   }
   private getQuestionValue(index: number): IValueGetterInfo {
@@ -117,7 +125,7 @@ export abstract class QuestionItemValueGetterContext extends ValueGetterContextC
       if (!!name && q.valuePropertyName === name && !!objValue && objValue.hasOwnProperty(name)) {
         return { isFound: true, value: objValue[name], context: q.getValueGetterContext() };
       }
-      const res = q.getValueGetterContext().getValue(path, false, this.getIndex(), false);
+      const res = q.getValueGetterContext().getValue({ path, isRoot: false, index: this.getIndex() });
       if (!!res && res.isFound) return res;
     }
     return undefined;

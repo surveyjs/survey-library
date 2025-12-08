@@ -20,24 +20,27 @@ import { QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownre
 import { DragOrClickHelper, ITargets } from "./utils/dragOrClickHelper";
 import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    const index = params.index;
     if (index > -1) {
       const md = <QuestionMatrixDynamicModel>this.question;
       const rows = md.allRows;
       if (index >= 0 && index < rows.length) {
-        return rows[index].getValueGetterContext().getValue(path, false, index, createObjects);
+        params.isRoot = false;
+        return rows[index].getValueGetterContext().getValue(params);
       }
       return { isFound: false, value: undefined, context: this };
     }
-    return super.getValue(path, isRoot, index, createObjects);
+    return super.getValue(params);
   }
 }
 

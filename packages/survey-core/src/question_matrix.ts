@@ -17,7 +17,7 @@ import { IPlainDataOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions";
 import { Question } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -34,8 +34,9 @@ export interface IMatrixData {
 }
 class MatrixRowValueGetterContext implements IValueGetterContext {
   constructor(private row: MatrixRowModel) {}
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (path.length !== 0) return undefined;
+  public getObj(): Base { return this.row; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    if (params.path.length !== 0) return undefined;
     return { isFound: true, value: this.row.value, context: this };
   }
   public getTextValue(name: string, value: any, isDisplayValue: boolean): string {
@@ -294,12 +295,13 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixModel) {
     super();
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (path.length > 0) {
-      const res = super.getValue(path, isRoot, index, createObjects);
+  public getObj(): Base { return this.question; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    if (params.path.length > 0) {
+      const res = super.getValue(params);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(path, isRoot, index, createObjects);
+    return new VariableGetterContext(this.question.value).getValue(params);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
@@ -310,6 +312,7 @@ export class MatrixValueGetterContext extends ValueGetterContextCore {
       const itemName = row.name?.toString() || "";
       if (itemName.toLocaleLowerCase() === name) {
         res.isFound = true;
+        res.obj = row;
         res.context = row.getValueGetterContext();
         return;
       }

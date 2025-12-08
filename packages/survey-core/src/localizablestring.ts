@@ -9,7 +9,7 @@ import { ItemValue } from "./itemvalue";
 export interface ILocalizableOwner {
   getLocale(): string;
   getMarkdownHtml(text: string, name: string, item?: any): string;
-  getProcessedText(text: string): string;
+  getProcessedText(text: string, context?: any): string;
   getRenderer(name: string, item?: ItemValue): string;
   getRendererContext(locStr: LocalizableString, item?: ItemValue): any;
 }

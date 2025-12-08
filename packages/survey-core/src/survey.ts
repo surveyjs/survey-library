@@ -28,8 +28,8 @@ import { surveyCss } from "./defaultCss/defaultCss";
 import { ISurveyTriggerOwner, SurveyTrigger, Trigger } from "./trigger";
 import { CalculatedValue } from "./calculatedValue";
 import { PageModel } from "./page";
-import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem, ProcessValue, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { TextContextProcessor, TextPreProcessorValue } from "./textPreProcessor";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext, ValueGetter, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { getLocaleString, surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
 import { LocalizableString } from "./localizablestring";
@@ -90,8 +90,9 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
   }
-
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  public getObj(): Base { return this.survey; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
     if (path.length === 1) {
       const name = path[0].name;
       let val: any = this.getBuiltInVariableValue(name);
@@ -100,11 +101,14 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
       }
       if (val !== undefined) return { value: val, isFound: true };
     }
-    let res = new VariableGetterContext(this.variablesHash).getValue(path, isRoot, index, createObjects);
+    if (params.isProperty && path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.survey) {
+      return new PropertyGetterContext(this.survey).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+    }
+    let res = new VariableGetterContext(this.variablesHash).getValue(params);
     if (!!res && res.isFound) return res;
-    res = super.getValue(path, isRoot, index, createObjects);
+    res = super.getValue(params);
     if (!!res && res.isFound) return res;
-    return new VariableGetterContext(this.valuesHash).getValue(path, isRoot, index, createObjects);
+    return new VariableGetterContext(this.valuesHash).getValue(params);
   }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const unWrappedNameSuffix = settings.expressionVariables.unwrapPostfix;
@@ -115,6 +119,7 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
     const question = this.survey.getQuestionByValueName(name, true);
     if (question) {
       res.isFound = true;
+      res.obj = question;
       res.context = question.getValueGetterContext(isUnwrapped);
     }
   }
@@ -2371,8 +2376,8 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return LocalizableString.editableRenderer;
     return undefined;
   }
-  public getProcessedText(text: string) {
-    return this.processText(text, true);
+  public getProcessedText(text: string, context?: any): string {
+    return this.processText(text, true, context);
   }
   getLocString(str: string) {
     return this.getLocalizationString(str);
@@ -7752,23 +7757,22 @@ export class SurveyModel extends SurveyElementCore
   public getValueGetterContext(): IValueGetterContext {
     return new SurveyValueGetterContext(this, this.valuesHash, this.variablesHash);
   }
-  processText(text: string, returnDisplayValue: boolean): string {
-    return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false }).text;
+  processText(text: string, returnDisplayValue: boolean, context?: any): string {
+    return this.processTextEx({ text: text, returnDisplayValue: returnDisplayValue, doEncoding: false, context: context }).text;
   }
   processTextEx(params: ITextProcessorProp): ITextProcessorResult {
-    const doEncoding = params.doEncoding === undefined ? settings.web.encodeUrlParams : params.doEncoding;
-    let text = params.text;
-    if (params.runAtDesign || !this.isDesignMode) {
-      text = this.textPreProcessor.process(text, params.returnDisplayValue === true, doEncoding, params.replaceUndefinedValues);
+    if (params.doEncoding === undefined) {
+      params.doEncoding = settings.web.encodeUrlParams;
     }
-    const res = { text: text, hasAllValuesOnLastRun: true };
-    res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
-    return res;
+    if (params.runAtDesign || !this.isDesignMode) {
+      return this.textPreProcessor.processTextEx(params);
+    }
+    return { text: params.text, hasAllValuesOnLastRun: false };
   }
-  private textPreProcessorValue: TextPreProcessor;
-  private get textPreProcessor(): TextPreProcessor {
+  private textPreProcessorValue: TextContextProcessor;
+  private get textPreProcessor(): TextContextProcessor {
     if (!this.textPreProcessorValue) {
-      this.textPreProcessorValue = new TextPreProcessor();
+      this.textPreProcessorValue = new TextContextProcessor(this);
       this.textPreProcessorValue.onProcess = (textValue: TextPreProcessorValue) => {
         this.getProcessedTextValue(textValue);
       };

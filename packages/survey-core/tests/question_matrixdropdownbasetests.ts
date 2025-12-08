@@ -2442,6 +2442,26 @@ QUnit.test("survey.showInvisibleElements property, do not hide columns when true
   assert.equal(matrix.visibleColumns.length, 1, "There is one visible column, #2");
   assert.equal(matrix.visibleRows.length, 1, "There is one visible row, #2");
 });
+QUnit.test("Access column properties, #10532", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          { name: "col1", title: "Item 1: {$self.name}", score: 10 },
+          { name: "col2", title: "Item 2: {$self.name}", score: 20 }
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const col1 = q1.columns[0];
+  const col2 = q1.columns[1];
+  assert.equal(col1.locTitle.renderedHtml, "Item 1: col1", "process {$self.name} for col1");
+  assert.equal(col2.locTitle.renderedHtml, "Item 2: col2", "process {$self.name} for col2");
+});
 QUnit.test("Clear value on hidden questions in cell, Bug#10603", function (assert) {
   const survey = new SurveyModel({
     clearInvisibleValues: "onHiddenContainer",

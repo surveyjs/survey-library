@@ -163,7 +163,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getMarkdownHtml(text: string, name: string, item?: any): string;
   public abstract getRenderer(name: string): string;
   public abstract getRendererContext(locStr: LocalizableString): any;
-  public abstract getProcessedText(text: string): string;
+  public abstract getProcessedText(text: string, context?: any): string;
 }
 
 /**
@@ -909,13 +909,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         ? this.locOwner.getRendererContext(locStr)
         : locStr;
   }
-  public getProcessedText(text: string): string {
+  public getProcessedText(text: string, context?: any): string {
     if (this.isLoadingFromJson) return text;
     if (this.textProcessor)
       return this.textProcessor.processTextEx(
-        { text: text, returnDisplayValue: this.getUseDisplayValuesInDynamicTexts(), context: this, doEncoding: false }
+        { text: text, returnDisplayValue: this.getUseDisplayValuesInDynamicTexts(), context: context || this, doEncoding: false }
       ).text;
-    if (this.locOwner) return this.locOwner.getProcessedText(text);
+    if (this.locOwner) return this.locOwner.getProcessedText(text, context);
     return text;
   }
   protected getUseDisplayValuesInDynamicTexts(): boolean { return true; }

@@ -213,6 +213,7 @@ export class Base implements IObjectValueContext {
     Base.currentDependencis.addDependency(target, property);
   }
   public dependencies: { [key: string]: ComputedUpdater } = {};
+  private expressionDependencies: { [key: string]: { obj: Base, propertyName: string } } = {};
   public static get commentSuffix(): string {
     return settings.commentSuffix;
   }
@@ -338,7 +339,13 @@ export class Base implements IObjectValueContext {
     this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
     Object.keys(this.dependencies).forEach(key => this.dependencies[key].dispose());
-    // this.dependencies = {};
+    Object.keys(this.expressionDependencies).forEach(key => {
+      const item = this.expressionDependencies[key];
+      if (!item.obj.isDisposed) {
+        item.obj.unRegisterFunctionOnPropertyValueChanged(item.propertyName, key);
+      }
+    });
+    this.expressionDependencies = {};
     Object.keys(this.propertyHash).forEach(key => {
       const propVal = this.getPropertyValueCore(this.propertyHash, key);
       if (!!propVal && propVal.type == ComputedUpdater.ComputedUpdaterType) {
@@ -928,6 +935,20 @@ export class Base implements IObjectValueContext {
   }
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);
+  }
+  public addPropertyDependency(obj: Base, propertyName: string): void {
+    if (!obj || !propertyName) return;
+    const id = obj.uniqueId + "_" + propertyName;
+    if (!this.expressionDependencies[id]) {
+      obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
+        this.onDependencyValueChanged(obj, propertyName);
+      }, id);
+      this.expressionDependencies[id] = { obj, propertyName };
+    }
+  }
+  private onDependencyValueChanged(obj: Base, propertyName: string): void {
+    this.runConditionCore(this.getDataFilteredProperties());
+    this.locStrsChanged();
   }
   public createCustomLocalizableObj(name: string): LocalizableString {
     const locStr = this.getLocalizableString(name);

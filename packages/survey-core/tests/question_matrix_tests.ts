@@ -1026,3 +1026,27 @@ QUnit.test("Show isExclusive property when matrix cellType is checkbox, Issue#10
   matrix.cellType = "checkbox";
   assert.equal(prop.isVisible("", matrix.columns[0]), true, "isExclusive is visible for checkbox again");
 });
+QUnit.test("Access column properties, #10532", function (assert) {
+  Serializer.addProperty("itemvalue", "score:number");
+
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: [
+          { value: 1, text: "Item 1: {$self.score}", score: 10 },
+          { value: 2, text: "Item 2: {$self.score}", score: 20 }
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const col1 = q1.columns[0];
+  const col2 = q1.columns[1];
+  assert.equal(col1.locTitle.renderedHtml, "Item 1: 10", "process {$self.score} for col1");
+  assert.equal(col2.locTitle.renderedHtml, "Item 2: 20", "process {$self.score} for col2");
+
+  Serializer.removeProperty("itemvalue", "score");
+});

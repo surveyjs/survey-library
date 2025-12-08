@@ -9,20 +9,23 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ConditionRunner } from "./conditions";
+import { Base } from "./base";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
     super();
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+  public getObj(): Base { return this.question; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (path.length > 0) {
-      const res = super.getValue(path, isRoot, index, createObjects);
+      const res = super.getValue(params);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(path, isRoot, index, createObjects);
+    return new VariableGetterContext(this.question.value).getValue(params);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
@@ -33,6 +36,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
       const itemName = row.rowName?.toString() || "";
       if (itemName.toLocaleLowerCase() === name) {
         res.isFound = true;
+        res.obj = row;
         res.context = row.getValueGetterContext();
         return;
       }

@@ -23,7 +23,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
 
 /**
@@ -1069,14 +1069,18 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  public getObj(): Base { return this.question; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
-    if (path.length > 0 && (path.length > 1 || !isRoot)) {
+    const path = params.path;
+    if (path.length > 0 && (path.length > 1 || !params.isRoot)) {
       const isCompPrefix = path[0].name === settings.expressionVariables.composite;
       if (isCompPrefix) {
         path.shift();
       }
-      return new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index, createObjects);
+      params.isRoot = false;
+      return params.isProperty ? new PropertyGetterContext(cq.contentPanel).getValue(params) :
+        new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(params);
     }
     return { isFound: false };
   }

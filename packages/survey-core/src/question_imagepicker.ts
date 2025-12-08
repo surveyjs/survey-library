@@ -47,8 +47,8 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   getRendererContext(locStr: LocalizableString): any {
     return !!this.locOwner ? this.locOwner.getRendererContext(locStr) : locStr;
   }
-  getProcessedText(text: string): string {
-    return !!this.locOwner ? this.locOwner.getProcessedText(text) : text;
+  getProcessedText(text: string, context?: any): string {
+    return !!this.locOwner ? this.locOwner.getProcessedText(text, context) : text;
   }
 
   public onErrorHandler(): void {

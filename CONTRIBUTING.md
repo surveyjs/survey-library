@@ -117,8 +117,8 @@ SurveyJS Team follows the [GitHub flow](https://docs.github.com/en/get-started/u
 5. Run our test suite from the root folder and ensure all tests are successfully passed:
      - Unit tests: `npm run test`
      - Markup tests: `npm run test:markup`
-     - Functional tests: `npm run testcafe`
-     - Screenshot tests: `npm run visual-regression-tests`
+     - Functional tests: `npm run e2e:ci`
+     - Screenshot tests: `npm run scr:ci`
      - Accessibility tests: `npm run accessibility-tests`
      - Lint checks: `npm run lint`
 6. Push your branch to our repository and create a pull request.

@@ -1069,6 +1069,7 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
+  public getObj(): Base { return this.question; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
     const path = params.path;

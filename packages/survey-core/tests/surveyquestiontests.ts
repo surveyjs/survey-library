@@ -8881,4 +8881,74 @@ QUnit.test("Access question & survey properties, #10532", function (assert) {
   assert.equal(q1.locTitle.renderedHtml, "Item 2", "q1 title is correct");
   assert.equal(q2.locTitle.renderedHtml, "Item 1", "q2 title is correct");
   assert.equal(q3.locTitle.renderedHtml, "Survey Title", "q3 title is correct");
+  q1.choices[0].text = "New Item 1";
+  q1.choices[1].text = "New Item 2";
+  survey.title = "New Survey Title";
+  assert.equal(q1.locTitle.renderedHtml, "New Item 2", "q1 title is correct #2");
+  assert.equal(q2.locTitle.renderedHtml, "New Item 1", "q2 title is correct #2");
+  assert.equal(q3.locTitle.renderedHtml, "New Survey Title", "q3 title is correct #2");
+});
+QUnit.test("Access question properties in expression, #10532", function (assert) {
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{$q2.isVisible}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
+});
+QUnit.test("Access question properties in expression - update on property changed, #10532", function (assert) {
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{$q2.isVisible}"
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
 });

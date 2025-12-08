@@ -11,11 +11,13 @@ import { IProgressInfo } from "./base-interfaces";
 import { HashTable, Helpers } from "./helpers";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
 import { ConditionRunner } from "./conditions";
+import { Base } from "./base";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
     super();
   }
+  public getObj(): Base { return this.question; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };

@@ -1,3 +1,4 @@
+import { Base } from "./base";
 import { IQuestion } from "./base-interfaces";
 import { Helpers, HashTable } from "./helpers";
 
@@ -7,6 +8,8 @@ export interface IValueGetterItem {
 }
 export interface IValueGetterInfo {
   obj?: IObjectValueContext;
+  propObj?: any;
+  propName?: string;
   context?: IValueGetterContext;
   requireStrictCompare?: boolean;
   isFound?: boolean;
@@ -25,6 +28,7 @@ export interface IValueGetterContextGetValueParams {
 export interface IValueGetterContext {
   getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
   getTextValue?(name: string, value: any, isDisplayValue: boolean): string;
+  getObj?(): Base;
   getRootObj?(): IObjectValueContext;
   getQuestion?(): IQuestion;
 }
@@ -39,6 +43,8 @@ export interface IReturnValue {
   isFound: boolean;
   value: any;
   question?: IQuestion;
+  propObj?: any;
+  propName?: string;
   strictCompare?: boolean;
 }
 export class ValueGetter {
@@ -68,6 +74,8 @@ export class ValueGetter {
     res.isFound = true;
     res.value = info.value;
     res.strictCompare = info.requireStrictCompare;
+    res.propObj = info.propObj;
+    res.propName = info.propName;
     if (info.context) {
       if (params.isText && info.context.getTextValue) {
         res.value = info.context.getTextValue(name, res.value, params.isDisplayValue);
@@ -132,7 +140,7 @@ export class ValueGetter {
       path[0].name = path[0].name.substring(1);
     }
     const info = context.getValue({ path, isRoot: true, index: -1, createObjects, isProperty });
-    return !!info && info.isFound ? info : undefined;
+    return info?.isFound ? info : undefined;
   }
   public getPath(name: string): Array<IValueGetterItem> {
     const path: Array<IValueGetterItem> = [];
@@ -174,7 +182,7 @@ export class ValueGetterContextCore implements IValueGetterContext {
       pIndex = this.checkValueByPath(path, pIndex, res);
       if (!res.isFound) return undefined;
       if (params.isProperty) {
-        if (!!res.obj) return new PropertyGetterContext(res.obj).getValue({ path: path.slice(1), isRoot: false, index: -1 });
+        if (!!res.obj) return new PropertyGetterContext(res.obj).getValue({ path: path.slice(1), isRoot: false, index: -1, isProperty: true });
         if (!res.context) return undefined;
       }
       const item = path[pIndex];
@@ -276,11 +284,25 @@ export class VariableGetterContext extends ValueGetterContextCore {
   }
 }
 export class PropertyGetterContext extends VariableGetterContext {
+  private lastObj: any;
+  private lastName: string;
   constructor(private obj: any) {
     super(obj);
   }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    this.lastObj = undefined;
+    this.lastName = undefined;
+    const res = super.getValue(params);
+    if (res?.isFound) {
+      res.propObj = this.lastObj;
+      res.propName = this.lastName;
+    }
+    return res;
+  }
   protected getValueByItemCore(obj: any, name: string): any {
     if (!obj || !name) return undefined;
+    this.lastObj = obj;
+    this.lastName = name;
     return obj[name];
   }
 }
@@ -321,6 +343,12 @@ export class ProcessValue {
   public getValueInfo(valueInfo: any) {
     if (!!this.context) {
       const cRes = this.getValueInfoByContext(valueInfo.name);
+      if (cRes.isFound) {
+        const obj: Base = this.context.getObj ? this.context.getObj() : null;
+        if (!!obj && !!cRes.propObj && (cRes.propObj instanceof Base)) {
+          obj.addPropertyDependency(cRes.propObj, cRes.propName);
+        }
+      }
       valueInfo.value = cRes.value;
       valueInfo.hasValue = cRes.isFound;
       valueInfo.strictCompare = cRes.strictCompare;

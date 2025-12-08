@@ -48,7 +48,7 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
   }
   protected getIndex(): number { return this.panelIndex; }
   protected getQuestionData(): Question { return <Question>(<any>this.item.data); }
-  getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 0) return undefined;
     if (path.length === 1) {

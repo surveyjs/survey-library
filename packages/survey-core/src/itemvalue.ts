@@ -17,6 +17,7 @@ import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValuePa
 
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
+  public getObj(): Base { return this.item; }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     const name = path.length > 0 ? path[0].name.toLocaleLowerCase() : "";

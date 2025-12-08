@@ -90,8 +90,8 @@ class SurveyValueGetterContext extends ValueGetterContextCore {
   constructor (private survey: SurveyModel, private valuesHash: HashTable<any>, private variablesHash: HashTable<any>) {
     super();
   }
-
-  getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+  public getObj(): Base { return this.survey; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length === 1) {
       const name = path[0].name;

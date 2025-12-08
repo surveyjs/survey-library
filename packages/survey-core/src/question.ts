@@ -55,7 +55,8 @@ interface ITriggerExpressionInfo {
 
 export class QuestionValueGetterContext implements IValueGetterContext {
   constructor (protected question: Question, protected isUnwrapped?: boolean) {}
-  getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+  public getObj(): Base { return this.question; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     const index = params.index;
     const expVar = settings.expressionVariables;

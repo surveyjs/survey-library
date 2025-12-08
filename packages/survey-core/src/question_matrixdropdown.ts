@@ -8,8 +8,9 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
-import { Helpers } from "./helpers";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { HashTable, Helpers } from "./helpers";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { ConditionRunner } from "./conditions";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
@@ -68,6 +69,18 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   protected isItemVisible(): boolean { return this.item.isVisible; }
   public isRowEnabled(): boolean { return this.item.isEnabled; }
   protected isRowHasEnabledCondition(): boolean { return !!this.item.enableIf; }
+  protected getRowsVisibleIfExpression(rowsVisibleIf: string): Array<string> {
+    const res = super.getRowsVisibleIfExpression(rowsVisibleIf);
+    if (this.item.visibleIf) {
+      res.push(this.item.visibleIf);
+    }
+    return res;
+  }
+  protected runRowsEnableCondition(properties: HashTable<any>): void {
+    if (this.item.enableIf) {
+      this.item.enabled = new ConditionRunner(this.item.enableIf).runContext(this.getValueGetterContext(), properties);
+    }
+  }
 }
 /**
   * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.

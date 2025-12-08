@@ -473,15 +473,12 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (!this.data) return null;
     return this.data.getRowValue(this.data.getRowIndex(this));
   }
-  public runCondition(properties: HashTable<any>, rowsVisibleIf?: string): void {
+  public runCondition(properties: HashTable<any>, rowsVisibleIf?: string, alwaysVisible?: boolean): void {
     if (!this.data) return;
     const newProps = Helpers.createCopy(properties);
     newProps[settings.expressionVariables.row] = this;
-    if (!!rowsVisibleIf) {
-      this.visible = new ConditionRunner(rowsVisibleIf).runContext(this.getValueGetterContext(), properties);
-    } else {
-      this.visible = true;
-    }
+    this.visible = alwaysVisible === true || this.getRowVisibleIfBaseOnExpression(properties, rowsVisibleIf);
+    this.runRowsEnableCondition(newProps);
     for (var i = 0; i < this.cells.length; i++) {
       this.cells[i].runCondition(newProps);
     }
@@ -491,6 +488,19 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     if (this.isRowHasEnabledCondition()) {
       this.onQuestionReadOnlyChanged();
     }
+  }
+  protected runRowsEnableCondition(properties: HashTable<any>): void { }
+  protected getRowsVisibleIfExpression(rowsVisibleIf: string): Array<string> {
+    return !!rowsVisibleIf ? [rowsVisibleIf] : [];
+  }
+  private getRowVisibleIfBaseOnExpression(properties: HashTable<any>, rowsVisibleIf: string): boolean {
+    const exps = this.getRowsVisibleIfExpression(rowsVisibleIf);
+    let result = true;
+    for (let i = 0; i < exps.length; i++) {
+      result = new ConditionRunner(exps[i]).runContext(this.getValueGetterContext(), properties);
+      if (!result) break;
+    }
+    return result;
   }
   public updateElementVisibility(): void {
     this.cells.forEach(cell => cell.question.updateElementVisibility());
@@ -1605,19 +1615,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
-  protected runConditionCore(properties: HashTable<any>): void {
-    super.runConditionCore(properties);
-    var counter = 0;
-    var prevTotalValue;
+  protected runItemsCondition(properties: HashTable<any>): void {
+    let counter = 0;
+    let prevTotalValue;
+    let isRowVisiblilityChanged = false;
+    const isColumnChanged = this.runConditionsForColumns(properties);
     do {
       prevTotalValue = Helpers.getUnbindValue(this.totalValue);
-      this.runCellsCondition(properties);
+      isRowVisiblilityChanged = this.runCellsCondition(properties) || isRowVisiblilityChanged;
       this.runTotalsCondition(properties);
       counter++;
     } while(
       !Helpers.isTwoValueEquals(prevTotalValue, this.totalValue) &&
       counter < 3
     );
+    if (isRowVisiblilityChanged && this.isClearValueOnHidden) {
+      this.clearInvisibleValuesInRows();
+    }
+    if (isColumnChanged) {
+      this.resetRenderedTable(true);
+    }
     this.updateVisibilityBasedOnRows();
   }
   public runTriggers(name: string, value: any, keys?: any): void {
@@ -1635,17 +1652,24 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
-  protected runCellsCondition(properties: HashTable<any>): void {
-    if (this.isDesignMode) return;
+  protected runCellsCondition(properties: HashTable<any>): boolean {
+    if (this.isDesignMode) return false;
+    let isRowVisiblilityChanged = false;
+    const isAlwaysVisible = this.areInvisibleElementsShowing;
     const rowsVisibleIf = this.getExpressionFromSurvey("rowsVisibleIf");
     const rows = this.generatedVisibleRows;
     if (!!rows) {
       for (var i = 0; i < rows.length; i++) {
-        rows[i].runCondition(properties, rowsVisibleIf);
+        const prevVis = rows[i].isVisible;
+        rows[i].runCondition(properties, rowsVisibleIf, isAlwaysVisible);
+        if (prevVis !== rows[i].isVisible) {
+          isRowVisiblilityChanged = true;
+        }
       }
     }
     this.checkColumnsVisibility();
     this.checkColumnsRenderedRequired();
+    return isRowVisiblilityChanged;
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {
     const expression = this.getExpressionFromSurvey("columnsVisibleIf");

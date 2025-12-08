@@ -957,8 +957,7 @@ export class Question extends SurveyElement<Question>
   }
   //#region singleInput
   public get singleInputQuestion(): Question {
-    const survey = this.survey;
-    if (!survey || !survey.isSingleVisibleInput) return undefined;
+    if (!this.isSingleInputMode) return undefined;
     return this.getPropertyValue("singleInputQuestion", undefined, () => this.calculateSingleInputQuestion());
   }
   private get currentSingleInputQuestion(): Question {
@@ -1048,9 +1047,8 @@ export class Question extends SurveyElement<Question>
     return index === 0 ? -1 : (index >= questions.length - 1 ? 1 : 2);
   }
   protected get isSingleInputActive(): boolean {
-    const sv = this.survey;
-    if (!sv || !sv.isSingleVisibleInput) return false;
-    const ssQ = sv.currentSingleQuestion;
+    if (!this.isSingleInputMode) return false;
+    const ssQ = this.survey.currentSingleQuestion;
     return !!ssQ && ssQ === this.rootParentQuestion;
   }
   protected singleInputOnAddItem(isOnDataChanging: boolean): void {
@@ -1789,7 +1787,7 @@ export class Question extends SurveyElement<Question>
     this.updateQuestionCss();
   }
   private get isSingleInputQuestionMode(): boolean {
-    return !!this.parentQuestion && this.survey?.isSingleVisibleInput;
+    return !!this.parentQuestion && this.isSingleInputMode;
   }
   protected getIsNested(): boolean {
     if (!!this.isSingleInputQuestionMode) return false;
@@ -1891,7 +1889,7 @@ export class Question extends SurveyElement<Question>
     if (this.isDesignMode || !this.isVisible || this.isReadOnly || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
-    const isSingleInput = this.survey.isSingleVisibleInput;
+    const isSingleInput = this.isSingleInputMode;
     if (shouldChangePage && !isSingleInput) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {

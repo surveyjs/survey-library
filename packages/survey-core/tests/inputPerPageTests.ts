@@ -2587,3 +2587,27 @@ QUnit.test("Cannot read properties of undefined  with survey.data, Bug #10653", 
   assert.ok(affordable.cssClasses, "singleInputQuestion cssClasses is defined");
   assert.ok(affordable.cssRoot, "singleInputQuestion cssRoot is defined");
 });
+QUnit.test("singleInput and expanded/collapsed, Bug#10656", assert => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix", name: "matrix1",
+        state: "collapsed",
+        columns: ["col1", "col2", "col3", "col4"],
+        rows: ["row1", "row2"]
+      }
+    ],
+    questionsOnPageMode: "inputPerPage"
+  });
+  const matrix1 = survey.getQuestionByName("matrix1");
+  const radio = matrix1.singleInputQuestion;
+  assert.equal(radio.name, "row1", "singleInputQuestion.name");
+  assert.equal(radio.choices.length, 4, "singleInputQuestion.choices.length");
+  assert.equal(matrix1.state, "collapsed", "matrix1.state is collapsed");
+  assert.equal(matrix1.isExpanded, false, "matrix1.isExpanded is false");
+  assert.equal(matrix1.isCollapsed, false, "matrix1.isCollapsed is false");
+  assert.equal(matrix1.getCssTitleExpandableSvg(), null, "matrix1.getCssTitleExpandableSvg()");
+  assert.equal(radio.isExpanded, false, "radio.isExpanded is false");
+  assert.equal(radio.isCollapsed, false, "radio.isCollapsed is false");
+  assert.equal(radio.getCssTitleExpandableSvg(), null, "radio.getCssTitleExpandableSvg()");
+});

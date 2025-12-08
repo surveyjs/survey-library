@@ -650,6 +650,7 @@ export interface ProcessDynamicTextEvent {
    * The value being processed. You can change this parameter's value.
    */
   value: any;
+  obj: any;
   isExists: boolean;
   returnDisplayValue: boolean;
 }

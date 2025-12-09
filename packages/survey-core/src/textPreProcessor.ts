@@ -13,10 +13,10 @@ export class TextPreProcessorValue {
   }
   public value: any;
   public isExists: boolean;
-  public obj: any;
+  public element: any;
 }
 
-export class TextPreProcessor {
+export class TextPreProcessor implements ITextProcessor {
   private _unObservableValues: any = [undefined];
   private get hasAllValuesOnLastRunValue(): boolean {
     return this._unObservableValues[0];
@@ -115,7 +115,7 @@ export class TextContextProcessor extends TextPreProcessor {
   protected canProcess(): boolean { return true; }
   protected onProcessValue(textValue: TextPreProcessorValue) {
     this.getProcessedTextValue(textValue);
-    textValue.obj = this.getContextObj();
+    textValue.element = this.getContextObj();
     super.onProcessValue(textValue);
   }
   public processText(text: string, returnDisplayValue: boolean): string {

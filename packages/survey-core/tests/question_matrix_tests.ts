@@ -1032,7 +1032,7 @@ QUnit.test("Add obj into options of onProcessDynamicText event, Issue#9604", fun
   const survey = new SurveyModel();
   survey.onProcessDynamicText.add((survey, options) => {
     if (options.name === "score") {
-      options.value = options.obj.score;
+      options.value = (<any>options.element).score;
     }
   });
   survey.fromJSON({

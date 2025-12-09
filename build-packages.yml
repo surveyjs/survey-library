@@ -200,7 +200,7 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
           git pull origin master
-          git merge -X ours master
+          git merge -X ours origin/master
           git fetch origin master --tags --force
           git checkout master
           git add surveyjs.io/App_Data/DocsLibrary

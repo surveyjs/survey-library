@@ -1137,6 +1137,9 @@ export class Base implements IObjectValueContext {
       }
     }
   }
+  public get hasActiveUISubscribers(): boolean {
+    return !!this.onPropertyValueCoreChanged;
+  }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;
     if (!!this.createArrayCoreHandler) {

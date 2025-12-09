@@ -474,7 +474,10 @@ function getDisplayValueReturnResult(q: any, params: any[]): string {
 }
 function displayValue(params: any[]): any {
   const q = getQuestionValueByContext(this, params[0]);
-  if (!q) return "";
+  if (!q) {
+    this.returnResult(undefined);
+    return undefined;
+  }
   if (q.isReady) {
     this.returnResult(getDisplayValueReturnResult(q, params));
   } else {

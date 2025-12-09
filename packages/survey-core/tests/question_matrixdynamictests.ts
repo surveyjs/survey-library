@@ -11225,3 +11225,44 @@ QUnit.test("Matrix is not re-create rows on setting value after the matrix value
   assert.equal(matrix.visibleRows[0].getQuestionByColumnName("col1").value, "row1", "The row value is correct");
   assert.equal(matrix.renderedTable.rows.length, 2, "There is one data row");
 });
+
+QUnit.test("The displayValue function doesn't work when an expression column is located before the target column Bug#10697", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        rowCount: 1,
+        columns: [
+          {
+            name: "a",
+            defaultValueExpression: "displayValue('b')",
+            cellType: "text"
+          },
+          {
+            name: "b",
+            cellType: "dropdown",
+            choices: [
+              {
+                value: "e1",
+                text: "item1"
+              },
+              {
+                value: "e2",
+                text: "item2"
+              }
+            ]
+          }
+        ],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const row = matrix.visibleRows[0];
+  const a = row.getQuestionByName("a");
+  const b = row.getQuestionByName("b");
+  b.value = "e1";
+  assert.equal(a.value, "item1", "Default value set correct");
+  b.value = "e2";
+  assert.equal(a.value, "item2", "Default value set correct #2");
+});

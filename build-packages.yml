@@ -206,7 +206,7 @@ jobs:
           git add surveyjs.io/App_Data/DocsLibrary
           git commit -m "updated survey-library docs [azurepipelines skip]"
           git pull origin master
-          git merge -X ours master
+          git merge -X ours origin/master
           git push origin master
         displayName: "git surveyjs/service push updated docs"
       # - powershell: |

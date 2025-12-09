@@ -236,21 +236,21 @@ QUnit.test("Check map render", function (assert) {
 
     assert.equal(
       map?.innerHTML,
-      "<area shape=\"poly\" coords=\"100,200,300,400\" data-value=\"val1\"><area shape=\"rect\" coords=\"100,200,300,400\" data-value=\"val2\"><area shape=\"circle\" coords=\"150,200,100\" data-value=\"val3\">",
+      "<area shape=\"poly\" coords=\"100,200,300,400\" title=\"val1\" data-value=\"val1\"><area shape=\"rect\" coords=\"100,200,300,400\" title=\"val2\" data-value=\"val2\"><area shape=\"circle\" coords=\"150,200,100\" title=\"val3\" data-value=\"val3\">",
       "Map render correct");
 
     q1.backgroundImage.width = 200;
     q1.renderImageMap();
     assert.equal(
       map?.innerHTML,
-      "<area shape=\"poly\" coords=\"50,100,150,200\" data-value=\"val1\"><area shape=\"rect\" coords=\"50,100,150,200\" data-value=\"val2\"><area shape=\"circle\" coords=\"75,100,50\" data-value=\"val3\">",
+      "<area shape=\"poly\" coords=\"50,100,150,200\" title=\"val1\" data-value=\"val1\"><area shape=\"rect\" coords=\"50,100,150,200\" title=\"val2\" data-value=\"val2\"><area shape=\"circle\" coords=\"75,100,50\" title=\"val3\" data-value=\"val3\">",
       "Map render correct (smaller)");
 
     q1.backgroundImage.width = 800;
     q1.renderImageMap();
     assert.equal(
       map?.innerHTML,
-      "<area shape=\"poly\" coords=\"200,400,600,800\" data-value=\"val1\"><area shape=\"rect\" coords=\"200,400,600,800\" data-value=\"val2\"><area shape=\"circle\" coords=\"300,400,200\" data-value=\"val3\">",
+      "<area shape=\"poly\" coords=\"200,400,600,800\" title=\"val1\" data-value=\"val1\"><area shape=\"rect\" coords=\"200,400,600,800\" title=\"val2\" data-value=\"val2\"><area shape=\"circle\" coords=\"300,400,200\" title=\"val3\" data-value=\"val3\">",
       "Map render correct (bigger)");
 
     done();
@@ -286,25 +286,25 @@ QUnit.test("Check draw styles", function (assert) {
   });
   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-  assert.deepEqual(q1.imageMap[0].getHoverStyle(model), {
+  assert.deepEqual(q1.imageMap[0].getHoverStyle(), {
     "fillColor": "#FF00FF",
     "strokeColor": "#FF00FF",
     "strokeLineWidth": 2
   }, "default hover style");
 
-  assert.deepEqual(q1.imageMap[0].getSelectedStyle(model), {
+  assert.deepEqual(q1.imageMap[0].getSelectedStyle(), {
     "fillColor": "#FF00FF",
     "strokeColor": "#FF00FF",
     "strokeLineWidth": 2
   }, "default selected style");
 
-  assert.deepEqual(q1.imageMap[1].getHoverStyle(model), {
+  assert.deepEqual(q1.imageMap[1].getHoverStyle(), {
     "fillColor": "#FFFF00",
     "strokeColor": "#FF0000",
     "strokeLineWidth": 1
   }, "defined hover style");
 
-  assert.deepEqual(q1.imageMap[1].getSelectedStyle(model), {
+  assert.deepEqual(q1.imageMap[1].getSelectedStyle(), {
     "fillColor": "#00FFFF",
     "strokeColor": "#00FF00",
     "strokeLineWidth": 1

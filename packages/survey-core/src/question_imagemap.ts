@@ -7,7 +7,10 @@ import { SurveyModel } from "./survey";
 type DrawStyle = { strokeColor: string, fillColor: string, strokeLineWidth: number }
 
 export class QuestionImageMapModel extends Question {
-  constructor(name: string) { super(name); }
+  constructor(name: string) {
+    super(name);
+    this.createItemValues("imageMap");
+  }
 
   backgroundImage: HTMLImageElement;
   selectedCanvas: HTMLCanvasElement;
@@ -82,7 +85,7 @@ export class QuestionImageMapModel extends Question {
       let target = event.target as HTMLElement;
       let value = target.dataset.value;
       for (const item of this.imageMap.filter(i => i.value === value)) {
-        this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle(this.survey as SurveyModel));
+        this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle());
       }
     };
 
@@ -144,6 +147,9 @@ export class QuestionImageMapModel extends Question {
       let area = DomDocumentHelper.createElement("area") as HTMLAreaElement;
       area.shape = item.shape;
       area.coords = this.scaleCoords(item.coords.split(",").map(Number)).join(",");
+      if (item.text) {
+        area.title = item.text;
+      }
       area.dataset["value"] = item.value;
       this.imageMapMap.appendChild(area);
     }
@@ -157,7 +163,7 @@ export class QuestionImageMapModel extends Question {
     if (!this.imageMap) return;
     for (const item of this.imageMap) {
       if (!this.isItemSelected(item)) continue;
-      this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), item.getSelectedStyle(this.survey as SurveyModel));
+      this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), item.getSelectedStyle());
     }
   }
 
@@ -182,7 +188,7 @@ export class QuestionImageMapModel extends Question {
     this.setPropertyValue("imageMap", val);
   }
 
-  @property() multiSelect: boolean;
+  @property({ defaultValue: true }) multiSelect: boolean;
 
   public mapItemTooggle(item: ImageMapItem): void {
 
@@ -223,8 +229,8 @@ export class ImageMapItem extends ItemValue {
   @property() hoverStrokeColor: string;
   @property() hoverStrokeSize: number;
   @property() hoverFillColor: string;
-
-  public getHoverStyle(survey: SurveyModel): DrawStyle {
+  public getHoverStyle(): DrawStyle {
+    const survey = this.getSurvey() as SurveyModel;
     return {
       strokeColor: this.getPropertyValue("hoverStrokeColor") ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
       fillColor: this.getPropertyValue("hoverFillColor") ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
@@ -232,17 +238,17 @@ export class ImageMapItem extends ItemValue {
     };
   }
 
-  public getSelectedStyle(survey: SurveyModel): DrawStyle {
+  @property() selectedStrokeColor: string;
+  @property() selectedStrokeSize: number;
+  @property() selectedFillColor: string;
+  public getSelectedStyle(): DrawStyle {
+    const survey = this.getSurvey() as SurveyModel;
     return {
       strokeColor: this.getPropertyValue("selectedStrokeColor") ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
       fillColor: this.getPropertyValue("selectedFillColor") ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
       strokeLineWidth: this.getPropertyValue("selectedStrokeSize") ?? 2
     };
   }
-
-  @property() selectedStrokeColor: string;
-  @property() selectedStrokeSize: number;
-  @property() selectedFillColor: string;
 }
 
 Serializer.addClass("imagemapitem",

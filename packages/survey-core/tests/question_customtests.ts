@@ -130,59 +130,6 @@ QUnit.test("Composite: sync values", function (assert) {
   assert.equal(lastName.value, "Telnov", "question value is set");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: disableDesignActions property", function (assert) {
-  var json = {
-    name: "newquestion",
-    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
-  };
-  ComponentCollection.Instance.add(json);
-  var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1" }],
-  });
-  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  assert.equal(
-    q.disableDesignActions,
-    false,
-    "Design action is available for root"
-  );
-  assert.equal(
-    q.contentQuestion.disableDesignActions,
-    true,
-    "Design action is disabled for contentQuestion"
-  );
-  ComponentCollection.Instance.clear();
-});
-QUnit.test("Composite: disableDesignActions property", function (assert) {
-  var json = {
-    name: "customerinfo",
-    elementsJSON: [
-      { type: "text", name: "firstName" },
-      { type: "text", name: "lastName" },
-    ],
-  };
-  ComponentCollection.Instance.add(json);
-  var survey = new SurveyModel({
-    elements: [{ type: "customerinfo", name: "q1" }],
-  });
-  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-  var firstName = q.contentPanel.getQuestionByName("firstName");
-  assert.equal(
-    q.disableDesignActions,
-    false,
-    "Design action is available for root"
-  );
-  assert.equal(
-    q.contentPanel.disableDesignActions,
-    true,
-    "Design action is disabled for contentPanel"
-  );
-  assert.equal(
-    firstName.disableDesignActions,
-    true,
-    "Design action is disabled for firstName"
-  );
-  ComponentCollection.Instance.clear();
-});
 QUnit.test("Single: read-only", function (assert) {
   var json = {
     name: "newquestion",

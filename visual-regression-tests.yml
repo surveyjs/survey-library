@@ -138,6 +138,14 @@ jobs:
           cd packages/survey-react-ui
           npm run scr:ci
         displayName: "run scr tests"
+    
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Build.SourcesDirectory)/test-results/e2e-junit-results.xml' 
+          testRunTitle: 'Playwright Tests'
+        condition: succeededOrFailed()
+        displayName: 'Publish Playwright Test Results'
 
       # - script: |
       #     cd packages/survey-react-ui
@@ -266,6 +274,14 @@ jobs:
           npm run scr:ci
         displayName: "run scr tests"
 
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Build.SourcesDirectory)/test-results/e2e-junit-results.xml' 
+          testRunTitle: 'Playwright Tests'
+        condition: succeededOrFailed()
+        displayName: 'Publish Playwright Test Results'
+
       # - script: |
       #     cd packages/survey-angular-ui
       #     npm run vrt:ci
@@ -392,6 +408,14 @@ jobs:
           cd packages/survey-vue3-ui
           npm run scr:ci
         displayName: "run scr tests"
+      
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Build.SourcesDirectory)/test-results/e2e-junit-results.xml' 
+          testRunTitle: 'Playwright Tests'
+        condition: succeededOrFailed()
+        displayName: 'Publish Playwright Test Results'
 
       # - script: |
       #     cd packages/survey-vue3-ui
@@ -509,6 +533,14 @@ jobs:
           cd packages/survey-js-ui
           npm run scr:ci
         displayName: "run scr tests"
+
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'JUnit'
+          testResultsFiles: '$(Build.SourcesDirectory)/test-results/e2e-junit-results.xml' 
+          testRunTitle: 'Playwright Tests'
+        condition: succeededOrFailed()
+        displayName: 'Publish Playwright Test Results'
       
       - task: CopyFiles@2
         inputs:

@@ -99,6 +99,8 @@ export var russianSurveyStrings = {
   urlGetChoicesError: "Ответ на запрос пришел пустой или свойство 'path' указано неверно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Размер файла не должен превышать {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Максимальное количество файлов, которые вы можете загрузить, — {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Файлы не могут быть загружены. Пожалуйста, добавьте обработчик для события 'onUploadFiles'.",
   // "Response required: enter another value."

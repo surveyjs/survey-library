@@ -13,9 +13,10 @@ export class TextPreProcessorValue {
   }
   public value: any;
   public isExists: boolean;
+  public element: any;
 }
 
-export class TextPreProcessor {
+export class TextPreProcessor implements ITextProcessor {
   private _unObservableValues: any = [undefined];
   private get hasAllValuesOnLastRunValue(): boolean {
     return this._unObservableValues[0];
@@ -28,14 +29,14 @@ export class TextPreProcessor {
     replaceUndefinedValues?: boolean): string {
     this.hasAllValuesOnLastRunValue = true;
     if (!text) return text;
-    if (!this.onProcess) return text;
+    if (!this.canProcess()) return text;
     const items = this.getItems(text);
     for (let i = items.length - 1; i >= 0; i--) {
       const item = items[i];
       const name = this.getName(text.substring(item.start + 1, item.end));
       if (!!name) {
         const textValue = new TextPreProcessorValue(name, returnDisplayValue === true);
-        this.onProcess(textValue);
+        this.onProcessValue(textValue);
         if (!textValue.isExists) {
           this.hasAllValuesOnLastRunValue = false;
         }
@@ -54,6 +55,10 @@ export class TextPreProcessor {
       }
     }
     return text;
+  }
+  protected canProcess(): boolean { return !!this.onProcess; }
+  protected onProcessValue(textValue: TextPreProcessorValue) {
+    this.onProcess && this.onProcess(textValue);
   }
   public processValue(name: string, returnDisplayValue: boolean): TextPreProcessorValue {
     var textValue = new TextPreProcessorValue(name, returnDisplayValue);
@@ -102,18 +107,16 @@ export class TextPreProcessor {
     return name.trim();
   }
 }
-export class TextContextProcessor implements ITextProcessor {
-  private textPreProcessor: TextPreProcessor;
+export class TextContextProcessor extends TextPreProcessor {
   private context: IObjectValueContext;
-  public onProcess: (textValue: TextPreProcessorValue) => void;
   constructor(private obj: IObjectValueContext) {
-    this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
-      this.getProcessedTextValue(textValue);
-      if (!textValue.isExists && !!this.onProcess) {
-        this.onProcess(textValue);
-      }
-    };
+    super();
+  }
+  protected canProcess(): boolean { return true; }
+  protected onProcessValue(textValue: TextPreProcessorValue) {
+    this.getProcessedTextValue(textValue);
+    textValue.element = this.getContextObj();
+    super.onProcessValue(textValue);
   }
   public processText(text: string, returnDisplayValue: boolean): string {
     const params: ITextProcessorProp = { text: text, returnDisplayValue: returnDisplayValue };
@@ -122,15 +125,18 @@ export class TextContextProcessor implements ITextProcessor {
   public processTextEx(params: ITextProcessorProp): ITextProcessorResult {
     if (!params.runAtDesign && this.survey?.isDesignMode) return { hasAllValuesOnLastRun: true, text: params.text };
     this.context = params.context;
-    return this.textPreProcessor.processTextEx(params);
+    return super.processTextEx(params);
   }
   private get survey(): ISurvey {
     const obj = <any>this.obj;
     return obj.getSurvey ? obj.getSurvey() : null;
   }
+  private getContextObj(): IObjectValueContext {
+    return this.context || this.obj;
+  }
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
     const name = textValue.name.toLocaleLowerCase();
-    const context = this.context || this.obj;
+    const context = this.getContextObj();
     const res = new ValueGetter().getValueInfo({ name: name, context: context.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
     if (res.isFound) {
       textValue.isExists = res.isFound;

@@ -643,6 +643,10 @@ export interface ChoicesLoadedEvent extends QuestionEventMixin {
 export interface LoadChoicesFromServerEvent extends ChoicesLoadedEvent { }
 export interface ProcessDynamicTextEvent {
   /**
+   * A survey element (question, panel, page, choice option, matrix row, column, trigger, validator, survey, etc.) for which the event is raised.
+   */
+  element: Base;
+  /**
    * The name of the value being processed (the text in curly brackets).
    */
   name: string;

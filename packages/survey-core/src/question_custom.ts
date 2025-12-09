@@ -261,7 +261,7 @@ export interface ICustomQuestionTypeConfiguration {
    * @param question A custom question. Use the `question.value` property to access the question's value.
    * @returns An error text.
    */
-  getErrorText?: (question: Question) => string;
+  getErrorText?(question: Question): string;
   /**
    * A function that is called after the question value is set.
    *
@@ -276,12 +276,12 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * [View Demo](https://surveyjs.io/survey-creator/examples/smart-search-input/ (linkStyle))
    */
-  onValueSet?: (question: Question, newValue: any) => void;
-  onSetQuestionValue?: (question: Question, newValue: any) => void;
-  valueToQuestion?: (val: any) => any;
-  valueFromQuestion?: (val: any) => any;
-  getValue?: (val: any) => any;
-  setValue?: (val: any) => any;
+  onValueSet?(question: Question, newValue: any): void;
+  onSetQuestionValue?(question: Question, newValue: any): void;
+  valueToQuestion?(val: any): any;
+  valueFromQuestion?(val: any): any;
+  getValue?(val: any): any;
+  setValue?(val: any): any;
   numberQuestionsWithHiddenTitle?: boolean;
 }
 

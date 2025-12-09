@@ -95,8 +95,10 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentWillUnmount() {
     super.componentWillUnmount();
     if (!!this.row) {
-      this.row.setRootElement(undefined);
-      this.stopLazyRendering();
+      if (!this.row.hasActiveUISubscribers) {
+        this.row.setRootElement(undefined);
+        this.stopLazyRendering();
+      }
     }
   }
 

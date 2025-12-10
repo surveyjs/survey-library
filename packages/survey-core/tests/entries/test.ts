@@ -83,6 +83,7 @@ export * from "../layout_tests";
 export * from "../inputPerPageTests";
 export * from "../surveyServiceRemovingTests";
 export * from "../surveyStateTests";
+export * from "../propertyNameArray_tests";
 
 // localization
 import "../../src/localization/russian";

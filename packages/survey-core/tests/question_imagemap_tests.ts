@@ -115,6 +115,9 @@ QUnit.test("Check toggle and multiSelect change", function (assert) {
   assert.equal(q1.isItemSelected(q1.imageMap[0]), true, "Single: imageMap[0] must be selected");
   assert.equal(q1.isItemSelected(q1.imageMap[1]), false, "Single: imageMap[1] must not be selected");
 
+  q1.mapItemTooggle(q1.imageMap[0]);
+  assert.equal(q1.value, undefined, "Single: value must be undefined after toggling off");
+
   q1.mapItemTooggle(q1.imageMap[1]);
   assert.equal(q1.value, "val2", "Single: value must be val2");
   assert.equal(q1.isItemSelected(q1.imageMap[0]), false, "Single: imageMap[0] must not be selected");
@@ -309,4 +312,104 @@ QUnit.test("Check draw styles", function (assert) {
     "strokeColor": "#00FF00",
     "strokeLineWidth": 1
   }, "defined selected style");
+});
+
+QUnit.test("Check set value and multiSelect change with valuePropertyName", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        valuePropertyName: "state",
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  q1.value = ["TX"];
+  assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as array");
+
+  q1.value = "TX";
+  assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as string");
+});
+
+QUnit.test("check defaultValue with valuePropertyName", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        valuePropertyName: "state",
+        defaultValue: ["TX"]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  assert.deepEqual(q1.value, [{ state: "TX" }], "defaultValue is set correctly");
+});
+
+QUnit.test("check defaultValue with valuePropertyName", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        maxSelectedChoices: 2,
+        imageMap: [
+          {
+            value: "val1",
+          },
+          {
+            value: "val2",
+          },
+          {
+            value: "val3",
+          }
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  q1.mapItemTooggle(q1.imageMap[0]);
+  q1.mapItemTooggle(q1.imageMap[1]);
+  q1.mapItemTooggle(q1.imageMap[2]);
+
+  assert.deepEqual(q1.value, ["val1", "val2"], "the first item is not added because of maxSelectedChoices");
+});
+
+QUnit.test("check defaultValue with valuePropertyName", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        maxSelectedChoices: 3,
+        minSelectedChoices: 2,
+      }
+    ]
+  });
+
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  q1.value = ["val1"];
+
+  assert.equal(q1.validate(), false, "there is only one item, min is 2");
+  assert.equal(q1.errors.length, 1, "there is one error");
+
+  q1.value = ["val1", "val2"];
+  assert.equal(q1.validate(), true, "there are two items, min is 2");
+  assert.equal(q1.errors.length, 0, "there is no error");
+
+  q1.value = ["val1", "val2", "val3", "val4"];
+  assert.equal(q1.validate(), false, "there are four items, max is 3");
+  assert.equal(q1.errors.length, 1, "there is one error");
 });

@@ -3,6 +3,9 @@ import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { SurveyModel } from "./survey";
+import { PropertyNameArray } from "../src/propertyNameArray";
+import { SurveyError } from "./survey-error";
+import { CustomError } from "./error";
 
 type DrawStyle = { strokeColor: string, fillColor: string, strokeLineWidth: number }
 
@@ -188,28 +191,70 @@ export class QuestionImageMapModel extends Question {
     this.setPropertyValue("imageMap", val);
   }
 
+  public get valuePropertyName(): string {
+    return this.getPropertyValue("valuePropertyName");
+  }
+  public set valuePropertyName(val: string) {
+    this.setPropertyValue("valuePropertyName", val);
+  }
+
   @property({ defaultValue: true }) multiSelect: boolean;
 
-  public mapItemTooggle(item: ImageMapItem): void {
+  public get maxSelectedChoices(): number {
+    return this.getPropertyValue("maxSelectedChoices");
+  }
+  public set maxSelectedChoices(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("maxSelectedChoices", val);
+  }
 
-    if (!this.multiSelect) {
-      this.value = item.value;
-      return;
-    }
-
-    if (this.isItemSelected(item)) {
-      const newValue = (this.value || []).filter((e: any) => e !== item.value);
-      this.value = newValue.length ? newValue : undefined;
-    } else {
-      this.value = [...(this.value || []), item.value];
+  protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
+    super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
+    if (this.multiSelect) {
+      const length = Array.isArray(this.value) ? this.value.length : 0;
+      if (this.maxSelectedChoices > 0 && length > this.maxSelectedChoices) {
+        errors.push(new CustomError(
+          this.getLocalizationFormatString("maxSelectError", this.maxSelectedChoices),
+          this
+        ));
+      }
+      if (this.minSelectedChoices > 0 && length < this.minSelectedChoices) {
+        errors.push(new CustomError(
+          this.getLocalizationFormatString("minSelectError", this.minSelectedChoices),
+          this
+        ));
+      }
     }
   }
 
-  public isItemSelected(item: ImageMapItem): boolean {
-    if (!this.multiSelect) {
-      return this.value === item.value;
+  public get minSelectedChoices(): number {
+    return this.getPropertyValue("minSelectedChoices");
+  }
+  public set minSelectedChoices(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("minSelectedChoices", val);
+  }
+
+  protected convertToCorrectValue(val: any): any {
+
+    if (this.multiSelect) {
+      val = new PropertyNameArray(val, this.valuePropertyName).convert(val);
     }
-    return (this.value || []).includes(item.value);
+    return super.convertToCorrectValue(val);
+  }
+
+  public mapItemTooggle(item: ImageMapItem): void {
+    if (!this.multiSelect) {
+      this.value = (this.value === item.value ? undefined : item.value);
+      return;
+    }
+
+    this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedChoices);
+  }
+
+  public isItemSelected(item: ImageMapItem): boolean {
+    if (!this.multiSelect) return this.value === item.value;
+    return new PropertyNameArray(this.value, this.valuePropertyName).contains(item.value);
   }
 }
 
@@ -273,7 +318,22 @@ Serializer.addClass(
   [
     { name: "imageLink:file", category: "general" },
     { name: "imageMap:imagemapitem[]", category: "general" },
-    { name: "multiSelect:boolean", default: true, category: "general" }
+    { name: "multiSelect:boolean", default: true, category: "general" },
+    { name: "valuePropertyName", category: "data" },
+    { name: "maxSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if (val <= 0) return 0;
+        const min = obj.minSelectedChoices;
+        return min > 0 && val < min ? min : val;
+      }
+    },
+    { name: "minSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if (val <= 0) return 0;
+        const max = obj.maxSelectedChoices;
+        return max > 0 && val > max ? max : val;
+      }
+    },
   ],
   () => new QuestionImageMapModel(""),
   "question"

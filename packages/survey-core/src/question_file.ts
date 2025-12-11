@@ -250,19 +250,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
     });
     this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
+    this.actionsContainerValue = this.createActionsContainer();
   }
   private actionsContainerValue: ActionContainer;
   public get actionsContainer(): ActionContainer {
-    this.ensureActionsContainer();
     if (this.actionsContainerValue.actions.length === 0) {
       this.actionsContainerValue.actions = this.createContainerActions();
     }
     return this.actionsContainerValue;
-  }
-  private ensureActionsContainer() {
-    if (!this.actionsContainerValue) {
-      this.actionsContainerValue = this.createActionsContainer();
-    }
   }
 
   private fileNavigatorValue: ActionContainer;
@@ -1138,7 +1133,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.loadFiles(files);
   }
   private updateActionsContainerCss(css: any, classes: any): void {
-    this.ensureActionsContainer();
     const container = this.actionsContainerValue;
     container.cssClasses = css.actionBar;
     container.cssClasses.itemWithTitle = container.cssClasses.item;

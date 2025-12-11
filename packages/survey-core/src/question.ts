@@ -357,10 +357,6 @@ export class Question extends SurveyElement<Question>
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
-    this.createLocalizableString("commentText", this, true, true);
-    this.createLocalizableString("requiredErrorText");
-    this.createLocalizableString("commentPlaceholder");
-    this.createLocalizableString("defaultDisplayValue");
     this.addTriggersInfo();
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
@@ -1491,13 +1487,13 @@ export class Question extends SurveyElement<Question>
    * @see isRequired
    */
   public get requiredErrorText(): string {
-    return this.getLocalizableStringText("requiredErrorText");
+    return this.getLocStringText(this.locRequiredErrorText);
   }
   public set requiredErrorText(val: string) {
-    this.setLocalizableStringText("requiredErrorText", val);
+    this.setLocStringText(this.locRequiredErrorText, val);
   }
   get locRequiredErrorText(): LocalizableString {
-    return this.getLocalizableString("requiredErrorText");
+    return this.getLocStringOrCreate("requiredErrorText");
   }
   /**
    * Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
@@ -1505,13 +1501,13 @@ export class Question extends SurveyElement<Question>
    * @see comment
    */
   public get commentText(): string {
-    return this.getLocalizableStringText("commentText");
+    return this.getLocStringText(this.locCommentText);
   }
   public set commentText(val: string) {
-    this.setLocalizableStringText("commentText", val);
+    this.setLocStringText(this.locCommentText, val);
   }
   get locCommentText(): LocalizableString {
-    return this.getLocalizableString("commentText");
+    return this.getLocStringOrCreate("commentText", true, true);
   }
   /**
    * A placeholder for the comment area. Applies when the `showCommentArea` property is `true`.
@@ -1519,9 +1515,9 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  public get commentPlaceholder(): string { return this.getLocalizableStringText("commentPlaceholder"); }
-  public set commentPlaceholder(val: string) { this.setLocalizableStringText("commentPlaceholder", val); }
-  public get locCommentPlaceholder(): LocalizableString { return this.getLocalizableString("commentPlaceholder"); }
+  public get commentPlaceholder(): string { return this.getLocStringText(this.locCommentPlaceholder); }
+  public set commentPlaceholder(val: string) { this.setLocStringText(this.locCommentPlaceholder, val); }
+  public get locCommentPlaceholder(): LocalizableString { return this.getLocStringOrCreate("commentPlaceholder"); }
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -1542,9 +1538,9 @@ export class Question extends SurveyElement<Question>
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
    */
-  public get defaultDisplayValue(): string { return this.getLocalizableStringText("defaultDisplayValue"); }
-  public set defaultDisplayValue(val: string) { this.setLocalizableStringText("defaultDisplayValue", val); }
-  public get locDefaultDisplayValue(): LocalizableString { return this.getLocalizableString("defaultDisplayValue"); }
+  public get defaultDisplayValue(): string { return this.getLocStringText(this.locDefaultDisplayValue); }
+  public set defaultDisplayValue(val: string) { this.setLocStringText(this.locDefaultDisplayValue, val); }
+  public get locDefaultDisplayValue(): LocalizableString { return this.getLocStringOrCreate("defaultDisplayValue"); }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }

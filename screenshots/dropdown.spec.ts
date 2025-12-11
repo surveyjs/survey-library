@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, waitUntilAllImagesLoad } from "../e2e/helper";
 import { registerCustomItemComponent } from "../e2e/registerCustomComponents";
 
 const title = "Dropdown Screenshot";
@@ -294,6 +294,7 @@ frameworks.forEach(framework => {
           }
         ]
       };
+
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
         window["survey"].onTextMarkdown.add((_, options) => {
@@ -305,13 +306,14 @@ frameworks.forEach(framework => {
         });
         window["survey"].fromJSON(json);
       }, json);
-      await page.waitForLoadState("networkidle");
-
+      await waitUntilAllImagesLoad(page);
       const questionDropdownSelect = page.locator(".sd-input.sd-dropdown");
       await compareScreenshot(page, questionDropdownSelect, "dropdown-with-markdown.png");
       await questionDropdownSelect.click();
+      await waitUntilAllImagesLoad(page);
       await compareScreenshot(page, ".sv-popup__container", "dropdown-with-markdown-popup.png");
       await page.keyboard.press("Enter");
+      await waitUntilAllImagesLoad(page);
       await compareScreenshot(page, questionDropdownSelect, "dropdown-with-markdown-focused.png");
     });
 

@@ -256,4 +256,12 @@ export async function doDragDrop(options : IDragToElementOptions):Promise<void> 
   await options.page.mouse.up();
 }
 
+export async function waitUntilAllImagesLoad(page: Page): Promise<void> {
+  //https://github.com/microsoft/playwright/issues/6046
+  for (const img of await page.getByRole("img").all()) {
+    await expect(img).toHaveJSProperty("complete", true);
+    await expect(img).not.toHaveJSProperty("naturalWidth", 0);
+  }
+}
+
 export { expect };

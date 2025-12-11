@@ -250,12 +250,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
     });
     this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
+    this.actionsContainerValue = this.createActionsContainer();
   }
   private actionsContainerValue: ActionContainer;
   public get actionsContainer(): ActionContainer {
-    if (!this.actionsContainerValue) {
-      this.actionsContainerValue = this.createActionsContainer(this.createContainerActions());
-      this.updateActionsContainerCss(this.cssClasses);
+    if (this.actionsContainerValue.actions.length === 0) {
+      this.actionsContainerValue.actions = this.createContainerActions();
     }
     return this.actionsContainerValue;
   }
@@ -263,15 +263,15 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private fileNavigatorValue: ActionContainer;
   public get fileNavigator(): ActionContainer {
     if (!this.fileNavigatorValue) {
-      this.fileNavigatorValue = this.createActionsContainer(this.createFileNavigatorActions());
+      this.fileNavigatorValue = this.createActionsContainer();
+      this.fileNavigatorValue.actions = this.createFileNavigatorActions();
     }
     return this.fileNavigatorValue;
   }
 
-  private createActionsContainer(actions: Array<Action>): ActionContainer {
+  private createActionsContainer(): ActionContainer {
     const container = new ActionContainer();
     container.locOwner = this;
-    container.actions = actions;
     return container;
   }
 
@@ -1132,19 +1132,17 @@ export class QuestionFileModel extends QuestionFileModelBase {
     src.value = "";
     this.loadFiles(files);
   }
-  private updateActionsContainerCss(classes: any): void {
+  private updateActionsContainerCss(css: any, classes: any): void {
     const container = this.actionsContainerValue;
-    if (container) {
-      container.cssClasses = classes.actionBar;
-      container.cssClasses.itemWithTitle = container.cssClasses.item;
-      container.cssClasses.item = "";
-      container.cssClasses.itemAsIcon = classes.contextButton;
-      container.containerCss = classes.actionsContainer;
-    }
+    container.cssClasses = css.actionBar;
+    container.cssClasses.itemWithTitle = container.cssClasses.item;
+    container.cssClasses.item = "";
+    container.cssClasses.itemAsIcon = classes.contextButton;
+    container.containerCss = classes.actionsContainer;
   }
   protected calcCssClasses(css: any): any {
     const classes = super.calcCssClasses(css);
-    this.updateActionsContainerCss(classes);
+    this.updateActionsContainerCss(css, classes);
     return classes;
   }
   public onSurveyLoad(): void {

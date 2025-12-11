@@ -13,6 +13,7 @@ import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { Helpers } from "../src/helpers";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { ComponentCollection } from "../src/question_custom";
+import { Base } from "../src/base";
 
 export default QUnit.module("SurveySerialization");
 
@@ -875,4 +876,39 @@ QUnit.test("An infinitive loop occurs at e.removePosFromObj Bug#8224", function 
   Serializer.removeClass("exampleComponentQuestion");
   Serializer.removeClass("exampleOptions");
   ComponentCollection.Instance.clear();
+});
+QUnit.test("Create custom property in multiple text item, Issue#10706", (assert) => {
+  Serializer.addProperty("multipletextitem", "customProp1");
+
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          { name: "item1", customProp1: "value1" }
+        ]
+      }
+    ]
+  });
+  const q = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  assert.equal((<any>q.items[0])["customProp1"], "value1", "custom property is deserialized");
+  assert.equal(q.items[0].getPropertyValue("customProp1"), "value1", "custom property is deserialized by getPropertyByName");
+
+  const changes: any[] = [];
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base
+  ): void => {
+    changes.push({ type: sender.getType(), name: name, oldValue: oldValue, newValue: newValue });
+  };
+  (<any>q.items[0])["customProp1"] = "value2";
+  const json = q.toJSON();
+  assert.equal(json.items[0]["customProp1"], "value2", "custom property is serialized");
+  assert.deepEqual(changes, [{ type: "multipletextitem", name: "customProp1", oldValue: "value1", newValue: "value2" }
+  ], "one property changed event is fired");
+
+  Serializer.removeProperty("multipletextitem", "customProp1");
 });

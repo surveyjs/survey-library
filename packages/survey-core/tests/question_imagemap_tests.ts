@@ -413,3 +413,74 @@ QUnit.test("check defaultValue with valuePropertyName", function (assert) {
   assert.equal(q1.validate(), false, "there are four items, max is 3");
   assert.equal(q1.errors.length, 1, "there is one error");
 });
+
+QUnit.test("check getDisplayValue without valuePropertyName", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageMap: [
+          {
+            value: "val1",
+            text: "val1_text",
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+          },
+          {
+            value: "val3",
+            text: "val3_text",
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  assert.equal(q1.getDisplayValue(false, "val1"), "val1_text", "display value for single item");
+  assert.equal(q1.getDisplayValue(false, ["val1", "val2"]), "val1_text, val2_text", "display value for multiple items");
+  assert.equal(q1.getDisplayValue(false, ["val1", "val10", "val2"]), "val1_text, val2_text", "display value for multiple items with one wrong");
+  assert.equal(q1.getDisplayValue(false, [{ value: "val1" }]), "", "display value for wrong item");
+});
+
+QUnit.test("check getDisplayValue with valuePropertyName", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        valuePropertyName: "state",
+        imageMap: [
+          {
+            value: "val1",
+            text: "val1_text",
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+          },
+          {
+            value: "val3",
+            text: "val3_text",
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  assert.equal(q1.getDisplayValue(false, "val1"), "val1_text", "display value for single item");
+  assert.equal(q1.getDisplayValue(false, ["val1", "val2"]), "val1_text, val2_text", "display value for multiple items");
+
+  assert.equal(q1.getDisplayValue(false, { state: "val1" }), "val1_text", "display value for single (object) item");
+  assert.equal(q1.getDisplayValue(false, [{ state: "val1" }]), "val1_text", "display value for single (array) item");
+  assert.equal(q1.getDisplayValue(false, [{ state: "val1" }, { state: "val2" }]), "val1_text, val2_text", "display value for multiple items");
+
+  assert.equal(q1.getDisplayValue(false, { wrong: "val1" }), "", "display value for single wrong (object) item");
+  assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { wrong: "val1" }]), "", "display value for single wrong (object) item");
+  assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "val2_text", "display value for multiple items with 2 wrong");
+});

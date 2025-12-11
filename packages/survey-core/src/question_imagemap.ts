@@ -6,6 +6,7 @@ import { SurveyModel } from "./survey";
 import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
+import { settings } from "./settings";
 
 type DrawStyle = { strokeColor: string, fillColor: string, strokeLineWidth: number }
 
@@ -255,6 +256,25 @@ export class QuestionImageMapModel extends Question {
   public isItemSelected(item: ImageMapItem): boolean {
     if (!this.multiSelect) return this.value === item.value;
     return new PropertyNameArray(this.value, this.valuePropertyName).contains(item.value);
+  }
+
+  public getDisplayValueCore(keysAsText: boolean, value: any): any {
+
+    if (!value) return value;
+    if (!Array.isArray(value)) value = [value];
+
+    value = value.map((e: any) => {
+      if (typeof e === "object") {
+        return this.valuePropertyName ? e[this.valuePropertyName] : undefined;
+      }
+      return e;
+    }).filter(e => e !== undefined);
+
+    value = value.map(e =>{
+      return this.imageMap.find(item => item.value === e)?.text || undefined;
+    }).filter(e => e !== undefined).join(settings.choicesSeparator);
+
+    return value;
   }
 }
 

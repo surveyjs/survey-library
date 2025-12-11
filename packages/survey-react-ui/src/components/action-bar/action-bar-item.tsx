@@ -119,7 +119,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         disabled={this.item.disabled}
         onMouseDown={(args) => this.item.doMouseDown(args)}
         onFocus={(args) => this.item.doFocus(args)}
-        onClick={(args) => this.item.doAction(args)}
+        onPointerUp={(args) => this.item.doAction(args)}
         title={title}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}

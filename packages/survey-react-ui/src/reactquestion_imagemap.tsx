@@ -26,21 +26,16 @@ export class SurveyQuestionImageMap extends SurveyQuestionElementBase {
 
     return (
       <div className={this.question.cssClasses.root} ref={(root) => (this.setControl(root))}>
-
         <img className={this.question.cssClasses.background} id={`imagemap-${this.question.id}-background`} src={this.question.imageLink} />
-
         <canvas className={this.question.cssClasses.canvas.selected} id={`imagemap-${this.question.id}-canvas-selected`}></canvas>
-
         <canvas className={this.question.cssClasses.canvas.hover} id={`imagemap-${this.question.id}-canvas-hover`}></canvas>
-
+        <canvas className={this.question.cssClasses.canvas.preview} id={`imagemap-${this.question.id}-canvas-preview`}></canvas>
         <img
           className={this.question.cssClasses.map}
           src={this.question.imageLink}
           useMap={`#imagemap-${ this.question.id }`}
         />
-
         <map name={`imagemap-${ this.question.id }`}></map>
-
       </div>
     );
   }

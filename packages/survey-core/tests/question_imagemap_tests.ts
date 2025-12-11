@@ -22,13 +22,6 @@ QUnit.test("Register and load from json", function (assert) {
             text: "val2_text",
             shape: "rect",
             coords: "x1,y1,x2,y2",
-            hoverStrokeColor: "#ffff00",
-            hoverStrokeSize: 2,
-            hoverFillColor: "#FF00FF",
-            selectedStrokeColor: "#00FFFF",
-            selectedStrokeSize: 3,
-            selectedFillColor: "#0000FF"
-
           },
           {
             value: "val2",
@@ -142,7 +135,7 @@ QUnit.test("Check scaleCoords", function (assert) {
 
 QUnit.test("Check init", function (assert) {
 
-  var done = assert.async(3);
+  var done = assert.async(4);
 
   const model: QuestionImageMapModel = new QuestionImageMapModel("");
   const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#DDDDDD"/></svg>');
@@ -152,6 +145,7 @@ QUnit.test("Check init", function (assert) {
     <img id="imagemap-${ model.id }-background" src="${ imageDataURL }" />
     <canvas id="imagemap-${ model.id }-canvas-selected"></canvas>
     <canvas id="imagemap-${ model.id }-canvas-hover"></canvas>
+    <canvas id="imagemap-${ model.id }-canvas-preview"></canvas>
     <map></map>
   `;
 
@@ -163,6 +157,17 @@ QUnit.test("Check init", function (assert) {
   };
   setTimeout(() => {
     assert.equal(renderImageMapCalls, 1, "renderImageMap must be called 1 time after initImageMap");
+    done();
+  }, 10);
+
+  let renderPreviewCanvasCalls = 0;
+  const renderPreviewCanvas = model.renderPreviewCanvas;
+  model.renderPreviewCanvas = () => {
+    renderPreviewCanvasCalls++;
+    renderPreviewCanvas.apply(model);
+  };
+  setTimeout(() => {
+    assert.equal(renderPreviewCanvasCalls, 1, "renderPreviewCanvas must be called 1 time after initImageMap");
     done();
   }, 10);
 
@@ -260,7 +265,7 @@ QUnit.test("Check map render", function (assert) {
   }, 10);
 });
 
-QUnit.test("Check draw styles", function (assert) {
+QUnit.test("draw styles without defaults", function (assert) {
 
   const model = new SurveyModel({
     elements: [
@@ -276,18 +281,27 @@ QUnit.test("Check draw styles", function (assert) {
           {
             value: "val2",
             coords: "x1,y1,x2,y2",
-            hoverStrokeColor: "#FF0000",
-            hoverStrokeSize: 1,
-            hoverFillColor: "#FFFF00",
-            selectedStrokeColor: "#00FF00",
-            selectedStrokeSize: 1,
-            selectedFillColor: "#00FFFF"
+            previewFillColor: "itemPreviewFillColor",
+            previewStrokeColor: "itemPreviewStrokeColor",
+            previewStrokeSize: 11,
+            hoverFillColor: "itemHoverFillColor",
+            hoverStrokeColor: "itemHoverStrokeColor",
+            hoverStrokeSize: 22,
+            selectedFillColor: "itemSelectedFillColor",
+            selectedStrokeColor: "itemSelectedStrokeColor",
+            selectedStrokeSize: 33,
           },
-        ]
+        ],
       }
     ]
   });
   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  assert.deepEqual(q1.imageMap[0].getPreviewStyle(), {
+    "fillColor": "transparent",
+    "strokeColor": "transparent",
+    "strokeLineWidth": 0
+  }, "default preview style");
 
   assert.deepEqual(q1.imageMap[0].getHoverStyle(), {
     "fillColor": "#FF00FF",
@@ -301,16 +315,100 @@ QUnit.test("Check draw styles", function (assert) {
     "strokeLineWidth": 2
   }, "default selected style");
 
+  assert.deepEqual(q1.imageMap[1].getPreviewStyle(), {
+    "fillColor": "itemPreviewFillColor",
+    "strokeColor": "itemPreviewStrokeColor",
+    "strokeLineWidth": 11
+  }, "defined preview style");
+
   assert.deepEqual(q1.imageMap[1].getHoverStyle(), {
-    "fillColor": "#FFFF00",
-    "strokeColor": "#FF0000",
-    "strokeLineWidth": 1
+    "fillColor": "itemHoverFillColor",
+    "strokeColor": "itemHoverStrokeColor",
+    "strokeLineWidth": 22
   }, "defined hover style");
 
   assert.deepEqual(q1.imageMap[1].getSelectedStyle(), {
-    "fillColor": "#00FFFF",
-    "strokeColor": "#00FF00",
+    "fillColor": "itemSelectedFillColor",
+    "strokeColor": "itemSelectedStrokeColor",
+    "strokeLineWidth": 33
+  }, "defined selected style");
+});
+
+QUnit.test("draw styles with defaults", function (assert) {
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        imageMap: [
+          {
+            value: "val1",
+            coords: "x1,y1,x2,y2"
+          },
+          {
+            value: "val2",
+            coords: "x1,y1,x2,y2",
+            previewFillColor: "itemPreviewFillColor",
+            previewStrokeColor: "itemPreviewStrokeColor",
+            previewStrokeSize: 11,
+            hoverFillColor: "itemHoverFillColor",
+            hoverStrokeColor: "itemHoverStrokeColor",
+            hoverStrokeSize: 22,
+            selectedFillColor: "itemSelectedFillColor",
+            selectedStrokeColor: "itemSelectedStrokeColor",
+            selectedStrokeSize: 33,
+          },
+        ],
+        previewFillColor: "defaultPreviewFillColor",
+        previewStrokeColor: "defaultPreviewStrokeColor",
+        previewStrokeSize: 1,
+        hoverFillColor: "defaultHoverFillColor",
+        hoverStrokeColor: "defaultHoverStrokeColor",
+        hoverStrokeSize: 2,
+        selectedFillColor: "defaultSelectedFillColor",
+        selectedStrokeColor: "defaultSelectedStrokeColor",
+        selectedStrokeSize: 3,
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+
+  assert.deepEqual(q1.imageMap[0].getPreviewStyle(), {
+    "fillColor": "defaultPreviewFillColor",
+    "strokeColor": "defaultPreviewStrokeColor",
     "strokeLineWidth": 1
+  }, "default preview style");
+
+  assert.deepEqual(q1.imageMap[0].getHoverStyle(), {
+    "fillColor": "defaultHoverFillColor",
+    "strokeColor": "defaultHoverStrokeColor",
+    "strokeLineWidth": 2
+  }, "default hover style");
+
+  assert.deepEqual(q1.imageMap[0].getSelectedStyle(), {
+    "fillColor": "defaultSelectedFillColor",
+    "strokeColor": "defaultSelectedStrokeColor",
+    "strokeLineWidth": 3
+  }, "default selected style");
+
+  assert.deepEqual(q1.imageMap[1].getPreviewStyle(), {
+    "fillColor": "itemPreviewFillColor",
+    "strokeColor": "itemPreviewStrokeColor",
+    "strokeLineWidth": 11
+  }, "defined preview style");
+
+  assert.deepEqual(q1.imageMap[1].getHoverStyle(), {
+    "fillColor": "itemHoverFillColor",
+    "strokeColor": "itemHoverStrokeColor",
+    "strokeLineWidth": 22
+  }, "defined hover style");
+
+  assert.deepEqual(q1.imageMap[1].getSelectedStyle(), {
+    "fillColor": "itemSelectedFillColor",
+    "strokeColor": "itemSelectedStrokeColor",
+    "strokeLineWidth": 33,
   }, "defined selected style");
 });
 

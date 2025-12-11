@@ -17,9 +17,13 @@ export class QuestionImageMapModel extends Question {
   }
 
   backgroundImage: HTMLImageElement;
+
+  previewCanvas: HTMLCanvasElement;
   selectedCanvas: HTMLCanvasElement;
   hoverCanvas: HTMLCanvasElement;
+
   imageMapMap: HTMLMapElement;
+  hoveredItemValue: string;
 
   public getType(): string {
     return "imagemap";
@@ -74,6 +78,7 @@ export class QuestionImageMapModel extends Question {
     if (!el) return;
 
     this.backgroundImage = el.querySelector(`#imagemap-${this.id}-background`) as HTMLImageElement;
+    this.previewCanvas = el.querySelector(`#imagemap-${this.id}-canvas-preview`) as HTMLCanvasElement;
     this.selectedCanvas = el.querySelector(`#imagemap-${this.id}-canvas-selected`) as HTMLCanvasElement;
     this.hoverCanvas = el.querySelector(`#imagemap-${this.id}-canvas-hover`) as HTMLCanvasElement;
     this.imageMapMap = el.querySelector("map") as HTMLMapElement;
@@ -85,20 +90,21 @@ export class QuestionImageMapModel extends Question {
       this.mapItemTooggle(item);
     };
 
-    this.imageMapMap.onmouseover = (event) => {
-      let target = event.target as HTMLElement;
-      let value = target.dataset.value;
-      for (const item of this.imageMap.filter(i => i.value === value)) {
-        this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle());
-      }
+    this.imageMapMap.onmouseover = (event: MouseEvent) => {
+      this.hoveredItemValue = (event.target as HTMLElement).dataset.value;
+      this.renderPreviewCanvas();
+      this.renderHoverCanvas();
     };
 
     this.imageMapMap.onmouseout = (event) => {
-      this.clearCanvas(this.hoverCanvas);
+      this.hoveredItemValue = null;
+      this.renderPreviewCanvas();
+      this.renderHoverCanvas();
     };
 
     this.backgroundImage.onload = (event) => {
       this.renderImageMap();
+      this.renderPreviewCanvas();
       this.renderSelectedCanvas();
       this.renderHoverCanvas();
     };
@@ -159,6 +165,18 @@ export class QuestionImageMapModel extends Question {
     }
   }
 
+  public renderPreviewCanvas(): void {
+    if (!this.previewCanvas) return;
+    this.clearCanvas(this.previewCanvas);
+    this.previewCanvas.width = this.backgroundImage.naturalWidth;
+    this.previewCanvas.height = this.backgroundImage.naturalHeight;
+
+    if (!this.imageMap) return;
+    for (const item of this.imageMap) {
+      this.drawShape(this.previewCanvas, item.shape, item.coords.split(",").map(Number), item.getPreviewStyle());
+    }
+  }
+
   public renderSelectedCanvas(): void {
     if (!this.selectedCanvas) return;
     this.clearCanvas(this.selectedCanvas);
@@ -176,6 +194,12 @@ export class QuestionImageMapModel extends Question {
     this.clearCanvas(this.hoverCanvas);
     this.hoverCanvas.width = this.backgroundImage.naturalWidth;
     this.hoverCanvas.height = this.backgroundImage.naturalHeight;
+
+    if (!this.hoveredItemValue) return;
+    const items = this.imageMap.filter(i => i.value === this.hoveredItemValue);
+    for (const item of items) {
+      this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle());
+    }
   }
 
   public get imageLink() {
@@ -209,6 +233,28 @@ export class QuestionImageMapModel extends Question {
     this.setPropertyValue("maxSelectedChoices", val);
   }
 
+  public get minSelectedChoices(): number {
+    return this.getPropertyValue("minSelectedChoices");
+  }
+  public set minSelectedChoices(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("minSelectedChoices", val);
+  }
+
+  @property() previewStrokeColor: string;
+  @property() previewStrokeSize: number;
+  @property() previewFillColor: string;
+  // @property({ defaultValue: true }) previewHideOnHover: boolean;
+
+  @property() hoverStrokeColor: string;
+  @property() hoverStrokeSize: number;
+  @property() hoverFillColor: string;
+  // @property({ defaultValue: true }) hoverShowWhenSelected: boolean;
+
+  @property() selectedStrokeColor: string;
+  @property() selectedStrokeSize: number;
+  @property() selectedFillColor: string;
+
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (this.multiSelect) {
@@ -228,16 +274,7 @@ export class QuestionImageMapModel extends Question {
     }
   }
 
-  public get minSelectedChoices(): number {
-    return this.getPropertyValue("minSelectedChoices");
-  }
-  public set minSelectedChoices(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedChoices", val);
-  }
-
   protected convertToCorrectValue(val: any): any {
-
     if (this.multiSelect) {
       val = new PropertyNameArray(val, this.valuePropertyName).convert(val);
     }
@@ -291,27 +328,43 @@ export class ImageMapItem extends ItemValue {
   @property() shape: string;
   @property() coords: string;
 
-  @property() hoverStrokeColor: string;
-  @property() hoverStrokeSize: number;
-  @property() hoverFillColor: string;
-  public getHoverStyle(): DrawStyle {
-    const survey = this.getSurvey() as SurveyModel;
+  @property() previewFillColor: string;
+  @property() previewStrokeColor: string;
+  @property() previewStrokeSize: number;
+  // @property() previewHideOnHover: boolean;
+  public getPreviewStyle(): DrawStyle {
+    const owner = this.locOwner as any;
     return {
-      strokeColor: this.getPropertyValue("hoverStrokeColor") ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
-      fillColor: this.getPropertyValue("hoverFillColor") ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
-      strokeLineWidth: this.getPropertyValue("hoverStrokeSize") ?? 2
+      strokeColor: this.previewStrokeColor ?? owner?.previewStrokeColor ?? "transparent",
+      fillColor: this.previewFillColor ?? owner?.previewFillColor ?? "transparent",
+      strokeLineWidth: this.previewStrokeSize ?? owner?.previewStrokeSize ?? 0
     };
   }
 
-  @property() selectedStrokeColor: string;
-  @property() selectedStrokeSize: number;
-  @property() selectedFillColor: string;
-  public getSelectedStyle(): DrawStyle {
+  @property() hoverFillColor: string;
+  @property() hoverStrokeColor: string;
+  @property() hoverStrokeSize: number;
+  // @property() hoverShowWhenSelected: boolean;
+  public getHoverStyle(): DrawStyle {
+    const owner = this.locOwner as any;
     const survey = this.getSurvey() as SurveyModel;
     return {
-      strokeColor: this.getPropertyValue("selectedStrokeColor") ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
-      fillColor: this.getPropertyValue("selectedFillColor") ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
-      strokeLineWidth: this.getPropertyValue("selectedStrokeSize") ?? 2
+      strokeColor: this.getPropertyValue("hoverStrokeColor") ?? owner?.hoverStrokeColor ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
+      fillColor: this.getPropertyValue("hoverFillColor") ?? owner?.hoverFillColor ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
+      strokeLineWidth: this.getPropertyValue("hoverStrokeSize") ?? owner?.hoverStrokeSize ?? 2
+    };
+  }
+
+  @property() selectedFillColor: string;
+  @property() selectedStrokeColor: string;
+  @property() selectedStrokeSize: number;
+  public getSelectedStyle(): DrawStyle {
+    const owner = this.locOwner as any;
+    const survey = this.getSurvey() as SurveyModel;
+    return {
+      strokeColor: this.getPropertyValue("selectedStrokeColor") ?? owner?.selectedStrokeColor ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
+      fillColor: this.getPropertyValue("selectedFillColor") ?? owner?.selectedFillColor ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
+      strokeLineWidth: this.getPropertyValue("selectedStrokeSize") ?? owner?.selectedStrokeSize ?? 2
     };
   }
 }
@@ -321,13 +374,17 @@ Serializer.addClass("imagemapitem",
     { name: "shape", choices: ["circle", "rect", "poly"], default: "poly" },
     { name: "coords:string", locationInTable: "detail" },
 
+    { name: "previewFillColor:color", locationInTable: "detail" },
+    { name: "previewStrokeColor:color", locationInTable: "detail" },
+    { name: "previewStrokeSize:number", locationInTable: "detail" },
+
+    { name: "hoverFillColor:color", locationInTable: "detail" },
     { name: "hoverStrokeColor:color", locationInTable: "detail" },
     { name: "hoverStrokeSize:number", locationInTable: "detail" },
-    { name: "hoverFillColor:color", locationInTable: "detail" },
 
+    { name: "selectedFillColor:color", locationInTable: "detail" },
     { name: "selectedStrokeColor:color", locationInTable: "detail" },
     { name: "selectedStrokeSize:number", locationInTable: "detail" },
-    { name: "selectedFillColor:color", locationInTable: "detail" },
   ],
   () => new ImageMapItem(""),
   "itemvalue"
@@ -340,14 +397,31 @@ Serializer.addClass(
     { name: "imageMap:imagemapitem[]", category: "general" },
     { name: "multiSelect:boolean", default: true, category: "general" },
     { name: "valuePropertyName", category: "data" },
-    { name: "maxSelectedChoices:number", default: 0,
+
+    { name: "previewFillColor:color", category: "appearance" },
+    { name: "previewStrokeColor:color", category: "appearance" },
+    { name: "previewStrokeSize:number", category: "appearance" },
+
+    { name: "hoverFillColor:color", category: "appearance" },
+    { name: "hoverStrokeColor:color", category: "appearance" },
+    { name: "hoverStrokeSize:number", category: "appearance" },
+
+    { name: "selectedFillColor:color", category: "appearance" },
+    { name: "selectedStrokeColor:color", category: "appearance" },
+    { name: "selectedStrokeSize:number", category: "appearance" },
+
+    {
+      name: "maxSelectedChoices:number",
+      default: 0,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) return 0;
         const min = obj.minSelectedChoices;
         return min > 0 && val < min ? min : val;
       }
     },
-    { name: "minSelectedChoices:number", default: 0,
+    {
+      name: "minSelectedChoices:number",
+      default: 0,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) return 0;
         const max = obj.maxSelectedChoices;

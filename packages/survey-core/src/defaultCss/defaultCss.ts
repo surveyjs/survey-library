@@ -949,6 +949,7 @@ export var defaultCss = {
     background: "sd-imagemap-background",
     map: "sd-imagemap-map",
     canvas: {
+      preview: "sd-imagemap-canvas-preview",
       selected: "sd-imagemap-canvas-selected",
       hover: "sd-imagemap-canvas-hover",
     }

@@ -58,7 +58,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
         id={this.item.elementId}
         aria-selected={this.model.getA11yItemAriaSelected(this.item)}
         aria-checked={this.model.getA11yItemAriaChecked(this.item)}
-        onClick={(event: any) => {
+        onPointerUp={(event: any) => {
           this.model.onItemClick(this.item);
           event.stopPropagation();
         }}

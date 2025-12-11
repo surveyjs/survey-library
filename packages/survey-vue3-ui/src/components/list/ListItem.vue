@@ -8,8 +8,8 @@
     :id="elementId"
     ref="elementRef"
     @pointerdown="model.onPointerDown($event, item)"
+    @pointerup="click"
     v-bind:class="model.getItemClass(item)"
-    v-on:click="click"
     v-bind:tabindex="item.disableTabStop ? -1 : 0"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >

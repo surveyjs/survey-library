@@ -1,6 +1,6 @@
 <ng-template #template>
   <li #elementRef [attr.role]="listModel.listItemRole" [key2click]="{ processEsc: false, disableTabStop: model.disableTabStop }" [visible]="listModel.isItemVisible(model)" [class]="class" 
-  [attr.id]="elementId" [attr.aria-selected]="ariaSelected" [attr.aria-checked]="ariaChecked" (click)="click($event)" (pointerdown)="pointerdown($event)">
+  [attr.id]="elementId" [attr.aria-selected]="ariaSelected" [attr.aria-checked]="ariaChecked" (pointerup)="click($event)" (pointerdown)="pointerdown($event)">
     <ng-container *ngIf="model.needSeparator">
     <div [class]="listModel.cssClasses.itemSeparator"></div>
     </ng-container>

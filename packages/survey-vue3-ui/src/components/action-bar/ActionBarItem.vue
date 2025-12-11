@@ -2,7 +2,7 @@
   <button
     :class="item.getActionBarItemCss()"
     type="button"
-    v-on:click="
+    @pointerup="
       (args: any) => {
         item.doAction(args);
       }

@@ -20,7 +20,7 @@
       />
       <button
         v-if="model.showSearchClearButton && !!model.filterString"
-        v-on:click="
+        @pointerup="
           (event) => {
             model.onClickSearchClearButton(event);
           }

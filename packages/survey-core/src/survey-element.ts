@@ -292,10 +292,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return false;
   }
-  // TODO V2: get rid of this flag
-  public static CreateDisabledDesignElements: boolean = false;
-  public disableDesignActions: boolean =
-    SurveyElement.CreateDisabledDesignElements;
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
     if (res !== undefined) return res;

@@ -518,11 +518,9 @@ export abstract class QuestionCustomModelBase extends Question
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
-    SurveyElement.CreateDisabledDesignElements = true;
     this.locQuestionTitle = this.createLocalizableString("questionTitle");
     this.locQuestionTitle.setJson(this.customQuestion.defaultQuestionTitle);
     this.createWrapper();
-    SurveyElement.CreateDisabledDesignElements = false;
     if (!!this.customQuestion) {
       this.customQuestion.onCreated(this);
     }
@@ -613,7 +611,6 @@ export abstract class QuestionCustomModelBase extends Question
   protected initElement(el: SurveyElement) {
     if (!el) return;
     el.setSurveyImpl(this);
-    el.disableDesignActions = true;
   }
   protected isSettingValOnLoading: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {

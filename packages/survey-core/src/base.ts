@@ -1004,25 +1004,33 @@ export class Base implements IObjectValueContext {
     }
   }
   public getLocalizableString(name: string): LocalizableString {
-    return !!this.localizableStrings ? this.localizableStrings[name] : null;
+    const ls = this.localizableStrings;
+    return !!ls ? ls[name] : null;
   }
-  public getLocalizableStringText(
-    name: string,
-    defaultStr: string = ""
-  ): string {
-    Base.collectDependency(this, name);
-    var locStr = this.getLocalizableString(name);
-    if (!locStr) return "";
-    var res = locStr.text;
-    return res ? res : defaultStr;
+  protected getLocStringOrCreate(name: string, supportsMarkdown: boolean = false, defaultStr: boolean | string = false): LocalizableString {
+    let locStr = this.getLocalizableString(name);
+    if (!locStr) {
+      locStr = this.createLocalizableString(name, undefined, supportsMarkdown, defaultStr);
+    }
+    return locStr;
+  }
+  public getLocalizableStringText(name: string, defaultStr: string = ""): string {
+    return this.getLocStringText(this.getLocalizableString(name), defaultStr);
   }
   public setLocalizableStringText(name: string, value: string) {
-    let locStr = this.getLocalizableString(name);
+    this.setLocStringText(this.getLocalizableString(name), value);
+  }
+  protected getLocStringText(locStr: LocalizableString, defaultStr: string = ""): string {
+    if (!!locStr?.name) {
+      Base.collectDependency(this, locStr.name);
+    }
+    return locStr?.text || defaultStr;
+  }
+  protected setLocStringText(locStr: LocalizableString, value: string) {
     if (!locStr) return;
     let oldValue = locStr.text;
     if (oldValue != value) {
       locStr.text = value;
-      // this.propertyValueChanged(name, oldValue, value);
     }
   }
   public addUsedLocales(locales: Array<string>): void {

@@ -135,9 +135,8 @@ export class TextContextProcessor extends TextPreProcessor {
     return this.context || this.obj;
   }
   private getProcessedTextValue(textValue: TextPreProcessorValue) {
-    const name = textValue.name.toLocaleLowerCase();
     const context = this.getContextObj();
-    const res = new ValueGetter().getValueInfo({ name: name, context: context.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
+    const res = new ValueGetter().getValueInfo({ name: textValue.name, context: context.getValueGetterContext(), isText: true, isDisplayValue: textValue.returnDisplayValue });
     if (res.isFound) {
       textValue.isExists = res.isFound;
       textValue.value = res.value;

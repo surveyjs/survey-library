@@ -200,14 +200,13 @@ export class QuestionImageMapModel extends Question {
     for (const item of items) {
       this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle());
     }
+
+    this.hoverCanvas.classList.add("sd-imagemap-canvas-hover--hidden");
+    this.hoverCanvas.getBoundingClientRect(); // Trigger reflow to restart the hover animation
+    this.hoverCanvas.classList.remove("sd-imagemap-canvas-hover--hidden");
   }
 
-  public get imageLink() {
-    return this.getPropertyValue("imageLink");
-  }
-  public set imageLink(val: string) {
-    this.setPropertyValue("imageLink", val);
-  }
+  @property() imageLink: string;
 
   public get imageMap(): ImageMapItem[] {
     return this.getPropertyValue("imageMap");
@@ -216,12 +215,7 @@ export class QuestionImageMapModel extends Question {
     this.setPropertyValue("imageMap", val);
   }
 
-  public get valuePropertyName(): string {
-    return this.getPropertyValue("valuePropertyName");
-  }
-  public set valuePropertyName(val: string) {
-    this.setPropertyValue("valuePropertyName", val);
-  }
+  @property() valuePropertyName: string;
 
   @property({ defaultValue: true }) multiSelect: boolean;
 
@@ -244,12 +238,10 @@ export class QuestionImageMapModel extends Question {
   @property() previewStrokeColor: string;
   @property() previewStrokeSize: number;
   @property() previewFillColor: string;
-  // @property({ defaultValue: true }) previewHideOnHover: boolean;
 
   @property() hoverStrokeColor: string;
   @property() hoverStrokeSize: number;
   @property() hoverFillColor: string;
-  // @property({ defaultValue: true }) hoverShowWhenSelected: boolean;
 
   @property() selectedStrokeColor: string;
   @property() selectedStrokeSize: number;
@@ -331,7 +323,6 @@ export class ImageMapItem extends ItemValue {
   @property() previewFillColor: string;
   @property() previewStrokeColor: string;
   @property() previewStrokeSize: number;
-  // @property() previewHideOnHover: boolean;
   public getPreviewStyle(): DrawStyle {
     const owner = this.locOwner as any;
     return {
@@ -344,7 +335,6 @@ export class ImageMapItem extends ItemValue {
   @property() hoverFillColor: string;
   @property() hoverStrokeColor: string;
   @property() hoverStrokeSize: number;
-  // @property() hoverShowWhenSelected: boolean;
   public getHoverStyle(): DrawStyle {
     const owner = this.locOwner as any;
     const survey = this.getSurvey() as SurveyModel;

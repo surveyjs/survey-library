@@ -451,7 +451,7 @@ QUnit.test("check defaultValue with valuePropertyName", function (assert) {
   assert.deepEqual(q1.value, [{ state: "TX" }], "defaultValue is set correctly");
 });
 
-QUnit.test("check defaultValue with valuePropertyName", function (assert) {
+QUnit.test("check maxSelectedChoices via mapItemTooggle", function (assert) {
 
   const model = new SurveyModel({
     elements: [
@@ -480,10 +480,10 @@ QUnit.test("check defaultValue with valuePropertyName", function (assert) {
   q1.mapItemTooggle(q1.imageMap[1]);
   q1.mapItemTooggle(q1.imageMap[2]);
 
-  assert.deepEqual(q1.value, ["val1", "val2"], "the first item is not added because of maxSelectedChoices");
+  assert.deepEqual(q1.value, ["val1", "val2"], "the third item is not added, max is 2");
 });
 
-QUnit.test("check defaultValue with valuePropertyName", function (assert) {
+QUnit.test("check minSelectedChoices + maxSelectedChoices and errors", function (assert) {
 
   const model = new SurveyModel({
     elements: [
@@ -499,7 +499,6 @@ QUnit.test("check defaultValue with valuePropertyName", function (assert) {
   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
   q1.value = ["val1"];
-
   assert.equal(q1.validate(), false, "there is only one item, min is 2");
   assert.equal(q1.errors.length, 1, "there is one error");
 

@@ -952,6 +952,7 @@ export var defaultCss = {
       preview: "sd-imagemap-canvas-preview",
       selected: "sd-imagemap-canvas-selected",
       hover: "sd-imagemap-canvas-hover",
+      hoverHidden: "sd-imagemap-canvas-hover--hidden"
     }
   }
 };

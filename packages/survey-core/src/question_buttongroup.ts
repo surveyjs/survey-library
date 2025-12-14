@@ -95,7 +95,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return this.locReadOnlyText.calculatedText;
   }
   public get locReadOnlyText(): LocalizableString {
-    return this.getOrCreateLocStr("readOnlyText", undefined, false, (locStr: LocalizableString) => {
+    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
       locStr.onGetTextCallback = (): string => {
         return this.displayValue || this.placeholder;
       };

@@ -27,7 +27,7 @@
         [attr.aria-labelledby]="dropdownModel?.ariaQuestionLabelledby"
         [attr.aria-describedby]="dropdownModel?.ariaQuestionDescribedby" [attr.aria-expanded]="false"
         [attr.aria-readonly]="true" [attr.aria-disabled]="true">
-        <div *ngIf="model.readOnlyText"> [class]="model.cssClasses.controlValue">
+        <div *ngIf="model.readOnlyText" [class]="model.cssClasses.controlValue">
             <sv-ng-string [model]="model.locReadOnlyText"></sv-ng-string>
         </div>
         <sv-ng-action-bar [model]="dropdownModel.editorButtons"></sv-ng-action-bar>

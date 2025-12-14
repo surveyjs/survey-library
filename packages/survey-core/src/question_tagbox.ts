@@ -25,25 +25,20 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createLocString({ name: "placeholder", hasTranslation: true });
-    this.createLocalizableString("readOnlyText", this, true);
     this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
-      this.updateReadOnlyText();
+      this.resetReadOnlyText();
     });
-    this.updateReadOnlyText();
   }
   supportElementsInChoice(): boolean { return false; }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
     this.dropdownListModelValue?.locStrsChanged();
-  }
-  private updateReadOnlyText(): void {
-    this.readOnlyText = this.displayValue || this.placeholder;
   }
   protected onSelectedItemValuesUpdated(): void {
     super.onSelectedItemValuesUpdated();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
   }
   protected getDefaultItemComponent(): string {
     return "";
@@ -151,15 +146,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   public get readOnlyText(): string {
-    return this.getLocalizableStringText("readOnlyText");
+    return this.getPropertyValue("readOnlyText", undefined, () => this.displayValue || this.placeholder);
   }
-  public set readOnlyText(val: string) {
-    this.setLocalizableStringText("readOnlyText", val);
+  private resetReadOnlyText(): void {
+    this.clearPropertyValue("readOnlyText");
   }
-  get locReadOnlyText(): LocalizableString {
-    return this.getLocalizableString("readOnlyText");
-  }
-
   public getType(): string {
     return "tagbox";
   }

@@ -33,20 +33,14 @@ export class ButtonGroupItemValue extends ChoiceItem {
 export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
-    this.createLocString({ name: "buttongroupOptionsCaption", hasTranslation: true });
-    this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
-      this.updateReadOnlyText();
+      this.resetReadOnlyText();
     });
-    this.updateReadOnlyText();
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
     this.dropdownListModelValue?.locStrsChanged();
-  }
-  private updateReadOnlyText(): void {
-    this.readOnlyText = this.displayValue || this.placeholder;
   }
   public getType(): string {
     return "buttongroup";
@@ -77,13 +71,13 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return this.inputId + "_" + index;
   }
   public get placeholder(): string {
-    return this.getLocalizableStringText("buttongroupOptionsCaption");
+    return this.getLocStringText(this.locPlaceholder);
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("buttongroupOptionsCaption", val);
+    this.setLocStringText(this.locPlaceholder, val);
   }
   get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("buttongroupOptionsCaption");
+    return this.getLocStringOrCreate(this.placeholder, false, "buttongroupOptionsCaption");
   }
   _allowClear = true;
   get allowClear(): boolean {
@@ -99,13 +93,10 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return item.value == this.value;
   }
   public get readOnlyText(): string {
-    return this.getLocalizableStringText("readOnlyText");
+    return this.getPropertyValue("readOnlyText", undefined, () => this.displayValue || this.placeholder);
   }
-  public set readOnlyText(val: string) {
-    this.setLocalizableStringText("readOnlyText", val);
-  }
-  get locReadOnlyText(): LocalizableString {
-    return this.getLocalizableString("readOnlyText");
+  private resetReadOnlyText(): void {
+    this.clearPropertyValue("readOnlyText");
   }
   @property({ defaultValue: false }) inputHasValue: boolean;
 

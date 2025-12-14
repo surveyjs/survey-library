@@ -135,11 +135,9 @@ export class QuestionRatingModel extends Question {
         this.setPropertyValue("hasMaxRateDescription", !sender.isEmpty);
       });
 
-    this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
-      this.updateReadOnlyText();
+      this.resetReadOnlyText();
     });
-    this.updateReadOnlyText();
 
     this.initPropertyDependencies();
   }
@@ -151,13 +149,9 @@ export class QuestionRatingModel extends Question {
 
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
     this.dropdownListModelValue?.locStrsChanged();
   }
-  private updateReadOnlyText(): void {
-    this.readOnlyText = this.displayValue || this.placeholder;
-  }
-
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
@@ -904,13 +898,10 @@ export class QuestionRatingModel extends Question {
     return item.value == this.value;
   }
   public get readOnlyText(): string {
-    return this.getLocalizableStringText("readOnlyText");
+    return this.getPropertyValue("readOnlyText", undefined, () => this.displayValue || this.placeholder);
   }
-  public set readOnlyText(val: string) {
-    this.setLocalizableStringText("readOnlyText", val);
-  }
-  get locReadOnlyText(): LocalizableString {
-    return this.getLocalizableString("readOnlyText");
+  private resetReadOnlyText() {
+    this.clearPropertyValue("readOnlyText");
   }
 
   public needResponsiveWidth() {

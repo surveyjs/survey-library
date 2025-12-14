@@ -490,7 +490,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return super.getMarkdownHtml(text, name, item);
   }
   public get locNavigationTitle(): LocalizableString {
-    return this.getLocStringOrCreate("navigationTitle", true, false, (locStr: LocalizableString) => {
+    return this.getOrCreateLocStr("navigationTitle", true, false, (locStr: LocalizableString) => {
       locStr.onGetTextCallback = (text: string) => {
         return text || this.title || this.name;
       };
@@ -539,7 +539,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setLocStringText(this.locRequiredErrorText, val);
   }
   get locRequiredErrorText(): LocalizableString {
-    return this.getLocStringOrCreate("requiredErrorText");
+    return this.getOrCreateLocStr("requiredErrorText");
   }
   /**
    * Specifies the sort order of questions in the panel/page.

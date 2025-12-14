@@ -1326,7 +1326,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    */
   public get otherPlaceholder(): string { return this.getLocStringText(this.locOtherPlaceholder); }
   public set otherPlaceholder(val: string) { this.setLocStringText(this.locOtherPlaceholder, val); }
-  public get locOtherPlaceholder(): LocalizableString { return this.getLocStringOrCreate("otherPlaceholder", false, true); }
+  public get locOtherPlaceholder(): LocalizableString { return this.getOrCreateLocStr("otherPlaceholder", false, true); }
 
   public get otherPlaceHolder(): string {
     return this.otherPlaceholder;
@@ -1345,7 +1345,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setLocStringText(this.locOtherErrorText, val);
   }
   get locOtherErrorText(): LocalizableString {
-    return this.getLocStringOrCreate("otherErrorText", true, "otherRequiredError");
+    return this.getOrCreateLocStr("otherErrorText", true, "otherRequiredError");
   }
   /**
    * An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.

@@ -575,7 +575,7 @@ export class MatrixDropdownColumn extends Base
     this.setLocStringText(this.locTotalFormat, val);
   }
   get locTotalFormat(): LocalizableString {
-    return this.getLocStringOrCreate("totalFormat");
+    return this.getOrCreateLocStr("totalFormat");
   }
   public get cellHint(): string {
     return this.getLocStringText(this.locCellHint) || "";
@@ -584,7 +584,7 @@ export class MatrixDropdownColumn extends Base
     this.setLocStringText(this.locCellHint, val);
   }
   get locCellHint(): LocalizableString {
-    return this.getLocStringOrCreate("cellHint");
+    return this.getOrCreateLocStr("cellHint");
   }
   public get renderAs(): string {
     return this.getPropertyValue("renderAs");

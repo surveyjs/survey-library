@@ -1493,7 +1493,7 @@ export class Question extends SurveyElement<Question>
     this.setLocStringText(this.locRequiredErrorText, val);
   }
   get locRequiredErrorText(): LocalizableString {
-    return this.getLocStringOrCreate("requiredErrorText");
+    return this.getOrCreateLocStr("requiredErrorText");
   }
   /**
    * Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
@@ -1507,7 +1507,7 @@ export class Question extends SurveyElement<Question>
     this.setLocStringText(this.locCommentText, val);
   }
   get locCommentText(): LocalizableString {
-    return this.getLocStringOrCreate("commentText", true, true);
+    return this.getOrCreateLocStr("commentText", true, true);
   }
   /**
    * A placeholder for the comment area. Applies when the `showCommentArea` property is `true`.
@@ -1517,7 +1517,7 @@ export class Question extends SurveyElement<Question>
    */
   public get commentPlaceholder(): string { return this.getLocStringText(this.locCommentPlaceholder); }
   public set commentPlaceholder(val: string) { this.setLocStringText(this.locCommentPlaceholder, val); }
-  public get locCommentPlaceholder(): LocalizableString { return this.getLocStringOrCreate("commentPlaceholder"); }
+  public get locCommentPlaceholder(): LocalizableString { return this.getOrCreateLocStr("commentPlaceholder"); }
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
@@ -1540,7 +1540,7 @@ export class Question extends SurveyElement<Question>
    */
   public get defaultDisplayValue(): string { return this.getLocStringText(this.locDefaultDisplayValue); }
   public set defaultDisplayValue(val: string) { this.setLocStringText(this.locDefaultDisplayValue, val); }
-  public get locDefaultDisplayValue(): LocalizableString { return this.getLocStringOrCreate("defaultDisplayValue"); }
+  public get locDefaultDisplayValue(): LocalizableString { return this.getOrCreateLocStr("defaultDisplayValue"); }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }

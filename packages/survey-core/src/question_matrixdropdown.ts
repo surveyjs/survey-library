@@ -119,7 +119,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     this.setLocStringText(this.locTotalText, val);
   }
   public get locTotalText(): LocalizableString {
-    return this.getLocStringOrCreate("totalText", true);
+    return this.getOrCreateLocStr("totalText", true);
   }
   public getFooterText(): LocalizableString {
     return this.locTotalText;

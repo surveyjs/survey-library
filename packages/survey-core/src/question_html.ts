@@ -35,7 +35,7 @@ export class QuestionHtmlModel extends QuestionNonValue {
     this.setLocStringText(this.locHtml, val);
   }
   get locHtml(): LocalizableString {
-    return this.getLocStringOrCreate("html", false, false, (locStr: LocalizableString) => {
+    return this.getOrCreateLocStr("html", false, false, (locStr: LocalizableString) => {
       locStr.onGetTextCallback = (str: string): string => {
         return !!this.survey && !this.ignoreHtmlProgressing
           ? this.processHtml(str)

@@ -1820,7 +1820,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setLocStringText(this.locPlaceholder, val);
   }
   public get locPlaceholder() {
-    return this.getLocStringOrCreate("placeholder", false, true);
+    return this.getOrCreateLocStr("placeholder", false, true);
   }
   public get optionsCaption() {
     return this.placeholder;
@@ -1841,7 +1841,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setLocStringText(this.locKeyDuplicationError, val);
   }
   get locKeyDuplicationError(): LocalizableString {
-    return this.getLocStringOrCreate("keyDuplicationError", false, true);
+    return this.getOrCreateLocStr("keyDuplicationError", false, true);
   }
   /**
    * A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
@@ -1865,7 +1865,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.setLocStringText(this.locSingleInputTitleTemplate, val);
   }
   get locSingleInputTitleTemplate(): LocalizableString {
-    return this.getLocStringOrCreate("singleInputTitleTemplate", true, this.getSingleInputTitleTemplate(), (locStr: LocalizableString) => {
+    return this.getOrCreateLocStr("singleInputTitleTemplate", true, this.getSingleInputTitleTemplate(), (locStr: LocalizableString) => {
       locStr.owner = new MatrixSingleInputLocOwner(this);
     });
   }

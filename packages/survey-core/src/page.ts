@@ -117,7 +117,7 @@ export class PageModel extends PanelModel implements IPage {
     this.setLocStringText(this.locNavigationDescription, val);
   }
   public get locNavigationDescription(): LocalizableString {
-    return this.getLocStringOrCreate("navigationDescription");
+    return this.getOrCreateLocStr("navigationDescription");
   }
   public navigationLocStrChanged(): void {
     if (this.locNavigationTitle.isEmpty) {

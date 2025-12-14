@@ -77,7 +77,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     this.setLocStringText(this.locPlaceholder, val);
   }
   get locPlaceholder(): LocalizableString {
-    return this.getLocStringOrCreate("placeholder", false, "buttongroupOptionsCaption");
+    return this.getOrCreateLocStr("placeholder", false, "buttongroupOptionsCaption");
   }
   _allowClear = true;
   get allowClear(): boolean {

@@ -82,7 +82,7 @@ export class HtmlConditionItem extends ExpressionItem {
     this.setLocStringText(this.locHtml, value);
   }
   get locHtml(): LocalizableString {
-    return this.getLocStringOrCreate("html");
+    return this.getOrCreateLocStr("html");
   }
 }
 
@@ -112,7 +112,7 @@ export class UrlConditionItem extends ExpressionItem {
     this.setLocStringText(this.locUrl, value);
   }
   get locUrl(): LocalizableString {
-    return this.getLocStringOrCreate("url");
+    return this.getOrCreateLocStr("url");
   }
 }
 

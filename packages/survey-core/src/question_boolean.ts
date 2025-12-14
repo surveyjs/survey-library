@@ -108,7 +108,7 @@ export class QuestionBooleanModel extends Question {
     this.setLocStringText(this.locLabelTrue, val);
   }
   get locLabelTrue(): LocalizableString {
-    return this.getLocStringOrCreate("labelTrue", true, "booleanCheckedLabel");
+    return this.getOrCreateLocStr("labelTrue", true, "booleanCheckedLabel");
   }
   get isDeterminated(): boolean {
     return this.booleanValue !== null && this.booleanValue !== undefined;
@@ -145,7 +145,7 @@ export class QuestionBooleanModel extends Question {
     this.setLocStringText(this.locLabelFalse, val);
   }
   get locLabelFalse(): LocalizableString {
-    return this.getLocStringOrCreate("labelFalse", true, "booleanUncheckedLabel");
+    return this.getOrCreateLocStr("labelFalse", true, "booleanUncheckedLabel");
   }
   /**
    * A value to save in survey results when respondents give a positive answer.

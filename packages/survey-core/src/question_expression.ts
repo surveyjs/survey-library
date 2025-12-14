@@ -35,7 +35,7 @@ export class QuestionExpressionModel extends Question {
     this.setLocStringText(this.locFormat, val);
   }
   get locFormat(): LocalizableString {
-    return this.getLocStringOrCreate("format");
+    return this.getOrCreateLocStr("format");
   }
   /**
    * An expression used to calculate the question value.

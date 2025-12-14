@@ -45,7 +45,7 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setLocStringText(this.locImageLink, val);
   }
   get locImageLink(): LocalizableString {
-    return this.getLocStringOrCreate("imageLink", false, false, (locStr: LocalizableString) => {
+    return this.getOrCreateLocStr("imageLink", false, false, (locStr: LocalizableString) => {
       locStr.onGetTextCallback = (text: string): string => {
         return getCorrectImageLink(text, this.contentMode == "youtube");
       };
@@ -63,7 +63,7 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setLocStringText(this.locAltText, val);
   }
   get locAltText(): LocalizableString {
-    return this.getLocStringOrCreate("altText");
+    return this.getOrCreateLocStr("altText");
   }
   /**
    * Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.

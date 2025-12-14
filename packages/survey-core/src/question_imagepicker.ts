@@ -28,7 +28,7 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   private aspectRatio: number;
 
   get locImageLink(): LocalizableString {
-    return this.getLocStringOrCreate("imageLink");
+    return this.getOrCreateLocStr("imageLink");
   }
   getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";

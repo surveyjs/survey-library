@@ -833,7 +833,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setLocStringText(this.locConfirmDeleteText, val);
   }
   get locConfirmDeleteText() {
-    return this.getLocStringOrCreate("confirmDeleteText", false, "confirmDelete");
+    return this.getOrCreateLocStr("confirmDeleteText", false, "confirmDelete");
   }
   /**
    * A caption for the Add Row button.
@@ -848,7 +848,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setLocStringText(this.locAddRowText, val);
   }
   get locAddRowText() {
-    return this.getLocStringOrCreate("addRowText", false, "addRow", (locStr: LocalizableString) => {
+    return this.getOrCreateLocStr("addRowText", false, "addRow", (locStr: LocalizableString) => {
       locStr.onGetTextCallback = (text: string): string => {
         return text || this.defaultAddRowText;
       };
@@ -917,7 +917,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setLocStringText(this.locRemoveRowText, val);
   }
   get locRemoveRowText() {
-    return this.getLocStringOrCreate("removeRowText", false, "removeRow");
+    return this.getOrCreateLocStr("removeRowText", false, "removeRow");
   }
   /**
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
@@ -930,10 +930,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     this.setLocStringText(this.locNoRowsText, val);
   }
   public get locNoRowsText(): LocalizableString {
-    return this.getLocStringOrCreate("noRowsText", false, true);
+    return this.getOrCreateLocStr("noRowsText", false, true);
   }
   public get locEditRowText(): LocalizableString {
-    return this.getLocStringOrCreate("editRowText", false, "editText");
+    return this.getOrCreateLocStr("editRowText", false, "editText");
   }
   /**
    * @deprecated Use the [`noRowsText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#noRowsText) property instead.

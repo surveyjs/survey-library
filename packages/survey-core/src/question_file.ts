@@ -250,8 +250,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   constructor(name: string) {
     super(name);
-    this.createLocString({ name: "takePhotoCaption", hasTranslation: true });
-    this.createLocString({ name: "clearCaption", hasTranslation: true });
     this.createNewArray("acceptedCategories", undefined, (val) => {
       if (val === customCategory) {
         this.acceptedTypes = undefined;
@@ -685,22 +683,22 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  public get takePhotoCaption(): string { return this.getLocalizableStringText("takePhotoCaption"); }
-  public set takePhotoCaption(val: string) { this.setLocalizableStringText("takePhotoCaption", val); }
-  public get locTakePhotoCaption(): LocalizableString { return this.getLocalizableString("takePhotoCaption"); }
+  public get takePhotoCaption(): string { return this.getLocStringText(this.locTakePhotoCaption); }
+  public set takePhotoCaption(val: string) { this.setLocStringText(this.locTakePhotoCaption, val); }
+  public get locTakePhotoCaption(): LocalizableString { return this.getOrCreateLocStr("takePhotoCaption", false, true); }
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
 
   public get clearButtonCaption(): string {
-    return this.getLocalizableStringText("clearCaption");
+    return this.getLocStringText(this.locClearButtonCaption);
   }
   public set clearButtonCaption(value: string) {
-    this.setLocalizableStringText("clearCaption", value);
+    this.setLocStringText(this.locClearButtonCaption, value);
   }
   get locClearButtonCaption(): LocalizableString {
-    return this.getLocalizableString("clearCaption");
+    return this.getOrCreateLocStr("clearCaption", false, true);
   }
 
   /**

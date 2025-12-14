@@ -23,7 +23,6 @@ export class QuestionDropdownModel extends QuestionSelectBase {
 
   constructor(name: string) {
     super(name);
-    this.createLocString({ name: "placeholder", hasTranslation: true });
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
@@ -66,15 +65,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * A placeholder for the input field.
    */
   public get placeholder(): string {
-    return this.getLocalizableStringText("placeholder");
+    return this.getLocStringText(this.locPlaceholder);
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("placeholder", val);
+    this.setLocStringText(this.locPlaceholder, val);
     this.updateInputPlaceholder(val);
   }
 
   get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("placeholder");
+    return this.getOrCreateLocStr("placeholder", false, true);
   }
 
   public getType(): string {

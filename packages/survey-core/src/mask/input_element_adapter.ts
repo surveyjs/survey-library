@@ -36,6 +36,10 @@ export class InputElementAdapter {
   };
 
   beforeInputHandler = (event: any) => {
+    if (this.inputElement.readOnly) {
+      event.preventDefault();
+      return;
+    }
     const args = this.createArgs(event);
     const result = this.inputMaskInstance.processInput(args);
     this.setInputValue(result.value);

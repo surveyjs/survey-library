@@ -14,7 +14,6 @@ export class QuestionExpressionModel extends Question {
   private isExecutionLocked: boolean;
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("format");
     this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
       this.updateFormatedValue();
     });
@@ -30,13 +29,13 @@ export class QuestionExpressionModel extends Question {
    * @see displayStyle
    */
   public get format(): string {
-    return this.getLocalizableStringText("format", "");
+    return this.getLocStringText(this.locFormat) || "";
   }
   public set format(val: string) {
-    this.setLocalizableStringText("format", val);
+    this.setLocStringText(this.locFormat, val);
   }
   get locFormat(): LocalizableString {
-    return this.getLocalizableString("format");
+    return this.getLocStringOrCreate("format");
   }
   /**
    * An expression used to calculate the question value.

@@ -13,27 +13,22 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
   @property({ defaultValue: false }) private imageNotLoaded: boolean;
 
-  constructor(value: any, text?: string, protected typeName?: string
-  ) {
-    super(value, text, typeName);
-    this.createLocalizableString("imageLink");
-  }
   protected getBaseType(): string { return "imageitemvalue"; }
   /**
    * The image or video link property.
    */
   public get imageLink(): string {
-    return this.getLocalizableStringText("imageLink");
+    return this.getLocStringText(this.locImageLink);
   }
   public set imageLink(val: string) {
-    this.setLocalizableStringText("imageLink", val);
+    this.setLocStringText(this.locImageLink, val);
     this.imageNotLoaded = false;
     this.videoNotLoaded = false;
   }
   private aspectRatio: number;
 
   get locImageLink(): LocalizableString {
-    return this.getLocalizableString("imageLink");
+    return this.getLocStringOrCreate("imageLink");
   }
   getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";

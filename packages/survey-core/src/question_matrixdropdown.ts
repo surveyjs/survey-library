@@ -93,7 +93,6 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("totalText", this, true);
     this.registerPropertyChangedHandlers(["rows"], () => {
       if (!this.generatedVisibleRows) return;
       this.clearGeneratedRows();
@@ -114,13 +113,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see columns
    */
   public get totalText() {
-    return this.getLocalizableStringText("totalText", "");
+    return this.getLocStringText(this.locTotalText) || "";
   }
   public set totalText(val: string) {
-    this.setLocalizableStringText("totalText", val);
+    this.setLocStringText(this.locTotalText, val);
   }
   public get locTotalText(): LocalizableString {
-    return this.getLocalizableString("totalText");
+    return this.getLocStringOrCreate("totalText", true);
   }
   public getFooterText(): LocalizableString {
     return this.locTotalText;

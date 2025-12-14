@@ -898,12 +898,18 @@ export class QuestionRatingModel extends Question {
     return item.value == this.value;
   }
   public get readOnlyText(): string {
-    return this.getPropertyValue("readOnlyText", undefined, () => this.displayValue || this.placeholder);
+    return this.locReadOnlyText.calculatedText;
   }
-  private resetReadOnlyText() {
-    this.clearPropertyValue("readOnlyText");
+  public get locReadOnlyText(): LocalizableString {
+    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (): string => {
+        return this.displayValue || this.placeholder;
+      };
+    });
   }
-
+  private resetReadOnlyText(): void {
+    this.resetPropertyValue("readOnlyText");
+  }
   public needResponsiveWidth() {
     const rateValues = this.getPropertyValue("rateValues");
     const rateStep = this.getPropertyValue("rateStep");

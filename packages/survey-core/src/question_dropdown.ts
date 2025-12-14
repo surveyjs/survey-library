@@ -251,12 +251,19 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
   public get readOnlyText(): string {
-    return this.getPropertyValue("readOnlyText", undefined, () => this.calculateReadOnlyText());
+    return this.locReadOnlyText.calculatedText;
+  }
+  public get locReadOnlyText(): LocalizableString {
+    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (): string => {
+        return this.calculateReadOnlyText();
+      };
+    });
   }
   private resetReadOnlyText(): void {
     this.clearPropertyValue("readOnlyText");
   }
-  protected calculateReadOnlyText(): string {
+  private calculateReadOnlyText(): string {
     if (!this.useDropdownList) {
       if (this.isOtherSelected) return this.otherText;
       if (this.isNoneSelected) return this.noneText;

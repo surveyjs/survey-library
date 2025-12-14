@@ -1034,6 +1034,7 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
   assert.equal(question.readOnlyText, "Select...", "readOnlyText #1");
+  assert.equal(question.placeholder, "Select...", "placeholder");
   question.value = "i3";
   assert.equal(question.readOnlyText, "Select...", "readOnlyText #2");
   question.choices = ["i1", "i2", "i3"];

@@ -43,7 +43,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected renderReadOnlyElement(): React.JSX.Element | null {
     if (this.question.readOnlyText) {
       return (<div className={this.question.cssClasses.controlValue}>
-        <span className="sv-string-viewer">{this.question.readOnlyText}</span>
+        {this.renderLocString(this.question.locReadOnlyText)}
       </div>);
     } else {
       return null;

@@ -1,11 +1,10 @@
 import { Serializer, property } from "./jsonobject";
-import { QuestionFactory } from "./questionfactory";
 import { ItemValue } from "./itemvalue";
 import { ChoiceItem, QuestionCheckboxBase } from "./question_baseselect";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { DropdownListModel } from "./dropdownListModel";
-import { classesToSelector, updateListCssValues } from "./utils/utils";
+import { updateListCssValues } from "./utils/utils";
 
 export class ButtonGroupItemValue extends ChoiceItem {
   protected getBaseType(): string {
@@ -93,10 +92,17 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
     return item.value == this.value;
   }
   public get readOnlyText(): string {
-    return this.getPropertyValue("readOnlyText", undefined, () => this.displayValue || this.placeholder);
+    return this.locReadOnlyText.calculatedText;
+  }
+  public get locReadOnlyText(): LocalizableString {
+    return this.getOrCreateLocStr("readOnlyText", undefined, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (): string => {
+        return this.displayValue || this.placeholder;
+      };
+    });
   }
   private resetReadOnlyText(): void {
-    this.clearPropertyValue("readOnlyText");
+    this.resetPropertyValue("readOnlyText");
   }
   @property({ defaultValue: false }) inputHasValue: boolean;
 

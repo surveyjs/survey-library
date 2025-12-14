@@ -144,12 +144,18 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   get locPlaceholder(): LocalizableString {
     return this.getLocalizableString("placeholder");
   }
-
   public get readOnlyText(): string {
-    return this.getPropertyValue("readOnlyText", undefined, () => this.displayValue || this.placeholder);
+    return this.locReadOnlyText.calculatedText;
+  }
+  public get locReadOnlyText(): LocalizableString {
+    return this.getOrCreateLocStr("readOnlyText", undefined, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (): string => {
+        return this.displayValue || this.placeholder;
+      };
+    });
   }
   private resetReadOnlyText(): void {
-    this.clearPropertyValue("readOnlyText");
+    this.resetPropertyValue("readOnlyText");
   }
   public getType(): string {
     return "tagbox";

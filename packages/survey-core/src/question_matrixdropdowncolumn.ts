@@ -136,8 +136,6 @@ export class MatrixDropdownColumn extends Base
   constructor(name: string, title?: string, colOwner?: IMatrixColumnOwner) {
     super();
     this.colOwnerValue = colOwner;
-    this.createLocalizableString("totalFormat");
-    this.createLocalizableString("cellHint");
     this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
     this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
     this.updateTemplateQuestion(undefined, name, title);
@@ -571,22 +569,22 @@ export class MatrixDropdownColumn extends Base
    * @see totalDisplayStyle
    */
   public get totalFormat(): string {
-    return this.getLocalizableStringText("totalFormat", "");
+    return this.getLocStringText(this.locTotalFormat) || "";
   }
   public set totalFormat(val: string) {
-    this.setLocalizableStringText("totalFormat", val);
+    this.setLocStringText(this.locTotalFormat, val);
   }
   get locTotalFormat(): LocalizableString {
-    return this.getLocalizableString("totalFormat");
+    return this.getLocStringOrCreate("totalFormat");
   }
   public get cellHint(): string {
-    return this.getLocalizableStringText("cellHint", "");
+    return this.getLocStringText(this.locCellHint) || "";
   }
   public set cellHint(val: string) {
-    this.setLocalizableStringText("cellHint", val);
+    this.setLocStringText(this.locCellHint, val);
   }
   get locCellHint(): LocalizableString {
-    return this.getLocalizableString("cellHint");
+    return this.getLocStringOrCreate("cellHint");
   }
   public get renderAs(): string {
     return this.getPropertyValue("renderAs");

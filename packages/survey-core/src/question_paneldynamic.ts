@@ -293,17 +293,6 @@ export class QuestionPanelDynamicModel extends Question
       this.rebuildPanels();
     };
 
-    this.createLocString({ name: "confirmDeleteText", translationKey: "confirmDelete" });
-    this.createLocString({ name: "keyDuplicationError", hasTranslation: true });
-    this.createLocString({ name: "addPanelText", translationKey: "addPanel" });
-    this.createLocString({ name: "removePanelText", translationKey: "removePanel" });
-    this.createLocString({ name: "prevPanelText", translationKey: "pagePrevText" });
-    this.createLocString({ name: "nextPanelText", translationKey: "pageNextText" });
-    this.createLocString({ name: "noEntriesText", translationKey: "noEntriesText" });
-    this.createLocString({ name: "editPanelText", translationKey: "editText" });
-
-    this.createLocString({ name: "templateTabTitle", translationKey: "panelDynamicTabTextFormat", supportsMarkdown: true });
-    this.createLocString({ name: "tabTitlePlaceholder", translationKey: "tabTitlePlaceholder", supportsMarkdown: true });
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
@@ -466,7 +455,7 @@ export class QuestionPanelDynamicModel extends Question
     this.locTemplateTabTitle.text = newValue;
   }
   get locTemplateTabTitle(): LocalizableString {
-    return this.getLocalizableString("templateTabTitle");
+    return this.getOrCreateLocStr("templateTabTitle", true, "panelDynamicTabTextFormat");
   }
   /**
    * A placeholder for tab titles that applies when the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) expression doesn't produce a meaningful value.
@@ -480,7 +469,7 @@ export class QuestionPanelDynamicModel extends Question
     this.locTabTitlePlaceholder.text = newValue;
   }
   get locTabTitlePlaceholder(): LocalizableString {
-    return this.getLocalizableString("tabTitlePlaceholder");
+    return this.getOrCreateLocStr("tabTitlePlaceholder", true, true);
   }
   /**
    * A template for panel descriptions.
@@ -849,13 +838,13 @@ export class QuestionPanelDynamicModel extends Question
    * @see confirmDelete
    */
   public get confirmDeleteText() {
-    return this.getLocalizableStringText("confirmDeleteText");
+    return this.getLocStringText(this.locConfirmDeleteText);
   }
   public set confirmDeleteText(val: string) {
-    this.setLocalizableStringText("confirmDeleteText", val);
+    this.setLocStringText(this.locConfirmDeleteText, val);
   }
   get locConfirmDeleteText(): LocalizableString {
-    return this.getLocalizableString("confirmDeleteText");
+    return this.getOrCreateLocStr("confirmDeleteText", false, "confirmDelete");
   }
   /**
    * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
@@ -864,22 +853,22 @@ export class QuestionPanelDynamicModel extends Question
    * @see keyName
    */
   public get keyDuplicationError() {
-    return this.getLocalizableStringText("keyDuplicationError");
+    return this.getLocStringText(this.locKeyDuplicationError);
   }
   public set keyDuplicationError(val: string) {
-    this.setLocalizableStringText("keyDuplicationError", val);
+    this.setLocStringText(this.locKeyDuplicationError, val);
   }
   get locKeyDuplicationError(): LocalizableString {
-    return this.getLocalizableString("keyDuplicationError");
+    return this.getOrCreateLocStr("keyDuplicationError", false, true);
   }
   /**
    * A caption for the Previous button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
    * @see isPrevButtonVisible
    */
-  public get prevPanelText(): string { return this.getLocalizableStringText("prevPanelText"); }
-  public set prevPanelText(val: string) { this.setLocalizableStringText("prevPanelText", val); }
-  get locPrevPanelText(): LocalizableString { return this.getLocalizableString("prevPanelText"); }
+  public get prevPanelText(): string { return this.getLocStringText(this.locPrevPanelText); }
+  public set prevPanelText(val: string) { this.setLocStringText(this.locPrevPanelText, val); }
+  get locPrevPanelText(): LocalizableString { return this.getOrCreateLocStr("prevPanelText", false, "pagePrevText"); }
   /**
    * @deprecated Use the [`prevPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#prevPanelText) property instead.
    */
@@ -891,9 +880,9 @@ export class QuestionPanelDynamicModel extends Question
    * @see displayMode
    * @see isNextButtonVisible
    */
-  public get nextPanelText(): string { return this.getLocalizableStringText("nextPanelText"); }
-  public set nextPanelText(val: string) { this.setLocalizableStringText("nextPanelText", val); }
-  get locNextPanelText(): LocalizableString { return this.getLocalizableString("nextPanelText"); }
+  public get nextPanelText(): string { return this.getLocStringText(this.locNextPanelText); }
+  public set nextPanelText(val: string) { this.setLocStringText(this.locNextPanelText, val); }
+  get locNextPanelText(): LocalizableString { return this.getOrCreateLocStr("nextPanelText", false, "pageNextText"); }
   /**
    * @deprecated Use the [`nextPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#nextPanelText) property instead.
    */
@@ -903,9 +892,9 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A caption for the Add Panel button.
    */
-  public get addPanelText(): string { return this.getLocalizableStringText("addPanelText"); }
-  public set addPanelText(value: string) { this.setLocalizableStringText("addPanelText", value); }
-  get locAddPanelText(): LocalizableString { return this.getLocalizableString("addPanelText"); }
+  public get addPanelText(): string { return this.getLocStringText(this.locAddPanelText); }
+  public set addPanelText(value: string) { this.setLocStringText(this.locAddPanelText, value); }
+  get locAddPanelText(): LocalizableString { return this.getOrCreateLocStr("addPanelText", false, "addPanel"); }
   /**
    * @deprecated Use the [`addPanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#addPanelText) property instead.
    */
@@ -916,9 +905,9 @@ export class QuestionPanelDynamicModel extends Question
    * A caption for the Remove Panel button.
    * @see removePanelButtonLocation
    */
-  public get removePanelText(): string { return this.getLocalizableStringText("removePanelText"); }
-  public set removePanelText(val: string) { this.setLocalizableStringText("removePanelText", val); }
-  get locRemovePanelText(): LocalizableString { return this.getLocalizableString("removePanelText"); }
+  public get removePanelText(): string { return this.getLocStringText(this.locRemovePanelText); }
+  public set removePanelText(val: string) { this.setLocStringText(this.locRemovePanelText, val); }
+  get locRemovePanelText(): LocalizableString { return this.getOrCreateLocStr("removePanelText", false, "removePanel"); }
   /**
    * @deprecated Use the [`removePanelText`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#removePanelText) property instead.
    */
@@ -1360,12 +1349,15 @@ export class QuestionPanelDynamicModel extends Question
       locText.onGetTextCallback = (text: string): string => {
         return this.processSingleInputTitle(this.templateTitle, panel);
       };
-      const bntEdit = new Action({ locTitle: this.getLocalizableString("editPanelText"), action: () => { this.singInputEditPanel(panel); } });
+      const bntEdit = new Action({ locTitle: this.locEditPanelText, action: () => { this.singInputEditPanel(panel); } });
       const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;
     return res;
+  }
+  public get locEditPanelText(): LocalizableString {
+    return this.getOrCreateLocStr("editPanelText", false, "editText");
   }
   protected singleInputMoveToFirstCore(): void {
     let panel = this.singleInputQuestion?.parent;
@@ -2696,13 +2688,13 @@ export class QuestionPanelDynamicModel extends Question
    * A text displayed when Dynamic Panel contains no entries.
    */
   public get noEntriesText(): string {
-    return this.getLocalizableStringText("noEntriesText");
+    return this.getLocStringText(this.locNoEntriesText);
   }
   public set noEntriesText(val: string) {
-    this.setLocalizableStringText("noEntriesText", val);
+    this.setLocStringText(this.locNoEntriesText, val);
   }
   public get locNoEntriesText(): LocalizableString {
-    return this.getLocalizableString("noEntriesText");
+    return this.getOrCreateLocStr("noEntriesText", false, true);
   }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;

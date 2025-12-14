@@ -24,7 +24,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
   constructor(name: string) {
     super(name);
-    this.createLocString({ name: "placeholder", hasTranslation: true });
     this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.resetReadOnlyText();
@@ -133,16 +132,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * A text displayed in the input field when it doesn't have a value.
    */
   public get placeholder(): string {
-    return this.getLocalizableStringText("placeholder");
+    return this.getLocStringText(this.locPlaceholder);
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("placeholder", val);
+    this.setLocStringText(this.locPlaceholder, val);
     if (!!this.dropdownListModelValue) {
       this.dropdownListModel.setInputPlaceholder(val);
     }
   }
   get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("placeholder");
+    return this.getOrCreateLocStr("placeholder", false, true);
   }
   public get readOnlyText(): string {
     return this.locReadOnlyText.calculatedText;

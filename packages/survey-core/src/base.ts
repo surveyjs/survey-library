@@ -1007,10 +1007,13 @@ export class Base implements IObjectValueContext {
     const ls = this.localizableStrings;
     return !!ls ? ls[name] : null;
   }
-  protected getLocStringOrCreate(name: string, supportsMarkdown: boolean = false, defaultStr: boolean | string = false): LocalizableString {
+  protected getLocStringOrCreate(name: string, supportsMarkdown: boolean = false, defaultStr: boolean | string = false, onCreate?: (newLocStr: LocalizableString) => void): LocalizableString {
     let locStr = this.getLocalizableString(name);
     if (!locStr) {
       locStr = this.createLocalizableString(name, undefined, supportsMarkdown, defaultStr);
+      if (onCreate) {
+        onCreate(locStr);
+      }
     }
     return locStr;
   }

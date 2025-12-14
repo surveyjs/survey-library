@@ -56,7 +56,7 @@
       :class="question.getControlClass()"
     >
       <div v-if="question.readOnlyText" :class="question.cssClasses.controlValue">
-        <span>{{ question.readOnlyText }}</span>
+        <span class="sv-string-viewer">{{ question.readOnlyText }}</span>
       </div>
       <SvComponent :is="'sv-action-bar'" :model="model.editorButtons" />
     </div>

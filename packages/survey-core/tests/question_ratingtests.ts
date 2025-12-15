@@ -44,6 +44,7 @@ QUnit.test("check rating default items has owner and owner property name", (asse
   const item = q1.visibleRateValues[0];
   assert.equal(item.locOwner, q1);
   assert.equal(item.ownerPropertyName, "rateValues");
+  assert.equal(item.getType(), "ratingitemvalue");
 });
 QUnit.test("check rating processResponsiveness", (assert) => {
   var json = {
@@ -348,6 +349,35 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
 });
+QUnit.test("Rating question, renderedRateItems", function (assert) {
+  var rate = new QuestionRatingModel("q1");
+  assert.equal(
+    rate.visibleRateValues.length,
+    5,
+    "There are 5 items by default"
+  );
+
+  assert.notOk(rate.hasMinLabel, "Rating has no min label by default");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label by default");
+
+  rate.minRateDescription = "Worst";
+  rate.maxRateDescription = "Best";
+
+  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
+    ["1", "2", "3", "4", "5"],
+    "List of numeric values"
+  );
+  assert.ok(rate.hasMinLabel, "Rating has min label");
+  assert.ok(rate.hasMaxLabel, "Rating has max label");
+
+  rate.displayRateDescriptionsAsExtremeItems = true;
+  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
+    ["Worst", "2", "3", "4", "Best"],
+    "List of numeric values and min/max"
+  );
+  assert.notOk(rate.hasMinLabel, "Rating has no min label");
+  assert.notOk(rate.hasMaxLabel, "Rating has no max label");
+});
 QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) => {
   var json = {
     elements: [
@@ -378,6 +408,14 @@ QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) =>
   assert.ok(list.isItemSelected(list.actions[1]));
 
 });
+QUnit.test("QuestionRating reset highlight on click", (assert) => {
+  const question = new QuestionRatingModel("q");
+  question.rateType = "stars";
+  question.onItemMouseIn(question.renderedRateItems[2]);
+  assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
+  question.setValueFromClick("3");
+  assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["none", "none", "none", "none", "none"]);
+});
 QUnit.test("check stars highlighting", (assert) => {
   var json = {
     elements: [
@@ -396,42 +434,52 @@ QUnit.test("check stars highlighting", (assert) => {
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
   q1.cssClasses.itemStarSelected = "";
   q1.value = 2;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "value=2 index=0");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "value=2 index=1");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "value=2 index=2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "value=2 index=3");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "value=2 index=4");
 
+  assert.equal(q1.renderedRateItems.length, 5, "Items by deafault");
+  assert.equal(q1.rateType, "stars", "Rate type is stars");
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "", "value=2 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "", "value=2 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "", "value=2 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "", "value=2 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "", "value=2 index=4");
   q1.onItemMouseIn(q1.renderedRateItems[3]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "mouseIn #1 index=0");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "mouseIn #1 index=1");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_high", "mouseIn #1 index=2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_high", "mouseIn #1 index=3");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "mouseIn #1 index=4");
+
+  assert.equal(q1.renderedRateItems[0].highlight, "none", "check highlight property #0 index=0");
+  assert.equal(q1.renderedRateItems[1].highlight, "none", "check highlight property #0 index=1");
+  assert.equal(q1.renderedRateItems[2].highlight, "highlighted", "check highlight property #0 index=2");
+  assert.equal(q1.renderedRateItems[3].highlight, "highlighted", "check highlight property #0 index=3");
+  assert.equal(q1.renderedRateItems[4].highlight, "none", "check highlight property #0 index=4");
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "", "mouseIn #1 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "", "mouseIn #1 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_high", "mouseIn #1 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_high", "mouseIn #1 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "", "mouseIn #1 index=4");
 
   q1.onItemMouseOut(q1.renderedRateItems[3]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "onItemMouseOut #1 index=0");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "onItemMouseOut #1 index=1");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "onItemMouseOut #1 index=2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "onItemMouseOut #1 index=3");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "onItemMouseOut #1 index=4");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "", "onItemMouseOut #1 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "", "onItemMouseOut #1 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "", "onItemMouseOut #1 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "", "onItemMouseOut #1 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "", "onItemMouseOut #1 index=4");
 
   q1.value = 4;
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "mouseIn #2 index=0");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "mouseIn #2 index=1");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_unhigh", "mouseIn #2 index=2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_unhigh", "mouseIn #2 index=3");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "mouseIn #2 index=4");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "", "mouseIn #2 index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "", "mouseIn #2 index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_unhigh", "mouseIn #2 index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_unhigh", "mouseIn #2 index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "", "mouseIn #2 index=4");
 
   q1.onItemMouseOut(q1.renderedRateItems[1]);
   survey.readOnly = true;
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "", "survey.mode=display index=0");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "", "survey.mode=display index=1");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "survey.mode=display index=2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "survey.mode=display index=3");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "survey.mode=display index=4");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "", "survey.mode=display index=0");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "", "survey.mode=display index=1");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "", "survey.mode=display index=2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "", "survey.mode=display index=3");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "", "survey.mode=display index=4");
 });
 
 QUnit.test("check stars highlighting design mode", (assert) => {
@@ -451,18 +499,18 @@ QUnit.test("check stars highlighting design mode", (assert) => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
 
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
 
   q1.onItemMouseIn(q1.renderedRateItems[3]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
 });
 
 QUnit.test("check stars highlighting on touch device", (assert) => {
@@ -483,18 +531,17 @@ QUnit.test("check stars highlighting on touch device", (assert) => {
   q1.cssClasses.itemStarHighlighted = "sv_q_high";
   q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
 
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
-
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
   q1.onItemMouseIn(q1.renderedRateItems[3]);
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
   _setIsTouch(false);
 });
 
@@ -518,18 +565,17 @@ QUnit.test("check stars styles", (assert) => {
   q1.cssClasses.itemStarDisabled = "";
   q1.cssClasses.itemStarReadOnly = "sv_q_readonly";
   q1.value = 2;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
-
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
   survey.readOnly = true;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_selected sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_readonly");
 });
 
 QUnit.test("check smiley styles", (assert) => {
@@ -557,27 +603,25 @@ QUnit.test("check smiley styles", (assert) => {
   q1.value = 2;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_sc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_sc sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_sc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_sc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_sc");
-
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_sc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_sc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_sc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_sc");
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "scale";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
-
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "default";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "");
 });
 
 QUnit.test("check stars for rateValues", (assert) => {
@@ -606,18 +650,17 @@ QUnit.test("check stars for rateValues", (assert) => {
   q1.cssClasses.itemStarDisabled = "";
   q1.cssClasses.itemStarReadOnly = "sv_q_readonly";
   q1.value = "a_little_bit";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "", "item[2] is empty");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "", "item[3] is empty");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "", "item[4] is empty");
-
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "", "item[2] is empty");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "", "item[3] is empty");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "", "item[4] is empty");
   survey.readOnly = true;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_selected sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_readonly", "item[2] is disabled not selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_readonly", "item[3] is disabled not selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_readonly", "item[4] is disabled not selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_selected sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_readonly", "item[2] is disabled not selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_readonly", "item[3] is disabled not selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_readonly", "item[4] is disabled not selected");
 });
 
 QUnit.test("check smileys for rateValues", (assert) => {
@@ -641,11 +684,11 @@ QUnit.test("check smileys for rateValues", (assert) => {
 
   q1.rateMin = 200;
   q1.rateMax = 300;
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "average");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2].itemValue), "normal");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[3].itemValue), "good");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[4].itemValue), "very-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0]), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1]), "average");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2]), "normal");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[3]), "good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[4]), "very-good");
 });
 
 QUnit.test("check smileys for min/max", (assert) => {
@@ -662,22 +705,22 @@ QUnit.test("check smileys for min/max", (assert) => {
 
   q1.rateMin = 2;
   q1.rateMax = 3;
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "very-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0]), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1]), "very-good");
 
   q1.rateMin = 0;
   q1.rateMax = 2;
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "normal");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2].itemValue), "very-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0]), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1]), "normal");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2]), "very-good");
 
   q1.rateMin = 1;
   q1.rateMax = 5;
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0].itemValue), "not-good");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1].itemValue), "average");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2].itemValue), "normal");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[3].itemValue), "good");
-  assert.equal(q1.getItemSmiley(q1.renderedRateItems[4].itemValue), "very-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[0]), "not-good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[1]), "average");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[2]), "normal");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[3]), "good");
+  assert.equal(q1.getItemSmiley(q1.renderedRateItems[4]), "very-good");
 });
 
 QUnit.test("check smileys styles", (assert) => {
@@ -700,18 +743,18 @@ QUnit.test("check smileys styles", (assert) => {
   q1.cssClasses.itemSmileyReadOnly = "sv_q_readonly";
   q1.cssClasses.itemSmileyHover = "sv_q_allowhover";
   q1.value = 2;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_allowhover");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_allowhover");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_allowhover");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_allowhover");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_allowhover");
 
   survey.readOnly = true;
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_readonly");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_selected sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_readonly");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_readonly");
 });
 
 QUnit.test("check styles on event", (assert) => {
@@ -728,16 +771,16 @@ QUnit.test("check styles on event", (assert) => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.cssClasses.item = "sv_q_item";
   q1.cssClasses.itemFixedSize = "";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_item");
 
   survey.onUpdateChoiceItemCss.add((sender, options) => {
     if (options.item.value == 2) {
       options.css = options.css + " custom";
     }
   });
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item custom");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_item custom");
 });
 
 QUnit.test("rating smileys max item count", (assert) => {
@@ -761,7 +804,7 @@ QUnit.test("rating smileys max item count", (assert) => {
 
   q1.rateType = "labels";
   assert.equal(q1.renderedRateItems.length, 15);
-  q1.renderedRateItems[0].itemValue.value = "a";
+  q1.renderedRateItems[0].value = "a";
 
   q1.rateType = "smileys";
   assert.equal(q1.renderedRateItems.length, 10);
@@ -788,11 +831,11 @@ QUnit.test("check fixed width styles", (assert) => {
   q1.cssClasses.itemHover = "";
   q1.cssClasses.itemFixedSize = "sv_q_item-fixed";
 
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item sv_q_item-fixed");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_item sv_q_item-fixed");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_item sv_q_item-fixed");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_item");
 });
 
 QUnit.test("check fixed width styles - rate values", (assert) => {
@@ -824,11 +867,11 @@ QUnit.test("check fixed width styles - rate values", (assert) => {
   q1.cssClasses.itemHover = "";
   q1.cssClasses.itemFixedSize = "sv_q_item-fixed";
 
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item sv_q_item-fixed");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_item");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_item sv_q_item-fixed");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1]), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2]), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3]), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4]), "sv_q_item");
 });
 
 QUnit.test("rateCount changing rateMin/rateMax", (assert) => {
@@ -1431,12 +1474,12 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q1.cssClasses.itemStarSmall = "sv_q_item-star--small";
   q1.cssClasses.rootWrappable = "";
   assert.equal(q1.ratingRootCss, "sv_q sv_q--small");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley sv_q_item-smiley--small");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item-smiley sv_q_item-smiley--small");
 
   q.columns[0].rateType = "stars";
   assert.equal(q1.itemStarIcon, "icon-rating-star-small");
   assert.equal(q1.itemStarIconAlt, "icon-rating-star-small-2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-star sv_q_item-star--small");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item-star sv_q_item-star--small");
 
   q.columns[0].rateType = "labels";
   assert.equal(q1.ratingRootCss, "sv_q");
@@ -1444,12 +1487,12 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q.columns[0].rateType = "smileys";
   settings.matrix.rateSize = "normal";
   assert.equal(q1.ratingRootCss, "sv_q");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item-smiley");
 
   q.columns[0].rateType = "stars";
   assert.equal(q1.itemStarIcon, "icon-rating-star");
   assert.equal(q1.itemStarIconAlt, "icon-rating-star-2");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-star");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0]), "sv_q_item-star");
 
   q.columns[0].rateType = "labels";
   assert.equal(q1.ratingRootCss, "sv_q");
@@ -1795,7 +1838,7 @@ QUnit.test("Check dropdown rating text, #8953", function (assert) {
   const question = <QuestionRatingModel>survey.getAllQuestions()[0];
   assert.deepEqual(question.visibleChoices.map(c => c.text), ["Label0", "Label1"]);
 });
-QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
+QUnit.test("Ranking: items visibleIf and value, Bug#5959", (assert) => {
   var survey = new SurveyModel({
     elements: [
       { type: "checkbox", name: "q1", choices: [1, 2] },
@@ -1886,6 +1929,7 @@ QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appe
         "minRateDescription": "Strongly Disagree",
         "maxRateDescription": "Strongly Agree",
         "displayMode": "dropdown",
+        "displayRateDescriptionsAsExtremeItems": true,
         "rateValues": [
           { "value": "A", "text": "1" },
           { "value": "B", "text": "2" },
@@ -1899,12 +1943,13 @@ QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appe
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
 
-  assert.equal(q1.visibleChoices.length, 5);
-  assert.equal(q1.visibleChoices[0].value, "A");
-  assert.equal(q1.visibleChoices[0].text, "1");
-  assert.equal(q1.visibleChoices[0].description.text, "Strongly Disagree");
+  assert.equal(q1.visibleChoices.length, 5, "There are 5 visibleChoices");
+  assert.equal(q1.rateValues.length, 5, "There are 5 rateValues");
+  assert.equal(q1.autoGenerate, false, "autoGenerate is false");
+
+  assert.equal(q1.visibleChoices[0].value, "A", "Check first item value");
+  assert.equal(q1.visibleChoices[0].text, "Strongly Disagree");
 
   assert.equal(q1.visibleChoices[4].value, "E");
-  assert.equal(q1.visibleChoices[4].text, "5");
-  assert.equal(q1.visibleChoices[4].description.text, "Strongly Agree");
+  assert.equal(q1.visibleChoices[4].text, "Strongly Agree");
 });

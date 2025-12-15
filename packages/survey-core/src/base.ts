@@ -664,6 +664,8 @@ export class Base implements IObjectValueContext {
     ) {
       if (!this.isTwoValueEquals(oldValue, val)) {
         this.setArrayPropertyDirectly(name, val);
+      } else if (val === undefined && Array.isArray(oldValue)) {
+        (oldValue as any).isReset = true;
       }
     } else {
       if (val !== oldValue) {

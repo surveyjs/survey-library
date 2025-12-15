@@ -62,18 +62,28 @@ survey.onComplete.add(function (result) {
 
 window.addEventListener("DOMContentLoaded", () => {
   const container = document.getElementById("surveyElement");
-const shadowRoot = container.attachShadow({ mode: 'open' });
-const rootElement = document.createElement("div");
-rootElement.style.position = "fixed";
-rootElement.style.left = "0";
-rootElement.style.top = "0";
-rootElement.style.right = "0";
-rootElement.style.bottom = "0"; 
-const surveyStyles = document.createElement('link');
-surveyStyles.setAttribute('rel', 'stylesheet');
-surveyStyles.setAttribute('href', './node_modules/survey-core/survey-core.css');
-shadowRoot.appendChild(surveyStyles);
-shadowRoot.appendChild(rootElement);
+  const shadowRoot = container.attachShadow({ mode: 'open' });
+  const rootElement = document.createElement("div");
+  rootElement.style.position = "fixed";
+  rootElement.style.left = "0";
+  rootElement.style.top = "0";
+  rootElement.style.right = "0";
+  rootElement.style.bottom = "0"; 
+  const styles = document.createElement('style');
+  styles.textContent = `
+    *,
+    ::after,
+    ::before {
+        box-sizing: border-box;
+    }
+  `;
+  
+  shadowRoot.appendChild(styles);
+  const surveyLink = document.createElement('link');
+  surveyLink.setAttribute('rel', 'stylesheet');
+  surveyLink.setAttribute('href', './node_modules/survey-core/survey-core.css');
+  shadowRoot.appendChild(surveyLink);
+  shadowRoot.appendChild(rootElement);
   SurveyUI.renderSurvey(survey, rootElement);
 });
 

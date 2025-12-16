@@ -20,6 +20,15 @@ export const key2ClickDirective: ObjectDirective<any, IAttachKey2clickOptions> =
         return;
       }
       if (!options.disableTabStop) el.tabIndex = 0;
+      el.addEventListener("pointerup", (evt: any) => {
+        if (evt.pointerType === "pen") {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const element: any = evt.target;
+          if (element?.click) element.click();
+          return false;
+        }
+      });
       el.addEventListener("keyup", (evt: any) => {
         evt.preventDefault();
         evt.stopPropagation();

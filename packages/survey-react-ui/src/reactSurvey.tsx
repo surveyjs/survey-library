@@ -319,6 +319,15 @@ export function attachKey2click(element: React.JSX.Element, viewModel?: any, opt
     element,
     {
       tabIndex: 0,
+      onPointerUp: (evt: PointerEvent) => {
+        if (evt.pointerType === "pen") {
+          evt.preventDefault();
+          evt.stopPropagation();
+          const element: any = evt.target;
+          if (element?.click) element.click();
+          return false;
+        }
+      },
       onKeyUp: (evt: KeyboardEvent) => {
         evt.preventDefault();
         evt.stopPropagation();

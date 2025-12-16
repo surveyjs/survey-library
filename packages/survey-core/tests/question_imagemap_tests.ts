@@ -11,7 +11,7 @@ QUnit.test("Register and load from json", function (assert) {
         type: "imagemap",
         name: "q1",
         imageLink: "imageLink_url",
-        imageMap: [
+        areas: [
           {
             value: "val1",
             text: "val1_text",
@@ -37,16 +37,20 @@ QUnit.test("Register and load from json", function (assert) {
 
   assert.equal(q1.getType(), "imagemap", "type is imagemap");
   assert.equal(q1.imageLink, "imageLink_url", "imageLink is imageLink_url");
-  assert.equal(q1.imageMap.length, 3, "imageMap.length is 2");
+  assert.equal(q1.areas.length, 3, "imageMap.length is 2");
 
-  assert.equal(q1.imageMap[0].getType(), "imagemapitem", "areas[0] type is imagemaparea");
+  assert.equal(q1.areas[0].getType(), "imagemaparea", "areas[0] type is imagemaparea");
 
-  assert.equal(q1.imageMap[0].value, "val1", "[0].value must be val1");
-  assert.equal(q1.imageMap[0].shape, "poly", "default shape must be poly");
-  assert.equal(q1.imageMap[0].coords, "x1,y1,x2,y2,x3,y3,x4,y4", "coords must be set");
+  assert.equal(q1.areas[0].value, "val1", "[0].value must be val1");
+  assert.equal(q1.areas[0].shape, "poly", "default shape must be poly");
+  assert.equal(q1.areas[0].coords, "x1,y1,x2,y2,x3,y3,x4,y4", "coords must be set");
 
-  assert.equal(q1.imageMap[1].value, "val2", "[1].value must be val2");
-  assert.equal(q1.imageMap[1].shape, "rect", "second item shape must be rect");
+  assert.equal(q1.areas[1].value, "val2", "[1].value must be val2");
+  assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect");
+
+  q1.shape = "circle";
+  assert.equal(q1.areas[0].shape, "circle", "default shape must be circle now");
+  assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect still");
 });
 
 QUnit.test("Check toggle and multiSelect change", function (assert) {
@@ -57,7 +61,7 @@ QUnit.test("Check toggle and multiSelect change", function (assert) {
         type: "imagemap",
         name: "q1",
         imageLink: "imageLink_url",
-        imageMap: [
+        areas: [
           {
             value: "val1",
             text: "val1_text",
@@ -84,37 +88,37 @@ QUnit.test("Check toggle and multiSelect change", function (assert) {
   assert.equal(q1.value, undefined, "value must be undefined initially");
   assert.equal(q1.multiSelect, true, "multiSelect is true by default");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
+  q1.mapItemTooggle(q1.areas[0]);
   assert.deepEqual(q1.value, ["val1"], "value must be ['val1'] after first tooggle");
-  assert.equal(q1.isItemSelected(q1.imageMap[0]), true, "must be selected after first click");
-  assert.equal(q1.isItemSelected(q1.imageMap[1]), false, "must not be selected after first click");
+  assert.equal(q1.isItemSelected(q1.areas[0]), true, "must be selected after first click");
+  assert.equal(q1.isItemSelected(q1.areas[1]), false, "must not be selected after first click");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
+  q1.mapItemTooggle(q1.areas[0]);
   assert.deepEqual(q1.value, [], "value must be [] untoggling off item");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
-  q1.mapItemTooggle(q1.imageMap[1]);
+  q1.mapItemTooggle(q1.areas[0]);
+  q1.mapItemTooggle(q1.areas[1]);
   assert.deepEqual(q1.value, ["val1", "val2"], "value must be ['val1', 'val2'] after selecting two items");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
+  q1.mapItemTooggle(q1.areas[0]);
   assert.deepEqual(q1.value, ["val2"], "value must be ['val2'] after toggling first item off");
 
   q1.multiSelect = false;
   assert.equal(q1.multiSelect, false, "multiSelect must be false now");
   assert.equal(q1.value, undefined, "value must be undefined #1");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
+  q1.mapItemTooggle(q1.areas[0]);
   assert.equal(q1.value, "val1", "Single: value must be val1");
-  assert.equal(q1.isItemSelected(q1.imageMap[0]), true, "Single: imageMap[0] must be selected");
-  assert.equal(q1.isItemSelected(q1.imageMap[1]), false, "Single: imageMap[1] must not be selected");
+  assert.equal(q1.isItemSelected(q1.areas[0]), true, "Single: imageMap[0] must be selected");
+  assert.equal(q1.isItemSelected(q1.areas[1]), false, "Single: imageMap[1] must not be selected");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
+  q1.mapItemTooggle(q1.areas[0]);
   assert.equal(q1.value, undefined, "Single: value must be undefined after toggling off");
 
-  q1.mapItemTooggle(q1.imageMap[1]);
+  q1.mapItemTooggle(q1.areas[1]);
   assert.equal(q1.value, "val2", "Single: value must be val2");
-  assert.equal(q1.isItemSelected(q1.imageMap[0]), false, "Single: imageMap[0] must not be selected");
-  assert.equal(q1.isItemSelected(q1.imageMap[1]), true, "Single: imageMap[1] must be selected");
+  assert.equal(q1.isItemSelected(q1.areas[0]), false, "Single: imageMap[0] must not be selected");
+  assert.equal(q1.isItemSelected(q1.areas[1]), true, "Single: imageMap[1] must be selected");
 
   q1.multiSelect = true;
   assert.equal(q1.multiSelect, true, "multiSelect must be true now");
@@ -206,7 +210,7 @@ QUnit.test("Check map render", function (assert) {
       {
         type: "imagemap",
         name: "q1",
-        imageMap: [
+        areas: [
           {
             "value": "val1",
             "coords": "100,200,300,400"
@@ -273,7 +277,7 @@ QUnit.test("draw styles without defaults", function (assert) {
         type: "imagemap",
         name: "q1",
         imageLink: "imageLink_url",
-        imageMap: [
+        areas: [
           {
             value: "val1",
             coords: "x1,y1,x2,y2"
@@ -281,15 +285,15 @@ QUnit.test("draw styles without defaults", function (assert) {
           {
             value: "val2",
             coords: "x1,y1,x2,y2",
-            previewFillColor: "itemPreviewFillColor",
-            previewStrokeColor: "itemPreviewStrokeColor",
-            previewStrokeSize: 11,
+            idleFillColor: "itemidleFillColor",
+            idleStrokeColor: "itemidleStrokeColor",
+            idleStrokeWidth: 11,
             hoverFillColor: "itemHoverFillColor",
             hoverStrokeColor: "itemHoverStrokeColor",
-            hoverStrokeSize: 22,
+            hoverStrokeWidth: 22,
             selectedFillColor: "itemSelectedFillColor",
             selectedStrokeColor: "itemSelectedStrokeColor",
-            selectedStrokeSize: 33,
+            selectedStrokeWidth: 33,
           },
         ],
       }
@@ -297,37 +301,37 @@ QUnit.test("draw styles without defaults", function (assert) {
   });
   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-  assert.deepEqual(q1.imageMap[0].getPreviewStyle(), {
+  assert.deepEqual(q1.areas[0].getIdleStyle(), {
     "fillColor": "transparent",
     "strokeColor": "transparent",
     "strokeLineWidth": 0
   }, "default preview style");
 
-  assert.deepEqual(q1.imageMap[0].getHoverStyle(), {
+  assert.deepEqual(q1.areas[0].getHoverStyle(), {
     "fillColor": "#FF00FF",
     "strokeColor": "#FF00FF",
     "strokeLineWidth": 2
   }, "default hover style");
 
-  assert.deepEqual(q1.imageMap[0].getSelectedStyle(), {
+  assert.deepEqual(q1.areas[0].getSelectedStyle(), {
     "fillColor": "#FF00FF",
     "strokeColor": "#FF00FF",
     "strokeLineWidth": 2
   }, "default selected style");
 
-  assert.deepEqual(q1.imageMap[1].getPreviewStyle(), {
-    "fillColor": "itemPreviewFillColor",
-    "strokeColor": "itemPreviewStrokeColor",
+  assert.deepEqual(q1.areas[1].getIdleStyle(), {
+    "fillColor": "itemidleFillColor",
+    "strokeColor": "itemidleStrokeColor",
     "strokeLineWidth": 11
   }, "defined preview style");
 
-  assert.deepEqual(q1.imageMap[1].getHoverStyle(), {
+  assert.deepEqual(q1.areas[1].getHoverStyle(), {
     "fillColor": "itemHoverFillColor",
     "strokeColor": "itemHoverStrokeColor",
     "strokeLineWidth": 22
   }, "defined hover style");
 
-  assert.deepEqual(q1.imageMap[1].getSelectedStyle(), {
+  assert.deepEqual(q1.areas[1].getSelectedStyle(), {
     "fillColor": "itemSelectedFillColor",
     "strokeColor": "itemSelectedStrokeColor",
     "strokeLineWidth": 33
@@ -342,7 +346,7 @@ QUnit.test("draw styles with defaults", function (assert) {
         type: "imagemap",
         name: "q1",
         imageLink: "imageLink_url",
-        imageMap: [
+        areas: [
           {
             value: "val1",
             coords: "x1,y1,x2,y2"
@@ -350,62 +354,62 @@ QUnit.test("draw styles with defaults", function (assert) {
           {
             value: "val2",
             coords: "x1,y1,x2,y2",
-            previewFillColor: "itemPreviewFillColor",
-            previewStrokeColor: "itemPreviewStrokeColor",
-            previewStrokeSize: 11,
+            idleFillColor: "itemidleFillColor",
+            idleStrokeColor: "itemidleStrokeColor",
+            idleStrokeWidth: 11,
             hoverFillColor: "itemHoverFillColor",
             hoverStrokeColor: "itemHoverStrokeColor",
-            hoverStrokeSize: 22,
+            hoverStrokeWidth: 22,
             selectedFillColor: "itemSelectedFillColor",
             selectedStrokeColor: "itemSelectedStrokeColor",
-            selectedStrokeSize: 33,
+            selectedStrokeWidth: 33,
           },
         ],
-        previewFillColor: "defaultPreviewFillColor",
-        previewStrokeColor: "defaultPreviewStrokeColor",
-        previewStrokeSize: 1,
+        idleFillColor: "defaultidleFillColor",
+        idleStrokeColor: "defaultidleStrokeColor",
+        idleStrokeWidth: 1,
         hoverFillColor: "defaultHoverFillColor",
         hoverStrokeColor: "defaultHoverStrokeColor",
-        hoverStrokeSize: 2,
+        hoverStrokeWidth: 2,
         selectedFillColor: "defaultSelectedFillColor",
         selectedStrokeColor: "defaultSelectedStrokeColor",
-        selectedStrokeSize: 3,
+        selectedStrokeWidth: 3,
       }
     ]
   });
   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-  assert.deepEqual(q1.imageMap[0].getPreviewStyle(), {
-    "fillColor": "defaultPreviewFillColor",
-    "strokeColor": "defaultPreviewStrokeColor",
+  assert.deepEqual(q1.areas[0].getIdleStyle(), {
+    "fillColor": "defaultidleFillColor",
+    "strokeColor": "defaultidleStrokeColor",
     "strokeLineWidth": 1
   }, "default preview style");
 
-  assert.deepEqual(q1.imageMap[0].getHoverStyle(), {
+  assert.deepEqual(q1.areas[0].getHoverStyle(), {
     "fillColor": "defaultHoverFillColor",
     "strokeColor": "defaultHoverStrokeColor",
     "strokeLineWidth": 2
   }, "default hover style");
 
-  assert.deepEqual(q1.imageMap[0].getSelectedStyle(), {
+  assert.deepEqual(q1.areas[0].getSelectedStyle(), {
     "fillColor": "defaultSelectedFillColor",
     "strokeColor": "defaultSelectedStrokeColor",
     "strokeLineWidth": 3
   }, "default selected style");
 
-  assert.deepEqual(q1.imageMap[1].getPreviewStyle(), {
-    "fillColor": "itemPreviewFillColor",
-    "strokeColor": "itemPreviewStrokeColor",
+  assert.deepEqual(q1.areas[1].getIdleStyle(), {
+    "fillColor": "itemidleFillColor",
+    "strokeColor": "itemidleStrokeColor",
     "strokeLineWidth": 11
   }, "defined preview style");
 
-  assert.deepEqual(q1.imageMap[1].getHoverStyle(), {
+  assert.deepEqual(q1.areas[1].getHoverStyle(), {
     "fillColor": "itemHoverFillColor",
     "strokeColor": "itemHoverStrokeColor",
     "strokeLineWidth": 22
   }, "defined hover style");
 
-  assert.deepEqual(q1.imageMap[1].getSelectedStyle(), {
+  assert.deepEqual(q1.areas[1].getSelectedStyle(), {
     "fillColor": "itemSelectedFillColor",
     "strokeColor": "itemSelectedStrokeColor",
     "strokeLineWidth": 33,
@@ -458,8 +462,8 @@ QUnit.test("check maxSelectedChoices via mapItemTooggle", function (assert) {
       {
         type: "imagemap",
         name: "q1",
-        maxSelectedChoices: 2,
-        imageMap: [
+        maxSelectedAreas: 2,
+        areas: [
           {
             value: "val1",
           },
@@ -476,22 +480,22 @@ QUnit.test("check maxSelectedChoices via mapItemTooggle", function (assert) {
 
   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-  q1.mapItemTooggle(q1.imageMap[0]);
-  q1.mapItemTooggle(q1.imageMap[1]);
-  q1.mapItemTooggle(q1.imageMap[2]);
+  q1.mapItemTooggle(q1.areas[0]);
+  q1.mapItemTooggle(q1.areas[1]);
+  q1.mapItemTooggle(q1.areas[2]);
 
   assert.deepEqual(q1.value, ["val1", "val2"], "the third item is not added, max is 2");
 });
 
-QUnit.test("check minSelectedChoices + maxSelectedChoices and errors", function (assert) {
+QUnit.test("check minSelectedAreas + maxSelectedChoices and errors", function (assert) {
 
   const model = new SurveyModel({
     elements: [
       {
         type: "imagemap",
         name: "q1",
-        maxSelectedChoices: 3,
-        minSelectedChoices: 2,
+        minSelectedAreas: 2,
+        maxSelectedAreas: 3
       }
     ]
   });
@@ -518,7 +522,7 @@ QUnit.test("check getDisplayValue without valuePropertyName", function (assert) 
       {
         type: "imagemap",
         name: "q1",
-        imageMap: [
+        areas: [
           {
             value: "val1",
             text: "val1_text",
@@ -551,7 +555,7 @@ QUnit.test("check getDisplayValue with valuePropertyName", function (assert) {
         type: "imagemap",
         name: "q1",
         valuePropertyName: "state",
-        imageMap: [
+        areas: [
           {
             value: "val1",
             text: "val1_text",

@@ -13,7 +13,7 @@ type DrawStyle = { strokeColor: string, fillColor: string, strokeLineWidth: numb
 export class QuestionImageMapModel extends Question {
   constructor(name: string) {
     super(name);
-    this.createItemValues("imageMap");
+    this.createItemValues("areas");
   }
 
   backgroundImage: HTMLImageElement;
@@ -86,7 +86,7 @@ export class QuestionImageMapModel extends Question {
     this.imageMapMap.onclick = (event) => {
       let target = event.target as HTMLElement;
       let value = target.dataset.value;
-      let item = this.imageMap.find(i => i.value === value);
+      let item = this.areas.find(i => i.value === value);
       this.mapItemTooggle(item);
     };
 
@@ -152,8 +152,8 @@ export class QuestionImageMapModel extends Question {
 
   public renderImageMap(): void {
     this.imageMapMap.innerHTML = "";
-    if (!this.imageMap) return;
-    for (let item of this.imageMap) {
+    if (!this.areas) return;
+    for (let item of this.areas) {
       let area = DomDocumentHelper.createElement("area") as HTMLAreaElement;
       area.shape = item.shape;
       area.coords = this.scaleCoords(item.coords.split(",").map(Number)).join(",");
@@ -171,9 +171,9 @@ export class QuestionImageMapModel extends Question {
     this.previewCanvas.width = this.backgroundImage.naturalWidth;
     this.previewCanvas.height = this.backgroundImage.naturalHeight;
 
-    if (!this.imageMap) return;
-    for (const item of this.imageMap) {
-      this.drawShape(this.previewCanvas, item.shape, item.coords.split(",").map(Number), item.getPreviewStyle());
+    if (!this.areas) return;
+    for (const item of this.areas) {
+      this.drawShape(this.previewCanvas, item.shape, item.coords.split(",").map(Number), item.getIdleStyle());
     }
   }
 
@@ -182,8 +182,8 @@ export class QuestionImageMapModel extends Question {
     this.clearCanvas(this.selectedCanvas);
     this.selectedCanvas.width = this.backgroundImage.naturalWidth;
     this.selectedCanvas.height = this.backgroundImage.naturalHeight;
-    if (!this.imageMap) return;
-    for (const item of this.imageMap) {
+    if (!this.areas) return;
+    for (const item of this.areas) {
       if (!this.isItemSelected(item)) continue;
       this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), item.getSelectedStyle());
     }
@@ -207,59 +207,51 @@ export class QuestionImageMapModel extends Question {
   }
 
   @property() imageLink: string;
-
-  public get imageMap(): ImageMapItem[] {
-    return this.getPropertyValue("imageMap");
-  }
-  public set imageMap(val: ImageMapItem[]) {
-    this.setPropertyValue("imageMap", val);
-  }
-
+  @property() areas: ImageMapArea[];
   @property() valuePropertyName: string;
-
   @property({ defaultValue: true }) multiSelect: boolean;
 
-  public get maxSelectedChoices(): number {
-    return this.getPropertyValue("maxSelectedChoices");
+  public get maxSelectedAreas(): number {
+    return this.getPropertyValue("maxSelectedAreas");
   }
-  public set maxSelectedChoices(val: number) {
+  public set maxSelectedAreas(val: number) {
     if (val < 0) val = 0;
-    this.setPropertyValue("maxSelectedChoices", val);
+    this.setPropertyValue("maxSelectedAreas", val);
   }
 
-  public get minSelectedChoices(): number {
-    return this.getPropertyValue("minSelectedChoices");
+  public get minSelectedAreas(): number {
+    return this.getPropertyValue("minSelectedAreas");
   }
-  public set minSelectedChoices(val: number) {
+  public set minSelectedAreas(val: number) {
     if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedChoices", val);
+    this.setPropertyValue("minSelectedAreas", val);
   }
 
-  @property() previewStrokeColor: string;
-  @property() previewStrokeSize: number;
-  @property() previewFillColor: string;
+  @property() idleStrokeColor: string;
+  @property() idleStrokeWidth: number;
+  @property() idleFillColor: string;
 
   @property() hoverStrokeColor: string;
-  @property() hoverStrokeSize: number;
+  @property() hoverStrokeWidth: number;
   @property() hoverFillColor: string;
 
   @property() selectedStrokeColor: string;
-  @property() selectedStrokeSize: number;
+  @property() selectedStrokeWidth: number;
   @property() selectedFillColor: string;
 
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
     if (this.multiSelect) {
       const length = Array.isArray(this.value) ? this.value.length : 0;
-      if (this.maxSelectedChoices > 0 && length > this.maxSelectedChoices) {
+      if (this.maxSelectedAreas > 0 && length > this.maxSelectedAreas) {
         errors.push(new CustomError(
-          this.getLocalizationFormatString("maxSelectError", this.maxSelectedChoices),
+          this.getLocalizationFormatString("maxSelectError", this.maxSelectedAreas),
           this
         ));
       }
-      if (this.minSelectedChoices > 0 && length < this.minSelectedChoices) {
+      if (this.minSelectedAreas > 0 && length < this.minSelectedAreas) {
         errors.push(new CustomError(
-          this.getLocalizationFormatString("minSelectError", this.minSelectedChoices),
+          this.getLocalizationFormatString("minSelectError", this.minSelectedAreas),
           this
         ));
       }
@@ -273,16 +265,16 @@ export class QuestionImageMapModel extends Question {
     return super.convertToCorrectValue(val);
   }
 
-  public mapItemTooggle(item: ImageMapItem): void {
+  public mapItemTooggle(item: ImageMapArea): void {
     if (!this.multiSelect) {
       this.value = (this.value === item.value ? undefined : item.value);
       return;
     }
 
-    this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedChoices);
+    this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedAreas);
   }
 
-  public isItemSelected(item: ImageMapItem): boolean {
+  public isItemSelected(item: ImageMapArea): boolean {
     if (!this.multiSelect) return this.value === item.value;
     return new PropertyNameArray(this.value, this.valuePropertyName).contains(item.value);
   }
@@ -300,83 +292,90 @@ export class QuestionImageMapModel extends Question {
     }).filter(e => e !== undefined);
 
     value = value.map(e =>{
-      return this.imageMap.find(item => item.value === e)?.text || undefined;
+      return this.areas.find(item => item.value === e)?.text || undefined;
     }).filter(e => e !== undefined).join(settings.choicesSeparator);
 
     return value;
   }
 }
 
-export class ImageMapItem extends ItemValue {
+export class ImageMapArea extends ItemValue {
 
   constructor(value: any) {
     super(value);
   }
 
   public getBaseType(): string {
-    return "imagemapitem";
+    return "imagemaparea";
   }
 
-  @property() shape: string;
+  public get shape(): string {
+    const owner = this.locOwner as any;
+    return this.getPropertyValue("shape") || owner?.shape || "poly";
+  }
+  public set shape(val: string) {
+    this.setPropertyValue("shape", val);
+  }
+
   @property() coords: string;
 
-  @property() previewFillColor: string;
-  @property() previewStrokeColor: string;
-  @property() previewStrokeSize: number;
-  public getPreviewStyle(): DrawStyle {
+  @property() idleFillColor: string;
+  @property() idleStrokeColor: string;
+  @property() idleStrokeWidth: number;
+  public getIdleStyle(): DrawStyle {
     const owner = this.locOwner as any;
     return {
-      strokeColor: this.previewStrokeColor ?? owner?.previewStrokeColor ?? "transparent",
-      fillColor: this.previewFillColor ?? owner?.previewFillColor ?? "transparent",
-      strokeLineWidth: this.previewStrokeSize ?? owner?.previewStrokeSize ?? 0
+      strokeColor: this.idleStrokeColor ?? owner?.idleStrokeColor ?? "transparent",
+      fillColor: this.idleFillColor ?? owner?.idleFillColor ?? "transparent",
+      strokeLineWidth: this.idleStrokeWidth ?? owner?.idleStrokeWidth ?? 0
     };
   }
 
   @property() hoverFillColor: string;
   @property() hoverStrokeColor: string;
-  @property() hoverStrokeSize: number;
+  @property() hoverStrokeWidth: number;
   public getHoverStyle(): DrawStyle {
     const owner = this.locOwner as any;
     const survey = this.getSurvey() as SurveyModel;
     return {
-      strokeColor: this.getPropertyValue("hoverStrokeColor") ?? owner?.hoverStrokeColor ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
-      fillColor: this.getPropertyValue("hoverFillColor") ?? owner?.hoverFillColor ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
-      strokeLineWidth: this.getPropertyValue("hoverStrokeSize") ?? owner?.hoverStrokeSize ?? 2
+      strokeColor: this.hoverStrokeColor ?? owner?.hoverStrokeColor ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
+      fillColor: this.hoverFillColor ?? owner?.hoverFillColor ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
+      strokeLineWidth: this.hoverStrokeWidth ?? owner?.hoverStrokeWidth ?? 2
     };
   }
 
   @property() selectedFillColor: string;
   @property() selectedStrokeColor: string;
-  @property() selectedStrokeSize: number;
+  @property() selectedStrokeWidth: number;
   public getSelectedStyle(): DrawStyle {
     const owner = this.locOwner as any;
     const survey = this.getSurvey() as SurveyModel;
     return {
-      strokeColor: this.getPropertyValue("selectedStrokeColor") ?? owner?.selectedStrokeColor ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
-      fillColor: this.getPropertyValue("selectedFillColor") ?? owner?.selectedFillColor ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
-      strokeLineWidth: this.getPropertyValue("selectedStrokeSize") ?? owner?.selectedStrokeSize ?? 2
+      strokeColor: this.selectedStrokeColor ?? owner?.selectedStrokeColor ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
+      fillColor: this.selectedFillColor ?? owner?.selectedFillColor ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
+      strokeLineWidth: this.selectedStrokeWidth ?? owner?.selectedStrokeWidth ?? 2
     };
   }
 }
 
-Serializer.addClass("imagemapitem",
+Serializer.addClass("imagemaparea",
   [
-    { name: "shape", choices: ["circle", "rect", "poly"], default: "poly" },
+    { name: "shape", choices: ["circle", "rect", "poly"] },
     { name: "coords:string", locationInTable: "detail" },
 
-    { name: "previewFillColor:color", locationInTable: "detail" },
-    { name: "previewStrokeColor:color", locationInTable: "detail" },
-    { name: "previewStrokeSize:number", locationInTable: "detail" },
+    { name: "idleFillColor:color", locationInTable: "detail" },
+    { name: "idleStrokeColor:color", locationInTable: "detail" },
+    { name: "idleStrokeWidth:number", locationInTable: "detail" },
 
     { name: "hoverFillColor:color", locationInTable: "detail" },
     { name: "hoverStrokeColor:color", locationInTable: "detail" },
-    { name: "hoverStrokeSize:number", locationInTable: "detail" },
+    { name: "hoverStrokeWidth:number", locationInTable: "detail" },
 
     { name: "selectedFillColor:color", locationInTable: "detail" },
     { name: "selectedStrokeColor:color", locationInTable: "detail" },
-    { name: "selectedStrokeSize:number", locationInTable: "detail" },
+    { name: "selectedStrokeWidth:number", locationInTable: "detail" },
   ],
-  () => new ImageMapItem(""),
+  () => new ImageMapArea(""),
   "itemvalue"
 );
 
@@ -384,37 +383,39 @@ Serializer.addClass(
   "imagemap",
   [
     { name: "imageLink:file", category: "general" },
-    { name: "imageMap:imagemapitem[]", category: "general" },
+    { name: "areas:imagemaparea[]", category: "general" },
     { name: "multiSelect:boolean", default: true, category: "general" },
     { name: "valuePropertyName", category: "data" },
 
-    { name: "previewFillColor:color", category: "appearance" },
-    { name: "previewStrokeColor:color", category: "appearance" },
-    { name: "previewStrokeSize:number", category: "appearance" },
+    { name: "shape", choices: ["circle", "rect", "poly"], default: "poly", category: "general" },
+
+    { name: "idleFillColor:color", category: "appearance" },
+    { name: "idleStrokeColor:color", category: "appearance" },
+    { name: "idleStrokeWidth:number", category: "appearance" },
 
     { name: "hoverFillColor:color", category: "appearance" },
     { name: "hoverStrokeColor:color", category: "appearance" },
-    { name: "hoverStrokeSize:number", category: "appearance" },
+    { name: "hoverStrokeWidth:number", category: "appearance" },
 
     { name: "selectedFillColor:color", category: "appearance" },
     { name: "selectedStrokeColor:color", category: "appearance" },
-    { name: "selectedStrokeSize:number", category: "appearance" },
+    { name: "selectedStrokeWidth:number", category: "appearance" },
 
     {
-      name: "maxSelectedChoices:number",
+      name: "maxSelectedAreas:number",
       default: 0,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) return 0;
-        const min = obj.minSelectedChoices;
+        const min = obj.minSelectedAreas;
         return min > 0 && val < min ? min : val;
       }
     },
     {
-      name: "minSelectedChoices:number",
+      name: "minSelectedAreas:number",
       default: 0,
       onSettingValue: (obj: any, val: any): any => {
         if (val <= 0) return 0;
-        const max = obj.maxSelectedChoices;
+        const max = obj.maxSelectedAreas;
         return max > 0 && val > max ? max : val;
       }
     },

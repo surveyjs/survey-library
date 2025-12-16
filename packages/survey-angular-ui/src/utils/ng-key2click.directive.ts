@@ -28,6 +28,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
       if (element?.click) element.click();
       return false;
     }
+    return;
   };
   private blur (evt: any) {
     doKey2ClickBlur(evt);

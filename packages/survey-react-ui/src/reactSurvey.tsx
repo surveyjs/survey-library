@@ -325,14 +325,12 @@ export function attachKey2click(element: React.JSX.Element, viewModel?: any, opt
           evt.stopPropagation();
           const element: any = evt.target;
           if (element?.click) element.click();
-          return false;
         }
       },
       onKeyUp: (evt: KeyboardEvent) => {
         evt.preventDefault();
         evt.stopPropagation();
         doKey2ClickUp(evt, options);
-        return false;
       },
       onKeyDown: (evt: any) => doKey2ClickDown(evt, options),
       onBlur: (evt: any) => doKey2ClickBlur(evt),

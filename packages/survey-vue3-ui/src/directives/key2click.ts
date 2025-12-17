@@ -26,14 +26,12 @@ export const key2ClickDirective: ObjectDirective<any, IAttachKey2clickOptions> =
           evt.stopPropagation();
           const element: any = evt.target;
           if (element?.click) element.click();
-          return false;
         }
       });
       el.addEventListener("keyup", (evt: any) => {
         evt.preventDefault();
         evt.stopPropagation();
         doKey2ClickUp(evt, options);
-        return false;
       });
       el.addEventListener("keydown", (evt: any) => {
         doKey2ClickDown(evt, options);

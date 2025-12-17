@@ -18,7 +18,6 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     evt.preventDefault();
     evt.stopPropagation();
     doKey2ClickUp(evt, this.options);
-    return false;
   };
   private onpointerup = (evt: any) => {
     if (evt.pointerType === "pen") {
@@ -26,9 +25,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
       evt.stopPropagation();
       const element: any = evt.target;
       if (element?.click) element.click();
-      return false;
     }
-    return;
   };
   private blur (evt: any) {
     doKey2ClickBlur(evt);

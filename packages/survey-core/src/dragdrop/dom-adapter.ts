@@ -1,13 +1,13 @@
-/* eslint-disable no-restricted-globals */
 import { findScrollableParent, isShadowDOM } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { settings, ISurveyEnvironment } from "../settings";
 import { IDragDropEngine } from "./engine";
+import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
-if (typeof window !== "undefined") {
-  window.addEventListener(
+if (DomWindowHelper.getWindow()) {
+  DomWindowHelper.getWindow().addEventListener(
     "touchmove",
     (event) => {
       if (!DragDropDOMAdapter.PreventScrolling) {
@@ -54,7 +54,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     if (isShadowDOM(settings.environment.root)) {
       return this.rootContainer || settings.environment.root;
     } else {
-      return this.rootContainer || settings.environment.root.documentElement || document.body;
+      return this.rootContainer || settings.environment.root.documentElement || DomDocumentHelper.getDocument().body;
     }
   }
   public get viewRootElement(): Element {
@@ -78,8 +78,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private stopLongTap = (e?: any) => {
     clearTimeout(this.timeoutID);
     this.timeoutID = null;
-    document.removeEventListener("pointerup", this.stopLongTap);
-    document.removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
+    DomDocumentHelper.getDocument().removeEventListener("pointerup", this.stopLongTap);
+    DomDocumentHelper.getDocument().removeEventListener("pointermove", this.stopLongTapIfMoveEnough);
   };
   private startLongTapProcessing(
     event: PointerEvent,
@@ -90,8 +90,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   ): void {
     this.startX = event.pageX;
     this.startY = event.pageY;
-    document.body.style.setProperty("touch-action", "none", "important");
-    //document.body.style.setProperty("-webkit-touch-callout", "none", "important");
+    DomDocumentHelper.getDocument().body.style.setProperty("touch-action", "none", "important");
+    //DomDocumentHelper.getDocument().body.style.setProperty("-webkit-touch-callout", "none", "important");
 
     this.timeoutID = setTimeout(() => {
       this.doStartDrag(
@@ -119,8 +119,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       this.stopLongTap();
     }, this.longTap ? 500 : 0);
 
-    document.addEventListener("pointerup", this.stopLongTap);
-    document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
+    DomDocumentHelper.getDocument().addEventListener("pointerup", this.stopLongTap);
+    DomDocumentHelper.getDocument().addEventListener("pointermove", this.stopLongTapIfMoveEnough);
   }
   private handlePointerCancel = (event: PointerEvent) => {
     this.clear();
@@ -149,13 +149,13 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let shortcutYOffset = this.draggedElementShortcut.shortcutYOffset || shortcutHeight / 2;
 
     // TODO this is hot fix for RTL support. Probably we need better global strategy for it. https://github.com/surveyjs/survey-library/issues/4554
-    if (document.querySelectorAll("[dir='rtl']").length !== 0) {
+    if (this.rootElement.querySelectorAll("[dir='rtl']").length !== 0) {
       shortcutXOffset = shortcutWidth / 2;
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = document.documentElement.clientHeight;
-    const documentRight = document.documentElement.clientWidth;
+    const documentBottom = DomDocumentHelper.getDocument().documentElement.clientHeight;
+    const documentRight = DomDocumentHelper.getDocument().documentElement.clientWidth;
 
     const pageX = event.pageX;
     const pageY = event.pageY;
@@ -238,9 +238,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     if (scrollableParentNode.tagName === "HTML") {
       top = 0;
-      bottom = document.documentElement.clientHeight;
+      bottom = DomDocumentHelper.getDocument().documentElement.clientHeight;
       left = 0;
-      right = document.documentElement.clientWidth;
+      right = DomDocumentHelper.getDocument().documentElement.clientWidth;
     } else {
       top = scrollableParentNode.getBoundingClientRect().top;
       bottom = scrollableParentNode.getBoundingClientRect().bottom;
@@ -290,10 +290,10 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private clear = () => {
     cancelAnimationFrame(this.scrollIntervalId);
 
-    document.removeEventListener("pointermove", this.dragOver);
-    document.removeEventListener("pointercancel", this.handlePointerCancel);
-    document.removeEventListener("keydown", this.handleEscapeButton);
-    document.removeEventListener("pointerup", this.drop);
+    DomDocumentHelper.getDocument().removeEventListener("pointermove", this.dragOver);
+    DomDocumentHelper.getDocument().removeEventListener("pointercancel", this.handlePointerCancel);
+    DomDocumentHelper.getDocument().removeEventListener("keydown", this.handleEscapeButton);
+    DomDocumentHelper.getDocument().removeEventListener("pointerup", this.drop);
     this.draggedElementShortcut.removeEventListener("pointerup", this.drop);
     if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
@@ -336,10 +336,10 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.rootElement.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
-    document.addEventListener("pointermove", this.dragOver);
-    document.addEventListener("pointercancel", this.handlePointerCancel);
-    document.addEventListener("keydown", this.handleEscapeButton);
-    document.addEventListener("pointerup", this.drop);
+    DomDocumentHelper.getDocument().addEventListener("pointermove", this.dragOver);
+    DomDocumentHelper.getDocument().addEventListener("pointercancel", this.handlePointerCancel);
+    DomDocumentHelper.getDocument().addEventListener("keydown", this.handleEscapeButton);
+    DomDocumentHelper.getDocument().addEventListener("pointerup", this.drop);
     if (!IsTouch) {
       this.draggedElementShortcut.addEventListener("pointerup", this.drop);
     } else {
@@ -348,18 +348,18 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   }
 
   private returnUserSelectBack() {
-    document.body.style.setProperty("touch-action", "auto");
-    document.body.style.setProperty("user-select", "auto");
-    document.body.style.setProperty("-webkit-user-select", "auto");
-    //document.body.style.setProperty("-webkit-touch-callout", "default");
+    DomDocumentHelper.getDocument().body.style.setProperty("touch-action", "auto");
+    DomDocumentHelper.getDocument().body.style.setProperty("user-select", "auto");
+    DomDocumentHelper.getDocument().body.style.setProperty("-webkit-user-select", "auto");
+    //DomDocumentHelper.getDocument().body.style.setProperty("-webkit-touch-callout", "default");
   }
 
   public draggedElementShortcut: any = null;
   public rootContainer: HTMLElement;
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
-    document.body.style.setProperty("user-select", "none", "important");
-    document.body.style.setProperty("-webkit-user-select", "none", "important");
+    DomDocumentHelper.getDocument().body.style.setProperty("user-select", "none", "important");
+    DomDocumentHelper.getDocument().body.style.setProperty("-webkit-user-select", "none", "important");
     if (IsTouch) {
       this.startLongTapProcessing(
         event,

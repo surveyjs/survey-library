@@ -6,7 +6,7 @@ import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { Base } from "./base";
+import { ArrayChanges, Base } from "./base";
 import { updateListCssValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
@@ -50,17 +50,38 @@ function getRGBColor(themeVariables: any, colorName: string, varName: string) {
   ] : null;
 }
 
-class RatingItemValue extends ItemValue {
+export class RatingItem extends ItemValue {
   constructor(value: any, text?: string) {
     super(value, text);
   }
 
   public getType(): string {
-    return "ratingitemvalue";
+    return "ratingitem";
   }
 
   @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
-  @property() style: any;
+
+  public get style(): any {
+    return this.getPropertyValue("style", undefined, () => (this.locOwner as QuestionRatingModel)?.getItemStyle(this));
+  }
+
+  public get className(): string {
+    return this.getPropertyValue("className", undefined, () => (this.locOwner as QuestionRatingModel)?.getItemClass(this));
+  }
+
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
+
+    //only style and className changes do not reset visuals
+    super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
+    if (["style", "className"].indexOf(name) === -1) {
+      this.resetVisuals();
+    }
+  }
+
+  public resetVisuals(): void {
+    this.resetPropertyValue("style");
+    this.resetPropertyValue("className");
+  }
 
   public get description(): LocalizableString {
     if (!this.locOwner) return undefined;
@@ -115,7 +136,7 @@ export class QuestionRatingModel extends Question {
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
-          this.setPropertyValue("rateValues", this.visibleRateValues);
+          this.setArray("rateValues", this.rateValues, this.visibleRateValues, false, false);
         }
         if (this.autoGenerate) {
           this.rateValues.splice(0, this.rateValues.length);
@@ -136,10 +157,22 @@ export class QuestionRatingModel extends Question {
     this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
-    this.updateReadOnlyText();
 
+    this.registerPropertyChangedHandlers(["cssClassesValue", "isReadOnly"], () => {
+      this.resetItemsVisuals();
+    });
+
+    this.updateReadOnlyText();
     this.initPropertyDependencies();
   }
+
+  private resetItemsVisuals() {
+    const items = this.getPropertyValue("visibleChoices");
+    if (Array.isArray(items)) {
+      items.forEach(item => item.resetVisuals());
+    }
+  }
+
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
@@ -200,7 +233,7 @@ export class QuestionRatingModel extends Question {
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
             for (let i = this.rateValues.length; i < this.rateCount; i++) {
-              this.rateValues.push(new RatingItemValue(getLocaleString("choices_Item") + (i + 1)));
+              this.rateValues.push(new RatingItem(getLocaleString("choices_Item") + (i + 1)));
             }
           }
         }
@@ -221,14 +254,6 @@ export class QuestionRatingModel extends Question {
   }
 
   @property() autoGenerate: boolean;
-
-  // public get autoGenerate(): boolean {
-  //   return this.getPropertyValue("autoGenerate", false);
-  // }
-
-  // public set autoGenerate(val: boolean) {
-  //   this.setPropertyValue("autoGenerate", val);
-  // }
 
   /**
    * A list of rate values.
@@ -352,12 +377,23 @@ export class QuestionRatingModel extends Question {
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
   }
-  get visibleRateValues(): RatingItemValue[] {
+  get visibleRateValues(): RatingItem[] {
     return this.visibleChoices;
   }
-  protected supportEmptyValidation(): boolean { return this.renderAs === "dropdown"; }
+  protected supportEmptyValidation(): boolean { return this.isDropdown; }
+  private get isDropdown(): boolean { return this.renderAs === "dropdown"; }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
-    if (!this.useRateValues() && newValue !== undefined && ["highlight", "isVisible"].indexOf(name) === -1)this.autoGenerate = false;
+    if (
+      !this.useRateValues() &&
+      newValue !== undefined &&
+      [
+        "highlight",
+        "isVisible",
+        "disableTabStop",
+        "style",
+        "className"
+      ].indexOf(name) === -1
+    ) { this.autoGenerate = false; }
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
 
@@ -386,9 +422,9 @@ export class QuestionRatingModel extends Question {
       }
     }
   }
-  private getRateValuesCore(): Array<RatingItemValue> {
+  private getRateValuesCore(): Array<RatingItem> {
     const values = !this.useRateValues() ? this.createRateValues() : this.rateValues;
-    const items = new Array<RatingItemValue>();
+    const items = new Array<RatingItem>();
     values.forEach(item => {
       if (item.isVisible) {
         items.push(item);
@@ -396,18 +432,16 @@ export class QuestionRatingModel extends Question {
     });
     return items;
   }
-  private calculateRateValues(): Array<RatingItemValue> {
+  private calculateRateValues(): Array<RatingItem> {
     let rateValues = this.getRateValuesCore();
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
     return rateValues;
   }
-  private calculateVisibleChoices(): Array<RatingItemValue> {
-    return this.calculateRateValues();
-  }
 
-  public getDescription(e: RatingItemValue): LocalizableString {
+  public getDescription(e: RatingItem): LocalizableString {
 
-    if (!this.displayRateDescriptionsAsExtremeItems || this.isLoadingFromJson) return undefined;
+    if (this.isLoadingFromJson) return undefined;
+    if (!this.displayRateDescriptionsAsExtremeItems && !this.isDropdown) return undefined;
     const rateValues = this.visibleChoices;
     const idx = rateValues.indexOf(e);
     if (idx == 0) return this.minRateDescription && this.locMinRateDescription;
@@ -423,11 +457,15 @@ export class QuestionRatingModel extends Question {
     }
     this.resetPropertyValue("visibleChoices");
   }
-  public get renderedRateItems(): RatingItemValue[] {
+
+  /**
+   * @deprecated Use `visibleChoices` instead.
+   */
+  public get renderedRateItems(): RatingItem[] {
     return this.visibleChoices;
   }
-  public get visibleChoices(): RatingItemValue[] {
-    return this.getPropertyValue("visibleChoices", undefined, () => this.calculateVisibleChoices());
+  public get visibleChoices(): RatingItem[] {
+    return this.getPropertyValue("visibleChoices", undefined, () => this.calculateRateValues());
   }
   protected updateVisibleChoices(): void {
     this.resetRenderedItems();
@@ -440,7 +478,7 @@ export class QuestionRatingModel extends Question {
     while(value <= this.rateMax &&
       res.length < settings.ratingMaximumRateValueCount) {
 
-      let item = new RatingItemValue(value, "");
+      let item = new RatingItem(value, "");
       item.locOwner = this;
       item.ownerPropertyName = "rateValues";
       res.push(item);
@@ -463,7 +501,7 @@ export class QuestionRatingModel extends Question {
     return "rating";
   }
   protected getItemValueType() {
-    return "ratingitemvalue";
+    return "ratingitem";
   }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
@@ -475,7 +513,7 @@ export class QuestionRatingModel extends Question {
     return this.name + "_" + this.id;
   }
   supportAutoAdvance(): boolean {
-    return this.isMouseDown === true || this.renderAs === "dropdown";
+    return this.isMouseDown === true || this.isDropdown;
   }
   public supportOther(): boolean {
     return false;
@@ -561,7 +599,7 @@ export class QuestionRatingModel extends Question {
   @property() displayMode: "dropdown" | "buttons" | "auto";
   private updateRenderAsBasedOnDisplayMode(isOnChange?: boolean): void {
     if (this.isDesignMode) {
-      if (isOnChange || this.renderAs === "dropdown") {
+      if (isOnChange || this.isDropdown) {
         this.renderAs = "default";
       }
     } else {
@@ -572,8 +610,8 @@ export class QuestionRatingModel extends Question {
   }
   public onSurveyLoad(): void {
     super.onSurveyLoad();
-    if (this.renderAs === "dropdown" && this.displayMode === "auto") {
-      this.displayMode = this.renderAs;
+    if (this.isDropdown && this.displayMode === "auto") {
+      this.displayMode = "dropdown";
     } else {
       this.updateRenderAsBasedOnDisplayMode();
     }
@@ -643,7 +681,7 @@ export class QuestionRatingModel extends Question {
     return this.rateType == "smileys";
   }
   getDefaultItemComponent(): string {
-    if (this.renderAs == "dropdown") return "sv-rating-dropdown-item";
+    if (this.isDropdown) return "sv-rating-dropdown-item";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
@@ -672,11 +710,11 @@ export class QuestionRatingModel extends Question {
     } else {
       this.value = value;
     }
-    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
-      this.renderedRateItems[i].highlight = "none";
+    for (let i: number = 0; i < this.visibleChoices.length; i++) {
+      this.visibleChoices[i].highlight = "none";
     }
   }
-  public onItemMouseIn(item: RatingItemValue) {
+  public onItemMouseIn(item: RatingItem) {
     if (IsTouch) return;
     if (this.isReadOnly || !item.isEnabled || this.isDesignMode) return;
     let high = true;
@@ -685,15 +723,16 @@ export class QuestionRatingModel extends Question {
       item.highlight = "highlighted";
       return;
     }
-    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
-      this.renderedRateItems[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
-      if (this.renderedRateItems[i] == item) high = false;
-      if (this.renderedRateItems[i].value == this.value) selected = false;
+    for (let i: number = 0; i < this.visibleChoices.length; i++) {
+      this.visibleChoices[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
+      if (this.visibleChoices[i] == item) high = false;
+      if (this.visibleChoices[i].value == this.value) selected = false;
     }
   }
-  public onItemMouseOut(item: RatingItemValue) {
+  public onItemMouseOut(item: RatingItem) {
     if (IsTouch) return;
-    this.renderedRateItems.forEach(item => item.highlight = "none");
+    this.visibleChoices.forEach(item => item.highlight = "none");
+    this.resetItemsVisuals();
   }
 
   public get itemSmallMode() {
@@ -736,10 +775,6 @@ export class QuestionRatingModel extends Question {
     return "icon-" + this.getItemSmiley(item);
   }
 
-  public getItemClassByText(item: RatingItemValue, text: string) {
-    return this.getItemClass(item);
-  }
-
   private getRenderedItemColor(index: number, light: boolean): string {
     let startColor = light ? QuestionRatingModel.badColorLight : QuestionRatingModel.badColor;
     let endColor = light ? QuestionRatingModel.goodColorLight : QuestionRatingModel.goodColor;
@@ -760,17 +795,17 @@ export class QuestionRatingModel extends Question {
     return "rgba(" + curColor[0] + ", " + curColor[1] + ", " + curColor[2] + ", " + curColor[3] + ")";
   }
 
-  public getItemStyle(item: RatingItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
+  public getItemStyle(item: RatingItem) {
     if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
       this.isPreviewStyle ||
       this.isReadOnlyStyle) return {};
     const index = this.visibleRateValues.indexOf(item);
     const color = this.getRenderedItemColor(index, false);
-    const colorLight = highlight == "highlighted" && this.scaleColorMode === "colored" && this.getRenderedItemColor(index, true);
+    const colorLight = item.highlight == "highlighted" && this.scaleColorMode === "colored" && this.getRenderedItemColor(index, true);
     return colorLight ? { "--sd-rating-item-color": color, "--sd-rating-item-color-light": colorLight } : { "--sd-rating-item-color": color };
   }
 
-  public getItemClass(item: RatingItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
+  public getItemClass(item: RatingItem): string {
     let isSelected = this.value == item.value;
     if (this.isStar) {
       if (!this.useRateValues()) {
@@ -781,9 +816,10 @@ export class QuestionRatingModel extends Question {
     }
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
-    const renderedItem = this.renderedRateItems.filter(i => i == item)[0];
-    const isHighlighted = this.isStar && renderedItem?.highlight == "highlighted";
-    const isUnhighlighted = this.isStar && renderedItem?.highlight == "unhighlighted";
+
+    const isHighlighted = this.isStar && item.highlight == "highlighted";
+    const isUnhighlighted = this.isStar && item.highlight == "unhighlighted";
+
     let itemClass = this.cssClasses.item;
     let itemSelectedClass = this.cssClasses.selected;
     let itemDisabledClass = this.cssClasses.itemDisabled;
@@ -904,7 +940,6 @@ export class QuestionRatingModel extends Question {
   }
 
   public needResponsiveWidth() {
-    const rateValues = this.getPropertyValue("rateValues");
     const rateStep = this.getPropertyValue("rateStep");
     const rateMax = this.getPropertyValue("rateMax");
     const rateMin = this.getPropertyValue("rateMin");
@@ -935,7 +970,7 @@ export class QuestionRatingModel extends Question {
     this.updateElementCss();
   }
   public get dropdownListModel(): DropdownListModel {
-    if (this.renderAs === "dropdown") {
+    if (this.isDropdown) {
       this.onBeforeSetCompactRenderer();
     }
     return this.dropdownListModelValue;
@@ -975,7 +1010,7 @@ export class QuestionRatingModel extends Question {
 
   //a11y
   public get a11yInputAriaRole(): string | null {
-    return this.renderAs === "dropdown" ? "combobox" : null;
+    return this.isDropdown ? "combobox" : null;
   }
   public get isNewA11yStructure(): boolean {
     return true;
@@ -987,9 +1022,9 @@ export class QuestionRatingModel extends Question {
 }
 
 Serializer.addClass(
-  "ratingitemvalue",
+  "ratingitem",
   [],
-  function (value: any) { return new RatingItemValue(value, ""); },
+  function (value: any) { return new RatingItem(value, ""); },
   "itemvalue"
 );
 Serializer.addClass(
@@ -1044,7 +1079,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "rateValues:ratingitemvalue[]",
+      name: "rateValues:ratingitem[]",
       baseValue: function () {
         return getLocaleString("choices_Item");
       },

@@ -37,7 +37,10 @@ export class RatingItem extends RatingItemBase {
   render(): React.JSX.Element | null {
     var itemText = this.renderLocString(this.item.locText);
     return (
-      <label onMouseDown={this.handleOnMouseDown} className={this.question.getItemClassByText(this.item.itemValue, this.item.text)}>
+      <label
+        className={this.item.className}
+        onMouseDown={this.handleOnMouseDown}
+      >
         <input
           type="radio"
           className="sv-visuallyhidden"

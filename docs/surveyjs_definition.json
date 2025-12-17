@@ -2366,6 +2366,15 @@
                                 "left"
                             ]
                         },
+                        "templateTitleLocation": {
+                            "type": "string",
+                            "enum": [
+                                "default",
+                                "top",
+                                "bottom",
+                                "left"
+                            ]
+                        },
                         "templateQuestionTitleWidth": {
                             "type": "string"
                         },

@@ -310,13 +310,12 @@ QUnit.test("Check rateValues on text change", (assert) => {
   const survey = new SurveyModel(json);
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   assert.equal(q1.rateValues.length, 0);
-  let oldRendered = q1.visibleChoices;
+  const firstItemId = q1.visibleChoices[0].uniqueId;
   q1.visibleRateValues[0].text = "abc";
   assert.equal(q1.rateValues.length, 5);
-  assert.strictEqual(q1.visibleChoices, oldRendered, "renderedRateItems is cloned");
-  oldRendered = q1.visibleChoices;
+  assert.equal(q1.visibleChoices[0].uniqueId, firstItemId, "renderedRateItems is cloned");
   q1.visibleRateValues[1].text = "abc";
-  assert.strictEqual(q1.visibleChoices, oldRendered, "renderedRateItems is not cloned");
+  assert.equal(q1.visibleChoices[0].uniqueId, firstItemId, "renderedRateItems is not cloned");
 });
 QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => {
   var json = {

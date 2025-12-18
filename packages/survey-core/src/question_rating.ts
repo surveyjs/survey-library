@@ -381,17 +381,10 @@ export class QuestionRatingModel extends Question {
   protected supportEmptyValidation(): boolean { return this.isDropdown; }
   private get isDropdown(): boolean { return this.renderAs === "dropdown"; }
   public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
-    if (
-      !this.useRateValues() &&
-      newValue !== undefined &&
-      [
-        "highlight",
-        "isVisible",
-        "disableTabStop",
-        "style",
-        "className"
-      ].indexOf(name) === -1
-    ) { this.autoGenerate = false; }
+    const reactedProps = ["value", "text", "icon", "visibleIf", "enableIf"];
+    if (!this.useRateValues() && reactedProps.indexOf(name) >= 0) {
+      this.autoGenerate = false;
+    }
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
 

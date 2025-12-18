@@ -1169,3 +1169,26 @@ QUnit.test("DropdownListModel buttons", (assert) => {
   assert.equal(chevronButton.enabled, true, "chevronButton enabled #5");
   assert.equal(chevronButton.visible, true, "chevronButton visible #5");
 });
+
+QUnit.test("DropdownListModel with ListModel & allowCustomChoices true", (assert) => {
+  _setIsTouch(true);
+  try {
+    const survey = new SurveyModel({
+      elements: [{
+        "type": "dropdown",
+        "name": "current-car",
+        "choices": ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota"],
+        "allowCustomChoices": true
+      }]
+    });
+    const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof ListModel);
+
+    const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+    assert.equal(list.actions.length, 9);
+    assert.equal(list.showFilter, true, "list.showFilter true");
+  } finally {
+    _setIsTouch(false);
+  }
+});

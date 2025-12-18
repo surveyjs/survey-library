@@ -261,6 +261,18 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetLabelsProps = ["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"];
+    if (resetLabelsProps.indexOf(name) > -1) {
+      this.resetPropertyValue("generatedLabels");
+      this.locStrsChanged();
+    }
+    const resetRenderedValueProps = ["min", "max", "step", "maxRangeLength", "minRangeLength", "sliderType"];
+    if (resetRenderedValueProps.indexOf(name) > -1) {
+      this.resetPropertyValue("renderedValue");
+    }
+  }
   @property({ defaultValue: null }) focusedThumb: number | null;
   @property({ defaultValue: null }) animatedThumb: boolean | null;
   public dragOrClickHelper: DragOrClickHelper;
@@ -765,12 +777,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     //     }
     //   }
     // );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
-      () => {
-        this.resetPropertyValue("generatedLabels");
-        this.locStrsChanged();
-      }
-    );
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
@@ -779,11 +785,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
         }
-      }
-    );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "maxRangeLength", "minRangeLength", "sliderType"],
-      () => {
-        this.resetPropertyValue("renderedValue");
       }
     );
   }

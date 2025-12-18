@@ -255,7 +255,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.acceptedTypes = undefined;
       }
     });
-    this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
     //TODO make this property on demand
     this.actionsContainer = new ActionContainer();
     this.actionsContainer.locOwner = this;
@@ -347,11 +346,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
     [this.closeCameraAction, this.changeCameraAction, this.takePictureAction].forEach((action) => {
       action.cssClasses = {};
     });
-    this.registerFunctionOnPropertiesValueChanged(["sourceType", "currentMode", "isAnswered"], () => {
-      this.updateActionsVisibility();
-    });
     this.actionsContainer.actions = [this.chooseFileAction, this.startCameraAction, this.cleanAction];
     this.fileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "acceptedTypes") {
+      this.updateAcceptedCategories();
+    }
+    const actionsVisProps = ["sourceType", "currentMode", "isAnswered"];
+    if (actionsVisProps.indexOf(name) > -1) {
+      this.updateActionsVisibility();
+    }
   }
   public get videoId(): string { return this.id + "_video"; }
   public get hasVideoUI(): boolean { return this.currentMode !== "file"; }

@@ -5900,7 +5900,8 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    const { root } = settings.environment;
+    const root = htmlElement?.getRootNode() || settings.environment.root;
+    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
     if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {

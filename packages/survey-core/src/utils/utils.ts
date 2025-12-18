@@ -97,11 +97,9 @@ function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  if (typeof settings.environment === "undefined" || !element.offsetHeight) {
-    return false;
-  }
+  const root = element?.getRootNode() || settings.environment.root;
+  if (!(root instanceof Document || root instanceof ShadowRoot) || !element.offsetHeight) return false;
 
-  const { root }: ISurveyEnvironment = settings.environment;
   const clientHeight = isShadowDOM(root)
     ? root.host.clientHeight
     : root.documentElement.clientHeight;

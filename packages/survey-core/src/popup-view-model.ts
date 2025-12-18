@@ -209,13 +209,19 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     const focusableElements = this.container.querySelectorAll(FOCUS_INPUT_SELECTOR);
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+    const root = this.container?.getRootNode() || settings.environment.root;
+    if (!(root instanceof Document || root instanceof ShadowRoot)) {
+      return;
+    }
+
     if (event.shiftKey) {
-      if (settings.environment.root.activeElement === firstFocusableElement) {
+      if (root.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (settings.environment.root.activeElement === lastFocusableElement) {
+      if (root.activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }

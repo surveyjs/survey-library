@@ -2062,7 +2062,10 @@ export class QuestionPanelDynamicModel extends Question
   private updateNoEntriesTextDefaultLoc(): void {
     const loc = this.getLocalizableString("noEntriesText");
     if (!loc) return;
-    loc.localizationName = (this.isReadOnly || !this.allowAddPanel) ? "noEntriesReadonlyText" : "noEntriesText";
+    loc.localizationName = this.getNoEntriesLocalizationName();
+  }
+  private getNoEntriesLocalizationName(): string {
+    return (this.isReadOnly || !this.allowAddPanel) ? "noEntriesReadonlyText" : "noEntriesText";
   }
   public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
@@ -2694,7 +2697,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setLocStringText(this.locNoEntriesText, val);
   }
   public get locNoEntriesText(): LocalizableString {
-    return this.getOrCreateLocStr("noEntriesText", false, true);
+    return this.getOrCreateLocStr("noEntriesText", false, this.getNoEntriesLocalizationName());
   }
   public getShowNoEntriesPlaceholder(): boolean {
     return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;

@@ -70,8 +70,6 @@ export class RatingItem extends ItemValue {
   }
 
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-
-    //only style and className changes do not reset visuals
     super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
     if (["style", "className"].indexOf(name) === -1) {
       this.resetVisuals();
@@ -158,7 +156,7 @@ export class QuestionRatingModel extends Question {
       this.updateReadOnlyText();
     });
 
-    this.registerPropertyChangedHandlers(["cssClassesValue", "isReadOnly"], () => {
+    this.registerPropertyChangedHandlers(["cssClassesValue", "isReadOnly", "isVisible", "errors"], () => {
       this.resetItemsVisuals();
     });
 

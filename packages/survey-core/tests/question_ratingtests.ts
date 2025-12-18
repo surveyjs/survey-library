@@ -11,6 +11,7 @@ import { settings } from "../src/settings";
 import { _setIsTouch } from "../src/utils/devices";
 import { PopupModel } from "../src/popup";
 import { setOldTheme } from "./oldTheme";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   const config = {
@@ -1983,4 +1984,101 @@ QUnit.test("Rating: minRateDescription and maxRateDescription labels do not appe
 
   assert.equal(q1.visibleChoices[4].value, "E");
   assert.equal(q1.visibleChoices[4].text, "Strongly Agree");
+});
+
+QUnit.test("check smileys styles after validate", (assert) => {
+
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1",
+        rateType: "smileys",
+        isRequired: true
+      },
+      {
+        type: "rating",
+        name: "q2",
+        rateType: "smileys",
+        scaleColorMode: "colored",
+        isRequired: true
+      }
+    ]
+  });
+
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionRatingModel>survey.getQuestionByName("q2");
+
+  assert.notOk(
+    q1.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"),
+    "q1 item className must not include class 'sd-rating__item-smiley--error' before validate"
+  );
+  assert.notOk(
+    q2.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"),
+    "q2 item className must not include class 'sd-rating__item-smiley--error' before validate"
+  );
+  survey.validate();
+  assert.equal(q1.hasErrors(), true, "q1 has errors after validate");
+  assert.ok(
+    q1.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"),
+    "q1 item className must include class 'sd-rating__item-smiley--error' after validate"
+  );
+  assert.ok(
+    q2.visibleRateValues[0].className.includes("sd-rating__item-smiley--error"),
+    "q2 item className must include class 'sd-rating__item-smiley--error' after validate"
+  );
+});
+
+QUnit.test("preview className test", (assert) => {
+
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "defaultValue": {
+          "Row 1": {
+            "Column 1": 3,
+            "Column 2": 2
+          }
+        },
+        "readOnly": true,
+        "columns": [
+          {
+            "name": "Column 1",
+            "cellType": "rating",
+            "rateType": "smileys"
+          },
+          {
+            "name": "Column 2",
+            "cellType": "rating",
+            "rateType": "stars"
+          }
+        ],
+        "cellType": "rating",
+        "rows": ["Row 1"]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+
+  assert.notOk(
+    matrix.visibleRows[0].cells[0].question.visibleRateValues[0].className.includes("sd-rating__item-smiley--preview"),
+    "smileys before preview"
+  );
+  assert.notOk(
+    matrix.visibleRows[0].cells[1].question.visibleRateValues[0].className.includes("sd-rating__item-star--preview"),
+    "stars before preview"
+  );
+
+  survey.showPreview();
+  assert.ok(
+    matrix.visibleRows[0].cells[0].question.visibleRateValues[0].className.includes("sd-rating__item-smiley--preview"),
+    "smileys after preview"
+  );
+  assert.ok(
+    matrix.visibleRows[0].cells[1].question.visibleRateValues[0].className.includes("sd-rating__item-star--preview"),
+    "stars after preview"
+  );
 });

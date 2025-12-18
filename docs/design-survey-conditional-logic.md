@@ -126,7 +126,7 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
     </thead>
     <tbody>
       <tr>
-        <td rowspan="5" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
+        <td rowspan="7" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-question-model">Single-Select Matrix</a>, <a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
         <td><code>{row.columnid}</code></td>
         <td>Accesses a cell in the same row.</td>
       </tr>
@@ -139,12 +139,25 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
         <td>Accesses a cell in the next row.</td>
       </tr>
       <tr>
+        <td style="vertical-align:middle"><code>{rowIndex}</code></td>
+        <td>Accesses the row index within the collection of <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows">all rows</a>. Starts with 1.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{visibleRowIndex}</code></td>
+        <td>Accesses the row index within the collection of <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#visibleRows">visible rows</a>. Starts with 1.</td>
+      </tr>
+      <tr>
         <td style="vertical-align:middle"><code>{rowName}</code></td>
         <td>Accesses the row name (the <code>value</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array). Use this placeholder if you need to distinguish between matrix rows.</td>
       </tr>
       <tr>
         <td style="vertical-align:middle"><code>{rowTitle}</code></td>
         <td>Accesses the row title (the <code>text</code> property within objects in the <a href="https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#rows"><code>rows</code></a> array).</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list">Multi-Select Matrix</a>, <a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model">Dynamic Matrix</a></td>
+        <td><code>{totalRow.columnid}</code></td>
+        <td>Accesses a cell in the total row.</td>
       </tr>
       <tr>
         <td rowspan="4" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model">Dynamic Panel</a></td>
@@ -173,6 +186,160 @@ You can also use prefixes, such as `row`, `panel`, `parentPanel`, and `composite
 </div>
 
 [View Demo](/Examples/Library?id=condition-dynamic (linkStyle))
+
+### Element Properties
+
+Using element properties in dynamic texts and expressions is helpful when you need to reference metadata that isn't part of the survey result&mdash;for example, to read an element's visibility, disabled state, custom property values, or item-level attributes. To reference an element property inside a dynamic text or expression, use the following syntax:
+
+| Operator | Description | Example |
+| -------- | ----------- | ------- |
+| `{$elname.propname}` | Returns the value of a property on another survey element. | `{$question1.visible}` |
+| `{$self.propname}` | Returns the value of a property on the current element. | `{$self.choices[0].text}` |
+| `{$item.propname}` | Returns the value of a property on a choice item or a matrix row/column within a [`choicesVisibleIf`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model#choicesVisibleIf), [`rowsVisibleIf`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowsVisibleIf), or [`columnsVisibleIf`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#columnsVisibleIf) expression. | `{$item.score}` |
+
+For example, the following code uses item-level properties to implement cascading dropdowns. The `"program"` dropdown filters items based on the selected college, and the `"course"` dropdown filters items based on the selected program. Both filters use `{$item.propname}` to access item attributes defined through custom properties.
+
+<details>
+  <summary>View Code Example</summary>
+
+```js
+import { Serializer } from " survey-core";
+
+Serializer.addProperty("itemvalue", { name: "college" });
+Serializer.addProperty("itemvalue", { name: "program" });
+
+const surveyJson = {
+  "title": "STUDENT FEEDBACK ON CLASSROOM TEACHING",
+  "pages": [
+    {
+      "name": "intro",
+      "elements": [
+        {
+          "type": "dropdown",
+          "name": "college",
+          "title": "Select your college",
+          "placeholder": "Select college...",
+          "choices": [
+            "Science College",
+            "Engineering College",
+            "Management College",
+            "Medical College",
+            "Fine Arts College"
+          ]
+        },
+        {
+          "type": "dropdown",
+          "name": "program",
+          "title": "Program and specialization",
+          "choices": [
+            { "value": "bsc_cs", "text": "B.Sc - Computer Science", "college": "Science College" },
+            { "value": "bsc_phy", "text": "B.Sc - Physics", "college": "Science College" },
+            { "value": "bsc_chem", "text": "B.Sc - Chemistry", "college": "Science College" },
+
+            { "value": "btech_cse", "text": "B.Tech - Computer Science & Engineering", "college": "Engineering College" },
+            { "value": "btech_mech", "text": "B.Tech - Mechanical Engineering", "college": "Engineering College" },
+            { "value": "btech_civil", "text": "B.Tech - Civil Engineering", "college": "Engineering College" },
+
+            { "value": "bba", "text": "BBA - Bachelor of Business Administration", "college": "Management College" },
+            { "value": "mba", "text": "MBA - Master of Business Administration", "college": "Management College" },
+            { "value": "pgdm", "text": "PGDM - Post Graduate Diploma in Management", "college": "Management College" },
+
+            { "value": "mbbs", "text": "MBBS - Bachelor of Medicine and Surgery", "college": "Medical College" },
+            { "value": "bds", "text": "BDS - Bachelor of Dental Surgery", "college": "Medical College" },
+            { "value": "bpharma", "text": "B.Pharm - Bachelor of Pharmacy", "college": "Medical College" },
+
+            { "value": "bfa_paint", "text": "BFA - Painting", "college": "Fine Arts College" },
+            { "value": "bfa_sculpt", "text": "BFA - Sculpture", "college": "Fine Arts College" },
+            { "value": "bfa_photo", "text": "BFA - Photography", "college": "Fine Arts College" }
+          ],
+          "choicesVisibleIf": "{college} = {$item.college}",
+          "enableIf": "{college} notempty",
+          "placeholder": "Select program...",
+          "startWithNewLine": false
+        },
+        {
+          "type": "dropdown",
+          "name": "course",
+          "title": "Course or subject taken",
+          "choices": [
+            { "value": "ds", "text": "Data Structures", "program": "bsc_cs" },
+            { "value": "os", "text": "Operating Systems", "program": "bsc_cs" },
+            { "value": "algorithms", "text": "Algorithms", "program": "bsc_cs" },
+
+            { "value": "quantum_phy", "text": "Quantum Physics", "program": "bsc_phy" },
+            { "value": "optics", "text": "Optics", "program": "bsc_phy" },
+            { "value": "thermo", "text": "Thermodynamics", "program": "bsc_phy" },
+
+            { "value": "organic_chem", "text": "Organic Chemistry", "program": "bsc_chem" },
+            { "value": "inorganic_chem", "text": "Inorganic Chemistry", "program": "bsc_chem" },
+            { "value": "physical_chem", "text": "Physical Chemistry", "program": "bsc_chem" },
+
+            { "value": "oop", "text": "Object-Oriented Programming", "program": "btech_cse" },
+            { "value": "networks", "text": "Computer Networks", "program": "btech_cse" },
+            { "value": "ai", "text": "Artificial Intelligence", "program": "btech_cse" },
+
+            { "value": "thermo_mech", "text": "Thermodynamics", "program": "btech_mech" },
+            { "value": "fluid_mech", "text": "Fluid Mechanics", "program": "btech_mech" },
+            { "value": "machine_design", "text": "Machine Design", "program": "btech_mech" },
+
+            { "value": "structural", "text": "Structural Engineering", "program": "btech_civil" },
+            { "value": "surveying", "text": "Surveying", "program": "btech_civil" },
+            { "value": "geotech", "text": "Geotechnical Engineering", "program": "btech_civil" },
+
+            { "value": "marketing", "text": "Marketing Management", "program": "bba" },
+            { "value": "finance", "text": "Financial Accounting", "program": "bba" },
+            { "value": "hr", "text": "Human Resource Management", "program": "bba" },
+
+            { "value": "strategic", "text": "Strategic Management", "program": "mba" },
+            { "value": "leadership", "text": "Leadership and Ethics", "program": "mba" },
+            { "value": "business_analysis", "text": "Business Analytics", "program": "mba" },
+
+            { "value": "economics", "text": "Managerial Economics", "program": "pgdm" },
+            { "value": "operations", "text": "Operations Management", "program": "pgdm" },
+            { "value": "digital_marketing", "text": "Digital Marketing", "program": "pgdm" },
+
+            { "value": "anatomy", "text": "Human Anatomy", "program": "mbbs" },
+            { "value": "physiology", "text": "Physiology", "program": "mbbs" },
+            { "value": "pathology", "text": "Pathology", "program": "mbbs" },
+
+            { "value": "oral_bio", "text": "Oral Biology", "program": "bds" },
+            { "value": "dental_materials", "text": "Dental Materials", "program": "bds" },
+            { "value": "periodontics", "text": "Periodontics", "program": "bds" },
+
+            { "value": "pharmaceutics", "text": "Pharmaceutics", "program": "bpharma" },
+            { "value": "pharmacology", "text": "Pharmacology", "program": "bpharma" },
+            { "value": "pharma_chem", "text": "Pharmaceutical Chemistry", "program": "bpharma" },
+
+            { "value": "color_theory", "text": "Color Theory", "program": "bfa_paint" },
+            { "value": "portrait_painting", "text": "Portrait Painting", "program": "bfa_paint" },
+            { "value": "art_history", "text": "Art History", "program": "bfa_paint" },
+
+            { "value": "clay_modelling", "text": "Clay Modelling", "program": "bfa_sculpt" },
+            { "value": "stone_carving", "text": "Stone Carving", "program": "bfa_sculpt" },
+            { "value": "metal_casting", "text": "Metal Casting", "program": "bfa_sculpt" },
+
+            { "value": "digital_photo", "text": "Digital Photography", "program": "bfa_photo" },
+            { "value": "lighting", "text": "Studio Lighting", "program": "bfa_photo" },
+            { "value": "photo_editing", "text": "Photo Editing Techniques", "program": "bfa_photo" }
+          ],
+          "choicesVisibleIf": "{program} = {$item.program}",
+          "enableIf": "{program} notempty",
+          "placeholder": "Select course...",
+          "startWithNewLine": false
+        },
+        // ...
+      ]
+    },
+    // ..
+  ],
+  // ...
+};
+```
+
+</details>
+
+<!-- TODO: Uncomment after V3 -->
+<!-- [View Demo](https://surveyjs.io/form-library/examples/education/student-feedback-form-template/ (linkStyle)) -->
 
 ### Variables
 
@@ -323,7 +490,8 @@ The SurveyJS expression engine is built upon the <a href="https://github.com/peg
 | `^` / `power`  | Raises the first value to the power of the second. | `"{q1} ^ {q2}"` |
 | `*=` / `contains` / `contain`  | Compares two values and returns `true` if the first value contains the second value within it. | `"{q1} contains 'abc'"` |
 | `notcontains` / `notcontain` | Compares two values and returns `true` if the first value doesn't contain the second value within it. | `"{q1} notcontains 'abc'"` |
-| `anyof` | Compares a value with an array of values and returns `true` if the value is present in the array. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
+| `anyof` | Compares a value with an array of values and returns `true` if the value is present, or compares two arrays and returns `true` if the first array includes any value from the second. | `"{q1} anyof [ 'value1', 'value2', 'value3' ]"` |
+| `noneof` | Compares a value with an array of values and returns `true` if the value is absent, or compares two arrays and returns `true` if the first array includes none of the values from the second. | `"{q1} noneof [ 'value1', 'value2', 'value3' ]"` |
 | `allof` | Compares two arrays and returns `true` if the first array includes all values from the second. | `"{q1} allof [ 'value1', 'value2', 'value3' ]"` |
 | `#` | Disables type conversion for a referenced value (e.g., string values `"true"`, `"false"`, `"123"` won't be converted to corresponding Boolean and numeric values). | `"{#q1}"` |
 

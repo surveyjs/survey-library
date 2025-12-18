@@ -794,10 +794,29 @@ QUnit.test("checkbox vs valuePropertyName, getDisplayValue", (assert) => {
     ]
   });
   const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
-  q.value = [1, 3];
   assert.deepEqual(q.getDisplayValue(false, [{ fruit: 1 }, { fruit: 3 }]), "apple, orange", "display value for all values");
-  //assert.deepEqual(q.getDisplayValue(false, [{ fruite: 1 }]), ["apple", "orange"], "display value for all values");
-  //assert.deepEqual(q.getDisplayValue(false), ["apple", "orange"], "display value for all values");
+});
+QUnit.test("checkbox vs valuePropertyName, getDisplayValue & value name uses uppercase letters, Bug#10707", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+        valuePropertyName: "fruitID"
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: "{q1}"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.deepEqual(q1.getDisplayValue(false, [{ fruitID: 1 }, { fruitID: 3 }]), "apple, orange", "display value for all values");
+  q1.value = [{ fruitID: 2 }];
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.locTitle.renderedHtml, "banana", "display value in text question");
 });
 QUnit.test("checkbox vs valuePropertyName, check showOtherItem vs storeOthersAsComment", (assert) => {
   const survey = new SurveyModel({

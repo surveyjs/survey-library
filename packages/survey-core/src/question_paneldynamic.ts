@@ -3029,7 +3029,7 @@ Serializer.addClass(
       visibleIf: (obj: any) => { return obj.displayMode === "tab"; }
     },
     {
-      name: "templateQuestionTitleLocation", alternativeName: "questionTitleLocation",
+      name: "templateQuestionTitleLocation", alternativeName: "templateTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
     },

@@ -125,11 +125,15 @@ export class QuestionRatingModel extends Question {
         }
         this.resetRenderedItems();
       });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
-      this.resetReadOnlyText();
-    });
 
     this.initPropertyDependencies();
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
+    if (resetReadOnlyTextProps.indexOf(name) > -1) {
+      this.resetReadOnlyText();
+    }
   }
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {

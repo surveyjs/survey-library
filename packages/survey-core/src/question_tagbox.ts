@@ -25,9 +25,13 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
-    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetReadOnlyTextProps = ["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"];
+    if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.resetReadOnlyText();
-    });
+    }
   }
   supportElementsInChoice(): boolean { return false; }
   public locStrsChanged(): void {

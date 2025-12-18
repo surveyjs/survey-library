@@ -18,9 +18,11 @@ const youtubeEmbed = "embed";
 export class QuestionImageModel extends QuestionNonValue {
   @property({ defaultValue: false }) contentNotLoaded: boolean;
 
-  constructor(name: string) {
-    super(name);
-    this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "contentMode" || name === "imageLink") {
+      this.calculateRenderedMode();
+    }
   }
   public getType(): string {
     return "image";

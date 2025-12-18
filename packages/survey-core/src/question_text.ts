@@ -134,16 +134,17 @@ export class QuestionTextModel extends QuestionTextBase {
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);
     };
-    this.registerPropertyChangedHandlers(
-      ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
-      () => {
-        this.setRenderedMinMax();
-      }
-    );
-    this.registerPropertyChangedHandlers(["inputType", "inputSize"], () => {
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const renderedMaxMinProps = ["min", "max", "inputType", "minValueExpression", "maxValueExpression"];
+    if (renderedMaxMinProps.indexOf(name) > -1) {
+      this.setRenderedMinMax();
+    }
+    if (name === "inputType" || name === "inputSize") {
       this.resetInputSize();
       this.resetRenderedPlaceholder();
-    });
+    }
   }
   protected isTextValue(): boolean {
     return this.isDateInputType || ["text", "number", "password"].indexOf(this.inputType) > -1;

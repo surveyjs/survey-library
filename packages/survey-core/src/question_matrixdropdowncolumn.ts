@@ -136,9 +136,28 @@ export class MatrixDropdownColumn extends Base
   constructor(name: string, title?: string, colOwner?: IMatrixColumnOwner) {
     super();
     this.colOwnerValue = colOwner;
-    this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
-    this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
     this.updateTemplateQuestion(undefined, name, title);
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "showInMultipleColumns") {
+      this.doShowInMultipleColumnsChanged();
+    }
+    if (name === "visible") {
+      this.doColumnVisibilityChanged();
+    }
+    if (name === "isRequired") {
+      this.updateIsRenderedRequired(newValue);
+    }
+    if (!this.colOwner || this.isLoadingFromJson) return;
+    if (this.isShowInMultipleColumns) {
+      if (name === "choicesOrder") return;
+      if (["visibleChoices", "choices"].indexOf(name) > -1) {
+        this.colOwner.onShowInMultipleColumnsChanged(this);
+      }
+    }
+    if (!Serializer.hasOriginalProperty(this, name)) return;
+    this.colOwner.onColumnPropertyChanged(this, name, newValue);
   }
   public getOriginalObj(): Base {
     return this.templateQuestion;
@@ -871,21 +890,6 @@ export class MatrixDropdownColumn extends Base
         this.propertyValueChanged("choices", choices, choices);
       };
     }
-  }
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-    super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
-    if (name === "isRequired") {
-      this.updateIsRenderedRequired(newValue);
-    }
-    if (!this.colOwner || this.isLoadingFromJson) return;
-    if (this.isShowInMultipleColumns) {
-      if (name === "choicesOrder") return;
-      if (["visibleChoices", "choices"].indexOf(name) > -1) {
-        this.colOwner.onShowInMultipleColumnsChanged(this);
-      }
-    }
-    if (!Serializer.hasOriginalProperty(this, name)) return;
-    this.colOwner.onColumnPropertyChanged(this, name, newValue);
   }
   private doItemValuePropertyChanged(
     propertyName: string,

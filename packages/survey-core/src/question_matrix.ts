@@ -61,11 +61,14 @@ export class MatrixRowModel extends Base {
     super();
     this.data = data;
     this.setValueDirectly(value);
-    this.registerPropertyChangedHandlers(["value"], () => {
-      this.data.onMatrixRowChanged(this);
-    });
     if (this.data.hasErrorInRow(this)) {
       this.hasError = true;
+    }
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "value" && !!this.data) {
+      this.data.onMatrixRowChanged(this);
     }
   }
   public cellClick(column: ItemValue): void {
@@ -338,19 +341,22 @@ export class QuestionMatrixModel
       this.updateHasCellText();
       this.propertyValueChanged("cells", this.cells, this.cells);
     };
-    this.registerPropertyChangedHandlers(["columns"], () => {
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "columns") {
       this.onColumnsChanged();
-    });
-    this.registerPropertyChangedHandlers(["rows"], () => {
+    }
+    if (name === "rows") {
       this.runCondition(this.getDataFilteredProperties());
       this.onRowsChanged();
-    });
-    this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
+    }
+    if (name === "hideIfRowsEmpty") {
       this.updateVisibilityBasedOnRows();
-    });
-    this.registerPropertyChangedHandlers(["cellType"], () => {
+    }
+    if (name === "cellType") {
       this.value = this.convertToCorrectValue(this.value);
-    });
+    }
   }
   public getType(): string {
     return "matrix";

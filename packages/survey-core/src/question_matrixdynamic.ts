@@ -99,13 +99,24 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   constructor(name: string) {
     super(name);
     this.initialRowCount = this.getDefaultPropertyValue("rowCount");
-    this.registerPropertyChangedHandlers(["hideColumnsIfEmpty", "allowAddRows"], () => { this.updateShowTableAndAddRow(); });
-    this.registerPropertyChangedHandlers(["allowRowReorder", "isReadOnly", "lockedRowCount"], () => { this.resetRenderedTable(); });
-    this.registerPropertyChangedHandlers(["minRowCount"], () => { this.onMinRowCountChanged(); });
-    this.registerPropertyChangedHandlers(["maxRowCount"], () => { this.onMaxRowCountChanged(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
-
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "hideColumnsIfEmpty" || name === "allowAddRows") {
+      this.updateShowTableAndAddRow();
+    }
+    const resetTableProps = ["allowRowReorder", "isReadOnly", "lockedRowCount"];
+    if (resetTableProps.indexOf(name) > -1) {
+      this.resetRenderedTable();
+    }
+    if (name === "minRowCount") {
+      this.onMinRowCountChanged();
+    }
+    if (name === "maxRowCount") {
+      this.onMaxRowCountChanged();
+    }
+  }
   public dragDropMatrixRows: DragDropMatrixRows;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
     super.setSurveyImpl(value, isLight);

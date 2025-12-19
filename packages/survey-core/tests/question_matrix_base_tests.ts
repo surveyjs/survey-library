@@ -27,3 +27,19 @@ QUnit.test("check getCellAriaLabel method", (assert) => {
   assert.equal(matrix.getCellAriaLabel(row, column), "zeile RowTitle, spalte ColumnTitle", "de");
   assert.equal(matrix.getCellAriaLabel({ locText: null }, {}), "zeile , spalte ", "check if locText is null");
 });
+
+QUnit.test("check getTableWrapper css for different title locations", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdropdown", name: "q1", titleLocation: "top" },
+      { type: "matrixdropdown", name: "q2", titleLocation: "bottom" },
+      { type: "matrixdropdown", name: "q3", titleLocation: "left" },
+    ],
+  });
+  const matrix1 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q1");
+  const matrix2 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q2");
+  const matrix3 = <QuestionMatrixDropdownModel>survey.getQuestionByName("q3");
+  assert.equal(matrix1.getTableWrapperCss(), "sd-table-wrapper", "titleLocation top");
+  assert.equal(matrix2.getTableWrapperCss(), "sd-table-wrapper", "titleLocation bottom");
+  assert.equal(matrix3.getTableWrapperCss(), "sd-table-wrapper sd-table-wrapper--left", "titleLocation left");
+});

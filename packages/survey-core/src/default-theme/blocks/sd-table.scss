@@ -406,10 +406,6 @@
   overflow-x: visible;
 }
 
-.sd-question--table .sd-question__header--location--left {
-  z-index: 12;
-}
-
 .sd-table-wrapper {
   display: flex;
   margin: 0 calc(-1 * var(--sd-base-padding));
@@ -441,6 +437,13 @@
   }
 }
 
+.sd-table-wrapper--left {
+  margin-left: calcSize(-3);
+  &::before {
+    left: calcSize(-3);
+    width: calcSize(3);
+  }
+}
 //compact styles
 .sd-element--with-frame.sd-element--compact {
   .sd-table {

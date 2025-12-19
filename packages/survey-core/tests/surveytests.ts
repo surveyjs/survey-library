@@ -23114,3 +23114,16 @@ QUnit.test("Create custom NavigationBar", function (assert) {
   assert.equal((survey.navigationBar as CustomNavigationBar).customProp1, "checkThisProp", "customProp1 is set correctly");
   assert.equal(survey.navigationBar.locOwner, survey, "locOwner is set correctly");
 });
+QUnit.test("Do not create layoutElements in creator", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  let le = survey.getPropertyValue("layoutElements");
+  assert.equal(le?.length, undefined, "There is no layout elements in survey");
+  const progressElement = survey.findLayoutElement("progress-questions");
+  assert.equal(progressElement.id, "progress-questions", "There is no progress-questions layout element in survey");
+  le = survey.getPropertyValue("layoutElements");
+  assert.equal(le.length > 3, true, "There is  layout elements in survey after finding layout element");
+});

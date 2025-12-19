@@ -13,27 +13,22 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   @property({ defaultValue: false }) private videoNotLoaded: boolean;
   @property({ defaultValue: false }) private imageNotLoaded: boolean;
 
-  constructor(value: any, text?: string, protected typeName?: string
-  ) {
-    super(value, text, typeName);
-    this.createLocalizableString("imageLink");
-  }
   protected getBaseType(): string { return "imageitemvalue"; }
   /**
    * The image or video link property.
    */
   public get imageLink(): string {
-    return this.getLocalizableStringText("imageLink");
+    return this.getLocStringText(this.locImageLink);
   }
   public set imageLink(val: string) {
-    this.setLocalizableStringText("imageLink", val);
+    this.setLocStringText(this.locImageLink, val);
     this.imageNotLoaded = false;
     this.videoNotLoaded = false;
   }
   private aspectRatio: number;
 
   get locImageLink(): LocalizableString {
-    return this.getLocalizableString("imageLink");
+    return this.getOrCreateLocStr("imageLink");
   }
   getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
@@ -77,15 +72,17 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   constructor(name: string) {
     super(name);
     this.colCount = 0;
-    this.registerPropertyChangedHandlers(["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"], () => {
-      if (!!this._width) {
-        this.processResponsiveness(0, this._width);
-      }
-    });
-    this.registerPropertyChangedHandlers(["imageWidth", "imageHeight"], () => {
-      this.calcIsResponsive();
-    });
     this.calcIsResponsive();
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const processResponsivenessProps = ["minImageWidth", "maxImageWidth", "minImageHeight", "maxImageHeight", "visibleChoices", "colCount", "isResponsiveValue"];
+    if (processResponsivenessProps.indexOf(name) > -1 && !!this._width) {
+      this.processResponsiveness(0, this._width);
+    }
+    if (name === "imageWidth" || name === "imageHeight") {
+      this.calcIsResponsive();
+    }
   }
   public getType(): string {
     return "imagepicker";

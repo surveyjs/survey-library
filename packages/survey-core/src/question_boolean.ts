@@ -13,11 +13,6 @@ import { DomDocumentHelper } from "./global_variables_utils";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
 export class QuestionBooleanModel extends Question {
-  constructor(name: string) {
-    super(name);
-    this.createLocalizableString("labelFalse", this, true, "booleanUncheckedLabel");
-    this.createLocalizableString("labelTrue", this, true, "booleanCheckedLabel");
-  }
   public getType(): string {
     return "boolean";
   }
@@ -107,13 +102,13 @@ export class QuestionBooleanModel extends Question {
    * @see valueFalse
    */
   public get labelTrue(): string {
-    return this.getLocalizableStringText("labelTrue");
+    return this.getLocStringText(this.locLabelTrue);
   }
   public set labelTrue(val: string) {
-    this.setLocalizableStringText("labelTrue", val);
+    this.setLocStringText(this.locLabelTrue, val);
   }
   get locLabelTrue(): LocalizableString {
-    return this.getLocalizableString("labelTrue");
+    return this.getOrCreateLocStr("labelTrue", true, "booleanCheckedLabel");
   }
   get isDeterminated(): boolean {
     return this.booleanValue !== null && this.booleanValue !== undefined;
@@ -128,10 +123,10 @@ export class QuestionBooleanModel extends Question {
    */
   @property({ defaultValue: false }) swapOrder: boolean;
   get locLabelLeft(): LocalizableString {
-    return this.swapOrder ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");
+    return this.swapOrder ? this.locLabelTrue : this.locLabelFalse;
   }
   get locLabelRight(): LocalizableString {
-    return this.swapOrder ? this.getLocalizableString("labelFalse") : this.getLocalizableString("labelTrue");
+    return this.swapOrder ? this.locLabelFalse : this.locLabelTrue;
   }
 
   /**
@@ -144,13 +139,13 @@ export class QuestionBooleanModel extends Question {
    * @see valueFalse
    */
   public get labelFalse(): string {
-    return this.getLocalizableStringText("labelFalse");
+    return this.getLocStringText(this.locLabelFalse);
   }
   public set labelFalse(val: string) {
-    this.setLocalizableStringText("labelFalse", val);
+    this.setLocStringText(this.locLabelFalse, val);
   }
   get locLabelFalse(): LocalizableString {
-    return this.getLocalizableString("labelFalse");
+    return this.getOrCreateLocStr("labelFalse", true, "booleanUncheckedLabel");
   }
   /**
    * A value to save in survey results when respondents give a positive answer.

@@ -2,6 +2,7 @@ import { DropdownMultiSelectListModel } from "../src/dropdownMultiSelectListMode
 import { MultiSelectListModel } from "../src/multiSelectListModel";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
+import { _setIsTouch } from "../src/utils/devices";
 
 export default QUnit.module("DropdownMultiListModel");
 
@@ -395,4 +396,27 @@ QUnit.test("Hide popup if hideSelectedItems and click 'Select All'", (assert) =>
   assert.deepEqual(question.value.length, 10);
   assert.equal(dropdownListModel.popupModel.isVisible, false);
   assert.equal(list.actions[0].title, "Deselect all");
+});
+
+QUnit.test("DropdownListModel with MultiListModel & allowCustomChoices true", (assert) => {
+  _setIsTouch(true);
+  try {
+    const survey = new SurveyModel({
+      elements: [{
+        "type": "tagbox",
+        "name": "current-car",
+        "choices": ["Ford", "Vauxhall", "Volkswagen", "Nissan", "Audi", "Mercedes-Benz", "BMW", "Peugeot", "Toyota"],
+        "allowCustomChoices": true
+      }]
+    });
+    const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+    const dropdownListModel = question.dropdownListModel;
+    assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof MultiSelectListModel);
+
+    const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+    assert.equal(list.actions.length, 9);
+    assert.equal(list.showFilter, true, "list.showFilter true");
+  } finally {
+    _setIsTouch(false);
+  }
 });

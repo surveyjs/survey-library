@@ -1042,37 +1042,36 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   constructor(name: string) {
     super(name);
     this.createItemValues("choices");
-    this.createLocString({ name: "placeholder", hasTranslation: true });
-    this.createLocString({ name: "keyDuplicationError", hasTranslation: true });
-    this.createLocalizableString("singleInputTitleTemplate", new MatrixSingleInputLocOwner(this), true, this.getSingleInputTitleTemplate());
     this.detailPanelValue = this.createNewDetailPanel();
     this.detailPanel.selectedElementInDesign = this;
     this.detailPanel.renderWidth = "100%";
     this.detailPanel.isInteractiveDesignElement = false;
     this.detailPanel.showTitle = false;
-    this.registerPropertyChangedHandlers(["columns", "cellType"], () => { this.updateColumnsAndRows(); });
-    this.registerPropertyChangedHandlers(
-      ["placeholder", "columnColCount", "rowTitleWidth", "choices"],
-      () => {
-        this.clearRowsAndResetRenderedTable();
-      }
-    );
-    this.registerPropertyChangedHandlers(
-      [
-        "transposeData",
-        "addRowButtonLocation",
-        "hideColumnsIfEmpty",
-        "showHeader",
-        "minRowCount",
-        "isReadOnly",
-        "rowCount",
-        "hasFooter",
-        "detailPanelMode",
-        "displayMode"
-      ],
-      () => {
-        this.resetRenderedTable();
-      });
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "columns" || name === "cellType") {
+      this.updateColumnsAndRows();
+    }
+    const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
+    const resetRenderTableProps = [
+      "transposeData",
+      "addRowButtonLocation",
+      "hideColumnsIfEmpty",
+      "showHeader",
+      "minRowCount",
+      "isReadOnly",
+      "rowCount",
+      "hasFooter",
+      "detailPanelMode",
+      "displayMode"
+    ];
+    if (clearRowsProps.indexOf(name) > -1) {
+      this.clearRowsAndResetRenderedTable();
+    }
+    if (resetRenderTableProps.indexOf(name) > -1) {
+      this.resetRenderedTable();
+    }
   }
   public getType(): string {
     return "matrixdropdownbase";
@@ -1817,13 +1816,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see cellType
    */
   public get placeholder() {
-    return this.getLocalizableStringText("placeholder");
+    return this.getLocStringText(this.locPlaceholder);
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("placeholder", val);
+    this.setLocStringText(this.locPlaceholder, val);
   }
   public get locPlaceholder() {
-    return this.getLocalizableString("placeholder");
+    return this.getOrCreateLocStr("placeholder", false, true);
   }
   public get optionsCaption() {
     return this.placeholder;
@@ -1838,13 +1837,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see useCaseSensitiveComparison
    */
   public get keyDuplicationError(): string {
-    return this.getLocalizableStringText("keyDuplicationError");
+    return this.getLocStringText(this.locKeyDuplicationError);
   }
   public set keyDuplicationError(val: string) {
-    this.setLocalizableStringText("keyDuplicationError", val);
+    this.setLocStringText(this.locKeyDuplicationError, val);
   }
   get locKeyDuplicationError(): LocalizableString {
-    return this.getLocalizableString("keyDuplicationError");
+    return this.getOrCreateLocStr("keyDuplicationError", false, true);
   }
   /**
    * A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
@@ -1862,13 +1861,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * [View Demo](https://surveyjs.io/form-library/examples/loop-and-merge/ (linkStyle))
    */
   public get singleInputTitleTemplate(): string {
-    return this.getLocalizableStringText("singleInputTitleTemplate");
+    return this.getLocStringText(this.locSingleInputTitleTemplate);
   }
   public set singleInputTitleTemplate(val: string) {
-    this.setLocalizableStringText("singleInputTitleTemplate", val);
+    this.setLocStringText(this.locSingleInputTitleTemplate, val);
   }
   get locSingleInputTitleTemplate(): LocalizableString {
-    return this.getLocalizableString("singleInputTitleTemplate");
+    return this.getOrCreateLocStr("singleInputTitleTemplate", true, this.getSingleInputTitleTemplate(), (locStr: LocalizableString) => {
+      locStr.owner = new MatrixSingleInputLocOwner(this);
+    });
   }
   protected getSingleQuestionLocTitleCore(): LocalizableString {
     return this.locSingleInputTitleTemplate;

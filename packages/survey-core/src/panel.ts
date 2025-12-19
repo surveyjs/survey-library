@@ -392,24 +392,19 @@ export class PanelModelBase extends SurveyElement<Question>
       (obj: Base) => { return !this.areInvisibleElementsShowing; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
-
-    this.createLocalizableString("requiredErrorText");
-    this.createLocalizableString("navigationTitle", this, true).onGetTextCallback = (text: string) => {
-      return text || this.title || this.name;
-    };
-    this.registerPropertyChangedHandlers(["questionTitleLocation"], () => {
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "questionTitleLocation") {
       this.onVisibleChanged.bind(this);
       this.updateElementCss(true);
-    });
-    this.registerPropertyChangedHandlers(
-      ["questionStartIndex", "showQuestionNumbers"],
-      () => {
-        this.updateVisibleIndexes();
-      }
-    );
-    this.registerPropertyChangedHandlers(["title"], () => {
+    }
+    if (["questionStartIndex", "showQuestionNumbers"].indexOf(name) > -1) {
+      this.updateVisibleIndexes();
+    }
+    if (name === "title") {
       this.resetHasTextInTitle();
-    });
+    }
   }
   public getType(): string {
     return "panelbase";
@@ -494,7 +489,11 @@ export class PanelModelBase extends SurveyElement<Question>
     return super.getMarkdownHtml(text, name, item);
   }
   public get locNavigationTitle(): LocalizableString {
-    return this.getLocalizableString("navigationTitle");
+    return this.getOrCreateLocStr("navigationTitle", true, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (text: string) => {
+        return text || this.title || this.name;
+      };
+    });
   }
   public get renderedNavigationTitle(): string {
     return this.locNavigationTitle.renderedHtml;
@@ -533,13 +532,13 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see requiredIf
    */
   public get requiredErrorText(): string {
-    return this.getLocalizableStringText("requiredErrorText");
+    return this.getLocStringText(this.locRequiredErrorText);
   }
   public set requiredErrorText(val: string) {
-    this.setLocalizableStringText("requiredErrorText", val);
+    this.setLocStringText(this.locRequiredErrorText, val);
   }
   get locRequiredErrorText(): LocalizableString {
-    return this.getLocalizableString("requiredErrorText");
+    return this.getOrCreateLocStr("requiredErrorText");
   }
   /**
    * Specifies the sort order of questions in the panel/page.
@@ -2172,14 +2171,18 @@ export class PanelModel extends PanelModelBase implements IElement {
   constructor(name: string = "") {
     super(name);
     this.createNewArray("footerActions");
-    this.registerPropertyChangedHandlers(["width"], () => {
-      if (!!this.parent) {
-        this.parent.elementWidthChanged(this);
-      }
-    });
-    this.registerPropertyChangedHandlers(
-      ["indent", "innerIndent", "rightIndent"], () => { this.resetIndents(); });
-    this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "width" && this.parent) {
+      this.parent.elementWidthChanged(this);
+    }
+    if (["indent", "innerIndent", "rightIndent"].indexOf(name) > -1) {
+      this.resetIndents();
+    }
+    if (name === "colSpan" && this.parent) {
+      this.parent.updateColumns();
+    }
   }
   public getType(): string {
     return "panel";

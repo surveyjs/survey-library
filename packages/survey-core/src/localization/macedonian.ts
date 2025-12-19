@@ -99,6 +99,8 @@ export var macedonianSurveyStrings = {
   urlGetChoicesError: "Барањето врати празни податоци или својството 'path' е неточно",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Големината на датотеката не треба да надминува {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Максималниот број на датотеки што можеш да ги прикачиш е {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Фајловите не можат да се качуваат. Ве молиме додадете раководител за настанот 'onUploadFiles'.",
   // "Response required: enter another value."

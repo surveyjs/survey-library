@@ -18,7 +18,14 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     evt.preventDefault();
     evt.stopPropagation();
     doKey2ClickUp(evt, this.options);
-    return false;
+  };
+  private onpointerup = (evt: any) => {
+    if (evt.pointerType === "pen") {
+      evt.preventDefault();
+      evt.stopPropagation();
+      const element: any = evt.target;
+      if (element?.click) element.click();
+    }
   };
   private blur (evt: any) {
     doKey2ClickBlur(evt);
@@ -35,6 +42,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     if (this.isSubscribed) return;
 
     this.element.tabIndex = 0;
+    this.element.addEventListener("pointerup", this.onpointerup.bind(this));
     this.element.addEventListener("keyup", this.onkeyup.bind(this));
     this.element.addEventListener("keydown", this.onkeydown.bind(this));
     this.element.addEventListener("blur", this.blur);
@@ -45,6 +53,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     if (!this.isSubscribed) return;
 
     this.element.tabIndex = -1;
+    this.element.removeEventListener("pointerup", this.onpointerup.bind(this));
     this.element.removeEventListener("keyup", this.onkeyup.bind(this));
     this.element.removeEventListener("keydown", this.onkeydown.bind(this));
     this.element.removeEventListener("blur", this.blur);

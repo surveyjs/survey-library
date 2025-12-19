@@ -333,7 +333,7 @@ export class DropdownListModel extends Base {
     const res = new ListModel<ItemValue>(listOptions as any);
     this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
-    res.forceShowFilter = this.question.choicesLazyLoadEnabled;
+    res.forceShowFilter = this.question.choicesLazyLoadEnabled || this.question.allowCustomChoices;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };
@@ -681,6 +681,7 @@ export class DropdownListModel extends Base {
 
   public setAllowCustomChoices(newValue: boolean): void {
     this.allowCustomChoices = newValue;
+    this.listModel.forceShowFilter = this.question.choicesLazyLoadEnabled || newValue;
     if (newValue) {
       this.searchEnabled = newValue;
     }
@@ -690,6 +691,7 @@ export class DropdownListModel extends Base {
     this.choicesLazyLoadEnabled = newValue;
     this.listModel.disableSearch = newValue;
     this.listModel.isAllDataLoaded = !newValue;
+    this.listModel.forceShowFilter = newValue || this.question.allowCustomChoices;
   }
 
   public setInputPlaceholder(newValue: string): void {

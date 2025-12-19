@@ -1473,7 +1473,7 @@ QUnit.test("Check readOnly tagbox with markdown", function (assert) {
   survey.data = { q1: ["item1", "item2", "item3"] };
 
   assert.equal(q1.displayValue, "item1 |  item2 |  item3");
-  assert.equal(q1.locReadOnlyText.renderedHtml, "item1 |  item2 |  item3");
+  assert.equal(q1.readOnlyText, "item1 |  item2 |  item3");
 });
 
 QUnit.test("Tagbox searchmode filter options", (assert) => {

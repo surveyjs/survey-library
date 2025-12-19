@@ -64,8 +64,9 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
 export class HtmlConditionItem extends ExpressionItem {
   constructor(expression: string = null, html: string = null) {
     super(expression);
-    this.createLocalizableString("html");
-    this.html = html;
+    if (html) {
+      this.html = html;
+    }
   }
   public getType(): string {
     return "htmlconditionitem";
@@ -75,13 +76,13 @@ export class HtmlConditionItem extends ExpressionItem {
    * @see expression
    */
   public get html(): string {
-    return this.getLocalizableStringText("html");
+    return this.getLocStringText(this.locHtml);
   }
   public set html(value: string) {
-    this.setLocalizableStringText("html", value);
+    this.setLocStringText(this.locHtml, value);
   }
   get locHtml(): LocalizableString {
-    return this.getLocalizableString("html");
+    return this.getOrCreateLocStr("html");
   }
 }
 
@@ -93,8 +94,9 @@ export class HtmlConditionItem extends ExpressionItem {
 export class UrlConditionItem extends ExpressionItem {
   constructor(expression: string = null, url: string = null) {
     super(expression);
-    this.createLocalizableString("url");
-    this.url = url;
+    if (url) {
+      this.url = url;
+    }
   }
   public getType(): string {
     return "urlconditionitem";
@@ -104,13 +106,13 @@ export class UrlConditionItem extends ExpressionItem {
    * @see expression
    */
   public get url(): string {
-    return this.getLocalizableStringText("url");
+    return this.getLocStringText(this.locUrl);
   }
   public set url(value: string) {
-    this.setLocalizableStringText("url", value);
+    this.setLocStringText(this.locUrl, value);
   }
   get locUrl(): LocalizableString {
-    return this.getLocalizableString("url");
+    return this.getOrCreateLocStr("url");
   }
 }
 

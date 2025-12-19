@@ -6,7 +6,7 @@ module.exports = {
   "overrides": [
     {
       "files": [
-        "src/*.ts"
+        "src/**/*.ts"
       ],
       "rules": {
         "no-restricted-properties": [

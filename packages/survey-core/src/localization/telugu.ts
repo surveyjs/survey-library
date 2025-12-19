@@ -241,4 +241,4 @@ export var teluguStrings = {
   progressbar: "పురోగతి బార్"
 };
 
-setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "telugu", englishName: "Telugu" });
+setupLocale({ localeCode: "tel", strings: teluguStrings, nativeName: "తెలుగు", englishName: "Telugu" });

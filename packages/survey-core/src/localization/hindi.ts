@@ -241,4 +241,4 @@ export var hindiStrings = {
   progressbar: "प्रगति पट्टी"
 };
 
-setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "hindi", englishName: "Hindi" });
+setupLocale({ localeCode: "hi", strings: hindiStrings, nativeName: "हिन्दी", englishName: "Hindi" });

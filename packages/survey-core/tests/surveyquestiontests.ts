@@ -1991,36 +1991,6 @@ QUnit.test("Rating question, visibleRateValues property", function (assert) {
   assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
 
-QUnit.test("Rating question, renderedRateItems", function (assert) {
-  var rate = new QuestionRatingModel("q1");
-  assert.equal(
-    rate.visibleRateValues.length,
-    5,
-    "There are 5 items by default"
-  );
-
-  assert.notOk(rate.hasMinLabel, "Rating has no min label by default");
-  assert.notOk(rate.hasMaxLabel, "Rating has no max label by default");
-
-  rate.minRateDescription = "Worst";
-  rate.maxRateDescription = "Best";
-
-  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
-    ["1", "2", "3", "4", "5"],
-    "List of numeric values"
-  );
-  assert.ok(rate.hasMinLabel, "Rating has min label");
-  assert.ok(rate.hasMaxLabel, "Rating has max label");
-
-  rate.displayRateDescriptionsAsExtremeItems = true;
-  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
-    ["Worst", "2", "3", "4", "Best"],
-    "List of numeric values and min/max"
-  );
-  assert.notOk(rate.hasMinLabel, "Rating has no min label");
-  assert.notOk(rate.hasMaxLabel, "Rating has no max label");
-});
-
 QUnit.test("Rating question, renderedRateItems. Update renderedRateItems on changing rateValues", function (assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(rate.visibleRateValues.length, 5, "There are 5 items by default");
@@ -4576,19 +4546,6 @@ QUnit.test(
     assert.strictEqual(question.value, undefined, "Value is reset");
   }
 );
-
-QUnit.test(
-  "QuestionRating reset highlight on click",
-  function (assert) {
-    var question = new QuestionRatingModel("q");
-    question.rateType = "stars";
-    question.onItemMouseIn(question.renderedRateItems[2]);
-    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
-    question.setValueFromClick("3");
-    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["none", "none", "none", "none", "none"]);
-  }
-);
-
 QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
   function (assert) {

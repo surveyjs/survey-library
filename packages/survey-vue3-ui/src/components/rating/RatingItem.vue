@@ -2,7 +2,7 @@
   <label
     :key="item.value"
     @mousedown="question.onMouseDown()"
-    :class="question.getItemClassByText(item.itemValue, item.text)"
+    :class="item.className"
   >
     <input
       type="radio"

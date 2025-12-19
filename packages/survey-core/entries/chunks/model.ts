@@ -218,7 +218,7 @@ export { QuestionFactory, ElementFactory } from "../../src/questionfactory";
 export { QuestionFileModelBase, QuestionFileModel, QuestionFilePage } from "../../src/question_file";
 export { QuestionHtmlModel } from "../../src/question_html";
 export { QuestionRadiogroupModel } from "../../src/question_radiogroup";
-export { QuestionRatingModel, RenderedRatingItem } from "../../src/question_rating";
+export { QuestionRatingModel, RatingItem as RatingItemValue, RatingItem as RenderedRatingItem } from "../../src/question_rating";
 export { QuestionSliderModel, SliderLabelItemValue } from "../../src/question_slider";
 export { QuestionExpressionModel } from "../../src/question_expression";
 export { QuestionTextBase, CharacterCounter } from "../../src/question_textbase";

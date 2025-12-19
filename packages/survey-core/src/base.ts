@@ -664,6 +664,8 @@ export class Base implements IObjectValueContext {
     ) {
       if (!this.isTwoValueEquals(oldValue, val)) {
         this.setArrayPropertyDirectly(name, val);
+      } else if (val === undefined && Array.isArray(oldValue)) {
+        (oldValue as any).isReset = true;
       }
     } else {
       if (val !== oldValue) {
@@ -1277,36 +1279,36 @@ export class Base implements IObjectValueContext {
   }
   protected setArray(
     name: string,
-    src: any[],
     dest: any[],
+    src: any[],
     isItemValues: boolean,
     onPush: any
   ) {
-    var deletedItems = [].concat(src);
-    Object.getPrototypeOf(src).splice.call(src, 0, src.length);
-    if (!!dest) {
-      for (var i = 0; i < dest.length; i++) {
-        var item = dest[i];
+    var deletedItems = [].concat(dest);
+    Object.getPrototypeOf(dest).splice.call(dest, 0, dest.length);
+    if (!!src) {
+      for (var i = 0; i < src.length; i++) {
+        var item = src[i];
         if (isItemValues) {
           if (!!Base.createItemValue) {
             item = Base.createItemValue(item, this.getItemValueType());
           }
         }
-        Object.getPrototypeOf(src).push.call(src, item);
-        if (onPush) onPush(src[i]);
+        Object.getPrototypeOf(dest).push.call(dest, item);
+        if (onPush) onPush(dest[i]);
       }
-      delete (<any>src).isReset;
+      delete (<any>dest).isReset;
     } else {
-      (<any>src).isReset = true;
+      (<any>dest).isReset = true;
     }
     const arrayChanges = new ArrayChanges(
       0,
       deletedItems.length,
-      src,
+      dest,
       deletedItems
     );
-    this.propertyValueChanged(name, deletedItems, src, arrayChanges);
-    this.notifyArrayChanged(name, src, arrayChanges);
+    this.propertyValueChanged(name, deletedItems, dest, arrayChanges);
+    this.notifyArrayChanged(name, dest, arrayChanges);
   }
   protected isTwoValueEquals(
     x: any,

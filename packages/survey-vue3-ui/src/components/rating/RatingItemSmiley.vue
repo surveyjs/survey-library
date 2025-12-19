@@ -1,9 +1,9 @@
 <template>
   <label
     :key="item.value"
+    :style="item.style"
+    :class="item.className"
     @mousedown="question.onMouseDown()"
-    :style="question.getItemStyle(item.itemValue, item.highlight)"
-    :class="question.getItemClass(item.itemValue, item.highlight)"
     @mouseover="(e) => question.onItemMouseIn(item)"
     @mouseleave="(e) => question.onItemMouseOut(item)"
     :title="item.text"
@@ -21,7 +21,7 @@
     />
     <SvComponent
       :is="'sv-svg-icon'"
-      :iconName="question.getItemSmileyIconName(item.itemValue)"
+      :iconName="question.getItemSmileyIconName(item)"
       :size="'auto'"
     ></SvComponent>
   </label>

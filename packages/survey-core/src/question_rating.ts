@@ -2,7 +2,7 @@ import { ItemValue } from "./itemvalue";
 import { Question } from "./question";
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { LocalizableString } from "./localizablestring";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getLocaleString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -48,6 +48,11 @@ function getRGBColor(themeVariables: any, colorName: string, varName: string) {
     1
   ] : null;
 }
+interface IRatingItemOwner extends ILocalizableOwner {
+  getItemStyle(item: RatingItem): any;
+  getItemClass(item: RatingItem): string;
+  getDescription(item: RatingItem): LocalizableString;
+}
 
 export class RatingItem extends ItemValue {
   constructor(value: any, text?: string) {
@@ -57,15 +62,16 @@ export class RatingItem extends ItemValue {
   public getType(): string {
     return "ratingitem";
   }
+  private get ratingOwner(): IRatingItemOwner { return this.locOwner as IRatingItemOwner; }
 
   @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
 
   public get style(): any {
-    return this.getPropertyValue("style", undefined, () => (this.locOwner as QuestionRatingModel)?.getItemStyle(this));
+    return this.getPropertyValue("style", undefined, () => this.ratingOwner?.getItemStyle(this));
   }
 
   public get className(): string {
-    return this.getPropertyValue("className", undefined, () => (this.locOwner as QuestionRatingModel)?.getItemClass(this));
+    return this.getPropertyValue("className", undefined, () => this.ratingOwner?.getItemClass(this));
   }
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
@@ -81,10 +87,7 @@ export class RatingItem extends ItemValue {
   }
 
   public get description(): LocalizableString {
-    if (!this.locOwner) return undefined;
-    let owner = this.locOwner as QuestionRatingModel;
-    if (!owner.getDescription) return undefined;
-    return owner.getDescription(this);
+    return this.ratingOwner?.getDescription(this);
   }
 
   public getLocText(): LocalizableString {
@@ -97,7 +100,7 @@ export class RatingItem extends ItemValue {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
-export class QuestionRatingModel extends Question {
+export class QuestionRatingModel extends Question implements IRatingItemOwner {
   constructor(name: string) {
     super(name);
 

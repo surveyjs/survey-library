@@ -120,11 +120,6 @@ export class QuestionRatingModel extends Question {
         this.resetRenderedItems();
       });
 
-    this.registerPropertyChangedHandlers(["cssClassesValue", "isReadOnly", "isVisible", "errors"], () => {
-      this.resetItemsVisuals();
-    });
-
-    this.updateReadOnlyText();
     this.initPropertyDependencies();
   }
 
@@ -137,6 +132,10 @@ export class QuestionRatingModel extends Question {
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetItemsVisualProps = ["cssClassesValue", "isReadOnly", "isVisible", "errors"];
+    if (resetItemsVisualProps.indexOf(name) > -1) {
+      this.resetItemsVisuals();
+    }
     const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
     if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.resetReadOnlyText();

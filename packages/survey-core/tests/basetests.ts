@@ -888,6 +888,7 @@ QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.
   question.resetPropertyValue("minWidth");
   assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
 
+  assert.equal(question.placeholder, "Select...", "question.locPlaceholder default value");
   assert.equal(question.hasDefaultPropertyValue("placeholder"), true, "question.placeholder has default value");
   assert.equal(question.getDefaultPropertyValue("placeholder"), "Select...", "question.placeholder default value");
   assert.equal(question.placeholder, "Select...", "question.placeholder value");

@@ -129,8 +129,6 @@ export class QuestionTextModel extends QuestionTextBase {
 
   constructor(name: string) {
     super(name);
-    this.createLocalizableString("minErrorText", this, true, "minError");
-    this.createLocalizableString("maxErrorText", this, true, "maxError");
     this.setNewMaskSettingsProperty();
     this.locDataListValue = new LocalizableStrings(this);
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
@@ -334,13 +332,13 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see minValueExpression
    */
   public get minErrorText(): string {
-    return this.getLocalizableStringText("minErrorText");
+    return this.getLocStringText(this.locMinErrorText);
   }
   public set minErrorText(val: string) {
-    this.setLocalizableStringText("minErrorText", val);
+    this.setLocStringText(this.locMinErrorText, val);
   }
   get locMinErrorText(): LocalizableString {
-    return this.getLocalizableString("minErrorText");
+    return this.getOrCreateLocStr("minErrorText", true, "minError");
   }
   /**
    * An error message to display when the question value exceeds the maximum accepted value.
@@ -348,13 +346,13 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see maxValueExpression
    */
   public get maxErrorText(): string {
-    return this.getLocalizableStringText("maxErrorText");
+    return this.getLocStringText(this.locMaxErrorText);
   }
   public set maxErrorText(val: string) {
-    this.setLocalizableStringText("maxErrorText", val);
+    this.setLocStringText(this.locMaxErrorText, val);
   }
   get locMaxErrorText(): LocalizableString {
-    return this.getLocalizableString("maxErrorText");
+    return this.getOrCreateLocStr("maxErrorText", true, "maxError");
   }
 
   /**

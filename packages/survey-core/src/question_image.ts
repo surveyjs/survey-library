@@ -20,11 +20,6 @@ export class QuestionImageModel extends QuestionNonValue {
 
   constructor(name: string) {
     super(name);
-    const locImageLink = this.createLocalizableString("imageLink");
-    locImageLink.onGetTextCallback = (text: string): string => {
-      return getCorrectImageLink(text, this.contentMode == "youtube");
-    };
-    this.createLocalizableString("altText");
     this.registerPropertyChangedHandlers(["contentMode", "imageLink"], () => this.calculateRenderedMode());
   }
   public getType(): string {
@@ -44,13 +39,17 @@ export class QuestionImageModel extends QuestionNonValue {
    * @see contentMode
    */
   public get imageLink(): string {
-    return this.getLocalizableStringText("imageLink");
+    return this.getLocStringText(this.locImageLink);
   }
   public set imageLink(val: string) {
-    this.setLocalizableStringText("imageLink", val);
+    this.setLocStringText(this.locImageLink, val);
   }
   get locImageLink(): LocalizableString {
-    return this.getLocalizableString("imageLink");
+    return this.getOrCreateLocStr("imageLink", false, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (text: string): string => {
+        return getCorrectImageLink(text, this.contentMode == "youtube");
+      };
+    });
   }
   /**
    * Specifies a value for the `alt` attribute of the underlying `<img>` element.
@@ -58,13 +57,13 @@ export class QuestionImageModel extends QuestionNonValue {
    * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    */
   public get altText(): string {
-    return this.getLocalizableStringText("altText");
+    return this.getLocStringText(this.locAltText);
   }
   public set altText(val: string) {
-    this.setLocalizableStringText("altText", val);
+    this.setLocStringText(this.locAltText, val);
   }
   get locAltText(): LocalizableString {
-    return this.getLocalizableString("altText");
+    return this.getOrCreateLocStr("altText");
   }
   /**
    * Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.

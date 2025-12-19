@@ -1106,21 +1106,6 @@ export class SurveyModel extends SurveyElementCore
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
     this.onBeforeRunConstructor();
-    // if (DomDocumentHelper.isAvailable()) {
-    //   SurveyModel.stylesManager = new StylesManager();
-    // }
-    this.createHtmlLocString("completedHtml", "completingSurvey");
-    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", "completed-before");
-    this.createHtmlLocString("loadingHtml", "loadingSurvey", "loading");
-    this.createLocalizableString("emptySurveyText", this, true, "emptySurvey");
-    this.createLocalizableString("logo");
-    this.createLocString({ name: "startSurveyText", hasTranslation: true });
-    this.createLocString({ name: "pagePrevText", hasTranslation: true });
-    this.createLocString({ name: "pageNextText", hasTranslation: true });
-    this.createLocString({ name: "completeText", hasTranslation: true });
-    this.createLocString({ name: "previewText", hasTranslation: true });
-    this.createLocString({ name: "editText", hasTranslation: true });
-    this.createLocalizableString("questionTitleTemplate", this, true);
 
     this.timerModelValue = new SurveyTimerModel(this);
     this.timerModelValue.onTimerTick = (page: PageModel): void => {
@@ -1332,11 +1317,12 @@ export class SurveyModel extends SurveyElementCore
       }
     };
   }
-  private createHtmlLocString(name: string, locName: string, reason?: string): void {
-    const res = this.createLocalizableString(name, this, false, locName);
-    if (reason) {
-      res.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
-    }
+  private getOrCreateHtmlLocString(name: string, locName: string, reason?: string): LocalizableString {
+    return this.getOrCreateLocStr(name, false, locName, (locStr: LocalizableString) => {
+      if (reason) {
+        locStr.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
+      }
+    });
   }
   /**
    * A list of errors in a survey JSON schema.
@@ -2406,10 +2392,13 @@ export class SurveyModel extends SurveyElementCore
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get emptySurveyText(): string {
-    return this.getLocalizableStringText("emptySurveyText");
+    return this.getLocStringText(this.locEmptySurveyText);
   }
   public set emptySurveyText(val: string) {
-    this.setLocalizableStringText("emptySurveyText", val);
+    this.setLocStringText(this.locEmptySurveyText, val);
+  }
+  public get locEmptySurveyText(): LocalizableString {
+    return this.getOrCreateLocStr("emptySurveyText", true, "emptySurvey");
   }
   //#region Title/Header options
   /**
@@ -2420,13 +2409,13 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   public get logo(): string {
-    return this.getLocalizableStringText("logo");
+    return this.getLocStringText(this.locLogo);
   }
   public set logo(value: string) {
-    this.setLocalizableStringText("logo", value);
+    this.setLocStringText(this.locLogo, value);
   }
   get locLogo(): LocalizableString {
-    return this.getLocalizableString("logo");
+    return this.getOrCreateLocStr("logo");
   }
   /**
    * A logo width in CSS-accepted values.
@@ -2656,13 +2645,13 @@ export class SurveyModel extends SurveyElementCore
    * @see completedHtmlOnCondition
    */
   public get completedHtml(): string {
-    return this.getLocalizableStringText("completedHtml");
+    return this.getLocStringText(this.locCompletedHtml);
   }
   public set completedHtml(value: string) {
-    this.setLocalizableStringText("completedHtml", value);
+    this.setLocStringText(this.locCompletedHtml, value);
   }
   get locCompletedHtml(): LocalizableString {
-    return this.getLocalizableString("completedHtml");
+    return this.getOrCreateHtmlLocString("completedHtml", "completingSurvey");
   }
   /**
    * An array of objects that allows you to specify different HTML content for the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -2750,26 +2739,26 @@ export class SurveyModel extends SurveyElementCore
    * @see processedCompletedBeforeHtml
    */
   public get completedBeforeHtml(): string {
-    return this.getLocalizableStringText("completedBeforeHtml");
+    return this.getLocStringText(this.locCompletedBeforeHtml);
   }
   public set completedBeforeHtml(value: string) {
-    this.setLocalizableStringText("completedBeforeHtml", value);
+    this.setLocStringText(this.locCompletedBeforeHtml, value);
   }
   get locCompletedBeforeHtml(): LocalizableString {
-    return this.getLocalizableString("completedBeforeHtml");
+    return this.getOrCreateHtmlLocString("completedBeforeHtml", "completingSurveyBefore", "completed-before");
   }
   /**
    * HTML content displayed while a survey JSON schema is [being loaded](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#beginLoading).
    * @see processedLoadingHtml
    */
   public get loadingHtml(): string {
-    return this.getLocalizableStringText("loadingHtml");
+    return this.getLocStringText(this.locLoadingHtml);
   }
   public set loadingHtml(value: string) {
-    this.setLocalizableStringText("loadingHtml", value);
+    this.setLocStringText(this.locLoadingHtml, value);
   }
   get locLoadingHtml(): LocalizableString {
-    return this.getLocalizableString("loadingHtml");
+    return this.getOrCreateHtmlLocString("loadingHtml", "loadingSurvey", "loading");
   }
 
   private getNavigationCss(main: string, btn: string) {
@@ -2898,52 +2887,52 @@ export class SurveyModel extends SurveyElementCore
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get startSurveyText(): string {
-    return this.getLocalizableStringText("startSurveyText");
+    return this.getLocStringText(this.locStartSurveyText);
   }
   public set startSurveyText(newValue: string) {
-    this.setLocalizableStringText("startSurveyText", newValue);
+    this.setLocStringText(this.locStartSurveyText, newValue);
   }
   get locStartSurveyText(): LocalizableString {
-    return this.getLocalizableString("startSurveyText");
+    return this.getOrCreateLocStr("startSurveyText", false, true);
   }
   /**
    * Gets or sets a caption for the Previous button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get pagePrevText(): string {
-    return this.getLocalizableStringText("pagePrevText");
+    return this.getLocStringText(this.locPagePrevText);
   }
   public set pagePrevText(newValue: string) {
-    this.setLocalizableStringText("pagePrevText", newValue);
+    this.setLocStringText(this.locPagePrevText, newValue);
   }
   get locPagePrevText(): LocalizableString {
-    return this.getLocalizableString("pagePrevText");
+    return this.getOrCreateLocStr("pagePrevText", false, true);
   }
   /**
    * Gets or sets a caption for the Next button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get pageNextText(): string {
-    return this.getLocalizableStringText("pageNextText");
+    return this.getLocStringText(this.locPageNextText);
   }
   public set pageNextText(newValue: string) {
-    this.setLocalizableStringText("pageNextText", newValue);
+    this.setLocStringText(this.locPageNextText, newValue);
   }
   get locPageNextText(): LocalizableString {
-    return this.getLocalizableString("pageNextText");
+    return this.getOrCreateLocStr("pageNextText", false, true);
   }
   /**
    * Gets or sets a caption for the Complete button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get completeText(): string {
-    return this.getLocalizableStringText("completeText");
+    return this.getLocStringText(this.locCompleteText);
   }
   public set completeText(newValue: string) {
-    this.setLocalizableStringText("completeText", newValue);
+    this.setLocStringText(this.locCompleteText, newValue);
   }
   get locCompleteText(): LocalizableString {
-    return this.getLocalizableString("completeText");
+    return this.getOrCreateLocStr("completeText", false, true);
   }
   /**
    * Gets or sets a caption for the Preview button.
@@ -2952,13 +2941,13 @@ export class SurveyModel extends SurveyElementCore
    * @see editText
    */
   public get previewText(): string {
-    return this.getLocalizableStringText("previewText");
+    return this.getLocStringText(this.locPreviewText);
   }
   public set previewText(newValue: string) {
-    this.setLocalizableStringText("previewText", newValue);
+    this.setLocStringText(this.locPreviewText, newValue);
   }
   get locPreviewText(): LocalizableString {
-    return this.getLocalizableString("previewText");
+    return this.getOrCreateLocStr("previewText", false, true);
   }
   /**
    * Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
@@ -2967,13 +2956,13 @@ export class SurveyModel extends SurveyElementCore
    * @see previewText
    */
   public get editText(): string {
-    return this.getLocalizableStringText("editText");
+    return this.getLocStringText(this.locEditText);
   }
   public set editText(newValue: string) {
-    this.setLocalizableStringText("editText", newValue);
+    this.setLocStringText(this.locEditText, newValue);
   }
   get locEditText(): LocalizableString {
-    return this.getLocalizableString("editText");
+    return this.getOrCreateLocStr("editText", false, true);
   }
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
@@ -3022,10 +3011,10 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   public get questionTitleTemplate(): string {
-    return this.getLocalizableStringText("questionTitleTemplate");
+    return this.getLocStringText(this.locQuestionTitleTemplate);
   }
   public set questionTitleTemplate(value: string) {
-    this.setLocalizableStringText("questionTitleTemplate", value);
+    this.setLocStringText(this.locQuestionTitleTemplate, value);
     this.questionTitlePattern = this.getNewTitlePattern(value);
     this.questionStartIndex = this.getNewQuestionTitleElement(
       value,
@@ -3098,7 +3087,7 @@ export class SurveyModel extends SurveyElementCore
     return prefix + value + postfix;
   }
   get locQuestionTitleTemplate(): LocalizableString {
-    return this.getLocalizableString("questionTitleTemplate");
+    return this.getOrCreateLocStr("questionTitleTemplate", true);
   }
   getUpdatedQuestionTitle(question: Question, title: string): string {
     if (this.onGetQuestionTitle.isEmpty) return title;

@@ -6097,9 +6097,9 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
-  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for readonly");
+  assert.equal(panel2.noEntriesText, "No entries", "panel2: text for readonly");
   survey.readOnly = true;
-  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for readonly");
+  assert.equal(panel1.noEntriesText, "No entries", "panel1: text for readonly");
 });
 QUnit.test("Carry forward in panel dynamic", function (assert) {
   const survey = new SurveyModel({

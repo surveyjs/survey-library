@@ -87,7 +87,6 @@ export class QuestionRatingModel extends Question {
     super(name);
 
     this.createItemValues("rateValues");
-    this.createLocString({ name: "ratingOptionsCaption", hasTranslation: true });
     this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.resetRenderedItems());
@@ -126,20 +125,9 @@ export class QuestionRatingModel extends Question {
         }
         this.resetRenderedItems();
       });
-    this.createLocalizableString("minRateDescription", this, true)
-      .onStringChanged.add((sender, options) => {
-        this.setPropertyValue("hasMinRateDescription", !sender.isEmpty);
-      });
-    this.createLocalizableString("maxRateDescription", this, true)
-      .onStringChanged.add((sender, options) => {
-        this.setPropertyValue("hasMaxRateDescription", !sender.isEmpty);
-      });
-
-    this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
-      this.updateReadOnlyText();
+      this.resetReadOnlyText();
     });
-    this.updateReadOnlyText();
 
     this.initPropertyDependencies();
   }
@@ -151,13 +139,9 @@ export class QuestionRatingModel extends Question {
 
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
     this.dropdownListModelValue?.locStrsChanged();
   }
-  private updateReadOnlyText(): void {
-    this.readOnlyText = this.displayValue || this.placeholder;
-  }
-
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
@@ -504,13 +488,17 @@ export class QuestionRatingModel extends Question {
    * @see rateMin
    */
   public get minRateDescription(): string {
-    return this.getLocalizableStringText("minRateDescription");
+    return this.getLocStringText(this.locMinRateDescription);
   }
   public set minRateDescription(val: string) {
-    this.setLocalizableStringText("minRateDescription", val);
+    this.setLocStringText(this.locMinRateDescription, val);
   }
   get locMinRateDescription(): LocalizableString {
-    return this.getLocalizableString("minRateDescription");
+    return this.getOrCreateLocStr("minRateDescription", true, false, (strLoc: LocalizableString) => {
+      strLoc.onStringChanged.add(() => {
+        this.setPropertyValue("hasMinRateDescription", !strLoc.isEmpty);
+      });
+    });
   }
   /**
    * Specifies a description for the maximum (last) rate value.
@@ -520,13 +508,17 @@ export class QuestionRatingModel extends Question {
    * @see rateMax
    */
   public get maxRateDescription(): string {
-    return this.getLocalizableStringText("maxRateDescription");
+    return this.getLocStringText(this.locMaxRateDescription);
   }
   public set maxRateDescription(val: string) {
-    this.setLocalizableStringText("maxRateDescription", val);
+    this.setLocStringText(this.locMaxRateDescription, val);
   }
   get locMaxRateDescription(): LocalizableString {
-    return this.getLocalizableString("maxRateDescription");
+    return this.getOrCreateLocStr("maxRateDescription", true, false, (strLoc: LocalizableString) => {
+      strLoc.onStringChanged.add(() => {
+        this.setPropertyValue("hasMaxRateDescription", !strLoc.isEmpty);
+      });
+    });
   }
   public get hasMinRateDescription(): boolean {
     return this.getPropertyValue("hasMinRateDescription", undefined, () => !!this.minRateDescription);
@@ -880,13 +872,13 @@ export class QuestionRatingModel extends Question {
       .toString();
   }
   public get placeholder(): string {
-    return this.getLocalizableStringText("ratingOptionsCaption");
+    return this.getLocStringText(this.locPlaceholder);
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("ratingOptionsCaption", val);
+    this.setLocStringText(this.locPlaceholder, val);
   }
   get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("ratingOptionsCaption");
+    return this.getOrCreateLocStr("ratingOptionsCaption", false, true);
   }
   get allowClear(): boolean {
     return true;
@@ -904,15 +896,18 @@ export class QuestionRatingModel extends Question {
     return item.value == this.value;
   }
   public get readOnlyText(): string {
-    return this.getLocalizableStringText("readOnlyText");
+    return this.locReadOnlyText.calculatedText;
   }
-  public set readOnlyText(val: string) {
-    this.setLocalizableStringText("readOnlyText", val);
+  public get locReadOnlyText(): LocalizableString {
+    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (): string => {
+        return this.displayValue || this.placeholder;
+      };
+    });
   }
-  get locReadOnlyText(): LocalizableString {
-    return this.getLocalizableString("readOnlyText");
+  private resetReadOnlyText(): void {
+    this.resetPropertyValue("readOnlyText");
   }
-
   public needResponsiveWidth() {
     const rateValues = this.getPropertyValue("rateValues");
     const rateStep = this.getPropertyValue("rateStep");

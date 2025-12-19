@@ -208,8 +208,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
-    this.createLocalizableString("otherErrorText", this, true, "otherRequiredError");
-    this.createLocString({ name: "otherPlaceholder", hasTranslation: true });
     this.otherItemValue.setLocText(locOtherText);
     this.choicesByUrl.createItemValue = (value: any): ItemValue => {
       return this.createItemValue(value);
@@ -1326,9 +1324,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    * @see showCommentArea
    */
-  public get otherPlaceholder(): string { return this.getLocalizableStringText("otherPlaceholder"); }
-  public set otherPlaceholder(val: string) { this.setLocalizableStringText("otherPlaceholder", val); }
-  public get locOtherPlaceholder(): LocalizableString { return this.getLocalizableString("otherPlaceholder"); }
+  public get otherPlaceholder(): string { return this.getLocStringText(this.locOtherPlaceholder); }
+  public set otherPlaceholder(val: string) { this.setLocStringText(this.locOtherPlaceholder, val); }
+  public get locOtherPlaceholder(): LocalizableString { return this.getOrCreateLocStr("otherPlaceholder", false, true); }
 
   public get otherPlaceHolder(): string {
     return this.otherPlaceholder;
@@ -1341,13 +1339,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    */
   public get otherErrorText(): string {
-    return this.getLocalizableStringText("otherErrorText");
+    return this.getLocStringText(this.locOtherErrorText);
   }
   public set otherErrorText(val: string) {
-    this.setLocalizableStringText("otherErrorText", val);
+    this.setLocStringText(this.locOtherErrorText, val);
   }
   get locOtherErrorText(): LocalizableString {
-    return this.getLocalizableString("otherErrorText");
+    return this.getOrCreateLocStr("otherErrorText", true, "otherRequiredError");
   }
   /**
    * An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.

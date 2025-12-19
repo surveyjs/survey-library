@@ -728,7 +728,9 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onChange = (event: any): void => {
     this.updateDateValidationMessage(event);
-    const elementIsFocused = event.target === settings.environment.root.activeElement;
+    const root = this.input?.getRootNode() || settings.environment.root;
+    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const elementIsFocused = event.target === root.activeElement;
     if (elementIsFocused) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);

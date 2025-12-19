@@ -1207,55 +1207,6 @@ export class SurveyModel extends SurveyElementCore
         this.onScrollCallback = undefined;
       }
     });
-
-    this.layoutElements.push({
-      id: "timerpanel",
-      template: "survey-timerpanel",
-      component: "sv-timerpanel",
-      data: this.timerModel
-    });
-    this.layoutElements.push({
-      id: "progress-buttons",
-      component: "sv-progress-buttons",
-      getData: () => this.progressBar,
-      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
-    });
-    this.layoutElements.push({
-      id: "progress-questions",
-      component: "sv-progress-questions",
-      data: this
-    });
-    this.layoutElements.push({
-      id: "progress-pages",
-      component: "sv-progress-pages",
-      data: this
-    });
-    this.layoutElements.push({
-      id: "progress-correctquestions",
-      component: "sv-progress-correctquestions",
-      data: this
-    });
-    this.layoutElements.push({
-      id: "progress-requiredquestions",
-      component: "sv-progress-requiredquestions",
-      data: this
-    });
-    this.addLayoutElement({
-      id: "toc-navigation",
-      component: "sv-navigation-toc",
-      getData: () => this.tocModel,
-      processResponsiveness: width => this.tocModel.updateStickyTOCSize(this.rootElement)
-    });
-    this.layoutElements.push({
-      id: "buttons-navigation",
-      component: "sv-action-bar",
-      getData: () => this.navigationBar
-    });
-    this.layoutElements.push({
-      id: "buttons-navigation-top",
-      component: "sv-action-bar",
-      getData: () => this.navigationBar
-    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -5895,7 +5846,8 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    const { root } = settings.environment;
+    const root = htmlElement?.getRootNode() || settings.environment.root;
+    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
     if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {
@@ -8452,8 +8404,61 @@ export class SurveyModel extends SurveyElementCore
   public getSkeletonComponentName(element: ISurveyElement): string {
     return this.skeletonComponentName;
   }
-
-  @propertyArray() private layoutElements: Array<ISurveyLayoutElement>;
+  private get layoutElements(): Array<ISurveyLayoutElement> {
+    return this.getPropertyValue("layoutElements", undefined, () => this.createLayoutElements());
+  }
+  private createLayoutElements(): Array<ISurveyLayoutElement> {
+    const res = new Array<ISurveyLayoutElement>();
+    res.push({
+      id: "timerpanel",
+      template: "survey-timerpanel",
+      component: "sv-timerpanel",
+      data: this.timerModel
+    });
+    res.push({
+      id: "progress-buttons",
+      component: "sv-progress-buttons",
+      getData: () => this.progressBar,
+      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
+    });
+    res.push({
+      id: "progress-questions",
+      component: "sv-progress-questions",
+      data: this
+    });
+    res.push({
+      id: "progress-pages",
+      component: "sv-progress-pages",
+      data: this
+    });
+    res.push({
+      id: "progress-correctquestions",
+      component: "sv-progress-correctquestions",
+      data: this
+    });
+    res.push({
+      id: "progress-requiredquestions",
+      component: "sv-progress-requiredquestions",
+      data: this
+    });
+    res.push({
+      id: "toc-navigation",
+      component: "sv-navigation-toc",
+      getData: () => this.tocModel,
+      processResponsiveness: width => this.tocModel.updateStickyTOCSize(this.rootElement)
+    });
+    res.push({
+      id: "buttons-navigation",
+      component: "sv-action-bar",
+      getData: () => this.navigationBar
+    });
+    res.push({
+      id: "buttons-navigation-top",
+      component: "sv-action-bar",
+      getData: () => this.navigationBar
+    });
+    return res;
+  }
 
   /**
    * Adds an element to the survey layout.

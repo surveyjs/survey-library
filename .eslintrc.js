@@ -107,7 +107,7 @@ module.exports = {
         "includeIdentifier": true,
         "includeComment": true
       }
-    ],
+    ]
   },
   "overrides": [
     {
@@ -123,6 +123,18 @@ module.exports = {
       "files": ["packages/survey-core/src/localization/*.ts"],
       "rules": {
         "surveyjs/eslint-plugin-i18n/only-english-or-code": "off"
+      }
+    },
+    {
+      files: ["packages/**/*.ts", "packages/**/*.tsx"],
+      rules: {
+        "surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom": [
+          "error",
+          {
+            "includeIdentifier": true,
+            "includeComment": true
+          }
+        ]
       }
     }
   ]

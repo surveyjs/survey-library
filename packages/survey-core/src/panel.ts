@@ -392,20 +392,19 @@ export class PanelModelBase extends SurveyElement<Question>
       (obj: Base) => { return !this.areInvisibleElementsShowing; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
-
-    this.registerPropertyChangedHandlers(["questionTitleLocation"], () => {
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "questionTitleLocation") {
       this.onVisibleChanged.bind(this);
       this.updateElementCss(true);
-    });
-    this.registerPropertyChangedHandlers(
-      ["questionStartIndex", "showQuestionNumbers"],
-      () => {
-        this.updateVisibleIndexes();
-      }
-    );
-    this.registerPropertyChangedHandlers(["title"], () => {
+    }
+    if (["questionStartIndex", "showQuestionNumbers"].indexOf(name) > -1) {
+      this.updateVisibleIndexes();
+    }
+    if (name === "title") {
       this.resetHasTextInTitle();
-    });
+    }
   }
   public getType(): string {
     return "panelbase";
@@ -2172,14 +2171,18 @@ export class PanelModel extends PanelModelBase implements IElement {
   constructor(name: string = "") {
     super(name);
     this.createNewArray("footerActions");
-    this.registerPropertyChangedHandlers(["width"], () => {
-      if (!!this.parent) {
-        this.parent.elementWidthChanged(this);
-      }
-    });
-    this.registerPropertyChangedHandlers(
-      ["indent", "innerIndent", "rightIndent"], () => { this.resetIndents(); });
-    this.registerPropertyChangedHandlers(["colSpan"], () => { this.parent?.updateColumns(); });
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "width" && this.parent) {
+      this.parent.elementWidthChanged(this);
+    }
+    if (["indent", "innerIndent", "rightIndent"].indexOf(name) > -1) {
+      this.resetIndents();
+    }
+    if (name === "colSpan" && this.parent) {
+      this.parent.updateColumns();
+    }
   }
   public getType(): string {
     return "panel";

@@ -141,11 +141,11 @@ export class ChoicesRestful extends Base {
   public createItemValue = (value: any): ItemValue => {
     return new ItemValue(value);
   };
-  constructor() {
-    super();
-    this.registerPropertyChangedHandlers(["url"], () => {
-      if (this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
-    });
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "url" && this.owner) {
+      (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!newValue);
+    }
   }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner ? this.owner.survey : null;

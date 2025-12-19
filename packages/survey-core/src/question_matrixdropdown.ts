@@ -91,18 +91,17 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  constructor(name: string) {
-    super(name);
-    this.registerPropertyChangedHandlers(["rows"], () => {
-      if (!this.generatedVisibleRows) return;
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "rows" && !!this.generatedVisibleRows) {
       this.clearGeneratedRows();
       this.resetRenderedTable();
       this.getVisibleRows();
       this.clearIncorrectValues();
-    });
-    this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
+    }
+    if (name === "hideIfRowsEmpty") {
       this.updateVisibilityBasedOnRows();
-    });
+    }
   }
   public getType(): string {
     return "matrixdropdown";

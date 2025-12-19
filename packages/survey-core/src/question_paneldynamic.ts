@@ -292,20 +292,30 @@ export class QuestionPanelDynamicModel extends Question
     this.template.removeElementCallback = () => {
       this.rebuildPanels();
     };
-
-    this.registerPropertyChangedHandlers(["panelsState"], () => {
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "panelsState") {
       this.setPanelsState();
-    });
-    this.registerPropertyChangedHandlers(["newPanelPosition", "displayMode", "showProgressBar"], () => {
+    }
+    const footerProps = ["newPanelPosition", "displayMode", "showProgressBar"];
+    if (footerProps.indexOf(name) > -1) {
       this.updateFooterActions();
-    });
-    this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
-    this.registerPropertyChangedHandlers(["minPanelCount"], () => { this.onMinPanelCountChanged(); });
-    this.registerPropertyChangedHandlers(["maxPanelCount"], () => { this.onMaxPanelCountChanged(); });
-    this.registerPropertyChangedHandlers(["templateQuestionTitleLocation", "templateQuestionTitleWidth"], () => {
+    }
+    if (name === "allowAddPanel") {
+      this.updateNoEntriesTextDefaultLoc();
+    }
+    if (name === "minPanelCount") {
+      this.onMinPanelCountChanged();
+    }
+    if (name === "maxPanelCount") {
+      this.onMaxPanelCountChanged();
+    }
+    const templateProps = ["templateQuestionTitleLocation", "templateQuestionTitleWidth"];
+    if (templateProps.indexOf(name) > -1) {
       const panels = this.visiblePanelsCore;
       if (panels) panels.forEach((panel) => { panel.updateElementCss(true); });
-    });
+    }
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get isContainer(): boolean { return true; }

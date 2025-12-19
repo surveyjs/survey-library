@@ -183,28 +183,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
-    this.registerPropertyChangedHandlers(["choices"], () => {
-      if (!this.filterItems()) {
-        this.onVisibleChoicesChanged();
-      }
-    });
     this.createItemValues("customChoices");
-    this.registerPropertyChangedHandlers(["customChoices"], () => {
-      this.onVisibleChoicesChanged();
-    });
-    this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
-        "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible"],
-      () => {
-        this.onVisibleChoicesChanged();
-      }
-    );
-    this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
-      this.onVisibleChanged();
-    });
-    this.registerPropertyChangedHandlers(["selecteditemValues"], (newVal: any) => {
-      this.onSelectedItemValuesChangedHandler(newVal);
-    });
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -227,6 +206,20 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       }
       return items;
     };
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const visibleChoicesChangedProps = ["choices", "customChoices", "choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
+      "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible"];
+    if (visibleChoicesChangedProps.indexOf(name) > -1 && (name !== "choices" || !this.filterItems())) {
+      this.onVisibleChoicesChanged();
+    }
+    if (name === "hideIfChoicesEmpty") {
+      this.onVisibleChanged();
+    }
+    if (name === "selectedItemValues") {
+      this.onSelectedItemValuesChangedHandler(newValue);
+    }
   }
   public getType(): string {
     return "selectbase";

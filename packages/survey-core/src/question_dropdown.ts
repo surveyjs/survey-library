@@ -21,15 +21,17 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   lastSelectedItemValue: ItemValue = null;
   private isChoicesLoading: boolean;
 
-  constructor(name: string) {
-    super(name);
-    this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const visibleChoicesChangedProps = ["choicesMin", "choicesMax", "choicesStep"];
+    const resetReadOnlyTextProps = ["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"];
+    if (visibleChoicesChangedProps.indexOf(name) > -1) {
       this.onVisibleChoicesChanged();
-    });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
+    }
+    if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.getSingleSelectedItem();
       this.resetReadOnlyText();
-    });
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

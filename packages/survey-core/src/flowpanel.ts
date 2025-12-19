@@ -14,11 +14,11 @@ export class FlowPanelModel extends PanelModel {
   public contentChangedCallback: () => void;
   public onGetHtmlForQuestion: (question: Question) => string;
   public onCustomHtmlProducing: () => string;
-  constructor(name: string = "") {
-    super(name);
-    this.registerPropertyChangedHandlers(["content"], () => {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "content") {
       this.onContentChanged();
-    });
+    }
   }
   public getType(): string {
     return "flowpanel";

@@ -30,11 +30,12 @@ export class ButtonGroupItemValue extends ChoiceItem {
  * A Model for a button group question.
  */
 export class QuestionButtonGroupModel extends QuestionCheckboxBase {
-  constructor(name: string) {
-    super(name);
-    this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
+    if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.resetReadOnlyText();
-    });
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

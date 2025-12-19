@@ -1143,37 +1143,6 @@ export class SurveyModel extends SurveyElementCore
     this.createNewArray("navigateToUrlOnCondition", (value: any) => {
       value.locOwner = this;
     });
-    this.registerPropertyChangedHandlers(["locale"], () => {
-      this.onSurveyLocaleChanged();
-    });
-    this.registerPropertyChangedHandlers(["firstPageIsStartPage"], () => {
-      this.onFirstPageIsStartedChanged();
-    });
-    this.registerPropertyChangedHandlers(["readOnly"], () => {
-      this.onReadOnlyChanged();
-    });
-    this.registerPropertyChangedHandlers(["progressBarType"], () => {
-      this.updateProgressText();
-    });
-    this.registerPropertyChangedHandlers(
-      ["questionStartIndex", "requiredMark", "questionTitlePattern"],
-      () => {
-        this.resetVisibleIndexes();
-      }
-    );
-    this.registerPropertyChangedHandlers(
-      ["isLoading", "isCompleted", "isCompletedBefore", "readOnly", "isStartedState", "currentPage", "isShowingPreview"],
-      () => { this.updateState(); });
-    this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
-      () => { this.onStateAndCurrentPageChanged(); });
-    this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.resetHasLogo(); });
-    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.resetPropertyValue("renderBackgroundImage"); });
-    this.registerPropertyChangedHandlers(["backgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
-      this.resetPropertyValue("backgroundImageStyle");
-    });
-    this.registerPropertyChangedHandlers(
-      ["showPrevButton", "showCompleteButton"],
-      () => { this.updateButtonsVisibility(); });
 
     this.onGetQuestionNumber.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1239,6 +1208,49 @@ export class SurveyModel extends SurveyElementCore
       }
     });
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "questionsOnPageMode") {
+      this.onQuestionsOnPageModeChanged(oldValue);
+    }
+    if (name === "locale") {
+      this.onSurveyLocaleChanged();
+    }
+    if (name === "firstPageIsStartPage") {
+      this.onFirstPageIsStartedChanged();
+    }
+    if (name === "readOnly") {
+      this.onReadOnlyChanged();
+    }
+    if (name === "progressBarType") {
+      this.updateProgressText();
+    }
+    const resetVisibleIndexesProps = ["questionStartIndex", "requiredMark", "questionTitlePattern"];
+    if (resetVisibleIndexesProps.indexOf(name) > -1) {
+      this.resetVisibleIndexes();
+    }
+    const updateStateProps = ["isLoading", "isCompleted", "isCompletedBefore", "readOnly", "isStartedState", "currentPage", "isShowingPreview"];
+    if (updateStateProps.indexOf(name) > -1) {
+      this.updateState();
+    }
+    const curPageStateProps = ["state", "currentPage", "showPreviewBeforeComplete"];
+    if (curPageStateProps.indexOf(name) > -1) {
+      this.onStateAndCurrentPageChanged();
+    }
+    if (name === "logo" || name === "logoPosition") {
+      this.resetHasLogo();
+    }
+    if (name === "backgroundImage") {
+      this.resetPropertyValue("renderBackgroundImage");
+    }
+    const bgProps = ["backgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"];
+    if (bgProps.indexOf(name) > -1) {
+      this.resetPropertyValue("backgroundImageStyle");
+    }
+    if (name === "showPrevButton" || name === "showCompleteButton") {
+      this.updateButtonsVisibility();
+    }
+  }
   private tocModelValue: TOCModel;
   private get tocModel(): TOCModel {
     if (!this.tocModelValue) {
@@ -1283,12 +1295,6 @@ export class SurveyModel extends SurveyElementCore
   public getType(): string {
     return "survey";
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
-    if (name === "questionsOnPageMode") {
-      this.onQuestionsOnPageModeChanged(oldValue);
-    }
-  }
-
   /**
    * Returns an array of all pages in the survey.
    *

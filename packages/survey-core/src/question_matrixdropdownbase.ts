@@ -1047,29 +1047,31 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.detailPanel.renderWidth = "100%";
     this.detailPanel.isInteractiveDesignElement = false;
     this.detailPanel.showTitle = false;
-    this.registerPropertyChangedHandlers(["columns", "cellType"], () => { this.updateColumnsAndRows(); });
-    this.registerPropertyChangedHandlers(
-      ["placeholder", "columnColCount", "rowTitleWidth", "choices"],
-      () => {
-        this.clearRowsAndResetRenderedTable();
-      }
-    );
-    this.registerPropertyChangedHandlers(
-      [
-        "transposeData",
-        "addRowButtonLocation",
-        "hideColumnsIfEmpty",
-        "showHeader",
-        "minRowCount",
-        "isReadOnly",
-        "rowCount",
-        "hasFooter",
-        "detailPanelMode",
-        "displayMode"
-      ],
-      () => {
-        this.resetRenderedTable();
-      });
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "columns" || name === "cellType") {
+      this.updateColumnsAndRows();
+    }
+    const clearRowsProps = ["placeholder", "columnColCount", "rowTitleWidth", "choices"];
+    const resetRenderTableProps = [
+      "transposeData",
+      "addRowButtonLocation",
+      "hideColumnsIfEmpty",
+      "showHeader",
+      "minRowCount",
+      "isReadOnly",
+      "rowCount",
+      "hasFooter",
+      "detailPanelMode",
+      "displayMode"
+    ];
+    if (clearRowsProps.indexOf(name) > -1) {
+      this.clearRowsAndResetRenderedTable();
+    }
+    if (resetRenderTableProps.indexOf(name) > -1) {
+      this.resetRenderedTable();
+    }
   }
   public getType(): string {
     return "matrixdropdownbase";

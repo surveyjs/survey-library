@@ -247,8 +247,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.acceptedTypes = undefined;
       }
     });
-    this.registerFunctionOnPropertiesValueChanged(["acceptedTypes"], () => this.updateAcceptedCategories());
     this.actionsContainerValue = this.createActionsContainer();
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "acceptedTypes") {
+      this.updateAcceptedCategories();
+    }
   }
   private actionsContainerValue: ActionContainer;
   public get actionsContainer(): ActionContainer {

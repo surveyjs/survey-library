@@ -87,33 +87,12 @@ export class QuestionRatingModel extends Question {
     super(name);
 
     this.createItemValues("rateValues");
-    this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
-      "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
-    () => this.resetRenderedItems());
-    this.registerFunctionOnPropertiesValueChanged(["rateType"],
-      () => {
-        this.setIconsToRateValues();
-        this.resetRenderedItems();
-        this.updateRateCount();
-      });
-    this.registerFunctionOnPropertiesValueChanged(["rateValues"],
-      () => {
-        this.setIconsToRateValues();
-        this.resetRenderedItems();
-      });
     this.registerSychProperties(["rateValues"],
       () => {
         this.autoGenerate = this.rateValues.length == 0;
         this.setIconsToRateValues();
         this.resetRenderedItems();
       });
-    this.registerFunctionOnPropertiesValueChanged(["rateColorMode", "scaleColorMode"],
-      () => {
-        this.updateColors((this.survey as SurveyModel).themeVariables);
-      });
-    this.registerFunctionOnPropertiesValueChanged(["displayMode"], () => {
-      this.updateRenderAsBasedOnDisplayMode(true);
-    });
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
@@ -125,11 +104,33 @@ export class QuestionRatingModel extends Question {
         }
         this.resetRenderedItems();
       });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "placeholder", "choices", "visibleChoices"], () => {
-      this.resetReadOnlyText();
-    });
 
     this.initPropertyDependencies();
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetReadOnlyTextProps = ["value", "renderAs", "placeholder", "choices", "visibleChoices"];
+    if (resetReadOnlyTextProps.indexOf(name) > -1) {
+      this.resetReadOnlyText();
+    }
+    const resetItemsProps = (["rateMin", "rateMax",
+      "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems",
+      "rateType", "rateValues"]);
+    if (resetItemsProps.indexOf(name) > -1) {
+      if (name === "rateType" || name === "rateValues") {
+        this.setIconsToRateValues();
+      }
+      this.resetRenderedItems();
+      if (name === "rateType") {
+        this.updateRateCount();
+      }
+    }
+    if (name === "rateColorMode" || name === "scaleColorMode") {
+      this.updateColors((this.survey as SurveyModel).themeVariables);
+    }
+    if (name === "displayMode") {
+      this.updateRenderAsBasedOnDisplayMode(false);
+    }
   }
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {

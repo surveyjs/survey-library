@@ -51,6 +51,7 @@ frameworks.forEach((framework) => {
           },
         ]
       });
+      await page.waitForTimeout(300);
       await checkA11y(page, axeContext, { axeOptions });
     });
     test("axe check errors", async ({ page }) => {

@@ -99,6 +99,8 @@ export var simplifiedChineseSurveyStrings = {
   urlGetChoicesError: "未能载入有效的选项或请求参数路径有误",
   // "The file size should not exceed {0}."
   exceedMaxSize: "文件大小不能超过 {0}",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "你最多能上传的文件数量是{0}。",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "无法上传文件。请为“onUploadFiles”事件添加处理程序。",
   // "Response required: enter another value."

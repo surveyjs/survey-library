@@ -99,6 +99,8 @@ export var danishSurveyStrings = {
   urlGetChoicesError: "Forespørgslen returnerede ingen data eller 'path' parameteren er forkert",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Filstørrelsen må ikke overstige {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Det maksimale antal filer, du kan uploade, er {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'.",
   // "Response required: enter another value."

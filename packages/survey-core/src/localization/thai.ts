@@ -99,6 +99,8 @@ export var thaiStrings = {
   urlGetChoicesError: "รีเควสรีเทิร์นข้อมูลว่างเปล่า หรือ 'path' property ไม่ถูกต้อง",
   // "The file size should not exceed {0}."
   exceedMaxSize: "ขนาดไฟล์ต้องไม่เกิน {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "จํานวนไฟล์สูงสุดที่คุณสามารถอัปโหลดได้คือ {0}",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "ไม่สามารถอัปโหลดไฟล์ได้ โปรดเพิ่มตัวจัดการสําหรับเหตุการณ์ 'onUploadFiles'",
   // "Response required: enter another value."

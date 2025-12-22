@@ -4265,5 +4265,5 @@ QUnit.test("Checkbox question, defaultValue, skip trigger, Bug#10728", (assert) 
   survey.setValue("q1", 1);
   assert.equal(survey.currentPage.name, "page3", "the survey is on the page3");
   survey.tryComplete();
-  assert.deepEqual(survey.data, { q1: 1, q2: ["item1"] }, "the data is correct");  
+  assert.deepEqual(survey.data, { q1: 1, q2: ["item1"] }, "the data is correct");
 });

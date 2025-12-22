@@ -126,7 +126,8 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       if (!!self.root) {
         self.root.unmount();
       }
-      const root = (window as any).ReactDOMClient.createRoot((window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
       (window as any).root = root;
       root.render(
         self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),

@@ -412,7 +412,7 @@ frameworks.forEach((framework) => {
             "type": "tagbox",
             "isRequired": true,
             "choicesByUrl": {
-              "url": "http://127.0.0.1:8080/testCafe/countriesMock.json",
+              "url": "http://127.0.0.1:8080/test-resources/countriesMock.json",
               path: "RestResponse;result",
               valueName: "name"
             },

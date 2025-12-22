@@ -218,6 +218,16 @@ export class Helpers {
     }
     return res;
   }
+  public static createDiff(changedObj: any, originalObject: any): any {
+    const res: any = {};
+    if (typeof changedObj !== "object" || typeof originalObject !== "object") return res;
+    for (const key in changedObj) {
+      if (!Helpers.isTwoValueEquals(changedObj[key], originalObject[key])) {
+        res[key] = changedObj[key];
+      }
+    }
+    return res;
+  }
   public static isConvertibleToNumber(value: any): boolean {
     return (
       value !== undefined &&

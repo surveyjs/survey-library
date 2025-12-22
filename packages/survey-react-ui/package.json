@@ -1,6 +1,6 @@
 {
     "name": "survey-react-ui",
-    "version": "2.3.16",
+    "version": "2.5.1",
     "files": [
         "**/*"
     ],
@@ -17,8 +17,6 @@
         "lint:fix": "eslint . --fix",
         "test": "karma start ./karma.conf.js --single-run",
         "test:watch": "karma start ./karma.conf.js",
-        "testcafe": "testcafe ../../functionalTests/ --selector-timeout 1500 --app \"http-server --silent\" --env=react --config-file ../../.testcaferc.dev.js",
-        "testcafe:ci": "testcafe ../../functionalTests/ --selector-timeout 1500 --app \"http-server --silent\" --reporter minimal --env=react --config-file ../../.testcaferc.js",
         "accessibility-tests": "cross-env env=react playwright test --project a11y --ui",
         "accessibility-tests:ci": "cross-env env=react playwright test --project a11y --reporter dot --quiet",
         "e2e": "cross-env env=react playwright test --project e2e --ui",

@@ -23,7 +23,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { ConsoleWarnings } from "./console-warnings";
 import { settings } from "./settings";
-import { IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
 
 /**
@@ -261,7 +261,7 @@ export interface ICustomQuestionTypeConfiguration {
    * @param question A custom question. Use the `question.value` property to access the question's value.
    * @returns An error text.
    */
-  getErrorText?: (question: Question) => string;
+  getErrorText?(question: Question): string;
   /**
    * A function that is called after the question value is set.
    *
@@ -276,12 +276,13 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * [View Demo](https://surveyjs.io/survey-creator/examples/smart-search-input/ (linkStyle))
    */
-  onValueSet?: (question: Question, newValue: any) => void;
-  onSetQuestionValue?: (question: Question, newValue: any) => void;
-  valueToQuestion?: (val: any) => any;
-  valueFromQuestion?: (val: any) => any;
-  getValue?: (val: any) => any;
-  setValue?: (val: any) => any;
+  onValueSet?(question: Question, newValue: any): void;
+  onSetQuestionValue?(question: Question, newValue: any): void;
+  valueToQuestion?(val: any): any;
+  valueFromQuestion?(val: any): any;
+  getValue?(val: any): any;
+  setValue?(val: any): any;
+  numberQuestionsWithHiddenTitle?: boolean;
 }
 
 export class ComponentQuestionJSON {
@@ -395,6 +396,10 @@ export class ComponentQuestionJSON {
       this.dynamicProperties = this.calcDynamicProperties();
     }
     return this.dynamicProperties;
+  }
+  public getNumberQuestionsWithHiddenTitle(res: boolean): boolean {
+    const jsonRes = this.json.numberQuestionsWithHiddenTitle;
+    return jsonRes === undefined ? res : jsonRes;
   }
   private calcDynamicProperties(): Array<JsonObjectProperty> {
     const baseProps = this.json.inheritBaseProps;
@@ -513,11 +518,9 @@ export abstract class QuestionCustomModelBase extends Question
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
-    SurveyElement.CreateDisabledDesignElements = true;
     this.locQuestionTitle = this.createLocalizableString("questionTitle");
     this.locQuestionTitle.setJson(this.customQuestion.defaultQuestionTitle);
     this.createWrapper();
-    SurveyElement.CreateDisabledDesignElements = false;
     if (!!this.customQuestion) {
       this.customQuestion.onCreated(this);
     }
@@ -608,7 +611,6 @@ export abstract class QuestionCustomModelBase extends Question
   protected initElement(el: SurveyElement) {
     if (!el) return;
     el.setSurveyImpl(this);
-    el.disableDesignActions = true;
   }
   protected isSettingValOnLoading: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
@@ -1064,14 +1066,18 @@ export class CompositeValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
     super(question);
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
+  public getObj(): Base { return this.question; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const cq = <QuestionCompositeModel>this.question;
-    if (path.length > 0 && (path.length > 1 || !isRoot)) {
+    const path = params.path;
+    if (path.length > 0 && (path.length > 1 || !params.isRoot)) {
       const isCompPrefix = path[0].name === settings.expressionVariables.composite;
       if (isCompPrefix) {
         path.shift();
       }
-      return new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(path, false, index, createObjects);
+      params.isRoot = false;
+      return params.isProperty ? new PropertyGetterContext(cq.contentPanel).getValue(params) :
+        new QuestionArrayGetterContext(cq.contentPanel.questions).getValue(params);
     }
     return { isFound: false };
   }
@@ -1188,6 +1194,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     });
     this.setAfterRenderCallbacks(res);
     return res;
+  }
+  protected getHasTitleOnCalcNo(): boolean {
+    const res = super.getHasTitleOnCalcNo();
+    return (!!this.customQuestion) ? this.customQuestion.getNumberQuestionsWithHiddenTitle(res) : res;
   }
   protected onReadOnlyChanged() {
     if (!!this.contentPanel) {

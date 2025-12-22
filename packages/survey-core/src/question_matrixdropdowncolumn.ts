@@ -9,7 +9,7 @@ import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -33,8 +33,17 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
   }
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (path.length === 1 && ["name", "item"].indexOf(path[0].name) > -1)
+  public getObj(): Base { return this.column; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    const name = path.length > 0 ? path[0].name.toLocaleLowerCase() : "";
+    const expVar = settings.expressionVariables;
+    const isColumnVar = [expVar.self, expVar.column].indexOf(name) > -1;
+    if (params.isProperty && path.length > 1 && isColumnVar) {
+      params.path = path.slice(1);
+      return new PropertyGetterContext(this.column).getValue(params);
+    }
+    if (path.length === 1 && ["name", "item"].indexOf(name) > -1)
       return { isFound: true, value: this.column.name };
     return undefined;
   }
@@ -127,11 +136,28 @@ export class MatrixDropdownColumn extends Base
   constructor(name: string, title?: string, colOwner?: IMatrixColumnOwner) {
     super();
     this.colOwnerValue = colOwner;
-    this.createLocalizableString("totalFormat");
-    this.createLocalizableString("cellHint");
-    this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
-    this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
     this.updateTemplateQuestion(undefined, name, title);
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "showInMultipleColumns") {
+      this.doShowInMultipleColumnsChanged();
+    }
+    if (name === "visible") {
+      this.doColumnVisibilityChanged();
+    }
+    if (name === "isRequired") {
+      this.updateIsRenderedRequired(newValue);
+    }
+    if (!this.colOwner || this.isLoadingFromJson) return;
+    if (this.isShowInMultipleColumns) {
+      if (name === "choicesOrder") return;
+      if (["visibleChoices", "choices"].indexOf(name) > -1) {
+        this.colOwner.onShowInMultipleColumnsChanged(this);
+      }
+    }
+    if (!Serializer.hasOriginalProperty(this, name)) return;
+    this.colOwner.onColumnPropertyChanged(this, name, newValue);
   }
   public getOriginalObj(): Base {
     return this.templateQuestion;
@@ -562,22 +588,22 @@ export class MatrixDropdownColumn extends Base
    * @see totalDisplayStyle
    */
   public get totalFormat(): string {
-    return this.getLocalizableStringText("totalFormat", "");
+    return this.getLocStringText(this.locTotalFormat) || "";
   }
   public set totalFormat(val: string) {
-    this.setLocalizableStringText("totalFormat", val);
+    this.setLocStringText(this.locTotalFormat, val);
   }
   get locTotalFormat(): LocalizableString {
-    return this.getLocalizableString("totalFormat");
+    return this.getOrCreateLocStr("totalFormat");
   }
   public get cellHint(): string {
-    return this.getLocalizableStringText("cellHint", "");
+    return this.getLocStringText(this.locCellHint) || "";
   }
   public set cellHint(val: string) {
-    this.setLocalizableStringText("cellHint", val);
+    this.setLocStringText(this.locCellHint, val);
   }
   get locCellHint(): LocalizableString {
-    return this.getLocalizableString("cellHint");
+    return this.getOrCreateLocStr("cellHint");
   }
   public get renderAs(): string {
     return this.getPropertyValue("renderAs");
@@ -703,7 +729,7 @@ export class MatrixDropdownColumn extends Base
     return !!this.colOwner ? this.colOwner.getRendererContext(locStr) : locStr;
   }
   public getProcessedText(text: string): string {
-    return this.colOwner ? this.colOwner.getProcessedText(text) : text;
+    return this.colOwner ? this.colOwner.getProcessedText(text, this) : text;
   }
   public createCellQuestion(row: MatrixDropdownRowModelBase): Question {
     var qType = this.calcCellQuestionType(row);
@@ -864,21 +890,6 @@ export class MatrixDropdownColumn extends Base
         this.propertyValueChanged("choices", choices, choices);
       };
     }
-  }
-  protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
-    super.propertyValueChanged(name, oldValue, newValue, arrayChanges, target);
-    if (name === "isRequired") {
-      this.updateIsRenderedRequired(newValue);
-    }
-    if (!this.colOwner || this.isLoadingFromJson) return;
-    if (this.isShowInMultipleColumns) {
-      if (name === "choicesOrder") return;
-      if (["visibleChoices", "choices"].indexOf(name) > -1) {
-        this.colOwner.onShowInMultipleColumnsChanged(this);
-      }
-    }
-    if (!Serializer.hasOriginalProperty(this, name)) return;
-    this.colOwner.onColumnPropertyChanged(this, name, newValue);
   }
   private doItemValuePropertyChanged(
     propertyName: string,

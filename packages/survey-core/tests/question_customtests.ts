@@ -130,59 +130,6 @@ QUnit.test("Composite: sync values", function (assert) {
   assert.equal(lastName.value, "Telnov", "question value is set");
   ComponentCollection.Instance.clear();
 });
-QUnit.test("Single: disableDesignActions property", function (assert) {
-  var json = {
-    name: "newquestion",
-    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
-  };
-  ComponentCollection.Instance.add(json);
-  var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1" }],
-  });
-  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  assert.equal(
-    q.disableDesignActions,
-    false,
-    "Design action is available for root"
-  );
-  assert.equal(
-    q.contentQuestion.disableDesignActions,
-    true,
-    "Design action is disabled for contentQuestion"
-  );
-  ComponentCollection.Instance.clear();
-});
-QUnit.test("Composite: disableDesignActions property", function (assert) {
-  var json = {
-    name: "customerinfo",
-    elementsJSON: [
-      { type: "text", name: "firstName" },
-      { type: "text", name: "lastName" },
-    ],
-  };
-  ComponentCollection.Instance.add(json);
-  var survey = new SurveyModel({
-    elements: [{ type: "customerinfo", name: "q1" }],
-  });
-  var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-  var firstName = q.contentPanel.getQuestionByName("firstName");
-  assert.equal(
-    q.disableDesignActions,
-    false,
-    "Design action is available for root"
-  );
-  assert.equal(
-    q.contentPanel.disableDesignActions,
-    true,
-    "Design action is disabled for contentPanel"
-  );
-  assert.equal(
-    firstName.disableDesignActions,
-    true,
-    "Design action is disabled for firstName"
-  );
-  ComponentCollection.Instance.clear();
-});
 QUnit.test("Single: read-only", function (assert) {
   var json = {
     name: "newquestion",
@@ -4265,5 +4212,44 @@ QUnit.test("Single: PanelDynamic, showQuestionNumbers recursive & questionStartI
   assert.equal(panel2.getQuestionByName("q2").no, "1.2 a", "panel2.q2 number");
   assert.equal(panel2.getQuestionByName("q3").no, "1.2 b", "panel2.q3 number");
   assert.equal(q4.no, "1.3", "q4 number");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: allow to make the custom number rendering", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    elementsJSON: [
+      { type: "text", name: "q1", title: "Question 1. {$parent.no}" },
+      { type: "text", name: "q2", title: "Question 2. {$self.no}" }
+    ],
+    onCreated: function (question) {
+      question.contentPanel.showQuestionNumbers = "recursive";
+      question.contentPanel.getQuestionByName("q1").onGetNoCallback = (no: string): string => question.no;
+    },
+    numberQuestionsWithHiddenTitle: true
+  });
+  const survey = new SurveyModel({
+    showQuestionNumbers: "recursive",
+    elements: [
+      { type: "text", name: "q1" },
+      { "name": "question1", type: "newquestion", titleLocation: "hidden" },
+      { type: "text", name: "q2" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("question1");
+  const cq1 = compQuestion.contentPanel.getQuestionByName("q1");
+  const cq2 = compQuestion.contentPanel.getQuestionByName("q2");
+  assert.equal(q1.no, "1.", "q1 number");
+  assert.equal(q2.no, "3.", "q2 number");
+  assert.equal(compQuestion.no, "2.", "composite question number");
+  assert.equal(cq1.no, "2.", "cq1 number");
+  assert.equal(cq2.no, "2.2.", "cq2 number");
+  assert.equal(compQuestion.visibleIndex, 1, "q2 visibleIndex");
+  assert.equal(cq1.visibleIndex, 0, "cq1 visibleIndex");
+  assert.equal(cq2.visibleIndex, 1, "cq2 visibleIndex");
+
+  assert.equal(cq1.locTitle.textOrHtml, "Question 1. 2.", "cq1 title");
+  assert.equal(cq2.locTitle.textOrHtml, "Question 2. 2.2.", "cq2 title");
+
   ComponentCollection.Instance.clear();
 });

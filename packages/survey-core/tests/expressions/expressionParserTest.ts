@@ -1153,6 +1153,19 @@ QUnit.test("Test binary operator anyof", function(assert) {
   values = { value: null };
   assert.equal(runner.runValues(values), false, "null anyof ['a', 'b']");
 });
+QUnit.test("Test binary operator noneof", function(assert) {
+  var runner = new ConditionRunner("{value} noneof ['a', 'b']");
+  var values = { value: ["a", "c"] };
+  assert.equal(runner.runValues(values), false, "['a', 'c'] noneof ['a', 'b']");
+  values = { value: ["a", "b"] };
+  assert.equal(runner.runValues(values), false, "['a', 'b'] noneof ['a', 'b']");
+  values = { value: ["c", "d"] };
+  assert.equal(runner.runValues(values), true, "['c', 'd'] noneof ['a', 'b']");
+  values = { value: [] };
+  assert.equal(runner.runValues(values), true, "[] noneof ['a', 'b']");
+  values = { value: null };
+  assert.equal(runner.runValues(values), true, "null noneof ['a', 'b']");
+});
 QUnit.test("Test binary operator anyof with 0", function(assert) {
   var runner = new ConditionRunner("{value} anyof [7, 3, 0]");
   var values = { value: 3 };
@@ -1867,7 +1880,7 @@ QUnit.test("ExpressionRunner vs context", function(assert) {
 QUnit.test("Condition vs not boolean, Bug#10412", function(assert) {
   const exp = "(age({a}) >= 18) and !{b} and !{c}";
   const operand = new ConditionsParser().parseExpression(exp);
-  assert.equal(operand.toString(), "(((age([{a}]) >= 18) and ! {b}) and ! {c})", "the expression is valid");
+  assert.equal(operand.toString(), "(((age({a}) >= 18) and ! {b}) and ! {c})", "the expression is valid");
   const runner = new ExpressionRunner(exp);
   assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: false, c: false })), true, "#1");
   assert.equal(runner.runContext(new VariableGetterContext({ a: "2000-01-01", b: true, c: false })), false, "#2");

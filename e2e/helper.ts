@@ -50,7 +50,7 @@ export async function resetFocusToBody(page: Page): Promise<void> {
 
 export const applyTheme = async (page: Page, theme: string) => {
   await page.evaluate((theme) => {
-    // window["Survey"].StylesManager.applyTheme(theme);
+    // (window as any).Survey.StylesManager.applyTheme(theme);
   }, theme);
 };
 export const initSurvey = async (page: Page, framework: string, json: any, isDesignMode?: boolean, props?: any, afterInitializeModelCallback?: () => Promise<void>) => {
@@ -74,12 +74,12 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
-    window["Survey"].settings.animationEnabled = false;
-    const model = new window["Survey"].Model(json);
+    (window as any).Survey.settings.animationEnabled = false;
+    const model = new (window as any).Survey.Model(json);
     model.allowResizeComment = false;
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
-      window["SurveyResult"] = model.data;
+      (window as any).SurveyResult = model.data;
       document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
         model.data
       );
@@ -90,7 +90,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       }
     }
     model.onComplete.add(surveyComplete);
-    window["survey"] = model;
+    (window as any).survey = model;
   }, [json, isDesignMode, props]);
   afterInitializeModelCallback && await afterInitializeModelCallback();
   await page.evaluate(([framework]) => {
@@ -104,8 +104,8 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       if (!!self.root) {
         self.root.unmount();
       }
-      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
-      window["root"] = root;
+      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
+      (window as any).root = root;
       root.render(
         self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
       );
@@ -116,35 +116,35 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
 };
 
 export async function checkSurveyData(page: Page, json: any): Promise<void> {
-  const data = await page.evaluate(() => { return window["survey"].data; });
+  const data = await page.evaluate(() => { return (window as any).survey.data; });
   await expect(data).toStrictEqual(json);
 }
 
-export async function getSurveyData(page) {
-  return await page.evaluate(() => { return window["survey"].data; });
+export async function getSurveyData(page: Page) {
+  return await page.evaluate(() => { return (window as any).survey.data; });
 }
 
-export async function getSurveyResult(page) {
+export async function getSurveyResult(page: Page) {
   return await page.evaluate(() => {
-    return window["SurveyResult"];
+    return (window as any).SurveyResult;
   });
 }
 
-export async function getQuestionValue(page) {
+export async function getQuestionValue(page: Page) {
   return await page.evaluate(() => {
-    return window["survey"].getAllQuestions()[0].value;
+    return (window as any).survey.getAllQuestions()[0].value;
   });
 }
 
-export async function getQuestionJson(page) {
+export async function getQuestionJson(page: Page) {
   return await page.evaluate(() => {
-    return JSON.stringify(window["survey"].getAllQuestions()[0].toJSON());
+    return JSON.stringify((window as any).survey.getAllQuestions()[0].toJSON());
   });
 }
 
-export async function getPanelJson(page) {
+export async function getPanelJson(page: Page) {
   return await page.evaluate(() => {
-    return JSON.stringify(window["survey"].getAllPanels()[0].toJSON());
+    return JSON.stringify((window as any).survey.getAllPanels()[0].toJSON());
   });
 }
 
@@ -155,12 +155,12 @@ export async function setOptions(page: Page, questionName: string, modValue: any
         obj1[attrname] = obj2[attrname];
       }
     };
-    const q = window["survey"].getQuestionByName(questionName);
+    const q = (window as any).survey.getQuestionByName(questionName);
     mergeOptions(q, modValue);
   }, [questionName, modValue]);
 }
 
-export async function checkSurveyWithEmptyQuestion(page) {
+export async function checkSurveyWithEmptyQuestion(page: Page) {
   const requiredMessage = page.locator(".sv-string-viewer").getByText("Response required.");
   await expect(requiredMessage).toHaveCount(0);
   await page.locator("input[value=Complete]").click();
@@ -169,10 +169,17 @@ export async function checkSurveyWithEmptyQuestion(page) {
   expect(surveyResult).toEqual(undefined);
 }
 
-export async function getData(page) {
+export async function getData(page: Page) {
   return await page.evaluate(() => {
-    return window["survey"].data;
+    return (window as any).survey.data;
   });
+}
+
+export async function setData(page: Page, newData: any) {
+  await page.evaluate((newData) => {
+    (window as any).survey.data = newData;
+    (window as any).survey.render();
+  }, newData);
 }
 
 export async function getTimeZone(page: Page): Promise<string> {
@@ -181,13 +188,13 @@ export async function getTimeZone(page: Page): Promise<string> {
   });
 }
 
-export async function setRowItemFlowDirection(page) {
+export async function setRowItemFlowDirection(page: Page) {
   await page.evaluate(() => {
-    window["Survey"].settings.itemFlowDirection = "row";
+    (window as any).Survey.settings.itemFlowDirection = "row";
   });
 }
 
-export async function visibleInViewport (page, locator: Locator) {
+export async function visibleInViewport (page: Page, locator: Locator) {
   const rect = await locator.boundingBox();
   return await page.evaluate((rect) => {
     return (
@@ -211,16 +218,50 @@ export const test = baseTest.extend<{page: void, skipJSErrors: boolean}>({
     }
   }
 });
-export { expect };
+interface IDragToElementAdditionalOptions {
+  elementPosition?: {x: number, y: number};
+  targetPosition?: {x: number, y: number};
+  steps?: number;
+}
 
-export async function doDrag({ page, element, target }: { page: Page, element: Locator, target: Locator }):Promise<void> {
-  await element.hover({ force: true });
+interface IDragToElementOptions {
+  page: Page;
+  element: Locator;
+  target: Locator;
+  options?: IDragToElementAdditionalOptions;
+}
+
+export async function doDrag({ page, element, target, options }: IDragToElementOptions):Promise<void> {
+  if (options?.elementPosition) {
+    await element.hover({
+      force: true,
+      position: {
+        x: options.elementPosition?.x,
+        y: options.elementPosition?.y
+      }
+    });
+  } else {
+    await element.hover({ force: true });
+  }
   await page.mouse.down();
+  await target.scrollIntoViewIfNeeded();
   const { x, y, width, height } = await <any>target.boundingBox();
-  await page.mouse.move(x + width / 2, y + height / 2, { steps: 20 });
+  const targetPositionX = x + (options?.targetPosition?.x || width / 2);
+  const targetPositionY = y + (options?.targetPosition?.y || height / 2);
+  await page.mouse.move(targetPositionX, targetPositionY, { steps: options?.steps || 20 });
 }
 
-export async function doDragDrop({ page, element, target }: { page: Page, element: Locator, target: Locator }):Promise<void> {
-  await doDrag({ page, element, target });
-  await page.mouse.up();
+export async function doDragDrop(options : IDragToElementOptions):Promise<void> {
+  await doDrag(options);
+  await options.page.mouse.up();
 }
+
+export async function waitUntilAllImagesLoad(page: Page): Promise<void> {
+  //https://github.com/microsoft/playwright/issues/6046
+  for (const img of await page.getByRole("img").all()) {
+    await expect(img).toHaveJSProperty("complete", true);
+    await expect(img).not.toHaveJSProperty("naturalWidth", 0);
+  }
+}
+
+export { expect };

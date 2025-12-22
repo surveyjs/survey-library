@@ -21,30 +21,26 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   lastSelectedItemValue: ItemValue = null;
   private isChoicesLoading: boolean;
 
-  constructor(name: string) {
-    super(name);
-    this.createLocString({ name: "placeholder", hasTranslation: true });
-    this.createLocalizableString("readOnlyText", this, true);
-    this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const visibleChoicesChangedProps = ["choicesMin", "choicesMax", "choicesStep"];
+    const resetReadOnlyTextProps = ["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"];
+    if (visibleChoicesChangedProps.indexOf(name) > -1) {
       this.onVisibleChoicesChanged();
-    });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
+    }
+    if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.getSingleSelectedItem();
-      this.updateReadOnlyText();
-    });
-    this.updateReadOnlyText();
+      this.resetReadOnlyText();
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
     this.updateInputPlaceholder(this.placeholder);
-  }
-  private updateReadOnlyText(): void {
-    this.readOnlyText = this.calculateReadOnlyText();
   }
   protected onSelectedItemValuesUpdated(): void {
     super.onSelectedItemValuesUpdated();
-    this.updateReadOnlyText();
+    this.resetReadOnlyText();
   }
 
   private updateInputPlaceholder(val: string) {
@@ -71,15 +67,15 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * A placeholder for the input field.
    */
   public get placeholder(): string {
-    return this.getLocalizableStringText("placeholder");
+    return this.getLocStringText(this.locPlaceholder);
   }
   public set placeholder(val: string) {
-    this.setLocalizableStringText("placeholder", val);
+    this.setLocStringText(this.locPlaceholder, val);
     this.updateInputPlaceholder(val);
   }
 
   get locPlaceholder(): LocalizableString {
-    return this.getLocalizableString("placeholder");
+    return this.getOrCreateLocStr("placeholder", false, true);
   }
 
   public getType(): string {
@@ -256,15 +252,19 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
   public get readOnlyText(): string {
-    return this.getLocalizableStringText("readOnlyText");
+    return this.locReadOnlyText.calculatedText;
   }
-  public set readOnlyText(val: string) {
-    this.setLocalizableStringText("readOnlyText", val);
+  public get locReadOnlyText(): LocalizableString {
+    return this.getOrCreateLocStr("readOnlyText", true, false, (locStr: LocalizableString) => {
+      locStr.onGetTextCallback = (): string => {
+        return this.calculateReadOnlyText();
+      };
+    });
   }
-  get locReadOnlyText(): LocalizableString {
-    return this.getLocalizableString("readOnlyText");
+  private resetReadOnlyText(): void {
+    this.clearPropertyValue("readOnlyText");
   }
-  protected calculateReadOnlyText(): string {
+  private calculateReadOnlyText(): string {
     if (!this.useDropdownList) {
       if (this.isOtherSelected) return this.otherText;
       if (this.isNoneSelected) return this.noneText;

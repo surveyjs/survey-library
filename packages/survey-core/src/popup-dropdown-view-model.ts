@@ -243,7 +243,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     super.resetComponentElement();
   }
   public updateOnShowing(): void {
-    const { root } = settings.environment;
+    const root = this.container?.getRootNode() || settings.environment.root;
+    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
     this.prevActiveElement = <HTMLElement>root.activeElement;
 
     if (this.isOverlay) {

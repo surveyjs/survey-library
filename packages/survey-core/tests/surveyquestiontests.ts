@@ -1991,36 +1991,6 @@ QUnit.test("Rating question, visibleRateValues property", function (assert) {
   assert.equal(rate.visibleRateValues.length, 3, "Use rate values");
 });
 
-QUnit.test("Rating question, renderedRateItems", function (assert) {
-  var rate = new QuestionRatingModel("q1");
-  assert.equal(
-    rate.visibleRateValues.length,
-    5,
-    "There are 5 items by default"
-  );
-
-  assert.notOk(rate.hasMinLabel, "Rating has no min label by default");
-  assert.notOk(rate.hasMaxLabel, "Rating has no max label by default");
-
-  rate.minRateDescription = "Worst";
-  rate.maxRateDescription = "Best";
-
-  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
-    ["1", "2", "3", "4", "5"],
-    "List of numeric values"
-  );
-  assert.ok(rate.hasMinLabel, "Rating has min label");
-  assert.ok(rate.hasMaxLabel, "Rating has max label");
-
-  rate.displayRateDescriptionsAsExtremeItems = true;
-  assert.deepEqual(rate.renderedRateItems.map(r => r.locText.renderedHtml),
-    ["Worst", "2", "3", "4", "Best"],
-    "List of numeric values and min/max"
-  );
-  assert.notOk(rate.hasMinLabel, "Rating has no min label");
-  assert.notOk(rate.hasMaxLabel, "Rating has no max label");
-});
-
 QUnit.test("Rating question, renderedRateItems. Update renderedRateItems on changing rateValues", function (assert) {
   var rate = new QuestionRatingModel("q1");
   assert.equal(rate.visibleRateValues.length, 5, "There are 5 items by default");
@@ -4576,19 +4546,6 @@ QUnit.test(
     assert.strictEqual(question.value, undefined, "Value is reset");
   }
 );
-
-QUnit.test(
-  "QuestionRating reset highlight on click",
-  function (assert) {
-    var question = new QuestionRatingModel("q");
-    question.rateType = "stars";
-    question.onItemMouseIn(question.renderedRateItems[2]);
-    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
-    question.setValueFromClick("3");
-    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["none", "none", "none", "none", "none"]);
-  }
-);
-
 QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
   function (assert) {
@@ -5241,6 +5198,29 @@ QUnit.test("Base Select Question: choicesFromQuestionMode", function (assert) {
     2,
     "Appy choicesFromQuestionMode and choicesVisibleIf"
   );
+});
+QUnit.test("Case insensitive variables names in item and choice Bug#10677", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "radiogroup", name: "q1", choices: [1, 2, 3, 4, 5] },
+      {
+        type: "checkbox",
+        name: "q2",
+        choices: [1, 2, 3, 4, 5],
+        choicesVisibleIf: "{Item} > {q1}",
+      },
+    ],
+  });
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+
+  assert.equal(q2.visibleChoices.length, 0, "There is no selected");
+
+  q1.value = 1;
+  assert.equal(q2.visibleChoices.length, 4, "There are four items > 1");
+
+  q1.value = 3;
+  assert.equal(q2.visibleChoices.length, 2, "There are two items > 3");
 });
 QUnit.test("Base Select Question: choicesFromQuestion double tunnel", function (
   assert
@@ -8829,4 +8809,103 @@ QUnit.test("Question name starts with number vs space + dot #10532", function (a
   assert.equal(q1.isVisible, true, "q1.visible #2");
   qnumber.value = 2;
   assert.equal(q1.isVisible, false, "q1.visible #3");
+});
+QUnit.test("Access question & survey properties, #10532", function (assert) {
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        title: "{$self.choices[1].text}",
+        choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }]
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: "{$q1.choices[0].text}"
+      },
+      {
+        type: "text",
+        name: "q3",
+        title: "{$survey.title}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.locTitle.renderedHtml, "Item 2", "q1 title is correct");
+  assert.equal(q2.locTitle.renderedHtml, "Item 1", "q2 title is correct");
+  assert.equal(q3.locTitle.renderedHtml, "Survey Title", "q3 title is correct");
+  q1.choices[0].text = "New Item 1";
+  q1.choices[1].text = "New Item 2";
+  survey.title = "New Survey Title";
+  assert.equal(q1.locTitle.renderedHtml, "New Item 2", "q1 title is correct #2");
+  assert.equal(q2.locTitle.renderedHtml, "New Item 1", "q2 title is correct #2");
+  assert.equal(q3.locTitle.renderedHtml, "New Survey Title", "q3 title is correct #2");
+});
+QUnit.test("Access question properties in expression, #10532", function (assert) {
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{$q2.isVisible}"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
+});
+QUnit.test("Access question properties in expression - update on property changed, #10532", function (assert) {
+  const survey = new SurveyModel({
+    title: "Survey Title",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q3",
+        visibleIf: "{$q2.isVisible}"
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = 2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.isVisible, false, "q2 is not visible");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+  q1.value = 2;
+  assert.equal(q2.isVisible, true, "q2 is visible");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+  q1.value = 3;
+  assert.equal(q2.isVisible, false, "q2 is not visible #2");
+  assert.equal(q3.isVisible, false, "q3 is not visible #2");
 });

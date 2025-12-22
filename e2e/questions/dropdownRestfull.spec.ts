@@ -22,7 +22,7 @@ const jsonRenderAsSelect = {
       isRequired: true,
       choicesByUrl: {
         //url: "http://services.groupkt.com/country/get/all",
-        url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+        url: "http://127.0.0.1:8080/test-resources/countriesMock.json",
         path: "RestResponse;result",
         valueName: "name",
       },
@@ -39,7 +39,7 @@ const json = {
       isRequired: true,
       choicesByUrl: {
         //url: "http://services.groupkt.com/country/get/all",
-        url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+        url: "http://127.0.0.1:8080/test-resources/countriesMock.json",
         path: "RestResponse;result",
         valueName: "name",
       },
@@ -135,7 +135,7 @@ frameworks.forEach(framework => {
             name: "q1",
             choicesByUrl: {
               //url: "http://services.groupkt.com/country/get/all",
-              url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+              url: "http://127.0.0.1:8080/test-resources/countriesMock.json",
               path: "RestResponse;result",
               valueName: "name",
             },

@@ -8,20 +8,24 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
-import { Helpers } from "./helpers";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { HashTable, Helpers } from "./helpers";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, ValueGetterContextCore, VariableGetterContext } from "./conditionProcessValue";
+import { ConditionRunner } from "./conditions";
+import { Base } from "./base";
 
 export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
   constructor (protected question: QuestionMatrixDropdownModel) {
     super();
   }
-  public getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    if (!createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+  public getObj(): Base { return this.question; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (path.length > 0) {
-      const res = super.getValue(path, isRoot, index, createObjects);
+      const res = super.getValue(params);
       if (res && res.isFound) return res;
     }
-    return new VariableGetterContext(this.question.value).getValue(path, isRoot, index, createObjects);
+    return new VariableGetterContext(this.question.value).getValue(params);
   }
   getRootObj(): IObjectValueContext { return <any>this.question.data; }
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
@@ -32,6 +36,7 @@ export class MatrixDropdownValueGetterContext extends ValueGetterContextCore {
       const itemName = row.rowName?.toString() || "";
       if (itemName.toLocaleLowerCase() === name) {
         res.isFound = true;
+        res.obj = row;
         res.context = row.getValueGetterContext();
         return;
       }
@@ -66,6 +71,18 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   protected isItemVisible(): boolean { return this.item.isVisible; }
   public isRowEnabled(): boolean { return this.item.isEnabled; }
   protected isRowHasEnabledCondition(): boolean { return !!this.item.enableIf; }
+  protected getRowsVisibleIfExpression(rowsVisibleIf: string): Array<string> {
+    const res = super.getRowsVisibleIfExpression(rowsVisibleIf);
+    if (this.item.visibleIf) {
+      res.push(this.item.visibleIf);
+    }
+    return res;
+  }
+  protected runRowsEnableCondition(properties: HashTable<any>): void {
+    if (this.item.enableIf) {
+      this.item.enabled = new ConditionRunner(this.item.enableIf).runContext(this.getValueGetterContext(), properties);
+    }
+  }
 }
 /**
   * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
@@ -74,19 +91,17 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   implements IMatrixDropdownData {
-  constructor(name: string) {
-    super(name);
-    this.createLocalizableString("totalText", this, true);
-    this.registerPropertyChangedHandlers(["rows"], () => {
-      if (!this.generatedVisibleRows) return;
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "rows" && !!this.generatedVisibleRows) {
       this.clearGeneratedRows();
       this.resetRenderedTable();
       this.getVisibleRows();
       this.clearIncorrectValues();
-    });
-    this.registerPropertyChangedHandlers(["hideIfRowsEmpty"], () => {
+    }
+    if (name === "hideIfRowsEmpty") {
       this.updateVisibilityBasedOnRows();
-    });
+    }
   }
   public getType(): string {
     return "matrixdropdown";
@@ -97,13 +112,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see columns
    */
   public get totalText() {
-    return this.getLocalizableStringText("totalText", "");
+    return this.getLocStringText(this.locTotalText) || "";
   }
   public set totalText(val: string) {
-    this.setLocalizableStringText("totalText", val);
+    this.setLocStringText(this.locTotalText, val);
   }
   public get locTotalText(): LocalizableString {
-    return this.getLocalizableString("totalText");
+    return this.getOrCreateLocStr("totalText", true);
   }
   public getFooterText(): LocalizableString {
     return this.locTotalText;

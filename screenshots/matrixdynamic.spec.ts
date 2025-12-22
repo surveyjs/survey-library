@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody } from "../e2e/helper";
+import { frameworks, url, initSurvey, compareScreenshot, resetFocusToBody, doDrag, setData, doDragDrop } from "../e2e/helper";
 
 const title = "Matrixdynamic Screenshot";
 

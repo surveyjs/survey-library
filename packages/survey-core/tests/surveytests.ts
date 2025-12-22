@@ -3067,6 +3067,126 @@ QUnit.test("survey.onCurrentPageChanging, allowChanging option", function (
   survey.prevPage();
   assert.equal(survey.currentPageNo, 0, "The second page again");
 });
+QUnit.test("survey.onCurrentPageChanging async calls, Issue#10645", (assert) => {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+      { name: "page2", elements: [{ type: "text", name: "q2" }] },
+      { name: "page3", elements: [{ type: "text", name: "q3" }] }
+    ],
+  });
+  assert.equal(survey.currentPageNo, 0, "The first page");
+  const messages: Array<any> = [];
+  survey.notify = (message: string, type: string) => {
+    messages.push({ message, type });
+  };
+  const prevAction = survey.navigationBar.getActionById("sv-nav-prev");
+  const nextAction = survey.navigationBar.getActionById("sv-nav-next");
+  let allowChanging = false;
+  let messageToShow: string = "";
+  survey.onCurrentPageChanging.add((survey, options): Promise<void> => {
+    return new Promise<void>((resolve) => {
+      options.allow = allowChanging;
+      options.message = messageToShow;
+      resolve();
+    });
+  });
+  allowChanging = true;
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 0, "Still the first page, we are waiting for a callback");
+  assert.equal(survey.getPropertyValue("isNavigationBlocked"), true, "isCurrentPageChanging = true, #1");
+  assert.equal(nextAction.enabled, false, "next action is disabled during navigation, #1");
+  setTimeout(() => {
+    assert.equal(survey.getPropertyValue("isNavigationBlocked"), false, "isCurrentPageChanging = false, #1");
+    assert.equal(survey.currentPageNo, 1, "The second page");
+    assert.equal(nextAction.enabled, true, "next action is enabled after navigation, #1");
+
+    allowChanging = false;
+    survey.nextPage();
+    assert.equal(survey.getPropertyValue("isNavigationBlocked"), true, "isCurrentPageChanging = true, #2");
+    assert.equal(nextAction.enabled, false, "next action is disabled during navigation, #2");
+    assert.equal(prevAction.enabled, false, "prev action is disabled during navigation, #2");
+    assert.equal(survey.currentPageNo, 1, "Still the second page, we are waiting for a callback");
+    setTimeout(() => {
+      assert.equal(survey.getPropertyValue("isNavigationBlocked"), false, "isCurrentPageChanging = false, #2");
+      assert.equal(nextAction.enabled, true, "next action is enabled after navigation, #2");
+      assert.equal(prevAction.enabled, true, "prev action is enabled after navigation, #2");
+      assert.equal(survey.currentPageNo, 1, "We do not move from the second page");
+
+      assert.deepEqual(messages, [], "There is no messages yet");
+      messageToShow = "Test error";
+      allowChanging = false;
+      survey.nextPage();
+      setTimeout(() => {
+        allowChanging = true;
+        messageToShow = "Saving text";
+        survey.nextPage();
+        setTimeout(() => {
+          assert.deepEqual(messages, [
+            { message: "Test error", type: "error" },
+            { message: "Saving text", type: "success" }
+          ]);
+          assert.equal(survey.currentPageNo, 2, "We are on the last page now");
+
+          done();
+        }, 0);
+      }, 0);
+    }, 0);
+  }, 0);
+});
+
+QUnit.test("survey.onCompleting async calls, Issue#10645", (assert) => {
+  const done = assert.async();
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1", elements: [{ type: "text", name: "q1" }] },
+    ],
+  });
+
+  const messages: Array<any> = [];
+  survey.notify = (message: string, type: string) => {
+    messages.push({ message, type });
+  };
+  const completeAction = survey.navigationBar.getActionById("sv-nav-complete");
+  let allowComplete = false;
+  let messageToShow: string = "";
+  survey.onCompleting.add((survey, options): Promise<void> => {
+    return new Promise<void>((resolve) => {
+      options.allow = allowComplete;
+      options.message = messageToShow;
+      resolve();
+    });
+  });
+
+  messageToShow = "Test error on complete";
+  survey.tryComplete();
+  assert.equal(survey.state, "running", "Survey is not completed yet, we are waiting for a callback");
+  assert.equal(survey.getPropertyValue("isNavigationBlocked"), true, "isCurrentPageChanging = true, #1");
+  assert.equal(completeAction.enabled, false, "next action is disabled during navigation, #1");
+  setTimeout(() => {
+    assert.equal(survey.getPropertyValue("isNavigationBlocked"), false, "isCurrentPageChanging = false, #1");
+    assert.equal(survey.state, "running", "Do not allow complete");
+    assert.equal(completeAction.enabled, true, "next action is enabled after navigation, #1");
+
+    allowComplete = true;
+    messageToShow = "Test success on complete";
+    survey.tryComplete();
+    assert.equal(survey.getPropertyValue("isNavigationBlocked"), true, "isCurrentPageChanging = true, #2");
+    assert.equal(completeAction.enabled, false, "next action is disabled during navigation, #2");
+    assert.equal(survey.state, "running", "Do not allow complete #2");
+    setTimeout(() => {
+      assert.equal(survey.getPropertyValue("isNavigationBlocked"), false, "isCurrentPageChanging = false, #2");
+      assert.equal(completeAction.enabled, true, "next action is enabled after navigation, #2");
+      assert.equal(survey.state, "completed", "Survey is completed now");
+      assert.deepEqual(messages, [
+        { message: "Test error on complete", type: "error" },
+        { message: "Test success on complete", type: "success" }
+      ]);
+      done();
+    }, 0);
+  }, 0);
+});
 
 QUnit.test("survey.onCurrentPageChanging, allow option (use it instead of allowChanging)", function (
   assert
@@ -22993,4 +23113,17 @@ QUnit.test("Create custom NavigationBar", function (assert) {
   assert.ok(survey.navigationBar instanceof CustomNavigationBar, "navigationBar is CustomNavigationBar");
   assert.equal((survey.navigationBar as CustomNavigationBar).customProp1, "checkThisProp", "customProp1 is set correctly");
   assert.equal(survey.navigationBar.locOwner, survey, "locOwner is set correctly");
+});
+QUnit.test("Do not create layoutElements in creator", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  let le = survey.getPropertyValue("layoutElements");
+  assert.equal(le?.length, undefined, "There is no layout elements in survey");
+  const progressElement = survey.findLayoutElement("progress-questions");
+  assert.equal(progressElement.id, "progress-questions", "There is no progress-questions layout element in survey");
+  le = survey.getPropertyValue("layoutElements");
+  assert.equal(le.length > 3, true, "There is  layout elements in survey after finding layout element");
 });

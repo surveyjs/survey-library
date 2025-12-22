@@ -443,6 +443,8 @@ QUnit.test("readOnlyText render as select", assert => {
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   assert.equal(question.readOnlyText, "click", "use place-holder");
+  assert.equal(question.locReadOnlyText.textOrHtml, "click_click", "use place-holder, locReadOnlyText");
+  assert.equal(question.locReadOnlyText.hasHtml, true, "use place-holder, locReadOnlyText.hasHtml");
   question.value = "other";
   assert.equal(question.readOnlyText, "Other (describe)", "use other");
   question.value = 2;
@@ -1034,6 +1036,7 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
 
   assert.equal(question.readOnlyText, "Select...", "readOnlyText #1");
+  assert.equal(question.placeholder, "Select...", "placeholder");
   question.value = "i3";
   assert.equal(question.readOnlyText, "Select...", "readOnlyText #2");
   question.choices = ["i1", "i2", "i3"];
@@ -1680,7 +1683,20 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
   assert.notOk(question["waitingChoicesByURL"]);
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
 });
-
+QUnit.test("isReady flag + there is no onChoicesLazyLoad & onGetChoiceDisplayValue, Bug#10642", assert => {
+  const json = {
+    elements: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  survey.data = { "q1": "ford" };
+  assert.ok(question.isReady, "There is no onGetChoiceDisplayValue, isReady = true");
+  assert.equal(question.displayValue, "ford", "displayValue is correct");
+});
 QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
   const json = {
     elements: [{

@@ -980,3 +980,65 @@ QUnit.test("triggers & survey.onExpressionRunning #10259", (assert) => {
   assert.equal(survey.isCompleteButtonVisible, true, "Survey complete button visibility #2");
   assert.equal(counter, 2, "onExpressionRunning event call counter #2");
 });
+QUnit.test("triggers that depend on each other, Bug#10659", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "radiogroup",
+        name: "q2",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "radiogroup",
+        name: "q3",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "radiogroup",
+        name: "q4",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "radiogroup",
+        name: "q5",
+        choices: ["item1", "item2", "item3"]
+      },
+    ],
+    triggers: [
+      {
+        type: "setvalue",
+        expression: "{q2} = 'item1' and {q4} = 'item1'",
+        setToName: "q5",
+        setValue: "item1",
+      },
+      {
+        type: "setvalue",
+        expression:
+        "{q1} = 'item1' or {q1} = 'item3'",
+        setToName: "q2",
+        setValue: "item1",
+      },
+      {
+        type: "setvalue",
+        expression:
+        "{q3} = 'item1' or {q3} = ' item3'",
+        setToName: "q4",
+        setValue: "item1",
+      }
+    ],
+  });
+
+  survey.setValue("q1", "item1");
+  survey.setValue("q3", "item1");
+  assert.deepEqual(survey.data, {
+    "q1": "item1",
+    "q2": "item1",
+    "q3": "item1",
+    "q4": "item1",
+    "q5": "item1" }, "q5 should have item1 value");
+});

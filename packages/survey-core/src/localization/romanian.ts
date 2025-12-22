@@ -99,6 +99,8 @@ export var romanianSurveyStrings = {
   urlGetChoicesError: "Request-ul nu a returnat date sau proprietatea 'path' este incorectă",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Dimensiunea fişierului nu trebuie să depăşească {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Numărul maxim de fișiere pe care le poți încărca este {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Fișierele nu pot fi încărcate. Vă rugăm să adăugați un handler pentru evenimentul \"onUploadFiles\".",
   // "Response required: enter another value."

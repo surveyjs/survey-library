@@ -39,6 +39,7 @@ export interface ITextProcessorProp {
   doEncoding?: boolean;
   runAtDesign?: boolean;
   replaceUndefinedValues?: boolean;
+  context?: Base;
 }
 export interface ITextProcessorResult {
   text: string;

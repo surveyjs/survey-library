@@ -493,6 +493,7 @@ export var defaultCss = {
   matrix: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix sd-table-wrapper",
+    tableWrapperLeft: "sd-table-wrapper--left",
     root: "sd-table sd-matrix__table",
     columnsAutoWidth: "sd-table--columnsautowidth",
     noHeader: "sd-table--no-header",
@@ -533,6 +534,7 @@ export var defaultCss = {
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
     tableWrapper: "sd-table-wrapper",
+    tableWrapperLeft: "sd-table-wrapper--left",
     rootAlternateRows: "sd-table--alternate-rows",
     cell: "sd-table__cell",
     cellResponsiveTitle: "sd-table__responsive-title",
@@ -578,6 +580,7 @@ export var defaultCss = {
     noHeader: "sd-table--no-header",
     hasFooter: "sd-table--has-footer",
     tableWrapper: "sd-table-wrapper",
+    tableWrapperLeft: "sd-table-wrapper--left",
     rootAlternateRows: "sd-table--alternate-rows",
     content: "sd-matrixdynamic__content sd-question__content",
     cell: "sd-table__cell",

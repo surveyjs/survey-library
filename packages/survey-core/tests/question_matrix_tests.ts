@@ -1026,3 +1026,37 @@ QUnit.test("Show isExclusive property when matrix cellType is checkbox, Issue#10
   matrix.cellType = "checkbox";
   assert.equal(prop.isVisible("", matrix.columns[0]), true, "isExclusive is visible for checkbox again");
 });
+QUnit.test("Add obj into options of onProcessDynamicText event, Issue#9604", function (assert) {
+  Serializer.addProperty("itemvalue", "score:number");
+
+  const survey = new SurveyModel();
+  survey.onProcessDynamicText.add((survey, options) => {
+    if (options.name === "score") {
+      options.value = (<any>options.element).score;
+    }
+  });
+  survey.fromJSON({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: [
+          { value: 1, text: "Item 1: {score}", score: 10 },
+          { value: 2, text: "Item 2: {$self.score}", score: 20 }
+        ],
+        rows: ["row1", "row2"]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const col1 = q1.columns[0];
+  const col2 = q1.columns[1];
+  assert.equal(col1.locTitle.renderedHtml, "Item 1: 10", "process {$self.score} for col1");
+  assert.equal(col2.locTitle.renderedHtml, "Item 2: 20", "process {$self.score} for col2");
+  q1.columns[0].score = 30;
+  q1.columns[1].score = 40;
+  assert.equal(col1.locTitle.renderedHtml, "Item 1: 30", "process {$self.score} for col1 after change");
+  assert.equal(col2.locTitle.renderedHtml, "Item 2: 40", "process {$self.score} for col2 after change");
+
+  Serializer.removeProperty("itemvalue", "score");
+});

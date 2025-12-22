@@ -2,6 +2,7 @@ import { getLocaleString } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
 import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
+import { settings } from "./settings";
 
 export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
@@ -1590,7 +1591,12 @@ export class JsonMetadata {
         if (prop.className === "string") {
           res.items = { type: prop.className };
         } else {
-          res.items = { $ref: this.getChemeRefName(prop.className, isRoot) };
+          const refClas = { $ref: this.getChemeRefName(prop.className, isRoot) };
+          if (!settings.serialization.itemValueSerializeAsObject && this.isDescendantOf(prop.className, "itemvalue")) {
+            res.items = { anyOf: [refClas, { type: "string" }, { type: "number" }] };
+          } else {
+            res.items = refClas;
+          }
         }
       } else {
         res["$ref"] = this.getChemeRefName(refType, isRoot);

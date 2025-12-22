@@ -9,8 +9,9 @@ import { IRatingItemProps, RatingItemBase } from "./rating-item";
 export class RatingItemStar extends RatingItemBase {
   render(): React.JSX.Element | null {
     return (
-      <label onMouseDown={this.handleOnMouseDown}
-        className={this.question.getItemClass(this.item.itemValue)}
+      <label
+        className={this.item.className}
+        onMouseDown={this.handleOnMouseDown}
         onMouseOver={e => this.question.onItemMouseIn(this.item)}
         onMouseOut={e => this.question.onItemMouseOut(this.item)}
         title={this.item.text}

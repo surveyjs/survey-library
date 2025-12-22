@@ -5754,6 +5754,38 @@ QUnit.test("checkbox vs valuePropertyName and display text and useDisplayValuesI
   assert.equal(p1_q1.locTitle.renderedHtml, 1, "title for question in panel1");
   assert.equal(p2_q1.locTitle.renderedHtml, 3, "title for question in panel2");
 });
+QUnit.test("checkbox vs valuePropertyName and display text and valuePropertyName is in uppercase, Bug#10707", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: 1, text: "apple" }, { value: 2, text: "banana" }, { value: 3, text: "orange" }],
+        valueName: "data1",
+        valuePropertyName: "fruitID"
+      },
+      {
+        type: "paneldynamic",
+        name: "panel",
+        valueName: "data1",
+        templateTitle: "{panel.fruitID}",
+        templateElements: [
+          { type: "text", name: "panel_q1", title: "{panel.fruitID}" },
+        ],
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  q.renderedValue = [1, 3];
+  assert.equal(panel.panelCount, 2, "There are two panels");
+  assert.equal(panel.panels[0].locTitle.renderedHtml, "apple", "panel1 title");
+  assert.equal(panel.panels[1].locTitle.renderedHtml, "orange", "panel2 title");
+  const p1_q1 = panel.panels[0].getQuestionByName("panel_q1");
+  const p2_q1 = panel.panels[1].getQuestionByName("panel_q1");
+  assert.equal(p1_q1.locTitle.renderedHtml, "apple", "title for question in panel1");
+  assert.equal(p2_q1.locTitle.renderedHtml, "orange", "title for question in panel2");
+});
 QUnit.test("checkbox vs valuePropertyName and rendering panels, Bug#10633", (assert) => {
   const survey = new SurveyModel({
     elements: [
@@ -6065,9 +6097,9 @@ QUnit.test("NoentriesText and readOnly", (assert) => {
   const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
   const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
   assert.equal(panel1.noEntriesText.indexOf("No entries yet."), 0, "panel1: text for editing");
-  assert.equal(panel2.noEntriesText.indexOf("No entries"), 0, "panel2: text for readonly");
+  assert.equal(panel2.noEntriesText, "No entries", "panel2: text for readonly");
   survey.readOnly = true;
-  assert.equal(panel1.noEntriesText.indexOf("No entries"), 0, "panel1: text for readonly");
+  assert.equal(panel1.noEntriesText, "No entries", "panel1: text for readonly");
 });
 QUnit.test("Carry forward in panel dynamic", function (assert) {
   const survey = new SurveyModel({
@@ -9140,4 +9172,33 @@ QUnit.test("Panel dynamic vs prevPanel & nextPanel in expression, Issue#10606", 
   assert.equal(dp.panels[1].getQuestionByName("q2").value, 10 + 20 + 30, "panel 1: prevPanel & nextPanel");
   assert.equal(dp.panels[2].getQuestionByName("q2").value, 20 + 30 + 40, "panel 2: prevPanel & nextPanel");
   assert.equal(dp.panels[3].getQuestionByName("q2").value, 30 + 40, "panel 3: only prevPanel");
+});
+QUnit.test("Nested paneldynamic editing a value. The bug was in V1, add unit test only, Bug#10674", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "panelCount": 1,
+        "templateElements": [
+          {
+            "type": "paneldynamic",
+            "name": "innerPanel",
+            "panelCount": 5,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q1",
+                "valueName": "q1Value"
+              }
+            ] }]
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
+  assert.equal(innerPanel.panelCount, 5, "There are 5 inner panels");
+  innerPanel.panels[0].getQuestionByName("q1").value = 10;
+  assert.equal(innerPanel.panelCount, 5, "There are still 5 inner panels");
+  assert.deepEqual(survey.data, { rootPanel: [{ innerPanel: [{ q1Value: 10 }, {}, {}, {}, {}] }] }, "set value in the first inner panel");
 });

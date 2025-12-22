@@ -13,7 +13,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
     return ReactElementFactory.Instance.createElement(locStr.renderAs, {
       locStr: locStr.renderAsData,
       style: style,
-      key: key,
+      key: key
     });
   }
   public static renderQuestionDescription(question: Question | PanelModel): React.JSX.Element {

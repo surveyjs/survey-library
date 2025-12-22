@@ -200,11 +200,13 @@ jobs:
           git config --global user.email "surveyjs.org@gmail.com"
           git config --global user.name "surveyjsdeveloper"
           git pull origin master
+          git merge -X ours origin/master
           git fetch origin master --tags --force
           git checkout master
           git add surveyjs.io/App_Data/DocsLibrary
           git commit -m "updated survey-library docs [azurepipelines skip]"
           git pull origin master
+          git merge -X ours origin/master
           git push origin master
         displayName: "git surveyjs/service push updated docs"
       # - powershell: |
@@ -398,11 +400,6 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
-
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-react-ui/build"
@@ -568,11 +565,6 @@ jobs:
           npm run e2e:ci
         displayName: "run e2e tests"
 
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
-
       - task: CopyFiles@2
         inputs:
           SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/build"
@@ -737,11 +729,6 @@ jobs:
           cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
           npm run e2e:ci
         displayName: "run e2e tests"
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:
@@ -924,11 +911,6 @@ jobs:
           failTaskOnFailedTests: true
           testRunTitle: "React End-To-End Tests"
         condition: succeededOrFailed()
-
-      - script: |
-          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
-          npm run testcafe:ci
-        displayName: "run functional tests"
 
       - task: CopyFiles@2
         inputs:

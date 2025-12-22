@@ -389,3 +389,39 @@ QUnit.test("survey.onExpressionRunning, #10258", function (assert) {
   assert.equal(q1.value, 6, "q1.value #4");
   assert.equal(counter, 5, "counter #4");
 });
+
+QUnit.test("Support Promises in Custom Functions", (assert) => {
+  function MyFunc(params: any): any {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(Number(params[0]) + 10);
+      }, 1);
+    });
+  }
+  FunctionFactory.Instance.register("MyFunc", MyFunc, true);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "expression",
+        "expression": "MyFunc({q2})",
+      },
+      { "name": "q2", "type": "text", "defaultValue": 3 }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const done = assert.async();
+  setTimeout(() => {
+    assert.equal(q1.value, 13, "The async function result is correct");
+    done();
+    // TODO: does not work, need to investigate (q1 is undefined after changing q2 even for sync functions)
+    // q2.value = 7;
+    // assert.equal(q2.value, 7, "The q2 value is set correctly");
+    // assert.equal(survey.getValue("q1"), 17, "The async function result is correct after changing q2");
+    // setTimeout(() => {
+    //   done();
+    // }, 10);
+  }, 10);
+  FunctionFactory.Instance.unregister("MyFunc");
+});

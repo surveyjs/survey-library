@@ -180,7 +180,11 @@ QUnit.test("generate survey schema", function (assert) {
   const propChoices = selectBaseProps.choices;
   assert.ok(propChoices, "selectbase class and it's choices is here");
   assert.equal(propChoices.type, "array", "choices is array");
-  assert.equal(propChoices.items.$ref, "choiceitem", "item is  choiceitem");
+  // Make anyOf to allow both itemvalue and string types in the choices array Bug#10655
+  assert.ok(propChoices.items.anyOf, "choices items is anyOf");
+  assert.equal(propChoices.items.anyOf[0].$ref, "choiceitem", "item is  choiceitem");
+  assert.equal(propChoices.items.anyOf[1].type, "string", "item can be string also");
+  assert.equal(propChoices.items.anyOf[2].type, "number", "item can be number also");
   assert.notOk(selectBaseProps.name, "The property name should be in question");
   assert.notOk(selectBaseProps.showCommentArea, "The property showCommentArea should be in question");
 

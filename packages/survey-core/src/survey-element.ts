@@ -1,6 +1,6 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
-import { Action, IAction } from "./actions/action";
+import { IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import {
   ISurveyElement,
@@ -163,7 +163,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getMarkdownHtml(text: string, name: string, item?: any): string;
   public abstract getRenderer(name: string): string;
   public abstract getRendererContext(locStr: LocalizableString): any;
-  public abstract getProcessedText(text: string): string;
+  public abstract getProcessedText(text: string, context?: any): string;
 }
 
 /**
@@ -292,10 +292,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return false;
   }
-  // TODO V2: get rid of this flag
-  public static CreateDisabledDesignElements: boolean = false;
-  public disableDesignActions: boolean =
-    SurveyElement.CreateDisabledDesignElements;
   public get effectiveColSpan(): number {
     const res = this.getPropertyValueWithoutDefault("effectiveColSpan");
     if (res !== undefined) return res;
@@ -320,18 +316,29 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.createNewArray("errors");
     this.createNewArray("renderedErrors");
     this.createNewArray("titleActions");
-    this.registerPropertyChangedHandlers(["isReadOnly"], () => { this.onReadOnlyChanged(); });
-    this.registerPropertyChangedHandlers(["errors"], () => { this.updateVisibleErrors(); });
-    this.registerPropertyChangedHandlers(["isSingleInRow"], () => { this.updateElementCss(false); });
-    this.registerPropertyChangedHandlers(["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"], () => { this.updateRootStyle(); });
-    this.registerPropertyChangedHandlers(["effectiveColSpan"], (val: number) => { this.colSpan = val; });
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    const updateRootStyleProps = ["minWidth", "maxWidth", "renderWidth", "allowRootStyle", "parent"];
+    if (updateRootStyleProps.indexOf(name) > -1) {
+      this.updateRootStyle();
+    }
     if (name === "state") {
       this.updateElementCss(false);
       this.notifyStateChanged(oldValue);
       if (this.stateChangedCallback)this.stateChangedCallback();
+    }
+    if (name === "isReadOnly") {
+      this.onReadOnlyChanged();
+    }
+    if (name === "errors") {
+      this.updateVisibleErrors();
+    }
+    if (name === "isSingleInRow") {
+      this.updateElementCss(false);
+    }
+    if (name === "effectiveColSpan") {
+      this.colSpan = newValue;
     }
   }
   protected getSkeletonComponentNameCore(): string {
@@ -404,8 +411,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isExpanded
    */
   public get isCollapsed(): boolean {
-    return this.state === "collapsed" && !this.isDesignMode;
+    return this.state === "collapsed" && !this.isDesignMode && !this.isSingleInputMode;
   }
+  protected get isSingleInputMode(): boolean { return this.survey?.isSingleVisibleInput; }
   /**
    * Returns `true` if the survey element is expanded.
    * @hidefor PageModel
@@ -416,7 +424,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isCollapsed
    */
   public get isExpanded(): boolean {
-    return this.state === "expanded";
+    return this.state === "expanded" && !this.isSingleInputMode;
   }
   /**
    * Collapses the survey element.
@@ -672,21 +680,19 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
-  private isCssValueCalculating: boolean;
   public get cssClassesValue(): any {
-    let res = this.getPropertyValueWithoutDefault("cssClassesValue");
-    if (!res && !this.isCssValueCalculating) {
-      this.isCssValueCalculating = true;
-      res = this.createCssClassesValue();
-      this.isCssValueCalculating = false;
-    }
-    return res;
+    return this.getPropertyValue("cssClassesValue", undefined, () => this.createCssClassesValue());
   }
+  private isCalculatingCssClasses: boolean;
   private createCssClassesValue(): any {
+    const callOnCalc = this.isCalculatingCssClasses;
+    this.isCalculatingCssClasses = true;
     const res = this.calcCssClasses(this.css);
-    this.setPropertyValue("cssClassesValue", res);
-    this.onCalcCssClasses(res);
-    this.updateElementCssCore(this.cssClassesValue);
+    if (!callOnCalc) {
+      this.onCalcCssClasses(res);
+    }
+    this.updateElementCssCore(res);
+    this.isCalculatingCssClasses = false;
     return res;
   }
   protected onCalcCssClasses(classes: any): void {}
@@ -703,11 +709,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get cssClasses(): any {
-    const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
-    if (!this.cssClassesValue) {
-      this.createCssClassesValue();
-    }
     return this.cssClassesValue;
   }
   public get cssTitleNumber(): any {
@@ -720,7 +722,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return css.requiredMark || (css.panel && css.panel.requiredMark);
   }
   public getCssTitleExpandableSvg(): string {
-    if (this.state === "default") return null;
+    if (this.state === "default" || this.isSingleInputMode) return null;
     return this.cssClasses.titleExpandableSvg;
   }
   protected calcCssClasses(css: any): any { return undefined; }
@@ -914,11 +916,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         ? this.locOwner.getRendererContext(locStr)
         : locStr;
   }
-  public getProcessedText(text: string): string {
+  public getProcessedText(text: string, context?: any): string {
     if (this.isLoadingFromJson) return text;
     if (this.textProcessor)
-      return this.textProcessor.processText(text, this.getUseDisplayValuesInDynamicTexts());
-    if (this.locOwner) return this.locOwner.getProcessedText(text);
+      return this.textProcessor.processTextEx(
+        { text: text, returnDisplayValue: this.getUseDisplayValuesInDynamicTexts(), context: context || this, doEncoding: false }
+      ).text;
+    if (this.locOwner) return this.locOwner.getProcessedText(text, context);
     return text;
   }
   protected getUseDisplayValuesInDynamicTexts(): boolean { return true; }
@@ -993,7 +997,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get hasParent() {
     return (this.parent && !this.parent.isPage) || (this.parent === undefined);
   }
-  @property({ defaultValue: true }) isSingleInRow: boolean = true;
+  @property({ defaultValue: true }) isSingleInRow: boolean;
 
   private shouldAddRunnerStyles(): boolean {
     return !this.isDesignMode;

@@ -74,7 +74,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
     );
     return (
       <div
-        className={cssClasses.tableWrapper}
+        className={this.question.getTableWrapperCss()}
         ref={root => (this.setControl(root))}
       >
         <fieldset role="radiogroup">

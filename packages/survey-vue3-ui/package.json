@@ -1,6 +1,6 @@
 {
   "name": "survey-vue3-ui",
-  "version": "2.3.16",
+  "version": "2.5.1",
   "homepage": "https://surveyjs.io/",
   "author": "DevSoft Baltic OU <info@devsoftbaltic.com>",
   "license": "MIT",
@@ -51,8 +51,6 @@
     "test:watch": "vitest --no-threads",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --max-warnings=0 --fix",
-    "testcafe": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --env=vue3 --config-file ../../.testcaferc.dev.js",
-    "testcafe:ci": "testcafe ../../functionalTests/ --app \"npm run serve:example:prod\" --selector-timeout 1500 --reporter minimal --env=vue3 --config-file ../../.testcaferc.js",
     "accessibility-tests": "cross-env env=vue3 playwright test --project a11y --ui",
     "accessibility-tests:ci": "cross-env env=vue3 playwright test --project a11y --reporter dot --quiet",
     "e2e": "cross-env env=vue3 playwright test --project e2e --ui",

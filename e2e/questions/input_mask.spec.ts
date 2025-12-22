@@ -137,6 +137,39 @@ frameworks.forEach((framework) => {
       expect(await page.locator("input").first().inputValue()).toBe("12");
     });
 
+    test("A Text input allows entering values regardless readOnly: true", async ({ page }) => {
+      await initSurvey(page, framework, {
+        autoFocusFirstQuestion: true,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1",
+                "readOnly": true,
+                "maskType": "numeric"
+              }
+            ]
+          }
+        ]
+      });
+
+      await page.keyboard.press("Tab");
+      const inputElement = page.getByRole("textbox", { name: "q1" });
+      expect(await inputElement.inputValue()).toBe("");
+
+      let activeElement = await page.evaluate(() => { return document.activeElement?.tagName; });
+      expect(activeElement).toBe("INPUT");
+
+      await page.keyboard.type("1234");
+      expect(await inputElement.inputValue()).toBe("");
+      await page.locator("input[value=Complete]").click();
+
+      const surveyResult = await getSurveyResult(page);
+      expect(surveyResult).toEqual({ });
+    });
+
   });
 });
 

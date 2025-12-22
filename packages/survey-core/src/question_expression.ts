@@ -3,7 +3,6 @@ import { Question } from "./question";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { ExpressionRunner } from "./conditions";
 
 /**
  * A class that describes the Expression question type. It is a read-only question type that calculates a value based on a specified expression.
@@ -12,12 +11,12 @@ import { ExpressionRunner } from "./conditions";
  */
 export class QuestionExpressionModel extends Question {
   private isExecutionLocked: boolean;
-  constructor(name: string) {
-    super(name);
-    this.createLocalizableString("format");
-    this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const formatProps = ["format", "currency", "displayStyle"];
+    if (formatProps.indexOf(name) > -1) {
       this.updateFormatedValue();
-    });
+    }
   }
   public getType(): string {
     return "expression";
@@ -30,13 +29,13 @@ export class QuestionExpressionModel extends Question {
    * @see displayStyle
    */
   public get format(): string {
-    return this.getLocalizableStringText("format", "");
+    return this.getLocStringText(this.locFormat) || "";
   }
   public set format(val: string) {
-    this.setLocalizableStringText("format", val);
+    this.setLocStringText(this.locFormat, val);
   }
   get locFormat(): LocalizableString {
-    return this.getLocalizableString("format");
+    return this.getOrCreateLocStr("format");
   }
   /**
    * An expression used to calculate the question value.

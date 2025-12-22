@@ -2,7 +2,7 @@
   <label
     :key="item.value"
     @mousedown="question.onMouseDown()"
-    :class="question.getItemClass(item.itemValue)"
+    :class="item.className"
     @mouseover="(e) => question.onItemMouseIn(item)"
     @mouseleave="(e) => question.onItemMouseOut(item)"
     :title="item.text"

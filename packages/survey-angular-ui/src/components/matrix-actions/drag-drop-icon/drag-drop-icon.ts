@@ -1,6 +1,6 @@
 import { Component, Input } from "@angular/core";
 import { AngularComponentFactory } from "../../../component-factory";
-import { IAction } from "survey-core";
+import { IAction, MatrixDropdownRowModelBase } from "survey-core";
 import { EmbeddedViewContentComponent } from "../../../embedded-view-content.component";
 
 @Component({
@@ -13,6 +13,10 @@ export class MatrixDynamicDragDropIconComponent extends EmbeddedViewContentCompo
 
   get question() {
     return this.model.data.question;
+  }
+
+  get row(): MatrixDropdownRowModelBase {
+    return this.model.data.row;
   }
 }
 

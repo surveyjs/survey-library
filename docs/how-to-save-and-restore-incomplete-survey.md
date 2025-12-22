@@ -9,14 +9,15 @@ Respondents may not complete your survey in a single session. In this case, you 
 
 ## Restore Survey Progress from the `localStorage`
 
-To save incomplete survey results locally, implement a function that stores them under a specified key in the `localStorage` (see the `saveSurveyData` function in the code below). Call this function within `SurveyModel`'s [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValueChanged) and [`onCurrentPageChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCurrentPageChanged) event handlers to save the survey results each time users change a question value or switch between pages. When the survey is completed, submit final survey results to the server using the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event handler:
+To save incomplete results locally, implement functions that store [survey data](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) and [UI state](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#uiState) under specified keys in the `localStorage` (see the `saveSurveyData` and `saveSurveyUIState` functions in the code below). Call these functions inside the `SurveyModel`'s [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValueChanged) and [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event handlers to capture updates whenever users change a value or modify the UI (for example, expand/collapse a question box or switch pages). When the survey is completed, submit the final results to the server and remove them from the `localStorage` using the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event handler:
 
 ```js
 import { Model } from "survey-core";
 
 const survey = new Model();
 
-const STORAGE_ITEM_KEY = "my-survey";
+const STORAGE_ITEM_DATA_KEY = "my-survey-data";
+const STORAGE_ITEM_UI_STATE_KEY = "my-survey-state";
 const SURVEY_ID = /* ... Getting the survey ID ... */;
 const ENDPOINT_URL = "https://example.com/api/responses/" + SURVEY_ID;
 
@@ -24,17 +25,16 @@ fetch("https://example.com/api/surveys/" + SURVEY_ID)
   .then(response => response.json())
   .then(loadedSurvey => {
     survey.fromJSON(loadedSurvey.json);
-    restoreSurveyData(survey);
+    restoreSurvey(survey);
   })
   .catch(error => console.error(error));
 
-function saveSurveyData(survey, options) {
-  const data = survey.data;
-  data.pageNo = survey.currentPageNo;
-  if (options.name) {
-    data.lastVisitedQuestion = options.name;
-  }
-  window.localStorage.setItem(storageItemKey, JSON.stringify(data));
+function saveSurveyData(survey) {
+  window.localStorage.setItem(STORAGE_ITEM_DATA_KEY, JSON.stringify(survey.data));
+}
+
+function saveSurveyUIState(survey) {
+  window.localStorage.setItem(STORAGE_ITEM_UI_STATE_KEY, JSON.stringify(survey.uiState));
 }
 
 function submitSurveyData(data) {
@@ -46,31 +46,29 @@ function submitSurveyData(data) {
     .then(response => response.json())
     .then(data => {
       console.log(data);
-      window.localStorage.setItem(STORAGE_ITEM_KEY, "");
+      window.localStorage.setItem(STORAGE_ITEM_DATA_KEY, "");
+      window.localStorage.setItem(STORAGE_ITEM_UI_STATE_KEY, "");
     })
     .catch(error => console.error(error));
 }
 
-function restoreSurveyData(survey) {
-  const prevData = window.localStorage.getItem(STORAGE_ITEM_KEY) || null;
+function restoreSurvey(survey) {
+  const prevData = window.localStorage.getItem(STORAGE_ITEM_DATA_KEY) || null;
   if (prevData) {
     const data = JSON.parse(prevData);
     survey.data = data;
-    if (data.pageNo) {
-      survey.currentPageNo = data.pageNo;
-    }
-    if (data.lastVisitedQuestion) {
-      setTimeout(() => {
-        survey.focusQuestion(data.lastVisitedQuestion);
-      }, 500);     
-    }
+  }
+  const prevState = window.localStorage.getItem(STORAGE_ITEM_UI_STATE_KEY) || null;
+  if (prevState) {
+    const state = JSON.parse(prevState);
+    survey.uiState = state;
   }
 }
 
-// Save survey results and the last visited question name when users change a question value...
+// Save survey progress when users change a question value...
 survey.onValueChanged.add(saveSurveyData);
-// ... and switch to the next page
-survey.onCurrentPageChanged.add(saveSurveyData);
+// ... and when they modify the UI state (expand/collapse a question box or switch pages)
+survey.onUIStateChanged.add(saveSurveyUIState);
 
 // Submit final survey results after the survey is completed
 survey.onComplete.add((survey) => {
@@ -86,13 +84,16 @@ survey.onComplete.add((survey) => {
 
 ## Restore Survey Progress from a Database
 
-To save incomplete results in a database, submit them to your server each time users change a question value or switch between pages and when they complete the survey. Handle the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValueChanged), [`onCurrentPageChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCurrentPageChanged), and [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) events for this purpose.
+To save incomplete results in a database, submit them to your server each time users change a question value and when they complete the survey. Handle the [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValueChanged) and [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) to trigger these updates.
+
+Saving the UI state on a server usually isn't practical because it represents device-specific UI preferences, such as which questions are expanded or which page the respondent last viewed. These preferences are relevant only within the current browser session and do not affect actual survey results. For this reason, UI state is better stored locally using the `localStorage`. To do this, handle the [`onUIStateChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUIStateChanged) event.
 
 ```js
 import { Model } from "survey-core";
 
 const survey = new Model();
 
+const STORAGE_ITEM_UI_STATE_KEY = "my-survey-state";
 const SURVEY_ID = /* ... Getting the survey ID ... */
 const USER_ID = /* ... Getting the user ID ... */
 const ENDPOINT_URL = "https://example.com/api/responses/" + SURVEY_ID + "/" + USER_ID;
@@ -101,17 +102,16 @@ fetch("https://example.com/api/surveys/" + SURVEY_ID)
   .then(response => response.json())
   .then(loadedSurvey => {
     survey.fromJSON(loadedSurvey.json);
-    restoreSurveyData(survey);
+    restoreSurvey(survey);
   })
   .catch(error => console.error(error));
 
-function saveSurveyData(survey, options) {
-  const data = survey.data;
-  data.pageNo = survey.currentPageNo;
-  if (options.name) {
-    data.lastVisitedQuestion = options.name;
-  }
-  submitSurveyData(data);
+function saveSurveyData(survey) {
+  submitSurveyData(survey.data);
+}
+
+function saveSurveyUIState(survey) {
+  window.localStorage.setItem(STORAGE_ITEM_UI_STATE_KEY, JSON.stringify(survey.uiState));
 }
 
 function submitSurveyData(data) {
@@ -125,32 +125,29 @@ function submitSurveyData(data) {
     .catch(error => console.error(error));
 }
 
-function restoreSurveyData(survey) {
+function restoreSurvey(survey) {
   fetch(ENDPOINT_URL)
     .then(response => response.json())
     .then(prevData => {
       if (prevData) {
         const data = JSON.parse(prevData);
         survey.data = data;
-        if (data.pageNo) {
-          survey.currentPageNo = data.pageNo;
-        }
-        if (data.lastVisitedQuestion) {
-          setTimeout(() => {
-            survey.focusQuestion(data.lastVisitedQuestion);
-          }, 500);     
-        }
+      }
+      const prevState = window.localStorage.getItem(STORAGE_ITEM_UI_STATE_KEY) || null;
+      if (prevState) {
+        const state = JSON.parse(prevState);
+        survey.uiState = state;
       }
     })
     .catch(error => console.error(error));
 }
 
-// Submit survey results when users change a question value...
+// Submit survey progess when users change a question value...
 survey.onValueChanged.add(saveSurveyData);
-// ... switch to the next page...
-survey.onCurrentPageChanged.add(saveSurveyData);
-// ... and complete the survey
+// ... and when they complete the survey
 survey.onComplete.add(saveSurveyData);
+// Store the UI state when users modify it
+survey.onUIStateChanged.add(saveSurveyUIState);
 ```
 
 ## See Also

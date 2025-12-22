@@ -1,6 +1,6 @@
-import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getTimeZone, setTimeZoneUnsafe } from "../helper";
-import { Selector, fixture, test, ClientFunction } from "testcafe";
-const title = "text";
+// import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, getTimeZone, setTimeZoneUnsafe } from "../helper";
+// import { Selector, fixture, test, ClientFunction } from "testcafe";
+// const title = "text";
 
 // const json = {
 //   elements: [
@@ -243,35 +243,35 @@ const title = "text";
 //     });
 //   });
 
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`;
-  test("Test input type (month) in western timezone", async (t) => {
-    const oldTimeZone = await getTimeZone();
-    await setTimeZoneUnsafe(t, "America/Los_Angeles");
-    await initSurvey(framework, {
-      autoFocusFirstQuestion: true,
-      elements: [
-        {
-          "type": "text",
-          "name": "monthInput",
-          "title": "Month Input",
-          "inputType": "month"
-        }]
-    });
+// frameworks.forEach((framework) => {
+//   fixture`${framework} ${title}`.page`${url}${framework}`;
+//   test("Test input type (month) in western timezone", async (t) => {
+//     const oldTimeZone = await getTimeZone();
+//     await setTimeZoneUnsafe(t, "America/Los_Angeles");
+//     await initSurvey(framework, {
+//       autoFocusFirstQuestion: true,
+//       elements: [
+//         {
+//           "type": "text",
+//           "name": "monthInput",
+//           "title": "Month Input",
+//           "inputType": "month"
+//         }]
+//     });
 
-    await t
-      .expect(getTimeZone()).eql("America/Los_Angeles")
-      .pressKey("M tab 2 0 2 4 tab")
-      .expect(Selector("input").nth(0).value).eql("2024-03")
-      .click("input[value=Complete]");
+//     await t
+//       .expect(getTimeZone()).eql("America/Los_Angeles")
+//       .pressKey("M tab 2 0 2 4 tab")
+//       .expect(Selector("input").nth(0).value).eql("2024-03")
+//       .click("input[value=Complete]");
 
-    const surveyResult = await getSurveyResult();
-    await t.expect(surveyResult).eql({
-      monthInput: "2024-03"
-    });
-    await setTimeZoneUnsafe(t, oldTimeZone);
-  });
-});
+//     const surveyResult = await getSurveyResult();
+//     await t.expect(surveyResult).eql({
+//       monthInput: "2024-03"
+//     });
+//     await setTimeZoneUnsafe(t, oldTimeZone);
+//   });
+// });
 // frameworks.forEach((framework) => {
 //   fixture`${framework} ${title}`.page`${url}${framework}`;
 

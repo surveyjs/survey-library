@@ -13,21 +13,26 @@ import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
-import { IObjectValueContext, IValueGetterContext, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
 
 export class ItemValueGetterContext implements IValueGetterContext {
   constructor (protected item: ItemValue) {}
-  getValue(path: Array<IValueGetterItem>, isRoot: boolean, index: number, createObjects: boolean): IValueGetterInfo {
-    const name = path.length > 0 ? path[0].name : "";
-    if (path.length === 1) {
-      if (name === "item" || name === "choice") return { isFound: true, value: this.item.value, context: this };
+  public getObj(): Base { return this.item; }
+  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+    const path = params.path;
+    const name = path.length > 0 ? path[0].name.toLocaleLowerCase() : "";
+    const expVar = settings.expressionVariables;
+    const isItemVar = [expVar.item, expVar.choice, expVar.self].indexOf(name) > -1;
+    if (path.length === 1 && isItemVar) {
+      return { isFound: true, value: this.item.value, context: this };
     }
-    if (path.length > 1 && (name === "$item" || name === "$choice")) {
-      return new PropertyGetterContext(this.item).getValue(path.slice(1), true, -1, false);
+    if (params.isProperty && path.length > 1 && isItemVar) {
+      params.path = path.slice(1);
+      return new PropertyGetterContext(this.item).getValue(params);
     }
     const owner: any = this.item.locOwner;
     if (owner && owner.getValueGetterContext) {
-      return owner.getValueGetterContext().getValue(path, isRoot, index, createObjects);
+      return owner.getValueGetterContext().getValue(params);
     }
     return undefined;
   }
@@ -60,7 +65,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return !!this.locOwner ? this.locOwner.getRendererContext(locStr, this) : locStr;
   }
   public getProcessedText(text: string): string {
-    return this.locOwner ? this.locOwner.getProcessedText(text) : text;
+    return this.locOwner ? this.locOwner.getProcessedText(text, this) : text;
   }
 
   public static get Separator() {
@@ -252,6 +257,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return !Helpers.isValueEmpty(val) ? val.toString() : null;
   }
   public get locText(): LocalizableString {
+    return this.getLocText();
+  }
+  protected getLocText(): LocalizableString {
+
     if (!this.locTextValue) {
       this.locTextValue = this.createLocText();
     }

@@ -261,6 +261,18 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
     this.initPropertyDependencies();
   }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    const resetLabelsProps = ["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"];
+    if (resetLabelsProps.indexOf(name) > -1) {
+      this.resetPropertyValue("generatedLabels");
+      this.locStrsChanged();
+    }
+    const resetRenderedValueProps = ["min", "max", "step", "maxRangeLength", "minRangeLength", "sliderType"];
+    if (resetRenderedValueProps.indexOf(name) > -1) {
+      this.resetPropertyValue("renderedValue");
+    }
+  }
   @property({ defaultValue: null }) focusedThumb: number | null;
   @property({ defaultValue: null }) animatedThumb: boolean | null;
   public dragOrClickHelper: DragOrClickHelper;
@@ -523,7 +535,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     const { allowDragRange, renderedValue, getPercent } = this;
     if (!allowDragRange) return;
     //if (!this.rangeInputRef.current) return;
-    const input:HTMLElement = inputRef || DomDocumentHelper.getDocument().getElementById(this.id + "-sjs-slider-input-range-input"); //TODO
+    const input:HTMLElement = inputRef || this.questionRootElement.querySelector("#" + this.id + "-sjs-slider-input-range-input"); //TODO
 
     if (!input) return;
     const percentLastValue = getPercent(renderedValue[renderedValue.length - 1]);
@@ -628,7 +640,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     const { step, renderedValue } = this;
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
-        const input:any = DomDocumentHelper.getDocument().getElementById(this.id + `-sjs-slider-input-${i}`); //TODO
+        const input:any = this.questionRootElement.querySelector("#" + this.id + `-sjs-slider-input-${i}`); //TODO
         input.step = 0.01;
       }
     }
@@ -648,7 +660,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (step) {
       for (let i = 0; i < renderedValue.length; i++) {
         renderedValue[i] = getClosestToStepValue(renderedValue[i]);
-        const input:any = DomDocumentHelper.getDocument().getElementById(this.id + `-sjs-slider-input-${i}`); //TODO
+        const input:any = this.questionRootElement.querySelector("#" + this.id + `-sjs-slider-input-${i}`); //TODO
         input.step = step;
       }
     }
@@ -741,6 +753,32 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     this.resetPropertyValue("renderedValue");
   }
 
+  public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
+    if (this.autoGenerate === true) {
+      const index = this.generatedLabels.indexOf(item);
+      this.autoGenerate = false;
+      this.setPropertyValue("customLabels", this.calcGeneratedLabels());
+      item = this.customLabels[index];
+    }
+    if (name === "text") {
+      if (Number.isFinite(+newValue)) {
+        item.value = +newValue;
+      } else {
+        item.text = newValue;
+      }
+    }
+    super.itemValuePropertyChanged(item, name, oldValue, newValue);
+  }
+
+  public afterRenderQuestionElement(el: HTMLElement): void {
+    super.afterRenderQuestionElement(el);
+    this.questionRootElement = el;
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement): void {
+    super.beforeDestroyQuestionElement(el);
+    this.questionRootElement = undefined;
+  }
+
   protected runConditionCore(properties: HashTable<any>): void {
     super.runConditionCore(properties);
     this.runExpressionByProperty("maxValueExpression", properties, (value: number) => {
@@ -765,12 +803,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     //     }
     //   }
     // );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"],
-      () => {
-        this.resetPropertyValue("generatedLabels");
-        this.locStrsChanged();
-      }
-    );
     this.registerSychProperties(["autoGenerate"],
       () => {
         if (!this.autoGenerate && this.customLabels.length === 0) {
@@ -779,11 +811,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
         if (this.autoGenerate) {
           this.customLabels.splice(0, this.customLabels.length);
         }
-      }
-    );
-    this.registerFunctionOnPropertiesValueChanged(["min", "max", "step", "maxRangeLength", "minRangeLength", "sliderType"],
-      () => {
-        this.resetPropertyValue("renderedValue");
       }
     );
   }
@@ -904,23 +931,7 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     return !!this.customLabels.find(l => l.showValue);
   }
 
-  public itemValuePropertyChanged(item: ItemValue, name: string, oldValue: any, newValue: any): void {
-    if (this.autoGenerate === true) {
-      const index = this.generatedLabels.indexOf(item);
-      this.autoGenerate = false;
-      this.setPropertyValue("customLabels", this.calcGeneratedLabels());
-      item = this.customLabels[index];
-    }
-    if (name === "text") {
-      if (Number.isFinite(+newValue)) {
-        item.value = +newValue;
-      } else {
-        item.text = newValue;
-      }
-    }
-    super.itemValuePropertyChanged(item, name, oldValue, newValue);
-
-  }
+  private questionRootElement: HTMLElement;
 }
 
 function getCorrectMinMax(min: any, max: any, isMax: boolean, step: number): any {

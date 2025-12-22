@@ -59,7 +59,6 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
         ref={this.root}
         className={model.className}
         data-sv-drop-target-matrix-row={model.dropTargetId}
-        onPointerDown={(event: any) => this.onPointerDownHandler(event)}
       >
         {this.props.children}
       </tr>

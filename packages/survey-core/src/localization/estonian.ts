@@ -99,6 +99,8 @@ export var estonianSurveyStrings = {
   urlGetChoicesError: "Taotlus tagastas tühjad andmed või atribuut 'path' on vale",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Faili suurus ei tohi ületada {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maksimaalne failide arv, mida saad üles laadida, on {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Faile ei saa üles laadida. Palun lisage sündmuse \"onUploadFiles\" jaoks käitleja.",
   // "Response required: enter another value."

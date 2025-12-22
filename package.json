@@ -4,7 +4,8 @@
     "lint:fix": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --max-warnings=0 --fix",
     "pre-push-check": "npm run test --prefix packages/survey-core",
     "prepare": "husky install",
-    "postinstall": "playwright install chromium"
+    "postinstall": "playwright install chromium",
+    "a": "refresh azure cache for eslint plugin"
   },
   "version": "1.12.17",
   "name": "survey-library",
@@ -21,7 +22,6 @@
     "@vue/eslint-config-typescript": "^11.0.0",
     "axe-core": "^4.8.2",
     "axe-playwright": "^2.1.0",
-    "axe-testcafe": "^3.0.0",
     "concurrently": "^7",
     "cross-env": "^7.0.3",
     "devextreme-screenshot-comparer": "^2.0.11",
@@ -35,13 +35,7 @@
     "node-uuid": "1.4.7",
     "typescript": "5.8.3",
     "playwright": "1.52.0",
-    "puppeteer": "22.13.1",
-    "testcafe": "3.3.0"
-  },
-  "overrides": {
-    "axe-testcafe": {
-      "axe-core": "^4.8.2"
-    }
+    "puppeteer": "22.13.1"
   },
   "husky": {
     "hooks": {

@@ -122,6 +122,10 @@ export interface CompletingEvent extends CompleteBaseEvent {
    */
   allow: boolean;
   /**
+   * A notification message to display when survey results cannot be saved or after they have been saved successfully.
+   */
+  message?: string;
+  /**
    * @deprecated Use `options.allow` instead.
    */
   allowComplete: boolean;
@@ -226,6 +230,10 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * A Boolean property that you can set to `false` if you do not want to switch the current page.
    */
   allow: boolean;
+  /**
+   * A notification message to display when the page cannot be switched.
+   */
+  message?: string;
   /**
    * @deprecated Use `options.allow` instead.
    */
@@ -634,6 +642,10 @@ export interface ChoicesLoadedEvent extends QuestionEventMixin {
 }
 export interface LoadChoicesFromServerEvent extends ChoicesLoadedEvent { }
 export interface ProcessDynamicTextEvent {
+  /**
+   * A survey element (question, panel, page, choice option, matrix row, column, trigger, validator, survey, etc.) for which the event is raised.
+   */
+  element: Base;
   /**
    * The name of the value being processed (the text in curly brackets).
    */

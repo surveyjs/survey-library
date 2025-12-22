@@ -163,15 +163,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected shouldRunColumnExpression(): boolean {
     return !this.survey || !this.survey.areInvisibleElementsShowing;
   }
-  protected hasRowsAsItems(): boolean {
-    return true;
-  }
   protected runItemsCondition(properties: HashTable<any>): void {
-    let hasChanges = this.hasRowsAsItems() && this.runConditionsForRows(properties);
+    const hasRowsChanged = this.runConditionsForRows(properties);
     const hasColumnsChanged = this.runConditionsForColumns(properties);
-    hasChanges = hasColumnsChanged || hasChanges;
+    const hasChanges = hasColumnsChanged || hasRowsChanged;
     if (hasChanges) {
-      if (this.isClearValueOnHidden) {
+      if (this.isClearValueOnHidden && hasColumnsChanged) {
         this.clearInvisibleColumnValues();
       }
       this.clearGeneratedRows();
@@ -186,7 +183,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   protected createRowsVisibleIfRunner(): ConditionRunner { return null; }
   private runConditionsForRows(properties: HashTable<any>): boolean {
-    const showInvisibile = !!this.survey && this.survey.areInvisibleElementsShowing;
+    const showInvisibile = this.areInvisibleElementsShowing;
     const runner = !showInvisibile ? this.createRowsVisibleIfRunner() : null;
     const hasChanged = ItemValue.runConditionsForItems(this.rows, undefined, runner,
       properties, !showInvisibile);
@@ -194,7 +191,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return hasChanged;
   }
   protected runConditionsForColumns(properties: HashTable<any>): boolean {
-    const useColumnsExpression = !!this.survey && !this.survey.areInvisibleElementsShowing;
+    const useColumnsExpression = !this.areInvisibleElementsShowing;
     const expression = this.getExpressionFromSurvey("columnsVisibleIf");
     const runner = useColumnsExpression && !!expression ? new ConditionRunner(expression) : null;
     return ItemValue.runConditionsForItems(this.columns, undefined, runner, properties, this.shouldRunColumnExpression());
@@ -218,6 +215,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       .append(this.cssClasses.rootAlternateRows, this.alternateRows)
       .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
       .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
+  }
+  public getTableWrapperCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.tableWrapper)
+      .append(this.cssClasses.tableWrapperLeft, this.titleLocation == "left").toString();
   }
 
   /**

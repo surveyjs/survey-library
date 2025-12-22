@@ -1,4 +1,4 @@
-import { ComputedUpdater, Base, Event, ArrayChanges, IPropertyArrayValueChangedEvent, EventBase, IPropertyValueChangedEvent } from "../src/base";
+import { ComputedUpdater, Base, Event, ArrayChanges, IPropertyArrayValueChangedEvent, EventBase, IPropertyValueChangedEvent, EventAsync } from "../src/base";
 import { ItemValue } from "../src/itemvalue";
 import { ILocalizableOwner, LocalizableString } from "../src/localizablestring";
 import { property, Serializer } from "../src/jsonobject";
@@ -7,6 +7,7 @@ import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { settings } from "../src/settings";
+import { set } from "lodash";
 export * from "../src/localization/german";
 
 export default QUnit.module("Base");
@@ -63,7 +64,58 @@ QUnit.test("Do not add function with the same instance several times", function 
   event.fire(null, null);
   assert.equal(counter, 1, "function should not be called the second time");
 });
-
+QUnit.test("Add async event", function (assert) {
+  const done = assert.async();
+  interface ResultOptions {
+    counter: number;
+  }
+  const event = new EventAsync<any, ResultOptions>();
+  const func1 = (sender: any, options: ResultOptions): Promise<void> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        options.counter++;
+        resolve();
+      }, 0);
+    });
+  };
+  const func2 = (sender: any, options: ResultOptions): Promise<void> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        options.counter++;
+        resolve();
+      }, 0);
+    });
+  };
+  const options: ResultOptions = { counter: 0 };
+  let completeCounter = 0;
+  let firstAsyncCounter = 0;
+  event.add(func1);
+  event.add(func2);
+  event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
+  setTimeout(() => {
+    assert.equal(options.counter, 2, "function called 2 times");
+    assert.equal(firstAsyncCounter, 1, "onAsyncCallbacks called one time #2");
+    done();
+  }, 10);
+  assert.equal(firstAsyncCounter, 1, "onAsyncCallbacks called one time");
+});
+QUnit.test("Add sync functions to async event", function (assert) {
+  interface ResultOptions {
+    counter: number;
+  }
+  const event = new EventAsync<any, ResultOptions>();
+  const func1 = (sender: any, options: ResultOptions) => { options.counter++; };
+  const func2 = (sender: any, options: ResultOptions) => { options.counter++; };
+  const options: ResultOptions = { counter: 0 };
+  event.add(func1);
+  event.add(func2);
+  let completeCounter = 0;
+  let firstAsyncCounter = 0;
+  event.fire(null, options, () => completeCounter++, () => firstAsyncCounter++);
+  assert.equal(options.counter, 2, "function called 2 times");
+  assert.equal(firstAsyncCounter, 0, "onAsyncCallbacks called one time");
+  assert.equal(completeCounter, 1, "onComplete called one time");
+});
 QUnit.test("Item value & dynamic separator, #10424", function (assert) {
   var value = new ItemValue("Item");
   assert.equal(value.value, "Item", "simple text value");
@@ -836,6 +888,7 @@ QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.
   question.resetPropertyValue("minWidth");
   assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
 
+  assert.equal(question.placeholder, "Select...", "question.locPlaceholder default value");
   assert.equal(question.hasDefaultPropertyValue("placeholder"), true, "question.placeholder has default value");
   assert.equal(question.getDefaultPropertyValue("placeholder"), "Select...", "question.placeholder default value");
   assert.equal(question.placeholder, "Select...", "question.placeholder value");

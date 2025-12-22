@@ -1,10 +1,11 @@
+import { Page } from "playwright";
 import { frameworks, url, initSurvey, test, expect } from "../helper";
 
 const title = "afterRenderQuestionEvent";
 
-async function checkResizeObserverExists(page, modelName) {
+async function checkResizeObserverExists(page: Page, modelName: string) {
   return await page.evaluate((modelName) => {
-    return !!window[modelName].resizeObserver;
+    return !!(window as any)[modelName].resizeObserver;
   }, modelName);
 }
 
@@ -36,10 +37,10 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
-        window["survey"].onAfterRenderQuestion.add((_, options) => {
+        (window as any).survey.onAfterRenderQuestion.add((_, options) => {
           options.htmlElement.setAttribute("test", "true");
         });
-        window["survey"].fromJSON(json);
+        (window as any).survey.fromJSON(json);
       }, json);
 
       await page.locator("label").first().click();
@@ -82,7 +83,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, {});
       await page.evaluate((json) => {
-        window["survey"].onAfterRenderQuestion.add((_, options) => {
+        (window as any).survey.onAfterRenderQuestion.add((_, options) => {
           if (options.question.name == "question4a") {
             var title = options.htmlElement.querySelector("input[value='valueYes']");
             title.style.color = "tomato";
@@ -91,7 +92,7 @@ frameworks.forEach((framework) => {
             options.htmlElement.style.border = "1px solid #CCC";
           }
         });
-        window["survey"].fromJSON(json);
+        (window as any).survey.fromJSON(json);
       }, json);
 
       const questionSelector = page.locator(".sd-question");
@@ -107,16 +108,41 @@ frameworks.forEach((framework) => {
     });
 
     if (framework === "angular" || framework === "react") {
-      test.skip("Check that survey calls afterRender if model changed", async ({ page }) => {
+      test("Check that survey calls afterRender if model changed", async ({ page }) => {
+        await page.evaluate((framework) => {
+          if (framework === "react") {
+            const surveyElement = document.getElementById("surveyElement");
+            if (surveyElement) {
+              surveyElement.innerHTML = "";
+
+              const App = () => {
+                const [survey, setSurvey] = (window as any)["React"].useState(undefined);
+                (window as any).setSurvey = setSurvey;
+
+                if (!!survey) {
+                  return (window as any)["React"].createElement(
+                    (window as any)["SurveyReact"].Survey,
+                    { model: survey }
+                  );
+                } else {
+                  return null;
+                }
+              };
+
+              const root = (window as any)["ReactDOMClient"].createRoot(surveyElement);
+              root.render((window as any)["React"].createElement(App));
+            }
+          }
+        }, framework);
         await page.evaluate(() => {
-          window["model2"] = new window["Survey"].Model({});
-          window.setSurvey(window["model1"]);
+          (window as any).model1 = new (window as any).Survey.Model({});
+          (window as any).setSurvey((window as any).model1);
         });
         expect(await checkResizeObserverExists(page, "model1")).toBeTruthy();
 
         await page.evaluate(() => {
-          window["model2"] = new window["Survey"].Model({});
-          window.setSurvey(window["model2"]);
+          (window as any).model2 = new (window as any).Survey.Model({});
+          (window as any).setSurvey((window as any).model2);
         });
         expect(await checkResizeObserverExists(page, "model1")).toBeFalsy();
         expect(await checkResizeObserverExists(page, "model2")).toBeTruthy();

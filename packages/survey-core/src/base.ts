@@ -213,6 +213,7 @@ export class Base implements IObjectValueContext {
     Base.currentDependencis.addDependency(target, property);
   }
   public dependencies: { [key: string]: ComputedUpdater } = {};
+  private expressionDependencies: { [key: string]: { obj: Base, propertyName: string } } = {};
   public static get commentSuffix(): string {
     return settings.commentSuffix;
   }
@@ -338,7 +339,13 @@ export class Base implements IObjectValueContext {
     this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
     Object.keys(this.dependencies).forEach(key => this.dependencies[key].dispose());
-    // this.dependencies = {};
+    Object.keys(this.expressionDependencies).forEach(key => {
+      const item = this.expressionDependencies[key];
+      if (!item.obj.isDisposed) {
+        item.obj.unRegisterFunctionOnPropertyValueChanged(item.propertyName, key);
+      }
+    });
+    this.expressionDependencies = {};
     Object.keys(this.propertyHash).forEach(key => {
       const propVal = this.getPropertyValueCore(this.propertyHash, key);
       if (!!propVal && propVal.type == ComputedUpdater.ComputedUpdaterType) {
@@ -353,6 +360,11 @@ export class Base implements IObjectValueContext {
   public get isSurveyObj(): boolean { return true; }
   protected addEvent<T, Options = any>(): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
+    this.eventList.push(res);
+    return res;
+  }
+  protected addAsyncEvent<T, Options = any>(): EventAsync<T, Options> {
+    const res = new EventAsync<T, Options>();
     this.eventList.push(res);
     return res;
   }
@@ -652,6 +664,8 @@ export class Base implements IObjectValueContext {
     ) {
       if (!this.isTwoValueEquals(oldValue, val)) {
         this.setArrayPropertyDirectly(name, val);
+      } else if (val === undefined && Array.isArray(oldValue)) {
+        (oldValue as any).isReset = true;
       }
     } else {
       if (val !== oldValue) {
@@ -924,6 +938,20 @@ export class Base implements IObjectValueContext {
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);
   }
+  public addPropertyDependency(obj: Base, propertyName: string): void {
+    if (!obj || !propertyName) return;
+    const id = obj.uniqueId + "_" + propertyName;
+    if (!this.expressionDependencies[id]) {
+      obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
+        this.onDependencyValueChanged(obj, propertyName);
+      }, id);
+      this.expressionDependencies[id] = { obj, propertyName };
+    }
+  }
+  private onDependencyValueChanged(obj: Base, propertyName: string): void {
+    this.runConditionCore(this.getDataFilteredProperties());
+    this.locStrsChanged();
+  }
   public createCustomLocalizableObj(name: string): LocalizableString {
     const locStr = this.getLocalizableString(name);
     if (locStr) return locStr;
@@ -978,25 +1006,36 @@ export class Base implements IObjectValueContext {
     }
   }
   public getLocalizableString(name: string): LocalizableString {
-    return !!this.localizableStrings ? this.localizableStrings[name] : null;
+    const ls = this.localizableStrings;
+    return !!ls ? ls[name] : null;
   }
-  public getLocalizableStringText(
-    name: string,
-    defaultStr: string = ""
-  ): string {
-    Base.collectDependency(this, name);
-    var locStr = this.getLocalizableString(name);
-    if (!locStr) return "";
-    var res = locStr.text;
-    return res ? res : defaultStr;
+  protected getOrCreateLocStr(name: string, supportsMarkdown: boolean = false, defaultStr: boolean | string = false, onCreate?: (newLocStr: LocalizableString) => void): LocalizableString {
+    let locStr = this.getLocalizableString(name);
+    if (!locStr) {
+      locStr = this.createLocalizableString(name, undefined, supportsMarkdown, defaultStr);
+      if (onCreate) {
+        onCreate(locStr);
+      }
+    }
+    return locStr;
+  }
+  public getLocalizableStringText(name: string, defaultStr: string = ""): string {
+    return this.getLocStringText(this.getLocalizableString(name), defaultStr);
   }
   public setLocalizableStringText(name: string, value: string) {
-    let locStr = this.getLocalizableString(name);
+    this.setLocStringText(this.getLocalizableString(name), value);
+  }
+  protected getLocStringText(locStr: LocalizableString, defaultStr: string = ""): string {
+    if (!!locStr?.name) {
+      Base.collectDependency(this, locStr.name);
+    }
+    return locStr?.text || defaultStr;
+  }
+  protected setLocStringText(locStr: LocalizableString, value: string) {
     if (!locStr) return;
     let oldValue = locStr.text;
     if (oldValue != value) {
       locStr.text = value;
-      // this.propertyValueChanged(name, oldValue, value);
     }
   }
   public addUsedLocales(locales: Array<string>): void {
@@ -1110,6 +1149,9 @@ export class Base implements IObjectValueContext {
         this.onPropertyValueCoreChanged = undefined;
       }
     }
+  }
+  public get hasActiveUISubscribers(): boolean {
+    return !!this.onPropertyValueCoreChanged;
   }
   protected createNewArrayCore(name: string): Array<any> {
     var res = null;
@@ -1237,36 +1279,36 @@ export class Base implements IObjectValueContext {
   }
   protected setArray(
     name: string,
-    src: any[],
     dest: any[],
+    src: any[],
     isItemValues: boolean,
     onPush: any
   ) {
-    var deletedItems = [].concat(src);
-    Object.getPrototypeOf(src).splice.call(src, 0, src.length);
-    if (!!dest) {
-      for (var i = 0; i < dest.length; i++) {
-        var item = dest[i];
+    var deletedItems = [].concat(dest);
+    Object.getPrototypeOf(dest).splice.call(dest, 0, dest.length);
+    if (!!src) {
+      for (var i = 0; i < src.length; i++) {
+        var item = src[i];
         if (isItemValues) {
           if (!!Base.createItemValue) {
             item = Base.createItemValue(item, this.getItemValueType());
           }
         }
-        Object.getPrototypeOf(src).push.call(src, item);
-        if (onPush) onPush(src[i]);
+        Object.getPrototypeOf(dest).push.call(dest, item);
+        if (onPush) onPush(dest[i]);
       }
-      delete (<any>src).isReset;
+      delete (<any>dest).isReset;
     } else {
-      (<any>src).isReset = true;
+      (<any>dest).isReset = true;
     }
     const arrayChanges = new ArrayChanges(
       0,
       deletedItems.length,
-      src,
+      dest,
       deletedItems
     );
-    this.propertyValueChanged(name, deletedItems, src, arrayChanges);
-    this.notifyArrayChanged(name, src, arrayChanges);
+    this.propertyValueChanged(name, deletedItems, dest, arrayChanges);
+    this.notifyArrayChanged(name, dest, arrayChanges);
   }
   protected isTwoValueEquals(
     x: any,
@@ -1400,3 +1442,30 @@ export class EventBase<Sender, Options = any> extends Event<
   Sender,
   Options
 > { }
+
+export class EventAsync<Sender, Options = any> extends EventBase <Sender, Options> {
+  public fire(sender: Sender, options: Options, onComplete?: () => void, onFirstAsync?: () => void): void {
+    onComplete = onComplete || (() => { });
+    if (!this.callbacks) {
+      onComplete();
+      return;
+    }
+    const promises: Array<Promise<any>> = [];
+    const callbacks = [].concat(this.callbacks);
+    for (var i = 0; i < callbacks.length; i++) {
+      const res = callbacks[i](sender, options);
+      if (res && res instanceof Promise) {
+        promises.push(res);
+      }
+      if (!this.callbacks) return;
+    }
+    if (promises.length > 0) {
+      onFirstAsync && onFirstAsync();
+      Promise.all(promises).then(() => {
+        onComplete();
+      });
+    } else {
+      onComplete();
+    }
+  }
+}

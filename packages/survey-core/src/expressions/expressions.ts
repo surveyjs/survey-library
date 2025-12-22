@@ -213,20 +213,19 @@ export class ArrayOperand extends Operand {
   public getType(): string {
     return "array";
   }
-  public toString(func: (op: Operand) => string = undefined): string {
+  public toString(func: (op: Operand) => string = undefined, noBrackets?: boolean): string {
     if (!!func) {
-      var res = func(this);
+      const res = func(this);
       if (!!res) return res;
     }
-    return (
-      "[" +
-      this.values
-        .map(function(el: Operand) {
-          return el.toString(func);
-        })
-        .join(", ") +
-      "]"
-    );
+
+    let res = this.values
+      .map(function(el: Operand) {
+        return el.toString(func);
+      })
+      .join(", ");
+
+    return !noBrackets ? "[" + res + "]" : res;
   }
 
   public evaluate(processValue?: ProcessValue): Array<any> {
@@ -277,7 +276,7 @@ export class Const extends Operand {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.value.toString();
+    return this.value === "" ? "''" : this.value.toString();
   }
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
@@ -410,19 +409,27 @@ export class FunctionOperand extends Operand {
         onComplete(item);
       };
     }
-    return FunctionFactory.Instance.run(
+    let res = FunctionFactory.Instance.run(
       this.originalValue,
       this.parameters.evaluate(processValue),
       properties,
       this.parameters.values
     );
+    if (res instanceof Promise) {
+      res.then((value) => {
+        properties.returnResult(value);
+      });
+      return undefined;
+    }
+    return res;
   }
   public toString(func: (op: Operand) => string = undefined): string {
     if (!!func) {
       var res = func(this);
       if (!!res) return res;
     }
-    return this.originalValue + "(" + this.parameters.toString(func) + ")";
+
+    return this.originalValue + "(" + this.parameters.toString(func, true) + ")";
   }
   public setVariables(variables: Array<string>): void {
     this.parameters.setVariables(variables);
@@ -615,6 +622,9 @@ export class OperandMaker {
         if (OperandMaker.binaryFunctions.contains(left, right[i])) return true;
       }
       return false;
+    },
+    noneof: function(left: any, right: any): boolean {
+      return !OperandMaker.binaryFunctions.anyof(left, right);
     },
     allof: function(left: any, right: any): boolean {
       if (!left && !Helpers.isValueEmpty(right)) return false;

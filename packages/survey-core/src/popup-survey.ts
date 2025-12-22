@@ -29,16 +29,20 @@ export class PopupSurveyModel extends Base {
     this.survey.onComplete.add((survey, options) => {
       this.onSurveyComplete();
     });
-    this.registerPropertyChangedHandlers(["isShowing"], () => {
-      if (!!this.showingChangedCallback)this.showingChangedCallback();
-    });
-    this.registerPropertyChangedHandlers(["isExpanded"], () => {
-      this.onExpandedChanged();
-    });
     this.width = <any>new ComputedUpdater<string>(() => this.survey.width);
     this.width = this.survey.width;
     this.updateCss();
     this.onCreating();
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "isShowing") {
+      const callback = this.showingChangedCallback;
+      callback && callback();
+    }
+    if (name === "isExpanded") {
+      this.onExpandedChanged();
+    }
   }
   protected onCreating(): void { }
   public getType(): string {

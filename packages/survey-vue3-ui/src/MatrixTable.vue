@@ -1,7 +1,7 @@
 <template>
   <div
     :style="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' as any }"
-    :class="question.cssClasses.tableWrapper"
+    :class="question.getTableWrapperCss()"
   >
     <table :class="question.getTableCss()">
       <thead v-if="table.showHeader">

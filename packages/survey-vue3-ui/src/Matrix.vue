@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.tableWrapper" ref="root">
+  <div :class="question.getTableWrapperCss()" ref="root">
     <fieldset role="radiogroup">
       <legend class="sv-visuallyhidden">{{ question.locTitle.renderedHtml }}</legend>
       <table :class="question.getTableCss()" role="presentation">

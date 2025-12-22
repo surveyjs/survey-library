@@ -256,7 +256,7 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   }
   renderTableDiv(): React.JSX.Element {
     return (
-      <div className={this.question.cssClasses.tableWrapper} ref={(root) => (this.setControl(root))}>
+      <div className={this.question.getTableWrapperCss()} ref={(root) => (this.setControl(root))}>
         <SurveyQuestionMatrixTable question={this.question} creator={this.creator} wrapCell={(cell, element, reason) => this.wrapCell(cell, element, reason)}></SurveyQuestionMatrixTable>
       </div>
     );

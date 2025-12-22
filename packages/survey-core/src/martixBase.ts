@@ -216,6 +216,11 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
       .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
       .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
   }
+  public getTableWrapperCss(): string {
+    return new CssClassBuilder()
+      .append(this.cssClasses.tableWrapper)
+      .append(this.cssClasses.tableWrapperLeft, this.titleLocation == "left").toString();
+  }
 
   /**
    * Aligns matrix cell content in the vertical direction.

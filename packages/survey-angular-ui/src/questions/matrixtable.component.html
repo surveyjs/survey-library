@@ -1,4 +1,4 @@
-<div #contentElement [class]="question.cssClasses.tableWrapper">
+<div #contentElement [class]="question.getTableWrapperCss()">
   <table [class]="question.getTableCss()">
     <thead *ngIf="table.showHeader">
       <tr>

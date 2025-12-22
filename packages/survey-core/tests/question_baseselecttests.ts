@@ -4224,3 +4224,46 @@ QUnit.test("choice item elements & item.expandPanelAtDesign, Issue#10384", (asse
   choiceItem.onExpandPanelAtDesign.fire(choiceItem, {});
   assert.equal(counter, 2, "onExpandPanelAtDesign should be called twice");
 });
+QUnit.test("Checkbox question, defaultValue, skip trigger, Bug#10728", (assert) => {
+  const survey = new SurveyModel({
+    "clearInvisibleValues": "none",
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "q2",
+            "defaultValue": ["item1"]
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{q1} = 1",
+        "gotoName": "q3"
+      }
+    ]
+  });
+  survey.setValue("q1", 1);
+  assert.equal(survey.currentPage.name, "page3", "the survey is on the page3");
+  survey.tryComplete();
+  assert.deepEqual(survey.data, { q1: 1, q2: ["item1"] }, "the data is correct");  
+});

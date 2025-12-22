@@ -170,7 +170,6 @@ frameworks.forEach((framework) => {
     test("check integrity", async ({ page }) => {
       const getChoicesCount = async () => {
         return await page.evaluate(() => {
-          //     const document = (window as any).survey.rootElement.getRootNode();
           const columnClassName = ".sd-selectbase__column";
           const checkboxControlClassName = ".sd-checkbox__control";
           return (window as any).survey.rootElement.getRootNode().querySelectorAll(
@@ -181,7 +180,6 @@ frameworks.forEach((framework) => {
 
       const getChoicesExistence = async () => {
         return await page.evaluate(() => {
-          // const document = (window as any).survey.rootElement.getRootNode();
           var choices = [
             "None",
             "Ford",

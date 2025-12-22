@@ -111,7 +111,8 @@ frameworks.forEach((framework) => {
       test("Check that survey calls afterRender if model changed", async ({ page }) => {
         await page.evaluate((framework) => {
           if (framework === "react") {
-            const surveyElement = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
+            // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+            const surveyElement = document.getElementById("surveyElement");
             if (surveyElement) {
               surveyElement.innerHTML = "";
 

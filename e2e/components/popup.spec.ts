@@ -436,8 +436,10 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const container = document.createElement("div");
         container.style.height = "200px";
-        const surveyEl = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
-        surveyEl?.parentElement?.insertBefore(container, (window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyEl = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
       });
 
       await initSurvey(page, framework, {});
@@ -476,8 +478,10 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const container = document.createElement("div");
         container.style.height = "200px";
-        const surveyEl = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
-        surveyEl?.parentElement?.insertBefore(container, (window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyEl = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
       });
 
       const _json = {

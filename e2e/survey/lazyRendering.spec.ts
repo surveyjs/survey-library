@@ -10,7 +10,8 @@ frameworks.forEach((framework) => {
 
       // Enable lazy rendering
       await page.evaluate(() => {
-        const container = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement") as HTMLDivElement;
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.getElementById("surveyElement") as HTMLDivElement;
         container.style.height = "500px";
         container.style.overflow = "auto";
         window["Survey"].settings.lazyRender.enabled = true;

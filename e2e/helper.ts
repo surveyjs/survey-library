@@ -99,7 +99,34 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
       surveyElement.innerHTML = "";
-      self.SurveyUI.renderSurvey(model, surveyElement);
+
+      const container = surveyElement;
+      const shadowRoot = container.attachShadow({ mode: "open" });
+      const rootElement = document.createElement("div");
+      // rootElement.style.position = "fixed";
+      // rootElement.style.left = "0";
+      // rootElement.style.top = "0";
+      // rootElement.style.right = "0";
+      // rootElement.style.bottom = "0";
+      const styles = document.createElement("style");
+      styles.textContent = `
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
+        }
+      `;
+      shadowRoot.appendChild(styles);
+      const surveyLink = document.createElement("link");
+      surveyLink.setAttribute("rel", "stylesheet");
+      surveyLink.setAttribute("href", "../../node_modules/survey-core/survey-core.min.css");
+      shadowRoot.appendChild(surveyLink);
+      shadowRoot.appendChild(rootElement);
+
+      //SurveyUI.renderSurvey(survey, rootElement);
+
+      self.SurveyUI.renderSurvey(model, rootElement);
+
     } else if (framework === "react") {
       if (!!self.root) {
         self.root.unmount();

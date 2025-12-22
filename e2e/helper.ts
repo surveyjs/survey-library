@@ -103,11 +103,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       const container = surveyElement;
       const shadowRoot = container.attachShadow({ mode: "open" });
       const rootElement = document.createElement("div");
-      // rootElement.style.position = "fixed";
-      // rootElement.style.left = "0";
-      // rootElement.style.top = "0";
-      // rootElement.style.right = "0";
-      // rootElement.style.bottom = "0";
       const styles = document.createElement("style");
       styles.textContent = `
         *,
@@ -122,8 +117,6 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       surveyLink.setAttribute("href", "../../node_modules/survey-core/survey-core.min.css");
       shadowRoot.appendChild(surveyLink);
       shadowRoot.appendChild(rootElement);
-
-      //SurveyUI.renderSurvey(survey, rootElement);
 
       self.SurveyUI.renderSurvey(model, rootElement);
 
@@ -227,8 +220,8 @@ export async function visibleInViewport (page: Page, locator: Locator) {
     return (
       rect?.y >= 0 &&
       rect?.x >= 0 &&
-      rect?.y + rect?.height <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect?.x + rect?.width <= (window.innerWidth || document.documentElement.clientWidth)
+      rect?.y + rect?.height <= (window.innerHeight || document.querySelector("div")!.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || document.querySelector("div")!.clientWidth)
     );
   }, rect);
 }

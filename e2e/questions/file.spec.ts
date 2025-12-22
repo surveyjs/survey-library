@@ -174,7 +174,7 @@ frameworks.forEach((framework) => {
     // TODO testcafe waiting forever...
     // test(`change file max size`, async t => {
     //     const getPosition = ClientFunction(() =>
-    //         document.documentElement.innerHTML.indexOf('The file size should not exceed 100 KB'));
+    //         document.querySelector("div")!.innerHTML.indexOf('The file size should not exceed 100 KB'));
     //     const getImageExistance = ClientFunction(() =>
     //         !!document.querySelector('img'));
     //     let surveyResult;

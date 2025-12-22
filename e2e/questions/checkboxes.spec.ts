@@ -196,7 +196,7 @@ frameworks.forEach((framework) => {
           ];
           var result;
           for (var i = 0; i < choices.length; i++) {
-            if (document.documentElement.innerHTML.indexOf(choices[i]) === -1)
+            if (document.querySelector("div")!.innerHTML.indexOf(choices[i]) === -1)
               return false;
           }
           return true;

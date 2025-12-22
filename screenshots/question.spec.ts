@@ -976,7 +976,7 @@ frameworks.forEach(framework => {
         "width": "800"
       });
       await page.evaluate(() => {
-        document.documentElement.style.setProperty("--sjs-font-size", "8px");
+        document.querySelector("div")!.style.setProperty("--sjs-font-size", "8px");
       });
       const questionRows = page.locator(".sd-row");
       await compareScreenshot(page, questionRows.nth(0), "question-empty-title-height.png");

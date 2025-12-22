@@ -1,3 +1,4 @@
+import { set } from "lodash";
 import { QuestionImageMapModel } from "../src/question_imagemap";
 import { SurveyModel } from "../src/survey";
 
@@ -99,6 +100,12 @@ QUnit.test("Check toggle and multiSelect change", function (assert) {
   q1.mapItemTooggle(q1.areas[0]);
   q1.mapItemTooggle(q1.areas[1]);
   assert.deepEqual(q1.value, ["val1", "val2"], "value must be ['val1', 'val2'] after selecting two items");
+
+  q1.readOnly = true;
+  q1.mapItemTooggle(q1.areas[1]);
+  q1.mapItemTooggle(q1.areas[2]);
+  assert.deepEqual(q1.value, ["val1", "val2"], "value must be unchanged in readOnly mode");
+  q1.readOnly = false;
 
   q1.mapItemTooggle(q1.areas[0]);
   assert.deepEqual(q1.value, ["val2"], "value must be ['val2'] after toggling first item off");
@@ -585,3 +592,172 @@ QUnit.test("check getDisplayValue with valuePropertyName", function (assert) {
   assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { wrong: "val1" }]), "", "display value for single wrong (object) item");
   assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "val2_text", "display value for multiple items with 2 wrong");
 });
+
+QUnit.test("items visibleIf render", (assert) => {
+
+  const done = assert.async();
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4] },
+      {
+        type: "imagemap",
+        name: "q2",
+        areas: [
+          { value: "a", coords: "1" },
+          { value: "b", coords: "2", visibleIf: "{q1} contains 1" },
+          { value: "c", coords: "3", visibleIf: "{q1} contains 2" },
+          { value: "d", coords: "4", visibleIf: "{q1} contains 2" },
+          { value: "e", coords: "5", visibleIf: "{q1} contains 1" },
+        ]
+      }
+    ]
+  });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
+
+  const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"></svg>');
+
+  let container = document.createElement("div");
+  container.innerHTML = `
+    <img id="imagemap-${ q2.id }-background" src="${ imageDataURL }" />
+    <canvas id="imagemap-${ q2.id }-canvas-selected"></canvas>
+    <canvas id="imagemap-${ q2.id }-canvas-hover"></canvas>
+    <map></map>
+  `;
+  const HTMLMap = container.querySelector("map");
+
+  q2.initImageMap(container);
+
+  setTimeout(() => {
+
+    assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a", "visibleAreas #1");
+    assert.equal(
+      HTMLMap?.innerHTML,
+      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\">",
+      "HTMLMap #1"
+    );
+
+    q1.value = [1];
+    assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a,b,e", "visibleAreas #2");
+    assert.equal(
+      HTMLMap?.innerHTML,
+      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\"><area shape=\"poly\" coords=\"2\" title=\"b\" data-value=\"b\"><area shape=\"poly\" coords=\"5\" title=\"e\" data-value=\"e\">",
+      "HTMLMap #2"
+    );
+
+    q1.value = [2];
+    assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a,c,d", "visibleAreas #3");
+    assert.equal(
+      HTMLMap?.innerHTML,
+      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\"><area shape=\"poly\" coords=\"3\" title=\"c\" data-value=\"c\"><area shape=\"poly\" coords=\"4\" title=\"d\" data-value=\"d\">",
+      "HTMLMap #3"
+    );
+
+    q1.value = [3];
+    assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a", "visibleAreas #4");
+    assert.equal(
+      HTMLMap?.innerHTML,
+      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\">",
+      "HTMLMap #4"
+    );
+
+    done();
+
+  }, 10);
+});
+
+QUnit.test("items visibleIf clear incorrect values", (assert) => {
+
+  assert.ok(true);
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3] },
+      {
+        type: "imagemap",
+        name: "q2",
+        clearIfInvisible: "none",
+        areas: [
+          { value: "a" },
+          { value: "b", visibleIf: "{q1} contains 1" },
+          { value: "c", visibleIf: "{q1} contains 2" },
+        ]
+      }
+    ]
+  });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
+
+  q2.value = ["a", "b", "c"];
+  survey.tryComplete();
+  assert.deepEqual(q2.value, ["a", "b", "c"], "value is not changed if clearIfInvisible == 'none'");
+  survey.clear();
+
+  q2.clearIfInvisible = "onComplete";
+
+  q2.value = ["a", "b", "c"];
+  survey.tryComplete();
+  assert.deepEqual(q2.value, ["a"], "only 'a' remains after complete");
+  survey.clear();
+
+  q1.value = [1];
+  q2.value = ["a", "b", "c"];
+  survey.tryComplete();
+  assert.deepEqual(q2.value, ["a", "b"], "only 'a' and 'b' remain after complete");
+  survey.clear();
+
+  q2.multiSelect = false;
+
+  q1.value = undefined;
+  q2.value = "b";
+  survey.tryComplete();
+  assert.equal(q2.value, undefined, "single: value unset after complete");
+  survey.clear();
+
+  q2.value = "a";
+  assert.equal(q2.value, "a", "single: value is 'a'");
+  survey.clear();
+
+  q1.value = [1];
+  q2.value = "b";
+  assert.equal(q2.value, "b", "single: value is 'b'");
+});
+
+QUnit.test("check dependent question visibility with clearIfInvisible:onHidden", (assert) => {
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3] },
+      {
+        type: "imagemap",
+        name: "q2",
+        clearIfInvisible: "onHidden",
+        areas: [
+          { value: "a" },
+          { value: "b", visibleIf: "{q1} contains 1" },
+          { value: "c", visibleIf: "{q1} contains 2" },
+        ]
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        visibleIf: "{q2} contains 'c'",
+      }
+    ]
+  });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+
+  q2.value = ["a", "b", "c"];
+  assert.deepEqual(q2.value, ["a", "b", "c"], "q2.value is correct");
+  assert.equal(q3.isVisible, true, "q3 is visible");
+
+  q1.value = [1];
+  assert.deepEqual(q2.value, ["a", "b"], "q2.value is correct after q1 change to [1]");
+  assert.equal(q3.isVisible, false, "q3 is not visible");
+});
+

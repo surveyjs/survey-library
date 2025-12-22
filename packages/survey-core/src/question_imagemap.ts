@@ -61,16 +61,57 @@ export class QuestionImageMapModel extends Question {
     return value;
   }
 
+  protected runConditionCore(properties: any): void {
+    super.runConditionCore(properties);
+    let isChanged = ItemValue.runConditionsForItems(this.areas, undefined, undefined, properties, true);
+    if (isChanged) {
+      const clearIf = this.getClearIfInvisible();
+      if (clearIf == "onHidden" || clearIf == "onHiddenContainer") { this.clearIncorrectValues(); }
+      this.renderImageMap();
+      this.renderPreviewCanvas();
+      this.renderSelectedCanvas();
+      this.renderHoverCanvas();
+    }
+  }
+
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
+    this.clearIncorrectValues();
+  }
+
+  public clearIncorrectValues(): void {
+    super.clearIncorrectValues();
+    if (!this.value) return;
+    if (this.multiSelect) {
+      this.value = this.value.filter((val: any) => {
+        const item = this.areas.find(i => i.value === val);
+        return !!item && item.isVisible;
+      });
+    } else {
+      let found = this.areas.find(i => i.value === this.value);
+      if (!found || !found.isVisible) {
+        this.value = undefined;
+      }
+    }
+  }
+
   public afterRenderQuestionElement(el: HTMLElement) {
     if (DomWindowHelper.isAvailable()) {
       if (!!el) {
         if (!this.isDesignMode) {
           this.initImageMap(el);
         }
-        this.element = el;
       }
     }
     super.afterRenderQuestionElement(el);
+  }
+
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    super.beforeDestroyQuestionElement(el);
+    this.imageMapMap.removeEventListener("click", this.onImageMapClickHandler);
+    this.imageMapMap.removeEventListener("mouseover", this.onImageMapHoverHandler);
+    this.imageMapMap.removeEventListener("mouseout", this.onImageMapOutHandler);
+    this.backgroundImage.removeEventListener("load", this.onbackgroundImageLoadedHandler);
   }
 
   public initImageMap(el: HTMLElement): void {
@@ -83,31 +124,66 @@ export class QuestionImageMapModel extends Question {
     this.hoverCanvas = el.querySelector(`#imagemap-${this.id}-canvas-hover`) as HTMLCanvasElement;
     this.imageMapMap = el.querySelector("map") as HTMLMapElement;
 
-    this.imageMapMap.onclick = (event) => {
-      let target = event.target as HTMLElement;
-      let value = target.dataset.value;
-      let item = this.areas.find(i => i.value === value);
-      this.mapItemTooggle(item);
-    };
+    // CLICK
+    if (this.onImageMapClickHandler) {
+      this.imageMapMap.removeEventListener("click", this.onImageMapClickHandler);
+    }
+    this.onImageMapClickHandler = this.onImageMapClick.bind(this);
+    this.imageMapMap.addEventListener("click", this.onImageMapClickHandler);
 
-    this.imageMapMap.onmouseover = (event: MouseEvent) => {
-      this.hoveredItemValue = (event.target as HTMLElement).dataset.value;
-      this.renderPreviewCanvas();
-      this.renderHoverCanvas();
-    };
+    // HOVER
+    if (this.onImageMapHoverHandler) {
+      this.imageMapMap.removeEventListener("mouseover", this.onImageMapHoverHandler);
+    }
+    this.onImageMapHoverHandler = this.onImageMapHover.bind(this);
+    this.imageMapMap.addEventListener("mouseover", this.onImageMapHoverHandler);
 
-    this.imageMapMap.onmouseout = (event) => {
-      this.hoveredItemValue = null;
-      this.renderPreviewCanvas();
-      this.renderHoverCanvas();
-    };
+    // OUT
+    if (this.onImageMapOutHandler) {
+      this.imageMapMap.removeEventListener("mouseout", this.onImageMapOutHandler);
+    }
+    this.onImageMapOutHandler = this.onImageMapOut.bind(this);
+    this.imageMapMap.addEventListener("mouseout", this.onImageMapOutHandler);
 
-    this.backgroundImage.onload = (event) => {
-      this.renderImageMap();
-      this.renderPreviewCanvas();
-      this.renderSelectedCanvas();
-      this.renderHoverCanvas();
-    };
+    // LOAD
+    if (this.onbackgroundImageLoadedHandler) {
+      this.backgroundImage.removeEventListener("load", this.onbackgroundImageLoadedHandler);
+    }
+    this.onbackgroundImageLoadedHandler = this.onbackgroundImageLoaded.bind(this);
+    this.backgroundImage.addEventListener("load", this.onbackgroundImageLoadedHandler);
+  }
+
+  onbackgroundImageLoadedHandler: () => void;
+  public onbackgroundImageLoaded() {
+    this.renderImageMap();
+    this.renderPreviewCanvas();
+    this.renderSelectedCanvas();
+    this.renderHoverCanvas();
+  }
+
+  onImageMapHoverHandler: (event: MouseEvent) => void;
+  public onImageMapHover(event: MouseEvent) {
+    this.hoveredItemValue = (event.target as HTMLElement).dataset.value;
+    this.renderPreviewCanvas();
+    this.renderHoverCanvas();
+  }
+
+  onImageMapOutHandler: () => void;
+  public onImageMapOut() {
+    this.hoveredItemValue = null;
+    this.renderPreviewCanvas();
+    this.renderHoverCanvas();
+  }
+
+  onImageMapClickHandler: (event: MouseEvent) => void;
+  public onImageMapClick(event: MouseEvent) {
+    let value = (event.target as HTMLElement).dataset.value;
+    let item = this.areas.find(i => i.value === value);
+    this.mapItemTooggle(item);
+  }
+
+  public dispose(): void {
+    super.dispose();
   }
 
   public scaleCoords(coords: number[]): number[] {
@@ -151,9 +227,10 @@ export class QuestionImageMapModel extends Question {
   }
 
   public renderImageMap(): void {
+    if (!this.imageMapMap) return;
     this.imageMapMap.innerHTML = "";
     if (!this.areas) return;
-    for (let item of this.areas) {
+    for (let item of this.visibleAreas) {
       let area = DomDocumentHelper.createElement("area") as HTMLAreaElement;
       area.shape = item.shape;
       area.coords = this.scaleCoords(item.coords.split(",").map(Number)).join(",");
@@ -165,25 +242,29 @@ export class QuestionImageMapModel extends Question {
     }
   }
 
+  public get visibleAreas(): ImageMapArea[] {
+    if (!this.areas) return [];
+    return this.areas.filter(item => item.isVisible);
+  }
+
   public renderPreviewCanvas(): void {
     if (!this.previewCanvas) return;
     this.clearCanvas(this.previewCanvas);
     this.previewCanvas.width = this.backgroundImage.naturalWidth;
     this.previewCanvas.height = this.backgroundImage.naturalHeight;
 
-    if (!this.areas) return;
-    for (const item of this.areas) {
+    for (const item of this.visibleAreas) {
       this.drawShape(this.previewCanvas, item.shape, item.coords.split(",").map(Number), item.getIdleStyle());
     }
   }
 
   public renderSelectedCanvas(): void {
+
     if (!this.selectedCanvas) return;
     this.clearCanvas(this.selectedCanvas);
     this.selectedCanvas.width = this.backgroundImage.naturalWidth;
     this.selectedCanvas.height = this.backgroundImage.naturalHeight;
-    if (!this.areas) return;
-    for (const item of this.areas) {
+    for (const item of this.visibleAreas) {
       if (!this.isItemSelected(item)) continue;
       this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), item.getSelectedStyle());
     }
@@ -196,7 +277,7 @@ export class QuestionImageMapModel extends Question {
     this.hoverCanvas.height = this.backgroundImage.naturalHeight;
 
     if (!this.hoveredItemValue) return;
-    const items = this.imageMap.filter(i => i.value === this.hoveredItemValue);
+    const items = this.visibleAreas.filter(i => i.value === this.hoveredItemValue);
     for (const item of items) {
       this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle());
     }
@@ -266,11 +347,11 @@ export class QuestionImageMapModel extends Question {
   }
 
   public mapItemTooggle(item: ImageMapArea): void {
+    if (this.readOnly) return;
     if (!this.multiSelect) {
       this.value = (this.value === item.value ? undefined : item.value);
       return;
     }
-
     this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedAreas);
   }
 

@@ -99,6 +99,8 @@ export var traditionalChineseSurveyStrings = {
   urlGetChoicesError: "未能載入有效的選項或請求參數路徑有誤",
   // "The file size should not exceed {0}."
   exceedMaxSize: "文件大小不能超過 {0}",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "你最多只能上傳檔案數量{0}。",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "無法上傳檔。請為「onUploadFiles」事件添加處理程式。",
   // "Response required: enter another value."

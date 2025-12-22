@@ -439,9 +439,10 @@
 
 .sd-table-wrapper--left {
   margin-left: calcSize(-3);
+  min-width: calc(100% + 1 * var(--sd-base-padding));
   &::before {
     left: calcSize(-3);
-    width: calcSize(3);
+    width: calcSize(2);
   }
 }
 //compact styles

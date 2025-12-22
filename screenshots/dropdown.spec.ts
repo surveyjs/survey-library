@@ -383,8 +383,8 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await page.setViewportSize({ width: 1280, height: 1100 });
       await page.evaluate(() => {
-        (<HTMLElement>document.querySelector(".sd-question__content svg")).style.height = "48px";
-        (<HTMLElement>document.querySelector(".sd-question__content input")).style.backgroundColor = "red";
+        (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content svg")).style.height = "48px";
+        (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
       });
       await compareScreenshot(page, ".sd-question__content", "dropdown-custom-component.png");
     });

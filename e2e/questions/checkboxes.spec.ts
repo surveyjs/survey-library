@@ -101,7 +101,7 @@ frameworks.forEach((framework) => {
       const getChoicesCount = async () => {
         return await page.evaluate(() => {
           const checkboxControlClassName = ".sd-checkbox__control";
-          return document.querySelectorAll(
+          return (window as any).survey.rootElement.getRootNode().querySelectorAll(
             `div[id*=sq_] fieldset ${checkboxControlClassName}`
           ).length;
         });
@@ -170,9 +170,10 @@ frameworks.forEach((framework) => {
     test("check integrity", async ({ page }) => {
       const getChoicesCount = async () => {
         return await page.evaluate(() => {
+          //     const document = (window as any).survey.rootElement.getRootNode();
           const columnClassName = ".sd-selectbase__column";
           const checkboxControlClassName = ".sd-checkbox__control";
-          return document.querySelectorAll(
+          return (window as any).survey.rootElement.getRootNode().querySelectorAll(
             `div[id*=sq_] fieldset ${checkboxControlClassName}`
           ).length;
         });
@@ -180,6 +181,7 @@ frameworks.forEach((framework) => {
 
       const getChoicesExistence = async () => {
         return await page.evaluate(() => {
+          // const document = (window as any).survey.rootElement.getRootNode();
           var choices = [
             "None",
             "Ford",
@@ -196,7 +198,7 @@ frameworks.forEach((framework) => {
           ];
           var result;
           for (var i = 0; i < choices.length; i++) {
-            if (document.querySelector("div")!.innerHTML.indexOf(choices[i]) === -1)
+            if ((window as any).survey.rootElement.getRootNode().querySelector("div")!.innerHTML.indexOf(choices[i]) === -1)
               return false;
           }
           return true;
@@ -240,7 +242,7 @@ frameworks.forEach((framework) => {
       const getOtherChoice = async () => {
         return await page.evaluate(() => {
           const columnClassName = ".sd-selectbase__column";
-          const element = document.querySelector(
+          const element = (window as any).survey.rootElement.getRootNode().querySelector(
             `div[id*=sq_] fieldset ${columnClassName}:nth-child(1) div:nth-of-type(4)`
           );
           return element ? element.textContent : "";
@@ -341,7 +343,7 @@ frameworks.forEach((framework) => {
       const isCheckedClassExistsByIndex = async (index) => {
         return await page.evaluate((index) => {
           const columnClassName = ".sd-selectbase__column";
-          const element = document.querySelector(
+          const element = (window as any).survey.rootElement.getRootNode().querySelector(
             `fieldset ${columnClassName}:nth-child(3) div:nth-of-type(${index})`
           );
           return element ? element.classList.contains("sd-checkbox--checked") : false;
@@ -366,7 +368,7 @@ frameworks.forEach((framework) => {
       const isSelectAllChecked = async () => {
         return await page.evaluate(() => {
           const columnClassName = ".sd-selectbase__column";
-          const element = document.querySelector(
+          const element = (window as any).survey.rootElement.getRootNode().querySelector(
             `fieldset ${columnClassName}:nth-of-type(1) div:nth-of-type(1) input`
           );
           return element ? (element as HTMLInputElement).checked : false;

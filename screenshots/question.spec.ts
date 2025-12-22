@@ -119,7 +119,7 @@ frameworks.forEach(framework => {
       await page.hover(".sd-element__header");
       await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
       await page.hover("body");
-      await page.evaluate(() => { document.querySelector(".sd-question__title")?.focus(); });
+      await page.evaluate(() => { (window as any).survey.rootElement.getRootNode().querySelector(".sd-question__title")?.focus(); });
       await compareScreenshot(page, questionRoot, "question-collapse-hover-focus.png");
       await questionRoot.click();
       await compareScreenshot(page, questionRoot, "question-expand.png");
@@ -976,7 +976,7 @@ frameworks.forEach(framework => {
         "width": "800"
       });
       await page.evaluate(() => {
-        document.querySelector("div")!.style.setProperty("--sjs-font-size", "8px");
+        (window as any).survey.rootElement.getRootNode().querySelector("div")!.style.setProperty("--sjs-font-size", "8px");
       });
       const questionRows = page.locator(".sd-row");
       await compareScreenshot(page, questionRows.nth(0), "question-empty-title-height.png");

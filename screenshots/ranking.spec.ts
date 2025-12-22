@@ -58,7 +58,7 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
-        document.querySelector('div[data-name="ranking_question"] .sv-ranking-item__text .sv-string-viewer').style.backgroundColor = "red";
+        (window as any).survey.rootElement.getRootNode().querySelector('div[data-name="ranking_question"] .sv-ranking-item__text .sv-string-viewer').style.backgroundColor = "red";
       });
       await compareScreenshot(page, ".sd-question", "question-ranking-size.png");
     });
@@ -144,7 +144,7 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        document.getElementById("surveyElement")!.style.margin = "50px";
+        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.margin = "50px";
       });
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
@@ -170,8 +170,8 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        document.getElementById("surveyElement")!.style.position = "relative";
-        document.getElementById("surveyElement")!.style.margin = "100px";
+        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.position = "relative";
+        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.margin = "100px";
       });
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
@@ -196,8 +196,8 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        document.getElementById("surveyElement")!.style.height = "300px";
-        const surveyContainer = document.querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
+        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.height = "300px";
+        const surveyContainer = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
         if (surveyContainer) {
           surveyContainer.scrollTop = 50;
         }

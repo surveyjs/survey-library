@@ -80,7 +80,8 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
       (window as any).SurveyResult = model.data;
-      document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      document.getElementById("surveyResultElement")!.innerHTML = JSON.stringify(
         model.data
       );
     };
@@ -96,6 +97,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
   await page.evaluate(([framework]) => {
     const self: any = window;
     const model = self.survey;
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
       surveyElement.innerHTML = "";
@@ -124,7 +126,7 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
       if (!!self.root) {
         self.root.unmount();
       }
-      const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
+      const root = (window as any).ReactDOMClient.createRoot((window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
       (window as any).root = root;
       root.render(
         self.React.createElement(self.React.StrictMode, { children: self.React.createElement(self.SurveyReact.Survey, { model: model }) }),
@@ -220,8 +222,8 @@ export async function visibleInViewport (page: Page, locator: Locator) {
     return (
       rect?.y >= 0 &&
       rect?.x >= 0 &&
-      rect?.y + rect?.height <= (window.innerHeight || document.querySelector("div")!.clientHeight) &&
-      rect?.x + rect?.width <= (window.innerWidth || document.querySelector("div")!.clientWidth)
+      rect?.y + rect?.height <= (window.innerHeight || (window as any).survey.rootElement.getRootNode().querySelector("div")!.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || (window as any).survey.rootElement.getRootNode().querySelector("div")!.clientWidth)
     );
   }, rect);
 }

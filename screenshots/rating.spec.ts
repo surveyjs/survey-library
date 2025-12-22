@@ -27,7 +27,7 @@ frameworks.forEach(framework => {
         ]
       });
       await compareScreenshot(page, ".sd-question", "question-rating.png");
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item input")).focus(); });
       await compareScreenshot(page, ".sd-question", "question-rating-focus.png");
       await page.locator(".sd-rating__item").first().click();
       await compareScreenshot(page, ".sd-question", "question-rating-focus-selected.png");
@@ -261,7 +261,7 @@ frameworks.forEach(framework => {
       });
 
       await compareScreenshot(page, ".sd-question", "question-rating-stars.png");
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-star input")).focus(); });
       await compareScreenshot(page, ".sd-question", "question-rating-stars-focus.png");
       await page.hover(".sd-rating__item-star >> nth=3");
       await compareScreenshot(page, ".sd-question", "question-rating-stars-focus-hovered.png");
@@ -349,7 +349,7 @@ frameworks.forEach(framework => {
       });
 
       await compareScreenshot(page, ".sd-question", "question-rating-smileys.png");
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-smiley input")).focus(); });
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-focus.png");
       await page.hover(".sd-rating__item-smiley >> nth=3");
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-focus-hovered.png");
@@ -383,7 +383,7 @@ frameworks.forEach(framework => {
         ]
       });
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored.png");
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-smiley input")).focus(); });
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-focus.png");
       await page.hover(".sd-rating__item-smiley >> nth=3");
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-rate-colored-focus-hovered.png");
@@ -418,7 +418,7 @@ frameworks.forEach(framework => {
         ]
       });
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored.png");
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-smiley input")).focus(); });
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-focus.png");
       await page.hover(".sd-rating__item-smiley >> nth=3");
       await compareScreenshot(page, ".sd-question", "question-rating-smileys-scale-colored-focus-hovered.png");
@@ -592,7 +592,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-question--table", "question-rating-smileys-stars-in-matrix.png");
       await compareScreenshot(page, ".sd-rating", "question-rating-stars-small.png", 0);
 
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-star input")).focus(); });
       await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus.png", 0);
       await page.hover(".sd-rating__item-star >> nth=3");
       await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-focus-hovered.png", 0);
@@ -605,7 +605,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, ".sd-rating", "question-rating-stars-small-selected.png", 0);
 
       await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small.png", 1);
-      await page.evaluate(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); });
+      await page.evaluate(() => { (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-rating__item-smiley input")).focus(); });
       await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-focus.png", 1);
       await page.hover(".sd-rating__item-smiley >> nth=3");
       await compareScreenshot(page, ".sd-rating", "question-rating-smileys-small-focus-hovered.png", 1);

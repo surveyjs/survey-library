@@ -123,7 +123,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const container = document.getElementById("surveyElement");
+        const container = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -299,11 +299,11 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const surveyElement = document.getElementById("surveyElement");
+        const surveyElement = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
         if (surveyElement) {
           surveyElement.style.height = "90vh";
           surveyElement.style.overflowY = "auto";
-          document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
+          (window as any).survey.rootElement.getRootNode().querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
         }
       });
 
@@ -455,7 +455,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, surveyJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const element = document.querySelector("#surveyElement") as HTMLElement;
+        const element = (window as any).survey.rootElement.getRootNode().querySelector("#surveyElement") as HTMLElement;
         if (element) {
           element.style.height = "calc(100vh - 32px)";
         }
@@ -497,7 +497,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, surveyJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const element = document.querySelector("#surveyElement") as HTMLElement;
+        const element = (window as any).survey.rootElement.getRootNode().querySelector("#surveyElement") as HTMLElement;
         if (element) {
           element.style.height = "calc(100vh - 32px)";
         }
@@ -586,7 +586,7 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, surveyJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const element = document.querySelector("#surveyElement") as HTMLElement;
+        const element = (window as any).survey.rootElement.getRootNode().querySelector("#surveyElement") as HTMLElement;
         if (element) {
           element.style.height = "calc(100vh - 32px)";
         }

@@ -55,7 +55,7 @@ frameworks.forEach((framework) => {
 
     test("choose file keyboard click", async ({ page }) => {
       await page.evaluate(() => {
-        document.querySelector("label[aria-label=\"Select File\"]").click = () => { window.chooseFileClickedTest = "yes"; };
+        (window as any).survey.rootElement.getRootNode().querySelector("label[aria-label=\"Select File\"]").click = () => { window.chooseFileClickedTest = "yes"; };
       });
       await page.keyboard.press("Tab");
       await page.keyboard.press("Enter");
@@ -174,9 +174,9 @@ frameworks.forEach((framework) => {
     // TODO testcafe waiting forever...
     // test(`change file max size`, async t => {
     //     const getPosition = ClientFunction(() =>
-    //         document.querySelector("div")!.innerHTML.indexOf('The file size should not exceed 100 KB'));
+    //         (window as any).survey.rootElement.getRootNode().querySelector("div")!.innerHTML.indexOf('The file size should not exceed 100 KB'));
     //     const getImageExistance = ClientFunction(() =>
-    //         !!document.querySelector('img'));
+    //         !!(window as any).survey.rootElement.getRootNode().querySelector('img'));
     //     let surveyResult;
 
     //     await t

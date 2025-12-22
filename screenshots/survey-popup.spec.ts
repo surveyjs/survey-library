@@ -27,7 +27,7 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
       popupSurvey.allowFullScreen = true;
       popupSurvey.show();
     } else if (framework === "jquery-ui") {
-      document.getElementById("surveyElement").innerHTML = "";
+      (window as any).survey.rootElement.getRootNode().getElementById("surveyElement").innerHTML = "";
       window["$"]("#surveyElement").PopupSurvey({
         model: model,
         isExpanded: true,
@@ -35,8 +35,8 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
         allowFullScreen: true
       });
     } else if (framework === "survey-js-ui") {
-      document.getElementById("surveyElement").innerHTML = "";
-      SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
+      (window as any).survey.rootElement.getRootNode().getElementById("surveyElement").innerHTML = "";
+      SurveyUI.renderPopupSurvey(model, (window as any).survey.rootElement.getRootNode().getElementById("surveyElement"), {
         isExpanded: true,
         allowClose: true,
         allowFullScreen: true
@@ -45,7 +45,7 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
       if (!!window.root) {
         window.root.unmount();
       }
-      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
+      const root = window["ReactDOMClient"].createRoot((window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
       window["root"] = root;
       root.render(
         React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.PopupSurvey,
@@ -57,7 +57,7 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
           }
         ) }));
     } else if (framework === "vue") {
-      document.getElementById("surveyElement").innerHTML =
+      (window as any).survey.rootElement.getRootNode().getElementById("surveyElement").innerHTML =
         "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :allowFullScreen='true'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
       window["vueApp"] = new window["Vue"]({

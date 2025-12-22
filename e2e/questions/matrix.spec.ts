@@ -78,7 +78,7 @@ frameworks.forEach((framework) => {
     test("checked class", async ({ page }) => {
       const isCheckedClassExistsByIndex = async (index: number) => {
         return await page.evaluate((index) => {
-          const element = document.querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`);
+          const element = (window as any).survey.rootElement.getRootNode().querySelector(`fieldset tbody tr td:nth-child(${index + 1}) label`);
           return element?.classList.contains("sd-radio--checked") || false;
         }, index);
       };

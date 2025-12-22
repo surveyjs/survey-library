@@ -111,7 +111,7 @@ frameworks.forEach((framework) => {
       test("Check that survey calls afterRender if model changed", async ({ page }) => {
         await page.evaluate((framework) => {
           if (framework === "react") {
-            const surveyElement = document.getElementById("surveyElement");
+            const surveyElement = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
             if (surveyElement) {
               surveyElement.innerHTML = "";
 

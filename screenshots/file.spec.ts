@@ -246,7 +246,7 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        const element = document.querySelector(".sd-loading-indicator .sv-svg-icon") as HTMLElement;
+        const element = (window as any).survey.rootElement.getRootNode().querySelector(".sd-loading-indicator .sv-svg-icon") as HTMLElement;
         if (element) {
           element.style.animation = "none";
         }

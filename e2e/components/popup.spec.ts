@@ -152,7 +152,7 @@ frameworks.forEach((framework) => {
       }, json);
       await page.waitForTimeout(1000);
       await page.evaluate(() => {
-        const style = document.querySelector(".sv-popup__container").style;
+        const style = (window as any).survey.rootElement.getRootNode().querySelector(".sv-popup__container").style;
         style.marginLeft = "4px";
         style.marginRight = "4px";
       });
@@ -436,8 +436,8 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const container = document.createElement("div");
         container.style.height = "200px";
-        const surveyEl = document.getElementById("surveyElement");
-        surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
+        const surveyEl = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
+        surveyEl?.parentElement?.insertBefore(container, (window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
       });
 
       await initSurvey(page, framework, {});
@@ -476,8 +476,8 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const container = document.createElement("div");
         container.style.height = "200px";
-        const surveyEl = document.getElementById("surveyElement");
-        surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
+        const surveyEl = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
+        surveyEl?.parentElement?.insertBefore(container, (window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
       });
 
       const _json = {

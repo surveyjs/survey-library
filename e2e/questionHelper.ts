@@ -18,7 +18,7 @@ export class Question {
     await this.page.evaluate(questionName => {
       const q = window["survey"].getQuestionByName(questionName);
       if (q.inputId) {
-        document.getElementById(q.inputId)?.focus();
+        (window as any).survey.rootElement.getRootNode().getElementById(q.inputId)?.focus();
       }
       return q.value;
     }, this.name);

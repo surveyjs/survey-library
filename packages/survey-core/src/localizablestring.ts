@@ -295,11 +295,19 @@ export class LocalizableString implements ILocalizableString {
     if (keys.length == 0) return [];
     return keys;
   }
-  public getJson(): any {
-    if (!!this.sharedData) return this.sharedData.getJson();
+  public getJson(selectedLocales?: string[]): any {
+    if (!!this.sharedData) return this.sharedData.getJson(selectedLocales);
     const keys = this.getValuesKeys();
+    const hasSelected = Array.isArray(selectedLocales) && selectedLocales.length > 0;
+    if (hasSelected) {
+      for (let i = keys.length - 1; i >= 0; i--) {
+        if (selectedLocales.indexOf(keys[i]) < 0) {
+          keys.splice(i, 1);
+        }
+      }
+    }
     if (keys.length == 0) {
-      if (this.serializeCallBackText) {
+      if (!hasSelected && this.serializeCallBackText) {
         const text = this.calcText();
         if (!!text) return text;
       }
@@ -307,12 +315,13 @@ export class LocalizableString implements ILocalizableString {
     }
     if (
       keys.length == 1 &&
-      keys[0] == settings.localization.defaultLocaleName &&
+      (hasSelected || keys[0] == settings.localization.defaultLocaleName) &&
       !settings.serialization.localizableStringSerializeAsObject
     )
       return (<any>this).values[keys[0]];
     const res: any = {};
-    for (let key in this.values) {
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
       res[key] = this.values[key];
     }
     return res;

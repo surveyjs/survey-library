@@ -210,6 +210,19 @@ QUnit.test("Test getJson", function (assert) {
   );
   settings.serializeLocalizableStringAsObject = false;
 });
+QUnit.test("Test getJson with selectedLocales", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner);
+
+  assert.equal(locString.getJson(["de"]), null, "There is no values");
+  let json = { default: "val2", en: "val3" };
+  locString.setJson(json);
+  assert.deepEqual(locString.getJson(["default", "en"]), json, "Several values");
+  assert.deepEqual(locString.getJson(["de"]), null, "There is no 'de' value");
+  assert.deepEqual(locString.getJson(["en"]), "val3", "There is only 'en' value");
+  locString.setJson({ default: "val1", de: "val2", fr: "val3" });
+  assert.deepEqual(locString.getJson(["de", "fr"]), { de: "val2", fr: "val3" }, "There are 'de' and 'fr' values");
+});
 
 QUnit.test("Test hasNonDefaultText", function (assert) {
   var owner = new LocalizableOwnerTester("");

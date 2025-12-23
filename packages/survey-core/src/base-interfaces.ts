@@ -455,6 +455,8 @@ export interface ILoadFromJSONOptions {
 export interface ISaveToJSONOptions {
   storeDefaults?: boolean;
   version?: string;
+  storeLocalizableStrings?: "all" | "none" | "selected" | "stringsOnly";
+  selectedLocales?: Array<string>;
 }
 
 export interface IDropdownMenuOptions {

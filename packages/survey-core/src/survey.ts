@@ -2729,6 +2729,7 @@ export class SurveyModel extends SurveyElementCore
       this.navigationBarValue = this.createNavigationBar();
       this.navigationBarValue.locOwner = this;
       this.updateNavigationCss();
+      this.navigationBarValue.flushUpdates();
     }
     return this.navigationBarValue;
   }

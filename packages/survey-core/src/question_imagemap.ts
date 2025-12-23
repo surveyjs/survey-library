@@ -46,6 +46,11 @@ export class QuestionImageMapModel extends Question {
     this.renderSelectedCanvas();
   }
 
+  public localeChanged() {
+    super.localeChanged();
+    this.renderImageMap();
+  }
+
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "multiSelect") {
@@ -108,10 +113,14 @@ export class QuestionImageMapModel extends Question {
 
   public beforeDestroyQuestionElement(el: HTMLElement) {
     super.beforeDestroyQuestionElement(el);
-    this.imageMapMap.removeEventListener("click", this.onImageMapClickHandler);
-    this.imageMapMap.removeEventListener("mouseover", this.onImageMapHoverHandler);
-    this.imageMapMap.removeEventListener("mouseout", this.onImageMapOutHandler);
-    this.backgroundImage.removeEventListener("load", this.onbackgroundImageLoadedHandler);
+    if (this.imageMapMap) {
+      this.imageMapMap.removeEventListener("click", this.onImageMapClickHandler);
+      this.imageMapMap.removeEventListener("mouseover", this.onImageMapHoverHandler);
+      this.imageMapMap.removeEventListener("mouseout", this.onImageMapOutHandler);
+    }
+    if (this.backgroundImage) {
+      this.backgroundImage.removeEventListener("load", this.onbackgroundImageLoadedHandler);
+    }
   }
 
   public initImageMap(el: HTMLElement): void {

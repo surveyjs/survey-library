@@ -1,10 +1,9 @@
-import { set } from "lodash";
 import { QuestionImageMapModel } from "../src/question_imagemap";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("imagemap");
 
-QUnit.test("Register and load from json", function (assert) {
+QUnit.test("Register and load from json", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -54,7 +53,7 @@ QUnit.test("Register and load from json", function (assert) {
   assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect still");
 });
 
-QUnit.test("Check toggle and multiSelect change", function (assert) {
+QUnit.test("Check toggle and multiSelect change", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -132,7 +131,7 @@ QUnit.test("Check toggle and multiSelect change", function (assert) {
   assert.equal(q1.value, undefined, "value must be undefined #2");
 });
 
-QUnit.test("Check scaleCoords", function (assert) {
+QUnit.test("Check scaleCoords", (assert) => {
 
   const model = new QuestionImageMapModel("");
   const coords = "10,20,30,40,50,60".split(",").map(Number);
@@ -144,7 +143,7 @@ QUnit.test("Check scaleCoords", function (assert) {
   assert.equal(model.scaleCoords(coords).join(","), coords.map(e => e * .5).join(","), "scale by 2 works");
 });
 
-QUnit.test("Check init", function (assert) {
+QUnit.test("Check init", (assert) => {
 
   var done = assert.async(4);
 
@@ -207,7 +206,7 @@ QUnit.test("Check init", function (assert) {
   model.initImageMap(container);
 });
 
-QUnit.test("Check map render", function (assert) {
+QUnit.test("Check map render", (assert) => {
 
   var done = assert.async();
   const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"></svg>');
@@ -276,7 +275,7 @@ QUnit.test("Check map render", function (assert) {
   }, 10);
 });
 
-QUnit.test("draw styles without defaults", function (assert) {
+QUnit.test("draw styles without defaults", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -345,7 +344,7 @@ QUnit.test("draw styles without defaults", function (assert) {
   }, "defined selected style");
 });
 
-QUnit.test("draw styles with defaults", function (assert) {
+QUnit.test("draw styles with defaults", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -423,7 +422,7 @@ QUnit.test("draw styles with defaults", function (assert) {
   }, "defined selected style");
 });
 
-QUnit.test("Check set value and multiSelect change with valuePropertyName", function (assert) {
+QUnit.test("Check set value and multiSelect change with valuePropertyName", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -444,7 +443,7 @@ QUnit.test("Check set value and multiSelect change with valuePropertyName", func
   assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as string");
 });
 
-QUnit.test("check defaultValue with valuePropertyName", function (assert) {
+QUnit.test("check defaultValue with valuePropertyName", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -462,7 +461,7 @@ QUnit.test("check defaultValue with valuePropertyName", function (assert) {
   assert.deepEqual(q1.value, [{ state: "TX" }], "defaultValue is set correctly");
 });
 
-QUnit.test("check maxSelectedChoices via mapItemTooggle", function (assert) {
+QUnit.test("check maxSelectedChoices via mapItemTooggle", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -494,7 +493,7 @@ QUnit.test("check maxSelectedChoices via mapItemTooggle", function (assert) {
   assert.deepEqual(q1.value, ["val1", "val2"], "the third item is not added, max is 2");
 });
 
-QUnit.test("check minSelectedAreas + maxSelectedChoices and errors", function (assert) {
+QUnit.test("check minSelectedAreas + maxSelectedChoices and errors", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -522,7 +521,7 @@ QUnit.test("check minSelectedAreas + maxSelectedChoices and errors", function (a
   assert.equal(q1.errors.length, 1, "there is one error");
 });
 
-QUnit.test("check getDisplayValue without valuePropertyName", function (assert) {
+QUnit.test("check getDisplayValue without valuePropertyName", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -554,7 +553,7 @@ QUnit.test("check getDisplayValue without valuePropertyName", function (assert) 
   assert.equal(q1.getDisplayValue(false, [{ value: "val1" }]), "", "display value for wrong item");
 });
 
-QUnit.test("check getDisplayValue with valuePropertyName", function (assert) {
+QUnit.test("check getDisplayValue with valuePropertyName", (assert) => {
 
   const model = new SurveyModel({
     elements: [
@@ -761,3 +760,56 @@ QUnit.test("check dependent question visibility with clearIfInvisible:onHidden",
   assert.equal(q3.isVisible, false, "q3 is not visible");
 });
 
+QUnit.test("Locale change test", (assert) => {
+
+  const imageDataURL = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MDAiIGhlaWdodD0iNjAwIiB2aWV3Qm94PSIwIDAgNjAwIDYwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0iI0RERERERCIvPjwvc3ZnPg==";
+
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q2",
+        areas: [
+          {
+            value: "v1",
+            text: {
+              default: "v1_text",
+              de: "v1_text_de"
+            },
+          },
+          {
+            value: "v2",
+            text: "v2_text",
+          }
+        ]
+      }
+    ]
+  });
+
+  const q2 = <QuestionImageMapModel>model.getQuestionByName("q2");
+
+  let container = document.createElement("div");
+  container.innerHTML = `
+    <img id="imagemap-${ q2.id }-background" src="${ imageDataURL }" />
+    <canvas id="imagemap-${ q2.id }-canvas-selected"></canvas>
+    <canvas id="imagemap-${ q2.id }-canvas-hover"></canvas>
+    <map></map>
+  `;
+
+  assert.equal(q2.areas[0].text, "v1_text", "v1 default locale text");
+  assert.equal(q2.areas[1].text, "v2_text", "v2 default locale text");
+
+  let calls = 0;
+  const renderImageMap = q2.renderImageMap;
+  q2.renderImageMap = () => {
+    calls++;
+    renderImageMap.apply(model);
+  };
+
+  model.locale = "de";
+
+  assert.equal(q2.areas[0].text, "v1_text_de", "v1 de locale text");
+  assert.equal(q2.areas[1].text, "v2_text", "v2 de locale text");
+  assert.equal(calls, 1, "renderImageMap called on locale change");
+
+});

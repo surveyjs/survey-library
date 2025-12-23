@@ -318,9 +318,6 @@
         "questionTitlePattern": {
             "type": "string"
         },
-        "questionTitleTemplate": {
-            "type": "string"
-        },
         "showPageNumbers": {
             "type": "boolean"
         },
@@ -396,9 +393,6 @@
                 "underTitle"
             ]
         },
-        "mode": {
-            "type": "string"
-        },
         "readOnly": {
             "type": "boolean"
         },
@@ -422,9 +416,6 @@
                 "initial",
                 "random"
             ]
-        },
-        "isSinglePage": {
-            "type": "boolean"
         },
         "questionsOnPageMode": {
             "type": "string",
@@ -454,9 +445,6 @@
                 "allQuestions",
                 "answeredQuestions"
             ]
-        },
-        "showTimerPanel": {
-            "type": "string"
         },
         "showTimer": {
             "type": "boolean"
@@ -542,9 +530,6 @@
                         "maxTimeToFinish": {
                             "type": "number"
                         },
-                        "page": {
-                            "type": "IPage"
-                        },
                         "showNumber": {
                             "type": "boolean"
                         },
@@ -582,9 +567,6 @@
                 },
                 {
                     "properties": {
-                        "page": {
-                            "type": "IPage"
-                        },
                         "showNumber": {
                             "type": "boolean"
                         },
@@ -830,9 +812,6 @@
                 "valueName": {
                     "type": "string"
                 },
-                "page": {
-                    "type": "IPage"
-                },
                 "visible": {
                     "type": "boolean"
                 },
@@ -843,9 +822,6 @@
                     "type": "string"
                 },
                 "showNumber": {
-                    "type": "boolean"
-                },
-                "hideNumber": {
                     "type": "boolean"
                 },
                 "titleLocation": {
@@ -1932,9 +1908,6 @@
                 },
                 {
                     "properties": {
-                        "longTap": {
-                            "type": "boolean"
-                        },
                         "selectToRankEnabled": {
                             "type": "boolean"
                         },
@@ -2411,9 +2384,6 @@
                         },
                         "showRangeInProgress": {
                             "type": "boolean"
-                        },
-                        "renderMode": {
-                            "type": "string"
                         },
                         "displayMode": {
                             "type": [
@@ -2974,9 +2944,6 @@
                 "rows": {
                     "type": "number"
                 },
-                "cols": {
-                    "type": "number"
-                },
                 "acceptCarriageReturn": {
                     "type": "boolean"
                 },
@@ -3094,13 +3061,6 @@
                     "properties": {
                         "transposeData": {
                             "type": "boolean"
-                        },
-                        "columnLayout": {
-                            "type": "string",
-                            "enum": [
-                                "horizontal",
-                                "vertical"
-                            ]
                         },
                         "detailErrorLocation": {
                             "type": "string",
@@ -3902,13 +3862,6 @@
                         "labelCount": {
                             "type": "number"
                         },
-                        "autoGenerate": {
-                            "type": "boolean",
-                            "enum": [
-                                true,
-                                false
-                            ]
-                        },
                         "customLabels": {
                             "type": "array",
                             "items": "SliderLabelItemValue"
@@ -3941,9 +3894,6 @@
                                 "numeric",
                                 "boolean"
                             ]
-                        },
-                        "label": {
-                            "type": "string"
                         },
                         "useTitleAsLabel": {
                             "type": "boolean"

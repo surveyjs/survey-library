@@ -135,7 +135,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const resetItemsVisualProps = ["cssClassesValue", "isReadOnly", "isVisible", "errors"];
+    const resetItemsVisualProps = ["cssClassesValue", "isReadOnly", "isVisible", "errors", "value"];
     if (resetItemsVisualProps.indexOf(name) > -1) {
       this.resetItemsVisuals();
     }

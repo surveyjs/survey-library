@@ -1,4 +1,4 @@
-import { QuestionRatingModel } from "../src/question_rating";
+import { QuestionRatingModel, RatingItem } from "../src/question_rating";
 import { SurveyModel } from "../src/survey";
 import { defaultCss } from "../src/defaultCss/defaultCss";
 import { CustomResizeObserver } from "./questionImagepicker";
@@ -2080,4 +2080,27 @@ QUnit.test("preview className test", (assert) => {
     matrix.visibleRows[0].cells[1].question.visibleRateValues[0].className.includes("sd-rating__item-star--preview"),
     "stars after preview"
   );
+});
+QUnit.test("Test rateItem class on changing value, Bug#10737", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "rating",
+        name: "q1"
+      }
+    ]
+  });
+
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const item1 = q1.visibleRateValues[0];
+  const item2 = q1.visibleRateValues[1];
+  const containsSelected = (item: RatingItem) => item.className.indexOf("item--selected") > -1;
+  assert.equal(containsSelected(item1), false, "item1 className initial");
+  assert.equal(containsSelected(item2), false, "item2 className initial");
+  q1.value = 1;
+  assert.equal(containsSelected(item1), true, "item1 className after select");
+  assert.equal(containsSelected(item2), false, "item2 className after select");
+  q1.value = 2;
+  assert.equal(containsSelected(item1), false, "item1 className after change select");
+  assert.equal(containsSelected(item2), true, "item2 className after change select");
 });

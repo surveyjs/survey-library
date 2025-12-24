@@ -21,7 +21,8 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult, ISurveyUIState
+  ITextProcessorResult, ISurveyUIState,
+  ISaveToJSONOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -7018,6 +7019,22 @@ export class SurveyModel extends SurveyElementCore
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
       }
     }
+  }
+  public toJSON(options?: ISaveToJSONOptions): any {
+    const res = super.toJSON(options);
+    if (options?.storeLocaleStrings === "stringsOnly") {
+      const locales = options.locales;
+      if (Array.isArray(locales) && locales.length === 1) {
+        res["locale"] = locales[0];
+      }
+    }
+    return res;
+  }
+  public mergeJSON(json: any, locales?: Array<string>): void {
+    const survey = new SurveyModel(json);
+    this.mergeSurvey(survey, locales);
+  }
+  public mergeObject(obj: any, locales?: Array<string>): void {
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);

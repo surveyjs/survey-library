@@ -1822,15 +1822,8 @@ export class JsonObject {
     if (storeDefaults) {
       options.storeDefaults = storeDefaults;
     }
-    const storeLocales = options.storeLocalizableStrings;
-    if (!storeLocales || storeLocales === "all" || storeLocales === "none") {
-      options.selectedLocales = undefined;
-    }
-    if (storeLocales === "selected") {
-      const locals = options.selectedLocales;
-      if (!Array.isArray(locals) || locals.length === 0) {
-        options.storeLocalizableStrings = "none";
-      }
+    if (options.storeLocaleStrings === false) {
+      options.locales = undefined;
     }
     this.propertiesToJson(
       obj,
@@ -1883,9 +1876,9 @@ export class JsonObject {
     this.valueToJsonCore(obj, result, prop, options);
   }
   private isProretyCanBeStoredByOptions(prop: JsonObjectProperty, options: ISaveToJSONOptions): boolean {
-    const storeStrings = options.storeLocalizableStrings;
-    if (!storeStrings || storeStrings === "all" || prop.isArray || prop.isUnique || prop.name === "name") return true;
-    if (storeStrings === "none") return !prop.isLocalizable;
+    const storeStrings = options.storeLocaleStrings;
+    if (prop.isArray || prop.isUnique || prop.name === "name") return true;
+    if (storeStrings === false) return !prop.isLocalizable;
     if (storeStrings === "stringsOnly") return prop.isLocalizable;
     return true;
   }
@@ -1895,7 +1888,7 @@ export class JsonObject {
       this.valueToJsonCore(obj, result, serProp, options);
       return;
     }
-    var value = prop.getSerializableValue(obj, options.storeDefaults, options.selectedLocales);
+    var value = prop.getSerializableValue(obj, options.storeDefaults, options.locales);
     if (value === undefined) return;
     if (this.isValueArray(value)) {
       var arrValue = [];

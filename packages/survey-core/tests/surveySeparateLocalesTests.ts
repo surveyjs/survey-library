@@ -1,10 +1,9 @@
-import { Question } from "../src/question";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Separate locales");
 
-QUnit.test("Check separate locales functionality", function (assert) {
+QUnit.test("Check separate locales functionality in text question", function (assert) {
   const question = new QuestionTextModel("q1");
   question.inputType = "date";
   question.visibleIf = "{q2} = 1";
@@ -15,17 +14,12 @@ QUnit.test("Check separate locales functionality", function (assert) {
   question.locDescription.setLocaleText("de", "Beschreibung");
   question.locDescription.setLocaleText("fr", "La description");
 
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "none" }), {
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: false }), {
     name: "q1",
     inputType: "date",
     visibleIf: "{q2} = 1",
   }, "storeLocalizableStrings: none");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "selected" }), {
-    name: "q1",
-    inputType: "date",
-    visibleIf: "{q2} = 1",
-  }, "storeLocalizableStrings: selected without selectedLocales");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "all" }), {
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: true }), {
     name: "q1",
     inputType: "date",
     visibleIf: "{q2} = 1",
@@ -40,34 +34,94 @@ QUnit.test("Check separate locales functionality", function (assert) {
       fr: "La description",
     },
   }, "storeLocalizableStrings: all");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "selected", selectedLocales: ["de"] }), {
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: true, locales: ["de"] }), {
     name: "q1",
     inputType: "date",
     visibleIf: "{q2} = 1",
     title: "Titel",
     description: "Beschreibung",
   }, "storeLocalizableStrings: selected with one locale");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "selected", selectedLocales: ["de", "fr"] }), {
+  assert.deepEqual(question.toJSON({ locales: ["de", "fr"] }), {
     name: "q1",
     inputType: "date",
     visibleIf: "{q2} = 1",
     title: { de: "Titel", fr: "Titre" },
     description: { de: "Beschreibung", fr: "La description" },
   }, "storeLocalizableStrings: selected with two locales");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "stringsOnly" }), {
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: "stringsOnly" }), {
     name: "q1",
     title: { default: "Title", de: "Titel", fr: "Titre" },
     description: { default: "Description", de: "Beschreibung", fr: "La description" },
   }, "storeLocalizableStrings: stringsOnly without selectedLocales");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "stringsOnly", selectedLocales: ["de"] }), {
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }), {
     name: "q1",
     title: "Titel",
     description: "Beschreibung",
   }, "storeLocalizableStrings: stringsOnly with one locale");
-  assert.deepEqual(question.toJSON({ storeLocalizableStrings: "stringsOnly", selectedLocales: ["de", "fr"] }), {
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de", "fr"] }), {
     name: "q1",
     title: { de: "Titel", fr: "Titre" },
     description: { de: "Beschreibung", fr: "La description" },
   }, "storeLocalizableStrings: stringsOnly with two locales");
-
 });
+QUnit.test("get separate locales for survey", function (assert) {
+  const survey = new SurveyModel({
+    title: { default: "Survey Title", de: "Umfrage Titel", fr: "Titre de l." },
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: { default: "Title", de: "Titel", fr: "Titre" },
+        description: { default: "Description", de: "Beschreibung", fr: "La description" },
+      },
+    ],
+  });
+  assert.deepEqual(survey.toJSON({ storeLocaleStrings: false }), {
+    pages: [{ name: "page1", elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+    ] }] }, "storeLocalizableStrings: none");
+  assert.deepEqual(survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }), {
+    locale: "de",
+    title: "Umfrage Titel",
+    pages: [{ name: "page1", elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: "Titel",
+        description: "Beschreibung",
+      },
+    ] }] }, "storeLocalizableStrings: selected with one locale");
+  assert.deepEqual(survey.toJSON({ locales: ["de", "fr"] }), {
+    title: { de: "Umfrage Titel", fr: "Titre de l." },
+    pages: [{ name: "page1", elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: { de: "Titel", fr: "Titre" },
+        description: { de: "Beschreibung", fr: "La description" },
+      },
+    ] }] }, "storeLocalizableStrings: selected with two locales");
+});
+/*
+QUnit.only("Add separate locales in survey", function (assert) {
+  const survey = new SurveyModel({
+    elements: [ { type: "text", name: "q1" }]
+  });
+  survey.addLocaleStrings({
+    title: { default: "Survey Title", de: "Umfrage Titel", fr: "Titre de l." },
+    questions: {
+      q1: { title: { default: "Title", de: "Titel", fr: "Titre" },
+            description: { default: "Description", de: "Beschreibung", fr: "La description" } }
+    }
+  })
+  assert.deepEqual(survey.toJSON({ storeLocalizableStrings: "none" }), {
+    pages: [{ name: "page1", elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+    ] }] }, "storeLocalizableStrings: none");
+});*/

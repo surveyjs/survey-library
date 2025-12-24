@@ -7032,7 +7032,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public mergeJSON(json: any, locales?: Array<string>): void {
     const survey = new SurveyModel(json);
-    this.mergeSurvey(survey, locales);
+    this.mergeObject(survey, locales);
   }
   public mergeObject(obj: any, locales?: Array<string>): void {
   }

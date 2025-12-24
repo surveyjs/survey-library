@@ -708,5 +708,22 @@ frameworks.forEach(framework => {
       });
       await compareScreenshot(page, ".sd-panel__content", "question-rating-selected-label-should-have-the-same-width.png");
     });
+    test("Check rating label styles on changing the value, Bug#10737", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      await initSurvey(page, framework, {
+        "elements": [
+          {
+            "type": "rating",
+            "name": "q",
+          },
+        ]
+      });
+      const ratingLabelsPanel = page.locator(".sd-question__content");
+      await compareScreenshot(page, ratingLabelsPanel, "question-rating-labels-change-value-1.png");
+      await page.click(".sd-rating__item >> nth=1");
+      await compareScreenshot(page, ratingLabelsPanel, "question-rating-labels-change-value-2.png");
+      await page.click(".sd-rating__item >> nth=3");
+      await compareScreenshot(page, ratingLabelsPanel, "question-rating-labels-change-value-3.png");
+    });
   });
 });

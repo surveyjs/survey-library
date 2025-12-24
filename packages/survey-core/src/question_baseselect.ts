@@ -351,7 +351,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return res;
   }
   protected validateElementCore(context: ValidationContext): boolean {
-    if (context.isOnValueChanged !== true) {
+    if (context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
       this.clearIncorrectValues();
     }
     let res = true;

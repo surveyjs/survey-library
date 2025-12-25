@@ -27,7 +27,8 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
       popupSurvey.allowFullScreen = true;
       popupSurvey.show();
     } else if (framework === "jquery-ui") {
-      (window as any).survey.rootElement.getRootNode().getElementById("surveyElement").innerHTML = "";
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      document.getElementById("surveyElement")!.innerHTML = "";
       window["$"]("#surveyElement").PopupSurvey({
         model: model,
         isExpanded: true,
@@ -35,8 +36,10 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
         allowFullScreen: true
       });
     } else if (framework === "survey-js-ui") {
-      (window as any).survey.rootElement.getRootNode().getElementById("surveyElement").innerHTML = "";
-      SurveyUI.renderPopupSurvey(model, (window as any).survey.rootElement.getRootNode().getElementById("surveyElement"), {
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      document.getElementById("surveyElement")!.innerHTML = "";
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      SurveyUI.renderPopupSurvey(model, document.getElementById("surveyElement"), {
         isExpanded: true,
         allowClose: true,
         allowFullScreen: true
@@ -45,7 +48,8 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
       if (!!window.root) {
         window.root.unmount();
       }
-      const root = window["ReactDOMClient"].createRoot((window as any).survey.rootElement.getRootNode().getElementById("surveyElement"));
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      const root = window["ReactDOMClient"].createRoot(document.getElementById("surveyElement"));
       window["root"] = root;
       root.render(
         React.createElement(React.StrictMode, { children: React.createElement(SurveyReact.PopupSurvey,
@@ -57,7 +61,8 @@ export const initSurveyPopup = async (page: Page, framework: string, json: any, 
           }
         ) }));
     } else if (framework === "vue") {
-      (window as any).survey.rootElement.getRootNode().getElementById("surveyElement").innerHTML =
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      document.getElementById("surveyElement")!.innerHTML =
         "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :allowFullScreen='true'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
       window["vueApp"] = new window["Vue"]({

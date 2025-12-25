@@ -7,6 +7,7 @@ import { doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOption
 export class Key2ClickDirective implements OnChanges, OnDestroy {
   static defaultOptions: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false };
   private isSubscribed = false;
+  private isPointerUpSubscribed = false;
 
   options?: IAttachKey2clickOptions = { ...Key2ClickDirective.defaultOptions };
   @Input() key2click?: IAttachKey2clickOptions;
@@ -32,17 +33,28 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
   }
   constructor(private el: ElementRef) {
     this.subscribeEventListeners();
+    this.subscribePointerUp();
   }
 
   get element() {
     return this.el.nativeElement;
   }
 
+  subscribePointerUp() {
+    if (this.isPointerUpSubscribed) return;
+    this.element.addEventListener("pointerup", this.onpointerup.bind(this));
+    this.isPointerUpSubscribed = true;
+  }
+  unsubscribePointerUp() {
+    if (!this.isPointerUpSubscribed) return;
+    this.element.removeEventListener("pointerup", this.onpointerup.bind(this));
+    this.isPointerUpSubscribed = false;
+  }
+
   subscribeEventListeners() {
     if (this.isSubscribed) return;
 
     this.element.tabIndex = 0;
-    this.element.addEventListener("pointerup", this.onpointerup.bind(this));
     this.element.addEventListener("keyup", this.onkeyup.bind(this));
     this.element.addEventListener("keydown", this.onkeydown.bind(this));
     this.element.addEventListener("blur", this.blur);
@@ -53,7 +65,6 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     if (!this.isSubscribed) return;
 
     this.element.tabIndex = -1;
-    this.element.removeEventListener("pointerup", this.onpointerup.bind(this));
     this.element.removeEventListener("keyup", this.onkeyup.bind(this));
     this.element.removeEventListener("keydown", this.onkeydown.bind(this));
     this.element.removeEventListener("blur", this.blur);
@@ -63,6 +74,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     const curValue = changes["key2click"].currentValue;
+    this.subscribePointerUp();
     if (curValue.disableTabStop) {
       this.unsubscribeEventListeners();
     } else {
@@ -73,5 +85,6 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
 
   ngOnDestroy(): void {
     this.unsubscribeEventListeners();
+    this.unsubscribePointerUp();
   }
 }

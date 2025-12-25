@@ -223,7 +223,15 @@ QUnit.test("Test getJson with selectedLocales", function (assert) {
   locString.setJson({ default: "val1", de: "val2", fr: "val3" });
   assert.deepEqual(locString.getJson(["de", "fr"]), { de: "val2", fr: "val3" }, "There are 'de' and 'fr' values");
 });
-
+QUnit.test("Test mergeWidth", function (assert) {
+  const owner1 = new LocalizableOwnerTester("");
+  const locString1 = new LocalizableString(owner1);
+  const owner2 = new LocalizableOwnerTester("");
+  const locString2 = new LocalizableString(owner2);
+  locString1.setJson({ default: "val1", de: "val2" });
+  locString2.mergeWith(locString1, ["de", "fr"]);
+  assert.deepEqual(locString2.getJson(), { de: "val2" }, "merge with selected locales");
+});
 QUnit.test("Test hasNonDefaultText", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);

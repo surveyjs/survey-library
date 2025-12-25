@@ -447,7 +447,50 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
-
+  protected mergeTranslationObject(obj: Base, locales?: Array<string>): void {
+    this.mergeTranslationInObjectCore(obj, locales);
+    this.mergeTranslationInArrays(obj, locales);
+  }
+  private mergeTranslationInObjectCore(obj: Base, locales?: Array<string>): void {
+    const locStrs = obj.localizableStrings;
+    if (!locStrs) return;
+    for (const key in locStrs) {
+      const prop = this.getPropertyByName(key);
+      if (!!prop) {
+        const name = prop.serializationProperty || prop.name;
+        const locStr: LocalizableString = this[name];
+        if (!!locStr) {
+          locStr.mergeWith(locStrs[key], locales);
+        }
+      }
+    }
+  }
+  private mergeTranslationInArrays(obj: Base, locales?: Array<string>): void {
+    const canMerge = (srcItem: any, destItem: any): boolean => {
+      if (!srcItem || !destItem || typeof srcItem.mergeTranslationObject !== "function") return false;
+      if (srcItem.name && destItem.name !== srcItem.name) return false;
+      if (srcItem.value && destItem.value !== srcItem.value) return false;
+      return true;
+    };
+    const arraysInfo = obj.arraysInfo;
+    if (!arraysInfo) return;
+    for (const key in arraysInfo) {
+      const prop = this.getPropertyByName(key);
+      if (!!prop && prop.isArray) {
+        const src = obj[key];
+        const dest = this[key];
+        if (Array.isArray(src) && Array.isArray(dest)) {
+          for (let i = 0; i < Math.min(src.length, dest.length); i++) {
+            const srcItem = src[i];
+            const destItem = dest[i];
+            if (canMerge(srcItem, destItem)) {
+              destItem.mergeTranslationObject(srcItem, locales);
+            }
+          }
+        }
+      }
+    }
+  }
   /**
    * Returns a JSON schema that corresponds to the current survey element.
    * @param options An object with configuration options.

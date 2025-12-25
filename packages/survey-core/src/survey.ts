@@ -7030,11 +7030,12 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public mergeJSON(json: any, locales?: Array<string>): void {
-    const survey = new SurveyModel(json);
-    this.mergeObject(survey, locales);
+  public getTranslation(locales?: Array<string>): any {
+    return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }
-  public mergeObject(obj: any, locales?: Array<string>): void {
+  public mergeTranslation(json: any, locales?: Array<string>): void {
+    const survey = new SurveyModel(json);
+    this.mergeTranslationObject(survey, locales);
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);

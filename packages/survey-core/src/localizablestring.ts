@@ -353,6 +353,18 @@ export class LocalizableString implements ILocalizableString {
       this.strChanged();
     }
   }
+  public mergeWith(locStr: LocalizableString, locales?: string[]): void {
+    if (!!this.sharedData) {
+      this.sharedData.mergeWith(locStr);
+      return;
+    }
+    locales = locales || locStr.getLocales();
+    for (let i = 0; i < locales.length; i++) {
+      const loc = locales[i];
+      const val = locStr.getLocaleText(loc);
+      this.setLocaleText(loc, val);
+    }
+  }
   public get renderAs(): string {
     if (!this.owner || typeof this.owner.getRenderer !== "function") {
       return LocalizableString.defaultRenderer;

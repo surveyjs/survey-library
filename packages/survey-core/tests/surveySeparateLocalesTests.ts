@@ -83,7 +83,7 @@ QUnit.test("get separate locales for survey", function (assert) {
         name: "q1",
       },
     ] }] }, "storeLocalizableStrings: none");
-  assert.deepEqual(survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }), {
+  assert.deepEqual(survey.getTranslation(["de"]), {
     locale: "de",
     title: "Umfrage Titel",
     pages: [{ name: "page1", elements: [
@@ -105,8 +105,8 @@ QUnit.test("get separate locales for survey", function (assert) {
       },
     ] }] }, "storeLocalizableStrings: selected with two locales");
 });
-/*
-QUnit.("Add separate locales in survey", function (assert) {
+
+QUnit.test("Add separate locales in survey", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1" }]
   });
@@ -117,12 +117,11 @@ QUnit.("Add separate locales in survey", function (assert) {
         description: { default: "Description", de: "Beschreibung", fr: "La description" } }
     ]
   };
-  survey.mergeJSON(allLocales, ["de"]);
+  survey.mergeTranslation(allLocales, ["de"]);
   assert.equal(survey.locale, "", "keep locale the same");
+  survey.locale = "de";
   assert.equal(survey.title, "Umfrage Titel", "set survey title");
   const question = survey.getQuestionByName("q1") as QuestionTextModel;
   assert.equal(question.title, "Titel", "set question title");
   assert.equal(question.description, "Beschreibung", "set question description");
-
 });
-*/

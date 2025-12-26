@@ -13,6 +13,8 @@ export class DragOrClickHelper<T = any> {
   private currentY: any;
   private itemModel: any;
 
+  private rootNode: Document | ShadowRoot | null = null;
+
   constructor(public dragHandler: (event: PointerEvent, targets: ITargets, item?: T) => void, public preventOnTouch = true) { }
 
   public onPointerDown(pointerDownEvent: PointerEvent, itemModel?: T) {
@@ -24,7 +26,10 @@ export class DragOrClickHelper<T = any> {
     this.pointerDownEvent = pointerDownEvent;
     this.startX = pointerDownEvent.pageX;
     this.startY = pointerDownEvent.pageY;
-    this.targets.currentTarget.getRootNode().addEventListener("pointermove", this.tryToStartDrag);
+    const root = this.targets.currentTarget.getRootNode();
+    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    root.addEventListener("pointermove", this.tryToStartDrag);
+    this.rootNode = root;
     this.targets.currentTarget.addEventListener("pointerup", this.onPointerUp);
     this.itemModel = itemModel;
   }
@@ -53,6 +58,7 @@ export class DragOrClickHelper<T = any> {
   }
   private clearListeners() {
     if (!this.pointerDownEvent) return;
+    this.rootNode?.removeEventListener("pointermove", this.tryToStartDrag);
     this.targets.currentTarget.getRootNode().removeEventListener("pointermove", this.tryToStartDrag);
     this.targets.currentTarget.removeEventListener("pointerup", this.onPointerUp);
   }

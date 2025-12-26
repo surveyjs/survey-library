@@ -444,6 +444,10 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public getSerializableValue(obj: any, storeDefaults?: boolean): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
+    if (this.isLocalizable) {
+      const orgObj = this.getOriginalObj(obj);
+      if (!!orgObj.getLocalizableString && !orgObj.getLocalizableString(this.name)) return undefined;
+    }
     const value = this.getValue(obj);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;

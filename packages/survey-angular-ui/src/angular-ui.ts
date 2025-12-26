@@ -29,6 +29,7 @@ export * from "./questions/rating.component";
 export * from "./questions/boolean.component";
 export * from "./questions/imagepicker-item.component";
 export * from "./questions/imagepicker.component";
+export * from "./questions/imagemap.component";
 export * from "./questions/slider.component";
 export * from "./components/slider/slider-label-item.component";
 export * from "./questions/button-group/button-group.component";

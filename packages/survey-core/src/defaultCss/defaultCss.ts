@@ -947,6 +947,17 @@ export var defaultCss = {
     hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix",
     hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper"
   },
+  imagemap: {
+    root: "sd-imagemap",
+    background: "sd-imagemap-background",
+    map: "sd-imagemap-map",
+    canvas: {
+      preview: "sd-imagemap-canvas-preview",
+      selected: "sd-imagemap-canvas-selected",
+      hover: "sd-imagemap-canvas-hover",
+      hoverHidden: "sd-imagemap-canvas-hover--hidden"
+    }
+  }
 };
 
 export const defaultThemeName = "default";

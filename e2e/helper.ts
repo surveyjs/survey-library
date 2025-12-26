@@ -80,7 +80,8 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
     model.setDesignMode(isDesignMode);
     const surveyComplete = function (model) {
       (window as any).SurveyResult = model.data;
-      document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      document.getElementById("surveyResultElement")!.innerHTML = JSON.stringify(
         model.data
       );
     };
@@ -96,14 +97,36 @@ export const initSurvey = async (page: Page, framework: string, json: any, isDes
   await page.evaluate(([framework]) => {
     const self: any = window;
     const model = self.survey;
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
     const surveyElement: HTMLElement = document.getElementById("surveyElement") as HTMLElement;
     if (framework === "survey-js-ui") {
       surveyElement.innerHTML = "";
-      self.SurveyUI.renderSurvey(model, surveyElement);
+
+      const container = surveyElement;
+      const shadowRoot = container.attachShadow({ mode: "open" });
+      const rootElement = document.createElement("div");
+      const styles = document.createElement("style");
+      styles.textContent = `
+        *,
+        ::after,
+        ::before {
+            box-sizing: border-box;
+        }
+      `;
+      shadowRoot.appendChild(styles);
+      const surveyLink = document.createElement("link");
+      surveyLink.setAttribute("rel", "stylesheet");
+      surveyLink.setAttribute("href", "../../node_modules/survey-core/survey-core.min.css");
+      shadowRoot.appendChild(surveyLink);
+      shadowRoot.appendChild(rootElement);
+
+      self.SurveyUI.renderSurvey(model, rootElement);
+
     } else if (framework === "react") {
       if (!!self.root) {
         self.root.unmount();
       }
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       const root = (window as any).ReactDOMClient.createRoot(document.getElementById("surveyElement"));
       (window as any).root = root;
       root.render(
@@ -200,8 +223,8 @@ export async function visibleInViewport (page: Page, locator: Locator) {
     return (
       rect?.y >= 0 &&
       rect?.x >= 0 &&
-      rect?.y + rect?.height <= (window.innerHeight || document.documentElement.clientHeight) &&
-      rect?.x + rect?.width <= (window.innerWidth || document.documentElement.clientWidth)
+      rect?.y + rect?.height <= (window.innerHeight || (window as any).survey.rootElement.getRootNode().querySelector("div")!.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || (window as any).survey.rootElement.getRootNode().querySelector("div")!.clientWidth)
     );
   }, rect);
 }

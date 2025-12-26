@@ -4,7 +4,7 @@ const title = "customNavigation";
 
 const setCustomNavigation = async (page) => {
   await page.evaluate(() => {
-    const surveyElement = document.querySelector("#surveyElement");
+    const surveyElement = (window as any).survey.rootElement.getRootNode().querySelector("#surveyElement");
     if (!surveyElement) return;
 
     surveyElement.insertAdjacentHTML(
@@ -20,10 +20,10 @@ const setCustomNavigation = async (page) => {
         .replace(new RegExp(",", "g"), "")
     );
 
-    const prevButton = document.getElementById("surveyPrev");
-    const nextButton = document.getElementById("surveyNext");
-    const completeButton = document.getElementById("surveyComplete");
-    const progressElement = document.getElementById("surveyProgress");
+    const prevButton = (window as any).survey.rootElement.getRootNode().getElementById("surveyPrev");
+    const nextButton = (window as any).survey.rootElement.getRootNode().getElementById("surveyNext");
+    const completeButton = (window as any).survey.rootElement.getRootNode().getElementById("surveyComplete");
+    const progressElement = (window as any).survey.rootElement.getRootNode().getElementById("surveyProgress");
 
     if (prevButton) {
       prevButton.onclick = function(event) {

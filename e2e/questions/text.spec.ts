@@ -111,7 +111,7 @@ frameworks.forEach((framework) => {
     //   test(`change size`, async ({ page }) => {
     //     await page.goto(`${url}${framework}`);
     //     const getWidth = async () => {
-    //       return await page.evaluate(() => document.querySelector("input[type=email]").clientWidth);
+    //       return await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelector("input[type=email]").clientWidth);
     //     };
     //     let oldWidth;
     //     let newWidth;

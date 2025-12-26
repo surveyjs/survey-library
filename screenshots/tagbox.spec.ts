@@ -267,7 +267,7 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
-        (document.querySelector(".sd-question input") as HTMLElement).style.backgroundColor = "red";
+        ((window as any).survey.rootElement.getRootNode().querySelector(".sd-question input") as HTMLElement).style.backgroundColor = "red";
       });
       await compareScreenshot(page, ".sd-question", "tagbox-contrast-input.png");
     });

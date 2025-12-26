@@ -7030,9 +7030,6 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  public getTranslation(locales?: Array<string>): any {
-    return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
-  }
   /**
    * Applies locale strings from a JSON schema to the survey model.
    *
@@ -7040,9 +7037,12 @@ export class SurveyModel extends SurveyElementCore
    * @param json A JSON schema that contains locale strings.
    * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
    */
-  public addLocaleStrings(json: any, locales?: Array<string>): void {
+  public mergeLocalizationJSON(json: any, locales?: Array<string>): void {
     const survey = new SurveyModel(json);
-    this.mergeTranslationObject(survey, locales);
+    if (!!survey.locale) {
+      locales = [survey.locale];
+    }
+    this.mergeLocalizationObj(survey, locales);
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);

@@ -447,11 +447,12 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
-  protected mergeTranslationObject(obj: Base, locales?: Array<string>): void {
-    this.mergeTranslationInObjectCore(obj, locales);
-    this.mergeTranslationInArrays(obj, locales);
+  protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
+    this.mergeLocalizationInObjectCore(obj, locales);
+    this.mergeLocalizationInArrays(obj, locales);
   }
-  private mergeTranslationInObjectCore(obj: Base, locales?: Array<string>): void {
+  private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
+    if (!this.canMergeObj(obj)) return;
     const locStrs = obj.localizableStrings;
     if (!locStrs) return;
     for (const key in locStrs) {
@@ -465,13 +466,14 @@ export class Base implements IObjectValueContext {
       }
     }
   }
-  private mergeTranslationInArrays(obj: Base, locales?: Array<string>): void {
-    const canMerge = (srcItem: any, destItem: any): boolean => {
-      if (!srcItem || !destItem || typeof srcItem.mergeTranslationObject !== "function") return false;
-      if (srcItem.name && destItem.name !== srcItem.name) return false;
-      if (srcItem.value && destItem.value !== srcItem.value) return false;
-      return true;
-    };
+  private canMergeObj(obj: Base): boolean {
+    if (!obj || typeof obj.mergeLocalizationObj !== "function") return false;
+    const self: any = this;
+    if (obj["name"] && self.name !== obj["name"]) return false;
+    if (obj["value"] && self.value !== obj["value"]) return false;
+    return true;
+  }
+  private mergeLocalizationInArrays(obj: Base, locales?: Array<string>): void {
     const arraysInfo = obj.arraysInfo;
     if (!arraysInfo) return;
     for (const key in arraysInfo) {
@@ -481,11 +483,7 @@ export class Base implements IObjectValueContext {
         const dest = this[key];
         if (Array.isArray(src) && Array.isArray(dest)) {
           for (let i = 0; i < Math.min(src.length, dest.length); i++) {
-            const srcItem = src[i];
-            const destItem = dest[i];
-            if (canMerge(srcItem, destItem)) {
-              destItem.mergeTranslationObject(srcItem, locales);
-            }
+            dest[i].mergeLocalizationObj(src[i], locales);
           }
         }
       }
@@ -499,6 +497,9 @@ export class Base implements IObjectValueContext {
    */
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
+  }
+  public getLocalizationJSON(locales?: Array<string>): any {
+    return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }
   /**
    * Assigns a new JSON schema to the current survey element.

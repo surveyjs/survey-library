@@ -210,7 +210,40 @@ QUnit.test("Test getJson", function (assert) {
   );
   settings.serializeLocalizableStringAsObject = false;
 });
+QUnit.test("Test getJson with selectedLocales", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner);
 
+  assert.equal(locString.getJson(["de"]), null, "There is no values");
+  let json = { default: "val2", en: "val3" };
+  locString.setJson(json);
+  assert.deepEqual(locString.getJson(["default", "en"]), json, "Several values");
+  assert.deepEqual(locString.getJson(["de"]), null, "There is no 'de' value");
+  assert.deepEqual(locString.getJson(["en"]), "val3", "There is only 'en' value");
+  locString.setJson({ default: "val1", de: "val2", fr: "val3" });
+  assert.deepEqual(locString.getJson(["de", "fr"]), { de: "val2", fr: "val3" }, "There are 'de' and 'fr' values");
+  assert.equal(locString.getJson(["it"]), null, "There is not 'it' locale value");
+  locString.setJson({ default: "val1" });
+  assert.equal(locString.getJson(["de"]), null, "There is no 'de' value again");
+});
+QUnit.test("Test mergeWidth", function (assert) {
+  const owner1 = new LocalizableOwnerTester("");
+  const locString1 = new LocalizableString(owner1);
+  const owner2 = new LocalizableOwnerTester("");
+  const locString2 = new LocalizableString(owner2);
+  locString1.setJson({ default: "val1", de: "val2" });
+  locString2.mergeWith(locString1, ["de", "fr"]);
+  assert.deepEqual(locString2.getJson(), { de: "val2" }, "merge with selected locales");
+});
+QUnit.test("Test mergeWith with different default locales", function (assert) {
+  const owner1 = new LocalizableOwnerTester("de");
+  const locString1 = new LocalizableString(owner1);
+  const owner2 = new LocalizableOwnerTester("");
+  const locString2 = new LocalizableString(owner2);
+  locString1.text = "val-de";
+  locString2.mergeWith(locString1, ["de"]);
+  assert.deepEqual(locString2.getJson(), { de: "val-de" }, "merge with selected locales");
+});
 QUnit.test("Test hasNonDefaultText", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);

@@ -447,16 +447,59 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
-
+  protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
+    this.mergeLocalizationInObjectCore(obj, locales);
+    this.mergeLocalizationInArrays(obj, locales);
+  }
+  private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
+    if (!this.canMergeObj(obj)) return;
+    const locStrs = obj.localizableStrings;
+    if (!locStrs) return;
+    for (const key in locStrs) {
+      const prop = this.getPropertyByName(key);
+      if (!!prop) {
+        const name = prop.serializationProperty || prop.name;
+        const locStr: LocalizableString = this[name];
+        if (!!locStr) {
+          locStr.mergeWith(locStrs[key], locales);
+        }
+      }
+    }
+  }
+  private canMergeObj(obj: Base): boolean {
+    if (!obj || typeof obj.mergeLocalizationObj !== "function") return false;
+    const self: any = this;
+    if (obj["name"] && self.name !== obj["name"]) return false;
+    if (obj["value"] && self.value !== obj["value"]) return false;
+    return true;
+  }
+  private mergeLocalizationInArrays(obj: Base, locales?: Array<string>): void {
+    const arraysInfo = obj.arraysInfo;
+    if (!arraysInfo) return;
+    for (const key in arraysInfo) {
+      const prop = this.getPropertyByName(key);
+      if (!!prop && prop.isArray) {
+        const src = obj[key];
+        const dest = this[key];
+        if (Array.isArray(src) && Array.isArray(dest)) {
+          for (let i = 0; i < Math.min(src.length, dest.length); i++) {
+            dest[i].mergeLocalizationObj(src[i], locales);
+          }
+        }
+      }
+    }
+  }
   /**
    * Returns a JSON schema that corresponds to the current survey element.
-   * @param options An object with configuration options.
-   * @param {boolean} options.storeDefaults Pass `true` if the JSON schema should include properties with default values.
+   * @param options An [`ISaveToJSONOptions`](https://surveyjs.io/form-library/documentation/api-reference/isavetojsonoptions) object with configuration options.
    * @returns A JSON schema of the survey element.
    * @see fromJSON
    */
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
+  }
+  public getLocalizationJSON(locales?: Array<string>): any {
+    return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }
   /**
    * Assigns a new JSON schema to the current survey element.

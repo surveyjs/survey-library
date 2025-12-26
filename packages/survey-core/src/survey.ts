@@ -21,7 +21,8 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult, ISurveyUIState
+  ITextProcessorResult, ISurveyUIState,
+  ISaveToJSONOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -7018,6 +7019,30 @@ export class SurveyModel extends SurveyElementCore
           + settings.version + "). Please update the Form Library to make sure that all survey features work as expected.");
       }
     }
+  }
+  public toJSON(options?: ISaveToJSONOptions): any {
+    const res = super.toJSON(options);
+    if (options?.storeLocaleStrings === "stringsOnly") {
+      const locales = options.locales;
+      if (Array.isArray(locales) && locales.length === 1) {
+        res["locale"] = locales[0];
+      }
+    }
+    return res;
+  }
+  /**
+   * Applies locale strings from a JSON schema to the survey model.
+   *
+   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`toJSON(options)`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   * @param json A JSON schema that contains locale strings.
+   * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
+   */
+  public mergeLocalizationJSON(json: any, locales?: Array<string>): void {
+    const survey = new SurveyModel(json);
+    if (!!survey.locale) {
+      locales = [survey.locale];
+    }
+    this.mergeLocalizationObj(survey, locales);
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);

@@ -106,7 +106,6 @@ QUnit.test("get separate locales for survey", function (assert) {
       },
     ] }] }, "storeLocalizableStrings: selected with two locales");
 });
-
 QUnit.test("Add separate locales in survey", function (assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1" }]
@@ -170,4 +169,69 @@ QUnit.test("Get separate locale strings for choices", function (assert) {
       { value: 3, text: "Drei" },
     ],
   }, "get choices locale strings for one locale");
+});
+QUnit.test("Get separate locale strings for completedHtmlOnCondition", function (assert) {
+  const survey = new SurveyModel({
+    completedHtmlOnCondition: [
+      {
+        expression: "{q1} = 1",
+        html: "test"
+      },
+      {
+        expression: "{q1} = 2",
+        html: { default: "You are winner!", de: "Sie sind ein Gewinner!", fr: "Vous tes un gagnant!" }
+      },
+      {
+        expression: "{q1} = 3",
+        html: { default: "You are loser!", fr: "Vous tes un perdant!" }
+      }
+    ]
+  });
+  assert.deepEqual(survey.getLocalizationJSON(["de"]), {
+    locale: "de",
+    completedHtmlOnCondition: [
+      {},
+      {
+        html: "Sie sind ein Gewinner!"
+      },
+    ]
+  }, "get completedHtmlOnCondition locale strings for one locale");
+});
+QUnit.test("Merge with separate locale strings for completedHtmlOnCondition", function (assert) {
+  const survey = new SurveyModel({
+    completedHtmlOnCondition: [
+      {
+        expression: "{q1} = 1",
+      },
+      {
+        expression: "{q1} = 2",
+      },
+      {
+        expression: "{q1} = 3",
+      }
+    ]
+  });
+  survey.mergeLocalizationJSON({
+    locale: "de",
+    completedHtmlOnCondition: [
+      {},
+      {
+        html: "Sie sind ein Gewinner!"
+      },
+    ]
+  });
+  assert.deepEqual(survey.toJSON(), {
+    completedHtmlOnCondition: [
+      {
+        expression: "{q1} = 1",
+      },
+      {
+        expression: "{q1} = 2",
+        html: { de: "Sie sind ein Gewinner!" }
+      },
+      {
+        expression: "{q1} = 3",
+      }
+    ]
+  }, "merge completedHtmlOnCondition locale strings for one locale");
 });

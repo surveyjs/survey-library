@@ -117,7 +117,7 @@ QUnit.test("Add separate locales in survey", function (assert) {
         description: { default: "Description", de: "Beschreibung", fr: "La description" } }
     ]
   };
-  survey.mergeTranslation(allLocales, ["de"]);
+  survey.addLocaleStrings(allLocales, ["de"]);
   assert.equal(survey.locale, "", "keep locale the same");
   survey.locale = "de";
   assert.equal(survey.title, "Umfrage Titel", "set survey title");

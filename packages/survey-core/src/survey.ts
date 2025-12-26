@@ -7033,7 +7033,14 @@ export class SurveyModel extends SurveyElementCore
   public getTranslation(locales?: Array<string>): any {
     return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }
-  public mergeTranslation(json: any, locales?: Array<string>): void {
+  /**
+   * Applies locale strings from a JSON schema to the survey model.
+   *
+   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`toJSON(options)`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   * @param json A JSON schema that contains locale strings.
+   * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
+   */
+  public addLocaleStrings(json: any, locales?: Array<string>): void {
     const survey = new SurveyModel(json);
     this.mergeTranslationObject(survey, locales);
   }

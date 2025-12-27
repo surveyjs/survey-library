@@ -23127,3 +23127,15 @@ QUnit.test("Do not create layoutElements in creator", function (assert) {
   le = survey.getPropertyValue("layoutElements");
   assert.equal(le.length > 3, true, "There is  layout elements in survey after finding layout element");
 });
+QUnit.test("Do not create timerValue in contructor", function (assert) {
+  const survey: any = new SurveyModel();
+  assert.equal(survey.timerModelValue, undefined, "timerValue is undefined");
+  assert.equal(survey.timerModel.isRunning, false, "timerModel is not started");
+  assert.ok(survey.timerModelValue, "timerValue is not undefined");
+});
+QUnit.test("Do not create notifierValue in contructor", function (assert) {
+  const survey: any = new SurveyModel();
+  assert.equal(survey.notifierValue, undefined, "notifierValue is undefined");
+  survey.notify("abc");
+  assert.ok(survey.notifierValue, "notifierValue is not undefined");
+});

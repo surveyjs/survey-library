@@ -9202,3 +9202,39 @@ QUnit.test("Nested paneldynamic editing a value. The bug was in V1, add unit tes
   assert.equal(innerPanel.panelCount, 5, "There are still 5 inner panels");
   assert.deepEqual(survey.data, { rootPanel: [{ innerPanel: [{ q1Value: 10 }, {}, {}, {}, {}] }] }, "set value in the first inner panel");
 });
+QUnit.test("Removing panels in the nested panel, Bug#10739", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "rootPanel",
+        "panelCount": 1,
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+          {
+            "type": "paneldynamic",
+            "name": "innerPanel",
+            "panelCount": 2,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "q2"
+              }
+            ] }]
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("rootPanel");
+  const innerPanel = <QuestionPanelDynamicModel>rootPanel.panels[0].getQuestionByName("innerPanel");
+  assert.equal(innerPanel.panelCount, 2, "There are 2 inner panels");
+  innerPanel.removePanel(0);
+  assert.equal(innerPanel.panelCount, 1, "There is 1 inner panel");
+  innerPanel.removePanel(0);
+  assert.equal(innerPanel.panelCount, 0, "There is no inner panel");
+  const q1 = rootPanel.panels[0].getQuestionByName("q1");
+  q1.value = 10;
+  assert.equal(innerPanel.panelCount, 0, "There is still no inner panel");
+});

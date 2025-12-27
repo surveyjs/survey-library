@@ -443,6 +443,10 @@ export class QuestionPanelDynamicModel extends Question
   get locTemplateTitle(): LocalizableString {
     return this.template.locTitle;
   }
+  public getLocalizableString(name: string): LocalizableString {
+    if (name === "templateTitle") return this.template.locTitle;
+    return super.getLocalizableString(name);
+  }
   /**
    * A template for tab titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`.
    *

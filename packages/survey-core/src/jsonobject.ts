@@ -444,10 +444,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   }
   public getSerializableValue(obj: any, storeDefaults?: boolean): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
-    if (this.isLocalizable) {
-      const orgObj = this.getOriginalObj(obj);
-      if (!!orgObj.getLocalizableString && !orgObj.getLocalizableString(this.name)) return undefined;
-    }
+    if (!storeDefaults && obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this)) return undefined;
     const value = this.getValue(obj);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
@@ -561,12 +558,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     return true;
   }
   private getOriginalObj(obj: any): any {
-    if (obj && obj.getOriginalObj) {
-      const orjObj = obj.getOriginalObj();
-      if (orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
-        return orjObj;
-      }
-    }
+    if (obj && obj.getOriginalByProperty)
+      return obj.getOriginalByProperty(this.name);
     return obj;
   }
   public get visible(): boolean {
@@ -1118,11 +1111,7 @@ export class JsonMetadata {
   private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
-    if (this.isObjWrapper(obj) && this.isNeedUseObjWrapper(obj, name)) {
-      const orignalObj = obj.getOriginalObj();
-      const prop = Serializer.findProperty(orignalObj.getType(), name);
-      if (!!prop) return this.getObjPropertyValueCore(orignalObj, prop);
-    }
+    obj = this.isObjWrapper(obj) && this.isNeedUseObjWrapper(obj, name) ? obj.getOriginalObj() : obj;
     const prop = Serializer.findProperty(obj.getType(), name);
     if (!prop) return obj[name];
     return this.getObjPropertyValueCore(obj, prop);

@@ -3609,3 +3609,11 @@ QUnit.test("Make expression question invisible by default, Bug#10135", function 
   assert.deepEqual(q3.toJSON(), { name: "q3" }, "text q3 toJSON is empty");
   Serializer.removeProperty("expression", "visible");
 });
+QUnit.test("Do not create localization string on serializing", function (assert) {
+  const q = new QuestionTextModel("q1");
+  assert.equal(q.getLocalizableString("description"), undefined, "There is no description by default");
+  q.toJSON();
+  assert.equal(q.getLocalizableString("description"), undefined, "There is no description after serializing");
+  q.description = "desc";
+  assert.ok(q.getLocalizableString("description"), "There is a description after setting the value");
+});

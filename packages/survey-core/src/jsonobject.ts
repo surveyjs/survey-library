@@ -1114,7 +1114,7 @@ export class JsonMetadata {
   private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
-    obj = this.isObjWrapper(obj) && this.isNeedUseObjWrapper(obj, name) ? obj.getOriginalObj() : obj;
+    obj = obj.getOriginalByProperty && this.isNeedUseObjWrapper(obj, name) ? obj.getOriginalByProperty(name) : obj;
     const prop = Serializer.findProperty(obj.getType(), name);
     if (!prop) return obj[name];
     return this.getObjPropertyValueCore(obj, prop);
@@ -1145,9 +1145,6 @@ export class JsonMetadata {
         return obj[prop.serializationProperty].text;
     }
     return obj.getPropertyValue(prop.name);
-  }
-  private isObjWrapper(obj: any): boolean {
-    return !!obj.getOriginalObj && !!obj.getOriginalObj();
   }
   private isNeedUseObjWrapper(obj: any, name: string): boolean {
     if (!obj.getDynamicProperties) return true;
@@ -1300,8 +1297,8 @@ export class JsonMetadata {
   public getOriginalProperty(obj: Base, propName: string): JsonObjectProperty {
     var res = this.findProperty(obj.getType(), propName);
     if (!!res) return res;
-    if (this.isObjWrapper(obj))
-      return this.findProperty((<any>obj).getOriginalObj().getType(), propName);
+    const orignalObj = obj.getOriginalByProperty(propName);
+    if (orignalObj !== obj) return this.findProperty(orignalObj.getType(), propName);
     return null;
   }
   public getProperty(

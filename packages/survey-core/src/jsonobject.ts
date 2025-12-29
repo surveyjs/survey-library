@@ -1896,13 +1896,8 @@ export class JsonObject {
     }
     if (value === undefined || value === null) return;
     const name = prop.getSerializedName(options.version);
-    var hasValue =
-      typeof obj["getPropertyValue"] === "function" &&
-      obj["getPropertyValue"](name, null) !== null;
-    if ((options.storeDefaults && hasValue) || !prop.isDefaultValueByObj(obj, value)) {
-      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, prop, value, result)) {
-        result[name] = this.removePosOnValueToJson(prop, value);
-      }
+    if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, prop, value, result)) {
+      result[name] = this.removePosOnValueToJson(prop, value);
     }
   }
   private reduceLocaleArray(arrValue: Array<any>): void {

@@ -694,7 +694,7 @@ export class Base implements IObjectValueContext {
       ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
     }
   }
-  protected getItemvaluesPropertyValue(name: string): Array<ItemValue> {
+  protected getItemValuesPropertyValue(name: string): Array<ItemValue> {
     let res = this.getPropertyValue(name);
     if (!Array.isArray(res)) {
       res = this.createItemValues(name);

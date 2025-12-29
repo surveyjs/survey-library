@@ -99,6 +99,8 @@ export var philippinesStrings = {
   urlGetChoicesError: "Ang kahilingan ay nagbalik ng walang laman na data o ang 'path' property ay hindi tama",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Ang laki ng file ay hindi dapat lumampas sa {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Ang maximum na bilang ng mga file na maaari mong i-upload ay {0}.",
   // "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Hindi ma-upload ang mga file. Mangyaring magdagdag ng handler para sa kaganapang 'onUploadFiles'.",
   // "Response required: enter another value."

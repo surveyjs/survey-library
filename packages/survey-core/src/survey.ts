@@ -21,7 +21,8 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult, ISurveyUIState
+  ITextProcessorResult, ISurveyUIState,
+  ISaveToJSONOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -176,7 +177,6 @@ export class SurveyModel extends SurveyElementCore
   public get platformName(): string {
     return SurveyModel.platform;
   }
-  public notifier: Notifier;
   public rootElement: HTMLElement;
   /**
    * A suffix added to the name of the property that stores comments.
@@ -205,8 +205,6 @@ export class SurveyModel extends SurveyElementCore
   private valuesHash: HashTable<any> = {};
   private variablesHash: HashTable<any> = {};
   private editingObjValue: Base;
-
-  private timerModelValue: SurveyTimerModel;
 
   //#region Event declarations
   public onEndLoadingFromJson: EventBase<SurveyModel, Object> = this.addEvent<SurveyModel, Object>();
@@ -1107,11 +1105,6 @@ export class SurveyModel extends SurveyElementCore
     super();
     this.onBeforeRunConstructor();
 
-    this.timerModelValue = new SurveyTimerModel(this);
-    this.timerModelValue.onTimerTick = (page: PageModel): void => {
-      this.doTimer(page);
-    };
-
     this.createNewArray(
       "pages",
       (value: PageModel) => {
@@ -1194,9 +1187,6 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
-
-    this.notifier = new Notifier(this.css.saveData);
-    this.notifier.addAction(this.createTryAgainAction(), "error");
 
     this.onPopupVisibleChanged.add((_, opt) => {
       if (opt.visible) {
@@ -4173,6 +4163,14 @@ export class SurveyModel extends SurveyElementCore
       this.notify(this.completedStateText, this.completedState, value === "error");
     }
   }
+  private notifierValue: Notifier;
+  public get notifier(): Notifier {
+    if (!this.notifierValue) {
+      this.notifierValue = new Notifier(this.css.saveData);
+      this.notifierValue.addAction(this.createTryAgainAction(), "error");
+    }
+    return this.notifierValue;
+  }
   /**
    * Displays a toast notification with a specified message.
    *
@@ -7019,6 +7017,30 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  public toJSON(options?: ISaveToJSONOptions): any {
+    const res = super.toJSON(options);
+    if (options?.storeLocaleStrings === "stringsOnly") {
+      const locales = options.locales;
+      if (Array.isArray(locales) && locales.length === 1) {
+        res["locale"] = locales[0];
+      }
+    }
+    return res;
+  }
+  /**
+   * Applies locale strings from a JSON schema to the survey model.
+   *
+   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`toJSON(options)`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   * @param json A JSON schema that contains locale strings.
+   * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
+   */
+  public mergeLocalizationJSON(json: any, locales?: Array<string>): void {
+    const survey = new SurveyModel(json);
+    if (!!survey.locale) {
+      locales = [survey.locale];
+    }
+    this.mergeLocalizationObj(survey, locales);
+  }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
     if (json && json.locale) {
@@ -8115,7 +8137,16 @@ export class SurveyModel extends SurveyElementCore
     if (res) res += " ";
     return res + sec + " " + this.getLocalizationString("timerSec");
   }
-  public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
+  private timerModelValue: SurveyTimerModel;
+  public get timerModel(): SurveyTimerModel {
+    if (!this.timerModelValue) {
+      this.timerModelValue = new SurveyTimerModel(this);
+      this.timerModelValue.onTimerTick = (page: PageModel): void => {
+        this.doTimer(page);
+      };
+    }
+    return this.timerModelValue;
+  }
   /**
    * Starts a timer that calculates how many seconds a respondent has spent on the survey. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see stopTimer
@@ -8414,7 +8445,7 @@ export class SurveyModel extends SurveyElementCore
       id: "timerpanel",
       template: "survey-timerpanel",
       component: "sv-timerpanel",
-      data: this.timerModel
+      getData: () => this.timerModel
     });
     res.push({
       id: "progress-buttons",

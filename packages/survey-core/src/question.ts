@@ -349,9 +349,6 @@ export class Question extends SurveyElement<Question>
     super(name);
     this.setPropertyValueDirectly("id", "sq_" + this.uniqueId);
     this.onCreating();
-    this.createNewArray("validators", (validator: any) => {
-      validator.errorOwner = this;
-    });
 
     this.addExpressionProperty("visibleIf", (obj: Base, res: any) => { this.visible = res === true; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
@@ -2749,10 +2746,15 @@ export class Question extends SurveyElement<Question>
    * [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
    */
   public get validators(): Array<SurveyValidator> {
-    return this.getPropertyValue("validators");
+    return this.getArrayPropertyValue("validators", (validator: any) => {
+      validator.errorOwner = this;
+    });
   }
   public set validators(val: Array<SurveyValidator>) {
-    this.setPropertyValue("validators", val);
+    this.setArrayPropertyValue("validators", val);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name === "validators" || super.isPropertyStoredInHash(name);
   }
   public getValidators(): Array<SurveyValidator> {
     return this.validators;

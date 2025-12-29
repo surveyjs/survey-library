@@ -638,11 +638,16 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
+  private doNotSerializeEmptyProperty(prop: JsonObjectProperty): boolean {
+    return this.isPropertyStoredInHash(prop.name);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return false;
+  }
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
     const orgObj = this.getOriginalByProperty(prop.name);
-    if (prop.isLocalizable) {
-      if (!orgObj.getLocalizableString(prop.name)) return true;
-    }
+    if (prop.isLocalizable) return !orgObj.getLocalizableString(prop.name);
+    if (this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
     return false;
   }
   public getOriginalObj(): Base {
@@ -688,6 +693,29 @@ export class Base implements IObjectValueContext {
     if (reportError) {
       ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
     }
+  }
+  protected getItemvaluesPropertyValue(name: string): Array<ItemValue> {
+    let res = this.getPropertyValue(name);
+    if (!Array.isArray(res)) {
+      res = this.createItemValues(name);
+      this.setPropertyValueDirectly(name, res);
+    }
+    return res;
+  }
+  protected getArrayPropertyValue(name: string, onPush?: (item: any) => void, onRemove?: (item: any) => void): Array<any> {
+    let res = this.getPropertyValue(name);
+    if (!Array.isArray(res)) {
+      res = this.createNewArray(name, onPush, onRemove);
+      this.setPropertyValueDirectly(name, res);
+    }
+    return res;
+  }
+  protected setArrayPropertyValue(name: string, val: any): void {
+    const arr = this[name];
+    const arrayInfo = this.arraysInfo[name];
+    if (!arrayInfo) return;
+
+    this.setArray(name, arr, val, arrayInfo.isItemValues, arrayInfo.onPush);
   }
   public get isEditingSurveyElement(): boolean {
     var survey = this.getSurvey();

@@ -310,7 +310,9 @@ export class PanelModelBase extends SurveyElement<Question>
    * The `gridLayoutColumns` array is generated automatically based on the maximum number of questions and panels in the same row. To arrange the survey elements in one or several rows, disable the [`startWithNewLine`](https://surveyjs.io/form-library/documentation/api-reference/question#startWithNewLine) property for those elements that should occupy the same row as the previous question or panel. You can also set the [`colSpan`](https://surveyjs.io/form-library/documentation/api-reference/question#colSpan) property for individual questions and panels to specify how many layout columns they span.
    */
   public get gridLayoutColumns(): Array<PanelLayoutColumnModel> {
-    let res = this.getPropertyValue("gridLayoutColumns");
+    let res = this.getArrayPropertyValue("gridLayoutColumns", (col: PanelLayoutColumnModel) => {
+      col.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
+    });
     if (!this._columns) {
       this.generateColumns([].concat(res));
       res = this._columns;
@@ -319,7 +321,7 @@ export class PanelModelBase extends SurveyElement<Question>
     return res;
   }
   public set gridLayoutColumns(val: Array<PanelLayoutColumnModel>) {
-    this.setPropertyValue("gridLayoutColumns", val);
+    this.setArrayPropertyValue("gridLayoutColumns", val);
   }
 
   addElementCallback: (element: IElement) => void;
@@ -376,9 +378,6 @@ export class PanelModelBase extends SurveyElement<Question>
     super(name);
     this.createNewArray("rows", (el: QuestionRowModel, index: number) => { this.onAddRow(el); }, (el: QuestionRowModel) => { this.onRemoveRow(el); });
     this.createNewArray("visibleRows");
-    this.createNewArray("gridLayoutColumns", (col: PanelLayoutColumnModel) => {
-      col.onPropertyValueChangedCallback = this.onColumnPropertyValueChangedCallback;
-    });
 
     this.elementsValue = this.createNewArray(
       "elements",
@@ -2130,6 +2129,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
 
   public getSerializableColumnsValue(): Array<PanelLayoutColumnModel> {
+    if (this.getPropertyValueWithoutDefault("gridLayoutColumns") === undefined) return undefined;
     let tailIndex = -1;
     for (let index = this.gridLayoutColumns.length - 1; index >= 0; index--) {
       if (!this.gridLayoutColumns[index].isEmpty()) {
@@ -2168,10 +2168,6 @@ export class PanelModelBase extends SurveyElement<Question>
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModel extends PanelModelBase implements IElement {
-  constructor(name: string = "") {
-    super(name);
-    this.createNewArray("footerActions");
-  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "width" && this.parent) {
@@ -2431,7 +2427,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     });
   }
   public get footerActions(): Array<IAction> {
-    return this.getPropertyValue("footerActions");
+    return this.getArrayPropertyValue("footerActions");
   }
   private footerToolbarValue: ActionContainer;
 

@@ -174,7 +174,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
-    this.createItemValues("customChoices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -1098,10 +1097,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
    */
   public get customChoices(): Array<any> {
-    return this.getPropertyValue("customChoices");
+    return this.getItemValuesPropertyValue("customChoices");
   }
   public set customChoices(val: Array<any>) {
-    this.setPropertyValue("customChoices", val);
+    this.setArrayPropertyValue("customChoices", val);
   }
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.

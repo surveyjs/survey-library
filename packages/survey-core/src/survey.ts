@@ -1124,18 +1124,6 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
-    this.createNewArray("triggers", (value: any) => {
-      value.setOwner(this);
-    });
-    this.createNewArray("calculatedValues", (value: any) => {
-      value.setOwner(this);
-    });
-    this.createNewArray("completedHtmlOnCondition", (value: any) => {
-      value.locOwner = this;
-    });
-    this.createNewArray("navigateToUrlOnCondition", (value: any) => {
-      value.locOwner = this;
-    });
 
     this.onGetQuestionNumber.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1536,10 +1524,13 @@ export class SurveyModel extends SurveyElementCore
    * @see onTriggerExecuted
    */
   public get triggers(): Array<SurveyTrigger> {
-    return this.getPropertyValue("triggers");
+    return this.getArrayPropertyValue("triggers", (value: any) => {
+      value.setOwner(this);
+    });
+
   }
   public set triggers(val: Array<SurveyTrigger>) {
-    this.setPropertyValue("triggers", val);
+    this.setArrayPropertyValue("triggers", val);
   }
   /**
    * An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
@@ -1547,10 +1538,16 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/custom-variables-for-background-form-calculations/ (linkStyle))
    */
   public get calculatedValues(): Array<CalculatedValue> {
-    return this.getPropertyValue("calculatedValues");
+    return this.getArrayPropertyValue("calculatedValues", (value: any) => {
+      value.setOwner(this);
+    });
   }
   public set calculatedValues(val: Array<CalculatedValue>) {
-    this.setPropertyValue("calculatedValues", val);
+    this.setArrayPropertyValue("calculatedValues", val);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    const names = ["triggers", "calculatedValues", "completedHtmlOnCondition", "navigateToUrlOnCondition"];
+    return names.indexOf(name) > -1 || super.isPropertyStoredInHash(name);
   }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
@@ -1820,10 +1817,12 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrl
    */
   public get navigateToUrlOnCondition(): Array<UrlConditionItem> {
-    return this.getPropertyValue("navigateToUrlOnCondition");
+    return this.getArrayPropertyValue("navigateToUrlOnCondition", (value: any) => {
+      value.locOwner = this;
+    });
   }
   public set navigateToUrlOnCondition(val: Array<UrlConditionItem>) {
-    this.setPropertyValue("navigateToUrlOnCondition", val);
+    this.setArrayPropertyValue("navigateToUrlOnCondition", val);
   }
 
   public getNavigateToUrl(): string {
@@ -2608,10 +2607,12 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
    */
   public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
-    return this.getPropertyValue("completedHtmlOnCondition");
+    return this.getArrayPropertyValue("completedHtmlOnCondition", (value: any) => {
+      value.locOwner = this;
+    });
   }
   public set completedHtmlOnCondition(val: Array<HtmlConditionItem>) {
-    this.setPropertyValue("completedHtmlOnCondition", val);
+    this.setArrayPropertyValue("completedHtmlOnCondition", val);
   }
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.

@@ -1133,9 +1133,8 @@ export class JsonMetadata {
     }
   }
   private getObjPropertyValueCore(obj: any, prop: JsonObjectProperty): any {
-    if (!prop.isPropertySerializable(obj)) return obj[prop.name];
+    if (!prop.isPropertySerializable(obj) || prop.isArray) return obj[prop.name];
     if (prop.isLocalizable) {
-      if (prop.isArray) return obj[prop.name];
       const locStr = obj.getLocalizableString(prop.name);
       if (!!locStr) {
         if (locStr.isDefautlLocale) return locStr.text;

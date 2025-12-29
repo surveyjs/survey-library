@@ -24,14 +24,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   constructor(name: string) {
     super(name);
-    this.registerFunctionOnPropertyValueChanged("selectToRankEnabled", () => {
+    this.dragOrClickHelper = new DragOrClickHelper(this.startDrag);
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "selectToRankEnabled") {
       this.clearValue(true);
       this.setDragDropRankingChoices();
       this.updateRankingChoicesSync();
-    });
-    this.dragOrClickHelper = new DragOrClickHelper(this.startDrag);
+    }
   }
-
   public getType(): string {
     return "ranking";
   }

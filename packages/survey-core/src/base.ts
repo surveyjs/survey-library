@@ -638,6 +638,21 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
+  public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
+    const orgObj = this.getOriginalByProperty(prop.name);
+    if (prop.isLocalizable) {
+      if (!orgObj.getLocalizableString(prop.name)) return true;
+    }
+    return false;
+  }
+  public getOriginalObj(): Base {
+    return this;
+  }
+  public getOriginalByProperty(propName: string): Base {
+    const obj = this.getOriginalObj();
+    if (obj === this) return this;
+    return !!obj.getPropertyByName(propName) ? obj : this;
+  }
   protected getPropertyValueWithoutDefault(name: string): any {
     return this.getPropertyValueCore(this.propertyHash, name);
   }

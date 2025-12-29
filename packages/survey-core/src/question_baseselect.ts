@@ -30,7 +30,6 @@ export interface IChoiceOwner extends ILocalizableOwner {
 }
 
 export class ChoiceItem extends ItemValue {
-  private locCommentPlaceholderValue: LocalizableString;
   private panelValue: PanelModel;
   protected getBaseType(): string { return "choiceitem"; }
   public get choiceOwner(): IChoiceOwner { return this.locOwner as IChoiceOwner; }
@@ -54,21 +53,13 @@ export class ChoiceItem extends ItemValue {
     return this.getPropertyValue("isCommentShowing", false);
   }
   public get locCommentPlaceholder(): LocalizableString {
-    if (!this.locCommentPlaceholderValue) {
-      this.createCommentPlaceholder();
-    }
-    return this.locCommentPlaceholderValue;
-  }
-  private createCommentPlaceholder(): void {
-    const str = new LocalizableString(this, true, "commentPlaceholder");
-    str.onChanged = () => { this.setPropertyValue("commentPlaceholder", this.locCommentPlaceholderValue.text); };
-    this.locCommentPlaceholderValue = str;
+    return this.getOrCreateLocStr("commentPlaceholder");
   }
   public get commentPlaceholder(): string {
-    return this.locCommentPlaceholder.text;
+    return this.getLocStringText(this.locCommentPlaceholder);
   }
   public set commentPlaceholder(val: string) {
-    this.locCommentPlaceholder.text = val;
+    this.setLocStringText(this.locCommentPlaceholder, val);
   }
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
@@ -79,7 +70,7 @@ export class ChoiceItem extends ItemValue {
     return owner.supportMultipleComment(this);
   }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
-    if (prop.name === "commentPlaceholder") return !!this.locCommentPlaceholderValue;
+    if (prop.name === "commentPlaceholder") return !!this.getLocalizableString("commentPlaceholder");
     return super.canAddPpropertyToJSON(prop);
   }
   protected onLocOwnerChanged() : void {

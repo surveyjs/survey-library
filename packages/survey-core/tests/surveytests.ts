@@ -23139,3 +23139,15 @@ QUnit.test("Do not create notifierValue in contructor", function (assert) {
   survey.notify("abc");
   assert.ok(survey.notifierValue, "notifierValue is not undefined");
 });
+QUnit.test("Make array properties on demand", function (assert) {
+  const survey: any = new SurveyModel();
+  assert.equal(survey.getPropertyValue("triggers"), undefined, "triggers is undefined on loading");
+  assert.equal(survey.getPropertyValue("calculatedValues"), undefined, "calculatedValues is undefined on loading");
+  assert.equal(survey.getPropertyValue("completedHtmlOnCondition"), undefined, "completedHtmlOnCondition is undefined on loading");
+  assert.equal(survey.getPropertyValue("navigateToUrlOnCondition"), undefined, "navigateToUrlOnCondition is undefined on loading");
+  survey.toJSON();
+  assert.equal(survey.getPropertyValue("triggers"), undefined, "triggers is undefined after serialization");
+  assert.equal(survey.getPropertyValue("calculatedValues"), undefined, "calculatedValues is undefined after serialization");
+  assert.equal(survey.getPropertyValue("completedHtmlOnCondition"), undefined, "completedHtmlOnCondition is undefined after serialization");
+  assert.equal(survey.getPropertyValue("navigateToUrlOnCondition"), undefined, "navigateToUrlOnCondition is undefined after serialization");
+});

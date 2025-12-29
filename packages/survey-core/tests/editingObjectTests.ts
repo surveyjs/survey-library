@@ -1793,3 +1793,9 @@ QUnit.test("Multiple text item, onPropertyValueChanged", function (assert) {
   item.maskType = "pattern";
   assert.deepEqual(logs, ["name", "title", "validators", "maskType", "maskSettings"], "#2");
 });
+QUnit.test("Matirix columns & getObjPropertyValue", function (assert) {
+  const column = new MatrixDropdownColumn("col1");
+  assert.equal(Serializer.getObjPropertyValue(column, "cellType"), "default", "should return 'default'");
+  column.cellType = "text";
+  assert.equal(Serializer.getObjPropertyValue(column, "cellType"), "text", "should return 'text'");
+});

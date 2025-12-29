@@ -205,7 +205,7 @@ export class SurveyQuestionSelectBaseItem extends ReactSurveyElement {
     </div>;
   }
   protected renderPanel(): React.JSX.Element | null {
-    if (this.item.isPanelShowing) {
+    if (this.item.renderedIsPanelShowing) {
       const panel = this.item.panel;
       return (
         <SurveyPanel

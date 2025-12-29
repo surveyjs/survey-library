@@ -15,7 +15,7 @@ import { SurveyElement } from "./survey-element";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ITextArea, TextAreaModel } from "./utils/text-area";
 import { cleanHtmlElementAfterAnimation, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
-import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
+import { AnimationBoolean, AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -78,6 +78,9 @@ export class ChoiceItem extends ItemValue {
       this.showCommentArea = false;
     }
     this.setPanelSurvey(this.panelValue);
+    (this.choiceOwner as QuestionSelectBase).registerFunctionOnPropertyValueChanged("value", () => {
+      this.renderedIsPanelShowing = this.isPanelShowing;
+    });
   }
   private onExpandPanelAtDesignValue: EventBase<ChoiceItem, any>;
   public get onExpandPanelAtDesign(): EventBase<ChoiceItem, any> {
@@ -85,6 +88,34 @@ export class ChoiceItem extends ItemValue {
       this.onExpandPanelAtDesignValue = new EventBase<ChoiceItem, any>();
     }
     return this.onExpandPanelAtDesignValue;
+  }
+  @property() _renderedIsPanelShowing: boolean;
+  private panelAnimation = new AnimationBoolean({
+    getAnimatedElement: ()=> {
+      return this.getRootElement().parentElement.querySelector(`#${this.panel.id}`);
+    },
+    getEnterOptions() {
+      return { cssClass: "sd-panel--enter",
+        onBeforeRunAnimation: prepareElementForVerticalAnimation,
+        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+    },
+    getLeaveOptions() {
+      return { cssClass: "sd-panel--leave",
+        onBeforeRunAnimation: prepareElementForVerticalAnimation,
+        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+    },
+    isAnimationEnabled: () => {
+      return settings.animationEnabled;
+    },
+    getRerenderEvent: ()=> {
+      return this.onElementRerendered;
+    },
+  }, (val) => this._renderedIsPanelShowing = val, () => this._renderedIsPanelShowing);
+  public get renderedIsPanelShowing() {
+    return this._renderedIsPanelShowing;
+  }
+  public set renderedIsPanelShowing(value: boolean) {
+    this.panelAnimation.sync(value);
   }
   public get isPanelShowing(): boolean {
     if (!this.panelValue || !this.choiceOwner) return false;

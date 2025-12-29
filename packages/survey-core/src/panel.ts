@@ -2168,10 +2168,6 @@ export class PanelModelBase extends SurveyElement<Question>
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-panel/ (linkStyle))
  */
 export class PanelModel extends PanelModelBase implements IElement {
-  constructor(name: string = "") {
-    super(name);
-    this.createNewArray("footerActions");
-  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "width" && this.parent) {
@@ -2431,7 +2427,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     });
   }
   public get footerActions(): Array<IAction> {
-    return this.getPropertyValue("footerActions");
+    return this.getArrayPropertyValue("footerActions");
   }
   private footerToolbarValue: ActionContainer;
 

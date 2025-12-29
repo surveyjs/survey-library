@@ -3808,3 +3808,12 @@ QUnit.test("Panel/Page getPanelInDesignMode", function (assert) {
   assert.notOk(new PageModel("p1").getPanelInDesignMode(), "page returns null");
   assert.equal(new PanelModel("p1").getPanelInDesignMode().name, "p1", "panel returns itself");
 });
+QUnit.test("Do not create footerActions array on creating&loading", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  assert.equal(panel.getPropertyByName("footerActions"), undefined, "footerActions array is not created");
+});

@@ -338,6 +338,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.colSpan = newValue;
     }
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "bindings";
+  }
   protected getSkeletonComponentNameCore(): string {
     if (this.survey) {
       return this.survey.getSkeletonComponentName(this);

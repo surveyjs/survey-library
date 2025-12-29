@@ -442,20 +442,24 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  public getSerializableValue(obj: any, storeDefaults?: boolean): any {
+  public getSerializableValue(obj: any, storeDefaults?: boolean, selectedLocales?: string[]): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
-    const value = this.getValue(obj);
+    const value = this.getValue(obj, selectedLocales);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
     return value;
   }
-  public getValue(obj: any): any {
+  public getValue(obj: any, selectedLocales?: string[]): any {
     if (this.onGetValue) {
       obj = this.getOriginalObj(obj);
       return this.onGetValue(obj);
     }
-    if (this.serializationProperty && !!obj[this.serializationProperty])
-      return obj[this.serializationProperty].getJson();
+    const serProp = this.serializationProperty;
+    if (!!serProp) {
+      //if (serProp.indexOf("loc") === 0 && !obj.getLocalizableString(this.name)) return undefined;
+      const serObj = obj[serProp];
+      if (!!serObj) return serObj.getJson(selectedLocales);
+    }
     return obj[this.name];
   }
   public getPropertyValue(obj: any): any {
@@ -1808,7 +1812,7 @@ export class JsonObject {
     options?: ISaveToJSONOptions | boolean
   ): any {
     if (!obj || !obj.getType) return obj;
-    if (!obj.isSurvey && typeof obj.getData === "function") return obj.getData();
+    if (!obj.isSurvey && typeof obj.getData === "function") return obj.getData(options);
     var result = {};
     if (property != null && !property.className) {
       (<any>result)[JsonObject.typePropertyName] = property.getObjType(
@@ -1821,6 +1825,9 @@ export class JsonObject {
     }
     if (storeDefaults) {
       options.storeDefaults = storeDefaults;
+    }
+    if (options.storeLocaleStrings === false) {
+      options.locales = undefined;
     }
     this.propertiesToJson(
       obj,
@@ -1867,22 +1874,33 @@ export class JsonObject {
   }
   public valueToJson(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
     if (!options) options = {};
+    if (!this.isProretyCanBeStoredByOptions(prop, options)) return;
     if (!prop.isPropertySerializable(obj) || (prop.isLightSerializable === false && this.lightSerializing)) return;
     if (options.version && !prop.isAvailableInVersion(options.version)) return;
     this.valueToJsonCore(obj, result, prop, options);
   }
-  private valueToJsonCore(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
+  private isProretyCanBeStoredByOptions(prop: JsonObjectProperty, options: ISaveToJSONOptions): boolean {
+    const storeStrings = options.storeLocaleStrings;
+    if (prop.isArray || prop.isUnique || prop.name === "name") return true;
+    if (storeStrings === false) return !prop.isLocalizable;
+    if (storeStrings === "stringsOnly") return prop.isLocalizable;
+    return true;
+  }
+  private valueToJsonCore(obj: any, result: any, prop: JsonObjectProperty, options: ISaveToJSONOptions): void {
     const serProp = prop.getSerializedProperty(obj, options.version);
     if (serProp && serProp !== prop) {
       this.valueToJsonCore(obj, result, serProp, options);
       return;
     }
-    var value = prop.getSerializableValue(obj, options.storeDefaults);
+    var value = prop.getSerializableValue(obj, options.storeDefaults, options.locales);
     if (value === undefined) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
         arrValue.push(this.toJsonObjectCore(value[i], prop, options));
+      }
+      if (options.storeLocaleStrings === "stringsOnly") {
+        this.reduceLocaleArray(arrValue);
       }
       value = arrValue.length > 0 ? arrValue : null;
     } else {
@@ -1898,6 +1916,23 @@ export class JsonObject {
         result[name] = this.removePosOnValueToJson(prop, value);
       }
     }
+  }
+  private reduceLocaleArray(arrValue: Array<any>): void {
+    let lastIndex = arrValue.length - 1;
+    while(lastIndex >= 0) {
+      const val = arrValue[lastIndex];
+      if (!!val && (typeof val === "object")) {
+        let propLen = Object.keys(val).length;
+        ["type", "name", "value"].forEach(key => {
+          if (val[key] !== undefined) {
+            propLen--;
+          }
+        });
+        if (propLen > 0) break;
+      }
+      lastIndex--;
+    }
+    arrValue.splice(lastIndex + 1);
   }
   public valueToObj(value: any, obj: any, property: JsonObjectProperty, jsonObj?: any, options?: ILoadFromJSONOptions): void {
     if (value === null || value === undefined) return;

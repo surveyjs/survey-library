@@ -9,7 +9,7 @@ import {
 import { Helpers } from "./helpers";
 import { ConditionRunner } from "./conditions";
 import { Base, ComputedUpdater } from "./base";
-import { IShortcutText, ISurvey } from "./base-interfaces";
+import { ISaveToJSONOptions, IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { Question } from "./question";
@@ -341,8 +341,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (val === undefined || val === null) return false;
     return !Array.isArray(val) && typeof val !== "object";
   }
-  public getData(): any {
-    var json = this.toJSON();
+  public getData(options?: ISaveToJSONOptions): any {
+    var json = this.toJSON(options);
     if (!!json["value"] && !!json["value"]["pos"]) {
       delete json["value"]["pos"];
     }
@@ -356,7 +356,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     return json;
   }
-  public toJSON(): any {
+  public toJSON(options?: ISaveToJSONOptions): any {
     var res = {};
     var properties = Serializer.getProperties(this.getType());
     if (!properties || properties.length == 0) {
@@ -366,7 +366,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     for (var i = 0; i < properties.length; i++) {
       const prop = properties[i];
       if (this.canAddPpropertyToJSON(prop)) {
-        jsoObj.valueToJson(this, res, prop);
+        jsoObj.valueToJson(this, res, prop, options);
       }
     }
     return res;

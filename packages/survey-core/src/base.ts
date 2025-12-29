@@ -647,7 +647,7 @@ export class Base implements IObjectValueContext {
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
     const orgObj = this.getOriginalByProperty(prop.name);
     if (prop.isLocalizable) return !orgObj.getLocalizableString(prop.name);
-    if (this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
+    if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
     return false;
   }
   public getOriginalObj(): Base {

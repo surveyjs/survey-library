@@ -419,6 +419,9 @@ export class QuestionPanelDynamicModel extends Question
   public get templateElements(): Array<IElement> {
     return this.template.elements;
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "templateElements" && super.isPropertyStoredInHash(name);
+  }
   /**
    * A template for panel titles.
    *

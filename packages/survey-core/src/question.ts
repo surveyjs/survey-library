@@ -2754,7 +2754,7 @@ export class Question extends SurveyElement<Question>
     this.setArrayPropertyValue("validators", val);
   }
   protected isPropertyStoredInHash(name: string): boolean {
-    return name === "validators" || super.isPropertyStoredInHash(name);
+    return name !== "bindings";
   }
   public getValidators(): Array<SurveyValidator> {
     return this.validators;

@@ -8922,3 +8922,13 @@ QUnit.test("Do not create validators if validators array is empty", function (as
   assert.deepEqual(q1.validators, [], "There is no validators in the validators property");
   assert.deepEqual(q1.getPropertyValue("validators"), [], "The property returns empty array");
 });
+QUnit.test("Do not create errors & renderedErrors on creating&loading", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getPropertyValue("errors"), undefined, "There is no errors array on creatong&loading");
+  assert.equal(q1.getPropertyValue("renderedErrors"), undefined, "There is no renderedErrors array on creatong&loading");
+});

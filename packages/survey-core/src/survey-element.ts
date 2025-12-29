@@ -313,8 +313,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   constructor(name: string) {
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
-    this.createNewArray("errors");
-    this.createNewArray("renderedErrors");
     this.createNewArray("titleActions");
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
@@ -777,16 +775,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see validate
    */
   public get errors(): Array<SurveyError> {
-    return this.getPropertyValue("errors");
+    return this.getArrayPropertyValue("errors");
   }
   public set errors(val: Array<SurveyError>) {
-    this.setPropertyValue("errors", val);
+    this.setArrayPropertyValue("errors", val);
   }
   public get renderedErrors(): Array<SurveyError> {
-    return this.getPropertyValue("renderedErrors");
+    return this.getArrayPropertyValue("renderedErrors");
   }
   public set renderedErrors(val: Array<SurveyError>) {
-    this.setPropertyValue("renderedErrors", val);
+    this.setArrayPropertyValue("renderedErrors", val);
   }
   public calcRenderedErrors(): Array<SurveyError> {
     const currentType = this.currentNotificationType;

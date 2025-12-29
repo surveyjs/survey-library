@@ -713,8 +713,7 @@ export class Base implements IObjectValueContext {
   protected setArrayPropertyValue(name: string, val: any): void {
     const arr = this[name];
     const arrayInfo = this.arraysInfo[name];
-    if (!arrayInfo) return;
-
+    if (!arrayInfo || this.isTwoValueEquals(arr, val)) return;
     this.setArray(name, arr, val, arrayInfo.isItemValues, arrayInfo.onPush);
   }
   public get isEditingSurveyElement(): boolean {

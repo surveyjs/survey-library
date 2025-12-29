@@ -1881,7 +1881,7 @@ export class QuestionPanelDynamicModel extends Question
     if (index < 0) return;
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
-    this.updateBindings("panelCount", this.panelCount);
+    this.setPropertyValue("panelCount", this.panelCount);
     this.singleInputOnRemoveItem(visIndex);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) {

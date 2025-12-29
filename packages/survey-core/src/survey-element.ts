@@ -313,7 +313,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   constructor(name: string) {
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
-    this.createNewArray("titleActions");
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -515,7 +514,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return actionContainer;
   }
   public get titleActions(): Array<any> {
-    return this.getPropertyValue("titleActions");
+    return this.getArrayPropertyValue("titleActions");
   }
   private isTitleActionRequested: boolean;
   public getTitleActions(): Array<any> {
@@ -533,7 +532,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!!this.survey) {
       actions = this.survey.getUpdatedElementTitleActions(this, actions);
     }
-    this.setPropertyValue("titleActions", actions);
+    this.setArrayPropertyValue("titleActions", actions);
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

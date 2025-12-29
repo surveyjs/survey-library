@@ -8932,3 +8932,12 @@ QUnit.test("Do not create errors & renderedErrors on creating&loading", function
   assert.equal(q1.getPropertyValue("errors"), undefined, "There is no errors array on creatong&loading");
   assert.equal(q1.getPropertyValue("renderedErrors"), undefined, "There is no renderedErrors array on creatong&loading");
 });
+QUnit.test("Do not create titleActions on creating&loading", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getPropertyValue("titleActions"), undefined, "There is no titleActions array on creatong&loading");
+});

@@ -3815,5 +3815,16 @@ QUnit.test("Do not create footerActions array on creating&loading", (assert) => 
     ]
   });
   const panel = survey.getPanelByName("panel1");
-  assert.equal(panel.getPropertyByName("footerActions"), undefined, "footerActions array is not created");
+  assert.equal(panel.getPropertyValue("footerActions"), undefined, "footerActions array is not created");
+});
+QUnit.test("Do not create gridLayoutColumns array on creating&loading/serializing", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1", elements: [{ type: "text", name: "q1" }] }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  assert.equal(panel.getPropertyValue("gridLayoutColumns"), undefined, "gridLayoutColumns array is not created on loading");
+  assert.equal(panel.toJSON().name, "panel1");
+  assert.equal(panel.getPropertyValue("gridLayoutColumns"), undefined, "gridLayoutColumns array is not created on serializing");
 });

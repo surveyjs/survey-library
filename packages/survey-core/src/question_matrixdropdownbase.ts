@@ -1257,6 +1257,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public get detailElements(): Array<IElement> {
     return this.detailPanel.elements;
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "detailElements" && super.isPropertyStoredInHash(name);
+  }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");
   }

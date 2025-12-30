@@ -116,21 +116,26 @@ export class ChoiceItem extends ItemValue {
     }
     return this.onExpandPanelAtDesignValue;
   }
+  public getBasePanelAnimationOptions() {
+    return {
+      getAnimatedElement: ()=> {
+        return this.getRootElement().parentElement.querySelector(`#${this.panel.id}`) as HTMLElement;
+      },
+      getEnterOptions() {
+        return { cssClass: "sd-selectbase__item-panel--enter",
+          onBeforeRunAnimation: prepareElementForVerticalAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+      },
+      getLeaveOptions() {
+        return { cssClass: "sd-selectbase__item-panel--leave",
+          onBeforeRunAnimation: prepareElementForVerticalAnimation,
+          onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+      }
+    };
+  }
   @property() _renderedIsPanelShowing: boolean;
   private panelAnimation = new AnimationBoolean({
-    getAnimatedElement: ()=> {
-      return this.getRootElement().parentElement.querySelector(`#${this.panel.id}`);
-    },
-    getEnterOptions() {
-      return { cssClass: "sd-selectbase__item-panel--enter",
-        onBeforeRunAnimation: prepareElementForVerticalAnimation,
-        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-    },
-    getLeaveOptions() {
-      return { cssClass: "sd-selectbase__item-panel--leave",
-        onBeforeRunAnimation: prepareElementForVerticalAnimation,
-        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-    },
+    ...this.getBasePanelAnimationOptions(),
     isAnimationEnabled: () => {
       return settings.animationEnabled;
     },

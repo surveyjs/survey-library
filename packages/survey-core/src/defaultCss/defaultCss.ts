@@ -949,14 +949,12 @@ export var defaultCss = {
   },
   imagemap: {
     root: "sd-imagemap",
-    background: "sd-imagemap-background",
-    map: "sd-imagemap-map",
-    canvas: {
-      preview: "sd-imagemap-canvas-preview",
-      selected: "sd-imagemap-canvas-selected",
-      hover: "sd-imagemap-canvas-hover",
-      hoverHidden: "sd-imagemap-canvas-hover--hidden"
-    }
+    bg: "sd-imagemap-bg",
+    svg: "sd-imagemap-svg",
+    svgItem: "sd-imagemap-svg-item",
+    svgItemHovered: "sd-imagemap-svg-item sd-imagemap-svg-item--hover",
+    svgItemSelected: "sd-imagemap-svg-item sd-imagemap-svg-item--selected",
+    svgItemDisabled: "sd-imagemap-svg-item sd-imagemap-svg-item--disabled",
   }
 };
 

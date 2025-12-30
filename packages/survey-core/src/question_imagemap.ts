@@ -11,50 +11,92 @@ import { settings } from "./settings";
 type DrawStyle = { strokeColor: string, fillColor: string, strokeLineWidth: number }
 
 export class QuestionImageMapModel extends Question {
+
   constructor(name: string) {
     super(name);
     this.createItemValues("areas");
   }
 
-  backgroundImage: HTMLImageElement;
+  bg: HTMLImageElement;
+  svg: SVGElement;
 
-  previewCanvas: HTMLCanvasElement;
-  selectedCanvas: HTMLCanvasElement;
-  hoverCanvas: HTMLCanvasElement;
+  @property() imageLink: string;
+  @property() areas: ImageMapArea[];
+  @property() hoveredUID: number;
+  @property() valuePropertyName: string;
+  @property({ defaultValue: true }) multiSelect: boolean;
 
-  imageMapMap: HTMLMapElement;
-  hoveredItemValue: string;
+  public get maxSelectedAreas(): number {
+    return this.getPropertyValue("maxSelectedAreas");
+  }
+  public set maxSelectedAreas(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("maxSelectedAreas", val);
+  }
+
+  public get minSelectedAreas(): number {
+    return this.getPropertyValue("minSelectedAreas");
+  }
+  public set minSelectedAreas(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("minSelectedAreas", val);
+  }
+
+  @property() shape: string;
+
+  @property() idleStrokeColor: string;
+  @property() idleStrokeWidth: number;
+  @property() idleFillColor: string;
+
+  @property() hoverStrokeColor: string;
+  @property() hoverStrokeWidth: number;
+  @property() hoverFillColor: string;
+
+  @property() selectedStrokeColor: string;
+  @property() selectedStrokeWidth: number;
+  @property() selectedFillColor: string;
 
   public getType(): string {
     return "imagemap";
   }
 
-  public supportResponsiveness(): boolean {
-    return true;
-  }
-
-  protected getObservedElementSelector(): string {
-    return "#imagemap-" + this.id + "-background";
-  }
-
-  public processResponsiveness() {
-    this.renderImageMap();
-  }
-
-  protected onValueChanged(): void {
+  protected onValueChanged() {
     super.onValueChanged();
-    this.renderSelectedCanvas();
+    this.renderSVG();
   }
 
   public localeChanged() {
     super.localeChanged();
-    this.renderImageMap();
+    this.renderSVG();
   }
 
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    if (name === "multiSelect") {
-      this.clearValue();
+
+    if (name === "multiSelect")this.clearValue();
+
+    let styleProperties = [
+      "idleStrokeColor", "idleStrokeWidth", "idleFillColor",
+      "hoverStrokeColor", "hoverStrokeWidth", "hoverFillColor",
+      "selectedStrokeColor", "selectedStrokeWidth", "selectedFillColor"
+    ];
+    if (styleProperties.indexOf(name) > -1)this.updateCSSVariables();
+
+    if (name === "areas")this.renderSVG();
+    if (name === "hoveredUID") {
+      this.updateItemsCssByUID(oldValue);
+      this.updateItemsCssByUID(newValue);
+    }
+  }
+
+  public updateItemsCssByUID(uid: number) {
+
+    if (!uid) return;
+    const item = this.areas.find(i => i.uniqueId === uid);
+    if (!item) return;
+    const items = this.areas.filter(i => i.value === item.value);
+    for (const e of items) {
+      e.updateCSSClasses();
     }
   }
 
@@ -68,14 +110,14 @@ export class QuestionImageMapModel extends Question {
 
   protected runConditionCore(properties: any): void {
     super.runConditionCore(properties);
+
+    ItemValue.runEnabledConditionsForItems(this.areas, undefined, properties);
     let isChanged = ItemValue.runConditionsForItems(this.areas, undefined, undefined, properties, true);
+
     if (isChanged) {
       const clearIf = this.getClearIfInvisible();
       if (clearIf == "onHidden" || clearIf == "onHiddenContainer") { this.clearIncorrectValues(); }
-      this.renderImageMap();
-      this.renderPreviewCanvas();
-      this.renderSelectedCanvas();
-      this.renderHoverCanvas();
+      this.renderSVG();
     }
   }
 
@@ -103,9 +145,7 @@ export class QuestionImageMapModel extends Question {
   public afterRenderQuestionElement(el: HTMLElement) {
     if (DomWindowHelper.isAvailable()) {
       if (!!el) {
-        if (!this.isDesignMode) {
-          this.initImageMap(el);
-        }
+        this.initImageMap(el);
       }
     }
     super.afterRenderQuestionElement(el);
@@ -113,221 +153,81 @@ export class QuestionImageMapModel extends Question {
 
   public beforeDestroyQuestionElement(el: HTMLElement) {
     super.beforeDestroyQuestionElement(el);
-    if (this.imageMapMap) {
-      this.imageMapMap.removeEventListener("click", this.onImageMapClickHandler);
-      this.imageMapMap.removeEventListener("mouseover", this.onImageMapHoverHandler);
-      this.imageMapMap.removeEventListener("mouseout", this.onImageMapOutHandler);
-    }
-    if (this.backgroundImage) {
-      this.backgroundImage.removeEventListener("load", this.onbackgroundImageLoadedHandler);
-    }
+    // TODO: remove event listeners
   }
 
   public initImageMap(el: HTMLElement): void {
 
     if (!el) return;
 
-    this.backgroundImage = el.querySelector(`#imagemap-${this.id}-background`) as HTMLImageElement;
-    this.previewCanvas = el.querySelector(`#imagemap-${this.id}-canvas-preview`) as HTMLCanvasElement;
-    this.selectedCanvas = el.querySelector(`#imagemap-${this.id}-canvas-selected`) as HTMLCanvasElement;
-    this.hoverCanvas = el.querySelector(`#imagemap-${this.id}-canvas-hover`) as HTMLCanvasElement;
-    this.imageMapMap = el.querySelector("map") as HTMLMapElement;
+    this.bg = el.querySelector(`#${this.id}-bg`) as HTMLImageElement;
+    this.svg = el.querySelector(`#${this.id}-svg`) as SVGElement;
 
-    // CLICK
-    if (this.onImageMapClickHandler) {
-      this.imageMapMap.removeEventListener("click", this.onImageMapClickHandler);
-    }
-    this.onImageMapClickHandler = this.onImageMapClick.bind(this);
-    this.imageMapMap.addEventListener("click", this.onImageMapClickHandler);
+    this.bg.addEventListener("load", () => {
+      this.svg.setAttribute("viewBox", `0 0 ${ this.bg.naturalWidth } ${ this.bg.naturalHeight }`);
+      this.renderSVG();
+    });
 
-    // HOVER
-    if (this.onImageMapHoverHandler) {
-      this.imageMapMap.removeEventListener("mouseover", this.onImageMapHoverHandler);
-    }
-    this.onImageMapHoverHandler = this.onImageMapHover.bind(this);
-    this.imageMapMap.addEventListener("mouseover", this.onImageMapHoverHandler);
+    el.addEventListener("click", (event) => {
 
-    // OUT
-    if (this.onImageMapOutHandler) {
-      this.imageMapMap.removeEventListener("mouseout", this.onImageMapOutHandler);
-    }
-    this.onImageMapOutHandler = this.onImageMapOut.bind(this);
-    this.imageMapMap.addEventListener("mouseout", this.onImageMapOutHandler);
+      const uid = (event.target as HTMLElement).dataset["uid"];
+      if (!uid) return;
+      const item = this.areas.find(i => i.uniqueId === Number(uid));
+      this.mapItemTooggle(item);
+    });
 
-    // LOAD
-    if (this.onbackgroundImageLoadedHandler) {
-      this.backgroundImage.removeEventListener("load", this.onbackgroundImageLoadedHandler);
-    }
-    this.onbackgroundImageLoadedHandler = this.onbackgroundImageLoaded.bind(this);
-    this.backgroundImage.addEventListener("load", this.onbackgroundImageLoadedHandler);
+    el.addEventListener("mouseover", (event: MouseEvent) => {
+      const uid = (event.target as HTMLElement).dataset["uid"];
+      if (!uid) return;
+      this.hoveredUID = Number(uid);
+    });
+
+    el.addEventListener("mouseout", (event) => {
+      this.hoveredUID = null;
+    });
+
+    this.updateCSSVariables();
   }
 
-  onbackgroundImageLoadedHandler: () => void;
-  public onbackgroundImageLoaded() {
-    this.renderImageMap();
-    this.renderPreviewCanvas();
-    this.renderSelectedCanvas();
-    this.renderHoverCanvas();
-  }
+  public updateCSSVariables(): void {
 
-  onImageMapHoverHandler: (event: MouseEvent) => void;
-  public onImageMapHover(event: MouseEvent) {
-    this.hoveredItemValue = (event.target as HTMLElement).dataset.value;
-    this.renderPreviewCanvas();
-    this.renderHoverCanvas();
-  }
+    if (!this.svg) return;
 
-  onImageMapOutHandler: () => void;
-  public onImageMapOut() {
-    this.hoveredItemValue = null;
-    this.renderPreviewCanvas();
-    this.renderHoverCanvas();
-  }
+    this.svg.style.removeProperty("--sd-imagemap-idle-fill-color");
+    if (this.idleFillColor)this.svg.style.setProperty("--sd-imagemap-idle-fill-color", this.idleFillColor);
+    this.svg.style.removeProperty("--sd-imagemap-idle-stroke-color");
+    if (this.idleStrokeColor)this.svg.style.setProperty("--sd-imagemap-idle-stroke-color", this.idleStrokeColor);
+    this.svg.style.removeProperty("--sd-imagemap-idle-stroke-width");
+    if (this.idleStrokeWidth)this.svg.style.setProperty("--sd-imagemap-idle-stroke-width", this.idleStrokeWidth.toString());
 
-  onImageMapClickHandler: (event: MouseEvent) => void;
-  public onImageMapClick(event: MouseEvent) {
-    let value = (event.target as HTMLElement).dataset.value;
-    let item = this.areas.find(i => i.value === value);
-    this.mapItemTooggle(item);
+    this.svg.style.removeProperty("--sd-imagemap-hover-fill-color");
+    if (this.hoverFillColor)this.svg.style.setProperty("--sd-imagemap-hover-fill-color", this.hoverFillColor);
+    this.svg.style.removeProperty("--sd-imagemap-hover-stroke-color");
+    if (this.hoverStrokeColor)this.svg.style.setProperty("--sd-imagemap-hover-stroke-color", this.hoverStrokeColor);
+    this.svg.style.removeProperty("--sd-imagemap-hover-stroke-width");
+    if (this.hoverStrokeWidth)this.svg.style.setProperty("--sd-imagemap-hover-stroke-width", this.hoverStrokeWidth.toString());
+
+    this.svg.style.removeProperty("--sd-imagemap-selected-fill-color");
+    if (this.selectedFillColor)this.svg.style.setProperty("--sd-imagemap-selected-fill-color", this.selectedFillColor);
+    this.svg.style.removeProperty("--sd-imagemap-selected-stroke-color");
+    if (this.selectedStrokeColor)this.svg.style.setProperty("--sd-imagemap-selected-stroke-color", this.selectedStrokeColor);
+    this.svg.style.removeProperty("--sd-imagemap-selected-stroke-width");
+    if (this.selectedStrokeWidth)this.svg.style.setProperty("--sd-imagemap-selected-stroke-width", this.selectedStrokeWidth.toString());
   }
 
   public dispose(): void {
     super.dispose();
   }
 
-  public scaleCoords(coords: number[]): number[] {
-    let scale = this.backgroundImage.width / this.backgroundImage.naturalWidth;
-    return coords.map((coord) => coord * scale);
-  }
+  public renderSVG(): void {
 
-  public drawShape(canvas: HTMLCanvasElement, shape: string, coords: number[], style: DrawStyle): void {
+    if (!this.svg) return;
+    this.svg.innerHTML = "";
 
-    let ctx = canvas.getContext("2d");
-
-    ctx.beginPath();
-
-    ctx.strokeStyle = style.strokeColor;
-    ctx.lineWidth = style.strokeLineWidth;
-
-    ctx.fillStyle = style.fillColor;
-
-    switch(shape) {
-      case "rect":
-        ctx.rect(coords[0], coords[1], coords[2] - coords[0], coords[3] - coords[1]);
-        break;
-      case "circle":
-        ctx.arc(coords[0], coords[1], coords[2], 0, 2 * Math.PI);
-        break;
-      case "poly":
-        for (let i = 0; i < coords.length; i += 2) {
-          ctx.lineTo(coords[i], coords[i + 1]);
-        }
-        ctx.closePath();
-        break;
-    }
-
-    ctx.stroke();
-    ctx.fill();
-  }
-
-  public clearCanvas(canvas: HTMLCanvasElement): void {
-    let ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }
-
-  public renderImageMap(): void {
-    if (!this.imageMapMap) return;
-    this.imageMapMap.innerHTML = "";
-    if (!this.areas) return;
-    for (let item of this.visibleAreas) {
-      let area = DomDocumentHelper.createElement("area") as HTMLAreaElement;
-      area.shape = item.shape;
-      area.coords = this.scaleCoords(item.coords.split(",").map(Number)).join(",");
-      if (item.text) {
-        area.title = item.text;
-      }
-      area.dataset["value"] = item.value;
-      this.imageMapMap.appendChild(area);
+    for (const areas of this.areas) {
+      areas.render(this.svg);
     }
   }
-
-  public get visibleAreas(): ImageMapArea[] {
-    if (!this.areas) return [];
-    return this.areas.filter(item => item.isVisible);
-  }
-
-  public renderPreviewCanvas(): void {
-    if (!this.previewCanvas) return;
-    this.clearCanvas(this.previewCanvas);
-    this.previewCanvas.width = this.backgroundImage.naturalWidth;
-    this.previewCanvas.height = this.backgroundImage.naturalHeight;
-
-    for (const item of this.visibleAreas) {
-      this.drawShape(this.previewCanvas, item.shape, item.coords.split(",").map(Number), item.getIdleStyle());
-    }
-  }
-
-  public renderSelectedCanvas(): void {
-
-    if (!this.selectedCanvas) return;
-    this.clearCanvas(this.selectedCanvas);
-    this.selectedCanvas.width = this.backgroundImage.naturalWidth;
-    this.selectedCanvas.height = this.backgroundImage.naturalHeight;
-    for (const item of this.visibleAreas) {
-      if (!this.isItemSelected(item)) continue;
-      this.drawShape(this.selectedCanvas, item.shape, item.coords.split(",").map(Number), item.getSelectedStyle());
-    }
-  }
-
-  public renderHoverCanvas(): void {
-    if (!this.hoverCanvas) return;
-    this.clearCanvas(this.hoverCanvas);
-    this.hoverCanvas.width = this.backgroundImage.naturalWidth;
-    this.hoverCanvas.height = this.backgroundImage.naturalHeight;
-
-    if (!this.hoveredItemValue) return;
-    const items = this.visibleAreas.filter(i => i.value === this.hoveredItemValue);
-    for (const item of items) {
-      this.drawShape(this.hoverCanvas, item.shape, item.coords.split(",").map(Number), item.getHoverStyle());
-    }
-
-    this.hoverCanvas.classList.add("sd-imagemap-canvas-hover--hidden");
-    this.hoverCanvas.getBoundingClientRect(); // Trigger reflow to restart the hover animation
-    this.hoverCanvas.classList.remove("sd-imagemap-canvas-hover--hidden");
-  }
-
-  @property() imageLink: string;
-  @property() areas: ImageMapArea[];
-  @property() valuePropertyName: string;
-  @property({ defaultValue: true }) multiSelect: boolean;
-
-  public get maxSelectedAreas(): number {
-    return this.getPropertyValue("maxSelectedAreas");
-  }
-  public set maxSelectedAreas(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("maxSelectedAreas", val);
-  }
-
-  public get minSelectedAreas(): number {
-    return this.getPropertyValue("minSelectedAreas");
-  }
-  public set minSelectedAreas(val: number) {
-    if (val < 0) val = 0;
-    this.setPropertyValue("minSelectedAreas", val);
-  }
-
-  @property() idleStrokeColor: string;
-  @property() idleStrokeWidth: number;
-  @property() idleFillColor: string;
-
-  @property() hoverStrokeColor: string;
-  @property() hoverStrokeWidth: number;
-  @property() hoverFillColor: string;
-
-  @property() selectedStrokeColor: string;
-  @property() selectedStrokeWidth: number;
-  @property() selectedFillColor: string;
 
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
     super.onCheckForErrors(errors, isOnValueChanged, fireCallback);
@@ -355,20 +255,6 @@ export class QuestionImageMapModel extends Question {
     return super.convertToCorrectValue(val);
   }
 
-  public mapItemTooggle(item: ImageMapArea): void {
-    if (this.readOnly) return;
-    if (!this.multiSelect) {
-      this.value = (this.value === item.value ? undefined : item.value);
-      return;
-    }
-    this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedAreas);
-  }
-
-  public isItemSelected(item: ImageMapArea): boolean {
-    if (!this.multiSelect) return this.value === item.value;
-    return new PropertyNameArray(this.value, this.valuePropertyName).contains(item.value);
-  }
-
   public getDisplayValueCore(keysAsText: boolean, value: any): any {
 
     if (!value) return value;
@@ -387,6 +273,32 @@ export class QuestionImageMapModel extends Question {
 
     return value;
   }
+
+  public mapItemTooggle(item: ImageMapArea): void {
+    if (this.readOnly || !item.enabled) return;
+    if (!this.multiSelect) {
+      this.value = (this.value === item.value ? undefined : item.value);
+      return;
+    }
+    this.value = new PropertyNameArray(this.value, this.valuePropertyName).toggle(item.value, this.maxSelectedAreas);
+  }
+
+  public isItemSelected(item: ImageMapArea): boolean {
+
+    if (this.isInDesignMode) {
+      return item.uniqueId === (this.value[0] ? this.value[0] : this.value);
+    }
+
+    if (!this.multiSelect) return this.value === item.value;
+    return new PropertyNameArray(this.value, this.valuePropertyName).contains(item.value);
+  }
+
+  public isItemHovered(item: ImageMapArea): boolean {
+    if (!this.hoveredUID) return false;
+    const hoveredItem = this.areas.find(i => i.uniqueId === this.hoveredUID);
+    if (!hoveredItem) return false;
+    return this.isInDesignMode ? item.uniqueId === this.hoveredUID : item.value === hoveredItem.value;
+  }
 }
 
 export class ImageMapArea extends ItemValue {
@@ -399,12 +311,24 @@ export class ImageMapArea extends ItemValue {
     return "imagemaparea";
   }
 
-  public get shape(): string {
-    const owner = this.locOwner as any;
-    return this.getPropertyValue("shape") || owner?.shape || "poly";
+  public svg: SVGElement;
+
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+
+    let styleProperties = [
+      "idleStrokeColor", "idleStrokeWidth", "idleFillColor",
+      "hoverStrokeColor", "hoverStrokeWidth", "hoverFillColor",
+      "selectedStrokeColor", "selectedStrokeWidth", "selectedFillColor"
+    ];
+
+    if (styleProperties.indexOf(name) > -1)this.updateCSSVariables();
   }
-  public set shape(val: string) {
-    this.setPropertyValue("shape", val);
+
+  @property() shape: string;
+  public getShape(): string {
+    const owner = this.locOwner as QuestionImageMapModel;
+    return this.shape === "inherit" ? owner?.shape : this.shape;
   }
 
   @property() coords: string;
@@ -412,45 +336,126 @@ export class ImageMapArea extends ItemValue {
   @property() idleFillColor: string;
   @property() idleStrokeColor: string;
   @property() idleStrokeWidth: number;
-  public getIdleStyle(): DrawStyle {
-    const owner = this.locOwner as any;
-    return {
-      strokeColor: this.idleStrokeColor ?? owner?.idleStrokeColor ?? "transparent",
-      fillColor: this.idleFillColor ?? owner?.idleFillColor ?? "transparent",
-      strokeLineWidth: this.idleStrokeWidth ?? owner?.idleStrokeWidth ?? 0
-    };
-  }
 
   @property() hoverFillColor: string;
   @property() hoverStrokeColor: string;
   @property() hoverStrokeWidth: number;
-  public getHoverStyle(): DrawStyle {
-    const owner = this.locOwner as any;
-    const survey = this.getSurvey() as SurveyModel;
-    return {
-      strokeColor: this.hoverStrokeColor ?? owner?.hoverStrokeColor ?? survey?.themeVariables["--sjs-secondary-backcolor"] ?? "#FF00FF",
-      fillColor: this.hoverFillColor ?? owner?.hoverFillColor ?? survey?.themeVariables["--sjs-secondary-backcolor-light"] ?? "#FF00FF",
-      strokeLineWidth: this.hoverStrokeWidth ?? owner?.hoverStrokeWidth ?? 2
-    };
-  }
 
   @property() selectedFillColor: string;
   @property() selectedStrokeColor: string;
   @property() selectedStrokeWidth: number;
-  public getSelectedStyle(): DrawStyle {
-    const owner = this.locOwner as any;
-    const survey = this.getSurvey() as SurveyModel;
-    return {
-      strokeColor: this.selectedStrokeColor ?? owner?.selectedStrokeColor ?? survey?.themeVariables["--sjs-primary-backcolor"] ?? "#FF00FF",
-      fillColor: this.selectedFillColor ?? owner?.selectedFillColor ?? survey?.themeVariables["--sjs-primary-backcolor-light"] ?? "#FF00FF",
-      strokeLineWidth: this.selectedStrokeWidth ?? owner?.selectedStrokeWidth ?? 2
+
+  public render(container: SVGElement) {
+
+    if (!container) return;
+
+    const el = this.getSVGElement();
+
+    this.updateCSSVariables();
+    this.updateCSSClasses();
+
+    container.appendChild(el);
+  }
+
+  public getSVGElement() {
+
+    if (this.svg) return this.svg;
+
+    const document = DomDocumentHelper.getDocument();
+    const shape = this.getShape();
+    const coords = this.coords;
+
+    const el = document.createElementNS("http://www.w3.org/2000/svg", shape);
+
+    el.setAttribute("title", this.text ? this.text : "");
+    el.dataset["uid"] = this.uniqueId.toString();
+
+    switch(shape) {
+      case "rect":
+        const [x, y, w, h] = coords.split(",");
+        el.setAttribute("x", x);
+        el.setAttribute("y", y);
+        el.setAttribute("width", (Number(w) - Number(x)).toString());
+        el.setAttribute("height", (Number(h) - Number(y)).toString());
+        break;
+      case "circle":
+        const [cx, cy, r] = coords.split(",");
+        el.setAttribute("cx", cx);
+        el.setAttribute("cy", cy);
+        el.setAttribute("r", r);
+        break;
+      case "polygon":
+        el.setAttribute("points", coords);
+        break;
+    }
+
+    this.svg = el;
+
+    return el;
+  }
+
+  public getCSSVariables(): string {
+
+    const variables = {
+      "--sd-imagemap-idle-fill-color": this.idleFillColor,
+      "--sd-imagemap-idle-stroke-color": this.idleStrokeColor,
+      "--sd-imagemap-idle-stroke-width": this.idleStrokeWidth,
+      "--sd-imagemap-hover-fill-color": this.hoverFillColor,
+      "--sd-imagemap-hover-stroke-color": this.hoverStrokeColor,
+      "--sd-imagemap-hover-stroke-width": this.hoverStrokeWidth,
+      "--sd-imagemap-selected-fill-color": this.selectedFillColor,
+      "--sd-imagemap-selected-stroke-color": this.selectedStrokeColor,
+      "--sd-imagemap-selected-stroke-width": this.selectedStrokeWidth,
     };
+
+    for (const key in variables) {
+      if (!variables[key]) {
+        delete variables[key];
+      }
+    }
+
+    return Object.keys(variables).map((key) => `${key}: ${variables[key]}`).join("; ");
+  }
+
+  public getCSSClasses(): string {
+
+    const owner = this.locOwner as QuestionImageMapModel;
+
+    if (!owner) return "";
+
+    const classes = owner.cssClasses;
+
+    const isSelected = owner.isItemSelected(this);
+    const isHovered = owner.isItemHovered(this);
+    const isEnabled = this.enabled;
+
+    if (!isEnabled) return classes.svgItemDisabled;
+    if (isSelected) return classes.svgItemSelected;
+    if (isHovered) return classes.svgItemHovered;
+
+    return classes.svgItem;
+  }
+
+  public updateCSSVariables(): void {
+
+    if (!this.svg) return;
+
+    this.svg.setAttribute("style", this.getCSSVariables());
+  }
+
+  public updateCSSClasses(): void {
+
+    if (!this.svg) return;
+
+    this.svg.setAttribute("class", this.getCSSClasses());
   }
 }
 
-Serializer.addClass("imagemaparea",
+Serializer.addClass(
+  "imagemaparea",
   [
-    { name: "shape", choices: ["circle", "rect", "poly"] },
+    { name: "value", isUnique: false },
+    { name: "shape", choices: ["inherit", "circle", "rect", "polygon"], default: "inherit" },
     { name: "coords:string", locationInTable: "detail" },
 
     { name: "idleFillColor:color", locationInTable: "detail" },
@@ -472,24 +477,24 @@ Serializer.addClass("imagemaparea",
 Serializer.addClass(
   "imagemap",
   [
-    { name: "imageLink:file", category: "general" },
-    { name: "areas:imagemaparea[]", category: "general" },
-    { name: "multiSelect:boolean", default: true, category: "general" },
-    { name: "valuePropertyName", category: "data" },
+    { name: "imageLink:file", },
+    { name: "areas:imagemaparea[]", },
+    { name: "multiSelect:boolean", default: true, },
+    { name: "valuePropertyName" },
 
-    { name: "shape", choices: ["circle", "rect", "poly"], default: "poly", category: "general" },
+    { name: "shape", choices: ["circle", "rect", "polygon"], default: "polygon", },
 
-    { name: "idleFillColor:color", category: "appearance" },
-    { name: "idleStrokeColor:color", category: "appearance" },
-    { name: "idleStrokeWidth:number", category: "appearance" },
+    { name: "idleFillColor:color" },
+    { name: "idleStrokeColor:color" },
+    { name: "idleStrokeWidth:number" },
 
-    { name: "hoverFillColor:color", category: "appearance" },
-    { name: "hoverStrokeColor:color", category: "appearance" },
-    { name: "hoverStrokeWidth:number", category: "appearance" },
+    { name: "hoverFillColor:color" },
+    { name: "hoverStrokeColor:color" },
+    { name: "hoverStrokeWidth:number" },
 
-    { name: "selectedFillColor:color", category: "appearance" },
-    { name: "selectedStrokeColor:color", category: "appearance" },
-    { name: "selectedStrokeWidth:number", category: "appearance" },
+    { name: "selectedFillColor:color" },
+    { name: "selectedStrokeColor:color" },
+    { name: "selectedStrokeWidth:number" },
 
     {
       name: "maxSelectedAreas:number",

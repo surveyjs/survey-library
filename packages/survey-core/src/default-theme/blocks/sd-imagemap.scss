@@ -2,43 +2,37 @@
     position: relative;
 }
 
-.sd-imagemap-background {
+.sd-imagemap-bg {
     display: block;
     width: 100%;
 }
 
-.sd-imagemap-canvas-preview {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-
-.sd-imagemap-canvas-selected {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-}
-
-.sd-imagemap-canvas-hover {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    opacity: 1;
-    transition: opacity 0.4s ease;
-}
-.sd-imagemap-canvas-hover--hidden {
-    opacity: 0;
-    transition: none;
-}
-
-.sd-imagemap-map {
+.sd-imagemap-svg {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    opacity: 0;
+    opacity: 1;
+}
+
+.sd-imagemap-svg-item {
+    fill: var(--sd-imagemap-idle-fill-color, transparent);
+    stroke: var(--sd-imagemap-idle-stroke-color, transparent);
+    stroke-width: var(--sd-imagemap-idle-stroke-width, 0);
+}
+
+.sd-imagemap-svg-item--hover {
+    fill: var(--sd-imagemap-hover-fill-color, var(--sjs-secondary-backcolor-light, #ff00ff));
+    stroke: var(--sd-imagemap-hover-stroke-color, var(--sjs-secondary-backcolor, #ff00ff));
+    stroke-width: var(--sd-imagemap-hover-stroke-width, 1);
+}
+
+.sd-imagemap-svg-item--selected {
+    fill: var(--sd-imagemap-selected-fill-color, var(--sjs-primary-backcolor-light, #ff00ff));
+    stroke: var(--sd-imagemap-selected-stroke-color, var(--sjs-primary-backcolor, #ff00ff));
+    stroke-width: var(--sd-imagemap-selected-stroke-width, 1);
+}
+.sd-imagemap-svg-item--disabled {
+    display: none;
 }

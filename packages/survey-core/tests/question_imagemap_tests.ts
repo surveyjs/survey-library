@@ -42,14 +42,16 @@ QUnit.test("Register and load from json", (assert) => {
   assert.equal(q1.areas[0].getType(), "imagemaparea", "areas[0] type is imagemaparea");
 
   assert.equal(q1.areas[0].value, "val1", "[0].value must be val1");
-  assert.equal(q1.areas[0].shape, "poly", "default shape must be poly");
+  assert.equal(q1.areas[0].shape, "inherit", "default shape must be inherit");
+  assert.equal(q1.areas[0].getShape(), "poly", "default shape must be poly");
   assert.equal(q1.areas[0].coords, "x1,y1,x2,y2,x3,y3,x4,y4", "coords must be set");
 
   assert.equal(q1.areas[1].value, "val2", "[1].value must be val2");
   assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect");
 
   q1.shape = "circle";
-  assert.equal(q1.areas[0].shape, "circle", "default shape must be circle now");
+  assert.equal(q1.areas[0].shape, "inherit", "shape must be inherit #2");
+  assert.equal(q1.areas[0].getShape(), "circle", "shape must be circle");
   assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect still");
 });
 
@@ -132,15 +134,24 @@ QUnit.test("Check toggle and multiSelect change", (assert) => {
 });
 
 QUnit.test("Check scaleCoords", (assert) => {
-
-  const model = new QuestionImageMapModel("");
-  const coords = "10,20,30,40,50,60".split(",").map(Number);
-
-  model.backgroundImage = { width: 200, naturalWidth: 100 } as HTMLImageElement;
-  assert.equal(model.scaleCoords(coords).join(","), coords.map(e => e * 2).join(","), "scale by .5 works");
-
-  model.backgroundImage = { width: 100, naturalWidth: 200 } as HTMLImageElement;
-  assert.equal(model.scaleCoords(coords).join(","), coords.map(e => e * .5).join(","), "scale by 2 works");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        areas: [
+          {
+            value: "v1",
+            coords: "10,20,30,40,50,60"
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const coords = q1.areas[0].coords.split(",").map(Number);
+  assert.deepEqual(q1.getItemCoords(q1.areas[0], 2), coords.map(e => e * 2), "scale by 2 works");
+  assert.deepEqual(q1.getItemCoords(q1.areas[0], .5), coords.map(e => e * 0.5), "scale by 0.5 works");
 });
 
 QUnit.test("Check init", (assert) => {
@@ -254,21 +265,21 @@ QUnit.test("Check map render", (assert) => {
 
     assert.equal(
       map?.innerHTML,
-      "<area shape=\"poly\" coords=\"100,200,300,400\" title=\"val1\" data-value=\"val1\"><area shape=\"rect\" coords=\"100,200,300,400\" title=\"val2\" data-value=\"val2\"><area shape=\"circle\" coords=\"150,200,100\" title=\"val3\" data-value=\"val3\">",
+      `<area shape="poly" coords="100,200,300,400" title="val1" data-value="${q1.areas[0].uniqueId}"><area shape="rect" coords="100,200,300,400" title="val2" data-value="${q1.areas[1].uniqueId}"><area shape="circle" coords="150,200,100" title="val3" data-value="${q1.areas[2].uniqueId}">`,
       "Map render correct");
 
     q1.backgroundImage.width = 200;
     q1.renderImageMap();
     assert.equal(
       map?.innerHTML,
-      "<area shape=\"poly\" coords=\"50,100,150,200\" title=\"val1\" data-value=\"val1\"><area shape=\"rect\" coords=\"50,100,150,200\" title=\"val2\" data-value=\"val2\"><area shape=\"circle\" coords=\"75,100,50\" title=\"val3\" data-value=\"val3\">",
+      `<area shape="poly" coords="50,100,150,200" title="val1" data-value="${q1.areas[0].uniqueId}"><area shape="rect" coords="50,100,150,200" title="val2" data-value="${q1.areas[1].uniqueId}"><area shape="circle" coords="75,100,50" title="val3" data-value="${q1.areas[2].uniqueId}">`,
       "Map render correct (smaller)");
 
     q1.backgroundImage.width = 800;
     q1.renderImageMap();
     assert.equal(
       map?.innerHTML,
-      "<area shape=\"poly\" coords=\"200,400,600,800\" title=\"val1\" data-value=\"val1\"><area shape=\"rect\" coords=\"200,400,600,800\" title=\"val2\" data-value=\"val2\"><area shape=\"circle\" coords=\"300,400,200\" title=\"val3\" data-value=\"val3\">",
+      `<area shape="poly" coords="200,400,600,800" title="val1" data-value="${q1.areas[0].uniqueId}"><area shape="rect" coords="200,400,600,800" title="val2" data-value="${q1.areas[1].uniqueId}"><area shape="circle" coords="300,400,200" title="val3" data-value="${q1.areas[2].uniqueId}">`,
       "Map render correct (bigger)");
 
     done();
@@ -633,7 +644,7 @@ QUnit.test("items visibleIf render", (assert) => {
     assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a", "visibleAreas #1");
     assert.equal(
       HTMLMap?.innerHTML,
-      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\">",
+      `<area shape="poly" coords="1" title="a" data-value="${q2.areas[0].uniqueId}">`,
       "HTMLMap #1"
     );
 
@@ -641,7 +652,7 @@ QUnit.test("items visibleIf render", (assert) => {
     assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a,b,e", "visibleAreas #2");
     assert.equal(
       HTMLMap?.innerHTML,
-      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\"><area shape=\"poly\" coords=\"2\" title=\"b\" data-value=\"b\"><area shape=\"poly\" coords=\"5\" title=\"e\" data-value=\"e\">",
+      `<area shape="poly" coords="1" title="a" data-value="${q2.areas[0].uniqueId}"><area shape="poly" coords="2" title="b" data-value="${q2.areas[1].uniqueId}"><area shape="poly" coords="5" title="e" data-value="${q2.areas[4].uniqueId}">`,
       "HTMLMap #2"
     );
 
@@ -649,7 +660,7 @@ QUnit.test("items visibleIf render", (assert) => {
     assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a,c,d", "visibleAreas #3");
     assert.equal(
       HTMLMap?.innerHTML,
-      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\"><area shape=\"poly\" coords=\"3\" title=\"c\" data-value=\"c\"><area shape=\"poly\" coords=\"4\" title=\"d\" data-value=\"d\">",
+      `<area shape="poly" coords="1" title="a" data-value="${q2.areas[0].uniqueId}"><area shape="poly" coords="3" title="c" data-value="${q2.areas[2].uniqueId}"><area shape="poly" coords="4" title="d" data-value="${q2.areas[3].uniqueId}">`,
       "HTMLMap #3"
     );
 
@@ -657,7 +668,7 @@ QUnit.test("items visibleIf render", (assert) => {
     assert.equal(q2.visibleAreas.map(e => e.value).join(","), "a", "visibleAreas #4");
     assert.equal(
       HTMLMap?.innerHTML,
-      "<area shape=\"poly\" coords=\"1\" title=\"a\" data-value=\"a\">",
+      `<area shape="poly" coords="1" title="a" data-value="${q2.areas[0].uniqueId}">`,
       "HTMLMap #4"
     );
 
@@ -667,8 +678,6 @@ QUnit.test("items visibleIf render", (assert) => {
 });
 
 QUnit.test("items visibleIf clear incorrect values", (assert) => {
-
-  assert.ok(true);
 
   const survey = new SurveyModel({
     elements: [
@@ -811,5 +820,71 @@ QUnit.test("Locale change test", (assert) => {
   assert.equal(q2.areas[0].text, "v1_text_de", "v1 de locale text");
   assert.equal(q2.areas[1].text, "v2_text", "v2 de locale text");
   assert.equal(calls, 1, "renderImageMap called on locale change");
+
+});
+
+QUnit.test("Uniq value", (assert) => {
+  assert.equal(true, true); // TODO implement uniq value test
+});
+
+QUnit.test("enableIf", (assert) => {
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "boolean", name: "q1" },
+      {
+        type: "imagemap",
+        name: "q2",
+        areas: [
+          { value: "a" },
+          { value: "b", enableIf: "{q1} = true" },
+        ]
+      }
+    ]
+  });
+
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionImageMapModel>survey.getQuestionByName("q2");
+
+  assert.equal(q2.areas[0].isEnabled, true, "area[0] is enabled by default");
+  assert.equal(q2.areas[1].isEnabled, false, "area[1] is disabled initially");
+  q2.mapItemTooggle(q2.areas[0]);
+  q2.mapItemTooggle(q2.areas[1]);
+  assert.deepEqual(q2.value, ["a"], "area[1] is disabled, so not added to value");
+  q1.value = true;
+  q2.mapItemTooggle(q2.areas[1]);
+  assert.equal(q2.areas[0].isEnabled, true, "area[0] is enabled still");
+  assert.equal(q2.areas[1].isEnabled, true, "area[1] is enabled now");
+  assert.deepEqual(q2.value, ["a", "b"], "area[1] is enabled, so added to value");
+});
+
+QUnit.test("isInDesignMode coords", (assert) => {
+
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        areas: [
+          { value: "a" },
+          { value: "b", shape: "rect" },
+          { value: "b", shape: "circle" },
+        ]
+      }
+    ]
+  });
+
+  const q1 = <QuestionImageMapModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.isInDesignMode, false, "question is not in design mode initially");
+  assert.deepEqual(q1.getItemCoords(q1.areas[0]), [], "not in design mode, no coords");
+  assert.deepEqual(q1.getItemCoords(q1.areas[1]), [], "not in design mode, no coords");
+  assert.deepEqual(q1.getItemCoords(q1.areas[2]), [], "not in design mode, no coords");
+
+  survey.setDesignMode(true);
+  assert.equal(q1.isInDesignMode, true, "question is in design mode");
+  assert.deepEqual(q1.getItemCoords(q1.areas[0]), [20, 20, 100, 20, 100, 100, 20, 100], "in design mode, has coords");
+  assert.deepEqual(q1.getItemCoords(q1.areas[1]), [20, 20, 100, 100], "in design mode, has coords");
+  assert.deepEqual(q1.getItemCoords(q1.areas[2]), [60, 60, 40], "in design mode, has coords");
 
 });

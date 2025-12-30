@@ -2482,6 +2482,7 @@ QUnit.test("Tagbox otherItem works correctly", assert => {
   const survey = new SurveyModel(
     { elements: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.otherItem.showCommentArea, true, "otherItem showCommentArea is true");
   assert.equal(question.otherItem.isCommentShowing, false, "#1");
   question.renderedValue = [1, "other"];
   assert.equal(question.otherItem.isCommentShowing, true, "#2");

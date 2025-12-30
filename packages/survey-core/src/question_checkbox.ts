@@ -36,13 +36,8 @@ export class CheckboxItem extends ChoiceItem {
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private selectAllItemValue: ItemValue;
-  protected selectAllItemText: LocalizableString;
   private invisibleOldValues: any = {};
   protected defaultSelectedItemValues: Array<ItemValue>;
-  constructor(name: string) {
-    super(name);
-    this.selectAllItemValue = this.createSelectAllItem();
-  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (["showSelectAllItem", "selectAllText"].indexOf(name) > -1) {
@@ -61,15 +56,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected getItemValueType() {
     return "checkboxitem";
-  }
-  protected createSelectAllItem(): ItemValue {
-    const res = this.createItemValue("");
-    res.value = "";
-    res.id = "selectall";
-    this.selectAllItemText = this.createLocalizableString("selectAllText", res, true, "selectAllItemText");
-    res.locOwner = this;
-    res.setLocText(this.selectAllItemText);
-    return res;
   }
   protected onCreating() {
     super.onCreating();
@@ -111,6 +97,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see showSelectAllItem
    */
   public get selectAllItem(): ItemValue {
+    if (!this.selectAllItemValue) {
+      this.selectAllItemValue = this.createBuiltInItem("", "selectAllText", "selectAllItemText", (item: ChoiceItem) => {
+        item.value = "";
+        item.id = "selectall";
+      });
+    }
     return this.selectAllItemValue;
   }
   /**
@@ -121,11 +113,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.getLocalizableStringText("selectAllText");
   }
   public set selectAllText(val: string) {
-    this.setLocalizableStringText("selectAllText", val);
+    this.setLocStringText(this.locSelectAllText, val);
   }
-  get locSelectAllText(): LocalizableString {
-    return this.getLocalizableString("selectAllText");
+  public get locSelectAllText(): LocalizableString {
+    return this.selectAllItem.locText;
   }
+  protected get selectAllItemText(): LocalizableString { return this.locSelectAllText; }
   /**
    * Enable this property to display a "Select All" item. When users select it, all other choice options, except [special options](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/documentation#display-special-choices), also become selected.
    * @see selectAll
@@ -292,7 +285,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private calcIsTheOnlyComment(): boolean {
     for (let i = 0; i < this.choices.length; i++) {
       const ch = this.choices[i];
-      if (ch.showCommentArea && ch.value !== this.otherItem.value) return false;
+      if (ch.showCommentArea && !this.isOtherValue(ch.value)) return false;
     }
     return true;
   }
@@ -422,7 +415,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected onAfterRunItemsEnableCondition(): void {
     this.updateSelectAllItemProps();
     const isEnabled = this.maxSelectedChoices < 1 || this.isOtherSelected || !this.shouldCheckMaxSelectedChoices();
-    this.otherItem.setIsEnabled(isEnabled);
+    if (this.showOtherItem) {
+      this.otherItem.setIsEnabled(isEnabled);
+    }
   }
   private updateSelectAllItemProps(): void {
     if (!this.showSelectAllItem) return;
@@ -740,7 +735,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !Array.isArray(val)) val = [];
     if (!this.hasActiveChoices) return val;
     for (var i = 0; i < val.length; i++) {
-      if (val[i] == this.otherItem.value) return val;
+      if (this.isOtherValue(val[i])) return val;
       if (this.hasUnknownValueItem(val[i], true, false)) {
         this.otherValue = val[i];
         var newVal = val.slice();
@@ -757,7 +752,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     for (var i = 0; i < val.length; i++) {
       let index = -1;
       let valItem = val[i];
-      if (valItem === this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
+      if (this.isOtherValue(valItem) && this.needConvertRenderedOtherToDataValue()) {
         index = this.getFirstUnknownIndex(qVal);
         valItem = this.otherValue;
         if (index > -1) {
@@ -793,7 +788,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const rendVal = this.renderedValue;
     if (Array.isArray(rendVal)) {
       for (var i = 0; i < rendVal.length; i++) {
-        if (rendVal[i] !== this.otherItem.value) {
+        if (!this.isOtherValue(rendVal[i])) {
           newVal.push(rendVal[i]);
         }
       }

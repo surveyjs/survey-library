@@ -108,9 +108,6 @@ export class ChoiceItem extends ItemValue {
       this.showCommentArea = false;
     }
     this.setPanelSurvey(this.panelValue);
-    (this.choiceOwner as QuestionSelectBase).registerFunctionOnPropertyValueChanged("value", () => {
-      this.renderedIsPanelShowing = this.isPanelShowing;
-    });
   }
   private onExpandPanelAtDesignValue: EventBase<ChoiceItem, any>;
   public get onExpandPanelAtDesign(): EventBase<ChoiceItem, any> {
@@ -147,9 +144,12 @@ export class ChoiceItem extends ItemValue {
   public set renderedIsPanelShowing(value: boolean) {
     this.panelAnimation.sync(value);
   }
+  public setIsPanelShowing(val: boolean) {
+    this.setPropertyValue("isPanelShowing", val);
+    this.renderedIsPanelShowing = val;
+  }
   public get isPanelShowing(): boolean {
-    if (!this.panelValue || !this.choiceOwner) return false;
-    return this.hasElements && this.choiceOwner.isItemSelected(this) === true;
+    return this.getPropertyValue("isPanelShowing", false);
   }
   public get hasElements(): boolean {
     const pnl = this.panelValue;
@@ -935,9 +935,17 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.onRenderedValueChagned(changeValue);
   }
   protected onRenderedValueChagned(updateComment: boolean): void {
-    this.choices.forEach(item => this.updateItemIsCommentShowing(item, updateComment));
+    this.choices.forEach(item => {
+      this.updateItemIsCommentShowing(item, updateComment);
+      this.updateItemIsPanelShowing(item);
+    });
     if (this.showOtherItem) {
       this.updateItemIsCommentShowing(this.otherItem, updateComment);
+    }
+  }
+  private updateItemIsPanelShowing(item: ChoiceItem) {
+    if (item && item.hasElements) {
+      item.setIsPanelShowing(this.isItemSelected(item));
     }
   }
   private updateItemIsCommentShowing(item: ItemValue, updateComment: boolean): void {

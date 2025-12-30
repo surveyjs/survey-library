@@ -172,27 +172,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.otherItem.isCommentRequired = true;
     this.createItemValues("choices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
-    this.setNewRestfulProperty();
     const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
     this.otherItemValue.setLocText(locOtherText);
-    this.choicesByUrl.createItemValue = (value: any): ItemValue => {
-      return this.createItemValue(value);
-    };
-    this.choicesByUrl.beforeSendRequestCallback = (): void => {
-      this.onBeforeSendRequest();
-    };
-    this.choicesByUrl.getResultCallback = (items: Array<ItemValue>): void => {
-      this.onLoadChoicesFromUrl(items);
-    };
-    this.choicesByUrl.updateResultCallback = (
-      items: Array<ItemValue>,
-      serverResult: any
-    ): Array<ItemValue> => {
-      if (this.survey) {
-        return this.survey.updateChoicesFromServer(this, items, serverResult);
-      }
-      return items;
-    };
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -812,11 +793,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected createRestful(): ChoicesRestful {
     return new ChoicesRestful();
   }
-  private setNewRestfulProperty() {
-    this.setPropertyValue("choicesByUrl", this.createRestful());
-    this.choicesByUrl.owner = this;
-    this.choicesByUrl.loadingOwner = this;
-  }
   get autoOtherMode(): boolean {
     return this.getPropertyValue("autoOtherMode");
   }
@@ -940,8 +916,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected setNewValue(newValue: any) {
     newValue = this.valueFromData(newValue);
     if (
-      (!this.choicesByUrl.isRunning &&
-        !this.choicesByUrl.isWaitingForParameters) ||
+      (!this.isRunningChoices && !this.choicesByUrlValue?.isWaitingForParameters) ||
       !this.isValueEmpty(newValue)
     ) {
       this.cachedValueForUrlRequests = newValue;
@@ -1116,12 +1091,43 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get choicesByUrl(): ChoicesRestful {
-    return this.getPropertyValue("choicesByUrl");
+    return this.getPropertyValue("choicesByUrl", undefined, () => this.createChoicesByUrl());
   }
   public set choicesByUrl(val: ChoicesRestful) {
     if (!val) return;
-    this.setNewRestfulProperty();
+    const oldVal = this.choicesByUrlValue;
+    if (!!oldVal) {
+      oldVal.dispose();
+      this.setPropertyValueDirectly("choicesByUrl", this.createChoicesByUrl());
+    }
     this.choicesByUrl.fromJSON(val.toJSON());
+  }
+  private get choicesByUrlValue(): ChoicesRestful { return this.getPropertyValueWithoutDefault("choicesByUrl"); }
+  public get isChoicesUrlEmpty(): boolean {
+    const byUlr = this.choicesByUrlValue;
+    return !byUlr || byUlr.isEmpty;
+  }
+  private createChoicesByUrl(): ChoicesRestful {
+    const res = this.createRestful();
+    res.owner = this;
+    res.loadingOwner = this;
+    res.createItemValue = (value: any): ItemValue => {
+      return this.createItemValue(value);
+    };
+    res.beforeSendRequestCallback = (): void => {
+      this.onBeforeSendRequest();
+    };
+    res.getResultCallback = (items: Array<ItemValue>): void => {
+      this.onLoadChoicesFromUrl(items);
+    };
+    res.updateResultCallback = (items: Array<ItemValue>, serverResult: any): Array<ItemValue> => {
+      if (this.survey) {
+        return this.survey.updateChoicesFromServer(this, items, serverResult);
+      }
+      return items;
+    };
+
+    return res;
   }
   /**
    * Gets or sets choice items. This property accepts an array of objects with the following structure:
@@ -1760,9 +1766,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return false;
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    this.isRunningChoices = true;
+    this.isRunningChoicesValue = true;
     super.setSurveyImpl(value, isLight);
-    this.isRunningChoices = false;
+    this.isRunningChoicesValue = false;
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -1814,12 +1820,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
-    if (
-      this.showOtherItem && this.activeChoices.length > 0 &&
-      !this.isRunningChoices &&
-      !this.choicesByUrl.isRunning &&
-      this.getStoreOthersAsComment()
-    ) {
+    if (this.showOtherItem && this.activeChoices.length > 0 &&
+      !this.isRunningChoices && this.getStoreOthersAsComment()) {
       if (this.hasUnknownValue(newValue) && !this.getHasOther(newValue)) {
         newComment = this.getCommentFromValue(newValue);
         newValue = this.setOtherValueIntoValue(newValue);
@@ -1830,7 +1832,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       }
     }
     super.updateValueFromSurvey(newValue, clearData);
-    if ((this.isRunningChoices || this.choicesByUrl.isRunning) && !this.isEmpty()) {
+    if (this.isRunningChoices && !this.isEmpty()) {
       this.cachedValueForUrlRequests = this.value;
     }
     if (!!newComment) {
@@ -1874,10 +1876,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       event.target.value = val || "";
     }
   }
-  private isRunningChoices: boolean = false;
+  private isRunningChoicesValue: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode || this.choicesLazyLoadEnabled)
+    if (!this.choicesByUrlValue || this.isLoadingFromJson || this.isRunningChoicesValue || this.isInDesignMode || this.choicesLazyLoadEnabled)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1885,9 +1887,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.updateIsReady();
-    this.isRunningChoices = true;
+    this.isRunningChoicesValue = true;
     this.choicesByUrl.run(processor);
-    this.isRunningChoices = false;
+    this.isRunningChoicesValue = false;
+  }
+  private get isRunningChoices(): boolean {
+    return this.isRunningChoicesValue || this.choicesByUrlValue?.isRunning;
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {
@@ -1902,8 +1907,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     const errors = [];
     if (!this.isReadOnly) {
-      if (this.choicesByUrl && this.choicesByUrl.error) {
-        errors.push(this.choicesByUrl.error);
+      const choicesByUrl = this.choicesByUrlValue;
+      if (choicesByUrl && choicesByUrl.error) {
+        errors.push(choicesByUrl.error);
       }
     }
     var newChoices = null;
@@ -1923,7 +1929,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.cachedValueForUrlRequests,
       checkCachedValuesOnExisting
     );
-    if (array && (array.length > 0 || this.choicesByUrl.allowEmptyResponse)) {
+    if (array && (array.length > 0 || this.choicesByUrlValue?.allowEmptyResponse)) {
       newChoices = new Array<ItemValue>();
       ItemValue.setData(newChoices, array);
     }
@@ -2024,7 +2030,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private isUpdatingChoicesDependedQuestions = false;
   protected updateChoicesDependedQuestions(): void {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
-      !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
+      !this.allowNotifyValueChanged || this.isRunningChoices) return;
     this.isUpdatingChoicesDependedQuestions = true;
     this.updateDependedQuestions();
     this.isUpdatingChoicesDependedQuestions = false;
@@ -2074,7 +2080,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   private get hasChoicesUrl(): boolean {
-    return this.choicesByUrl && !!this.choicesByUrl.url;
+    return !!this.choicesByUrlValue?.url;
   }
   public clearIncorrectValues(): void {
     if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
@@ -2585,10 +2591,11 @@ Serializer.addClass(
     {
       name: "choicesByUrl:restfull",
       className: "choicesByUrl",
-      onGetValue: function (obj: any) {
-        return obj.choicesByUrl.getData();
+      onGetValue: (obj: any) => {
+        const byUrl = obj.choicesByUrlValue;
+        return byUrl ? byUrl.toJSON() : undefined;
       },
-      onSetValue: function (obj: any, value: any) {
+      onSetValue: (obj: any, value: any) => {
         obj.choicesByUrl.setData(value);
       },
     },

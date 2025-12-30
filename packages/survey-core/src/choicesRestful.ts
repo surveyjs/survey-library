@@ -313,6 +313,13 @@ export class ChoicesRestful extends Base {
   public get isEmpty(): boolean {
     return !this.url && !this.path;
   }
+  public dispose(): void {
+    super.dispose();
+    this.getResultCallback = null;
+    this.beforeSendRequestCallback = null;
+    this.updateResultCallback = null;
+    this.getItemValueCallback = null;
+  }
   public getCustomPropertiesNames(): Array<string> {
     var properties = this.getCustomProperties();
     var res = new Array<string>();

@@ -61,11 +61,11 @@ function onUpdateSelectBaseCellQuestion(
     : false;
   if (
     (!cellQuestion.choices || cellQuestion.choices.length == 0) &&
-    cellQuestion.choicesByUrl.isEmpty
+    cellQuestion.isChoicesUrlEmpty
   ) {
     cellQuestion.choices = question.choices;
   }
-  if (!cellQuestion.choicesByUrl.isEmpty) {
+  if (!cellQuestion.isChoicesUrlEmpty) {
     cellQuestion.choicesByUrl.run(data.getTextProcessor());
   }
 }

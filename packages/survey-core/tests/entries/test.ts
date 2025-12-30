@@ -84,6 +84,7 @@ export * from "../inputPerPageTests";
 export * from "../surveyServiceRemovingTests";
 export * from "../surveyStateTests";
 export * from "../propertyNameArray_tests";
+export * from "../surveySeparateLocalesTests";
 
 // localization
 import "../../src/localization/russian";

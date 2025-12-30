@@ -21,7 +21,8 @@ import {
   ILoadFromJSONOptions,
   IDropdownMenuOptions,
   ITextProcessorProp,
-  ITextProcessorResult, ISurveyUIState
+  ITextProcessorResult, ISurveyUIState,
+  ISaveToJSONOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultCss";
@@ -176,7 +177,6 @@ export class SurveyModel extends SurveyElementCore
   public get platformName(): string {
     return SurveyModel.platform;
   }
-  public notifier: Notifier;
   public rootElement: HTMLElement;
   /**
    * A suffix added to the name of the property that stores comments.
@@ -205,8 +205,6 @@ export class SurveyModel extends SurveyElementCore
   private valuesHash: HashTable<any> = {};
   private variablesHash: HashTable<any> = {};
   private editingObjValue: Base;
-
-  private timerModelValue: SurveyTimerModel;
 
   //#region Event declarations
   public onEndLoadingFromJson: EventBase<SurveyModel, Object> = this.addEvent<SurveyModel, Object>();
@@ -1107,11 +1105,6 @@ export class SurveyModel extends SurveyElementCore
     super();
     this.onBeforeRunConstructor();
 
-    this.timerModelValue = new SurveyTimerModel(this);
-    this.timerModelValue.onTimerTick = (page: PageModel): void => {
-      this.doTimer(page);
-    };
-
     this.createNewArray(
       "pages",
       (value: PageModel) => {
@@ -1131,18 +1124,6 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     );
-    this.createNewArray("triggers", (value: any) => {
-      value.setOwner(this);
-    });
-    this.createNewArray("calculatedValues", (value: any) => {
-      value.setOwner(this);
-    });
-    this.createNewArray("completedHtmlOnCondition", (value: any) => {
-      value.locOwner = this;
-    });
-    this.createNewArray("navigateToUrlOnCondition", (value: any) => {
-      value.locOwner = this;
-    });
 
     this.onGetQuestionNumber.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1194,9 +1175,6 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
-
-    this.notifier = new Notifier(this.css.saveData);
-    this.notifier.addAction(this.createTryAgainAction(), "error");
 
     this.onPopupVisibleChanged.add((_, opt) => {
       if (opt.visible) {
@@ -1546,10 +1524,13 @@ export class SurveyModel extends SurveyElementCore
    * @see onTriggerExecuted
    */
   public get triggers(): Array<SurveyTrigger> {
-    return this.getPropertyValue("triggers");
+    return this.getArrayPropertyValue("triggers", (value: any) => {
+      value.setOwner(this);
+    });
+
   }
   public set triggers(val: Array<SurveyTrigger>) {
-    this.setPropertyValue("triggers", val);
+    this.setArrayPropertyValue("triggers", val);
   }
   /**
    * An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
@@ -1557,10 +1538,12 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/custom-variables-for-background-form-calculations/ (linkStyle))
    */
   public get calculatedValues(): Array<CalculatedValue> {
-    return this.getPropertyValue("calculatedValues");
+    return this.getArrayPropertyValue("calculatedValues", (value: any) => {
+      value.setOwner(this);
+    });
   }
   public set calculatedValues(val: Array<CalculatedValue>) {
-    this.setPropertyValue("calculatedValues", val);
+    this.setArrayPropertyValue("calculatedValues", val);
   }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
@@ -1830,10 +1813,12 @@ export class SurveyModel extends SurveyElementCore
    * @see navigateToUrl
    */
   public get navigateToUrlOnCondition(): Array<UrlConditionItem> {
-    return this.getPropertyValue("navigateToUrlOnCondition");
+    return this.getArrayPropertyValue("navigateToUrlOnCondition", (value: any) => {
+      value.locOwner = this;
+    });
   }
   public set navigateToUrlOnCondition(val: Array<UrlConditionItem>) {
-    this.setPropertyValue("navigateToUrlOnCondition", val);
+    this.setArrayPropertyValue("navigateToUrlOnCondition", val);
   }
 
   public getNavigateToUrl(): string {
@@ -2618,10 +2603,12 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
    */
   public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
-    return this.getPropertyValue("completedHtmlOnCondition");
+    return this.getArrayPropertyValue("completedHtmlOnCondition", (value: any) => {
+      value.locOwner = this;
+    });
   }
   public set completedHtmlOnCondition(val: Array<HtmlConditionItem>) {
-    this.setPropertyValue("completedHtmlOnCondition", val);
+    this.setArrayPropertyValue("completedHtmlOnCondition", val);
   }
   /**
    * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
@@ -4172,6 +4159,14 @@ export class SurveyModel extends SurveyElementCore
     if (this.state === "completed" && this.showCompletePage && !!this.completedState) {
       this.notify(this.completedStateText, this.completedState, value === "error");
     }
+  }
+  private notifierValue: Notifier;
+  public get notifier(): Notifier {
+    if (!this.notifierValue) {
+      this.notifierValue = new Notifier(this.css.saveData);
+      this.notifierValue.addAction(this.createTryAgainAction(), "error");
+    }
+    return this.notifierValue;
   }
   /**
    * Displays a toast notification with a specified message.
@@ -7019,6 +7014,33 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
+  public toJSON(options?: ISaveToJSONOptions): any {
+    const res = super.toJSON(options);
+    if (options?.storeLocaleStrings === "stringsOnly") {
+      const locales = options.locales;
+      if (Array.isArray(locales) && locales.length === 1) {
+        res["locale"] = locales[0];
+      }
+    }
+    return res;
+  }
+  /**
+   * Applies locale strings from a JSON schema to the survey model.
+   *
+   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`toJSON(options)`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   * @param json A JSON schema that contains locale strings.
+   * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
+   */
+  public mergeLocalizationJSON(json: any, locales?: Array<string>): void {
+    const survey = new SurveyModel(json);
+    if (!!survey.locale) {
+      locales = [survey.locale];
+    }
+    this.mergeLocalizationObj(survey, locales);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return true;
+  }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
     if (json && json.locale) {
@@ -8115,7 +8137,16 @@ export class SurveyModel extends SurveyElementCore
     if (res) res += " ";
     return res + sec + " " + this.getLocalizationString("timerSec");
   }
-  public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
+  private timerModelValue: SurveyTimerModel;
+  public get timerModel(): SurveyTimerModel {
+    if (!this.timerModelValue) {
+      this.timerModelValue = new SurveyTimerModel(this);
+      this.timerModelValue.onTimerTick = (page: PageModel): void => {
+        this.doTimer(page);
+      };
+    }
+    return this.timerModelValue;
+  }
   /**
    * Starts a timer that calculates how many seconds a respondent has spent on the survey. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see stopTimer
@@ -8414,7 +8445,7 @@ export class SurveyModel extends SurveyElementCore
       id: "timerpanel",
       template: "survey-timerpanel",
       component: "sv-timerpanel",
-      data: this.timerModel
+      getData: () => this.timerModel
     });
     res.push({
       id: "progress-buttons",

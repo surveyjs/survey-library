@@ -419,6 +419,9 @@ export class QuestionPanelDynamicModel extends Question
   public get templateElements(): Array<IElement> {
     return this.template.elements;
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "templateElements" && super.isPropertyStoredInHash(name);
+  }
   /**
    * A template for panel titles.
    *
@@ -442,6 +445,10 @@ export class QuestionPanelDynamicModel extends Question
   }
   get locTemplateTitle(): LocalizableString {
     return this.template.locTitle;
+  }
+  public getLocalizableString(name: string): LocalizableString {
+    if (name === "templateTitle") return this.template.locTitle;
+    return super.getLocalizableString(name);
   }
   /**
    * A template for tab titles. Applies when [`displayMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#displayMode) is `"tab"`.
@@ -1881,7 +1888,7 @@ export class QuestionPanelDynamicModel extends Question
     if (index < 0) return;
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panelsCore.splice(index, 1);
-    this.updateBindings("panelCount", this.panelCount);
+    this.setPropertyValue("panelCount", this.panelCount);
     this.singleInputOnRemoveItem(visIndex);
     var value = this.value;
     if (!value || !Array.isArray(value) || index >= value.length) {

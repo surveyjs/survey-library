@@ -473,7 +473,9 @@ export interface ISaveToJSONOptions {
    * - `false`\
    * Export the JSON schema without any textual content.
    * - `"stringsOnly"`\
-   * Export a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements. Use the [`locales`](#locales) array to restrict the output to specific locales. To apply a locale-strings-only schema to a survey model, call the [`addLocaleStrings(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addLocaleStrings) method.
+   * Export a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements. Use the [`locales`](#locales) array to restrict the output to specific locales. To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
+   *
+   * > As an alternative to calling `toJSON()` with `"stringsOnly"`, you can call the [`getLocalizationJSON(locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getLocalizationJSON) method, which is syntactic sugar.
    */
   storeLocaleStrings?: boolean | "stringsOnly";
   /**

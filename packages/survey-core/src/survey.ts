@@ -7025,9 +7025,9 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Applies locale strings from a JSON schema to the survey model.
+   * Applies a locale-strings-only JSON schema to the survey model.
    *
-   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`toJSON(options)`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`getLocalizationJSON(locales)`](#getLocalizationJSON) method.
    * @param json A JSON schema that contains locale strings.
    * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
    */

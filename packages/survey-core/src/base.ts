@@ -498,6 +498,15 @@ export class Base implements IObjectValueContext {
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
   }
+  /**
+   * Returns a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements.
+   *
+   * This method is syntactic sugar for calling the [`toJSON()`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   *
+   * To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
+   * @param locales *(Optional)* An array of locale identifiers to include in the JSON schema.
+   * @returns A locale-strings-only JSON schema.
+   */
   public getLocalizationJSON(locales?: Array<string>): any {
     return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }

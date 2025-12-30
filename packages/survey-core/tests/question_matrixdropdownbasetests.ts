@@ -2536,3 +2536,19 @@ QUnit.test("Clear value on hidden questions in cell, Bug#10603", function (asser
   rows[0].cells[0].question.value = 2;
   assert.deepEqual(matrix.value, { row1: { col1: 2 } }, "matrix.value #2");
 });
+QUnit.test("Detail elements serialization", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.deepEqual(matrix.toJSON().detailElements, [{ type: "text", name: "q1" }], "detailElements serialization");
+});

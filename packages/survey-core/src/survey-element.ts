@@ -313,9 +313,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   constructor(name: string) {
     super();
     this.setPropertyValueDirectly("name", this.getValidName(name));
-    this.createNewArray("errors");
-    this.createNewArray("renderedErrors");
-    this.createNewArray("titleActions");
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -340,6 +337,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (name === "effectiveColSpan") {
       this.colSpan = newValue;
     }
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "bindings";
   }
   protected getSkeletonComponentNameCore(): string {
     if (this.survey) {
@@ -517,7 +517,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return actionContainer;
   }
   public get titleActions(): Array<any> {
-    return this.getPropertyValue("titleActions");
+    return this.getArrayPropertyValue("titleActions");
   }
   private isTitleActionRequested: boolean;
   public getTitleActions(): Array<any> {
@@ -535,7 +535,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!!this.survey) {
       actions = this.survey.getUpdatedElementTitleActions(this, actions);
     }
-    this.setPropertyValue("titleActions", actions);
+    this.setArrayPropertyValue("titleActions", actions);
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
@@ -777,16 +777,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see validate
    */
   public get errors(): Array<SurveyError> {
-    return this.getPropertyValue("errors");
+    return this.getArrayPropertyValue("errors");
   }
   public set errors(val: Array<SurveyError>) {
-    this.setPropertyValue("errors", val);
+    this.setArrayPropertyValue("errors", val);
   }
   public get renderedErrors(): Array<SurveyError> {
-    return this.getPropertyValue("renderedErrors");
+    return this.getArrayPropertyValue("renderedErrors");
   }
   public set renderedErrors(val: Array<SurveyError>) {
-    this.setPropertyValue("renderedErrors", val);
+    this.setArrayPropertyValue("renderedErrors", val);
   }
   public calcRenderedErrors(): Array<SurveyError> {
     const currentType = this.currentNotificationType;

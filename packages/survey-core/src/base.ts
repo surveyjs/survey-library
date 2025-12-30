@@ -447,16 +447,68 @@ export class Base implements IObjectValueContext {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
-
+  protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
+    this.mergeLocalizationInObjectCore(obj, locales);
+    this.mergeLocalizationInArrays(obj, locales);
+  }
+  private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
+    if (!this.canMergeObj(obj)) return;
+    const locStrs = obj.localizableStrings;
+    if (!locStrs) return;
+    for (const key in locStrs) {
+      const prop = this.getPropertyByName(key);
+      if (!!prop) {
+        const name = prop.serializationProperty || prop.name;
+        const locStr: LocalizableString = this[name];
+        if (!!locStr) {
+          locStr.mergeWith(locStrs[key], locales);
+        }
+      }
+    }
+  }
+  private canMergeObj(obj: Base): boolean {
+    if (!obj || typeof obj.mergeLocalizationObj !== "function") return false;
+    const self: any = this;
+    if (obj["name"] && self.name !== obj["name"]) return false;
+    if (obj["value"] && self.value !== obj["value"]) return false;
+    return true;
+  }
+  private mergeLocalizationInArrays(obj: Base, locales?: Array<string>): void {
+    const arraysInfo = obj.arraysInfo;
+    if (!arraysInfo) return;
+    for (const key in arraysInfo) {
+      const prop = this.getPropertyByName(key);
+      if (!!prop && prop.isArray) {
+        const src = obj[key];
+        const dest = this[key];
+        if (Array.isArray(src) && Array.isArray(dest)) {
+          for (let i = 0; i < Math.min(src.length, dest.length); i++) {
+            dest[i].mergeLocalizationObj(src[i], locales);
+          }
+        }
+      }
+    }
+  }
   /**
    * Returns a JSON schema that corresponds to the current survey element.
-   * @param options An object with configuration options.
-   * @param {boolean} options.storeDefaults Pass `true` if the JSON schema should include properties with default values.
+   * @param options An [`ISaveToJSONOptions`](https://surveyjs.io/form-library/documentation/api-reference/isavetojsonoptions) object with configuration options.
    * @returns A JSON schema of the survey element.
    * @see fromJSON
    */
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
+  }
+  /**
+   * Returns a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements.
+   *
+   * This method is syntactic sugar for calling the [`toJSON()`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   *
+   * To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
+   * @param locales *(Optional)* An array of locale identifiers to include in the JSON schema.
+   * @returns A locale-strings-only JSON schema.
+   */
+  public getLocalizationJSON(locales?: Array<string>): any {
+    return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }
   /**
    * Assigns a new JSON schema to the current survey element.
@@ -595,6 +647,26 @@ export class Base implements IObjectValueContext {
       this.setPropertyValue(name, undefined);
     }
   }
+  private doNotSerializeEmptyProperty(prop: JsonObjectProperty): boolean {
+    return this.isPropertyStoredInHash(prop.name);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return false;
+  }
+  public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
+    const orgObj = this.getOriginalByProperty(prop.name);
+    if (prop.isLocalizable) return !orgObj.getLocalizableString(prop.name);
+    if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
+    return false;
+  }
+  public getOriginalObj(): Base {
+    return this;
+  }
+  public getOriginalByProperty(propName: string): Base {
+    const obj = this.getOriginalObj();
+    if (obj === this) return this;
+    return !!obj.getPropertyByName(propName) ? obj : this;
+  }
   protected getPropertyValueWithoutDefault(name: string): any {
     return this.getPropertyValueCore(this.propertyHash, name);
   }
@@ -630,6 +702,28 @@ export class Base implements IObjectValueContext {
     if (reportError) {
       ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
     }
+  }
+  protected getItemValuesPropertyValue(name: string): Array<ItemValue> {
+    let res = this.getPropertyValue(name);
+    if (!Array.isArray(res)) {
+      res = this.createItemValues(name);
+      this.setPropertyValueDirectly(name, res);
+    }
+    return res;
+  }
+  protected getArrayPropertyValue(name: string, onPush?: (item: any) => void, onRemove?: (item: any) => void): Array<any> {
+    let res = this.getPropertyValue(name);
+    if (!Array.isArray(res)) {
+      res = this.createNewArray(name, onPush, onRemove);
+      this.setPropertyValueDirectly(name, res);
+    }
+    return res;
+  }
+  protected setArrayPropertyValue(name: string, val: any): void {
+    const arr = this[name];
+    const arrayInfo = this.arraysInfo[name];
+    if (!arrayInfo || this.isTwoValueEquals(arr, val)) return;
+    this.setArray(name, arr, val, arrayInfo.isItemValues, arrayInfo.onPush);
   }
   public get isEditingSurveyElement(): boolean {
     var survey = this.getSurvey();

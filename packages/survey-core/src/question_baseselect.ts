@@ -30,7 +30,6 @@ export interface IChoiceOwner extends ILocalizableOwner {
 }
 
 export class ChoiceItem extends ItemValue {
-  private locCommentPlaceholderValue: LocalizableString;
   private panelValue: PanelModel;
   protected getBaseType(): string { return "choiceitem"; }
   public get choiceOwner(): IChoiceOwner { return this.locOwner as IChoiceOwner; }
@@ -54,21 +53,13 @@ export class ChoiceItem extends ItemValue {
     return this.getPropertyValue("isCommentShowing", false);
   }
   public get locCommentPlaceholder(): LocalizableString {
-    if (!this.locCommentPlaceholderValue) {
-      this.createCommentPlaceholder();
-    }
-    return this.locCommentPlaceholderValue;
-  }
-  private createCommentPlaceholder(): void {
-    const str = new LocalizableString(this, true, "commentPlaceholder");
-    str.onChanged = () => { this.setPropertyValue("commentPlaceholder", this.locCommentPlaceholderValue.text); };
-    this.locCommentPlaceholderValue = str;
+    return this.getOrCreateLocStr("commentPlaceholder");
   }
   public get commentPlaceholder(): string {
-    return this.locCommentPlaceholder.text;
+    return this.getLocStringText(this.locCommentPlaceholder);
   }
   public set commentPlaceholder(val: string) {
-    this.locCommentPlaceholder.text = val;
+    this.setLocStringText(this.locCommentPlaceholder, val);
   }
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
@@ -79,7 +70,7 @@ export class ChoiceItem extends ItemValue {
     return owner.supportMultipleComment(this);
   }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
-    if (prop.name === "commentPlaceholder") return !!this.locCommentPlaceholderValue;
+    if (prop.name === "commentPlaceholder") return !!this.getLocalizableString("commentPlaceholder");
     return super.canAddPpropertyToJSON(prop);
   }
   protected onLocOwnerChanged() : void {
@@ -183,7 +174,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
     this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
-    this.createItemValues("customChoices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
     const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
@@ -1107,10 +1097,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @hidefor QuestionImagePickerModel, QuestionRadiogroupModel, QuestionRankingModel, QuestionCheckboxModel
    */
   public get customChoices(): Array<any> {
-    return this.getPropertyValue("customChoices");
+    return this.getItemValuesPropertyValue("customChoices");
   }
   public set customChoices(val: Array<any>) {
-    this.setPropertyValue("customChoices", val);
+    this.setArrayPropertyValue("customChoices", val);
   }
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.

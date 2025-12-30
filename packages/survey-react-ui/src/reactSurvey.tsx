@@ -311,22 +311,13 @@ ReactElementFactory.Instance.registerElement("survey", (props) => {
 });
 
 export function attachKey2click(element: React.JSX.Element, viewModel?: any, options: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false }): React.JSX.Element {
+  let props = {};
   if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
-    return React.cloneElement(element, { tabIndex: -1 });
-  }
-  options = { ...options };
-  return React.cloneElement(
-    element,
-    {
+    props = { tabIndex: -1 };
+  } else {
+    options = { ...options };
+    props = {
       tabIndex: 0,
-      onPointerUp: (evt: PointerEvent) => {
-        if (evt.pointerType === "pen") {
-          evt.preventDefault();
-          evt.stopPropagation();
-          const element: any = evt.target;
-          if (element?.click) element.click();
-        }
-      },
       onKeyUp: (evt: KeyboardEvent) => {
         evt.preventDefault();
         evt.stopPropagation();
@@ -334,6 +325,15 @@ export function attachKey2click(element: React.JSX.Element, viewModel?: any, opt
       },
       onKeyDown: (evt: any) => doKey2ClickDown(evt, options),
       onBlur: (evt: any) => doKey2ClickBlur(evt),
+    };
+  }
+  props["onPointerUp"] = (evt: PointerEvent) => {
+    if (evt.pointerType === "pen") {
+      evt.preventDefault();
+      evt.stopPropagation();
+      const element: any = evt.target;
+      if (element?.click) element.click();
     }
-  );
+  };
+  return React.cloneElement(element, props);
 }

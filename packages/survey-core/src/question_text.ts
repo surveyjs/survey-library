@@ -24,7 +24,6 @@ import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
  * [Color Input Demo](https://surveyjs.io/form-library/examples/color-input-question/ (linkStyle))
  */
 export class QuestionTextModel extends QuestionTextBase {
-  private locDataListValue: LocalizableStrings;
   private maskInputAdapter: InputElementAdapter;
 
   private createMaskAdapter() {
@@ -130,10 +129,6 @@ export class QuestionTextModel extends QuestionTextBase {
   constructor(name: string) {
     super(name);
     this.setNewMaskSettingsProperty();
-    this.locDataListValue = new LocalizableStrings(this);
-    this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
-      this.propertyValueChanged("dataList", oldValue, newValue);
-    };
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -620,11 +615,22 @@ export class QuestionTextModel extends QuestionTextBase {
   public set dataList(val: Array<string>) {
     this.locDataList.value = val;
   }
+  private locDataListValue: LocalizableStrings;
   get locDataList(): LocalizableStrings {
+    if (!this.locDataListValue) {
+      this.locDataListValue = new LocalizableStrings(this);
+      this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
+        this.propertyValueChanged("dataList", oldValue, newValue);
+      };
+    }
     return this.locDataListValue;
   }
   public get dataListId(): string {
-    return this.locDataList.hasValue() ? this.id + "_datalist" : undefined;
+    return this.locDataListValue?.hasValue() ? this.id + "_datalist" : undefined;
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    if (name === "dataList" && !this.locDataListValue) return true;
+    return super.isPropertyStoredInHash(name);
   }
   protected setNewValue(newValue: any): void {
     newValue = this.correctValueType(newValue);

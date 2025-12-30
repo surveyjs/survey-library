@@ -15,11 +15,6 @@ export const key2ClickDirective: ObjectDirective<any, IAttachKey2clickOptions> =
         },
         { ...binding.value }
       );
-      if (options.disableTabStop) {
-        el.tabIndex = -1;
-        return;
-      }
-      if (!options.disableTabStop) el.tabIndex = 0;
       el.addEventListener("pointerup", (evt: any) => {
         if (evt.pointerType === "pen") {
           evt.preventDefault();
@@ -28,6 +23,11 @@ export const key2ClickDirective: ObjectDirective<any, IAttachKey2clickOptions> =
           if (element?.click) element.click();
         }
       });
+      if (options.disableTabStop) {
+        el.tabIndex = -1;
+        return;
+      }
+      if (!options.disableTabStop) el.tabIndex = 0;
       el.addEventListener("keyup", (evt: any) => {
         evt.preventDefault();
         evt.stopPropagation();

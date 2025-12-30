@@ -8909,3 +8909,35 @@ QUnit.test("Access question properties in expression - update on property change
   assert.equal(q2.isVisible, false, "q2 is not visible #2");
   assert.equal(q3.isVisible, false, "q3 is not visible #2");
 });
+QUnit.test("Do not create validators if validators array is empty", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getPropertyValue("validators"), undefined, "There is no validators array on creatong&loading");
+  assert.deepEqual(q1.toJSON(), { name: "q1" }, "toJSON works correctly");
+  assert.equal(q1.getPropertyValue("validators"), undefined, "There is no validators array on serializing");
+  assert.deepEqual(q1.validators, [], "There is no validators in the validators property");
+  assert.deepEqual(q1.getPropertyValue("validators"), [], "The property returns empty array");
+});
+QUnit.test("Do not create errors & renderedErrors on creating&loading", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getPropertyValue("errors"), undefined, "There is no errors array on creatong&loading");
+  assert.equal(q1.getPropertyValue("renderedErrors"), undefined, "There is no renderedErrors array on creatong&loading");
+});
+QUnit.test("Do not create titleActions on creating&loading", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getPropertyValue("titleActions"), undefined, "There is no titleActions array on creatong&loading");
+});

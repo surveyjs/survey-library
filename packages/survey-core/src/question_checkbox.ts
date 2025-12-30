@@ -593,7 +593,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     super.addNonChoicesItems(dict, isAddAll);
     if (this.supportSelectAll()) {
-      this.addNonChoiceItem(dict, this.selectAllItem, isAddAll, this.showSelectAllItem, settings.specialChoicesOrder.selectAllItem);
+      this.addNonChoiceItem(dict, () => this.selectAllItem, isAddAll, this.showSelectAllItem, settings.specialChoicesOrder.selectAllItem);
     }
   }
   public isBuiltInChoice(item: ItemValue): boolean {

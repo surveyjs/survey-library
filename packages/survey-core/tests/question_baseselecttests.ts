@@ -4267,3 +4267,54 @@ QUnit.test("Checkbox question, defaultValue, skip trigger, Bug#10728", (assert) 
   survey.tryComplete();
   assert.deepEqual(survey.data, { q1: 1, q2: ["item1"] }, "the data is correct");
 });
+QUnit.test("Create noneItem, refuseItem & dontKnowItem on demand", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const obj = q1 as any;
+  assert.equal(obj.refuseItemValue, undefined, "refuseItem is undefined by default");
+  assert.equal(obj.dontKnowItemValue, undefined, "dontKnowItem is undefined by default");
+  assert.equal(obj.noneItemValue, undefined, "noneItem is undefined by default");
+  assert.equal(q1.visibleChoices.length, 3, "There are three choices initially");
+  assert.equal(obj.refuseItemValue, undefined, "refuseItem is undefined on calculating visibleChoices");
+  assert.equal(obj.dontKnowItemValue, undefined, "dontKnowItem is undefined on calculating visibleChoices");
+  assert.equal(obj.noneItemValue, undefined, "noneItem is undefined on calculating visibleChoices");
+  q1.toJSON();
+  assert.equal(obj.refuseItemValue, undefined, "refuseItem is undefined on serialization");
+  assert.equal(obj.dontKnowItemValue, undefined, "dontKnowItem is undefined on serialization");
+  assert.equal(obj.noneItemValue, undefined, "noneItem is undefined on serialization");
+});
+QUnit.test("Create showNoneItem & noneText", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+        showNoneItem: true, noneText: "Not Available",
+        showRefuseItem: true, refuseText: "No Answer!",
+        showDontKnowItem: true, dontKnowText: "Don't Know!"
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices.length, 6, "There are six choices initially");
+  const noneItem = q1.visibleChoices[3];
+  assert.equal(noneItem.value, "none", "noneItem value is correct");
+  assert.equal(noneItem.locText.textOrHtml, "Not Available", "noneItem text is correct");
+  const refuseItem = q1.visibleChoices[4];
+  assert.equal(refuseItem.value, "refused", "refuseItem value is correct");
+  assert.equal(refuseItem.locText.textOrHtml, "No Answer!", "refuseItem text is correct");
+  const dontKnowItem = q1.visibleChoices[5];
+  assert.equal(dontKnowItem.value, "dontknow", "dontKnowItem value is correct");
+  assert.equal(dontKnowItem.locText.textOrHtml, "Don't Know!", "dontKnowItem text is correct");
+  q1.noneText = "N/A";
+  assert.equal(noneItem.locText.textOrHtml, "N/A", "noneItem text is changed correctly");
+});

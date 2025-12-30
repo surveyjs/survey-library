@@ -170,9 +170,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.otherItemValue = this.createItemValue("other");
     this.otherItem.showCommentArea = true;
     this.otherItem.isCommentRequired = true;
-    this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
-    this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
-    this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
     this.setNewRestfulProperty();
@@ -526,6 +523,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showNoneItem
    */
   public get noneItem(): ItemValue {
+    if (!this.noneItemValue) {
+      this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
+    }
     return this.noneItemValue;
   }
   /**
@@ -539,7 +539,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setLocalizableStringText("noneText", val);
   }
   get locNoneText(): LocalizableString {
-    return this.getLocalizableString("noneText");
+    return this.noneItem.locText;
   }
   /**
    * Specifies whether to display the "Refuse to answer" choice item.
@@ -561,6 +561,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showRefuseItem
    */
   public get refuseItem(): ItemValue {
+    if (!this.refuseItemValue) {
+      this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
+    }
     return this.refuseItemValue;
   }
   /**
@@ -574,7 +577,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setLocalizableStringText("refuseText", val);
   }
   get locRefuseText(): LocalizableString {
-    return this.getLocalizableString("refuseText");
+    return this.refuseItem.locText;
   }
   /**
    * Specifies whether to display the "Don't know" choice item.
@@ -596,6 +599,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showDontKnowItem
    */
   public get dontKnowItem(): ItemValue {
+    if (!this.dontKnowItemValue) {
+      this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
+    }
     return this.dontKnowItemValue;
   }
   /**
@@ -609,7 +615,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setLocalizableStringText("dontKnowText", val);
   }
   get locDontKnowText(): LocalizableString {
-    return this.getLocalizableString("dontKnowText");
+    return this.dontKnowItem.locText;
   }
   private createNoneItem(defaultValue: any, name: string, locName: string): ItemValue {
     const item = this.createItemValue(defaultValue);
@@ -1417,43 +1423,47 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       });
     }
     if (this.newItemValue.isVisible && !this.isUsingCarryForward
-      && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      && this.canShowOptionItem(() => this.newItemValue, isAddAll, false)) {
       this.footItemsCount = 1;
       items.push(this.newItemValue);
     }
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     if (this.supportNone()) {
-      this.addNonChoiceItem(dict, this.noneItem, isAddAll, this.showNoneItem, settings.specialChoicesOrder.noneItem);
+      this.addNonChoiceItem(dict, () => this.noneItem, isAddAll, this.showNoneItem, settings.specialChoicesOrder.noneItem);
     }
     if (this.supportRefuse()) {
-      this.addNonChoiceItem(dict, this.refuseItem, isAddAll, this.showRefuseItem, settings.specialChoicesOrder.refuseItem);
+      this.addNonChoiceItem(dict, () => this.refuseItem, isAddAll, this.showRefuseItem, settings.specialChoicesOrder.refuseItem);
     }
     if (this.supportDontKnow()) {
-      this.addNonChoiceItem(dict, this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
+      this.addNonChoiceItem(dict, () => this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
     }
     if (this.supportOther()) {
-      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.showOtherItem, settings.specialChoicesOrder.otherItem);
+      this.addNonChoiceItem(dict, () => this.otherItem, isAddAll, this.showOtherItem, settings.specialChoicesOrder.otherItem);
     }
   }
-  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
-    if (this.canShowOptionItem(item, isAddAll, showItem)) {
+  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, getItem: () => ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
+    const item = this.canShowOptionItem(getItem, isAddAll, showItem);
+    if (item) {
       order.forEach(val => dict.push({ index: val, item: item }));
     }
   }
-  protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
-    let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;
-    if (this.canSurveyChangeItemVisibility()) {
+  private canShowOptionItem(getItem: () => ItemValue, isAddAll: boolean, hasItem: boolean): ItemValue {
+    const changeItemVisibility = this.canSurveyChangeItemVisibility();
+    if (!isAddAll && !hasItem && !changeItemVisibility) return null;
+    const item = getItem();
+    let visible: boolean = hasItem || isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true);
+    if (changeItemVisibility) {
       const calc = this.changeItemVisibility();
-      return calc(item, res);
+      visible = calc(item, visible);
     }
-    return res;
+    return visible ? item : null;
   }
   public isItemInList(item: ItemValue): boolean {
-    if (item === this.otherItem) return this.showOtherItem;
-    if (item === this.noneItem) return this.showNoneItem;
-    if (item === this.refuseItem) return this.showRefuseItem;
-    if (item === this.dontKnowItem) return this.showDontKnowItem;
+    if (item === this.otherItemValue) return this.showOtherItem;
+    if (item === this.noneItemValue) return this.showNoneItem;
+    if (item === this.refuseItemValue) return this.showRefuseItem;
+    if (item === this.dontKnowItemValue) return this.showDontKnowItem;
     if (item === this.newItemValue) return false;
     return true;
   }
@@ -1677,7 +1687,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return false;
   }
   public isBuiltInChoice(item: ItemValue): boolean {
-    return [this.otherItem, this.noneItem, this.refuseItem, this.dontKnowItem, this.newItemValue].indexOf(item) > -1;
+    return !!item && [this.otherItemValue, this.noneItemValue, this.refuseItemValue, this.dontKnowItemValue, this.newItemValue].indexOf(item) > -1;
   }
   public isNoneItem(item: ItemValue): boolean {
     return item.isExclusive === true;
@@ -2176,7 +2186,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     const isDisabled = readOnlyStyles[1];
     const isChecked = this.isItemSelected(item);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
-    const isNone = item === this.noneItem;
+    const isNone = item === this.noneItemValue;
     options.isDisabled = isDisabled || isReadOnly;
     options.isChecked = isChecked;
     options.isNone = isNone;

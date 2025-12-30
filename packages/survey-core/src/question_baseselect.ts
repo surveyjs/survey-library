@@ -24,6 +24,7 @@ import { EventBase } from "./base";
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
   getSurvey(): ISurvey;
+  getWrapperElement(): HTMLElement;
   isItemSelected(item: ItemValue): boolean;
   isDesignMode: boolean;
   parent: IPanel;
@@ -65,7 +66,7 @@ export class ChoiceItem extends ItemValue {
   private commentAnimation = new AnimationBoolean({
     getAnimatedElement: ()=> {
       const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
-      return this.getRootElement().parentElement.querySelector(`#${id}`);
+      return this.choiceOwner.getWrapperElement()?.querySelector(`#${id}`) as HTMLElement;
     },
     getEnterOptions() {
       return { cssClass: "sd-selectbase__item-comment--enter",
@@ -119,7 +120,7 @@ export class ChoiceItem extends ItemValue {
   public getBasePanelAnimationOptions() {
     return {
       getAnimatedElement: ()=> {
-        return this.getRootElement().parentElement.querySelector(`#${this.panel.id}`) as HTMLElement;
+        return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
       },
       getEnterOptions() {
         return { cssClass: "sd-selectbase__item-panel--enter",

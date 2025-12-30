@@ -61,7 +61,7 @@ export class ChoiceItem extends ItemValue {
   public set commentPlaceholder(val: string) {
     this.setLocStringText(this.locCommentPlaceholder, val);
   }
-  @property() _renderedIsCommentShowing: boolean;
+  @property() private renderedIsCommentShowingValue: boolean;
   private commentAnimation = new AnimationBoolean({
     getAnimatedElement: ()=> {
       const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
@@ -83,9 +83,9 @@ export class ChoiceItem extends ItemValue {
     getRerenderEvent: ()=> {
       return this.onElementRerendered;
     },
-  }, (val) => this._renderedIsCommentShowing = val, () => this._renderedIsCommentShowing);
+  }, (val) => this.renderedIsCommentShowingValue = val, () => this.renderedIsCommentShowingValue);
   public get renderedIsCommentShowing() {
-    return this._renderedIsCommentShowing;
+    return this.renderedIsCommentShowingValue;
   }
   public set renderedIsCommentShowing(val: boolean) {
     this.commentAnimation.sync(val);
@@ -133,7 +133,7 @@ export class ChoiceItem extends ItemValue {
       }
     };
   }
-  @property() _renderedIsPanelShowing: boolean;
+  @property() private renderedIsPanelShowingValue: boolean;
   private panelAnimation = new AnimationBoolean({
     ...this.getBasePanelAnimationOptions(),
     isAnimationEnabled: () => {
@@ -142,11 +142,13 @@ export class ChoiceItem extends ItemValue {
     getRerenderEvent: ()=> {
       return this.onElementRerendered;
     },
-  }, (val) => this._renderedIsPanelShowing = val, () => this._renderedIsPanelShowing);
+  }, (val) => this.renderedIsPanelShowingValue = val, () => this.renderedIsPanelShowingValue);
   public get renderedIsPanelShowing() {
-    return this._renderedIsPanelShowing;
+    return this.renderedIsPanelShowingValue;
   }
   public set renderedIsPanelShowing(value: boolean) {
+    const panel = this.panel;
+    panel.forceRenderRows(panel.visibleRows);
     this.panelAnimation.sync(value);
   }
   public setIsPanelShowing(val: boolean) {

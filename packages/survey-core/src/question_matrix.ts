@@ -694,6 +694,9 @@ export class QuestionMatrixModel
   public set cells(value: MatrixCells) {
     this.cells.setJson(value && value.getJson ? value.getJson() : null);
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "cells" && super.isPropertyStoredInHash(name);
+  }
   public get hasCellText(): boolean {
     return this.getPropertyValue("hasCellText", false);
   }

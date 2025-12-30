@@ -1545,10 +1545,6 @@ export class SurveyModel extends SurveyElementCore
   public set calculatedValues(val: Array<CalculatedValue>) {
     this.setArrayPropertyValue("calculatedValues", val);
   }
-  protected isPropertyStoredInHash(name: string): boolean {
-    const names = ["triggers", "calculatedValues", "completedHtmlOnCondition", "navigateToUrlOnCondition"];
-    return names.indexOf(name) > -1 || super.isPropertyStoredInHash(name);
-  }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
    */
@@ -7041,6 +7037,9 @@ export class SurveyModel extends SurveyElementCore
       locales = [survey.locale];
     }
     this.mergeLocalizationObj(survey, locales);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return true;
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);

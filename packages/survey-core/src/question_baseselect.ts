@@ -61,8 +61,38 @@ export class ChoiceItem extends ItemValue {
   public set commentPlaceholder(val: string) {
     this.setLocStringText(this.locCommentPlaceholder, val);
   }
+  @property() _renderedIsCommentShowing: boolean;
+  private commentAnimation = new AnimationBoolean({
+    getAnimatedElement: ()=> {
+      const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
+      return this.getRootElement().parentElement.querySelector(`#${id}`);
+    },
+    getEnterOptions() {
+      return { cssClass: "sd-selectbase__item-comment--enter",
+        onBeforeRunAnimation: prepareElementForVerticalAnimation,
+        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+    },
+    getLeaveOptions() {
+      return { cssClass: "sd-selectbase__item-comment--leave",
+        onBeforeRunAnimation: prepareElementForVerticalAnimation,
+        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+    },
+    isAnimationEnabled: () => {
+      return settings.animationEnabled;
+    },
+    getRerenderEvent: ()=> {
+      return this.onElementRerendered;
+    },
+  }, (val) => this._renderedIsCommentShowing = val, () => this._renderedIsCommentShowing);
+  public get renderedIsCommentShowing() {
+    return this._renderedIsCommentShowing;
+  }
+  public set renderedIsCommentShowing(val: boolean) {
+    this.commentAnimation.sync(val);
+  }
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
+    this.renderedIsCommentShowing = val;
   }
   public get supportComment(): boolean {
     const owner: any = this.locOwner;
@@ -95,12 +125,12 @@ export class ChoiceItem extends ItemValue {
       return this.getRootElement().parentElement.querySelector(`#${this.panel.id}`);
     },
     getEnterOptions() {
-      return { cssClass: "sd-panel--enter",
+      return { cssClass: "sd-selectbase__item-panel--enter",
         onBeforeRunAnimation: prepareElementForVerticalAnimation,
         onAfterRunAnimation: cleanHtmlElementAfterAnimation };
     },
     getLeaveOptions() {
-      return { cssClass: "sd-panel--leave",
+      return { cssClass: "sd-selectbase__item-panel--leave",
         onBeforeRunAnimation: prepareElementForVerticalAnimation,
         onAfterRunAnimation: cleanHtmlElementAfterAnimation };
     },

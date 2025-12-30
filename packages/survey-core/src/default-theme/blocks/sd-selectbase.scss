@@ -102,24 +102,58 @@ div[class*="sv-q-column-"] {
 .sd-selectbase__other:not(:last-of-type) {
   margin-bottom: calcSize(2);
 }
-
-.sd-panel--enter {
-  animation-fill-mode: forwards;
+.sd-selectbase__item-panel--leave,
+.sd-selectbase__item-panel--enter {
   animation-name: fadeIn, moveInWithOverflow;
+  animation-fill-mode: forwards;
+  animation-timing-function: $ease-out;
+  animation-direction: var(--animation-direction);
+  animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+  animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
   min-height: 0 !important;
+}
+.sd-selectbase__item-panel--enter {
   opacity: 0;
   height: 0;
-  animation-timing-function: $ease-out;
-  animation-delay: $row-fade-in-delay, 0s, 0s;
-  animation-duration: $row-fade-in-duration, $row-move-in-duration, $row-move-in-duration;
+  --animation-direction: normal;
+  --move-animation-duration: #{$item-panel-move-in-duration};
+  --move-animation-delay: 0s;
+  --fade-animation-duration: #{$item-panel-fade-in-duration};
+  --fade-animation-delay: #{$item-panel-fade-in-delay};
 }
 
-.sd-panel--leave {
+.sd-selectbase__item-panel--leave {
+  --animation-direction: reverse;
+  --move-animation-duration: #{$item-panel-move-out-duration};
+  --move-animation-delay: #{$item-panel-move-out-delay};
+  --fade-animation-duration: #{$item-panel-fade-out-duration};
+  --fade-animation-delay: 0s;
+}
+
+.sd-selectbase__item-comment--leave,
+.sd-selectbase__item-comment--enter {
   animation-name: fadeIn, moveInWithOverflow;
-  animation-timing-function: $reverse-ease-out;
   animation-fill-mode: forwards;
-  animation-direction: reverse;
+  animation-timing-function: $ease-out;
+  animation-direction: var(--animation-direction);
+  animation-duration: var(--fade-animation-duration), var(--move-animation-duration);
+  animation-delay: var(--fade-animation-delay), var(--move-animation-delay);
   min-height: 0 !important;
-  animation-delay: 0s, $row-move-out-delay, $row-move-out-delay;
-  animation-duration: $row-fade-out-duration, $row-move-out-duration, $row-move-out-duration;
+}
+.sd-selectbase__item-comment--enter {
+  opacity: 0;
+  height: 0;
+  --animation-direction: normal;
+  --move-animation-duration: #{$item-comment-move-in-duration};
+  --move-animation-delay: 0s;
+  --fade-animation-duration: #{$item-comment-fade-in-duration};
+  --fade-animation-delay: #{$item-comment-fade-in-delay};
+}
+
+.sd-selectbase__item-comment--leave {
+  --animation-direction: reverse;
+  --move-animation-duration: #{$item-comment-move-out-duration};
+  --move-animation-delay: #{$item-comment-move-out-delay};
+  --fade-animation-duration: #{$item-comment-fade-out-duration};
+  --fade-animation-delay: 0s;
 }

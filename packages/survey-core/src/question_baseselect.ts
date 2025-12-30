@@ -24,6 +24,7 @@ import { EventBase } from "./base";
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
   getSurvey(): ISurvey;
+  getCssClassesForCommentPanelAnimation(type: "comment" | "panel"): { onLeave: string, onEnter: string };
   getWrapperElement(): HTMLElement;
   isItemSelected(item: ItemValue): boolean;
   isDesignMode: boolean;
@@ -63,28 +64,35 @@ export class ChoiceItem extends ItemValue {
     this.setLocStringText(this.locCommentPlaceholder, val);
   }
   @property() private renderedIsCommentShowingValue: boolean;
-  private commentAnimation = new AnimationBoolean({
-    getAnimatedElement: ()=> {
-      const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
-      return this.choiceOwner.getWrapperElement()?.querySelector(`#${id}`) as HTMLElement;
-    },
-    getEnterOptions() {
-      return { cssClass: "sd-selectbase__item-comment--enter",
-        onBeforeRunAnimation: prepareElementForVerticalAnimation,
-        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-    },
-    getLeaveOptions() {
-      return { cssClass: "sd-selectbase__item-comment--leave",
-        onBeforeRunAnimation: prepareElementForVerticalAnimation,
-        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-    },
-    isAnimationEnabled: () => {
-      return settings.animationEnabled;
-    },
-    getRerenderEvent: ()=> {
-      return this.onElementRerendered;
-    },
-  }, (val) => this.renderedIsCommentShowingValue = val, () => this.renderedIsCommentShowingValue);
+  private commentAnimaionValue: AnimationBoolean;
+  private get commentAnimation(): AnimationBoolean {
+    if (!this.commentAnimaionValue) {
+      const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("comment");
+      this.commentAnimaionValue = new AnimationBoolean({
+        getAnimatedElement: ()=> {
+          const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
+          return this.choiceOwner.getWrapperElement()?.querySelector(`#${id}`) as HTMLElement;
+        },
+        getEnterOptions() {
+          return { cssClass: cssClasses.onEnter,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        getLeaveOptions() {
+          return { cssClass: cssClasses.onLeave,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        isAnimationEnabled: () => {
+          return settings.animationEnabled;
+        },
+        getRerenderEvent: ()=> {
+          return this.onElementRerendered;
+        },
+      }, (val) => this.renderedIsCommentShowingValue = val, () => this.renderedIsCommentShowingValue);
+    }
+    return this.commentAnimaionValue;
+  }
   public get renderedIsCommentShowing() {
     return this.renderedIsCommentShowingValue;
   }
@@ -118,27 +126,34 @@ export class ChoiceItem extends ItemValue {
     return this.onExpandPanelAtDesignValue;
   }
   @property() private renderedIsPanelShowingValue: boolean;
-  private panelAnimation = new AnimationBoolean({
-    getAnimatedElement: ()=> {
-      return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
-    },
-    getEnterOptions() {
-      return { cssClass: "sd-selectbase__item-panel--enter",
-        onBeforeRunAnimation: prepareElementForVerticalAnimation,
-        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-    },
-    getLeaveOptions() {
-      return { cssClass: "sd-selectbase__item-panel--leave",
-        onBeforeRunAnimation: prepareElementForVerticalAnimation,
-        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-    },
-    isAnimationEnabled: () => {
-      return settings.animationEnabled;
-    },
-    getRerenderEvent: ()=> {
-      return this.onElementRerendered;
-    },
-  }, (val) => this.renderedIsPanelShowingValue = val, () => this.renderedIsPanelShowingValue);
+  private panelAnimationValue: AnimationBoolean;
+  private get panelAnimation() {
+    if (!this.panelAnimationValue) {
+      const cssClasses = this.choiceOwner.getCssClassesForCommentPanelAnimation("panel");
+      this.panelAnimationValue = new AnimationBoolean({
+        getAnimatedElement: ()=> {
+          return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+        },
+        getEnterOptions() {
+          return { cssClass: cssClasses.onEnter,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        getLeaveOptions() {
+          return { cssClass: cssClasses.onLeave,
+            onBeforeRunAnimation: prepareElementForVerticalAnimation,
+            onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+        },
+        isAnimationEnabled: () => {
+          return settings.animationEnabled;
+        },
+        getRerenderEvent: ()=> {
+          return this.onElementRerendered;
+        },
+      }, (val) => this.renderedIsPanelShowingValue = val, () => this.renderedIsPanelShowingValue);
+    }
+    return this.panelAnimationValue;
+  }
   public get renderedIsPanelShowing() {
     return this.renderedIsPanelShowingValue;
   }
@@ -2538,6 +2553,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public set itemComponent(value: string) {
     this.setPropertyValue("itemComponent", value);
+  }
+  public getCssClassesForCommentPanelAnimation(type: "comment" | "panel"): { onLeave: string, onEnter: string } {
+    const correctedType = type.charAt(0).toUpperCase() + type.slice(1);
+    return { onEnter: this.cssClasses[`item${correctedType}Enter`], onLeave: this.cssClasses[`item${correctedType}Leave`] };
   }
 }
 /**

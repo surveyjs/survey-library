@@ -949,8 +949,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
   }
   private updateItemIsPanelShowing(item: ChoiceItem) {
-    if (item && item.hasElements) {
-      item.setIsPanelShowing(this.isItemSelected(item));
+    if (item && this.supportElementsInChoice()) {
+      item.setIsPanelShowing(item.hasElements && this.isItemSelected(item));
     }
   }
   private updateItemIsCommentShowing(item: ItemValue, updateComment: boolean): void {

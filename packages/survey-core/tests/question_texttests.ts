@@ -829,3 +829,14 @@ QUnit.test("inputType='datetime-local' &currentDate() function, #10610", (assert
   assert.equal(exp1.value, true, "exp1 is true");
   assert.equal(exp2.value, true, "exp2 is true");
 });
+QUnit.test("Create dataList strings on demand", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }]
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionTextModel;
+  const obj = q1 as any;
+  assert.equal(obj.locDataListValue, undefined, "dataList is not created initially");
+  q1.toJSON();
+  assert.equal(obj.locDataListValue, undefined, "dataList is not created on toJSON");
+});

@@ -1982,7 +1982,18 @@ QUnit.test("Don't request options via choicesByUrl if onChoicesLazyLoad is enabl
   question.onSurveyLoad();
   assert.equal(question.visibleChoices.length, 0, "Choices has not loaded");
 });
-
+QUnit.test("Create choicesByUrl on demand only", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: [1, 2, 3] }]
+  });
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(question.getPropertyValue("choicesByUrl"), undefined, "choicesByUrl is not created by default");
+  survey.toJSON();
+  assert.equal(question.getPropertyValue("choicesByUrl"), undefined, "choicesByUrl is not created by toJSON");
+  question.choicesByUrl.url = "allcountries";
+  assert.notEqual(question.getPropertyValue("choicesByUrl"), undefined, "choicesByUrl is created on demand");
+});
 function getCACities() {
   return ["Los Angeles", "San Francisco"];
 }

@@ -632,9 +632,6 @@ export class QuestionTextModel extends QuestionTextBase {
     if (name === "dataList" && !this.locDataListValue) return true;
     return super.isPropertyStoredInHash(name);
   }
-  protected isPropertyStoredInHash(name: string): boolean {
-    return name !== "dataList" && super.isPropertyStoredInHash(name);
-  }
   protected setNewValue(newValue: any): void {
     newValue = this.correctValueType(newValue);
     if (!!newValue) {

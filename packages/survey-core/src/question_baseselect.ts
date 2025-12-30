@@ -117,26 +117,21 @@ export class ChoiceItem extends ItemValue {
     }
     return this.onExpandPanelAtDesignValue;
   }
-  public getBasePanelAnimationOptions() {
-    return {
-      getAnimatedElement: ()=> {
-        return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
-      },
-      getEnterOptions() {
-        return { cssClass: "sd-selectbase__item-panel--enter",
-          onBeforeRunAnimation: prepareElementForVerticalAnimation,
-          onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-      },
-      getLeaveOptions() {
-        return { cssClass: "sd-selectbase__item-panel--leave",
-          onBeforeRunAnimation: prepareElementForVerticalAnimation,
-          onAfterRunAnimation: cleanHtmlElementAfterAnimation };
-      }
-    };
-  }
   @property() private renderedIsPanelShowingValue: boolean;
   private panelAnimation = new AnimationBoolean({
-    ...this.getBasePanelAnimationOptions(),
+    getAnimatedElement: ()=> {
+      return this.choiceOwner.getWrapperElement()?.querySelector(`#${this.panel.id}`) as HTMLElement;
+    },
+    getEnterOptions() {
+      return { cssClass: "sd-selectbase__item-panel--enter",
+        onBeforeRunAnimation: prepareElementForVerticalAnimation,
+        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+    },
+    getLeaveOptions() {
+      return { cssClass: "sd-selectbase__item-panel--leave",
+        onBeforeRunAnimation: prepareElementForVerticalAnimation,
+        onAfterRunAnimation: cleanHtmlElementAfterAnimation };
+    },
     isAnimationEnabled: () => {
       return settings.animationEnabled;
     },

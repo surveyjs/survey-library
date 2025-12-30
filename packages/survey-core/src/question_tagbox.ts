@@ -19,13 +19,8 @@ import { Helpers } from "./helpers";
 export class QuestionTagboxModel extends QuestionCheckboxModel {
   private dropdownListModelValue: DropdownMultiSelectListModel;
   private itemDisplayNameMap: { [key: string]: string} = {};
-  private deselectAllItemText: LocalizableString;
   private isChoicesLoading: boolean;
 
-  constructor(name: string) {
-    super(name);
-    this.deselectAllItemText = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
-  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     const resetReadOnlyTextProps = ["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"];
@@ -321,7 +316,14 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   public updateSelectAllItemText(isAllSelected: boolean): void {
-    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllItemText : this.selectAllItemText);
+    this.selectAllItem.setLocText(isAllSelected ? this.locDeselectAllText() : this.locSelectAllText);
+  }
+  private locDeselectAllTextValue: LocalizableString;
+  private locDeselectAllText(): LocalizableString {
+    if (!this.locDeselectAllTextValue) {
+      this.locDeselectAllTextValue = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
+    }
+    return this.locDeselectAllTextValue;
   }
 
   public dispose(): void {

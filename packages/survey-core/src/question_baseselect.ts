@@ -1092,12 +1092,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     const oldVal = this.choicesByUrlValue;
     if (!!oldVal) {
       oldVal.dispose();
+      this.setPropertyValueDirectly("choicesByUrl", this.createChoicesByUrl());
     }
     this.choicesByUrl.fromJSON(val.toJSON());
   }
   private get choicesByUrlValue(): ChoicesRestful { return this.getPropertyValueWithoutDefault("choicesByUrl"); }
   public get isChoicesUrlEmpty(): boolean {
-    return this.choicesByUrlValue?.isEmpty;
+    const byUlr = this.choicesByUrlValue;
+    return !byUlr || byUlr.isEmpty;
   }
   private createChoicesByUrl(): ChoicesRestful {
     const res = this.createRestful();
@@ -2580,8 +2582,8 @@ Serializer.addClass(
       name: "choicesByUrl:restfull",
       className: "choicesByUrl",
       onGetValue: (obj: any) => {
-        if (obj.isChoicesUrlEmpty) return undefined;
-        return obj.choicesByUrl.getData();
+        const byUrl = obj.choicesByUrlValue;
+        return byUrl ? byUrl.toJSON() : undefined;
       },
       onSetValue: (obj: any, value: any) => {
         obj.choicesByUrl.setData(value);

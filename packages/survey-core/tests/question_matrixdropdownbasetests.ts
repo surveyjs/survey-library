@@ -2552,3 +2552,42 @@ QUnit.test("Detail elements serialization", function (assert) {
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   assert.deepEqual(matrix.toJSON().detailElements, [{ type: "text", name: "q1" }], "detailElements serialization");
 });
+QUnit.test("Create detailPanel on demand", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const obj = matrix as any;
+  assert.equal(obj.detailPanelValue, undefined, "detail panel is not created");
+  matrix.toJSON();
+  assert.equal(obj.detailPanelValue, undefined, "detail panel is not created after toJSON");
+  matrix.validate();
+  assert.equal(obj.detailPanelValue, undefined, "detail panel is not created after validation");
+  assert.equal(matrix.detailPanel.elements.length, 0, "detail panel elements length is 0");
+  assert.notEqual(obj.detailPanelValue, undefined, "detail panel is not created after toJSON");
+});
+QUnit.test("Create root choices on demand", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.getPropertyValue("choices"), undefined, "choices are empty initially");
+  matrix.toJSON();
+  assert.equal(matrix.getPropertyValue("choices"), undefined, "choices are empty after toJSON");
+  matrix.choices = [1, 2, 3];
+  assert.notEqual(matrix.getPropertyValue("choices"), undefined, "choices are set");
+});

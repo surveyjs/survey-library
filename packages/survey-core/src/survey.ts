@@ -1175,16 +1175,6 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
-
-    this.onPopupVisibleChanged.add((_, opt) => {
-      if (opt.visible) {
-        this.onScrollCallback = () => {
-          opt.popup.hide();
-        };
-      } else {
-        this.onScrollCallback = undefined;
-      }
-    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -8638,7 +8628,15 @@ export class SurveyModel extends SurveyElementCore
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
-    this.onPopupVisibleChanged.fire(this, { question, popup, visible });
+    if (visible) {
+      this.onScrollCallback = () => {
+        popup.hide();
+      };
+    } else {
+      this.onScrollCallback = undefined;
+    }
+
+    this.onPopupVisibleChanged.fire(this, { question: question, popup: popup, visible: visible });
   }
   public processOpenDropdownMenu(question: Question, options: IDropdownMenuOptions): void {
     const newOptions = Object.assign({ question }, options);

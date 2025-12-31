@@ -1103,7 +1103,6 @@ export class SurveyModel extends SurveyElementCore
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
-    this.onBeforeRunConstructor();
 
     this.createNewArray(
       "pages",
@@ -1156,7 +1155,6 @@ export class SurveyModel extends SurveyElementCore
       this.rebuildQuestionChoices();
     };
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
-    this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -1169,7 +1167,6 @@ export class SurveyModel extends SurveyElementCore
         this.loadSurveyFromService(this.surveyId, this.clientId);
       }
     }
-    this.onCreating();
     if (!!renderedElement) {
       this.render(renderedElement);
     }
@@ -7069,10 +7066,6 @@ export class SurveyModel extends SurveyElementCore
     this.setCalculatedWidthModeUpdater();
     this.onEndLoadingFromJson.fire(this, {});
   }
-
-  protected onBeforeRunConstructor() {}
-  protected onBeforeCreating() { }
-  protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessDynamicText.isEmpty) {

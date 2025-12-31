@@ -22,7 +22,6 @@ export class SurveyTimerModel extends Base {
   constructor(survey: ISurvey) {
     super();
     this.surveyValue = survey;
-    this.onCreating();
   }
   @property() text: string;
   @property() progress: number;
@@ -30,7 +29,6 @@ export class SurveyTimerModel extends Base {
   @property() clockMinorText: string;
   @property({ defaultValue: 0 }) spent: number;
   public get survey(): ISurveyTimerText { return <any>this.surveyValue; }
-  public onCreating(): void { }
   private timerFunc: any = null;
   public start(): void {
     if (!this.survey) return;

@@ -73,7 +73,6 @@ export class LocalizableString implements ILocalizableString {
   constructor(public owner: ILocalizableOwner, public useMarkdown: boolean = false,
     public name?: string, locName?: string) {
     this._localizationName = locName;
-    this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }
   public getStringViewerClassName(textClass?: string): string {
@@ -408,7 +407,6 @@ export class LocalizableString implements ILocalizableString {
   }
   public onChanged(): void { }
   public onStringChanged: EventBase<LocalizableString> = new EventBase<LocalizableString>();
-  protected onCreating(): void { }
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
     let loc = this.locale;

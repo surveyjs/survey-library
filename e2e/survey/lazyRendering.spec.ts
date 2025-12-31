@@ -10,6 +10,7 @@ frameworks.forEach((framework) => {
 
       // Enable lazy rendering
       await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const container = document.getElementById("surveyElement") as HTMLDivElement;
         container.style.height = "500px";
         container.style.overflow = "auto";
@@ -39,7 +40,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sv-skeleton-element")).toHaveCount(47);
       await expect(page.locator(".sv-skeleton-element").nth(46)).toHaveAttribute("id", "my_id_50");
       await page.evaluate(() => {
-        const container = document.querySelector(".sv-scroll__scroller") as HTMLDivElement;
+        const container = (window as any).survey.rootElement.getRootNode().querySelector(".sv-scroll__scroller") as HTMLDivElement;
         container.scrollTop = 1000;
       });
       await page.waitForTimeout(1000);

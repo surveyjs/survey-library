@@ -76,7 +76,7 @@ frameworks.forEach((framework) => {
       const getTitle4 = page.locator(".sd-element__title").filter({ hasText: "question4" });
 
       const getPanelsCountByMargin = await page.evaluate(
-        () => document.querySelectorAll('div[style*="padding-left: 20px"]').length
+        () => (window as any).survey.rootElement.getRootNode().querySelectorAll('div[style*="padding-left: 20px"]').length
       );
 
       await expect(getTitle1).toBeVisible({ timeout: 1000 });

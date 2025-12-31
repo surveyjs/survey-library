@@ -808,6 +808,14 @@ export class Base implements IObjectValueContext {
       propertyName: item.ownerPropertyName,
     });
   }
+  private isFuncExecuting: boolean;
+  protected executeOnSyncPropertiesChanged(func: () => void): void {
+    if (!this.isFuncExecuting) {
+      this.isFuncExecuting = true;
+      func();
+      this.isFuncExecuting = false;
+    }
+  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
     if (this.isLoadingFromJson) return;

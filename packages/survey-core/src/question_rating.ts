@@ -105,14 +105,24 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     super(name);
 
     this.createItemValues("rateValues");
-    this.registerSychProperties(["rateValues"],
-      () => {
+  }
+  private resetItemsVisuals() {
+    const items = this.getPropertyValue("visibleChoices");
+    if (Array.isArray(items)) {
+      items.forEach(item => item.resetVisuals());
+    }
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "rateValues") {
+      this.executeOnSyncPropertiesChanged(() => {
         this.autoGenerate = this.rateValues.length == 0;
         this.setIconsToRateValues();
         this.resetRenderedItems();
       });
-    this.registerSychProperties(["autoGenerate"],
-      () => {
+    }
+    if (name === "autoGenerate") {
+      this.executeOnSyncPropertiesChanged(() => {
         if (!this.autoGenerate && this.rateValues.length === 0) {
           this.setArray("rateValues", this.rateValues, this.visibleRateValues, false, false);
         }
@@ -122,19 +132,27 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
         }
         this.resetRenderedItems();
       });
-
-    this.initPropertyDependencies();
-  }
-
-  private resetItemsVisuals() {
-    const items = this.getPropertyValue("visibleChoices");
-    if (Array.isArray(items)) {
-      items.forEach(item => item.resetVisuals());
     }
-  }
-
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
-    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "rateCount") {
+      this.executeOnSyncPropertiesChanged(() => {
+        if (!this.useRateValues()) {
+          this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+        } else {
+          if (this.rateCount < this.rateValues.length) {
+            if (this.rateCount >= 10 && this.rateType == "smileys") return;
+            this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
+          } else {
+            for (let i = this.rateValues.length; i < this.rateCount; i++) {
+              this.rateValues.push(new RatingItem(getLocaleString("choices_Item") + (i + 1)));
+            }
+          }
+        }
+      });
+    }
+    const updateRateCountProps = ["rateMin", "rateMax", "rateStep", "rateValues"];
+    if (updateRateCountProps.indexOf(name) > -1) {
+      this.executeOnSyncPropertiesChanged(() => this.updateRateCount());
+    }
     const resetItemsVisualProps = ["cssClassesValue", "isReadOnly", "isVisible", "errors", "value"];
     if (resetItemsVisualProps.indexOf(name) > -1) {
       this.resetItemsVisuals();
@@ -206,27 +224,6 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
     }
     this.rateCount = newCount;
     if (this.rateValues.length > newCount)this.rateValues.splice(newCount, this.rateValues.length - newCount);
-  }
-  initPropertyDependencies() {
-    this.registerSychProperties(["rateCount"],
-      () => {
-        if (!this.useRateValues()) {
-          this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
-        } else {
-          if (this.rateCount < this.rateValues.length) {
-            if (this.rateCount >= 10 && this.rateType == "smileys") return;
-            this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
-          } else {
-            for (let i = this.rateValues.length; i < this.rateCount; i++) {
-              this.rateValues.push(new RatingItem(getLocaleString("choices_Item") + (i + 1)));
-            }
-          }
-        }
-      });
-    this.registerSychProperties(["rateMin", "rateMax", "rateStep", "rateValues"],
-      () => {
-        this.updateRateCount();
-      });
   }
 
   @property({ defaultValue: false }) inputHasValue: boolean;

@@ -316,14 +316,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
 
   public updateSelectAllItemText(isAllSelected: boolean): void {
-    this.selectAllItem.setLocText(isAllSelected ? this.locDeselectAllText() : this.locSelectAllText);
+    this.selectAllTextValue = this.selectAllTextValue || this.locSelectAllText;
+    this.selectAllItem.setLocText(isAllSelected ? this.deselectAllText() : this.selectAllTextValue);
   }
-  private locDeselectAllTextValue: LocalizableString;
-  private locDeselectAllText(): LocalizableString {
-    if (!this.locDeselectAllTextValue) {
-      this.locDeselectAllTextValue = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
+  private selectAllTextValue: LocalizableString;
+  private deselectAllTextValue: LocalizableString;
+  private deselectAllText(): LocalizableString {
+    if (!this.deselectAllTextValue) {
+      this.deselectAllTextValue = this.createLocalizableString("deselectAllText", this.selectAllItem, true, "deselectAllItemText");
     }
-    return this.locDeselectAllTextValue;
+    return this.deselectAllTextValue;
   }
 
   public dispose(): void {

@@ -1,221 +1,164 @@
-// import { QuestionImageMapModel } from "../src/question_imagemap";
-// import { SurveyModel } from "../src/survey";
+import { QuestionImageMapModel } from "../src/question_imagemap";
+import { SurveyModel } from "../src/survey";
 
-// export default QUnit.module("imagemap");
+export default QUnit.module("imagemap");
 
-// QUnit.test("Register and load from json", (assert) => {
+QUnit.test("Register and load from json", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         imageLink: "imageLink_url",
-//         areas: [
-//           {
-//             value: "val1",
-//             text: "val1_text",
-//             coords: "x1,y1,x2,y2,x3,y3,x4,y4"
-//           },
-//           {
-//             value: "val2",
-//             text: "val2_text",
-//             shape: "rect",
-//             coords: "x1,y1,x2,y2",
-//           },
-//           {
-//             value: "val2",
-//             text: "val2_text",
-//             shape: "circle",
-//             coords: "x1,y1,r1"
-//           },
-//         ]
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        areas: [
+          {
+            value: "val1",
+            text: "val1_text",
+            coords: "x1,y1,x2,y2,x3,y3,x4,y4"
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+            shape: "rect",
+            coords: "x1,y1,x2,y2",
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+            shape: "circle",
+            coords: "x1,y1,r1"
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   assert.equal(q1.getType(), "imagemap", "type is imagemap");
-//   assert.equal(q1.imageLink, "imageLink_url", "imageLink is imageLink_url");
-//   assert.equal(q1.areas.length, 3, "imageMap.length is 2");
+  assert.equal(q1.getType(), "imagemap", "type is imagemap");
+  assert.equal(q1.imageLink, "imageLink_url", "imageLink is imageLink_url");
+  assert.equal(q1.areas.length, 3, "imageMap.length is 2");
 
-//   assert.equal(q1.areas[0].getType(), "imagemaparea", "areas[0] type is imagemaparea");
+  assert.equal(q1.areas[0].getType(), "imagemaparea", "areas[0] type is imagemaparea");
 
-//   assert.equal(q1.areas[0].value, "val1", "[0].value must be val1");
-//   assert.equal(q1.areas[0].shape, "inherit", "default shape must be inherit");
-//   assert.equal(q1.areas[0].getShape(), "poly", "default shape must be poly");
-//   assert.equal(q1.areas[0].coords, "x1,y1,x2,y2,x3,y3,x4,y4", "coords must be set");
+  assert.equal(q1.areas[0].value, "val1", "[0].value must be val1");
+  assert.equal(q1.areas[0].shape, "inherit", "default shape must be inherit");
+  assert.equal(q1.areas[0].getShape(), "polygon", "default shape must be polygon");
+  assert.equal(q1.areas[0].coords, "x1,y1,x2,y2,x3,y3,x4,y4", "coords must be set");
 
-//   assert.equal(q1.areas[1].value, "val2", "[1].value must be val2");
-//   assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect");
+  assert.equal(q1.areas[1].value, "val2", "[1].value must be val2");
+  assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect");
 
-//   q1.shape = "circle";
-//   assert.equal(q1.areas[0].shape, "inherit", "shape must be inherit #2");
-//   assert.equal(q1.areas[0].getShape(), "circle", "shape must be circle");
-//   assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect still");
-// });
+  q1.shape = "circle";
+  assert.equal(q1.areas[0].shape, "inherit", "shape must be inherit #2");
+  assert.equal(q1.areas[0].getShape(), "circle", "shape must be circle");
+  assert.equal(q1.areas[1].shape, "rect", "second item shape must be rect still");
+});
 
-// QUnit.test("Check toggle and multiSelect change", (assert) => {
+QUnit.test("Check toggle and multiSelect change", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         imageLink: "imageLink_url",
-//         areas: [
-//           {
-//             value: "val1",
-//             text: "val1_text",
-//             coords: "x1,y1,x2,y2,x3,y3,x4,y4"
-//           },
-//           {
-//             value: "val2",
-//             text: "val2_text",
-//             shape: "rect",
-//             coords: "x1,y1,x2,y2"
-//           },
-//           {
-//             value: "val2",
-//             text: "val2_text",
-//             shape: "circle",
-//             coords: "x1,y1,r1"
-//           },
-//         ]
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        areas: [
+          {
+            value: "val1",
+            text: "val1_text",
+            coords: "x1,y1,x2,y2,x3,y3,x4,y4"
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+            shape: "rect",
+            coords: "x1,y1,x2,y2"
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+            shape: "circle",
+            coords: "x1,y1,r1"
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   assert.equal(q1.value, undefined, "value must be undefined initially");
-//   assert.equal(q1.multiSelect, true, "multiSelect is true by default");
+  assert.equal(q1.value, undefined, "value must be undefined initially");
+  assert.equal(q1.multiSelect, true, "multiSelect is true by default");
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   assert.deepEqual(q1.value, ["val1"], "value must be ['val1'] after first tooggle");
-//   assert.equal(q1.isItemSelected(q1.areas[0]), true, "must be selected after first click");
-//   assert.equal(q1.isItemSelected(q1.areas[1]), false, "must not be selected after first click");
+  q1.mapItemTooggle(q1.areas[0]);
+  assert.deepEqual(q1.value, ["val1"], "value must be ['val1'] after first tooggle");
+  assert.equal(q1.isItemSelected(q1.areas[0]), true, "must be selected after first click");
+  assert.equal(q1.isItemSelected(q1.areas[1]), false, "must not be selected after first click");
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   assert.deepEqual(q1.value, [], "value must be [] untoggling off item");
+  q1.mapItemTooggle(q1.areas[0]);
+  assert.deepEqual(q1.value, [], "value must be [] untoggling off item");
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   q1.mapItemTooggle(q1.areas[1]);
-//   assert.deepEqual(q1.value, ["val1", "val2"], "value must be ['val1', 'val2'] after selecting two items");
+  q1.mapItemTooggle(q1.areas[0]);
+  q1.mapItemTooggle(q1.areas[1]);
+  assert.deepEqual(q1.value, ["val1", "val2"], "value must be ['val1', 'val2'] after selecting two items");
 
-//   q1.readOnly = true;
-//   q1.mapItemTooggle(q1.areas[1]);
-//   q1.mapItemTooggle(q1.areas[2]);
-//   assert.deepEqual(q1.value, ["val1", "val2"], "value must be unchanged in readOnly mode");
-//   q1.readOnly = false;
+  q1.readOnly = true;
+  q1.mapItemTooggle(q1.areas[1]);
+  q1.mapItemTooggle(q1.areas[2]);
+  assert.deepEqual(q1.value, ["val1", "val2"], "value must be unchanged in readOnly mode");
+  q1.readOnly = false;
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   assert.deepEqual(q1.value, ["val2"], "value must be ['val2'] after toggling first item off");
+  q1.mapItemTooggle(q1.areas[0]);
+  assert.deepEqual(q1.value, ["val2"], "value must be ['val2'] after toggling first item off");
 
-//   q1.multiSelect = false;
-//   assert.equal(q1.multiSelect, false, "multiSelect must be false now");
-//   assert.equal(q1.value, undefined, "value must be undefined #1");
+  q1.multiSelect = false;
+  assert.equal(q1.multiSelect, false, "multiSelect must be false now");
+  assert.equal(q1.value, undefined, "value must be undefined #1");
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   assert.equal(q1.value, "val1", "Single: value must be val1");
-//   assert.equal(q1.isItemSelected(q1.areas[0]), true, "Single: imageMap[0] must be selected");
-//   assert.equal(q1.isItemSelected(q1.areas[1]), false, "Single: imageMap[1] must not be selected");
+  q1.mapItemTooggle(q1.areas[0]);
+  assert.equal(q1.value, "val1", "Single: value must be val1");
+  assert.equal(q1.isItemSelected(q1.areas[0]), true, "Single: imageMap[0] must be selected");
+  assert.equal(q1.isItemSelected(q1.areas[1]), false, "Single: imageMap[1] must not be selected");
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   assert.equal(q1.value, undefined, "Single: value must be undefined after toggling off");
+  q1.mapItemTooggle(q1.areas[0]);
+  assert.equal(q1.value, undefined, "Single: value must be undefined after toggling off");
 
-//   q1.mapItemTooggle(q1.areas[1]);
-//   assert.equal(q1.value, "val2", "Single: value must be val2");
-//   assert.equal(q1.isItemSelected(q1.areas[0]), false, "Single: imageMap[0] must not be selected");
-//   assert.equal(q1.isItemSelected(q1.areas[1]), true, "Single: imageMap[1] must be selected");
+  q1.mapItemTooggle(q1.areas[1]);
+  assert.equal(q1.value, "val2", "Single: value must be val2");
+  assert.equal(q1.isItemSelected(q1.areas[0]), false, "Single: imageMap[0] must not be selected");
+  assert.equal(q1.isItemSelected(q1.areas[1]), true, "Single: imageMap[1] must be selected");
 
-//   q1.multiSelect = true;
-//   assert.equal(q1.multiSelect, true, "multiSelect must be true now");
-//   assert.equal(q1.value, undefined, "value must be undefined #2");
-// });
+  q1.multiSelect = true;
+  assert.equal(q1.multiSelect, true, "multiSelect must be true now");
+  assert.equal(q1.value, undefined, "value must be undefined #2");
+});
 
-// QUnit.test("Check scaleCoords", (assert) => {
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         areas: [
-//           {
-//             value: "v1",
-//             coords: "10,20,30,40,50,60"
-//           },
-//         ]
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
-//   const coords = q1.areas[0].coords.split(",").map(Number);
-//   assert.deepEqual(q1.getItemCoords(q1.areas[0], 2), coords.map(e => e * 2), "scale by 2 works");
-//   assert.deepEqual(q1.getItemCoords(q1.areas[0], .5), coords.map(e => e * 0.5), "scale by 0.5 works");
-// });
+QUnit.test("Check init", (assert) => {
 
-// QUnit.test("Check init", (assert) => {
+  var done = assert.async(1);
 
-//   var done = assert.async(4);
+  const model: QuestionImageMapModel = new QuestionImageMapModel("");
+  const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#DDDDDD"/></svg>');
 
-//   const model: QuestionImageMapModel = new QuestionImageMapModel("");
-//   const imageDataURL = "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect width="100%" height="100%" fill="#DDDDDD"/></svg>');
+  let container = document.createElement("div");
+  container.innerHTML = `
+    <img id="${ model.id }-bg" src="${ imageDataURL }" />
+    <svg id="${ model.id }-svg"></svg>
+  `;
 
-//   let container = document.createElement("div");
-//   container.innerHTML = `
-//     <img id="imagemap-${ model.id }-background" src="${ imageDataURL }" />
-//     <canvas id="imagemap-${ model.id }-canvas-selected"></canvas>
-//     <canvas id="imagemap-${ model.id }-canvas-hover"></canvas>
-//     <canvas id="imagemap-${ model.id }-canvas-preview"></canvas>
-//     <map></map>
-//   `;
+  let renderSVGCount = 0;
+  const renderSVG = model.renderSVG;
+  model.renderSVG = () => {
+    renderSVGCount++;
+    renderSVG.apply(model);
+  };
+  setTimeout(() => {
+    assert.equal(renderSVGCount, 1, "renderSVG must be called 1 time after init");
+    done();
+  }, 10);
 
-//   let renderImageMapCalls = 0;
-//   const renderImageMap = model.renderImageMap;
-//   model.renderImageMap = () => {
-//     renderImageMapCalls++;
-//     renderImageMap.apply(model);
-//   };
-//   setTimeout(() => {
-//     assert.equal(renderImageMapCalls, 1, "renderImageMap must be called 1 time after initImageMap");
-//     done();
-//   }, 10);
-
-//   let renderPreviewCanvasCalls = 0;
-//   const renderPreviewCanvas = model.renderPreviewCanvas;
-//   model.renderPreviewCanvas = () => {
-//     renderPreviewCanvasCalls++;
-//     renderPreviewCanvas.apply(model);
-//   };
-//   setTimeout(() => {
-//     assert.equal(renderPreviewCanvasCalls, 1, "renderPreviewCanvas must be called 1 time after initImageMap");
-//     done();
-//   }, 10);
-
-//   let renderSelectedCanvasCalls = 0;
-//   const renderSelectedCanvas = model.renderSelectedCanvas;
-//   model.renderSelectedCanvas = () => {
-//     renderSelectedCanvasCalls++;
-//     renderSelectedCanvas.apply(model);
-//   };
-//   setTimeout(() => {
-//     assert.equal(renderSelectedCanvasCalls, 1, "renderSelectedCanvas must be called 1 time after initImageMap");
-//     done();
-//   }, 10);
-
-//   let renderHoverCanvasCalls = 0;
-//   const renderHoverCanvas = model.renderHoverCanvas;
-//   model.renderHoverCanvas = () => {
-//     renderHoverCanvasCalls++;
-//     renderHoverCanvas.apply(model);
-//   };
-//   setTimeout(() => {
-//     assert.equal(renderHoverCanvasCalls, 1, "renderHoverCanvas must be called 1 time after initImageMap");
-//     done();
-//   }, 10);
-
-//   model.initImageMap(container);
-// });
+  model.initImageMap(container);
+});
 
 // QUnit.test("Check map render", (assert) => {
 
@@ -433,175 +376,175 @@
 //   }, "defined selected style");
 // });
 
-// QUnit.test("Check set value and multiSelect change with valuePropertyName", (assert) => {
+QUnit.test("Check set value and multiSelect change with valuePropertyName", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         imageLink: "imageLink_url",
-//         valuePropertyName: "state",
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        valuePropertyName: "state",
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   q1.value = ["TX"];
-//   assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as array");
+  q1.value = ["TX"];
+  assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as array");
 
-//   q1.value = "TX";
-//   assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as string");
-// });
+  q1.value = "TX";
+  assert.deepEqual(q1.value, [{ state: "TX" }], "value is set correctly as string");
+});
 
-// QUnit.test("check defaultValue with valuePropertyName", (assert) => {
+QUnit.test("check defaultValue with valuePropertyName", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         imageLink: "imageLink_url",
-//         valuePropertyName: "state",
-//         defaultValue: ["TX"]
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        imageLink: "imageLink_url",
+        valuePropertyName: "state",
+        defaultValue: ["TX"]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   assert.deepEqual(q1.value, [{ state: "TX" }], "defaultValue is set correctly");
-// });
+  assert.deepEqual(q1.value, [{ state: "TX" }], "defaultValue is set correctly");
+});
 
-// QUnit.test("check maxSelectedChoices via mapItemTooggle", (assert) => {
+QUnit.test("check maxSelectedChoices via mapItemTooggle", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         maxSelectedAreas: 2,
-//         areas: [
-//           {
-//             value: "val1",
-//           },
-//           {
-//             value: "val2",
-//           },
-//           {
-//             value: "val3",
-//           }
-//         ]
-//       }
-//     ]
-//   });
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        maxSelectedAreas: 2,
+        areas: [
+          {
+            value: "val1",
+          },
+          {
+            value: "val2",
+          },
+          {
+            value: "val3",
+          }
+        ]
+      }
+    ]
+  });
 
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   q1.mapItemTooggle(q1.areas[0]);
-//   q1.mapItemTooggle(q1.areas[1]);
-//   q1.mapItemTooggle(q1.areas[2]);
+  q1.mapItemTooggle(q1.areas[0]);
+  q1.mapItemTooggle(q1.areas[1]);
+  q1.mapItemTooggle(q1.areas[2]);
 
-//   assert.deepEqual(q1.value, ["val1", "val2"], "the third item is not added, max is 2");
-// });
+  assert.deepEqual(q1.value, ["val1", "val2"], "the third item is not added, max is 2");
+});
 
-// QUnit.test("check minSelectedAreas + maxSelectedChoices and errors", (assert) => {
+QUnit.test("check minSelectedAreas + maxSelectedChoices and errors", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         minSelectedAreas: 2,
-//         maxSelectedAreas: 3
-//       }
-//     ]
-//   });
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        minSelectedAreas: 2,
+        maxSelectedAreas: 3
+      }
+    ]
+  });
 
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   q1.value = ["val1"];
-//   assert.equal(q1.validate(), false, "there is only one item, min is 2");
-//   assert.equal(q1.errors.length, 1, "there is one error");
+  q1.value = ["val1"];
+  assert.equal(q1.validate(), false, "there is only one item, min is 2");
+  assert.equal(q1.errors.length, 1, "there is one error");
 
-//   q1.value = ["val1", "val2"];
-//   assert.equal(q1.validate(), true, "there are two items, min is 2");
-//   assert.equal(q1.errors.length, 0, "there is no error");
+  q1.value = ["val1", "val2"];
+  assert.equal(q1.validate(), true, "there are two items, min is 2");
+  assert.equal(q1.errors.length, 0, "there is no error");
 
-//   q1.value = ["val1", "val2", "val3", "val4"];
-//   assert.equal(q1.validate(), false, "there are four items, max is 3");
-//   assert.equal(q1.errors.length, 1, "there is one error");
-// });
+  q1.value = ["val1", "val2", "val3", "val4"];
+  assert.equal(q1.validate(), false, "there are four items, max is 3");
+  assert.equal(q1.errors.length, 1, "there is one error");
+});
 
-// QUnit.test("check getDisplayValue without valuePropertyName", (assert) => {
+QUnit.test("check getDisplayValue without valuePropertyName", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         areas: [
-//           {
-//             value: "val1",
-//             text: "val1_text",
-//           },
-//           {
-//             value: "val2",
-//             text: "val2_text",
-//           },
-//           {
-//             value: "val3",
-//             text: "val3_text",
-//           },
-//         ]
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        areas: [
+          {
+            value: "val1",
+            text: "val1_text",
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+          },
+          {
+            value: "val3",
+            text: "val3_text",
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   assert.equal(q1.getDisplayValue(false, "val1"), "val1_text", "display value for single item");
-//   assert.equal(q1.getDisplayValue(false, ["val1", "val2"]), "val1_text, val2_text", "display value for multiple items");
-//   assert.equal(q1.getDisplayValue(false, ["val1", "val10", "val2"]), "val1_text, val2_text", "display value for multiple items with one wrong");
-//   assert.equal(q1.getDisplayValue(false, [{ value: "val1" }]), "", "display value for wrong item");
-// });
+  assert.equal(q1.getDisplayValue(false, "val1"), "val1_text", "display value for single item");
+  assert.equal(q1.getDisplayValue(false, ["val1", "val2"]), "val1_text, val2_text", "display value for multiple items");
+  assert.equal(q1.getDisplayValue(false, ["val1", "val10", "val2"]), "val1_text, val2_text", "display value for multiple items with one wrong");
+  assert.equal(q1.getDisplayValue(false, [{ value: "val1" }]), "", "display value for wrong item");
+});
 
-// QUnit.test("check getDisplayValue with valuePropertyName", (assert) => {
+QUnit.test("check getDisplayValue with valuePropertyName", (assert) => {
 
-//   const model = new SurveyModel({
-//     elements: [
-//       {
-//         type: "imagemap",
-//         name: "q1",
-//         valuePropertyName: "state",
-//         areas: [
-//           {
-//             value: "val1",
-//             text: "val1_text",
-//           },
-//           {
-//             value: "val2",
-//             text: "val2_text",
-//           },
-//           {
-//             value: "val3",
-//             text: "val3_text",
-//           },
-//         ]
-//       }
-//     ]
-//   });
-//   const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
+  const model = new SurveyModel({
+    elements: [
+      {
+        type: "imagemap",
+        name: "q1",
+        valuePropertyName: "state",
+        areas: [
+          {
+            value: "val1",
+            text: "val1_text",
+          },
+          {
+            value: "val2",
+            text: "val2_text",
+          },
+          {
+            value: "val3",
+            text: "val3_text",
+          },
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionImageMapModel>model.getQuestionByName("q1");
 
-//   assert.equal(q1.getDisplayValue(false, "val1"), "val1_text", "display value for single item");
-//   assert.equal(q1.getDisplayValue(false, ["val1", "val2"]), "val1_text, val2_text", "display value for multiple items");
+  assert.equal(q1.getDisplayValue(false, "val1"), "val1_text", "display value for single item");
+  assert.equal(q1.getDisplayValue(false, ["val1", "val2"]), "val1_text, val2_text", "display value for multiple items");
 
-//   assert.equal(q1.getDisplayValue(false, { state: "val1" }), "val1_text", "display value for single (object) item");
-//   assert.equal(q1.getDisplayValue(false, [{ state: "val1" }]), "val1_text", "display value for single (array) item");
-//   assert.equal(q1.getDisplayValue(false, [{ state: "val1" }, { state: "val2" }]), "val1_text, val2_text", "display value for multiple items");
+  assert.equal(q1.getDisplayValue(false, { state: "val1" }), "val1_text", "display value for single (object) item");
+  assert.equal(q1.getDisplayValue(false, [{ state: "val1" }]), "val1_text", "display value for single (array) item");
+  assert.equal(q1.getDisplayValue(false, [{ state: "val1" }, { state: "val2" }]), "val1_text, val2_text", "display value for multiple items");
 
-//   assert.equal(q1.getDisplayValue(false, { wrong: "val1" }), "", "display value for single wrong (object) item");
-//   assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { wrong: "val1" }]), "", "display value for single wrong (object) item");
-//   assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "val2_text", "display value for multiple items with 2 wrong");
-// });
+  assert.equal(q1.getDisplayValue(false, { wrong: "val1" }), "", "display value for single wrong (object) item");
+  assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { wrong: "val1" }]), "", "display value for single wrong (object) item");
+  assert.equal(q1.getDisplayValue(false, [{ wrong: "val1" }, { state: "val2" }, { state: "val10" }]), "val2_text", "display value for multiple items with 2 wrong");
+});
 
 // QUnit.test("items visibleIf render", (assert) => {
 

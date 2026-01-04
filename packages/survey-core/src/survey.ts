@@ -8898,6 +8898,7 @@ Serializer.addClass("survey", [
   {
     name: "showQuestionNumbers",
     default: "off",
+    acceptedValues: [false, true],
     choices: ["on", "onPage", "recursive", "off"],
   },
   {

@@ -2482,6 +2482,7 @@ QUnit.test("Tagbox otherItem works correctly", assert => {
   const survey = new SurveyModel(
     { elements: [{ "type": "tagbox", "name": "q1", "choices": [1, 2, 3], showOtherItem: true }] });
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.otherItem.showCommentArea, true, "otherItem showCommentArea is true");
   assert.equal(question.otherItem.isCommentShowing, false, "#1");
   question.renderedValue = [1, "other"];
   assert.equal(question.otherItem.isCommentShowing, true, "#2");
@@ -2580,4 +2581,21 @@ QUnit.test("allowCustomChoices: custom choices with displayName from survey.data
   assert.equal(listModel.actions[0].id, customValue, "#1 new custom item");
   assert.equal(listModel.actions[0].visible, true, "#1 new custom item visible");
   assert.deepEqual(survey.data, data, "#1 survey.data");
+});
+QUnit.test("Select All and Deselect All text", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "tagbox", name: "q1", showSelectAllItem: true, choices: [1]
+    },]
+  });
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const item = question.selectAllItem;
+  question.clickItemHandler(item);
+  assert.equal(item.title, "Select All", "default select all text");
+  question.clickItemHandler(item);
+  assert.equal(item.title, "Deselect all", "default deselect all text");
+  question.clickItemHandler(item);
+  assert.equal(item.title, "Select All", "default select all text after clear");
+  question.clickItemHandler(item);
+  assert.equal(item.title, "Deselect all", "default deselect all text after set value");
 });

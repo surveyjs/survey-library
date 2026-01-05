@@ -1038,16 +1038,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     );
   }
-
-  constructor(name: string) {
-    super(name);
-    this.createItemValues("choices");
-    this.detailPanelValue = this.createNewDetailPanel();
-    this.detailPanel.selectedElementInDesign = this;
-    this.detailPanel.renderWidth = "100%";
-    this.detailPanel.isInteractiveDesignElement = false;
-    this.detailPanel.showTitle = false;
-  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "columns" || name === "cellType") {
@@ -1237,6 +1227,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see detailPanelMode
    */
   public get detailPanel(): PanelModel {
+    if (!this.detailPanelValue) {
+      const pnl = this.createNewDetailPanel();
+      pnl.selectedElementInDesign = this;
+      pnl.renderWidth = "100%";
+      pnl.isInteractiveDesignElement = false;
+      pnl.showTitle = false;
+      const adActions = this.getPropertyValueWithoutDefault("allowAdaptiveActions");
+      if (adActions !== undefined) {
+        pnl.allowAdaptiveActions = adActions;
+      }
+      this.detailPanelValue = pnl;
+    }
     return this.detailPanelValue;
   }
   public getPanels(): Array<IPanel> {
@@ -1258,7 +1260,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return this.detailPanel.elements;
   }
   protected isPropertyStoredInHash(name: string): boolean {
-    return name !== "detailElements" && super.isPropertyStoredInHash(name);
+    if (name === "detailElements") return !this.detailPanelValue;
+    return super.isPropertyStoredInHash(name);
   }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");
@@ -1450,12 +1453,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public set allowAdaptiveActions(val: boolean) {
     this.setPropertyValue("allowAdaptiveActions", val);
-    if (!!this.detailPanel) {
+    if (!!this.detailPanelValue) {
       this.detailPanel.allowAdaptiveActions = val;
     }
   }
   public hasChoices(): boolean {
-    return this.choices.length > 0;
+    const choices = this.getPropertyValueWithoutDefault("choices");
+    return choices && choices.length > 0;
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
@@ -1809,10 +1813,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see cellType
    */
   public get choices(): Array<any> {
-    return this.getPropertyValue("choices");
+    return this.getItemValuesPropertyValue("choices");
   }
   public set choices(val: Array<any>) {
-    this.setPropertyValue("choices", val);
+    this.setArrayPropertyValue("choices", val);
   }
   /**
    * A placeholder for Dropdown matrix cells.
@@ -2446,7 +2450,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
     duplicatedRows.forEach(row => {
       let question = row.getQuestionByName(columnName);
-      const inDetailPanel = this.detailPanel.getQuestionByName(columnName);
+      const inDetailPanel = this.detailPanelValue?.getQuestionByName(columnName);
       if (!question && inDetailPanel) {
         row.showDetailPanel();
         if (row.detailPanel) {

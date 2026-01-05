@@ -324,6 +324,10 @@
               "Title": "IDialogOptions"
             },
             {
+              "Name": "ISaveToJSONOptions",
+              "Title": "ISaveToJSONOptions"
+            },
+            {
               "Name": "ICustomQuestionTypeConfiguration",
               "Title": "ICustomQuestionTypeConfiguration"
             }

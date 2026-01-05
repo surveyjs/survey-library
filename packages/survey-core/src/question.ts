@@ -3502,18 +3502,6 @@ export class Question extends SurveyElement<Question>
   public get dragDropMatrixAttribute(): string {
     return null;
   }
-
-  private _syncPropertiesChanging: boolean = false;
-  protected registerSychProperties(names: Array<string>, func: any) {
-    this.registerFunctionOnPropertiesValueChanged(names,
-      () => {
-        if (!this._syncPropertiesChanging) {
-          this._syncPropertiesChanging = true;
-          func();
-          this._syncPropertiesChanging = false;
-        }
-      });
-  }
 }
 function makeNameValid(str: string): string {
   if (!str) return str;

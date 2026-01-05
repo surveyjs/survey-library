@@ -181,6 +181,7 @@ export interface IObject {
 export interface IJsonPropertyInfo {
   name: string;
   type?: string;
+  acceptedValues?: Array<any>;
   className?: string;
   classNamePart?: string;
   baseClassName?: string;
@@ -289,6 +290,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   private classInfoValue: JsonMetadataClass;
   private typeValue: string;
   private choicesValue: Array<any>;
+  public acceptedValues?: Array<any>;
   public baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
@@ -506,6 +508,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public validateValue(value: any): boolean {
     const choices = this.choices;
     if (!Array.isArray(choices) || choices.length === 0) return true;
+    const aV = this.acceptedValues;
+    if (Array.isArray(aV) && aV.indexOf(value) > -1) return true;
     return choices.indexOf(value) > -1;
   }
   public getObjType(objType: string) {
@@ -980,6 +984,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isArray)) {
         prop.isArray = propInfo.isArray;
+      }
+      if (Array.isArray(propInfo.acceptedValues)) {
+        prop.acceptedValues = propInfo.acceptedValues;
       }
       if (propInfo.visible === true || propInfo.visible === false) {
         prop.visible = propInfo.visible;

@@ -413,7 +413,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   public get otherItem(): ItemValue {
     if (!this.otherItemValue) {
       this.otherItemValue = this.createBuiltInItem(OTHER_ITEM_VALUE, "otherText", "otherItemText", (item: ChoiceItem) => {
-        item.showCommentArea = true;
+        item.setPropertyValue("showCommentArea", true);
         item.isCommentRequired = true;
       });
     }
@@ -2507,9 +2507,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
  */
 export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
-  constructor(name: string) {
-    super(name);
-  }
   /**
    * Gets or sets the number of columns used to arrange choice items.
    *

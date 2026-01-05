@@ -32,7 +32,6 @@ export class PopupSurveyModel extends Base {
     this.width = <any>new ComputedUpdater<string>(() => this.survey.width);
     this.width = this.survey.width;
     this.updateCss();
-    this.onCreating();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -44,7 +43,6 @@ export class PopupSurveyModel extends Base {
       this.onExpandedChanged();
     }
   }
-  protected onCreating(): void { }
   public getType(): string {
     return "popupsurvey";
   }

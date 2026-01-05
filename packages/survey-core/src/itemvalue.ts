@@ -369,6 +369,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     return res;
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "text";
+  }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
       Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) {

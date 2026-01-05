@@ -30,6 +30,9 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   get locImageLink(): LocalizableString {
     return this.getOrCreateLocStr("imageLink");
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "imageLink" && super.isPropertyStoredInHash(name);
+  }
   getLocale(): string {
     return !!this.locOwner ? this.locOwner.getLocale() : "";
   }

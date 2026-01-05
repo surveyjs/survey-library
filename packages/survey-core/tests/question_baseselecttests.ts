@@ -4371,3 +4371,19 @@ QUnit.test("Check selectAllText and otherItemText in checkbox", (assert) => {
   assert.equal(otherItem.locText.textOrHtml, "Other please specify", "otherItem text is correct");
   assert.equal(q1.otherItem.showCommentArea, true, "otherItem showCommentArea is true");
 });
+QUnit.test("Do not send notifications on changing built-in choices properties on creating question", (assert) => {
+  const survey = new SurveyModel({
+    pages: [{ name: "page1" }]
+  });
+  survey.setDesignMode(true);
+  survey.pages[0].addElement(new QuestionCheckboxModel("q1"));
+  const modified = new Array<string>();
+  survey.onPropertyValueChangedCallback = (name, oldValue, newValue, sender) => {
+    if (sender.isDescendantOf("itemvalue")) {
+      modified.push(name);
+    }
+  };
+  const question = new QuestionCheckboxModel("q2");
+  survey.pages[0].addElement(question);
+  assert.equal(modified.length, 0, "one property is modified");
+});

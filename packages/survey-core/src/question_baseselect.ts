@@ -309,10 +309,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return "choiceitem";
   }
   public createItemValue(value: any, text?: string): ChoiceItem {
-    const res = <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
+    const res = this.createChoiceItem(value);
     res.locOwner = this;
     if (!!text) res.text = text;
     return res;
+  }
+  private createChoiceItem(value: any): ChoiceItem {
+    return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
   }
   protected validateElementCore(context: ValidationContext): boolean {
     if (context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
@@ -604,12 +607,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.createBuiltInItem(defaultValue, name, locName, (item: ChoiceItem) => item.isExclusive = true);
   }
   protected createBuiltInItem(defaultValue: any, name: string, locName: string, callback?: (item: ChoiceItem) => void): ChoiceItem {
-    const item = this.createItemValue(defaultValue);
+    const item = this.createChoiceItem(defaultValue);
     const locStr = this.createLocalizableString(name, item, true, locName);
     item.setLocText(locStr);
     if (callback) {
       callback(item);
     }
+    item.locOwner = this;
     return item;
   }
   /**

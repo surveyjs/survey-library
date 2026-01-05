@@ -473,19 +473,23 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     if (borderArrived) { borderArrived = false; return; }
   };
 
-  public prepareInputRangeForMoving = (event: PointerEvent, rootNode: HTMLElement): void => {
+  public prepareInputRangeForMoving = (event: PointerEvent, questionRootNode: HTMLElement): void => {
     const { renderedMax: max, renderedMin: min } = this;
 
     this.isRangeMoving = true;
     this.animatedThumb = false;
 
     //const inputNode = this.rangeInputRef.current;
-    const inputNode = <HTMLInputElement>event.target;
+    const rootNode = questionRootNode.getRootNode();
+    if (!(rootNode instanceof Document || rootNode instanceof ShadowRoot)) {
+      return;
+    }
+    const inputNode = <HTMLInputElement>rootNode.querySelector("#" + this.id + "-sjs-slider-input-range-input");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-width", "20px");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-left", "initial");
     inputNode.style.setProperty("--sjs-range-slider-range-input-thumb-position", "static");
 
-    const leftPercent = ((event.clientX - rootNode.getBoundingClientRect().x) / rootNode.getBoundingClientRect().width) * 100;
+    const leftPercent = ((event.clientX - questionRootNode.getBoundingClientRect().x) / questionRootNode.getBoundingClientRect().width) * 100;
     const newInputValue = leftPercent / 100 * (max - min) + min;
     inputNode.value = "" + newInputValue;
     this.oldInputValue = newInputValue;

@@ -205,15 +205,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
       q.runTriggers(triggerName, newValue);
     }
   }
-  getVariable(name: string): any {
-    return undefined;
-  }
-  setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentSuffix);
     return result ? result : "";
   }
-  public setComment(name: string, newValue: string, locNotification: any) {
+  public setComment(name: string, newValue: string, locNotification: boolean | "text") {
     this.setValue(name + settings.commentSuffix, newValue);
   }
   findQuestionByName(name: string): IQuestion {
@@ -225,7 +221,6 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
-  getEditingSurveyElement(): Base { return undefined; }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }

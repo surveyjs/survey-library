@@ -685,7 +685,7 @@ export abstract class QuestionCustomModelBase extends Question
   getValue(name: string): any {
     return this.value;
   }
-  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
+  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
     if (!!this.customQuestion) {
       this.customQuestion.onValueChanged(this, name, newValue);
@@ -727,31 +727,18 @@ export abstract class QuestionCustomModelBase extends Question
   protected convertDataValue(name: string, newValue: any): any {
     return newValue;
   }
-  getVariable(name: string): any {
-    return !!this.data ? this.data.getVariable(name) : null;
-  }
-  setVariable(name: string, newValue: any): void {
-    if (!this.data) return;
-    this.data.setVariable(name, newValue);
-  }
   getComment(name: string): string {
     return !!this.data ? this.data.getComment(this.getValueName()) : "";
   }
-  setComment(name: string, newValue: string, locNotification: any): any {
+  setComment(name: string, newValue: string, locNotification: boolean | "text"): any {
     if (!this.data) return;
     this.data.setComment(this.getValueName(), newValue, locNotification);
-  }
-  getAllValues(): any {
-    return !!this.data ? this.data.getAllValues() : {};
   }
   getFilteredProperties(): any {
     return !!this.data ? this.data.getFilteredProperties() : {};
   }
   findQuestionByName(name: string): IQuestion {
     return !!this.data ? this.data.findQuestionByName(name) : null;
-  }
-  getEditingSurveyElement(): Base {
-    return undefined;
   }
   //IPanel
   addElement(element: IElement, index: number) { }
@@ -857,7 +844,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
     return super.getDefaultTitle();
   }
-  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
+  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean): any {
     if (this.isValueChanging(name, newValue)) return;
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
   }
@@ -1123,7 +1110,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   private editingObjValue: Base;
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   private updateEditingObj(): Base {
-    const obj = this.data?.getEditingSurveyElement();
+    let survey = <any>this.survey;
+    if (survey && typeof survey.getEditingSurveyElement !== "function") {
+      survey = null;
+    }
+    const obj = survey?.getEditingSurveyElement();
     if (!obj) return undefined;
     let newObj: Base = (<any>obj)[this.getValueName()];
     if (!!newObj && !newObj.onPropertyChanged) {
@@ -1287,7 +1278,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       this.runCondition(this.getFilteredProperties());
     }
   }
-  setComment(name: string, newValue: string, locNotification: any): any {
+  setComment(name: string, newValue: string): any {
     let val = this.getUnbindValue(this.value);
     const commentName = this.getCommentName(name);
     if (!val && !newValue || !!newValue && !!val && val[commentName] === newValue) return;

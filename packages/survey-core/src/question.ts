@@ -3031,7 +3031,7 @@ export class Question extends SurveyElement<Question>
   public get isInputTextUpdate(): boolean {
     return this.getIsInputTextUpdate() && this.isTextValue();
   }
-  protected setNewValueInData(newValue: any): void {
+  private setNewValueInData(newValue: any): void {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
       this.setValueCore(newValue);
@@ -3247,10 +3247,6 @@ export class Question extends SurveyElement<Question>
   set validatedValue(val: any) {
     this.value = val;
   }
-  getAllValues(): any {
-    return !!this.data ? this.data.getAllValues() : null;
-  }
-
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
   }

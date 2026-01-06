@@ -4,6 +4,8 @@ import { Base, EventBase, ComputedUpdater, EventAsync } from "./base";
 import {
   ISurvey,
   ISurveyData,
+  ISurveyVariables,
+  ISurveyDataGetEditingObj,
   ISurveyImpl,
   ITextProcessor,
   IQuestion,
@@ -158,6 +160,8 @@ export class SurveyModel extends SurveyElementCore
   implements
   ISurvey,
   ISurveyData,
+  ISurveyVariables,
+  ISurveyDataGetEditingObj,
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
@@ -3548,9 +3552,6 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  getAllValues(): any {
-    return this.data;
-  }
   /**
    * Returns survey results as an array of objects in which the question name, title, value, and other parameters are stored as individual properties.
    *
@@ -6558,8 +6559,9 @@ export class SurveyModel extends SurveyElementCore
     this.onValueChanging.fire(this, options);
     return options.value;
   }
-  private getLocNotification(loc: boolean, value: any, oldValue: any): boolean {
-    return loc || Helpers.isTwoValueEquals(value, oldValue, false, true, false);
+  private getLocNotification(loc: boolean | "text", value: any, oldValue: any): boolean | "text" {
+    if (loc === false && Helpers.isTwoValueEquals(value, oldValue, false, true, false)) return true;
+    return loc;
   }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
@@ -7170,7 +7172,7 @@ export class SurveyModel extends SurveyElementCore
   public setValue(
     name: string,
     newQuestionValue: any,
-    locNotification: any = false,
+    locNotification: boolean | "text" = false,
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
@@ -7362,7 +7364,7 @@ export class SurveyModel extends SurveyElementCore
    * @param locNotification For internal use.
    * @see getComment
    */
-  public setComment(name: string, newValue: string, locNotification: any = false): void {
+  public setComment(name: string, newValue: string, locNotification: boolean | "text" = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     const commentName = name + this.commentSuffix;

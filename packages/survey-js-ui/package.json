@@ -45,7 +45,7 @@
     "karma-sourcemap-loader": "0.3.8",
     "karma-webpack": "5.0.0",
     "mini-css-extract-plugin": "^2.9.0",
-    "preact": "10.27.2",
+    "preact": "10.27.3",
     "replace-in-file": "^6.1.0",
     "rimraf": "2.5.4",
     "rollup": "^4.34.8",

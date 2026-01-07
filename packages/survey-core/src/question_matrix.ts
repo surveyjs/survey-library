@@ -648,17 +648,13 @@ export class QuestionMatrixModel
     const row = this.getRowByName(name);
     return !!row ? row.value : undefined;
   }
-  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean, questionName?: string): any {
+  setValue(name: string, newValue: any): any {
     this.getRowByName(name).value = newValue;
   }
-  getVariable(name: string): any { return this.data?.getVariable(name); }
-  setVariable(name: string, newValue: any): void { this.data?.setVariable(name, newValue); }
   getComment(name: string): string { return this.data?.getComment(name); }
-  setComment(name: string, newValue: string, locNotification: any): any { this.data?.setComment(name, newValue, locNotification); }
-  getAllValues(): any { return this.data?.getAllValues(); }
+  setComment(name: string, newValue: string, locNotification: boolean | "text"): any { this.data?.setComment(name, newValue, locNotification); }
   getFilteredProperties(): any { return this.data?.getFilteredProperties(); }
   findQuestionByName(name: string): IQuestion { return this.data?.findQuestionByName(name); }
-  getEditingSurveyElement(): Base { return this.data?.getEditingSurveyElement(); }
   //#endregion
   protected sortVisibleRows(array: Array<MatrixRowModel>): Array<MatrixRowModel> {
     if (!!this.survey && this.survey.isDesignMode)

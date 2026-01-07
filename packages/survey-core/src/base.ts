@@ -358,9 +358,10 @@ export class Base implements IObjectValueContext {
   }
   public get uniqueId(): number { return this.uniqueIdValue; }
   public get isSurveyObj(): boolean { return true; }
-  protected addEvent<T, Options = any>(): EventBase<T, Options> {
+  protected addEvent<T, Options = any>(onCallbacksChanged?: () => void): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
     this.eventList.push(res);
+    res.onCallbacksChanged = onCallbacksChanged;
     return res;
   }
   protected addAsyncEvent<T, Options = any>(): EventAsync<T, Options> {
@@ -807,6 +808,14 @@ export class Base implements IObjectValueContext {
       newValue: newValue,
       propertyName: item.ownerPropertyName,
     });
+  }
+  private isFuncExecuting: boolean;
+  protected executeOnSyncPropertiesChanged(func: () => void): void {
+    if (!this.isFuncExecuting) {
+      this.isFuncExecuting = true;
+      func();
+      this.isFuncExecuting = false;
+    }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {

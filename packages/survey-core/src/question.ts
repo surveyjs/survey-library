@@ -3031,7 +3031,7 @@ export class Question extends SurveyElement<Question>
   public get isInputTextUpdate(): boolean {
     return this.getIsInputTextUpdate() && this.isTextValue();
   }
-  protected setNewValueInData(newValue: any): void {
+  private setNewValueInData(newValue: any): void {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
       this.setValueCore(newValue);
@@ -3247,10 +3247,6 @@ export class Question extends SurveyElement<Question>
   set validatedValue(val: any) {
     this.value = val;
   }
-  getAllValues(): any {
-    return !!this.data ? this.data.getAllValues() : null;
-  }
-
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
   }
@@ -3501,18 +3497,6 @@ export class Question extends SurveyElement<Question>
 
   public get dragDropMatrixAttribute(): string {
     return null;
-  }
-
-  private _syncPropertiesChanging: boolean = false;
-  protected registerSychProperties(names: Array<string>, func: any) {
-    this.registerFunctionOnPropertiesValueChanged(names,
-      () => {
-        if (!this._syncPropertiesChanging) {
-          this._syncPropertiesChanging = true;
-          func();
-          this._syncPropertiesChanging = false;
-        }
-      });
   }
 }
 function makeNameValid(str: string): string {

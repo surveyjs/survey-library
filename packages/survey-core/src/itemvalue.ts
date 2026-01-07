@@ -212,10 +212,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (this.getType() != this.getBaseType()) {
       CustomPropertiesCollection.createProperties(this);
     }
-    this.onCreating();
   }
 
-  public onCreating(): any { }
   public getType(): string {
     return this.typeName || this.getBaseType();
   }
@@ -370,6 +368,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
       }
     }
     return res;
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "text";
   }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&

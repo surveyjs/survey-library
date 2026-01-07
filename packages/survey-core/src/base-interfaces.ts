@@ -15,23 +15,20 @@ import { CreateCustomChoiceItemEvent, DragDropAllowEvent } from "./survey-events
 import { PopupModel } from "./popup";
 import { ItemValue } from "./itemvalue";
 
-export interface ISurveyData {
-  getValue(name: string): any;
-  setValue(
-    name: string,
-    newValue: any,
-    locNotification: any,
-    allowNotifyValueChanged?: boolean,
-    questionName?: string
-  ): any;
+export interface ISurveyVariables {
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
+}
+export interface ISurveyDataGetEditingObj {
+  getEditingSurveyElement(): Base;
+}
+export interface ISurveyData {
+  getValue(name: string): any;
+  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, questionName?: string): any;
   getComment(name: string): string;
-  setComment(name: string, newValue: string, locNotification: any): any;
-  getAllValues(): any;
+  setComment(name: string, newValue: string, locNotification: boolean | "text"): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
-  getEditingSurveyElement(): Base;
 }
 export interface ITextProcessorProp {
   text: string;

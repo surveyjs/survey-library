@@ -259,10 +259,19 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
     super(name);
     this.createItemValues("customLabels");
     this.dragOrClickHelper = new DragOrClickHelper(null, false);
-    this.initPropertyDependencies();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "autoGenerate") {
+      this.executeOnSyncPropertiesChanged(() => {
+        if (!this.autoGenerate && this.customLabels.length === 0) {
+          this.setPropertyValue("customLabels", this.calcGeneratedLabels());
+        }
+        if (this.autoGenerate) {
+          this.customLabels.splice(0, this.customLabels.length);
+        }
+      });
+    }
     const resetLabelsProps = ["min", "max", "step", "autoGenerate", "labelFormat", "labelCount"];
     if (resetLabelsProps.indexOf(name) > -1) {
       this.resetPropertyValue("generatedLabels");
@@ -792,33 +801,6 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
       this.min = value ?? this.renderedMin;
     });
   }
-  protected initPropertyDependencies() {
-    // this.registerSychProperties(["segmentCount"],
-    //   () => {
-    //     if (this.segmentCount) {
-    //       this.step = (this.renderedMax - this.renderedMin) / this.segmentCount;
-    //     }
-    //   }
-    // );
-    // this.registerSychProperties(["step"],
-    //   () => {
-    //     if (this.step) {
-    //       this.segmentCount = (this.renderedMax - this.renderedMin) / this.step;
-    //     }
-    //   }
-    // );
-    this.registerSychProperties(["autoGenerate"],
-      () => {
-        if (!this.autoGenerate && this.customLabels.length === 0) {
-          this.setPropertyValue("customLabels", this.calcGeneratedLabels());
-        }
-        if (this.autoGenerate) {
-          this.customLabels.splice(0, this.customLabels.length);
-        }
-      }
-    );
-  }
-
   protected setNewValue(newValue: any): void {
     newValue = this.ensureValueRespectMinMax(newValue);
     super.setNewValue(newValue);

@@ -1,6 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { ISurvey, ISurveyData } from "./base-interfaces";
+import { ISurvey, ISurveyVariables } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { Serializer } from "./jsonobject";
 
@@ -12,7 +12,7 @@ import { Serializer } from "./jsonobject";
  * You may set includeIntoResult property to true to store this calculated value into survey result.
  */
 export class CalculatedValue extends Base {
-  private data: ISurveyData;
+  private data: ISurveyVariables;
   private expressionIsRunning: boolean = false;
   private expressionRunner: ExpressionRunner;
   constructor(name: string = null, expression: string = null) {
@@ -24,7 +24,7 @@ export class CalculatedValue extends Base {
       this.expression = expression;
     }
   }
-  public setOwner(data: ISurveyData) {
+  public setOwner(data: ISurveyVariables) {
     this.data = data;
     this.rerunExpression();
   }
@@ -36,7 +36,7 @@ export class CalculatedValue extends Base {
       ? (<any>this.data).getSurvey()
       : null;
   }
-  public get owner(): ISurveyData {
+  public get owner(): ISurveyVariables {
     return this.data;
   }
   /**
@@ -106,7 +106,7 @@ export class CalculatedValue extends Base {
   }
   private rerunExpression() {
     if (!this.canRunExpression) return;
-    this.runExpression(this.data.getFilteredProperties());
+    this.runExpression({ survey: this.getSurvey() });
   }
   private runExpressionCore(calculatedValues: Array<CalculatedValue>, properties: HashTable<any>) {
     if (!this.canRunExpression || !this.ensureExpression()) return;

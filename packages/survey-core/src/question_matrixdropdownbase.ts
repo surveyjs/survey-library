@@ -544,10 +544,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public setValue(name: string, newColumnValue: any) {
     this.setValueCore(name, newColumnValue, false);
   }
-  getVariable(name: string): any {
-    return undefined;
-  }
-  setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
     var question = this.getQuestionByName(name);
     return !!question ? question.comment : "";
@@ -564,7 +560,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
-  getEditingSurveyElement(): Base { return undefined; }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue || this.isCreatingDetailPanel) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);

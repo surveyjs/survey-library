@@ -27,7 +27,8 @@ frameworks.forEach(framework => {
         const svgContainer = document.createElement("div");
         svgContainer.id = "svgCointainer";
         document.body.appendChild(svgContainer);
-        const surveyElement = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
         if (!!surveyElement) {
           surveyElement.style.display = "none";
         }

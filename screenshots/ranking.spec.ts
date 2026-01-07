@@ -144,7 +144,8 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.margin = "50px";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        document.querySelector("#surveyElement")!.style.margin = "50px";
       });
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
@@ -170,8 +171,10 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.position = "relative";
-        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.margin = "100px";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        document.querySelector("#surveyElement")!.style.position = "relative";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        document.querySelector("#surveyElement")!.style.margin = "100px";
       });
 
       const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "." });
@@ -196,7 +199,8 @@ frameworks.forEach(framework => {
       });
 
       await page.evaluate(() => {
-        (window as any).survey.rootElement.getRootNode().getElementById("surveyElement")!.style.height = "300px";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        document.querySelector("#surveyElement")!.style.height = "300px";
         const surveyContainer = (window as any).survey.rootElement.getRootNode().querySelector(".sd-root-modern--full-container > .sv-scroll__wrapper > .sv-scroll__scroller");
         if (surveyContainer) {
           surveyContainer.scrollTop = 50;

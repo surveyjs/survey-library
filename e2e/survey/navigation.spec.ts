@@ -155,7 +155,8 @@ frameworks.forEach(framework => {
     test("Page should not be scrolled to top of survey if top of survey is visible", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
       await page.evaluate(() => {
-        const container = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.querySelector("#surveyElement");
         const parentDiv = container?.parentNode;
         const newNode = document.createElement("div");
         newNode.style.height = "200px";
@@ -173,7 +174,8 @@ frameworks.forEach(framework => {
     test("Page should be scrolled to top of survey fit to container", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
       await page.evaluate(() => {
-        const container = (window as any).survey.rootElement.getRootNode().getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.querySelector("#surveyElement");
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";

@@ -1,0 +1,924 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+resources:
+  repositories:
+    - repository: Service # The name used to reference this repository in the checkout step
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/service
+    - repository: EmptyRepo
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/azure-pipelines-repo-dont-remove-please
+    - repository: Utils
+      type: github
+      endpoint: github.com_surveyjsdeveloper
+      name: surveyjs/survey-utils
+
+variables:
+  npm_config_cache: $(Pipeline.Workspace)/.npm
+
+trigger:
+  batch: true
+  branches:
+    include:
+      - master
+  tags:
+    exclude:
+      - v*.*.*
+
+pool:
+  vmImage: "Ubuntu-22.04"
+
+jobs:
+  - job: NPMCache
+
+    steps:
+      - checkout: self
+      - checkout: EmptyRepo
+        persistCredentials: true
+        clean: true
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/survey-library/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      - task: Npm@1
+        displayName: "NPM install"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)/survey-library
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - job: Core
+    dependsOn:
+      - NPMCache
+
+    steps:
+      - checkout: self
+        persistCredentials: true
+      - checkout: Service
+        persistCredentials: true
+        clean: true
+        fetchDepth: 1
+      - checkout: Utils
+        persistCredentials: true
+        clean: true
+        fetchDepth: 1
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/survey-library/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      # setup next release version
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "specific"
+          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          pipeline: "47"
+          buildVersionToDownload: "latest"
+          downloadType: "single"
+          artifactName: "ReleaseVersionFile"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          Contents: "version.txt"
+          TargetFolder: "$(Build.SourcesDirectory)/"
+          OverWrite: true
+        displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+      - powershell: |
+          $version = Get-Content $(Build.SourcesDirectory)/version.txt
+          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+      ##########################################################################
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)/survey-library
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npm run lint
+        displayName: "run lint command"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          npm install
+        displayName: "NPM install packages/survey-core"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+        displayName: "Set up git config"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          npm run release -- --release-as $(SurveyJSVersion)
+        displayName: "npm run release"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          npm run build:all
+        displayName: "Build Core"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          npm test
+        displayName: "run unit test"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          npm run test:postcss
+        displayName: "check postcss compatibility"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-core
+          npm run doc_gen
+        displayName: "generate docs"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
+          Contents: |
+            classes.json
+            pmes.json
+            surveyjs_definition.json
+          TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
+          OverWrite: true
+          CleanTargetFolder: false
+        displayName: "copy generated docs to the local surveyjs/service repo"
+
+      # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+      # https://github.com/microsoft/azure-pipelines-yaml/issues/248
+      # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+      - powershell: |
+          cd $(Build.SourcesDirectory)/service
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+          git pull origin master
+          git merge -X ours origin/master
+          git fetch origin master --tags --force
+          git checkout master
+          git add surveyjs.io/App_Data/DocsLibrary
+          git commit -m "updated survey-library docs [azurepipelines skip]"
+          git pull origin master
+          git merge -X ours origin/master
+          git push origin master
+        displayName: "git surveyjs/service push updated docs"
+      # - powershell: |
+      #     cd $(Build.SourcesDirectory)/service
+      #     $env:GIT_REDIRECT_STDERR = '2>&1'
+      #     git config --global user.email "surveyjs.org@gmail.com"
+      #     git config --global user.name "surveyjsdeveloper"
+      #     git pull origin V2
+      #     git fetch origin V2 --tags --force
+      #     git checkout V2
+      #     git add surveyjs.io/App_Data/DocsLibrary
+      #     git commit -m "updated survey-library V2 docs [azurepipelines skip]"
+      #     git pull origin V2
+      #     git push origin V2
+      #   displayName: "git surveyjs/service push updated V2 docs"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-utils
+          npm install
+        displayName: "NPM install survey-utils"
+    
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-utils
+          npm run build
+        displayName: "survey-utils build"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-utils
+          node ./dist/translateLibrary.js
+        displayName: "survey-utils translate library"
+
+      - powershell: |
+          cd $(Build.SourcesDirectory)/survey-library
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+          git pull origin master
+          git fetch origin master --tags --force
+          git checkout master
+          git add packages/survey-core/src/localization
+          git commit -m "updated survey-library translation [azurepipelines skip]"
+          git pull origin master
+          git push origin master
+        displayName: "Library - push updated translation to github"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/docs"
+          Contents: |
+            surveyjs_definition.json
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+          OverWrite: true
+          CleanTargetFolder: false
+        displayName: "put surveyjs_definition.json into build"
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
+
+      #trigger next build via the artifact file 'version.txt'
+      - task: CopyFiles@2
+        inputs:
+          contents: "version.txt"
+          targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
+        displayName: "copy version file to Build.ArtifactStagingDirectory"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-core"
+          ArtifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          publishLocation: "Container"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+          ArtifactName: "SurveyJSLibraryBuildCore"
+          publishLocation: "Container"
+
+  - job: React
+    dependsOn:
+      - Core
+
+    steps:
+      - checkout: self
+      - checkout: EmptyRepo
+        persistCredentials: true
+        clean: true
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/survey-library/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      # setup next release version
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "specific"
+          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          pipeline: "47"
+          buildVersionToDownload: "latest"
+          downloadType: "single"
+          artifactName: "ReleaseVersionFile"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          Contents: "version.txt"
+          TargetFolder: "$(Build.SourcesDirectory)/"
+          OverWrite: true
+        displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+      - powershell: |
+          $version = Get-Content $(Build.SourcesDirectory)/version.txt
+          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+      ##########################################################################
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)/survey-library
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm install
+        displayName: "NPM install packages/survey-react-ui"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+        displayName: "Set up git config"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm run release -- --release-as $(SurveyJSVersion)
+        displayName: "npm run release"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm run build
+        displayName: "Build React UI"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm run test
+        displayName: "run markup tests"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-react-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-react-ui/build"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-react-ui"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+          ArtifactName: "SurveyJSLibraryBuildReact"
+          publishLocation: "Container"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-react-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-react-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React End-To-End Tests"
+        condition: succeededOrFailed()
+
+  - job: Angular
+    dependsOn:
+      - Core
+
+    steps:
+      - checkout: self
+      - checkout: EmptyRepo
+        persistCredentials: true
+        clean: true
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/survey-library/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      # setup next release version
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "specific"
+          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          pipeline: "47"
+          buildVersionToDownload: "latest"
+          downloadType: "single"
+          artifactName: "ReleaseVersionFile"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          Contents: "version.txt"
+          TargetFolder: "$(Build.SourcesDirectory)/"
+          OverWrite: true
+        displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+      - powershell: |
+          $version = Get-Content $(Build.SourcesDirectory)/version.txt
+          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+      ##########################################################################
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)/survey-library
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          npm install
+        displayName: "NPM install packages/survey-angular-ui"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+        displayName: "Set up git config"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          npm run release -- --release-as $(SurveyJSVersion)
+        displayName: "npm run release"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          npm run build
+        displayName: "Build Angular"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/example
+          npm install
+        displayName: "NPM install examples/angular-ui"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          npm run build:example:prod
+        displayName: "Build Angular Example"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          npm run test
+        displayName: "run unit and markup tests"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/build"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-angular-ui"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+          ArtifactName: "SurveyJSLibraryBuildAngular"
+          publishLocation: "Container"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Angular_E2E/"
+          ArtifactName: "Library_Angular_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-angular-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Angular End-To-End Tests"
+        condition: succeededOrFailed()
+
+  - job: Vue3
+    dependsOn:
+      - Core
+
+    steps:
+      - checkout: self
+      - checkout: EmptyRepo
+        persistCredentials: true
+        clean: true
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/survey-library/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPMs
+
+      # setup next release version
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "specific"
+          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          pipeline: "47"
+          buildVersionToDownload: "latest"
+          downloadType: "single"
+          artifactName: "ReleaseVersionFile"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          Contents: "version.txt"
+          TargetFolder: "$(Build.SourcesDirectory)/"
+          OverWrite: true
+        displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+      - powershell: |
+          $version = Get-Content $(Build.SourcesDirectory)/version.txt
+          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+      ##########################################################################
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)/survey-library
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+          npm install
+        displayName: "NPM install packages/survey-vue3-ui"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+        displayName: "Set up git config"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+          npm run release -- --release-as $(SurveyJSVersion)
+        displayName: "npm run release"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+          npm run build
+        displayName: "Build Vue3"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
+          npm install
+        displayName: "NPM install survey-vue3-ui/example"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
+          npm run build
+        displayName: "Build Vue3 Example"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+          npm run test
+        displayName: "run unit and markup tests"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/build"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-vue3-ui"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+          ArtifactName: "SurveyJSLibraryBuildVue3"
+          publishLocation: "Container"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/test-results/"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_Vue3_E2E/"
+          ArtifactName: "Library_Vue3_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "Vue3 End-To-End Tests"
+        condition: succeededOrFailed()
+
+  - job: SurveyUI_and_CSSFrameworks
+    dependsOn:
+      - Core
+
+    steps:
+      - checkout: self
+      - checkout: EmptyRepo
+        persistCredentials: true
+        clean: true
+
+      - task: NodeTool@0
+        inputs:
+          versionSpec: "16.x"
+        displayName: "Install Node.js"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+          Contents: "package.json"
+          TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+          OverWrite: true
+        displayName: "Copy package.json for cache key"
+      - task: Cache@2
+        inputs:
+          key: "npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json"
+          path: $(Build.SourcesDirectory)/survey-library/node_modules
+          cacheHitVar: NPM_CACHE_RESTORED
+        displayName: Cache NPM
+
+      # setup next release version
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "specific"
+          project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+          pipeline: "47"
+          buildVersionToDownload: "latest"
+          downloadType: "single"
+          artifactName: "ReleaseVersionFile"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+          Contents: "version.txt"
+          TargetFolder: "$(Build.SourcesDirectory)/"
+          OverWrite: true
+        displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+      - powershell: |
+          $version = Get-Content $(Build.SourcesDirectory)/version.txt
+          Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+        displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+      ##########################################################################
+
+      - task: Npm@1
+        displayName: "NPM install root"
+        inputs:
+          command: install
+          verbose: false
+          workingDir: $(Build.SourcesDirectory)/survey-library
+        condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npm run postinstall
+        displayName: "install playwright chrome"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library
+          npx puppeteer browsers install chrome
+        displayName: "install chrome"
+
+      - task: DownloadBuildArtifacts@0
+        inputs:
+          buildType: "current"
+          downloadType: "single"
+          artifactName: "SurveyJSLibraryBuildCore-$(Build.BuildId)"
+          downloadPath: "$(System.ArtifactsDirectory)"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: $(System.ArtifactsDirectory)/SurveyJSLibraryBuildCore-$(Build.BuildId)
+          TargetFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-core/build"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+          npm install
+        displayName: "NPM install packages/survey-js-ui"
+
+      - powershell: |
+          $env:GIT_REDIRECT_STDERR = '2>&1'
+          git config --global user.email "surveyjs.org@gmail.com"
+          git config --global user.name "surveyjsdeveloper"
+        displayName: "Set up git config"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+          npm run release -- --release-as $(SurveyJSVersion)
+        displayName: "npm run release"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+          npm run build
+        displayName: "Build UI"
+
+      # - script: |
+      #     cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+      #     npm run test
+      #   displayName: "run markup tests"
+
+      - script: |
+          cd $(Build.SourcesDirectory)/survey-library/packages/survey-js-ui
+          npm run e2e:ci
+        displayName: "run e2e tests"
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-js-ui/test-results"
+          Contents: "**"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/Library_React_E2E"
+          OverWrite: true
+        condition: always()
+        displayName: "copy e2e artifacts"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/Library_React_E2E/"
+          ArtifactName: "Library_React_E2E"
+          publishLocation: "Container"
+        condition: always()
+        displayName: "publish e2e artifacts"
+
+      - task: PublishTestResults@2
+        displayName: "Publish test results"
+        inputs:
+          searchFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-js-ui/test-results"
+          testResultsFormat: "JUnit"
+          testResultsFiles: "e2e-junit-results.xml"
+          mergeTestResults: true
+          failTaskOnFailedTests: true
+          testRunTitle: "React End-To-End Tests"
+        condition: succeededOrFailed()
+
+      - task: CopyFiles@2
+        inputs:
+          SourceFolder: "$(Build.SourcesDirectory)/survey-library/packages/survey-js-ui/build"
+          TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-js-ui"
+
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+          ArtifactName: "SurveyJSLibraryBuildSurveyUI"
+          publishLocation: "Container"

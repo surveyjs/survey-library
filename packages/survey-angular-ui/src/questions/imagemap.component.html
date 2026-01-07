@@ -2,16 +2,6 @@
   [class]="model.cssClasses.root"
   #contentElement
   >
-
-  <img [class]="model.cssClasses.background" [id]="'imagemap-' + model.id + '-background'" [src]="model.imageLink | safeUrl" role="presentation">
-  <canvas [class]="model.cssClasses.canvas.preview" [id]="'imagemap-' + model.id + '-canvas-preview'"></canvas>
-  <canvas [class]="model.cssClasses.canvas.hover" [id]="'imagemap-' + model.id + '-canvas-hover'"></canvas>
-  <canvas [class]="model.cssClasses.canvas.selected" [id]="'imagemap-' + model.id + '-canvas-selected'"></canvas>
-  <img
-    [class]="model.cssClasses.map"
-    [src]="model.imageLink | safeUrl"
-    [useMap]="'#imagemap-' + model.id"
-  />
-  <map [name]="'imagemap-' + model.id"></map>
-
+  <img [class]="model.cssClasses.bg" [id]="model.id + '-bg'" [src]="model.imageLink | safeUrl" role="presentation">
+  <svg [class]="model.cssClasses.svg" [id]="model.id + '-svg'"></svg>
 </div>

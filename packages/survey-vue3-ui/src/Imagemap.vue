@@ -3,16 +3,8 @@
     :class="question.cssClasses.root"
     ref="root"
   >
-    <img :class="question.cssClasses.background" :id="`imagemap-${question.id}-background`" :src="question.imageLink" />
-    <canvas :class="question.cssClasses.canvas.preview" :id="`imagemap-${question.id}-canvas-preview`"></canvas>
-    <canvas :class="question.cssClasses.canvas.hover" :id="`imagemap-${question.id}-canvas-hover`"></canvas>
-    <canvas :class="question.cssClasses.canvas.selected" :id="`imagemap-${question.id}-canvas-selected`"></canvas>
-    <img
-      :class="question.cssClasses.map"
-      :src="question.imageLink"
-      :useMap="`#imagemap-${question.id}`"
-    />
-    <map :name="`imagemap-${question.id}`"></map>
+    <img :class="question.cssClasses.bg" :id="`${question.id}-bg`" :src="question.imageLink" />
+    <svg :class="question.cssClasses.svg" :id="`${question.id}-svg`"></svg>
   </div>
 </template>
 

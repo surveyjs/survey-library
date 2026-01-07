@@ -61,12 +61,12 @@ frameworks.forEach((framework) => {
 
       await page.locator("span").filter({ hasText: "Yes" }).first().click();
       await page.waitForTimeout(500);
-      await expect(page.locator(".sd-imagemap-background")).toBeVisible();
+      await expect(page.locator(".sd-imagemap-bg")).toBeVisible();
 
-      let ok = await page.evaluate(() => document.querySelectorAll("area").length === 2);
+      let ok = await page.evaluate(() => document.querySelectorAll(".sd-imagemap-svg rect").length === 2);
       expect(ok).toBeTruthy();
 
-      await page.locator("img[usemap]").click({ position: { x: 30, y: 30 } });
+      await page.locator(".sd-imagemap-svg").click({ position: { x: 30, y: 30 } });
 
       ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 3);
       expect(ok).toBeTruthy();

@@ -36,3 +36,10 @@
 .sd-imagemap-svg-item--disabled {
     display: none;
 }
+
+.sd-imagemap-control-point {
+    fill: var(--sjs-secondary-backcolor, #ff00ff);
+    stroke: var(--sjs-secondary-backcolor-light, #ff00ff);
+    stroke-width: 1;
+    cursor: pointer;
+}

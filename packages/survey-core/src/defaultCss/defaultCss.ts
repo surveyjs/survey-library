@@ -955,6 +955,7 @@ export var defaultCss = {
     svgItemHovered: "sd-imagemap-svg-item sd-imagemap-svg-item--hover",
     svgItemSelected: "sd-imagemap-svg-item sd-imagemap-svg-item--selected",
     svgItemDisabled: "sd-imagemap-svg-item sd-imagemap-svg-item--disabled",
+    svgControlPoint: "sd-imagemap-control-point",
   }
 };
 

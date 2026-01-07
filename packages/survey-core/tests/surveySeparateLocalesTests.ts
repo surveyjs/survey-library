@@ -235,3 +235,61 @@ QUnit.test("Merge with separate locale strings for completedHtmlOnCondition", fu
     ]
   }, "merge completedHtmlOnCondition locale strings for one locale");
 });
+QUnit.test("Merge with separate locale strings for completedHtmlOnCondition, Bug#10764", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "slider",
+        name: "q1",
+        customLabels: [
+          { value: 1, text: { default: "Very bad", de: "Sehr schlecht" } },
+          { value: 5, text: { default: "Very good", de: "Sehr gut" } },
+        ]
+      }
+    ]
+  });
+  const plainJSON = survey.toJSON({ storeLocaleStrings: false });
+  const enJSON = survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] });
+  const deJSON = survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] });
+  assert.deepEqual(plainJSON.pages[0].elements[0], {
+    type: "slider",
+    name: "q1",
+    customLabels: [1, 5]
+  }, "plain JSON");
+  assert.deepEqual(enJSON.pages[0].elements[0], {
+    type: "slider",
+    name: "q1",
+    customLabels: [
+      { text: "Very bad" },
+      { text: "Very good" },
+    ]
+  }, "en JSON");
+  assert.equal(deJSON.locale, "de", "de locale");
+  assert.deepEqual(deJSON.pages[0].elements[0], {
+    type: "slider",
+    name: "q1",
+    customLabels: [
+      { text: "Sehr schlecht" },
+      { text: "Sehr gut" },
+    ]
+  }, "de JSON");
+  const mergedSurvey = new SurveyModel(plainJSON);
+  mergedSurvey.mergeLocalizationJSON(enJSON);
+  assert.deepEqual(mergedSurvey.toJSON().pages[0].elements[0], {
+    type: "slider",
+    name: "q1",
+    customLabels: [
+      { value: 1, text: "Very bad" },
+      { value: 5, text: "Very good" },
+    ]
+  }, "merged JSON vs en JSON");
+  mergedSurvey.mergeLocalizationJSON(deJSON);
+  assert.deepEqual(mergedSurvey.toJSON().pages[0].elements[0], {
+    type: "slider",
+    name: "q1",
+    customLabels: [
+      { value: 1, text: { default: "Very bad", de: "Sehr schlecht" } },
+      { value: 5, text: { default: "Very good", de: "Sehr gut" } },
+    ]
+  }, "merged JSON vs de JSON");
+});

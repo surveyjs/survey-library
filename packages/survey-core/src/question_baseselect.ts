@@ -70,6 +70,10 @@ export class ChoiceItem extends ItemValue {
     if (!owner || !owner.supportMultipleComment) return false;
     return owner.supportMultipleComment(this);
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    if (name === "elements") return !this.hasElements;
+    return super.isPropertyStoredInHash(name);
+  }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "commentPlaceholder") return !!this.getLocalizableString("commentPlaceholder");
     return super.canAddPpropertyToJSON(prop);

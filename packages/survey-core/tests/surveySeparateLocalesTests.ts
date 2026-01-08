@@ -1,4 +1,5 @@
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionMatrixModel } from "../src/question_matrix";
 import { QuestionTextModel } from "../src/question_text";
 import { SurveyModel } from "../src/survey";
 
@@ -235,7 +236,7 @@ QUnit.test("Merge with separate locale strings for completedHtmlOnCondition", fu
     ]
   }, "merge completedHtmlOnCondition locale strings for one locale");
 });
-QUnit.test("Merge with separate locale strings for completedHtmlOnCondition, Bug#10764", function (assert) {
+QUnit.test("Merge with separate locale strings for slider.customLabels, Bug#10764", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -292,4 +293,45 @@ QUnit.test("Merge with separate locale strings for completedHtmlOnCondition, Bug
       { value: 5, text: { default: "Very good", de: "Sehr gut" } },
     ]
   }, "merged JSON vs de JSON");
+});
+QUnit.test("Merge with separate locale strings for matrix.cells, Bug#10767", (assert) => {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "q1",
+      columns: ["col1"],
+      rows: ["row1"],
+      cells: { row1: { col1: { default: "text", de: "text-de" } } }
+    }]
+  });
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: false }), {
+    name: "q1",
+    columns: ["col1"],
+    rows: ["row1"],
+  }, "storeLocalizableStrings: none");
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] }), {
+    name: "q1",
+    cells: { row1: { col1: "text" } }
+  }, "storeLocalizableStrings: default");
+  assert.deepEqual(question.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }), {
+    name: "q1",
+    cells: { row1: { col1: "text-de" } }
+  }, "storeLocalizableStrings: de");
+  const mergedSurvey = new SurveyModel({
+    elements: [{
+      type: "matrix",
+      name: "q1",
+      columns: ["col1"],
+      rows: ["row1"],
+    }]
+  });
+  mergedSurvey.mergeLocalizationJSON(survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["default"] }));
+  mergedSurvey.mergeLocalizationJSON(survey.toJSON({ storeLocaleStrings: "stringsOnly", locales: ["de"] }));
+  assert.deepEqual(mergedSurvey.getQuestionByName("q1").toJSON(), {
+    name: "q1",
+    columns: ["col1"],
+    rows: ["row1"],
+    cells: { row1: { col1: { default: "text", de: "text-de" } } }
+  }, "merged JSON");
 });

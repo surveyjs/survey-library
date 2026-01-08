@@ -444,15 +444,15 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  public getSerializableValue(obj: any, storeDefaults?: boolean, selectedLocales?: string[]): any {
+  public getSerializableValue(obj: any, storeDefaults?: boolean, options?: ISaveToJSONOptions): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
     if (!storeDefaults && this.isSerializable && obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this)) return undefined;
-    const value = this.getValue(obj, selectedLocales);
+    const value = this.getValue(obj, options);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
     return value;
   }
-  public getValue(obj: any, selectedLocales?: string[]): any {
+  public getValue(obj: any, options?: ISaveToJSONOptions): any {
     if (this.onGetValue) {
       obj = this.getOriginalObj(obj);
       return this.onGetValue(obj);
@@ -460,7 +460,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     const serProp = this.serializationProperty;
     if (!!serProp) {
       const serObj = obj[serProp];
-      if (!!serObj) return serObj.getJson(selectedLocales);
+      if (!!serObj) return serObj.getJson(options);
     }
     return obj[this.name];
   }
@@ -1878,7 +1878,7 @@ export class JsonObject {
     const storeStrings = options.storeLocaleStrings;
     if (prop.isArray || prop.isUnique || prop.name === "name") return true;
     if (storeStrings === false) return !prop.isLocalizable;
-    if (storeStrings === "stringsOnly") return prop.isLocalizable;
+    if (storeStrings === "stringsOnly") return prop.isLocalizable || !!prop.serializationProperty;
     return true;
   }
   private valueToJsonCore(obj: any, result: any, prop: JsonObjectProperty, options: ISaveToJSONOptions): void {
@@ -1887,7 +1887,7 @@ export class JsonObject {
       this.valueToJsonCore(obj, result, serProp, options);
       return;
     }
-    var value = prop.getSerializableValue(obj, options.storeDefaults, options.locales);
+    var value = prop.getSerializableValue(obj, options.storeDefaults, options);
     if (value === undefined) return;
     if (this.isValueArray(value)) {
       var arrValue = [];

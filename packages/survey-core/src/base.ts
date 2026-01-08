@@ -1091,16 +1091,22 @@ export class Base implements IObjectValueContext {
     if (defaultStr) {
       locName = defaultStr === true ? name : defaultStr;
     }
+    const locStr = this.createLocalizableStringCore(owner, name, supportsMarkdown, locName);
+    const prop = this.getPropertyByName(name);
+    locStr.disableLocalization = prop && prop.isLocalizable === false;
+    return locStr;
+  }
+  protected createLocalizableStringCore(owner: ILocalizableOwner, name: string, supportsMarkdown: boolean, locName?: string): LocalizableString {
     const locStr = new LocalizableString(owner, supportsMarkdown, name, locName);
-    locStr.onStrChanged = (oldValue: string, newValue: string) => {
-      this.propertyValueChanged(name, oldValue, newValue);
-    };
+    if (!!name) {
+      locStr.onStrChanged = (oldValue: string, newValue: string) => {
+        this.propertyValueChanged(name, oldValue, newValue);
+      };
+    }
     if (!this.localizableStrings) {
       this.localizableStrings = {};
     }
     this.localizableStrings[name] = locStr;
-    const prop = this.getPropertyByName(name);
-    locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
   protected removeLocalizableString(name: string): void {
@@ -1145,7 +1151,7 @@ export class Base implements IObjectValueContext {
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if (item)this.AddLocStringToUsedLocales(item, locales);
+        if (item)this.addLocStringToUsedLocales(item, locales);
       }
     }
     if (!!this.arraysInfo) {
@@ -1194,7 +1200,7 @@ export class Base implements IObjectValueContext {
   }
   protected getSearchableLocKeys(keys: Array<string>) { }
   protected getSearchableItemValueKeys(keys: Array<string>) { }
-  protected AddLocStringToUsedLocales(
+  private addLocStringToUsedLocales(
     locStr: LocalizableString,
     locales: Array<string>
   ) {

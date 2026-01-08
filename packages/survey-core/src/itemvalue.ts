@@ -238,10 +238,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return this.isGhost === true;
   }
   private createLocText(): LocalizableString {
-    const res = new LocalizableString(this, true, "text");
-    res.onStrChanged = (oldValue: string, newValue: string) => {
-      this.propertyValueChanged("text", oldValue, newValue);
-    };
+    const res = this.createLocalizableStringCore(this, "text", true, "text");
     res.onGetTextCallback = (txt) => {
       return this.onGetText(txt);
     };
@@ -433,15 +430,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public setIsEnabled(val: boolean): void {
     this.setPropertyValue("isEnabled", val);
-  }
-  public addUsedLocales(locales: Array<string>): void {
-    if (this.locTextValue) {
-      this.AddLocStringToUsedLocales(this.locTextValue, locales);
-    }
-  }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
-    this.locTextValue?.strChanged();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     if (name === "value" && !this.hasText) {

@@ -3,7 +3,7 @@
     :class="question.cssClasses.root"
     ref="root"
   >
-    <img :class="question.cssClasses.bg" :id="`${question.id}-bg`" :src="question.imageLink" />
+    <img :class="question.cssClasses.bg" :id="`${question.id}-bg`" :src="question.imageLink" role="presentation"/>
     <svg :class="question.cssClasses.svg" :id="`${question.id}-svg`"></svg>
   </div>
 </template>

@@ -90,7 +90,7 @@ export class QuestionImageMapModel extends Question {
       "selectedStrokeColor", "selectedStrokeWidth", "selectedFillColor"
     ].indexOf(name) > -1)this.updateCSSVariables();
 
-    if (name === "areas" || name === "selectedArea")this.renderSVG();
+    if (name === "areas" || name === "selectedArea" || name === "shape")this.renderSVG();
 
     if (name === "hoveredUID") {
       this.updateItemsCssByUID(oldValue);
@@ -173,8 +173,14 @@ export class QuestionImageMapModel extends Question {
 
   onClickHandler = (event: MouseEvent) => {
     if (this.isInDesignMode && this.selectedArea) {
-      const [x, y] = this.scaleCoordsToSVG([event.offsetX, event.offsetY]);
-      this.selectedArea.addCoord(x, y);
+      const idx = (event.target as HTMLElement).dataset["idx"];
+      if (idx) {
+        this.selectedArea.removeCoord(Number(idx));
+      } else {
+        const [x, y] = this.scaleCoordsToSVG([event.offsetX, event.offsetY]);
+        this.selectedArea.addCoord(x, y);
+      }
+      this.drawAreaControls();
       return;
     }
     const uid = (event.target as HTMLElement).dataset["uid"];
@@ -188,6 +194,10 @@ export class QuestionImageMapModel extends Question {
     const uid = (event.target as HTMLElement).dataset["uid"];
     if (!uid) return;
     this.hoveredUID = Number(uid);
+  };
+
+  onMouseOutHandler = () => {
+    this.hoveredUID = null;
   };
 
   onMouseDownHandler = (event: MouseEvent) => {
@@ -212,7 +222,7 @@ export class QuestionImageMapModel extends Question {
       event.offsetY - this.activeControlPointLastY
     ]);
 
-    const idx = Number(this.activeControlPoint.dataset["idx"]) - 1;
+    const idx = Number(this.activeControlPoint.dataset["idx"]);
     const item = this.selectedArea;
 
     if (!item) return;
@@ -231,10 +241,8 @@ export class QuestionImageMapModel extends Question {
 
     this.activeControlPointLastX = event.offsetX;
     this.activeControlPointLastY = event.offsetY;
-  };
 
-  onMouseOutHandler = () => {
-    this.hoveredUID = null;
+    this.drawAreaControls();
   };
 
   public initImageMap(el: HTMLElement): void {
@@ -368,7 +376,7 @@ export class QuestionImageMapModel extends Question {
       this.selectedArea = (this.selectedArea === item ? undefined : item);
       return;
     }
-    if (this.readOnly || !item.enabled) return;
+    if (this.isReadOnly || !item.enabled) return;
     if (!this.isMultiSelect) {
       this.value = (this.value === item.value ? undefined : item.value);
       return;
@@ -425,7 +433,7 @@ export class QuestionImageMapModel extends Question {
     switch(shape) {
       case "rect":
         for (let i = 0; i < 4; i += 2) {
-          const controlPoint = this.createControlPoint(coords[i], coords[i + 1], this.controlPoints.length + 1);
+          const controlPoint = this.createControlPoint(coords[i], coords[i + 1], this.controlPoints.length);
           this.svg.appendChild(controlPoint);
           this.controlPoints.push(controlPoint);
         }
@@ -435,14 +443,14 @@ export class QuestionImageMapModel extends Question {
           [coords[0], coords[1]],
           [Number(coords[0]) + Number(coords[2]), coords[1]]
         ]) {
-          const controlPoint = this.createControlPoint(x, y, this.controlPoints.length + 1);
+          const controlPoint = this.createControlPoint(x, y, this.controlPoints.length);
           this.svg.appendChild(controlPoint);
           this.controlPoints.push(controlPoint);
         }
         break;
       case "poly":
         for (let i = 0; i < coords.length; i += 2) {
-          const controlPoint = this.createControlPoint(coords[i], coords[i + 1], this.controlPoints.length + 1);
+          const controlPoint = this.createControlPoint(coords[i], coords[i + 1], this.controlPoints.length);
           this.svg.appendChild(controlPoint);
           this.controlPoints.push(controlPoint);
         }
@@ -532,25 +540,24 @@ export class ImageMapArea extends ItemValue {
   public addCoord(x, y) {
 
     const shape = this.getShape();
+    if (shape !== "poly") return;
+
     const coords = this.getCoords();
+    this.coords = coords + `,${x},${y}`;
+  }
+  public removeCoord(idx: number) {
 
-    switch(shape) {
-      case "circle":
-        break;
-      case "rect":
-        break;
-      default:
-        this.coords = coords + `,${x},${y}`;
-        break;
-    }
+    const shape = this.getShape();
+    if (shape !== "poly") return;
 
-    this.draw();
+    const coords = this.getCoords();
+    coords.splice(idx * 2, 2);
+    this.coords = coords.join(",");
   }
 
   public draw(): void {
 
     const shape = this.getShape();
-    const owner = this.locOwner as QuestionImageMapModel;
 
     switch(shape) {
       case "rect":
@@ -570,8 +577,6 @@ export class ImageMapArea extends ItemValue {
         this.svg.setAttribute("points", this.getSVGCoords().join(","));
         break;
     }
-
-    owner.drawAreaControls();
   }
 
   @property() idleFillColor: string;
@@ -604,10 +609,13 @@ export class ImageMapArea extends ItemValue {
   public svg: SVGElement;
   public getSVGElement() {
 
-    if (this.svg) return this.svg;
+    const shape = this.getShape();
+
+    if (this.svg && this.svg.tagName === shape) {
+      return this.svg;
+    }
 
     const document = DomDocumentHelper.getDocument();
-    const shape = this.getShape();
 
     const el = document.createElementNS("http://www.w3.org/2000/svg", shape === "poly" ? "polygon" : shape);
     el.dataset["uid"] = this.uniqueId.toString();

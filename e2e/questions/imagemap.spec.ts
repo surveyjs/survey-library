@@ -67,11 +67,10 @@ frameworks.forEach((framework) => {
       expect(ok).toBeTruthy();
 
       await page.locator(".sd-imagemap-svg").click({ position: { x: 30, y: 30 } });
-
       ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 3);
       expect(ok).toBeTruthy();
 
-      await page.locator("img[usemap]").click({ position: { x: 130, y: 30 } });
+      await page.locator(".sd-imagemap-svg").click({ position: { x: 130, y: 30 } });
       ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 4);
       expect(ok).toBeTruthy();
 

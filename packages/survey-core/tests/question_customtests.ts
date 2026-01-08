@@ -4253,3 +4253,125 @@ QUnit.test("Composite: allow to make the custom number rendering", function (ass
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: Merge with separate locale strings, Bug#10771", (assert) => {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    inheritBaseProps: ["choices"],
+    questionJSON:
+      {
+        type: "dropdown",
+      }
+  });
+  var survey = new SurveyModel({
+    elements: [{
+      type: "newquestion",
+      name: "q1",
+      title: { default: "Title", de: "Titel" },
+      description: { default: "Description", de: "Beschreibung" },
+      choices: [{ value: 1, text: { default: "item en", de: "item de" } }]
+    }]
+  });
+  const plainJSON = survey.toJSON({ storeLocaleStrings: false });
+  assert.deepEqual(plainJSON.pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    choices: [1]
+  }, "check plain json");
+  const enJSON = survey.getLocalizationJSON(["default"]);
+  assert.deepEqual(enJSON.pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    title: "Title",
+    description: "Description",
+    choices: [{ value: 1, text: "item en" }]
+  }, "check en json");
+  const deJSON = survey.getLocalizationJSON(["de"]);
+  assert.deepEqual(deJSON.pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    title: "Titel",
+    description: "Beschreibung",
+    choices: [{ value: 1, text: "item de" }]
+  }, "check de json");
+  const mergedSurvey = new SurveyModel(plainJSON);
+  mergedSurvey.mergeLocalizationJSON(enJSON);
+  mergedSurvey.mergeLocalizationJSON(deJSON);
+  assert.deepEqual(mergedSurvey.toJSON().pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    title: { default: "Title", de: "Titel" },
+    description: { default: "Description", de: "Beschreibung" },
+    choices: [{ value: 1, text: { default: "item en", de: "item de" } }]
+  }, "check merged json");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: Merge with separate locale strings, Bug#10771", (assert) => {
+  ComponentCollection.Instance.add(<any>{
+    name: "newquestion",
+    elementsJSON:
+      [{
+        type: "dropdown",
+        name: "myQuestion",
+      }],
+    onInit() {
+      Serializer.addProperty("newquestion", {
+        name: "myChoices:choiceitem[]",
+      });
+    },
+    onLoaded(question: QuestionCompositeModel) {
+      this.setChoices(question);
+    },
+    onPropertyChanged(question: QuestionCompositeModel, propertyName: string) {
+      if (propertyName == "myChoices") {
+        this.setChoices(question);
+      }
+    },
+    setChoices: (question: QuestionCompositeModel) => {
+      const choices = question.myChoices;
+      const dropdown = question.contentPanel.getQuestionByName("myQuestion") as QuestionDropdownModel;
+      dropdown.choices = choices;
+    }
+  });
+  var survey = new SurveyModel({
+    elements: [{
+      type: "newquestion",
+      name: "q1",
+      title: { default: "Title", de: "Titel" },
+      description: { default: "Description", de: "Beschreibung" },
+      myChoices: [{ value: 1, text: { default: "item en", de: "item de" } }]
+    }]
+  });
+  const plainJSON = survey.toJSON({ storeLocaleStrings: false });
+  assert.deepEqual(plainJSON.pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    myChoices: [1]
+  }, "check plain json");
+  const enJSON = survey.getLocalizationJSON(["default"]);
+  assert.deepEqual(enJSON.pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    title: "Title",
+    description: "Description",
+    myChoices: [{ value: 1, text: "item en" }]
+  }, "check en json");
+  const deJSON = survey.getLocalizationJSON(["de"]);
+  assert.deepEqual(deJSON.pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    title: "Titel",
+    description: "Beschreibung",
+    myChoices: [{ value: 1, text: "item de" }]
+  }, "check de json");
+  const mergedSurvey = new SurveyModel(plainJSON);
+  mergedSurvey.mergeLocalizationJSON(enJSON);
+  mergedSurvey.mergeLocalizationJSON(deJSON);
+  assert.deepEqual(mergedSurvey.toJSON().pages[0].elements[0], {
+    type: "newquestion",
+    name: "q1",
+    title: { default: "Title", de: "Titel" },
+    description: { default: "Description", de: "Beschreibung" },
+    myChoices: [{ value: 1, text: { default: "item en", de: "item de" } }]
+  }, "check merged json");
+  ComponentCollection.Instance.clear();
+});

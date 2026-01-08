@@ -451,6 +451,11 @@ export class Base implements IObjectValueContext {
   protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
     this.mergeLocalizationInObjectCore(obj, locales);
     this.mergeLocalizationInArrays(obj, locales);
+    const orgObj = obj.getOriginalObj();
+    const org = this.getOriginalObj();
+    if (orgObj !== obj && org !== this) {
+      org.mergeLocalizationObj(orgObj, locales);
+    }
   }
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
@@ -471,7 +476,6 @@ export class Base implements IObjectValueContext {
     if (!obj || typeof obj.mergeLocalizationObj !== "function") return false;
     const self: any = this;
     if (obj["name"] && self.name !== obj["name"]) return false;
-    if (obj["value"] && self.value !== obj["value"]) return false;
     return true;
   }
   private mergeLocalizationInArrays(obj: Base, locales?: Array<string>): void {

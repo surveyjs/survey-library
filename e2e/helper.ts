@@ -41,8 +41,9 @@ export function getVisibleListItemByText(page: Page, text: string): Locator {
 
 export async function resetFocusToBody(page: Page): Promise<void> {
   await page.evaluate(() => {
-    if (!!document.activeElement) {
-      document.activeElement.blur();
+    const rootNode = (window as any).survey.rootElement.getRootNode();
+    if (!!rootNode.activeElement) {
+      rootNode.activeElement.blur();
     }
     document.body.focus();
   });

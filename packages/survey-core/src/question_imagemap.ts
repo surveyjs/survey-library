@@ -92,6 +92,7 @@ export class QuestionImageMapModel extends Question {
       "selectedStrokeColor", "selectedStrokeWidth", "selectedFillColor"
     ].indexOf(name) > -1)this.updateCSSVariables();
 
+    if (this.isInDesignMode && name === "areas" && !this.areas.length) { this.selectedArea = undefined; }
     if (["areas", "shape", "selectedArea", "hoveredUID"].indexOf(name) > -1)this.renderSVG();
   }
 
@@ -375,6 +376,12 @@ export class QuestionImageMapModel extends Question {
     const hoveredItem = this.areas.find(i => i.uniqueId === this.hoveredUID);
     if (!hoveredItem) return false;
     return this.isInDesignMode ? item.uniqueId === this.hoveredUID : item.value === hoveredItem.value;
+  }
+
+  public addItem(value: any): ImageMapArea {
+    const item = new ImageMapArea(value);
+    this.areas.push(item);
+    return item;
   }
 
   public createControlPoint(x, y, idx) {

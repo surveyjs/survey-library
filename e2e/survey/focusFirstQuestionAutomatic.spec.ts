@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewport, test, expect } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, setRowItemFlowDirection, visibleInViewportForShadowDom, test, expect } from "../helper";
 
 const title = "autoFocusFirstQuestion";
 
@@ -89,21 +89,21 @@ frameworks.forEach((framework) => {
       await focusQuestion("panel1_q1", false);
       await page.waitForTimeout(1000);
 
-      let elementVisisbleInViewPort = await visibleInViewport(page, panel1_q1Sel);
+      let elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 1);
       await expect(elementVisisbleInViewPort).toBeTruthy();
       await page.keyboard.type("a");
 
       await focusQuestion("q1", false);
       await page.waitForTimeout(1000);
-      elementVisisbleInViewPort = await visibleInViewport(page, q1Sel);
+      elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 0);
       await expect(elementVisisbleInViewPort).toBeTruthy();
       await page.keyboard.type("b");
 
       await focusQuestion("panel1_q1", true);
-      elementVisisbleInViewPort = await visibleInViewport(page, panel1_q1Sel);
+      elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 1);
       await expect(elementVisisbleInViewPort).toBeTruthy();
 
-      elementVisisbleInViewPort = await visibleInViewport(page, q1Sel);
+      elementVisisbleInViewPort = await visibleInViewportForShadowDom(page, "input[type=text]", 0);
       await expect(elementVisisbleInViewPort).toBeFalsy();
 
       await page.click("input[value=Complete]");

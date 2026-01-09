@@ -229,6 +229,18 @@ export async function visibleInViewport (page: Page, locator: Locator) {
     );
   }, rect);
 }
+export async function visibleInViewportForShadowDom (page: Page, selector: string, nth: number = 0) {
+  return await page.evaluate((args: any) => {
+    const node = (window as any).survey.rootElement.getRootNode().querySelectorAll(args.selector)[args.nth];
+    const rect = node.getBoundingClientRect();
+    return (
+      rect?.y >= 0 &&
+      rect?.x >= 0 &&
+      rect?.y + rect?.height <= (window.innerHeight || (window as any).survey.rootElement.getRootNode().querySelector("div")!.clientHeight) &&
+      rect?.x + rect?.width <= (window.innerWidth || (window as any).survey.rootElement.getRootNode().querySelector("div")!.clientWidth)
+    );
+  }, { selector, nth });
+}
 export const test = baseTest.extend<{page: void, skipJSErrors: boolean}>({
   skipJSErrors: [false, { option: false }],
   page: async ({ page, skipJSErrors }, use) => {

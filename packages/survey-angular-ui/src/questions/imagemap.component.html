@@ -1,0 +1,7 @@
+<div
+  [class]="model.cssClasses.root"
+  #contentElement
+  >
+  <img [class]="model.cssClasses.bg" [id]="model.id + '-bg'" [src]="model.imageLink | safeUrl" role="presentation">
+  <svg [class]="model.cssClasses.svg" [id]="model.id + '-svg'"></svg>
+</div>

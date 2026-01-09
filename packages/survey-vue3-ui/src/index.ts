@@ -22,6 +22,7 @@ import Expression from "./Expression.vue";
 import File from "./File.vue";
 import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
+import ImageMap from "./Imagemap.vue";
 import Comment from "./Comment.vue";
 import Dropdown from "./Dropdown.vue";
 import DropdownSelect from "./DropdownSelect.vue";
@@ -200,6 +201,7 @@ function registerComponents(
   registerComponent("sv-file-video", FileVideo);
   registerComponent("survey-imagepicker", ImagePicker);
   registerComponent("survey-imagepicker-item", ImagePickerItem);
+  registerComponent("survey-imagemap", ImageMap);
   registerComponent("survey-comment", Comment);
   registerComponent("survey-dropdown", Dropdown);
   registerComponent("sv-dropdown-select", DropdownSelect);

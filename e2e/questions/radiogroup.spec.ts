@@ -50,7 +50,7 @@ frameworks.forEach((framework) => {
     test("change column count", async ({ page }) => {
       const getClassName = async () => {
         return await page.evaluate(() => {
-          return document.querySelector("div[id*=sq_] fieldset .sd-selectbase__column")?.className || "";
+          return (window as any).survey.rootElement.getRootNode().querySelector("div[id*=sq_] fieldset .sd-selectbase__column")?.className || "";
         });
       };
       let className = await getClassName();
@@ -60,7 +60,7 @@ frameworks.forEach((framework) => {
 
       const getClassNameOneCol = async () => {
         return await page.evaluate(() => {
-          return document.querySelector("div[id*=sq_] fieldset > .sd-radio")?.className || "";
+          return (window as any).survey.rootElement.getRootNode().querySelector("div[id*=sq_] fieldset > .sd-radio")?.className || "";
         });
       };
       className = await getClassNameOneCol();
@@ -126,7 +126,7 @@ frameworks.forEach((framework) => {
       ];
       const getChoicesCount = async () => {
         return await page.evaluate(() => {
-          return document.querySelectorAll("div input[type=radio]").length;
+          return (window as any).survey.rootElement.getRootNode().querySelectorAll("div input[type=radio]").length;
         });
       };
       let checkIntegrity = async () => {

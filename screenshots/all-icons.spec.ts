@@ -27,13 +27,14 @@ frameworks.forEach(framework => {
         const svgContainer = document.createElement("div");
         svgContainer.id = "svgCointainer";
         document.body.appendChild(svgContainer);
-        const surveyElement = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
         if (!!surveyElement) {
           surveyElement.style.display = "none";
         }
 
-        const svgCointainer = document.getElementById("svgCointainer");
-        const globalContainer = document.getElementById("sv-icon-holder-global-container");
+        const svgCointainer = (window as any).survey.rootElement.getRootNode().getElementById("svgCointainer");
+        const globalContainer = (window as any).survey.rootElement.getRootNode().getElementById("sv-icon-holder-global-container");
         let symbolsPseudoArray;
         if (!!globalContainer) {
           symbolsPseudoArray = globalContainer.querySelectorAll("symbol");

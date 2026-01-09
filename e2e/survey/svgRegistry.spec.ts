@@ -20,7 +20,7 @@ frameworks.forEach(framework => {
       };
       await initSurvey(page, framework, json);
       const svgContainer = await page.evaluate(() => {
-        return document.querySelector("#sv-icon-holder-global-container")?.innerHTML;
+        return (window as any).survey.rootElement.getRootNode().querySelector("#sv-icon-holder-global-container")?.innerHTML;
       });
 
       await expect(page.locator("#sv-icon-holder-global-container")).toHaveCount(1);

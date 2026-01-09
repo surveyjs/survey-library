@@ -4,6 +4,7 @@ const title = "customNavigation";
 
 const setCustomNavigation = async (page) => {
   await page.evaluate(() => {
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
     const surveyElement = document.querySelector("#surveyElement");
     if (!surveyElement) return;
 
@@ -20,10 +21,14 @@ const setCustomNavigation = async (page) => {
         .replace(new RegExp(",", "g"), "")
     );
 
-    const prevButton = document.getElementById("surveyPrev");
-    const nextButton = document.getElementById("surveyNext");
-    const completeButton = document.getElementById("surveyComplete");
-    const progressElement = document.getElementById("surveyProgress");
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+    const prevButton = document.querySelector("#surveyPrev");
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+    const nextButton = document.querySelector("#surveyNext");
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+    const completeButton = document.querySelector("#surveyComplete");
+    // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+    const progressElement = document.querySelector("#surveyProgress");
 
     if (prevButton) {
       prevButton.onclick = function(event) {

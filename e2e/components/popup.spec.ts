@@ -152,7 +152,7 @@ frameworks.forEach((framework) => {
       }, json);
       await page.waitForTimeout(1000);
       await page.evaluate(() => {
-        const style = document.querySelector(".sv-popup__container").style;
+        const style = (window as any).survey.rootElement.getRootNode().querySelector(".sv-popup__container").style;
         style.marginLeft = "4px";
         style.marginRight = "4px";
       });
@@ -436,7 +436,9 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const container = document.createElement("div");
         container.style.height = "200px";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const surveyEl = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
       });
 
@@ -476,7 +478,9 @@ frameworks.forEach((framework) => {
       await page.evaluate(() => {
         const container = document.createElement("div");
         container.style.height = "200px";
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const surveyEl = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
       });
 

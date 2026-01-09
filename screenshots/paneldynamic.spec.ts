@@ -392,7 +392,7 @@ frameworks.forEach(framework => {
       await compareScreenshot(page, page.locator(".sv-popup--confirm .sv-popup__body-content"), "paneldynamic-confirm-dialog.png");
 
       await page.evaluate(async () => {
-        const applyButton = document.querySelector("button[title='OK']");
+        const applyButton = (window as any).survey.rootElement.getRootNode().querySelector("button[title='OK']");
         const spanText = applyButton?.querySelector("span");
         if (spanText) spanText.innerText = "A very long long long long long text";
       });

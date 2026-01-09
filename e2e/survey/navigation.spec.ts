@@ -175,7 +175,10 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, scrollJson);
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const container = document.querySelector("#surveyElement");
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
+        }
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -185,9 +188,8 @@ frameworks.forEach(framework => {
         }
         window["survey"].fitToContainer = true;
       });
-
       await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
-      await page.locator("input[value=Next]").click();
+      await page.locator("input[value=Next]").click({ force: true });
       const headingY = await page.evaluate(() => {
         return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });

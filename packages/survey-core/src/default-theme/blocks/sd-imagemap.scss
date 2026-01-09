@@ -34,13 +34,13 @@
     display: none;
 }
 .sd-imagemap-control-point {
-    fill: var($secondary, #ff00ff);
-    stroke: var($secondary-light, #ff00ff);
+    fill: $secondary;
+    stroke: $secondary-light;
     stroke-width: 1;
     cursor: pointer;
 }
 .sd-imagemap-control-point:hover {
-    fill: var($yellow-light, #ff00ff);
+    fill: $yellow;
     stroke: black;
     stroke-width: 1.5;
 }

@@ -19137,13 +19137,45 @@ QUnit.test("check titleNumInline cssClass", function (assert) {
   };
   const question = survey.getQuestionByName("q1");
   const panel = survey.getPanelByName("p1");
-  assert.ok(question.cssTitle.includes(customInlineClass));
-  assert.ok(panel.cssTitle.includes(customInlineClass));
+  assert.ok(question.cssTitle.includes(customInlineClass), "#1");
+  assert.ok(panel.cssTitle.includes(customInlineClass), "#2");
   survey.questionStartIndex = "1.1";
-  assert.notOk(question.cssTitle.includes(customInlineClass));
-  assert.notOk(panel.cssTitle.includes(customInlineClass));
+  assert.notOk(question.cssTitle.includes(customInlineClass), "#3");
+  assert.notOk(panel.cssTitle.includes(customInlineClass), "#4");
 });
-
+QUnit.test("check titleNumInline cssClass, Bug#10775", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "on",
+    questionStartIndex: "Question 1",
+    elements: [{
+      type: "text",
+      name: "q1"
+    },
+    {
+      type: "text",
+      name: "q2",
+      visibleIf: "{q1} = 1"
+    }
+    ]
+  });
+  const customInlineClass = "custom_inline_class";
+  survey.css = {
+    question: {
+      titleNumInline: customInlineClass
+    }
+  };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.ok(q1.cssTitle.includes(customInlineClass), "q1 titleNumInline class check #1");
+  q1.value = 1;
+  assert.ok(q2.isVisible);
+  assert.ok(q2.cssTitle.includes(customInlineClass), "q2 titleNumInline class check #2");
+  q1.value = 2;
+  assert.notOk(q2.isVisible);
+  q1.value = 1;
+  assert.ok(q2.isVisible);
+  assert.ok(q2.cssTitle.includes(customInlineClass), "q2 titleNumInline class check #3");
+});
 QUnit.test("Survey setDesignMode should not trigger pages regeneration if not changed", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.isSinglePage = true;

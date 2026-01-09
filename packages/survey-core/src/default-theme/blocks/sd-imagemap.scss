@@ -1,12 +1,10 @@
 .sd-imagemap {
     position: relative;
 }
-
 .sd-imagemap-bg {
     display: block;
     width: 100%;
 }
-
 .sd-imagemap-svg {
     position: absolute;
     top: 0;
@@ -15,19 +13,16 @@
     height: 100%;
     opacity: 1;
 }
-
 .sd-imagemap-svg-item {
     fill: var(--sd-imagemap-idle-fill-color, transparent);
     stroke: var(--sd-imagemap-idle-stroke-color, transparent);
     stroke-width: var(--sd-imagemap-idle-stroke-width, 0);
 }
-
 .sd-imagemap-svg-item--hover {
     fill: var(--sd-imagemap-hover-fill-color, var(--sjs-secondary-backcolor-light, #ff00ff));
     stroke: var(--sd-imagemap-hover-stroke-color, var(--sjs-secondary-backcolor, #ff00ff));
     stroke-width: var(--sd-imagemap-hover-stroke-width, 1);
 }
-
 .sd-imagemap-svg-item--selected {
     fill: var(--sd-imagemap-selected-fill-color, var(--sjs-primary-backcolor-light, #ff00ff));
     stroke: var(--sd-imagemap-selected-stroke-color, var(--sjs-primary-backcolor, #ff00ff));
@@ -36,10 +31,14 @@
 .sd-imagemap-svg-item--disabled {
     display: none;
 }
-
 .sd-imagemap-control-point {
-    fill: var(--sjs-secondary-backcolor, #ff00ff);
-    stroke: var(--sjs-secondary-backcolor-light, #ff00ff);
+    fill: var($secondary, #ff00ff);
+    stroke: var($secondary-light, #ff00ff);
     stroke-width: 1;
     cursor: pointer;
+}
+.sd-imagemap-control-point:hover {
+    fill: var($yellow-light, #ff00ff);
+    stroke: black;
+    stroke-width: 1.5;
 }

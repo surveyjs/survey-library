@@ -736,7 +736,7 @@ QUnit.test("Value is not unique", (assert) => {
   assert.equal(Serializer.findProperty("imagemaparea", "value").isUnique, false, "imagemaparea.value is not unique");
 });
 
-QUnit.test("control points in design mode", (assert) => {
+QUnit.test("control points in design mode", async (assert) => {
 
   const done = assert.async();
 
@@ -770,53 +770,76 @@ QUnit.test("control points in design mode", (assert) => {
 
   const q2 = <QuestionImageMapModel>model.getQuestionByName("q2");
   let container = createRenderContainer(q2, i400x400);
+
+  function waitRender(): Promise<void> {
+    return new Promise<void>(resolve => {
+      const wait = () => {
+        if (!q2.requestAnimationFrameId) {
+          resolve();
+        } else {
+          setTimeout(wait, 5);
+        }
+      };
+      setTimeout(wait, 5);
+    });
+  }
+
   q2.initImageMap(container);
+  await waitRender();
 
-  setTimeout(() => {
+  assert.equal(
+    q2.createControlPoint(1, 2, 3).outerHTML,
+    "<circle cx=\"1\" cy=\"2\" r=\"4\" class=\"sd-imagemap-control-point\" data-idx=\"3\"></circle>",
+    "createControlPoint created correctly"
+  );
 
-    assert.equal(
-      q2.createControlPoint(1, 2, 3).outerHTML,
-      "<circle cx=\"1\" cy=\"2\" r=\"4\" class=\"sd-imagemap-control-point\" data-idx=\"3\"></circle>",
-      "createControlPoint created correctly"
-    );
+  assert.equal(q2.svg.childNodes.length, q2.areas.length, "No control points initially");
 
-    assert.equal(q2.svg.childNodes.length, q2.areas.length, "No control points initially");
-    q2.selectedArea = q2.areas[0];
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "Control points created for rect #1");
-    q2.selectedArea = undefined;
-    assert.equal(q2.svg.childNodes.length, q2.areas.length, "Control points removed");
-    q2.selectedArea = q2.areas[1];
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 5, "Control points created for poly");
-    q2.selectedArea = q2.areas[0];
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "Control points created for rect #2");
-    q2.selectedArea = q2.areas[1];
-    q2.areas[1].addCoord(11, 12);
-    q2.renderSVG();
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 6, "Control point added for poly");
-    assert.equal(q2.areas[1].coords, "1,2,3,4,5,6,7,8,9,10,11,12", "New coord added correctly");
-    q2.areas[1].removeCoord(1);
-    q2.renderSVG();
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 5, "Control removed");
-    assert.equal(q2.areas[1].coords, "1,2,5,6,7,8,9,10,11,12", "Coord removed correctly");
-    q2.selectedArea = q2.areas[0];
-    q2.areas[0].addCoord(5, 6);
-    q2.renderSVG();
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for rect");
-    assert.equal(q2.areas[0].coords, "1,2,3,4", "No coords changed for rect #1");
-    q2.areas[0].removeCoord(1);
-    q2.renderSVG();
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for rect");
-    assert.equal(q2.areas[0].coords, "1,2,3,4", "No coords changed for rect #2");
-    q2.selectedArea = q2.areas[2];
-    q2.areas[2].addCoord(5, 6);
-    q2.renderSVG();
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for circle");
-    assert.equal(q2.areas[2].coords, "1,2,3", "No coords changed for circle #1");
-    q2.areas[2].removeCoord(1);
-    q2.renderSVG();
-    assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for circle");
-    assert.equal(q2.areas[2].coords, "1,2,3", "No coords changed for circle #2");
+  q2.selectedArea = q2.areas[0];
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "Control points created for rect #1");
+  q2.selectedArea = undefined;
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length, "Control points removed");
+  q2.selectedArea = q2.areas[1];
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 5, "Control points created for poly");
+  q2.selectedArea = q2.areas[0];
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "Control points created for rect #2");
+  q2.selectedArea = q2.areas[1];
+  q2.areas[1].addCoord(11, 12);
+  q2.renderSVG();
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 6, "Control point added for poly");
+  assert.equal(q2.areas[1].coords, "1,2,3,4,5,6,7,8,9,10,11,12", "New coord added correctly");
+  q2.areas[1].removeCoord(1);
+  q2.renderSVG();
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 5, "Control removed");
+  assert.equal(q2.areas[1].coords, "1,2,5,6,7,8,9,10,11,12", "Coord removed correctly");
+  q2.selectedArea = q2.areas[0];
+  q2.areas[0].addCoord(5, 6);
+  q2.renderSVG();
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for rect");
+  assert.equal(q2.areas[0].coords, "1,2,3,4", "No coords changed for rect #1");
+  q2.areas[0].removeCoord(1);
+  q2.renderSVG();
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for rect");
+  assert.equal(q2.areas[0].coords, "1,2,3,4", "No coords changed for rect #2");
+  q2.selectedArea = q2.areas[2];
+  q2.areas[2].addCoord(5, 6);
+  q2.renderSVG();
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for circle");
+  assert.equal(q2.areas[2].coords, "1,2,3", "No coords changed for circle #1");
+  q2.areas[2].removeCoord(1);
+  q2.renderSVG();
+  await waitRender();
+  assert.equal(q2.svg.childNodes.length, q2.areas.length + 2, "No new control point for circle");
+  assert.equal(q2.areas[2].coords, "1,2,3", "No coords changed for circle #2");
 
-    done();
-  }, 100);
+  done();
 });

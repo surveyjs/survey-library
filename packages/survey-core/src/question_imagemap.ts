@@ -81,7 +81,9 @@ export class QuestionImageMapModel extends Question {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
 
-    if (name === "isSelectedInDesigner" && newValue === false)this.selectedArea = undefined;
+    if (name === "isSelectedInDesigner" && newValue === false) {
+      this.selectedArea = undefined;
+    }
     if (name === "multiSelect")this.clearValue();
 
     if ([
@@ -90,23 +92,7 @@ export class QuestionImageMapModel extends Question {
       "selectedStrokeColor", "selectedStrokeWidth", "selectedFillColor"
     ].indexOf(name) > -1)this.updateCSSVariables();
 
-    if (name === "areas" || name === "selectedArea" || name === "shape")this.renderSVG();
-
-    if (name === "hoveredUID") {
-      this.updateItemsCssByUID(oldValue);
-      this.updateItemsCssByUID(newValue);
-    }
-  }
-
-  public updateItemsCssByUID(uid: number) {
-
-    if (!uid) return;
-    const item = this.areas.find(i => i.uniqueId === uid);
-    if (!item) return;
-    const items = this.areas.filter(i => i.value === item.value);
-    for (const e of items) {
-      e.updateCSSClasses();
-    }
+    if (["areas", "shape", "selectedArea", "hoveredUID"].indexOf(name) > -1)this.renderSVG();
   }
 
   protected getValueCore() {
@@ -162,7 +148,19 @@ export class QuestionImageMapModel extends Question {
 
   public beforeDestroyQuestionElement(el: HTMLElement) {
     super.beforeDestroyQuestionElement(el);
-    // TODO: remove event listeners
+
+    if (this.bg) {
+      this.bg.removeEventListener("load", this.onBgImageLoaded);
+    }
+
+    if (this.svg) {
+      this.svg.removeEventListener("click", this.onClickHandler);
+      this.svg.removeEventListener("mouseover", this.onMouseOverHandler);
+      this.svg.removeEventListener("mouseout", this.onMouseOutHandler);
+      this.svg.removeEventListener("mousedown", this.onMouseDownHandler);
+      this.svg.removeEventListener("mouseup", this.onMouseUpHandler);
+      this.svg.removeEventListener("mousemove", this.onMouseMoveHandler);
+    }
   }
 
   onBgImageLoaded = () => {
@@ -201,48 +199,24 @@ export class QuestionImageMapModel extends Question {
   };
 
   onMouseDownHandler = (event: MouseEvent) => {
-    if ((event.target as HTMLElement).dataset["idx"]) {
+    if ((event.target as HTMLElement).dataset["idx"] !== undefined) {
       this.activeControlPoint = event.target as SVGElement;
-      this.activeControlPointLastX = event.offsetX;
-      this.activeControlPointLastY = event.offsetY;
     }
   };
 
   onMouseUpHandler = () => {
     this.activeControlPoint = null;
-    this.activeControlPointLastX = null;
-    this.activeControlPointLastY = null;
   };
 
   onMouseMoveHandler = (event: MouseEvent) => {
     if (!this.activeControlPoint) return;
 
-    const [dx, dy] = this.scaleCoordsToSVG([
-      event.offsetX - this.activeControlPointLastX,
-      event.offsetY - this.activeControlPointLastY
-    ]);
+    const [x, y] = this.scaleCoordsToSVG([event.offsetX, event.offsetY]);
 
     const idx = Number(this.activeControlPoint.dataset["idx"]);
     const item = this.selectedArea;
 
-    if (!item) return;
-
-    const coords = item.getCoords();
-    const shape = item.getShape();
-
-    if (shape === "circle" && idx === 1) {
-      coords[2] = (Number(coords[2]) + dx).toString();
-    } else {
-      coords[idx * 2] = (Number(coords[idx * 2]) + dx).toString();
-      coords[idx * 2 + 1] = (Number(coords[idx * 2 + 1]) + dy).toString();
-    }
-
-    item.coords = coords.join(",");
-
-    this.activeControlPointLastX = event.offsetX;
-    this.activeControlPointLastY = event.offsetY;
-
-    this.drawAreaControls();
+    item.setCoord(idx, x, y);
   };
 
   public initImageMap(el: HTMLElement): void {
@@ -254,23 +228,23 @@ export class QuestionImageMapModel extends Question {
 
     this.bg.addEventListener("load", this.onBgImageLoaded);
 
-    el.removeEventListener("click", this.onClickHandler);
-    el.addEventListener("click", this.onClickHandler);
+    this.svg.removeEventListener("click", this.onClickHandler);
+    this.svg.addEventListener("click", this.onClickHandler);
 
-    el.removeEventListener("mouseover", this.onMouseOverHandler);
-    el.addEventListener("mouseover", this.onMouseOverHandler);
+    this.svg.removeEventListener("mouseover", this.onMouseOverHandler);
+    this.svg.addEventListener("mouseover", this.onMouseOverHandler);
 
-    el.removeEventListener("mouseout", this.onMouseOutHandler);
-    el.addEventListener("mouseout", this.onMouseOutHandler);
+    this.svg.removeEventListener("mouseout", this.onMouseOutHandler);
+    this.svg.addEventListener("mouseout", this.onMouseOutHandler);
 
-    el.removeEventListener("mousedown", this.onMouseDownHandler);
-    el.addEventListener("mousedown", this.onMouseDownHandler);
+    this.svg.removeEventListener("mousedown", this.onMouseDownHandler);
+    this.svg.addEventListener("mousedown", this.onMouseDownHandler);
 
-    el.removeEventListener("mouseup", this.onMouseUpHandler);
-    el.addEventListener("mouseup", this.onMouseUpHandler);
+    this.svg.removeEventListener("mouseup", this.onMouseUpHandler);
+    this.svg.addEventListener("mouseup", this.onMouseUpHandler);
 
-    el.removeEventListener("mousemove", this.onMouseMoveHandler);
-    el.addEventListener("mousemove", this.onMouseMoveHandler);
+    this.svg.removeEventListener("mousemove", this.onMouseMoveHandler);
+    this.svg.addEventListener("mousemove", this.onMouseMoveHandler);
 
     this.updateCSSVariables();
   }
@@ -317,13 +291,19 @@ export class QuestionImageMapModel extends Question {
     super.dispose();
   }
 
+  requestAnimationFrameId: number;
   public renderSVG(): void {
     if (!this.svg) return;
-    this.svg.innerHTML = "";
-    for (const areas of this.areas) {
-      areas.render(this.svg);
-    }
-    this.drawAreaControls();
+    if (this.requestAnimationFrameId) return;
+
+    this.requestAnimationFrameId = requestAnimationFrame(() => {
+      this.requestAnimationFrameId = null;
+      this.svg.innerHTML = "";
+      for (const areas of this.areas) {
+        areas.render(this.svg);
+      }
+      this.drawAreaControls();
+    });
   }
 
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean, fireCallback: boolean): void {
@@ -411,10 +391,9 @@ export class QuestionImageMapModel extends Question {
 
   controlPoints: SVGElement[] = [];
   activeControlPoint: SVGElement;
-  activeControlPointLastX: number;
-  activeControlPointLastY: number;
   public drawAreaControls(): void {
 
+    // TODO: remove recreation of control points on each call
     if (!this.isInDesignMode) return;
 
     for (const control of this.controlPoints) {
@@ -472,6 +451,8 @@ export class ImageMapArea extends ItemValue {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
 
+    const owner = this.locOwner as QuestionImageMapModel;
+
     if ([
       "idleStrokeColor", "idleStrokeWidth", "idleFillColor",
       "hoverStrokeColor", "hoverStrokeWidth", "hoverFillColor",
@@ -479,13 +460,13 @@ export class ImageMapArea extends ItemValue {
     ].indexOf(name) > -1)this.updateCSSVariables();
 
     if (name === "shape") {
-      const owner = this.locOwner as QuestionImageMapModel;
-      if (this.svg) owner.svg.removeChild(this.svg);
-      this.svg = null;
       owner.renderSVG();
     }
 
-    if (name === "coords")this.draw();
+    if (name === "coords") {
+      this.draw();
+      owner.renderSVG();
+    }
   }
 
   @property() shape: string;
@@ -497,25 +478,22 @@ export class ImageMapArea extends ItemValue {
   @property() coords: string;
   public getCoords(): string[] {
 
-    const owner = this.locOwner as QuestionImageMapModel;
-
     const shape = this.getShape();
-    let coords = this.coords;
+    let coords = this.coords ? this.coords.split(",").map(c => c.trim()).filter(c => c !== "") : [];
 
-    if (!coords) {
-      switch(shape) {
-        case "rect":
-          coords = "10,10,100,50";
-          break;
-        case "circle":
-          coords = "50,50,40";
-          break;
-        case "poly":
-          coords = "50,10,90,90,10,90";
-          break;
-      }
+    switch(shape) {
+      case "rect":
+        coords = (coords.length < 4 ? ["10", "10", "100", "50"] : coords);
+        break;
+      case "circle":
+        coords = (coords.length < 3 ? ["50", "50", "40"] : coords);
+        break;
+      case "poly":
+        coords = (!coords.length ? ["50", "10", "90", "90", "10", "90"] : coords);
+        break;
     }
-    return coords.split(",");
+
+    return coords;
   }
   public getSVGCoords(): string[] {
 
@@ -538,20 +516,47 @@ export class ImageMapArea extends ItemValue {
 
   }
   public addCoord(x, y) {
-
     const shape = this.getShape();
     if (shape !== "poly") return;
-
     const coords = this.getCoords();
     this.coords = coords + `,${x},${y}`;
   }
   public removeCoord(idx: number) {
-
     const shape = this.getShape();
     if (shape !== "poly") return;
+    const coords = this.getCoords();
+    if (coords.length / 2 <= 3) return;
+    coords.splice(idx * 2, 2);
+    this.coords = coords.join(",");
+  }
+  public setCoord(idx: number, x: number, y: number) {
 
     const coords = this.getCoords();
-    coords.splice(idx * 2, 2);
+    const shape = this.getShape();
+
+    switch(shape) {
+      case "rect":
+        if (idx < 0 || idx > 1) return;
+        coords[idx * 2] = x.toString();
+        coords[idx * 2 + 1] = y.toString();
+        break;
+      case "circle":
+        if (idx < 0 || idx > 1) return;
+        if (idx === 0) {
+          coords[idx * 2] = x.toString();
+          coords[idx * 2 + 1] = y.toString();
+        } else {
+          const cx = Number(coords[0]);
+          const cy = Number(coords[1]);
+          coords[2] = Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)).toString();
+        }
+        break;
+      case "poly":
+        coords[idx * 2] = x.toString();
+        coords[idx * 2 + 1] = y.toString();
+        break;
+    }
+
     this.coords = coords.join(",");
   }
 

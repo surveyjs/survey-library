@@ -508,6 +508,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public validateValue(value: any): boolean {
     const choices = this.choices;
     if (!Array.isArray(choices) || choices.length === 0) return true;
+    if (typeof value === "object" && typeof choices[0] === "object") return true;
     const aV = this.acceptedValues;
     if (Array.isArray(aV) && aV.indexOf(value) > -1) return true;
     return choices.indexOf(value) > -1;

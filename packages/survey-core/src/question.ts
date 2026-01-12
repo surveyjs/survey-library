@@ -3237,8 +3237,8 @@ export class Question extends SurveyElement<Question>
     if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
   }
-  creatingValidatorRegExp(validator: Base, pattern: string, flags: string): RegExp {
-    return this.survey?.creatingValidatorRegExp(this, validator, pattern, flags) || new RegExp(pattern, flags);
+  createRegexValidator(validator: Base, pattern: string, flags: string): RegExp {
+    return this.survey?.createRegexValidator(this, validator, pattern, flags) || new RegExp(pattern, flags);
   }
   //IValidatorOwner
   getValidatorTitle(): string {

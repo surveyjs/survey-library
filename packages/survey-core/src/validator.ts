@@ -428,7 +428,7 @@ export class RegexValidator extends SurveyValidator {
   }
   private createRegExp(): RegExp {
     const flags = this.caseInsensitive ? "i" : "";
-    return (this.owner ? this.owner.creatingValidatorRegExp(this, this.regex, flags) : null) || new RegExp(this.regex, flags);
+    return (this.owner ? this.owner.createRegexValidator(this, this.regex, flags) : null) || new RegExp(this.regex, flags);
   }
 }
 /**

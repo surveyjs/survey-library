@@ -59,7 +59,7 @@ import { Notifier } from "./notifier";
 import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
-  QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, CreatingValidatorRegExpEvent,
+  QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, CreateRegexValidatorEvent,
   ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
   GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
@@ -487,7 +487,10 @@ export class SurveyModel extends SurveyElementCore
    * @see PanelModel
    */
   public onPageAdded: EventBase<SurveyModel, PageAddedEvent> = this.addEvent<SurveyModel, PageAddedEvent>();
-  public onCreatingValidatorRegExp: EventBase<SurveyModel, CreatingValidatorRegExpEvent> = this.addEvent<SurveyModel, CreatingValidatorRegExpEvent>();
+  /**
+   * An event that is raised when a [`RegexValidator`](https://surveyjs.io/form-library/documentation/api-reference/regexvalidator) instance is created. Use this event to customize the regular expression pattern and its flags.
+   */
+  public onCreateRegexValidator: EventBase<SurveyModel, CreateRegexValidatorEvent> = this.addEvent<SurveyModel, CreateRegexValidatorEvent>();
   /**
    * An event that is raised when a question value is being validated. Use this event to add/remove/modify errors or specify a custom error message.
    *
@@ -2280,14 +2283,14 @@ export class SurveyModel extends SurveyElementCore
   getErrorCustomText(text: string, error: SurveyError): string {
     return this.getSurveyErrorCustomText(this, text, error);
   }
-  creatingValidatorRegExp(question: Question, validator: Base, pattern: string, flags: string): RegExp {
-    const options: CreatingValidatorRegExpEvent = {
+  createRegexValidator(question: Question, validator: Base, pattern: string, flags: string): RegExp {
+    const options: CreateRegexValidatorEvent = {
       question: question,
       validator: <any>validator,
       pattern: pattern,
       flags: flags
     };
-    this.onCreatingValidatorRegExp.fire(this, options);
+    this.onCreateRegexValidator.fire(this, options);
     return new RegExp(options.pattern, options.flags);
   }
   getSurveyErrorCustomText(obj: PanelModel | Question | SurveyModel, text: string, error: SurveyError): string {

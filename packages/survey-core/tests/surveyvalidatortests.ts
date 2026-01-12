@@ -462,12 +462,12 @@ QUnit.test("Regex load caseInsensitve", function(assert) {
   q.value = "abc@SomeThing.com";
   assert.equal(q.errors.length, 0, "#5");
 });
-QUnit.test("survey.onCreateValidatorRegExp, Issue#10766", function(assert) {
+QUnit.test("survey.onCreateRegexValidator, Issue#10766", function(assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",
     elements: [{ type: "text", name: "q", validators: [{ type: "regex", regex: ".+@something." }] }]
   });
-  survey.onCreatingValidatorRegExp.add((sender, options) => {
+  survey.onCreateRegexValidator.add((sender, options) => {
     assert.equal(options.validator.regex, ".+@something.", "check options.validator");
     options.pattern = options.pattern + "com";
     options.flags = "i";

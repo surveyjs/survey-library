@@ -804,6 +804,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getOriginalObj(): Base {
     return this.questionWrapper;
   }
+  public getOriginalByProperty(propName: string): Base {
+    const inProps = this.customQuestion?.json?.inheritBaseProps;
+    let isInheritedProp = inProps === true || (Array.isArray(inProps) && inProps.indexOf(propName) > -1);
+    if (!isInheritedProp && !!Serializer.findProperty("question", propName)) return this;
+    return super.getOriginalByProperty(propName);
+  }
   protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
     this.createDynamicProperties(this.questionWrapper);

@@ -1047,7 +1047,7 @@ export class Base implements IObjectValueContext {
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
     if (!obj || !propertyName) return;
-    const id = obj.uniqueId + "_" + propertyName;
+    const id = this.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
         this.onDependencyValueChanged(obj, propertyName);
@@ -1055,7 +1055,7 @@ export class Base implements IObjectValueContext {
       this.expressionDependencies[id] = { obj, propertyName };
     }
   }
-  private onDependencyValueChanged(obj: Base, propertyName: string): void {
+  protected onDependencyValueChanged(obj: Base, propertyName: string): void {
     this.runConditionCore(this.getDataFilteredProperties());
     this.locStrsChanged();
   }

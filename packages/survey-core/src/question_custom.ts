@@ -1045,10 +1045,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   protected updateElementCssCore(cssClasses: any) {
-    if (!!this.contentQuestion) {
-      cssClasses = this.contentQuestion.cssClasses;
-    }
-    super.updateElementCssCore(cssClasses);
+    super.updateElementCssCore(this.getCssClasses());
+  }
+  protected getCssClasses(): any {
+    return !!this.contentQuestion ? this.contentQuestion.cssClasses : super.getCssClasses();
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return super.getContentDisplayValueCore(keyAsText, value, this.contentQuestion);

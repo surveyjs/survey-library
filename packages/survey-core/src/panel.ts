@@ -7,7 +7,6 @@ import {
   IPanel,
   IConditionRunner,
   IElement,
-  ISurveyElement,
   IQuestion,
   ISurveyErrorOwner,
   ITitleOwner,
@@ -1332,10 +1331,6 @@ export class PanelModelBase extends SurveyElement<Question>
     } finally {
       this._columnsReady = true;
     }
-  }
-  private createGridLayoutColumns(): Array<PanelLayoutColumnModel> {
-    this.generateColumns([]);
-    return this._columns;
   }
   public updateGridColumns(): void {
     this.updateColumns();

@@ -49,6 +49,9 @@ export interface ITextProcessor {
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
 }
+export interface ISurveyValidatorOwner extends ISurveyErrorOwner {
+  creatingValidatorRegExp(validator: Base, pattern: string, flags: string): RegExp;
+}
 export interface IValueItemCustomPropValues {
   propertyName: string;
   values: Array<any>;
@@ -94,6 +97,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
   validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
+  creatingValidatorRegExp(question: IQuestion, validator: Base, pattern: string, flags: string): RegExp;
   hasVisibleQuestionByValueName(question: IQuestion): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;

@@ -20,6 +20,7 @@ import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
+import { RegexValidator } from "./validator";
 import { Trigger } from "./trigger";
 
 export interface QuestionEventMixin {
@@ -322,6 +323,11 @@ export interface QuestionRemovedEvent extends QuestionEventMixin, ElementRemoved
 export interface PanelAddedEvent extends PanelEventMixin, ElementAddedEvent { }
 export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent { }
 export interface PageAddedEvent extends PageEventMixin { }
+export interface CreatingValidatorRegExpEvent extends QuestionEventMixin {
+  validator: RegexValidator;
+  pattern: string;
+  flags: string;
+}
 export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
    * A question value being validated.

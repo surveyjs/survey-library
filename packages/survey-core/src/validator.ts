@@ -1,8 +1,8 @@
 import { Base } from "./base";
-import { ISurveyErrorOwner, ISurvey, IElement, IQuestion } from "./base-interfaces";
+import { ISurveyValidatorOwner, ISurvey } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { HashTable, Helpers } from "./helpers";
@@ -48,12 +48,14 @@ export class ValidatorResult {
  * [View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
  */
 export class SurveyValidator extends Base {
-  public errorOwner: ISurveyErrorOwner;
+  public owner: ISurveyValidatorOwner;
+  public get errorOwner(): ISurveyValidatorOwner { return this.owner; }
+  public set errorOwner(val: ISurveyValidatorOwner) { this.owner = val; }
   public get id(): string { return "svd" + this.uniqueId; }
   public get isValidator(): boolean { return true; }
   public getSurvey(live: boolean = false): ISurvey {
-    return !!this.errorOwner && !!(<any>this.errorOwner)["getSurvey"]
-      ? (<any>this.errorOwner).getSurvey()
+    return !!this.owner && !!(<any>this.owner)["getSurvey"]
+      ? (<any>this.owner).getSurvey()
       : null;
   }
   /**
@@ -99,24 +101,24 @@ export class SurveyValidator extends Base {
     return null;
   }
   getLocale(): string {
-    return !!this.errorOwner ? this.errorOwner.getLocale() : "";
+    return !!this.owner ? this.owner.getLocale() : "";
   }
   getMarkdownHtml(text: string, name: string, item?: any): string {
-    return !!this.errorOwner
-      ? this.errorOwner.getMarkdownHtml(text, name, item)
+    return !!this.owner
+      ? this.owner.getMarkdownHtml(text, name, item)
       : undefined;
   }
   getRenderer(name: string): string {
-    return !!this.errorOwner ? this.errorOwner.getRenderer(name) : null;
+    return !!this.owner ? this.owner.getRenderer(name) : null;
   }
   getRendererContext(locStr: LocalizableString): any {
-    return !!this.errorOwner ? this.errorOwner.getRendererContext(locStr) : locStr;
+    return !!this.owner ? this.owner.getRendererContext(locStr) : locStr;
   }
   getProcessedText(text: string): string {
-    return !!this.errorOwner ? this.errorOwner.getProcessedText(text) : text;
+    return !!this.owner ? this.owner.getProcessedText(text) : text;
   }
   protected createCustomError(name: string): SurveyError {
-    const err = new CustomError(this.getErrorText(name), this.errorOwner);
+    const err = new CustomError(this.getErrorText(name), this.owner);
     err.onUpdateErrorTextCallback = (err => err.text = this.getErrorText(name));
     return err;
   }
@@ -185,7 +187,7 @@ export class NumericValidator extends SurveyValidator {
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
-        new RequreNumericError(this.text, this.errorOwner)
+        new RequreNumericError(this.text, this.owner)
       );
     }
     const result = new ValidatorResult(Helpers.getNumber(value));
@@ -425,7 +427,8 @@ export class RegexValidator extends SurveyValidator {
     this.caseInsensitive = val;
   }
   private createRegExp(): RegExp {
-    return new RegExp(this.regex, this.caseInsensitive ? "i" : "");
+    const flags = this.caseInsensitive ? "i" : "";
+    return (this.owner ? this.owner.creatingValidatorRegExp(this, this.regex, flags) : null) || new RegExp(this.regex, flags);
   }
 }
 /**
@@ -515,7 +518,7 @@ export class ExpressionValidator extends SurveyValidator {
     this.setPropertyValue("expression", val);
   }
   public getValueGetterContext(): IValueGetterContext {
-    const owner = <any>this.errorOwner;
+    const owner = <any>this.owner;
     if (!!owner && !!owner.getValueGetterContext) return owner.getValueGetterContext();
     return super.getValueGetterContext();
   }

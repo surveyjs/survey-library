@@ -1,7 +1,8 @@
 import {
   Const,
   BinaryOperand,
-  Operand
+  Operand,
+  FunctionOperand
 } from "../../src/expressions/expressions";
 import { parse } from "../../src/expressions/expressionParser";
 
@@ -35,8 +36,9 @@ QUnit.test("Logic Operands", function(assert) {
 
 QUnit.test("FunctionOperand.toString Operands", function(assert) {
   const expression = "iif(({q1} == 1), 'Yes', 'No')";
-  const op = <Operand>parse(expression);
+  const op = <FunctionOperand>parse(expression);
   assert.equal(op.toString(), expression);
+  assert.equal(op.functionName, "iif");
 });
 
 QUnit.test("ParametersOperand empty string", function(assert) {

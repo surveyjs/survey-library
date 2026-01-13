@@ -19137,13 +19137,45 @@ QUnit.test("check titleNumInline cssClass", function (assert) {
   };
   const question = survey.getQuestionByName("q1");
   const panel = survey.getPanelByName("p1");
-  assert.ok(question.cssTitle.includes(customInlineClass));
-  assert.ok(panel.cssTitle.includes(customInlineClass));
+  assert.ok(question.cssTitle.includes(customInlineClass), "#1");
+  assert.ok(panel.cssTitle.includes(customInlineClass), "#2");
   survey.questionStartIndex = "1.1";
-  assert.notOk(question.cssTitle.includes(customInlineClass));
-  assert.notOk(panel.cssTitle.includes(customInlineClass));
+  assert.notOk(question.cssTitle.includes(customInlineClass), "#3");
+  assert.notOk(panel.cssTitle.includes(customInlineClass), "#4");
 });
-
+QUnit.test("check titleNumInline cssClass, Bug#10775", function (assert) {
+  const survey = new SurveyModel({
+    showQuestionNumbers: "on",
+    questionStartIndex: "Question 1",
+    elements: [{
+      type: "text",
+      name: "q1"
+    },
+    {
+      type: "text",
+      name: "q2",
+      visibleIf: "{q1} = 1"
+    }
+    ]
+  });
+  const customInlineClass = "custom_inline_class";
+  survey.css = {
+    question: {
+      titleNumInline: customInlineClass
+    }
+  };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.ok(q1.cssTitle.includes(customInlineClass), "q1 titleNumInline class check #1");
+  q1.value = 1;
+  assert.ok(q2.isVisible);
+  assert.ok(q2.cssTitle.includes(customInlineClass), "q2 titleNumInline class check #2");
+  q1.value = 2;
+  assert.notOk(q2.isVisible);
+  q1.value = 1;
+  assert.ok(q2.isVisible);
+  assert.ok(q2.cssTitle.includes(customInlineClass), "q2 titleNumInline class check #3");
+});
 QUnit.test("Survey setDesignMode should not trigger pages regeneration if not changed", function (assert) {
   var survey = twoPageSimplestSurvey();
   survey.isSinglePage = true;
@@ -23150,4 +23182,38 @@ QUnit.test("Make array properties on demand", function (assert) {
   assert.equal(survey.getPropertyValue("calculatedValues"), undefined, "calculatedValues is undefined after serialization");
   assert.equal(survey.getPropertyValue("completedHtmlOnCondition"), undefined, "completedHtmlOnCondition is undefined after serialization");
   assert.equal(survey.getPropertyValue("navigateToUrlOnCondition"), undefined, "navigateToUrlOnCondition is undefined after serialization");
+});
+QUnit.test("Re-run expressions on changing the related object properties, Bug#10776", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "{$survey.locale} = 'de'" },
+      { type: "text", name: "q2", visibleIf: "{$survey.readOnly} = false" },
+      { type: "radiogroup", name: "q3",
+        choices: ["item1",
+          { value: "item2", visibleIf: "{$survey.locale} = 'de'" },
+          { value: "item3", visibleIf: "{$survey.readOnly} = false" }] }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.visible, false, "q1 is invisible by default");
+  assert.equal(q2.visible, true, "q2 is visible by default");
+  assert.equal(q3.visibleChoices.length, 2, "q3 has two visible choices by default");
+  survey.locale = "de";
+  assert.equal(q1.visible, true, "q1 is visible after locale change to 'de'");
+  assert.equal(q2.visible, true, "q2 is visible after locale change to 'de'");
+  assert.equal(q3.visibleChoices.length, 3, "q3 has three visible choices after locale change to 'de'");
+  survey.readOnly = true;
+  assert.equal(q1.visible, true, "q1 is visible after making survey readOnly");
+  assert.equal(q2.visible, false, "q2 is invisible after making survey readOnly");
+  assert.equal(q3.visibleChoices.length, 2, "q3 has two visible choices after making survey readOnly");
+  survey.readOnly = false;
+  assert.equal(q1.visible, true, "q1 is visible after making survey readOnly");
+  assert.equal(q2.visible, true, "q2 is visible after making survey readOnly");
+  assert.equal(q3.visibleChoices.length, 3, "q3 has three visible choices after making survey readOnly");
+  survey.locale = "";
+  assert.equal(q1.visible, false, "q1 is invisible after locale change to ''");
+  assert.equal(q2.visible, true, "q2 is visible after locale change to ''");
+  assert.equal(q3.visibleChoices.length, 2, "q3 has two visible choices after locale change to ''");
 });

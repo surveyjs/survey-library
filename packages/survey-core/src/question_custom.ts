@@ -804,6 +804,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getOriginalObj(): Base {
     return this.questionWrapper;
   }
+  public getOriginalByProperty(propName: string): Base {
+    const inProps = this.customQuestion?.json?.inheritBaseProps;
+    let isInheritedProp = inProps === true || (Array.isArray(inProps) && inProps.indexOf(propName) > -1);
+    if (!isInheritedProp && !!Serializer.findProperty("question", propName)) return this;
+    return super.getOriginalByProperty(propName);
+  }
   protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
     this.createDynamicProperties(this.questionWrapper);
@@ -1039,10 +1045,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   protected updateElementCssCore(cssClasses: any) {
-    if (!!this.contentQuestion) {
-      cssClasses = this.contentQuestion.cssClasses;
-    }
-    super.updateElementCssCore(cssClasses);
+    super.updateElementCssCore(this.getCssClasses());
+  }
+  protected getCssClasses(): any {
+    return !!this.contentQuestion ? this.contentQuestion.cssClasses : super.getCssClasses();
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return super.getContentDisplayValueCore(keyAsText, value, this.contentQuestion);

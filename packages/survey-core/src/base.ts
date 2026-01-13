@@ -451,6 +451,11 @@ export class Base implements IObjectValueContext {
   protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
     this.mergeLocalizationInObjectCore(obj, locales);
     this.mergeLocalizationInArrays(obj, locales);
+    const orgObj = obj.getOriginalObj();
+    const org = this.getOriginalObj();
+    if (orgObj !== obj && org !== this) {
+      org.mergeLocalizationObj(orgObj, locales);
+    }
   }
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
@@ -471,7 +476,6 @@ export class Base implements IObjectValueContext {
     if (!obj || typeof obj.mergeLocalizationObj !== "function") return false;
     const self: any = this;
     if (obj["name"] && self.name !== obj["name"]) return false;
-    if (obj["value"] && self.value !== obj["value"]) return false;
     return true;
   }
   private mergeLocalizationInArrays(obj: Base, locales?: Array<string>): void {
@@ -1043,7 +1047,7 @@ export class Base implements IObjectValueContext {
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
     if (!obj || !propertyName) return;
-    const id = obj.uniqueId + "_" + propertyName;
+    const id = this.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
         this.onDependencyValueChanged(obj, propertyName);
@@ -1051,7 +1055,7 @@ export class Base implements IObjectValueContext {
       this.expressionDependencies[id] = { obj, propertyName };
     }
   }
-  private onDependencyValueChanged(obj: Base, propertyName: string): void {
+  protected onDependencyValueChanged(obj: Base, propertyName: string): void {
     this.runConditionCore(this.getDataFilteredProperties());
     this.locStrsChanged();
   }

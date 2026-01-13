@@ -20,6 +20,7 @@ import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
+import { RegexValidator } from "./validator";
 import { Trigger } from "./trigger";
 
 export interface QuestionEventMixin {
@@ -322,6 +323,20 @@ export interface QuestionRemovedEvent extends QuestionEventMixin, ElementRemoved
 export interface PanelAddedEvent extends PanelEventMixin, ElementAddedEvent { }
 export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent { }
 export interface PageAddedEvent extends PageEventMixin { }
+export interface CreateRegexValidatorEvent extends QuestionEventMixin {
+  /**
+   * A validator instance for which the event is raised.
+   */
+  validator: RegexValidator;
+  /**
+   * A regular expression pattern used by the validator. You can modify this value to change the validation logic.
+   */
+  pattern: string;
+  /**
+   * Optional regular expression flags that control additional matching behavior, such as case-insensitive searching. You can modify this value. For more information about supported flags, refer to the MDN article: [Advanced searching with flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions#advanced_searching_with_flags).
+   */
+  flags: string;
+}
 export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
    * A question value being validated.

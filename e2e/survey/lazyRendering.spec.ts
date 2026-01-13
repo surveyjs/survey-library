@@ -40,8 +40,15 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sv-skeleton-element")).toHaveCount(47);
       await expect(page.locator(".sv-skeleton-element").nth(46)).toHaveAttribute("id", "my_id_50");
       await page.evaluate(() => {
-        const container = (window as any).survey.rootElement.getRootNode().querySelector(".sv-scroll__scroller") as HTMLDivElement;
-        container.scrollTop = 1000;
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        let container = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        let scrollContainer = document.querySelector(".sv-scroll__scroller");
+        if (container && !!container.shadowRoot) {
+          scrollContainer = container;
+        }
+        if (!scrollContainer) return;
+        scrollContainer.scrollTop = 1000;
       });
       await page.waitForTimeout(1000);
       const count1 = await page.locator(".sv-skeleton-element").count();

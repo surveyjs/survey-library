@@ -33,8 +33,10 @@ frameworks.forEach(framework => {
           surveyElement.style.display = "none";
         }
 
-        const svgCointainer = (window as any).survey.rootElement.getRootNode().getElementById("svgCointainer");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const svgCointainer = document.getElementById("svgCointainer");
         const globalContainer = (window as any).survey.rootElement.getRootNode().getElementById("sv-icon-holder-global-container");
+        document.body.appendChild(globalContainer);
         let symbolsPseudoArray;
         if (!!globalContainer) {
           symbolsPseudoArray = globalContainer.querySelectorAll("symbol");

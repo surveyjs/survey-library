@@ -301,8 +301,12 @@ frameworks.forEach(framework => {
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
-        const surveyElement = document.querySelector("#surveyElement");
+        let surveyElement:any = document.querySelector("#surveyElement");
         if (surveyElement) {
+          if (!!surveyElement.shadowRoot) {
+            surveyElement = surveyElement.shadowRoot.querySelector("div");
+          }
+          if (!surveyElement) return;
           surveyElement.style.height = "90vh";
           surveyElement.style.overflowY = "auto";
           (window as any).survey.rootElement.getRootNode().querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);

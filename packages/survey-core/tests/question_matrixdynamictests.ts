@@ -21,7 +21,7 @@ import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question
 import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 import { AnimationGroup } from "../src/utils/animation";
 import { setOldTheme } from "./oldTheme";
-import { ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -11265,4 +11265,31 @@ QUnit.test("The displayValue function doesn't work when an expression column is 
   assert.equal(a.value, "item1", "Default value set correct");
   b.value = "e2";
   assert.equal(a.value, "item2", "Default value set correct #2");
+});
+QUnit.test("ProcessValue.hasValue for column object in design mode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "a",
+          },
+          {
+            name: "b",
+          }
+        ],
+      }
+    ]
+  });
+  survey.setDesignMode(true);
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const colContext = matrix.columns[0].getValueGetterContext();
+  const processValue = new ProcessValue(colContext);
+  assert.equal(processValue.hasValue("row.a"), true, "there is row a");
+  assert.equal(processValue.hasValue("row.c"), false, "there is no row c");
+  matrix.rowCount = 0;
+  assert.equal(processValue.hasValue("row.a"), true, "there is row a, #2");
+  assert.equal(processValue.hasValue("row.c"), false, "there is no row c, #2");
 });

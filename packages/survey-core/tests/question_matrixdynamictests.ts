@@ -11293,3 +11293,32 @@ QUnit.test("ProcessValue.hasValue for column object in design mode", (assert) =>
   assert.equal(processValue.hasValue("row.a"), true, "there is row a, #2");
   assert.equal(processValue.hasValue("row.c"), false, "there is no row c, #2");
 });
+QUnit.test("ProcessValue.hasValue to access matrix array in design mode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "q1",
+        columns: [
+          {
+            name: "a",
+          },
+          {
+            name: "b",
+          }
+        ],
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  survey.setDesignMode(true);
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q2Context = q2.getValueGetterContext();
+  const processValue = new ProcessValue(q2Context);
+  assert.equal(processValue.hasValue("q1[0].a"), true, "there is row a");
+  assert.equal(processValue.hasValue("q1[0].c"), false, "there is no row c");
+  matrix.rowCount = 0;
+  assert.equal(processValue.hasValue("q1[0].a"), true, "there is row a, #2");
+  assert.equal(processValue.hasValue("q1[0].c"), false, "there is no row c, #2");
+});

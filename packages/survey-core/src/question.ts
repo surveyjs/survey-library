@@ -2755,7 +2755,7 @@ export class Question extends SurveyElement<Question>
    */
   public get validators(): Array<SurveyValidator> {
     return this.getArrayPropertyValue("validators", (validator: any) => {
-      validator.errorOwner = this;
+      validator.owner = this;
     });
   }
   public set validators(val: Array<SurveyValidator>) {
@@ -3244,6 +3244,9 @@ export class Question extends SurveyElement<Question>
   getErrorCustomText(text: string, error: SurveyError): string {
     if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
+  }
+  createRegexValidator(validator: Base, pattern: string, flags: string): RegExp {
+    return this.survey?.createRegexValidator(this, validator, pattern, flags) || new RegExp(pattern, flags);
   }
   //IValidatorOwner
   getValidatorTitle(): string {

@@ -2730,6 +2730,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
     if (val == this.getIsDetailPanelShowing(row)) return;
+    if (val && this.detailPanelMode === "underRowSingle") {
+      var rows = this.visibleRows;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].isDetailPanelShowing) {
+          rows[i].hideDetailPanel();
+        }
+      }
+    }
     this.setPropertyValue("isRowShowing" + row.id, val);
     this.updateDetailPanelButtonCss(row);
     if (!!this.renderedTable) {
@@ -2737,14 +2745,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     if (this.survey) {
       this.survey.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
-    }
-    if (val && this.detailPanelMode === "underRowSingle") {
-      var rows = this.visibleRows;
-      for (var i = 0; i < rows.length; i++) {
-        if (rows[i].id !== row.id && rows[i].isDetailPanelShowing) {
-          rows[i].hideDetailPanel();
-        }
-      }
     }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {

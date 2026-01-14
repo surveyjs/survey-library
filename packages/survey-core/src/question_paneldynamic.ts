@@ -135,10 +135,19 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
   }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    const pd = <QuestionPanelDynamicModel>this.question;
     const index = params.index;
+    if (index > -1 && pd.isDesignMode && path.length > 0) {
+      const name = path[0].name;
+      const q = pd.template.getQuestionByName(name);
+      if (!!q) {
+        path.shift();
+        return path.length === 0 ? { isFound: true } : q.getValueGetterContext().getValue(params);
+      }
+      return { isFound: false };
+    }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
-      const pd = <QuestionPanelDynamicModel>this.question;
       if (index >= 0 && index < pd.panels.length) {
         const item = <QuestionPanelDynamicItem>pd.panels[index].data;
         params.isRoot = false;

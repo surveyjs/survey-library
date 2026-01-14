@@ -29,10 +29,11 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
   }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     const index = params.index;
+    const md = <QuestionMatrixDynamicModel>this.question;
+    if (index > -1 && md.isDesignMode) return md.getDesignRowContext().getValue(params);
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
-      const md = <QuestionMatrixDynamicModel>this.question;
       const rows = md.allRows;
       if (index >= 0 && index < rows.length) {
         params.isRoot = false;

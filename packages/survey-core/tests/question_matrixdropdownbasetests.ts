@@ -12,7 +12,7 @@ import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 import { Question } from "../src/question";
-import { ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -2590,4 +2590,32 @@ QUnit.test("Create root choices on demand", function (assert) {
   assert.equal(matrix.getPropertyValue("choices"), undefined, "choices are empty after toJSON");
   matrix.choices = [1, 2, 3];
   assert.notEqual(matrix.getPropertyValue("choices"), undefined, "choices are set");
+});
+QUnit.test("ProcessValue.hasValue to access matrix rows & columns in design mode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "a",
+          },
+          {
+            name: "b",
+          }
+        ],
+        rows: ["row1", "row2"]
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  survey.setDesignMode(true);
+  const q2 = survey.getQuestionByName("q2");
+  const q2Context = q2.getValueGetterContext();
+  const processValue = new ProcessValue(q2Context);
+  assert.equal(processValue.hasValue("q1.row1.a"), true, "#1");
+  assert.equal(processValue.hasValue("q1.row1.c"), false, "#2");
+  assert.equal(processValue.hasValue("q1.row2.b"), true, "#3");
+  assert.equal(processValue.hasValue("q1.row3.b"), false, "#4");
 });

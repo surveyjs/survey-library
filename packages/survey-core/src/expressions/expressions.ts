@@ -644,13 +644,15 @@ export class OperandMaker {
       if (!left.length) {
         left = left.toString();
         if (typeof right === "string" || right instanceof String) {
-          left = left.toUpperCase();
-          right = right.toUpperCase();
         }
       }
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;
         right = right.toString();
+        if (!settings.comparator.caseSensitive) {
+          left = left.toLowerCase();
+          right = right.toLowerCase();
+        }
         var found = left.indexOf(right) > -1;
         return isContains ? found : !found;
       }

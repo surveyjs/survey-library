@@ -9,7 +9,7 @@ import { SurveyValidator } from "./validator";
 import { getCurrecyCodes } from "./question_expression";
 import { settings } from "./settings";
 import { MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, PropertyGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, PropertyGetterContext } from "./conditionProcessValue";
 
 export interface IMatrixColumnOwner extends ILocalizableOwner {
   hasChoices(): boolean;
@@ -29,6 +29,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
   getCellAriaLabel(row: any, column: any, directRowTitle?: string): string;
+  getDesignRowContext(): IValueGetterContext;
 }
 export class MatrixColumnGetterContext implements IValueGetterContext {
   constructor(private column: MatrixDropdownColumn) {
@@ -45,6 +46,10 @@ export class MatrixColumnGetterContext implements IValueGetterContext {
     }
     if (path.length === 1 && ["name", "item"].indexOf(name) > -1)
       return { isFound: true, value: this.column.name };
+    if (this.column.isDesignMode) {
+      const rowContext = this.column.getDesignRowContext();
+      if (rowContext) return rowContext.getValue(params);
+    }
     return undefined;
   }
   getRootObj(): IObjectValueContext { return <any>this.column.colOwner; }
@@ -195,6 +200,9 @@ export class MatrixDropdownColumn extends Base
   }
   public getValueGetterContext(): IValueGetterContext {
     return new MatrixColumnGetterContext(this);
+  }
+  public getDesignRowContext(): IValueGetterContext {
+    return this.colOwner?.getDesignRowContext();
   }
   public locStrsChanged() {
     super.locStrsChanged();

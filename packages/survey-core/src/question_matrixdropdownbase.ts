@@ -1513,6 +1513,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.updateDefaultRowValue(column);
     this.resetTableAndRows();
   }
+  getDesignRowContext(): IValueGetterContext {
+    const row = this.visibleRows && this.visibleRows.length > 0 ? this.visibleRows[0] : this.createMatrixRow(new ItemValue(1));
+    return row.getValueGetterContext();
+  }
   private updateDefaultRowValue(column: MatrixDropdownColumn): void {
     let val = this.defaultRowValue;
     if (!!val) {

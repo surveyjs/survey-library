@@ -33,7 +33,7 @@ export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const items = this.question.items;
     for (let i = 0; i < items.length; i++) {
-      const q = items[i].question;
+      const q = items[i].editor;
       if (q.getValueName() === name) {
         res.isFound = true;
         res.obj = q;

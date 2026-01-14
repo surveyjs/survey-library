@@ -406,6 +406,13 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       });
       await initSurvey(page, framework, newJSON);
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
+        if (surveyElement && surveyElement.shadowRoot) {
+          surveyElement.shadowRoot.querySelector("div")?.setAttribute("dir", "rtl");
+        }
+      });
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.currentPageNo = 1;

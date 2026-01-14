@@ -99,6 +99,8 @@ export var czechSurveyStrings = {
   urlGetChoicesError: "Požadavek nevrátil data nebo je neplatná vlastnost 'path'",
   // "The file size should not exceed {0}."
   exceedMaxSize: "Velikost souboru by neměla být větší než {0}.",
+  // [Auto-translated] "The maximum number of files you can upload is {0}."
+  exceedMaxFiles: "Maximální počet souborů, které můžete nahrát, je {0}.",
   // [Auto-translated] "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event."
   noUploadFilesHandler: "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'.",
   // "Response required: enter another value."

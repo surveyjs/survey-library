@@ -282,7 +282,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private static focusElementCore(elementId: string, containerEl?: HTMLElement): boolean {
     const rootNode = DomDocumentHelper.getDocument();
-    const el: HTMLElement = containerEl ? containerEl.querySelector(`#${CSS.escape(elementId)}`) : rootNode.querySelector("#" + elementId);
+    const el: HTMLElement = containerEl ? containerEl.querySelector(`#${CSS.escape(elementId)}`) : rootNode.querySelector(`#${CSS.escape(elementId)}`);
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
       SurveyElement.ScrollElementToViewCore(el, true, false);

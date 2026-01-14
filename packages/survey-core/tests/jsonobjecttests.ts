@@ -2627,6 +2627,8 @@ QUnit.test("Declared @property", function (assert) {
   assert.strictEqual(obj["locStr1"].owner, obj, "locStr1 owner is correct");
   obj["locStr1"].setLocaleText("", "val1", "locStr1 set value");
   assert.equal(obj["locStr1"].getLocaleText(""), "val1", "locStr1 get value");
+  const strPropValue = obj["locStrProp"];
+  assert.equal(strPropValue.useMarkdown, true, "@property useMarkdown is true by default");
 
   assert.ok(obj["locStrName"], "locStrName exists");
   assert.strictEqual(obj["locStrName"].owner, obj, "locStrName owner is correct");

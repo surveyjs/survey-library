@@ -9,7 +9,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
-  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, supportsMarkdown?: boolean }
+  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, disableMarkdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
 }
@@ -64,7 +64,7 @@ export function property(options: IPropertyDecoratorOptions = {}) {
       const localizable = typeof options.localizable === "object" ? options.localizable : null;
       const locName = localizable && !!localizable.name ? localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1);
       const defaultStr = localizable && localizable.defaultStr ? localizable.defaultStr : false;
-      const supportsMarkdown = localizable && localizable.supportsMarkdown === true;
+      const supportsMarkdown = !localizable || localizable.disableMarkdown === true;
       Object.defineProperty(target, key, {
         get: function () {
           return this.getLocStringText(this[locName]);

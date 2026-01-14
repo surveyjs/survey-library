@@ -281,7 +281,7 @@ jobs:
           npm run accessibility-tests:ci
         displayName: "run accessibility tests"
 
-  - job: SurveyUI_and_CSSFrameworks
+  - job: Preact_ShadowDOM_BoxSizing
     dependsOn: Core
     steps:
       - checkout: self

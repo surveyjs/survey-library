@@ -443,7 +443,7 @@ jobs:
           testRunTitle: "Vue3 SCR Tests"
         condition: succeededOrFailed()
 
-  - job: SurveyUI_and_CSSFrameworks
+  - job: Preact_ShadowDOM_BoxSizing
     dependsOn: Core
     steps:
       - checkout: self

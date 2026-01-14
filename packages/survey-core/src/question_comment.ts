@@ -38,7 +38,7 @@ export class QuestionCommentModel extends QuestionTextBase {
       className: () => this.className,
       placeholder: () => this.renderedPlaceholder,
       isDisabledAttr: () => this.isDisabledAttr,
-      isReadOnlyAttr: () => this.isReadOnlyAttr || this.isInputReadOnly,
+      isReadOnlyAttr: () => this.isReadOnlyAttr || this.forceIsInputReadOnly || false,
       autoGrow: () => this.renderedAutoGrow,
       maxLength: () => this.getMaxLength(),
       rows: () => this.rows,

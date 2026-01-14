@@ -34,7 +34,7 @@ export class Survey {
   }
   public async checkIfCssClassExists(className: string, shouldExists: boolean): Promise<void> {
     const classExists = await this.page.evaluate(className => {
-      return !!document.querySelector(`.${className}`);
+      return !!(window as any).survey.rootElement.getRootNode().querySelector(`.${className}`);
     }, className);
     if (shouldExists) {
       expect(classExists).toBeTruthy();

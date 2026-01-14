@@ -17,7 +17,8 @@ const initPopupSurvey = async (page, framework, json) => {
     const model = new window["Survey"].Model(json);
     const surveyComplete = function (model) {
       window["SurveyResult"] = model.data;
-      document.getElementById("surveyResultElement").innerHTML = JSON.stringify(
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+      document.getElementById("surveyResultElement")!.innerHTML = JSON.stringify(
         model.data
       );
     };
@@ -26,7 +27,9 @@ const initPopupSurvey = async (page, framework, json) => {
       const popupSurvey = new window["Survey"].PopupSurvey(undefined, model);
       popupSurvey.show();
     } else if (framework === "react") {
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement").innerHTML = "";
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       const root = ReactDOMClient.createRoot(document.getElementById("surveyElement"));
       root.render(React.createElement(React.StrictMode, { children: React.createElement(window["SurveyReact"].PopupSurvey, {
         model: model,
@@ -35,6 +38,7 @@ const initPopupSurvey = async (page, framework, json) => {
       }
       ));
     } else if (framework === "vue") {
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement").innerHTML =
         "<popup-survey :survey='survey'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
@@ -45,12 +49,15 @@ const initPopupSurvey = async (page, framework, json) => {
     } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model, true, false);
     } else if (framework === "jquery-ui") {
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement").innerHTML = "";
       window["$"]("#surveyElement").PopupSurvey({
         model: model
       });
     } else if (framework === "survey-js-ui") {
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       document.getElementById("surveyElement").innerHTML = "";
+      // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
       window["SurveyUI"].renderPopupSurvey(model, document.getElementById("surveyElement"));
     }
     window["survey"] = model;
@@ -112,6 +119,7 @@ frameworks.forEach((framework) => {
 
       const getStyleWidthInPercents = async (prop) => {
         return await page.evaluate((p) => {
+          // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
           return document.querySelector(".sv_window").style[p];
         }, prop);
       };
@@ -163,6 +171,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(1);
 
       await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         document.querySelector(".sv_window")?.scroll({ top: 100 });
       });
       await expect(page.locator(".sv-popup__container").filter({ visible: true })).toHaveCount(0);

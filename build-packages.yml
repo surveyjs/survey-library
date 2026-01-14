@@ -769,7 +769,7 @@ jobs:
           testRunTitle: "Vue3 End-To-End Tests"
         condition: succeededOrFailed()
 
-  - job: SurveyUI_and_CSSFrameworks
+  - job: Preact_ShadowDOM_BoxSizing
     dependsOn:
       - Core
 

@@ -142,6 +142,14 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
+        if (surveyElement && surveyElement.shadowRoot) {
+          surveyElement.shadowRoot.querySelector("div")?.setAttribute("dir", "rtl");
+        }
+      });
+
       const panelRoot = page.locator(".sd-panel");
       await compareScreenshot(page, panelRoot, "panel-collapse-rtl.png");
       await panelRoot.locator(".sd-panel__title").click();

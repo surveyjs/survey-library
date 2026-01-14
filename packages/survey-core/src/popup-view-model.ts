@@ -210,18 +210,19 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
 
-    const root = this.container?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) {
-      return;
+    // eslint-disable-next-line no-restricted-globals
+    let activeElement = document.activeElement;
+    if (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement) {
+      activeElement = activeElement.shadowRoot.activeElement;
     }
 
     if (event.shiftKey) {
-      if (root.activeElement === firstFocusableElement) {
+      if (activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (root.activeElement === lastFocusableElement) {
+      if (activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }
@@ -241,7 +242,12 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>settings.environment.root.activeElement;
+    // eslint-disable-next-line no-restricted-globals
+    let activeElement = document.activeElement;
+    if (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement) {
+      activeElement = activeElement.shadowRoot.activeElement;
+    }
+    this.prevActiveElement = <HTMLElement>activeElement;
 
     if (this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();

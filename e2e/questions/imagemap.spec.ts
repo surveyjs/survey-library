@@ -63,23 +63,23 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await expect(page.locator(".sd-imagemap-bg")).toBeVisible();
 
-      let ok = await page.evaluate(() => document.querySelectorAll(".sd-imagemap-svg rect").length === 2);
+      let ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-imagemap-svg rect").length === 2);
       expect(ok).toBeTruthy();
 
       await page.locator(".sd-imagemap-svg").click({ position: { x: 30, y: 30 } });
-      ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 3);
+      ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-row").length === 3);
       expect(ok).toBeTruthy();
 
       await page.locator(".sd-imagemap-svg").click({ position: { x: 130, y: 30 } });
-      ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 4);
+      ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-row").length === 4);
       expect(ok).toBeTruthy();
 
       await page.locator("span").filter({ hasText: "Yes" }).first().click();
-      ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 1);
+      ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-row").length === 1);
       expect(ok).toBeTruthy();
 
       await page.locator("span").filter({ hasText: "Yes" }).first().click();
-      ok = await page.evaluate(() => document.querySelectorAll(".sd-row").length === 2);
+      ok = await page.evaluate(() => (window as any).survey.rootElement.getRootNode().querySelectorAll(".sd-row").length === 2);
       expect(ok).toBeTruthy();
     });
   });

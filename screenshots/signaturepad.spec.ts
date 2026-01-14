@@ -118,7 +118,7 @@ frameworks.forEach(framework => {
       });
       await page.waitForTimeout(1000);
       await page.evaluate(() => {
-        (document.querySelector(".sd-loading-indicator .sv-svg-icon") as any).style.animationName = "unset";
+        ((window as any).survey.rootElement.getRootNode().querySelector(".sd-loading-indicator .sv-svg-icon") as any).style.animationName = "unset";
       });
 
       await compareScreenshot(page, ".sd-question", "signature-data-loading.png");

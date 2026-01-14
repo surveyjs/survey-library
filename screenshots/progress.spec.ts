@@ -470,7 +470,10 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
-        if (element) {
+
+        if (element.shadowRoot) {
+          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+        } else {
           element.style.height = "calc(100vh - 32px)";
         }
         window["survey"].currentPageNo = 1;
@@ -513,7 +516,9 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
-        if (element) {
+        if (element.shadowRoot) {
+          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+        } else {
           element.style.height = "calc(100vh - 32px)";
         }
         (<any>window).survey.data = { q1: "answer" };
@@ -603,7 +608,9 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
-        if (element) {
+        if (element.shadowRoot) {
+          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+        } else {
           element.style.height = "calc(100vh - 32px)";
         }
       });

@@ -662,12 +662,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   /**
    * A placeholder displayed in the area for ranked choices. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
    */
-  @property({ localizable: { defaultStr: "selectToRankEmptyRankedAreaText" } }) selectToRankEmptyRankedAreaText: string;
+  @property({ localizable: { defaultStr: true } }) selectToRankEmptyRankedAreaText: string;
   /**
    * A placeholder displayed in the area for unranked choices. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
    */
-  @property({ localizable: { defaultStr: "selectToRankEmptyUnrankedAreaText" } }) selectToRankEmptyUnrankedAreaText: string;
-
+  @property({ localizable: { defaultStr: true } }) selectToRankEmptyUnrankedAreaText: string;
   public get useFullItemSizeForShortcut(): boolean {
     return this.getPropertyValue("useFullItemSizeForShortcut");
   }

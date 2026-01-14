@@ -9,44 +9,9 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
-  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
+  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, supportsMarkdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
-}
-
-function ensureLocString(
-  target: any,
-  options: IPropertyDecoratorOptions,
-  key: string
-) {
-  let locString = target.getLocalizableString(key);
-  if (!locString) {
-    let defaultStr: string;
-    if (typeof options.localizable === "object" && options.localizable.defaultStr) {
-      defaultStr = options.localizable.defaultStr;
-    }
-    locString = target.createLocalizableString(key, target, true, defaultStr);
-    if (
-      typeof options.localizable === "object" &&
-      typeof options.localizable.onGetTextCallback === "function"
-    ) {
-      locString.onGetTextCallback = options.localizable.onGetTextCallback;
-    }
-  }
-}
-function getLocStringValue(
-  target: any,
-  options: IPropertyDecoratorOptions,
-  key: string
-) {
-  ensureLocString(target, options, key);
-  let res = target.getLocalizableStringText(key);
-  if (!!res) return res;
-  if (typeof options.localizable === "object" && options.localizable.defaultStr) {
-    const loc = !!target.getLocale ? target.getLocale() : "";
-    return getLocaleString(options.localizable.defaultStr, loc);
-  }
-  return "";
 }
 
 export function property(options: IPropertyDecoratorOptions = {}) {
@@ -96,27 +61,31 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         },
       });
     } else {
+      const localizable = typeof options.localizable === "object" ? options.localizable : null;
+      const locName = localizable && !!localizable.name ? localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1);
+      const defaultStr = localizable && localizable.defaultStr ? localizable.defaultStr : false;
+      const supportsMarkdown = localizable && localizable.supportsMarkdown === true;
       Object.defineProperty(target, key, {
         get: function () {
-          return getLocStringValue(this, options, key);
+          return this.getLocStringText(this[locName]);
         },
         set: function (val: any) {
-          ensureLocString(this, options, key);
-          const newValue = processComputedUpdater(this, val);
-          this.setLocalizableStringText(key, newValue);
+          this.setLocStringText(this[locName], val);
           if (!!options && options.onSet) {
-            options.onSet(newValue, this);
+            options.onSet(val, this);
           }
         },
       });
       Object.defineProperty(
         target,
-        typeof options.localizable === "object" && !!options.localizable.name ?
-          options.localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1),
+        locName,
         {
           get: function () {
-            ensureLocString(this, options, key);
-            return this.getLocalizableString(key);
+            return this.getOrCreateLocStr(key, supportsMarkdown, defaultStr, (locStr) => {
+              if (localizable && typeof localizable.onGetTextCallback === "function") {
+                locStr.onGetTextCallback = localizable.onGetTextCallback;
+              }
+            });
           },
         }
       );

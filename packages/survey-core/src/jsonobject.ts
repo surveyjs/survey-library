@@ -70,6 +70,7 @@ export function property(options: IPropertyDecoratorOptions = {}) {
           return this.getLocStringText(this[locName]);
         },
         set: function (val: any) {
+          val = processComputedUpdater(this, val);
           this.setLocStringText(this[locName], val);
           if (!!options && options.onSet) {
             options.onSet(val, this);

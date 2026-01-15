@@ -71,7 +71,7 @@ export class ChoiceItem extends ItemValue {
       this.commentAnimaionValue = new AnimationBoolean({
         getAnimatedElement: ()=> {
           const id = (this.choiceOwner as QuestionSelectBase).getItemCommentId(this);
-          return this.choiceOwner.getWrapperElement()?.querySelector(`#${id}`) as HTMLElement;
+          return this.choiceOwner.getWrapperElement()?.querySelector(`#${id}`).parentElement as HTMLElement;
         },
         getEnterOptions() {
           return { cssClass: cssClasses.onEnter,

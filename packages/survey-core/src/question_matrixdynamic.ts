@@ -1072,10 +1072,10 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
-    if (this.setRowCountValueFromData) return;
+    const isInProcess = this.setRowCountValueFromData;
     this.setRowCountValueFromData = true;
     let refreshRows = false;
-    if (this.minRowCount > 0 && !this.draggedRow) {
+    if (!isInProcess && this.minRowCount > 0 && !this.draggedRow) {
       const newLen = Array.isArray(newValue) ? newValue.length : 0;
       const isEditingEl = this.isEditingSurveyElement;
       if (newLen < this.minRowCount && (isEditingEl && this.rowCount > 0 || !isEditingEl && !Helpers.isValueEmpty(this.defaultRowValue))) {

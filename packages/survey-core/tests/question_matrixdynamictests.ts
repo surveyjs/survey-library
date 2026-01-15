@@ -11322,3 +11322,23 @@ QUnit.test("ProcessValue.hasValue to access matrix array in design mode", (asser
   assert.equal(processValue.hasValue("q1[0].a"), true, "there is row a, #2");
   assert.equal(processValue.hasValue("q1[0].c"), false, "there is no row c, #2");
 });
+QUnit.test("Assign empty array to survey matrix", (assert) => {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        defaultValue: [{ value: 1, text: "item1" }],
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  assert.equal(matrix.visibleRows.length, 1, "There are 1 row");
+  survey.setValue("choices", []);
+  assert.equal(matrix.visibleRows.length, 0, "There are 0 rows");
+});

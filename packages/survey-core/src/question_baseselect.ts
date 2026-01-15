@@ -53,15 +53,7 @@ export class ChoiceItem extends ItemValue {
   public get isCommentShowing(): boolean {
     return this.getPropertyValue("isCommentShowing", false);
   }
-  public get locCommentPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("commentPlaceholder");
-  }
-  public get commentPlaceholder(): string {
-    return this.getLocStringText(this.locCommentPlaceholder);
-  }
-  public set commentPlaceholder(val: string) {
-    this.setLocStringText(this.locCommentPlaceholder, val);
-  }
+  @property({ localizable: true }) commentPlaceholder: string;
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
   }

@@ -9,9 +9,12 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
-  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, disableMarkdown?: boolean }
+  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, markdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
+}
+function getLocalizablePropertyName(propertyName: string): string {
+  return "loc" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 }
 
 export function property(options: IPropertyDecoratorOptions = {}) {
@@ -62,9 +65,9 @@ export function property(options: IPropertyDecoratorOptions = {}) {
       });
     } else {
       const localizable = typeof options.localizable === "object" ? options.localizable : null;
-      const locName = localizable && !!localizable.name ? localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1);
+      const locName = localizable && !!localizable.name ? localizable.name : getLocalizablePropertyName(key);
       const defaultStr = localizable && localizable.defaultStr ? localizable.defaultStr : false;
-      const supportsMarkdown = !localizable || localizable.disableMarkdown === true;
+      const supportsMarkdown = localizable && localizable.markdown === true;
       Object.defineProperty(target, key, {
         get: function () {
           return this.getLocStringText(this[locName]);
@@ -1001,8 +1004,8 @@ export class JsonMetadataClass {
       if (propInfo.onSettingValue) {
         prop.onSettingValue = propInfo.onSettingValue;
       }
-      if (propInfo.isLocalizable) {
-        propInfo.serializationProperty = "loc" + prop.name;
+      if (propInfo.isLocalizable && !propInfo.serializationProperty) {
+        propInfo.serializationProperty = getLocalizablePropertyName(prop.name);
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;

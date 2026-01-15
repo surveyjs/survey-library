@@ -147,7 +147,7 @@ frameworks.forEach(framework => {
       await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
       await page.locator("input[value=Next]").click();
       const headingY = await page.evaluate(() => {
-        return document.querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
+        return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
       expect(headingY).toBeGreaterThanOrEqual(0);
     });
@@ -155,7 +155,8 @@ frameworks.forEach(framework => {
     test("Page should not be scrolled to top of survey if top of survey is visible", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
       await page.evaluate(() => {
-        const container = window.document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.querySelector("#surveyElement");
         const parentDiv = container?.parentNode;
         const newNode = document.createElement("div");
         newNode.style.height = "200px";
@@ -165,7 +166,7 @@ frameworks.forEach(framework => {
 
       await page.locator("input[value=Next]").click();
       const headingY = await page.evaluate(() => {
-        return document.querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
+        return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
       expect(headingY).toBeGreaterThanOrEqual(200);
     });
@@ -173,7 +174,11 @@ frameworks.forEach(framework => {
     test("Page should be scrolled to top of survey fit to container", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
       await page.evaluate(() => {
-        const container = window.document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        let container = document.querySelector("#surveyElement");
+        if (!!container?.shadowRoot) {
+          container = container.shadowRoot?.querySelector("div");
+        }
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -183,11 +188,10 @@ frameworks.forEach(framework => {
         }
         window["survey"].fitToContainer = true;
       });
-
       await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
-      await page.locator("input[value=Next]").click();
+      await page.locator("input[value=Next]").click({ force: true });
       const headingY = await page.evaluate(() => {
-        return document.querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
+        return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
       expect(headingY).toBeGreaterThanOrEqual(0);
     });

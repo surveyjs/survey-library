@@ -9,44 +9,9 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
-  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string }
+  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, disableMarkdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
-}
-
-function ensureLocString(
-  target: any,
-  options: IPropertyDecoratorOptions,
-  key: string
-) {
-  let locString = target.getLocalizableString(key);
-  if (!locString) {
-    let defaultStr: string;
-    if (typeof options.localizable === "object" && options.localizable.defaultStr) {
-      defaultStr = options.localizable.defaultStr;
-    }
-    locString = target.createLocalizableString(key, target, true, defaultStr);
-    if (
-      typeof options.localizable === "object" &&
-      typeof options.localizable.onGetTextCallback === "function"
-    ) {
-      locString.onGetTextCallback = options.localizable.onGetTextCallback;
-    }
-  }
-}
-function getLocStringValue(
-  target: any,
-  options: IPropertyDecoratorOptions,
-  key: string
-) {
-  ensureLocString(target, options, key);
-  let res = target.getLocalizableStringText(key);
-  if (!!res) return res;
-  if (typeof options.localizable === "object" && options.localizable.defaultStr) {
-    const loc = !!target.getLocale ? target.getLocale() : "";
-    return getLocaleString(options.localizable.defaultStr, loc);
-  }
-  return "";
 }
 
 export function property(options: IPropertyDecoratorOptions = {}) {
@@ -96,27 +61,32 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         },
       });
     } else {
+      const localizable = typeof options.localizable === "object" ? options.localizable : null;
+      const locName = localizable && !!localizable.name ? localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1);
+      const defaultStr = localizable && localizable.defaultStr ? localizable.defaultStr : false;
+      const supportsMarkdown = !localizable || localizable.disableMarkdown === true;
       Object.defineProperty(target, key, {
         get: function () {
-          return getLocStringValue(this, options, key);
+          return this.getLocStringText(this[locName]);
         },
         set: function (val: any) {
-          ensureLocString(this, options, key);
-          const newValue = processComputedUpdater(this, val);
-          this.setLocalizableStringText(key, newValue);
+          val = processComputedUpdater(this, val);
+          this.setLocStringText(this[locName], val);
           if (!!options && options.onSet) {
-            options.onSet(newValue, this);
+            options.onSet(val, this);
           }
         },
       });
       Object.defineProperty(
         target,
-        typeof options.localizable === "object" && !!options.localizable.name ?
-          options.localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1),
+        locName,
         {
           get: function () {
-            ensureLocString(this, options, key);
-            return this.getLocalizableString(key);
+            return this.getOrCreateLocStr(key, supportsMarkdown, defaultStr, (locStr) => {
+              if (localizable && typeof localizable.onGetTextCallback === "function") {
+                locStr.onGetTextCallback = localizable.onGetTextCallback;
+              }
+            });
           },
         }
       );
@@ -181,6 +151,7 @@ export interface IObject {
 export interface IJsonPropertyInfo {
   name: string;
   type?: string;
+  acceptedValues?: Array<any>;
   className?: string;
   classNamePart?: string;
   baseClassName?: string;
@@ -289,6 +260,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   private classInfoValue: JsonMetadataClass;
   private typeValue: string;
   private choicesValue: Array<any>;
+  public acceptedValues?: Array<any>;
   public baseValue: any;
   private isRequiredValue: boolean = false;
   private isUniqueValue: boolean = false;
@@ -442,15 +414,15 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       value === "" || Helpers.isValueEmpty(value)
     );
   }
-  public getSerializableValue(obj: any, storeDefaults?: boolean, selectedLocales?: string[]): any {
+  public getSerializableValue(obj: any, storeDefaults?: boolean, options?: ISaveToJSONOptions): any {
     if (!!this.onSerializeValue) return this.onSerializeValue(obj);
-    if (!storeDefaults && obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this)) return undefined;
-    const value = this.getValue(obj, selectedLocales);
+    if (!storeDefaults && this.isSerializable && obj.getIsSerializablePropertyEmpty && obj.getIsSerializablePropertyEmpty(this)) return undefined;
+    const value = this.getValue(obj, options);
     if (value === undefined || value === null) return undefined;
     if (!storeDefaults && this.isDefaultValueByObj(obj, value)) return undefined;
     return value;
   }
-  public getValue(obj: any, selectedLocales?: string[]): any {
+  public getValue(obj: any, options?: ISaveToJSONOptions): any {
     if (this.onGetValue) {
       obj = this.getOriginalObj(obj);
       return this.onGetValue(obj);
@@ -458,7 +430,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     const serProp = this.serializationProperty;
     if (!!serProp) {
       const serObj = obj[serProp];
-      if (!!serObj) return serObj.getJson(selectedLocales);
+      if (!!serObj) return serObj.getJson(options);
     }
     return obj[this.name];
   }
@@ -506,6 +478,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public validateValue(value: any): boolean {
     const choices = this.choices;
     if (!Array.isArray(choices) || choices.length === 0) return true;
+    if (typeof value === "object" && typeof choices[0] === "object") return true;
+    const aV = this.acceptedValues;
+    if (Array.isArray(aV) && aV.indexOf(value) > -1) return true;
     return choices.indexOf(value) > -1;
   }
   public getObjType(objType: string) {
@@ -980,6 +955,9 @@ export class JsonMetadataClass {
       }
       if (!Helpers.isValueEmpty(propInfo.isArray)) {
         prop.isArray = propInfo.isArray;
+      }
+      if (Array.isArray(propInfo.acceptedValues)) {
+        prop.acceptedValues = propInfo.acceptedValues;
       }
       if (propInfo.visible === true || propInfo.visible === false) {
         prop.visible = propInfo.visible;
@@ -1871,7 +1849,7 @@ export class JsonObject {
     const storeStrings = options.storeLocaleStrings;
     if (prop.isArray || prop.isUnique || prop.name === "name") return true;
     if (storeStrings === false) return !prop.isLocalizable;
-    if (storeStrings === "stringsOnly") return prop.isLocalizable;
+    if (storeStrings === "stringsOnly") return prop.isLocalizable || !!prop.serializationProperty;
     return true;
   }
   private valueToJsonCore(obj: any, result: any, prop: JsonObjectProperty, options: ISaveToJSONOptions): void {
@@ -1880,7 +1858,7 @@ export class JsonObject {
       this.valueToJsonCore(obj, result, serProp, options);
       return;
     }
-    var value = prop.getSerializableValue(obj, options.storeDefaults, options.locales);
+    var value = prop.getSerializableValue(obj, options.storeDefaults, options);
     if (value === undefined) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
@@ -1896,13 +1874,8 @@ export class JsonObject {
     }
     if (value === undefined || value === null) return;
     const name = prop.getSerializedName(options.version);
-    var hasValue =
-      typeof obj["getPropertyValue"] === "function" &&
-      obj["getPropertyValue"](name, null) !== null;
-    if ((options.storeDefaults && hasValue) || !prop.isDefaultValueByObj(obj, value)) {
-      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, prop, value, result)) {
-        result[name] = this.removePosOnValueToJson(prop, value);
-      }
+    if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, prop, value, result)) {
+      result[name] = this.removePosOnValueToJson(prop, value);
     }
   }
   private reduceLocaleArray(arrValue: Array<any>): void {

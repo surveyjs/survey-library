@@ -123,7 +123,8 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, newJSON);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const container = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const container = document.querySelector("#surveyElement");
         if (container) {
           container.style.position = "fixed";
           container.style.top = "0";
@@ -299,11 +300,16 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
-        const surveyElement = document.getElementById("surveyElement");
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        let surveyElement:any = document.querySelector("#surveyElement");
         if (surveyElement) {
+          if (!!surveyElement.shadowRoot) {
+            surveyElement = surveyElement.shadowRoot.querySelector("div");
+          }
+          if (!surveyElement) return;
           surveyElement.style.height = "90vh";
           surveyElement.style.overflowY = "auto";
-          document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
+          (window as any).survey.rootElement.getRootNode().querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
         }
       });
 
@@ -400,6 +406,13 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       });
       await initSurvey(page, framework, newJSON);
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
+        if (surveyElement && surveyElement.shadowRoot) {
+          surveyElement.shadowRoot.querySelector("div")?.setAttribute("dir", "rtl");
+        }
+      });
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
         (<any>window).survey.currentPageNo = 1;
@@ -455,8 +468,12 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, surveyJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
-        if (element) {
+
+        if (element.shadowRoot) {
+          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+        } else {
           element.style.height = "calc(100vh - 32px)";
         }
         window["survey"].currentPageNo = 1;
@@ -497,8 +514,11 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, surveyJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
-        if (element) {
+        if (element.shadowRoot) {
+          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+        } else {
           element.style.height = "calc(100vh - 32px)";
         }
         (<any>window).survey.data = { q1: "answer" };
@@ -586,8 +606,11 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, surveyJson);
       await applyHeaderAccentBackgroundColor(page);
       await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
         const element = document.querySelector("#surveyElement") as HTMLElement;
-        if (element) {
+        if (element.shadowRoot) {
+          element.shadowRoot.querySelector("div")!.style.height = "calc(100vh - 32px)";
+        } else {
           element.style.height = "calc(100vh - 32px)";
         }
       });

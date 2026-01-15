@@ -358,9 +358,10 @@ export class Base implements IObjectValueContext {
   }
   public get uniqueId(): number { return this.uniqueIdValue; }
   public get isSurveyObj(): boolean { return true; }
-  protected addEvent<T, Options = any>(): EventBase<T, Options> {
+  protected addEvent<T, Options = any>(onCallbacksChanged?: () => void): EventBase<T, Options> {
     const res = new EventBase<T, Options>();
     this.eventList.push(res);
+    res.onCallbacksChanged = onCallbacksChanged;
     return res;
   }
   protected addAsyncEvent<T, Options = any>(): EventAsync<T, Options> {
@@ -450,6 +451,11 @@ export class Base implements IObjectValueContext {
   protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
     this.mergeLocalizationInObjectCore(obj, locales);
     this.mergeLocalizationInArrays(obj, locales);
+    const orgObj = obj.getOriginalObj();
+    const org = this.getOriginalObj();
+    if (orgObj !== obj && org !== this) {
+      org.mergeLocalizationObj(orgObj, locales);
+    }
   }
   private mergeLocalizationInObjectCore(obj: Base, locales?: Array<string>): void {
     if (!this.canMergeObj(obj)) return;
@@ -470,7 +476,6 @@ export class Base implements IObjectValueContext {
     if (!obj || typeof obj.mergeLocalizationObj !== "function") return false;
     const self: any = this;
     if (obj["name"] && self.name !== obj["name"]) return false;
-    if (obj["value"] && self.value !== obj["value"]) return false;
     return true;
   }
   private mergeLocalizationInArrays(obj: Base, locales?: Array<string>): void {
@@ -498,6 +503,15 @@ export class Base implements IObjectValueContext {
   public toJSON(options?: ISaveToJSONOptions): any {
     return new JsonObject().toJsonObject(this, options);
   }
+  /**
+   * Returns a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements.
+   *
+   * This method is syntactic sugar for calling the [`toJSON()`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   *
+   * To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
+   * @param locales *(Optional)* An array of locale identifiers to include in the JSON schema.
+   * @returns A locale-strings-only JSON schema.
+   */
   public getLocalizationJSON(locales?: Array<string>): any {
     return this.toJSON({ storeLocaleStrings: "stringsOnly", locales: locales });
   }
@@ -647,7 +661,7 @@ export class Base implements IObjectValueContext {
   public getIsSerializablePropertyEmpty(prop: JsonObjectProperty): boolean {
     const orgObj = this.getOriginalByProperty(prop.name);
     if (prop.isLocalizable) return !orgObj.getLocalizableString(prop.name);
-    if (this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
+    if (orgObj === this && this.doNotSerializeEmptyProperty(prop)) return this.getPropertyValueWithoutDefault(prop.name) == undefined;
     return false;
   }
   public getOriginalObj(): Base {
@@ -798,6 +812,14 @@ export class Base implements IObjectValueContext {
       newValue: newValue,
       propertyName: item.ownerPropertyName,
     });
+  }
+  private isFuncExecuting: boolean;
+  protected executeOnSyncPropertiesChanged(func: () => void): void {
+    if (!this.isFuncExecuting) {
+      this.isFuncExecuting = true;
+      func();
+      this.isFuncExecuting = false;
+    }
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void { }
   protected propertyValueChanged(name: string, oldValue: any, newValue: any, arrayChanges?: ArrayChanges, target?: Base): void {
@@ -1025,7 +1047,7 @@ export class Base implements IObjectValueContext {
   }
   public addPropertyDependency(obj: Base, propertyName: string): void {
     if (!obj || !propertyName) return;
-    const id = obj.uniqueId + "_" + propertyName;
+    const id = this.uniqueId + "_" + propertyName;
     if (!this.expressionDependencies[id]) {
       obj.registerFunctionOnPropertyValueChanged(propertyName, () => {
         this.onDependencyValueChanged(obj, propertyName);
@@ -1033,7 +1055,7 @@ export class Base implements IObjectValueContext {
       this.expressionDependencies[id] = { obj, propertyName };
     }
   }
-  private onDependencyValueChanged(obj: Base, propertyName: string): void {
+  protected onDependencyValueChanged(obj: Base, propertyName: string): void {
     this.runConditionCore(this.getDataFilteredProperties());
     this.locStrsChanged();
   }
@@ -1073,16 +1095,22 @@ export class Base implements IObjectValueContext {
     if (defaultStr) {
       locName = defaultStr === true ? name : defaultStr;
     }
+    const locStr = this.createLocalizableStringCore(owner, name, supportsMarkdown, locName);
+    const prop = this.getPropertyByName(name);
+    locStr.disableLocalization = prop && prop.isLocalizable === false;
+    return locStr;
+  }
+  protected createLocalizableStringCore(owner: ILocalizableOwner, name: string, supportsMarkdown: boolean, locName?: string): LocalizableString {
     const locStr = new LocalizableString(owner, supportsMarkdown, name, locName);
-    locStr.onStrChanged = (oldValue: string, newValue: string) => {
-      this.propertyValueChanged(name, oldValue, newValue);
-    };
+    if (!!name) {
+      locStr.onStrChanged = (oldValue: string, newValue: string) => {
+        this.propertyValueChanged(name, oldValue, newValue);
+      };
+    }
     if (!this.localizableStrings) {
       this.localizableStrings = {};
     }
     this.localizableStrings[name] = locStr;
-    const prop = this.getPropertyByName(name);
-    locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
   protected removeLocalizableString(name: string): void {
@@ -1127,7 +1155,7 @@ export class Base implements IObjectValueContext {
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);
-        if (item)this.AddLocStringToUsedLocales(item, locales);
+        if (item)this.addLocStringToUsedLocales(item, locales);
       }
     }
     if (!!this.arraysInfo) {
@@ -1176,7 +1204,7 @@ export class Base implements IObjectValueContext {
   }
   protected getSearchableLocKeys(keys: Array<string>) { }
   protected getSearchableItemValueKeys(keys: Array<string>) { }
-  protected AddLocStringToUsedLocales(
+  private addLocStringToUsedLocales(
     locStr: LocalizableString,
     locales: Array<string>
   ) {

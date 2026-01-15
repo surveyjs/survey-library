@@ -212,10 +212,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     if (this.getType() != this.getBaseType()) {
       CustomPropertiesCollection.createProperties(this);
     }
-    this.onCreating();
   }
 
-  public onCreating(): any { }
   public getType(): string {
     return this.typeName || this.getBaseType();
   }
@@ -240,10 +238,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return this.isGhost === true;
   }
   private createLocText(): LocalizableString {
-    const res = new LocalizableString(this, true, "text");
-    res.onStrChanged = (oldValue: string, newValue: string) => {
-      this.propertyValueChanged("text", oldValue, newValue);
-    };
+    const res = this.createLocalizableStringCore(this, "text", true, "text");
     res.onGetTextCallback = (txt) => {
       return this.onGetText(txt);
     };
@@ -279,6 +274,14 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.onLocOwnerChanged();
   }
   protected onLocOwnerChanged(): void {}
+  protected onDependencyValueChanged(obj: Base, propertyName: string): void {
+    const owner: any = this.locOwner;
+    if (owner && owner.onDependencyValueChanged) {
+      owner.onDependencyValueChanged(obj, propertyName);
+    } else {
+      super.onDependencyValueChanged(obj, propertyName);
+    }
+  }
   public get value(): any {
     return this.getPropertyValue("value");
   }
@@ -371,6 +374,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     return res;
   }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "text";
+  }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "text" && (!this.locTextValue || !this.locTextValue.hasNonDefaultText() &&
       Helpers.isTwoValueEquals(this.value, this.locTextValue.getLocaleText(""), false, true, false))) {
@@ -432,15 +438,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   public setIsEnabled(val: boolean): void {
     this.setPropertyValue("isEnabled", val);
-  }
-  public addUsedLocales(locales: Array<string>): void {
-    if (this.locTextValue) {
-      this.AddLocStringToUsedLocales(this.locTextValue, locales);
-    }
-  }
-  public locStrsChanged(): void {
-    super.locStrsChanged();
-    this.locTextValue?.strChanged();
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     if (name === "value" && !this.hasText) {

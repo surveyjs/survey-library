@@ -33,7 +33,7 @@ export class MultipleTextValueGetterContext extends ValueGetterContextCore {
   protected updateValueByItem(name: string, res: IValueGetterInfo): void {
     const items = this.question.items;
     for (let i = 0; i < items.length; i++) {
-      const q = items[i].question;
+      const q = items[i].editor;
       if (q.getValueName() === name) {
         res.isFound = true;
         res.obj = q;
@@ -47,7 +47,6 @@ export class MultipleTextValueGetterContext extends ValueGetterContextCore {
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
   getTextProcessor(): ITextProcessor;
-  getAllValues(): any;
   getMultipleTextValue(name: string): any;
   setMultipleTextValue(name: string, value: any): any;
   getItemDefaultValue(name: string): any;
@@ -393,18 +392,10 @@ export class MultipleTextItemModel extends Base
       this.data.setMultipleTextValue(name, value);
     }
   }
-  getVariable(name: string): any {
-    return undefined;
-  }
-  setVariable(name: string, newValue: any) { }
   getComment(name: string): string {
     return null;
   }
   setComment(name: string, newValue: string) { }
-  getAllValues(): any {
-    if (this.data) return this.data.getAllValues();
-    return this.value;
-  }
   getFilteredProperties(): any {
     return { survey: this.getSurvey() };
   }
@@ -412,7 +403,6 @@ export class MultipleTextItemModel extends Base
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
-  getEditingSurveyElement(): Base { return undefined; }
   //IValidatorOwner
   getValidatorTitle(): string {
     return this.title;
@@ -831,9 +821,6 @@ export class QuestionMultipleTextModel extends Question
   }
   getTextProcessor(): ITextProcessor {
     return this.textProcessor;
-  }
-  getAllValues() {
-    return this.data ? this.data.getAllValues() : null;
   }
   //IPanel
   addElement(element: IElement, index: number) { }

@@ -544,10 +544,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
   public setValue(name: string, newColumnValue: any) {
     this.setValueCore(name, newColumnValue, false);
   }
-  getVariable(name: string): any {
-    return undefined;
-  }
-  setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
     var question = this.getQuestionByName(name);
     return !!question ? question.comment : "";
@@ -564,7 +560,6 @@ export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILo
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
-  getEditingSurveyElement(): Base { return undefined; }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue || this.isCreatingDetailPanel) return;
     this.updateQuestionsValue(name, newColumnValue, isComment);
@@ -1038,16 +1033,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     );
   }
-
-  constructor(name: string) {
-    super(name);
-    this.createItemValues("choices");
-    this.detailPanelValue = this.createNewDetailPanel();
-    this.detailPanel.selectedElementInDesign = this;
-    this.detailPanel.renderWidth = "100%";
-    this.detailPanel.isInteractiveDesignElement = false;
-    this.detailPanel.showTitle = false;
-  }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "columns" || name === "cellType") {
@@ -1237,6 +1222,18 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see detailPanelMode
    */
   public get detailPanel(): PanelModel {
+    if (!this.detailPanelValue) {
+      const pnl = this.createNewDetailPanel();
+      pnl.selectedElementInDesign = this;
+      pnl.renderWidth = "100%";
+      pnl.isInteractiveDesignElement = false;
+      pnl.showTitle = false;
+      const adActions = this.getPropertyValueWithoutDefault("allowAdaptiveActions");
+      if (adActions !== undefined) {
+        pnl.allowAdaptiveActions = adActions;
+      }
+      this.detailPanelValue = pnl;
+    }
     return this.detailPanelValue;
   }
   public getPanels(): Array<IPanel> {
@@ -1256,6 +1253,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    */
   public get detailElements(): Array<IElement> {
     return this.detailPanel.elements;
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    if (name === "detailElements") return !this.detailPanelValue;
+    return super.isPropertyStoredInHash(name);
   }
   protected createNewDetailPanel(): PanelModel {
     return Serializer.createClass("panel");
@@ -1447,12 +1448,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   public set allowAdaptiveActions(val: boolean) {
     this.setPropertyValue("allowAdaptiveActions", val);
-    if (!!this.detailPanel) {
+    if (!!this.detailPanelValue) {
       this.detailPanel.allowAdaptiveActions = val;
     }
   }
   public hasChoices(): boolean {
-    return this.choices.length > 0;
+    const choices = this.getPropertyValueWithoutDefault("choices");
+    return choices && choices.length > 0;
   }
   onColumnPropertyChanged(column: MatrixDropdownColumn, name: string, newValue: any): void {
     this.updateHasFooter();
@@ -1510,6 +1512,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void {
     this.updateDefaultRowValue(column);
     this.resetTableAndRows();
+  }
+  getDesignRowContext(): IValueGetterContext {
+    const row = this.visibleRows && this.visibleRows.length > 0 ? this.visibleRows[0] : this.createMatrixRow(new ItemValue(1));
+    return row.getValueGetterContext();
   }
   private updateDefaultRowValue(column: MatrixDropdownColumn): void {
     let val = this.defaultRowValue;
@@ -1806,10 +1812,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * @see cellType
    */
   public get choices(): Array<any> {
-    return this.getPropertyValue("choices");
+    return this.getItemValuesPropertyValue("choices");
   }
   public set choices(val: Array<any>) {
-    this.setPropertyValue("choices", val);
+    this.setArrayPropertyValue("choices", val);
   }
   /**
    * A placeholder for Dropdown matrix cells.
@@ -2443,7 +2449,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private showDuplicatedErrorsInRows(duplicatedRows: Array<MatrixDropdownRowModelBase>, columnName: string): void {
     duplicatedRows.forEach(row => {
       let question = row.getQuestionByName(columnName);
-      const inDetailPanel = this.detailPanel.getQuestionByName(columnName);
+      const inDetailPanel = this.detailPanelValue?.getQuestionByName(columnName);
       if (!question && inDetailPanel) {
         row.showDetailPanel();
         if (row.detailPanel) {
@@ -2724,6 +2730,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   setIsDetailPanelShowing(row: MatrixDropdownRowModelBase, val: boolean): void {
     if (val == this.getIsDetailPanelShowing(row)) return;
+    if (val && this.detailPanelMode === "underRowSingle") {
+      var rows = this.visibleRows;
+      for (var i = 0; i < rows.length; i++) {
+        if (rows[i].isDetailPanelShowing) {
+          rows[i].hideDetailPanel();
+        }
+      }
+    }
     this.setPropertyValue("isRowShowing" + row.id, val);
     this.updateDetailPanelButtonCss(row);
     if (!!this.renderedTable) {
@@ -2731,14 +2745,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     if (this.survey) {
       this.survey.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
-    }
-    if (val && this.detailPanelMode === "underRowSingle") {
-      var rows = this.visibleRows;
-      for (var i = 0; i < rows.length; i++) {
-        if (rows[i].id !== row.id && rows[i].isDetailPanelShowing) {
-          rows[i].hideDetailPanel();
-        }
-      }
     }
   }
   public getDetailPanelButtonCss(row: MatrixDropdownRowModelBase): string {

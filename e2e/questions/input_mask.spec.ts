@@ -58,7 +58,7 @@ frameworks.forEach((framework) => {
 
       const getCursor = async () => {
         return await page.evaluate(() => {
-          return (document.activeElement as HTMLInputElement).selectionStart;
+          return ((window as any).survey.rootElement.getRootNode().activeElement as HTMLInputElement).selectionStart;
         });
       };
 
@@ -159,7 +159,7 @@ frameworks.forEach((framework) => {
       const inputElement = page.getByRole("textbox", { name: "q1" });
       expect(await inputElement.inputValue()).toBe("");
 
-      let activeElement = await page.evaluate(() => { return document.activeElement?.tagName; });
+      let activeElement = await page.evaluate(() => { return (window as any).survey.rootElement.getRootNode().activeElement?.tagName; });
       expect(activeElement).toBe("INPUT");
 
       await page.keyboard.type("1234");

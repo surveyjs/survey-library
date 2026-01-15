@@ -358,9 +358,12 @@ export class Question extends SurveyElement<Question>
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
-    const updateQuestionCssProps = ["no", "readOnly", "hasVisibleErrors", "containsErrors"];
+    const updateQuestionCssProps = ["readOnly", "hasVisibleErrors", "containsErrors"];
     if (updateQuestionCssProps.indexOf(name) > -1) {
       this.updateQuestionCss();
+    }
+    if (name === "no") {
+      this.resetCssTitle();
     }
     if (name === "width") {
       this.updateQuestionCss();
@@ -1719,10 +1722,12 @@ export class Question extends SurveyElement<Question>
   }
   public get cssTitle(): string {
     this.ensureElementCss();
-    return this.getPropertyValue("cssTitle", "");
+    return this.getPropertyValue("cssTitle", undefined, () => {
+      return this.getCssTitle(this.getCssClasses());
+    });
   }
-  protected setCssTitle(val: string): void {
-    this.setPropertyValue("cssTitle", val);
+  private resetCssTitle() {
+    this.resetPropertyValue("cssTitle");
   }
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
@@ -1831,11 +1836,14 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     }
   }
+  protected getCssClasses(): any {
+    return this.cssClasses;
+  }
   protected updateElementCssCore(cssClasses: any): void {
     this.setCssRoot(this.getCssRoot(cssClasses));
     this.setCssHeader(this.getCssHeader(cssClasses));
     this.setCssContent(this.getCssContent(cssClasses));
-    this.setCssTitle(this.getCssTitle(cssClasses));
+    this.resetCssTitle();
     this.setCssDescription(this.getCssDescription(cssClasses));
     this.setCssError(this.getCssError(cssClasses));
   }
@@ -2747,14 +2755,11 @@ export class Question extends SurveyElement<Question>
    */
   public get validators(): Array<SurveyValidator> {
     return this.getArrayPropertyValue("validators", (validator: any) => {
-      validator.errorOwner = this;
+      validator.owner = this;
     });
   }
   public set validators(val: Array<SurveyValidator>) {
     this.setArrayPropertyValue("validators", val);
-  }
-  protected isPropertyStoredInHash(name: string): boolean {
-    return name === "validators" || super.isPropertyStoredInHash(name);
   }
   public getValidators(): Array<SurveyValidator> {
     return this.validators;
@@ -3034,7 +3039,7 @@ export class Question extends SurveyElement<Question>
   public get isInputTextUpdate(): boolean {
     return this.getIsInputTextUpdate() && this.isTextValue();
   }
-  protected setNewValueInData(newValue: any): void {
+  private setNewValueInData(newValue: any): void {
     newValue = this.valueToData(newValue);
     if (!this.isValueChangedInSurvey) {
       this.setValueCore(newValue);
@@ -3240,6 +3245,9 @@ export class Question extends SurveyElement<Question>
     if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);
     return text;
   }
+  createRegexValidator(validator: Base, pattern: string, flags: string): RegExp {
+    return this.survey?.createRegexValidator(this, validator, pattern, flags) || new RegExp(pattern, flags);
+  }
   //IValidatorOwner
   getValidatorTitle(): string {
     return null;
@@ -3250,10 +3258,6 @@ export class Question extends SurveyElement<Question>
   set validatedValue(val: any) {
     this.value = val;
   }
-  getAllValues(): any {
-    return !!this.data ? this.data.getAllValues() : null;
-  }
-
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
   }
@@ -3504,18 +3508,6 @@ export class Question extends SurveyElement<Question>
 
   public get dragDropMatrixAttribute(): string {
     return null;
-  }
-
-  private _syncPropertiesChanging: boolean = false;
-  protected registerSychProperties(names: Array<string>, func: any) {
-    this.registerFunctionOnPropertiesValueChanged(names,
-      () => {
-        if (!this._syncPropertiesChanging) {
-          this._syncPropertiesChanging = true;
-          func();
-          this._syncPropertiesChanging = false;
-        }
-      });
   }
 }
 function makeNameValid(str: string): string {

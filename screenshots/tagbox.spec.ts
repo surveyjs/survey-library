@@ -129,6 +129,13 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
+        if (surveyElement && surveyElement.shadowRoot) {
+          surveyElement.shadowRoot.querySelector("div")?.setAttribute("dir", "rtl");
+        }
+      });
       await page.locator(".sv-tagbox__item").first().hover();
       await compareScreenshot(page, ".sd-question", "tagbox-rtl-question-answered.png");
 
@@ -267,7 +274,7 @@ frameworks.forEach(framework => {
         ]
       });
       await page.evaluate(() => {
-        (document.querySelector(".sd-question input") as HTMLElement).style.backgroundColor = "red";
+        ((window as any).survey.rootElement.getRootNode().querySelector(".sd-question input") as HTMLElement).style.backgroundColor = "red";
       });
       await compareScreenshot(page, ".sd-question", "tagbox-contrast-input.png");
     });

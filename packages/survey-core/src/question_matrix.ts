@@ -13,7 +13,7 @@ import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { IPlainDataOptions } from "./base-interfaces";
+import { IPlainDataOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ConditionRunner } from "./conditions";
 import { Question } from "./question";
 import { ISurveyData, ISurvey, ITextProcessor, IQuestion } from "./base-interfaces";
@@ -163,21 +163,7 @@ export class MatrixCells extends Base {
     }
     let res = <LocalizableString>this.locs[row][col];
     if (!res) {
-      res = this.createString();
-      res.setJson(this.getCellLocData(row, col));
-      res.onGetTextCallback = (str: string): string => {
-        if (!str) {
-          const column = ItemValue.getItemByValue(this.columns, col);
-          if (column) {
-            return column.locText.getJson() || column.value;
-          }
-        }
-        return str;
-      };
-      res.onStrChanged = (oldValue: any, newValue: any): void => {
-        this.updateValues(row, col, newValue);
-      };
-      this.locs[row][col] = res;
+      res = this.createString(row, col, (item: LocalizableString) => item.setJson(this.getCellLocData(row, col)));
     }
     return res;
   }
@@ -243,8 +229,9 @@ export class MatrixCells extends Base {
     if (val.value) return val.value;
     return val;
   }
-  public getJson(): any {
+  public getJson(options?: ISaveToJSONOptions): any {
     if (this.isEmpty) return null;
+    if (options?.storeLocaleStrings === false) return null;
     const defaultRow = this.values[this.defaultRowValue];
     const res: { [index: string]: any } = {};
     for (let row in this.values) {
@@ -253,7 +240,7 @@ export class MatrixCells extends Base {
       for (let col in rowValues) {
         if (row === this.defaultRowValue || !defaultRow || defaultRow[col] !== rowValues[col]) {
           const loc = this.getCellLocCore(row, col);
-          resRow[col] = loc ? loc.getJson() : rowValues[col];
+          resRow[col] = !!loc ? loc.getJson(options) : rowValues[col];
         }
       }
       res[row] = resRow;
@@ -278,6 +265,26 @@ export class MatrixCells extends Base {
     this.locNotification = false;
     this.valuesChanged();
   }
+  public mergeWith(otherCells: MatrixCells, locales?: Array<string>): void {
+    this.locNotification = true;
+    const options: ISaveToJSONOptions = { locales: locales, storeLocaleStrings: true };
+    for (let row in otherCells.values) {
+      const rowValues = otherCells.values[row];
+      for (let col in rowValues) {
+        const otherLoc = otherCells.getCellLocCore(row, col);
+        if (!!otherLoc) {
+          let loc = this.getCellLocCore(row, col);
+          if (!loc) {
+            loc = this.createString(row, col, (item: LocalizableString) => item.setJson(otherLoc.getJson(options)));
+          } else {
+            loc.mergeWith(otherLoc, locales);
+          }
+        }
+      }
+    }
+    this.locNotification = false;
+    this.onValuesChanged();
+  }
   public locStrsChanged(): void {
     this.runFuncOnLocs((row: any, col: any, loc: LocalizableString) => loc.strChanged());
   }
@@ -289,8 +296,23 @@ export class MatrixCells extends Base {
       }
     }
   }
-  protected createString(): LocalizableString {
-    return new LocalizableString(this.cellsOwner, true);
+  protected createString(row: string, col: string, onCreate: (item: LocalizableString) => void): LocalizableString {
+    const res = new LocalizableString(this.cellsOwner, true);
+    onCreate(res);
+    res.onGetTextCallback = (str: string): string => {
+      if (!str) {
+        const column = ItemValue.getItemByValue(this.columns, col);
+        if (column) {
+          return column.locText.getJson() || column.value;
+        }
+      }
+      return str;
+    };
+    res.onStrChanged = (oldValue: any, newValue: any): void => {
+      this.updateValues(row, col, newValue);
+    };
+    this.locs[row][col] = res;
+    return res;
   }
 }
 
@@ -648,17 +670,13 @@ export class QuestionMatrixModel
     const row = this.getRowByName(name);
     return !!row ? row.value : undefined;
   }
-  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean, questionName?: string): any {
+  setValue(name: string, newValue: any): any {
     this.getRowByName(name).value = newValue;
   }
-  getVariable(name: string): any { return this.data?.getVariable(name); }
-  setVariable(name: string, newValue: any): void { this.data?.setVariable(name, newValue); }
   getComment(name: string): string { return this.data?.getComment(name); }
-  setComment(name: string, newValue: string, locNotification: any): any { this.data?.setComment(name, newValue, locNotification); }
-  getAllValues(): any { return this.data?.getAllValues(); }
+  setComment(name: string, newValue: string, locNotification: boolean | "text"): any { this.data?.setComment(name, newValue, locNotification); }
   getFilteredProperties(): any { return this.data?.getFilteredProperties(); }
   findQuestionByName(name: string): IQuestion { return this.data?.findQuestionByName(name); }
-  getEditingSurveyElement(): Base { return this.data?.getEditingSurveyElement(); }
   //#endregion
   protected sortVisibleRows(array: Array<MatrixRowModel>): Array<MatrixRowModel> {
     if (!!this.survey && this.survey.isDesignMode)
@@ -693,6 +711,15 @@ export class QuestionMatrixModel
   }
   public set cells(value: MatrixCells) {
     this.cells.setJson(value && value.getJson ? value.getJson() : null);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "cells" && super.isPropertyStoredInHash(name);
+  }
+  protected mergeLocalizationObj(obj: Base, locales?: Array<string>): void {
+    super.mergeLocalizationObj(obj, locales);
+    if (obj instanceof QuestionMatrixModel) {
+      this.cells.mergeWith(obj.cells, locales);
+    }
   }
   public get hasCellText(): boolean {
     return this.getPropertyValue("hasCellText", false);

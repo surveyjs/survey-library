@@ -21,6 +21,7 @@ import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
 import { EventBase } from "./base";
 
+const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
   supportElementsInChoice(): boolean;
   getSurvey(): ISurvey;
@@ -107,6 +108,10 @@ export class ChoiceItem extends ItemValue {
     const owner: any = this.locOwner;
     if (!owner || !owner.supportMultipleComment) return false;
     return owner.supportMultipleComment(this);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    if (name === "elements") return !this.hasElements;
+    return super.isPropertyStoredInHash(name);
   }
   protected canAddPpropertyToJSON(prop: JsonObjectProperty): boolean {
     if (prop.name === "commentPlaceholder") return !!this.getLocalizableString("commentPlaceholder");
@@ -246,35 +251,8 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
 
   constructor(name: string) {
     super(name);
-    this.otherItemValue = this.createItemValue("other");
-    this.otherItem.showCommentArea = true;
-    this.otherItem.isCommentRequired = true;
-    this.noneItemValue = this.createNoneItem(settings.noneItemValue, "noneText", "noneItemText");
-    this.refuseItemValue = this.createNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
-    this.dontKnowItemValue = this.createNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
     this.createNewArray("visibleChoices", () => this.updateRenderedChoices(), () => this.updateRenderedChoices());
-    this.setNewRestfulProperty();
-    const locOtherText = this.createLocalizableString("otherText", this.otherItemValue, true, "otherItemText");
-    this.otherItemValue.setLocText(locOtherText);
-    this.choicesByUrl.createItemValue = (value: any): ItemValue => {
-      return this.createItemValue(value);
-    };
-    this.choicesByUrl.beforeSendRequestCallback = (): void => {
-      this.onBeforeSendRequest();
-    };
-    this.choicesByUrl.getResultCallback = (items: Array<ItemValue>): void => {
-      this.onLoadChoicesFromUrl(items);
-    };
-    this.choicesByUrl.updateResultCallback = (
-      items: Array<ItemValue>,
-      serverResult: any
-    ): Array<ItemValue> => {
-      if (this.survey) {
-        return this.survey.updateChoicesFromServer(this, items, serverResult);
-      }
-      return items;
-    };
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -413,11 +391,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected getItemValueType(): string {
     return "choiceitem";
   }
-  public createItemValue(value: any, text?: string): ItemValue {
-    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), { value: value });
+  public createItemValue(value: any, text?: string): ChoiceItem {
+    const res = this.createChoiceItem(value);
     res.locOwner = this;
     if (!!text) res.text = text;
     return res;
+  }
+  private createChoiceItem(value: any): ChoiceItem {
+    return <ChoiceItem>Serializer.createClass(this.getItemValueType(), { value: value });
   }
   protected validateElementCore(context: ValidationContext): boolean {
     if (context.isOnValueChanged !== true && this.getClearIfInvisible() !== "none") {
@@ -513,6 +494,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    */
   public get otherItem(): ItemValue {
+    if (!this.otherItemValue) {
+      this.otherItemValue = this.createBuiltInItem(OTHER_ITEM_VALUE, "otherText", "otherItemText", (item: ChoiceItem) => {
+        item.setPropertyValue("showCommentArea", true);
+        item.isCommentRequired = true;
+      });
+    }
     return this.otherItemValue;
   }
   /**
@@ -520,7 +507,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    */
   public get isOtherSelected(): boolean {
-    return this.showOtherItem && this.getHasOther(this.renderedValue);
+    return this.showOtherItem && this.isOtherValue(this.renderedValue);
   }
   public get isNoneSelected(): boolean {
     return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
@@ -567,7 +554,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     this.setPropertyValue(this.getCommentPropertyValue(item), newValue);
   }
   protected isOtherItemByValue(item: ItemValue): boolean {
-    return item.value === this.otherItem.value;
+    return this.isOtherValue(item.value);
   }
   protected getCommentPropertyValue(item: ItemValue): string {
     if (this.isOtherItemByValue(item)) return this.getStoreOthersAsComment() ? "comment" : "otherValue";
@@ -605,6 +592,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showNoneItem
    */
   public get noneItem(): ItemValue {
+    if (!this.noneItemValue) {
+      this.noneItemValue = this.createBuiltInNoneItem(settings.noneItemValue, "noneText", "noneItemText");
+    }
     return this.noneItemValue;
   }
   /**
@@ -612,13 +602,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showNoneItem
    */
   public get noneText(): string {
-    return this.getLocalizableStringText("noneText");
+    return this.getLocStringText(this.locNoneText);
   }
   public set noneText(val: string) {
-    this.setLocalizableStringText("noneText", val);
+    this.setLocStringText(this.locNoneText, val);
   }
   get locNoneText(): LocalizableString {
-    return this.getLocalizableString("noneText");
+    return this.noneItem.locText;
   }
   /**
    * Specifies whether to display the "Refuse to answer" choice item.
@@ -640,6 +630,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showRefuseItem
    */
   public get refuseItem(): ItemValue {
+    if (!this.refuseItemValue) {
+      this.refuseItemValue = this.createBuiltInNoneItem(settings.refuseItemValue, "refuseText", "refuseItemText");
+    }
     return this.refuseItemValue;
   }
   /**
@@ -647,13 +640,13 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showRefuseItem
    */
   public get refuseText(): string {
-    return this.getLocalizableStringText("refuseText");
+    return this.getLocStringText(this.locRefuseText);
   }
   public set refuseText(val: string) {
-    this.setLocalizableStringText("refuseText", val);
+    this.setLocStringText(this.locRefuseText, val);
   }
   get locRefuseText(): LocalizableString {
-    return this.getLocalizableString("refuseText");
+    return this.refuseItem.locText;
   }
   /**
    * Specifies whether to display the "Don't know" choice item.
@@ -675,6 +668,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showDontKnowItem
    */
   public get dontKnowItem(): ItemValue {
+    if (!this.dontKnowItemValue) {
+      this.dontKnowItemValue = this.createBuiltInNoneItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
+    }
     return this.dontKnowItemValue;
   }
   /**
@@ -682,19 +678,25 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showDontKnowItem
    */
   public get dontKnowText(): string {
-    return this.getLocalizableStringText("dontKnowText");
+    return this.getLocStringText(this.locDontKnowText);
   }
   public set dontKnowText(val: string) {
-    this.setLocalizableStringText("dontKnowText", val);
+    this.setLocStringText(this.locDontKnowText, val);
   }
   get locDontKnowText(): LocalizableString {
-    return this.getLocalizableString("dontKnowText");
+    return this.dontKnowItem.locText;
   }
-  private createNoneItem(defaultValue: any, name: string, locName: string): ItemValue {
-    const item = this.createItemValue(defaultValue);
-    item.isExclusive = true;
+  private createBuiltInNoneItem(defaultValue: any, name: string, locName: string): ChoiceItem {
+    return this.createBuiltInItem(defaultValue, name, locName, (item: ChoiceItem) => item.isExclusive = true);
+  }
+  protected createBuiltInItem(defaultValue: any, name: string, locName: string, callback?: (item: ChoiceItem) => void): ChoiceItem {
+    const item = this.createChoiceItem(defaultValue);
     const locStr = this.createLocalizableString(name, item, true, locName);
     item.setLocText(locStr);
+    if (callback) {
+      callback(item);
+    }
+    item.locOwner = this;
     return item;
   }
   /**
@@ -873,8 +875,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       }
     );
   }
-  protected getHasOther(val: any): boolean {
-    return this.getIsItemValue(val, this.otherItem);
+  protected isOtherValue(val: any): boolean {
+    if (Array.isArray(val)) {
+      return val.indexOf(OTHER_ITEM_VALUE) > -1;
+    }
+    return val === OTHER_ITEM_VALUE;
   }
   protected getIsItemValue(val: any, item: ItemValue): boolean {
     return val === item.value;
@@ -884,11 +889,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   protected createRestful(): ChoicesRestful {
     return new ChoicesRestful();
-  }
-  private setNewRestfulProperty() {
-    this.setPropertyValue("choicesByUrl", this.createRestful());
-    this.choicesByUrl.owner = this;
-    this.choicesByUrl.loadingOwner = this;
   }
   get autoOtherMode(): boolean {
     return this.getPropertyValue("autoOtherMode");
@@ -920,7 +920,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     const val = this.rendredValueToData(this.renderedValue);
     if (this.showCommentArea || this.getStoreOthersAsComment()) return val;
     const item = this.getItemByValue(otherValue);
-    if (!item || item === this.otherItem) return val;
+    if (!item || item === this.otherItemValue) return val;
     this.otherValueCore = "";
     if (!Array.isArray(val)) return otherValue;
     const index = val.indexOf(this.otherItem.value);
@@ -1021,8 +1021,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected setNewValue(newValue: any) {
     newValue = this.valueFromData(newValue);
     if (
-      (!this.choicesByUrl.isRunning &&
-        !this.choicesByUrl.isWaitingForParameters) ||
+      (!this.isRunningChoices && !this.choicesByUrlValue?.isWaitingForParameters) ||
       !this.isValueEmpty(newValue)
     ) {
       this.cachedValueForUrlRequests = newValue;
@@ -1090,7 +1089,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.otherItem.value;
   }
   protected renderedValueToDataCore(val: any): any {
-    if (val == this.otherItem.value && this.needConvertRenderedOtherToDataValue()) {
+    if (this.isOtherValue(val) && this.needConvertRenderedOtherToDataValue()) {
       val = this.otherValue;
     }
     return val;
@@ -1159,7 +1158,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected hasUnknownValueItem(val: any, includeOther: boolean = false,
     isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     if (!checkEmptyValue && this.isValueEmpty(val)) return false;
-    if (includeOther && val == this.otherItem.value) return false;
+    if (includeOther && this.isOtherValue(val)) return false;
     if (this.showNoneItem && val == this.noneItem.value) return false;
     if (this.showRefuseItem && val == this.refuseItem.value) return false;
     if (this.showDontKnowItem && val == this.dontKnowItem.value) return false;
@@ -1197,12 +1196,43 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get choicesByUrl(): ChoicesRestful {
-    return this.getPropertyValue("choicesByUrl");
+    return this.getPropertyValue("choicesByUrl", undefined, () => this.createChoicesByUrl());
   }
   public set choicesByUrl(val: ChoicesRestful) {
     if (!val) return;
-    this.setNewRestfulProperty();
+    const oldVal = this.choicesByUrlValue;
+    if (!!oldVal) {
+      oldVal.dispose();
+      this.setPropertyValueDirectly("choicesByUrl", this.createChoicesByUrl());
+    }
     this.choicesByUrl.fromJSON(val.toJSON());
+  }
+  private get choicesByUrlValue(): ChoicesRestful { return this.getPropertyValueWithoutDefault("choicesByUrl"); }
+  public get isChoicesUrlEmpty(): boolean {
+    const byUlr = this.choicesByUrlValue;
+    return !byUlr || byUlr.isEmpty;
+  }
+  private createChoicesByUrl(): ChoicesRestful {
+    const res = this.createRestful();
+    res.owner = this;
+    res.loadingOwner = this;
+    res.createItemValue = (value: any): ItemValue => {
+      return this.createItemValue(value);
+    };
+    res.beforeSendRequestCallback = (): void => {
+      this.onBeforeSendRequest();
+    };
+    res.getResultCallback = (items: Array<ItemValue>): void => {
+      this.onLoadChoicesFromUrl(items);
+    };
+    res.updateResultCallback = (items: Array<ItemValue>, serverResult: any): Array<ItemValue> => {
+      if (this.survey) {
+        return this.survey.updateChoicesFromServer(this, items, serverResult);
+      }
+      return items;
+    };
+
+    return res;
   }
   /**
    * Gets or sets choice items. This property accepts an array of objects with the following structure:
@@ -1368,14 +1398,14 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    */
   public get otherText(): string {
-    return this.getLocalizableStringText("otherText");
+    return this.getLocStringText(this.locOtherText);
   }
   public set otherText(val: string) {
-    this.setLocalizableStringText("otherText", val);
-    this.onVisibleChoicesChanged();
+    this.setLocStringText(this.locOtherText, val);
+    this.onVisibleChoicesChanged(); //TODO: try to remove it
   }
   get locOtherText(): LocalizableString {
-    return this.getLocalizableString("otherText");
+    return this.otherItem.locText;
   }
   /**
    * Displays the "Select All", "None", and "Other" choices on individual rows.
@@ -1504,43 +1534,47 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       });
     }
     if (this.newItemValue.isVisible && !this.isUsingCarryForward
-      && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      && this.canShowOptionItem(() => this.newItemValue, isAddAll, false)) {
       this.footItemsCount = 1;
       items.push(this.newItemValue);
     }
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     if (this.supportNone()) {
-      this.addNonChoiceItem(dict, this.noneItem, isAddAll, this.showNoneItem, settings.specialChoicesOrder.noneItem);
+      this.addNonChoiceItem(dict, () => this.noneItem, isAddAll, this.showNoneItem, settings.specialChoicesOrder.noneItem);
     }
     if (this.supportRefuse()) {
-      this.addNonChoiceItem(dict, this.refuseItem, isAddAll, this.showRefuseItem, settings.specialChoicesOrder.refuseItem);
+      this.addNonChoiceItem(dict, () => this.refuseItem, isAddAll, this.showRefuseItem, settings.specialChoicesOrder.refuseItem);
     }
     if (this.supportDontKnow()) {
-      this.addNonChoiceItem(dict, this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
+      this.addNonChoiceItem(dict, () => this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
     }
     if (this.supportOther()) {
-      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.showOtherItem, settings.specialChoicesOrder.otherItem);
+      this.addNonChoiceItem(dict, () => this.otherItem, isAddAll, this.showOtherItem, settings.specialChoicesOrder.otherItem);
     }
   }
-  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
-    if (this.canShowOptionItem(item, isAddAll, showItem)) {
+  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, getItem: () => ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
+    const item = this.canShowOptionItem(getItem, isAddAll, showItem);
+    if (item) {
       order.forEach(val => dict.push({ index: val, item: item }));
     }
   }
-  protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
-    let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;
-    if (this.canSurveyChangeItemVisibility()) {
+  private canShowOptionItem(getItem: () => ItemValue, isAddAll: boolean, hasItem: boolean): ItemValue {
+    const changeItemVisibility = this.canSurveyChangeItemVisibility();
+    if (!isAddAll && !hasItem && !changeItemVisibility) return null;
+    const item = getItem();
+    let visible: boolean = hasItem || isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true);
+    if (changeItemVisibility) {
       const calc = this.changeItemVisibility();
-      return calc(item, res);
+      visible = calc(item, visible);
     }
-    return res;
+    return visible ? item : null;
   }
   public isItemInList(item: ItemValue): boolean {
-    if (item === this.otherItem) return this.showOtherItem;
-    if (item === this.noneItem) return this.showNoneItem;
-    if (item === this.refuseItem) return this.showRefuseItem;
-    if (item === this.dontKnowItem) return this.showDontKnowItem;
+    if (item === this.otherItemValue) return this.showOtherItem;
+    if (item === this.noneItemValue) return this.showNoneItem;
+    if (item === this.refuseItemValue) return this.showRefuseItem;
+    if (item === this.dontKnowItemValue) return this.showDontKnowItem;
     if (item === this.newItemValue) return false;
     return true;
   }
@@ -1598,7 +1632,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
   private getChoicesDisplayValue(items: ItemValue[], val: any): any {
-    if (val == this.otherItemValue.value)
+    if (this.isOtherValue(val))
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     const selItem = this.getSingleSelectedItem();
     if (!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
@@ -1627,7 +1661,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return strs.join(settings.choicesSeparator);
   }
   private getItemDisplayValue(item: ItemValue, val?: any): string {
-    if (item === this.otherItem) {
+    if (this.isOtherItemByInstance(item)) {
       if (this.showOtherItem && this.showCommentArea && !!val) {
         return val;
       }
@@ -1764,7 +1798,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return false;
   }
   public isBuiltInChoice(item: ItemValue): boolean {
-    return [this.otherItem, this.noneItem, this.refuseItem, this.dontKnowItem, this.newItemValue].indexOf(item) > -1;
+    return !!item && [this.otherItemValue, this.noneItemValue, this.refuseItemValue, this.dontKnowItemValue, this.newItemValue].indexOf(item) > -1;
   }
   public isNoneItem(item: ItemValue): boolean {
     return item.isExclusive === true;
@@ -1837,9 +1871,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return false;
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
-    this.isRunningChoices = true;
+    this.isRunningChoicesValue = true;
     super.setSurveyImpl(value, isLight);
-    this.isRunningChoices = false;
+    this.isRunningChoicesValue = false;
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -1891,13 +1925,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
-    if (
-      this.showOtherItem && this.activeChoices.length > 0 &&
-      !this.isRunningChoices &&
-      !this.choicesByUrl.isRunning &&
-      this.getStoreOthersAsComment()
-    ) {
-      if (this.hasUnknownValue(newValue) && !this.getHasOther(newValue)) {
+    if (this.showOtherItem && this.activeChoices.length > 0 &&
+      !this.isRunningChoices && this.getStoreOthersAsComment()) {
+      if (this.hasUnknownValue(newValue) && !this.isOtherValue(newValue)) {
         newComment = this.getCommentFromValue(newValue);
         newValue = this.setOtherValueIntoValue(newValue);
       } else {
@@ -1907,7 +1937,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       }
     }
     super.updateValueFromSurvey(newValue, clearData);
-    if ((this.isRunningChoices || this.choicesByUrl.isRunning) && !this.isEmpty()) {
+    if (this.isRunningChoices && !this.isEmpty()) {
       this.cachedValueForUrlRequests = this.value;
     }
     if (!!newComment) {
@@ -1951,10 +1981,10 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       event.target.value = val || "";
     }
   }
-  private isRunningChoices: boolean = false;
+  private isRunningChoicesValue: boolean = false;
   private runChoicesByUrl() {
     this.updateIsUsingRestful();
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isInDesignMode || this.choicesLazyLoadEnabled)
+    if (!this.choicesByUrlValue || this.isLoadingFromJson || this.isRunningChoicesValue || this.isInDesignMode || this.choicesLazyLoadEnabled)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1962,9 +1992,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     if (!processor) processor = this.survey;
     if (!processor) return;
     this.updateIsReady();
-    this.isRunningChoices = true;
+    this.isRunningChoicesValue = true;
     this.choicesByUrl.run(processor);
-    this.isRunningChoices = false;
+    this.isRunningChoicesValue = false;
+  }
+  private get isRunningChoices(): boolean {
+    return this.isRunningChoicesValue || this.choicesByUrlValue?.isRunning;
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {
@@ -1979,8 +2012,9 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
     const errors = [];
     if (!this.isReadOnly) {
-      if (this.choicesByUrl && this.choicesByUrl.error) {
-        errors.push(this.choicesByUrl.error);
+      const choicesByUrl = this.choicesByUrlValue;
+      if (choicesByUrl && choicesByUrl.error) {
+        errors.push(choicesByUrl.error);
       }
     }
     var newChoices = null;
@@ -2000,7 +2034,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
       this.cachedValueForUrlRequests,
       checkCachedValuesOnExisting
     );
-    if (array && (array.length > 0 || this.choicesByUrl.allowEmptyResponse)) {
+    if (array && (array.length > 0 || this.choicesByUrlValue?.allowEmptyResponse)) {
       newChoices = new Array<ItemValue>();
       ItemValue.setData(newChoices, array);
     }
@@ -2101,7 +2135,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   private isUpdatingChoicesDependedQuestions = false;
   protected updateChoicesDependedQuestions(): void {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
-      !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
+      !this.allowNotifyValueChanged || this.isRunningChoices) return;
     this.isUpdatingChoicesDependedQuestions = true;
     this.updateDependedQuestions();
     this.isUpdatingChoicesDependedQuestions = false;
@@ -2117,7 +2151,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   protected onVisibleChoicesChanged(): void {
     if (this.isLoadingFromJson || this.isLockVisibleChoices) return;
     this.updateVisibleChoices();
-    if (this.renderedValue === this.otherItem.value) {
+    if (this.isOtherValue(this.renderedValue)) {
       this.setRenderedValue(this.rendredValueFromData(this.value), false);
     }
     this.onVisibleChanged();
@@ -2151,7 +2185,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return Helpers.randomizeArray<ItemValue>(array);
   }
   private get hasChoicesUrl(): boolean {
-    return this.choicesByUrl && !!this.choicesByUrl.url;
+    return !!this.choicesByUrlValue?.url;
   }
   public clearIncorrectValues(): void {
     if (!this.canClearIncorrectValues() || !this.hasValueToClearIncorrectValues()) return;
@@ -2196,7 +2230,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see choices
    */
   public isItemSelected(item: ItemValue): boolean {
-    if (item === this.otherItem) return this.isOtherSelected;
+    if (this.isOtherItemByInstance(item)) return this.isOtherSelected;
     return this.isItemSelectedCore(item);
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
@@ -2263,7 +2297,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     const isDisabled = readOnlyStyles[1];
     const isChecked = this.isItemSelected(item);
     const allowHover = !isDisabled && !isChecked && !(!!this.survey && this.survey.isDesignMode);
-    const isNone = item === this.noneItem;
+    const isNone = item === this.noneItemValue;
     options.isDisabled = isDisabled || isReadOnly;
     options.isChecked = isChecked;
     options.isNone = isNone;
@@ -2501,7 +2535,11 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     return this.renderedValue === item.value ? "true" : "false";
   }
   public isOtherItem(item: ItemValue) {
-    return this.showOtherItem && item.value == this.otherItem.value;
+    return this.showOtherItem && this.isOtherValue(item.value);
+  }
+  protected isOtherItemByInstance(item: ItemValue): boolean {
+    const other = this.showOtherItem ? this.otherItem : this.otherItemValue;
+    return !!item && item === other;
   }
   public get itemSvgIcon(): string {
     if (this.isPreviewStyle && this.cssClasses.itemPreviewSvgIconId) {
@@ -2564,9 +2602,6 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
  */
 export class QuestionCheckboxBase extends QuestionSelectBase {
   colCountChangedCallback: () => void;
-  constructor(name: string) {
-    super(name);
-  }
   /**
    * Gets or sets the number of columns used to arrange choice items.
    *
@@ -2666,10 +2701,11 @@ Serializer.addClass(
     {
       name: "choicesByUrl:restfull",
       className: "choicesByUrl",
-      onGetValue: function (obj: any) {
-        return obj.choicesByUrl.getData();
+      onGetValue: (obj: any) => {
+        const byUrl = obj.choicesByUrlValue;
+        return byUrl ? byUrl.toJSON() : undefined;
       },
-      onSetValue: function (obj: any, value: any) {
+      onSetValue: (obj: any, value: any) => {
         obj.choicesByUrl.setData(value);
       },
     },

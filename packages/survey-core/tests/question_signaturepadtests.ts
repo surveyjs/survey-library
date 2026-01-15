@@ -89,7 +89,7 @@ QUnit.test("check allowClear", (assert) => {
   signaturepad.valueWasChangedFromLastUpload = false;
   assert.equal(signaturepad.canShowClearButton, false, "canShowClearButton");
 
-  signaturepad.value = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
+  signaturepad.value = "data:image/svg+xml,%3C xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
   assert.equal(signaturepad.canShowClearButton, true, "canShowClearButton");
 
   signaturepad.allowClear = false;

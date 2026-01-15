@@ -4,6 +4,8 @@ import { Base, EventBase, ComputedUpdater, EventAsync } from "./base";
 import {
   ISurvey,
   ISurveyData,
+  ISurveyVariables,
+  ISurveyDataGetEditingObj,
   ISurveyImpl,
   ITextProcessor,
   IQuestion,
@@ -57,7 +59,8 @@ import { Notifier } from "./notifier";
 import {
   TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
-  QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
+  QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, CreateRegexValidatorEvent,
+  ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatePageEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNumberEvent, GetPageNumberEvent,
   GetPanelNumberEvent, GetProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent,
   ChoicesLoadedEvent, ProcessDynamicTextEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
@@ -158,6 +161,8 @@ export class SurveyModel extends SurveyElementCore
   implements
   ISurvey,
   ISurveyData,
+  ISurveyVariables,
+  ISurveyDataGetEditingObj,
   ISurveyImpl,
   ISurveyTriggerOwner,
   ISurveyErrorOwner,
@@ -483,6 +488,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPageAdded: EventBase<SurveyModel, PageAddedEvent> = this.addEvent<SurveyModel, PageAddedEvent>();
   /**
+   * An event that is raised when a [`RegexValidator`](https://surveyjs.io/form-library/documentation/api-reference/regexvalidator) instance is created. Use this event to customize the regular expression pattern and its flags.
+   */
+  public onCreateRegexValidator: EventBase<SurveyModel, CreateRegexValidatorEvent> = this.addEvent<SurveyModel, CreateRegexValidatorEvent>();
+  /**
    * An event that is raised when a question value is being validated. Use this event to add/remove/modify errors or specify a custom error message.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
@@ -538,7 +547,7 @@ export class SurveyModel extends SurveyElementCore
    * @see loadingHtml
    * @see [QuestionHtmlModel.html](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html)
    */
-  public onProcessHtml: EventBase<SurveyModel, ProcessHtmlEvent> = this.addEvent<SurveyModel, ProcessHtmlEvent>();
+  public onProcessHtml: EventBase<SurveyModel, ProcessHtmlEvent> = this.addEvent<SurveyModel, ProcessHtmlEvent>(() => this.locStrsChanged());
   /**
    * Use this event to change a question's display text.
    */
@@ -551,7 +560,7 @@ export class SurveyModel extends SurveyElementCore
    * If you want to modify question numbers, handle the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event.
    * @see requiredMark
    */
-  public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
+  public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>(() => this.locStrsChanged());
   /**
    * An event that is raised when the survey applies HTML tags to a survey, page, panel, and question title. Handle this event to change the HTML tag of individual titles.
    *
@@ -573,7 +582,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onGetQuestionTitle
    * @see questionStartIndex
    */
-  public onGetQuestionNumber: EventBase<SurveyModel, GetQuestionNumberEvent> = this.addEvent<SurveyModel, GetQuestionNumberEvent>();
+  public onGetQuestionNumber: EventBase<SurveyModel, GetQuestionNumberEvent> = this.addEvent<SurveyModel, GetQuestionNumberEvent>(() => this.resetVisibleIndexes());
   /**
    * @deprecated Use the [`onGetQuestionNumber`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNumber) event instead.
    */
@@ -583,7 +592,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * This event is raised only for the panels with a [specified title](https://surveyjs.io/form-library/documentation/api-reference/panel-model#title) and [visible number](https://surveyjs.io/form-library/documentation/api-reference/panel-model#showNumber).
    */
-  public onGetPanelNumber: EventBase<SurveyModel, GetPanelNumberEvent> = this.addEvent<SurveyModel, GetPanelNumberEvent>();
+  public onGetPanelNumber: EventBase<SurveyModel, GetPanelNumberEvent> = this.addEvent<SurveyModel, GetPanelNumberEvent>(() => this.resetVisibleIndexes());
   /**
    * An event that is raised before the survey calculates a page number. Handle this event to modify page numbers.
    *
@@ -601,7 +610,7 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarType
    * @see getProgressInfo
    */
-  public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>();
+  public onGetProgressText: EventBase<SurveyModel, GetProgressTextEvent> = this.addEvent<SurveyModel, GetProgressTextEvent>(() => this.updateProgressText());
   /**
    * @deprecated Use the [`onGetProgressText`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetProgressText) event instead.
    */
@@ -613,7 +622,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * [View Demo](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/ (linkStyle))
    */
-  public onTextMarkdown: EventBase<SurveyModel, TextMarkdownEvent> = this.addEvent<SurveyModel, TextMarkdownEvent>();
+  public onTextMarkdown: EventBase<SurveyModel, TextMarkdownEvent> = this.addEvent<SurveyModel, TextMarkdownEvent>(() => this.locStrsChanged());
 
   public onTextRenderAs: EventBase<SurveyModel, any> = this.addEvent<SurveyModel, any>();
   /**
@@ -697,7 +706,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
-  public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
+  public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>(() => this.currentPageUpdateElementCss());
 
   /**
    * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
@@ -707,7 +716,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
-  public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>();
+  public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>(() => this.currentPageUpdateElementCss());
 
   /**
    * An event that is raised before rendering a page. Use it to override default page CSS classes.
@@ -717,7 +726,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
-  public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
+  public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>(() => this.currentPageUpdateElementCss());
 
   /**
    * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes and Rating Scale questions. Use it to override default CSS classes applied to choice items.
@@ -794,7 +803,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before a [choice item](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) is displayed. Use this event to change the visibility of individual choice items in [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model), and other similar question types.
    */
-  public onShowingChoiceItem: EventBase<SurveyModel, ShowingChoiceItemEvent> = this.addEvent<SurveyModel, ShowingChoiceItemEvent>();
+  public onShowingChoiceItem: EventBase<SurveyModel, ShowingChoiceItemEvent> = this.addEvent<SurveyModel, ShowingChoiceItemEvent>(() => this.rebuildQuestionChoices());
 
   /**
    * Use this event to load choice items in [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel) and [Tag Box](https://surveyjs.io/form-library/documentation/questiontagboxmodel) questions on demand.
@@ -1103,7 +1112,6 @@ export class SurveyModel extends SurveyElementCore
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
-    this.onBeforeRunConstructor();
 
     this.createNewArray(
       "pages",
@@ -1125,38 +1133,7 @@ export class SurveyModel extends SurveyElementCore
       }
     );
 
-    this.onGetQuestionNumber.onCallbacksChanged = () => {
-      this.resetVisibleIndexes();
-    };
-    this.onGetPanelNumber.onCallbacksChanged = () => {
-      this.resetVisibleIndexes();
-    };
-    this.onGetProgressText.onCallbacksChanged = () => {
-      this.updateProgressText();
-    };
-    this.onTextMarkdown.onCallbacksChanged = () => {
-      this.locStrsChanged();
-    };
-    this.onProcessHtml.onCallbacksChanged = () => {
-      this.locStrsChanged();
-    };
-    this.onGetQuestionTitle.onCallbacksChanged = () => {
-      this.locStrsChanged();
-    };
-    this.onUpdatePageCssClasses.onCallbacksChanged = () => {
-      this.currentPage && this.currentPage.updateElementCss();
-    };
-    this.onUpdatePanelCssClasses.onCallbacksChanged = () => {
-      this.currentPage && this.currentPage.updateElementCss();
-    };
-    this.onUpdateQuestionCssClasses.onCallbacksChanged = () => {
-      this.currentPage && this.currentPage.updateElementCss();
-    };
-    this.onShowingChoiceItem.onCallbacksChanged = () => {
-      this.rebuildQuestionChoices();
-    };
     this.locTitle.onStringChanged.add(() => this.resetPropertyValue("titleIsEmpty"));
-    this.onBeforeCreating();
     if (jsonObj) {
       if (typeof jsonObj === "string" || jsonObj instanceof String) {
         jsonObj = JSON.parse(jsonObj as string);
@@ -1169,22 +1146,11 @@ export class SurveyModel extends SurveyElementCore
         this.loadSurveyFromService(this.surveyId, this.clientId);
       }
     }
-    this.onCreating();
     if (!!renderedElement) {
       this.render(renderedElement);
     }
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
-
-    this.onPopupVisibleChanged.add((_, opt) => {
-      if (opt.visible) {
-        this.onScrollCallback = () => {
-          opt.popup.hide();
-        };
-      } else {
-        this.onScrollCallback = undefined;
-      }
-    });
   }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
@@ -1228,6 +1194,9 @@ export class SurveyModel extends SurveyElementCore
     if (name === "showPrevButton" || name === "showCompleteButton") {
       this.updateButtonsVisibility();
     }
+  }
+  private currentPageUpdateElementCss(): void {
+    this.currentPage && this.currentPage.updateElementCss();
   }
   private tocModelValue: TOCModel;
   private get tocModel(): TOCModel {
@@ -1544,10 +1513,6 @@ export class SurveyModel extends SurveyElementCore
   }
   public set calculatedValues(val: Array<CalculatedValue>) {
     this.setArrayPropertyValue("calculatedValues", val);
-  }
-  protected isPropertyStoredInHash(name: string): boolean {
-    const names = ["triggers", "calculatedValues", "completedHtmlOnCondition", "navigateToUrlOnCondition"];
-    return names.indexOf(name) > -1 || super.isPropertyStoredInHash(name);
   }
   /**
    * @deprecated Self-hosted Form Library [no longer supports integration with SurveyJS Demo Service](https://surveyjs.io/stay-updated/release-notes/v2.0.0#form-library-removes-apis-for-integration-with-surveyjs-demo-service).
@@ -2317,6 +2282,16 @@ export class SurveyModel extends SurveyElementCore
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
     return this.getSurveyErrorCustomText(this, text, error);
+  }
+  createRegexValidator(question: Question, validator: Base, pattern: string, flags: string): RegExp {
+    const options: CreateRegexValidatorEvent = {
+      question: question,
+      validator: <any>validator,
+      pattern: pattern,
+      flags: flags
+    };
+    this.onCreateRegexValidator.fire(this, options);
+    return new RegExp(options.pattern, options.flags);
   }
   getSurveyErrorCustomText(obj: PanelModel | Question | SurveyModel, text: string, error: SurveyError): string {
     const options: ErrorCustomTextEvent = {
@@ -3591,9 +3566,6 @@ export class SurveyModel extends SurveyElementCore
         result[calValue.name] = this.getVariable(calValue.name);
       }
     }
-  }
-  getAllValues(): any {
-    return this.data;
   }
   /**
    * Returns survey results as an array of objects in which the question name, title, value, and other parameters are stored as individual properties.
@@ -6602,8 +6574,9 @@ export class SurveyModel extends SurveyElementCore
     this.onValueChanging.fire(this, options);
     return options.value;
   }
-  private getLocNotification(loc: boolean, value: any, oldValue: any): boolean {
-    return loc || Helpers.isTwoValueEquals(value, oldValue, false, true, false);
+  private getLocNotification(loc: boolean | "text", value: any, oldValue: any): boolean | "text" {
+    if (loc === false && Helpers.isTwoValueEquals(value, oldValue, false, true, false)) return true;
+    return loc;
   }
   protected updateQuestionValue(valueName: string, newValue: any) {
     if (this.isLoadingFromJson) return;
@@ -7029,9 +7002,9 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Applies locale strings from a JSON schema to the survey model.
+   * Applies a locale-strings-only JSON schema to the survey model.
    *
-   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`toJSON(options)`](#toJSON) method with the `storeLocaleStrings` option set to `"stringsOnly"`.
+   * The JSON schema should contain only locale strings and identifier properties; all other properties are ignored. To generate a locale-strings-only schema, call the [`getLocalizationJSON(locales)`](#getLocalizationJSON) method.
    * @param json A JSON schema that contains locale strings.
    * @param locales *(Optional)* An array of locale identifiers to apply from the JSON schema.
    */
@@ -7041,6 +7014,9 @@ export class SurveyModel extends SurveyElementCore
       locales = [survey.locale];
     }
     this.mergeLocalizationObj(survey, locales);
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return true;
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
@@ -7070,10 +7046,6 @@ export class SurveyModel extends SurveyElementCore
     this.setCalculatedWidthModeUpdater();
     this.onEndLoadingFromJson.fire(this, {});
   }
-
-  protected onBeforeRunConstructor() {}
-  protected onBeforeCreating() { }
-  protected onCreating() { }
   private getProcessedTextValue(textValue: TextPreProcessorValue): void {
     this.getProcessedTextValueCore(textValue);
     if (!this.onProcessDynamicText.isEmpty) {
@@ -7215,7 +7187,7 @@ export class SurveyModel extends SurveyElementCore
   public setValue(
     name: string,
     newQuestionValue: any,
-    locNotification: any = false,
+    locNotification: boolean | "text" = false,
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
@@ -7407,7 +7379,7 @@ export class SurveyModel extends SurveyElementCore
    * @param locNotification For internal use.
    * @see getComment
    */
-  public setComment(name: string, newValue: string, locNotification: any = false): void {
+  public setComment(name: string, newValue: string, locNotification: boolean | "text" = false): void {
     if (!newValue) newValue = "";
     if (this.isTwoValueEquals(newValue, this.getComment(name))) return;
     const commentName = name + this.commentSuffix;
@@ -8639,7 +8611,15 @@ export class SurveyModel extends SurveyElementCore
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
-    this.onPopupVisibleChanged.fire(this, { question, popup, visible });
+    if (visible) {
+      this.onScrollCallback = () => {
+        popup.hide();
+      };
+    } else {
+      this.onScrollCallback = undefined;
+    }
+
+    this.onPopupVisibleChanged.fire(this, { question: question, popup: popup, visible: visible });
   }
   public processOpenDropdownMenu(question: Question, options: IDropdownMenuOptions): void {
     const newOptions = Object.assign({ question }, options);
@@ -8899,6 +8879,7 @@ Serializer.addClass("survey", [
   {
     name: "showQuestionNumbers",
     default: "off",
+    acceptedValues: [false, true],
     choices: ["on", "onPage", "recursive", "off"],
   },
   {

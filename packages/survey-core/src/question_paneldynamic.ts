@@ -135,10 +135,19 @@ export class PanelDynamicValueGetterContext extends QuestionValueGetterContext {
   }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
+    const pd = <QuestionPanelDynamicModel>this.question;
     const index = params.index;
+    if (index > -1 && pd.isDesignMode && path.length > 0) {
+      const name = path[0].name;
+      const q = pd.template.getQuestionByName(name);
+      if (!!q) {
+        path.shift();
+        return path.length === 0 ? { isFound: true } : q.getValueGetterContext().getValue(params);
+      }
+      return { isFound: false };
+    }
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
-      const pd = <QuestionPanelDynamicModel>this.question;
       if (index >= 0 && index < pd.panels.length) {
         const item = <QuestionPanelDynamicItem>pd.panels[index].data;
         params.isRoot = false;
@@ -205,15 +214,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
       q.runTriggers(triggerName, newValue);
     }
   }
-  getVariable(name: string): any {
-    return undefined;
-  }
-  setVariable(name: string, newValue: any) { }
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentSuffix);
     return result ? result : "";
   }
-  public setComment(name: string, newValue: string, locNotification: any) {
+  public setComment(name: string, newValue: string, locNotification: boolean | "text") {
     this.setValue(name + settings.commentSuffix, newValue);
   }
   findQuestionByName(name: string): IQuestion {
@@ -225,7 +230,6 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
   }
-  getEditingSurveyElement(): Base { return undefined; }
   getAllValues(): any {
     return this.data.getPanelItemData(this);
   }
@@ -418,6 +422,9 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get templateElements(): Array<IElement> {
     return this.template.elements;
+  }
+  protected isPropertyStoredInHash(name: string): boolean {
+    return name !== "templateElements" && super.isPropertyStoredInHash(name);
   }
   /**
    * A template for panel titles.

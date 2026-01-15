@@ -391,6 +391,9 @@ export class FunctionOperand extends Operand {
   public getType(): string {
     return "function";
   }
+  public get functionName(): string {
+    return this.originalValue;
+  }
   public evaluate(processValue?: ProcessValue): any {
     const asyncVal = this.getAsynValue(processValue);
     if (!!asyncVal) return asyncVal.value;
@@ -641,13 +644,15 @@ export class OperandMaker {
       if (!left.length) {
         left = left.toString();
         if (typeof right === "string" || right instanceof String) {
-          left = left.toUpperCase();
-          right = right.toUpperCase();
         }
       }
       if (typeof left === "string" || left instanceof String) {
         if (!right) return false;
         right = right.toString();
+        if (!settings.comparator.caseSensitive) {
+          left = left.toLowerCase();
+          right = right.toLowerCase();
+        }
         var found = left.indexOf(right) > -1;
         return isContains ? found : !found;
       }

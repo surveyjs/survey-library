@@ -697,9 +697,16 @@ QUnit.test("contains as equal", function(assert) {
 QUnit.test("contains for complex object", function(assert) {
   var runner = new ConditionRunner("{val} contains {item}");
   var values = { val: [{ id: 1 }, { id: 2 }], item: { id: 1 } };
-  assert.equal(runner.runValues(values), true, "works with compelx object");
+  assert.equal(runner.runValues(values), true, "works with complex object");
 });
-
+QUnit.test("contains for string & respect case-sensetive flag, Bug#10784", function(assert) {
+  var runner = new ConditionRunner("'AbcDEf' contains {val}");
+  var values = { val: "bC" };
+  assert.equal(runner.runValues(values), true, "caseSensitive is false by default");
+  settings.comparator.caseSensitive = true;
+  assert.equal(runner.runValues(values), false, "caseSensitive is true");
+  settings.comparator.caseSensitive = false;
+});
 QUnit.test("0 is not an empty value", function(assert) {
   var runner = new ConditionRunner("{val} = 0");
   var values = { val: 0 };

@@ -78,6 +78,7 @@ export { PopupSurvey, SurveyWindow } from "../src/react-popup-survey";
 export { ReactQuestionFactory } from "../src/reactquestion_factory";
 export { ReactElementFactory } from "../src/element-factory";
 export { SurveyQuestionImagePicker } from "../src/imagepicker";
+export { SurveyQuestionImageMap } from "../src/reactquestion_imagemap";
 export { SurveyQuestionImage } from "../src/image";
 export { SurveyQuestionSignaturePad } from "../src/signaturepad";
 export { SurveyQuestionButtonGroup } from "../src/reactquestion_buttongroup";

@@ -1,3 +1,4 @@
+import { ProcessValue } from "../src/conditionProcessValue";
 import { Serializer } from "../src/jsonobject";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { SurveyModel } from "../src/survey";
@@ -279,4 +280,30 @@ QUnit.test("mutltipletext fromJSON, bug#9400", (assert) => {
 QUnit.test("Make inputSize invisible by default", (assert) => {
   const prop = Serializer.findProperty("multipletext", "inputSize");
   assert.strictEqual(prop.visible, false);
+});
+QUnit.test("ProcessValue.hasValue to access multipletext in design mode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          {
+            name: "a",
+          },
+          {
+            name: "b",
+          }
+        ]
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  survey.setDesignMode(true);
+  const q2 = survey.getQuestionByName("q2");
+  const q2Context = q2.getValueGetterContext();
+  const processValue = new ProcessValue(q2Context);
+  assert.equal(processValue.hasValue("q1.a"), true, "#1");
+  assert.equal(processValue.hasValue("q1.c"), false, "#2");
+  assert.equal(processValue.hasValue("q1.b"), true, "#3");
 });

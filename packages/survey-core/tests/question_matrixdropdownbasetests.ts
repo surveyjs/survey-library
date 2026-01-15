@@ -12,7 +12,7 @@ import { ItemValue } from "../src/itemvalue";
 import { settings } from "../src/settings";
 import { setOldTheme } from "./oldTheme";
 import { Question } from "../src/question";
-import { ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
 export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
@@ -2387,6 +2387,52 @@ QUnit.test("Do not send data notification on creating detail panel, Bug#10253", 
   assert.equal(survey.state, "completed", "survey.state");
   assert.equal(counter, 0, "#2");
 });
+QUnit.test("Close previous panels before showing the current panel, detailPanelMode is 'underRowSingle'", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 3,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "isRequired": true
+          }
+        ],
+        "detailPanelMode": "underRowSingle"
+      }
+    ]
+  });
+  const logs = new Array<any>();
+  survey.onMatrixDetailPanelVisibleChanged.add((survey, options) => {
+    logs.push({ rowIndex: options.rowIndex, isVisible: options.visible });
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  rows[1].showDetailPanel();
+  rows[2].showDetailPanel();
+  rows[0].showDetailPanel();
+  rows[0].hideDetailPanel();
+  assert.deepEqual(logs, [
+    { rowIndex: 0, isVisible: true },
+    { rowIndex: 0, isVisible: false },
+    { rowIndex: 1, isVisible: true },
+    { rowIndex: 1, isVisible: false },
+    { rowIndex: 2, isVisible: true },
+    { rowIndex: 2, isVisible: false },
+    { rowIndex: 0, isVisible: true },
+    { rowIndex: 0, isVisible: false }
+  ], "The detail panel visibility log is correct");
+});
 QUnit.test("matrices getPanelInDesignMode", function (assert) {
   const q1 = new QuestionMatrixDropdownModel("q1");
   assert.notOk(q1.getPanelInDesignMode(), "#1");
@@ -2535,4 +2581,87 @@ QUnit.test("Clear value on hidden questions in cell, Bug#10603", function (asser
   const rows = matrix.visibleRows;
   rows[0].cells[0].question.value = 2;
   assert.deepEqual(matrix.value, { row1: { col1: 2 } }, "matrix.value #2");
+});
+QUnit.test("Detail elements serialization", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.deepEqual(matrix.toJSON().detailElements, [{ type: "text", name: "q1" }], "detailElements serialization");
+});
+QUnit.test("Create detailPanel on demand", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const obj = matrix as any;
+  assert.equal(obj.detailPanelValue, undefined, "detail panel is not created");
+  matrix.toJSON();
+  assert.equal(obj.detailPanelValue, undefined, "detail panel is not created after toJSON");
+  matrix.validate();
+  assert.equal(obj.detailPanelValue, undefined, "detail panel is not created after validation");
+  assert.equal(matrix.detailPanel.elements.length, 0, "detail panel elements length is 0");
+  assert.notEqual(obj.detailPanelValue, undefined, "detail panel is not created after toJSON");
+});
+QUnit.test("Create root choices on demand", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.getPropertyValue("choices"), undefined, "choices are empty initially");
+  matrix.toJSON();
+  assert.equal(matrix.getPropertyValue("choices"), undefined, "choices are empty after toJSON");
+  matrix.choices = [1, 2, 3];
+  assert.notEqual(matrix.getPropertyValue("choices"), undefined, "choices are set");
+});
+QUnit.test("ProcessValue.hasValue to access matrix rows & columns in design mode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [
+          {
+            name: "a",
+          },
+          {
+            name: "b",
+          }
+        ],
+        rows: ["row1", "row2"]
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  survey.setDesignMode(true);
+  const q2 = survey.getQuestionByName("q2");
+  const q2Context = q2.getValueGetterContext();
+  const processValue = new ProcessValue(q2Context);
+  assert.equal(processValue.hasValue("q1.row1.a"), true, "#1");
+  assert.equal(processValue.hasValue("q1.row1.c"), false, "#2");
+  assert.equal(processValue.hasValue("q1.row2.b"), true, "#3");
+  assert.equal(processValue.hasValue("q1.row3.b"), false, "#4");
 });

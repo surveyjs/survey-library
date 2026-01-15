@@ -333,6 +333,14 @@ frameworks.forEach(framework => {
         ]
       });
 
+      await page.evaluate(() => {
+        // eslint-disable-next-line surveyjs/eslint-plugin-i18n/allowed-in-shadow-dom
+        const surveyElement = document.querySelector("#surveyElement");
+        if (surveyElement && surveyElement.shadowRoot) {
+          surveyElement.shadowRoot.querySelector("div")?.setAttribute("dir", "rtl");
+        }
+      });
+
       await compareScreenshot(page, ".sd-question", "dropdown-rtl-question-answered.png");
       await page.locator(".sd-editor-clean-button").click();
       await compareScreenshot(page, ".sd-question", "dropdown-rtl-question.png");
@@ -383,8 +391,8 @@ frameworks.forEach(framework => {
       await initSurvey(page, framework, json);
       await page.setViewportSize({ width: 1280, height: 1100 });
       await page.evaluate(() => {
-        (<HTMLElement>document.querySelector(".sd-question__content svg")).style.height = "48px";
-        (<HTMLElement>document.querySelector(".sd-question__content input")).style.backgroundColor = "red";
+        (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content svg")).style.height = "48px";
+        (<HTMLElement>(window as any).survey.rootElement.getRootNode().querySelector(".sd-question__content input")).style.backgroundColor = "red";
       });
       await compareScreenshot(page, ".sd-question__content", "dropdown-custom-component.png");
     });

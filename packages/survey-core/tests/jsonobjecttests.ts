@@ -2627,6 +2627,8 @@ QUnit.test("Declared @property", function (assert) {
   assert.strictEqual(obj["locStr1"].owner, obj, "locStr1 owner is correct");
   obj["locStr1"].setLocaleText("", "val1", "locStr1 set value");
   assert.equal(obj["locStr1"].getLocaleText(""), "val1", "locStr1 get value");
+  const strPropValue = obj["locStrProp"];
+  assert.equal(strPropValue.useMarkdown, true, "@property useMarkdown is true by default");
 
   assert.ok(obj["locStrName"], "locStrName exists");
   assert.strictEqual(obj["locStrName"].owner, obj, "locStrName owner is correct");
@@ -3154,6 +3156,43 @@ QUnit.test("Validated property values", function (assert) {
   assert.equal(survey.jsonErrors[0].element.getType(), "survey", "errors[0].element");
   assert.equal(survey.jsonErrors[1].message, "The property value: 'edf' is incorrect for property 'textUpdateMode'.", "errors[1].message");
   assert.equal(survey.jsonErrors[1].element.getType(), "text", "errors[1].element");
+});
+QUnit.test("Validated property values with boolean property type, Bug#10759", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    showQuestionNumbers: true
+
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors, undefined, "There is no errors, #1");
+  survey.fromJSON({
+    showQuestionNumbers: false
+
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors, undefined, "There is no errors, #2");
+  survey.fromJSON({
+    showQuestionNumbers: "abc"
+
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors.length, 1, "There is one error, #3");
+  survey.fromJSON({
+    showQuestionNumbers: "recursive"
+
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors, undefined, "There is no errors, #4");
+});
+QUnit.test("Validated property values where choices values are objects, Bug#10773", (assert) => {
+  Serializer.addProperty("survey", { name: "prop1", choices: [
+    { value: { point: 1, color: "red" } },
+    { value: { point: 1, color: "blue" } },
+    { value: { point: 2, color: "green" } },
+  ] });
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    prop1: { }
+
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors, undefined, "There is no errors, #1");
+  Serializer.removeProperty("survey", "prop1");
 });
 QUnit.test("getRequiredProperties", function (assert) {
   let requiedValues = Serializer.getRequiredProperties("text");

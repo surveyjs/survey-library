@@ -214,17 +214,17 @@ QUnit.test("Test getJson with selectedLocales", function (assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner);
 
-  assert.equal(locString.getJson(["de"]), null, "There is no values");
+  assert.equal(locString.getJson({ locales: ["de"] }), null, "There is no values");
   let json = { default: "val2", en: "val3" };
   locString.setJson(json);
-  assert.deepEqual(locString.getJson(["default", "en"]), json, "Several values");
-  assert.deepEqual(locString.getJson(["de"]), null, "There is no 'de' value");
-  assert.deepEqual(locString.getJson(["en"]), "val3", "There is only 'en' value");
+  assert.deepEqual(locString.getJson({ locales: ["default", "en"] }), json, "Several values");
+  assert.deepEqual(locString.getJson({ locales: ["de"] }), null, "There is no 'de' value");
+  assert.deepEqual(locString.getJson({ locales: ["en"] }), "val3", "There is only 'en' value");
   locString.setJson({ default: "val1", de: "val2", fr: "val3" });
-  assert.deepEqual(locString.getJson(["de", "fr"]), { de: "val2", fr: "val3" }, "There are 'de' and 'fr' values");
-  assert.equal(locString.getJson(["it"]), null, "There is not 'it' locale value");
+  assert.deepEqual(locString.getJson({ locales: ["de", "fr"] }), { de: "val2", fr: "val3" }, "There are 'de' and 'fr' values");
+  assert.equal(locString.getJson({ locales: ["it"] }), null, "There is not 'it' locale value");
   locString.setJson({ default: "val1" });
-  assert.equal(locString.getJson(["de"]), null, "There is no 'de' value again");
+  assert.equal(locString.getJson({ locales: ["de"] }), null, "There is no 'de' value again");
 });
 QUnit.test("Test mergeWidth", function (assert) {
   const owner1 = new LocalizableOwnerTester("");

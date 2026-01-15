@@ -29,10 +29,11 @@ export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext 
   }
   public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     const index = params.index;
+    const md = <QuestionMatrixDynamicModel>this.question;
+    if (index > -1 && md.isDesignMode) return md.getDesignRowContext().getValue(params);
+    if (!params.createObjects && this.question.isEmpty()) return { isFound: path.length === 0, value: undefined };
     if (index > -1) {
-      const md = <QuestionMatrixDynamicModel>this.question;
       const rows = md.allRows;
       if (index >= 0 && index < rows.length) {
         params.isRoot = false;
@@ -215,7 +216,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     );
   }
   protected valueFromData(val: any): any {
-    if (this.minRowCount < 1 || this.isEmpty()) return super.valueFromData(val);
+    if (this.minRowCount < 1 || this.isEditingSurveyElement || this.isEmpty()) return super.valueFromData(val);
     return this.correctValueForMinMaxRows(val);
   }
   protected correctValueForMinMaxRows(val: any): any {
@@ -259,6 +260,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       }
     }
     this.value = value;
+    this.draggedRow = null;
   }
   public addRowByIndex(rowData: any, toIndex: number):void {
     const value = this.createNewValue();
@@ -1070,14 +1072,33 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
+    const isInProcess = this.setRowCountValueFromData;
     this.setRowCountValueFromData = true;
-    if (this.minRowCount > 0 && Helpers.isValueEmpty(newValue) && !Helpers.isValueEmpty(this.defaultRowValue)) {
-      newValue = [];
-      for (let i = 0; i < this.minRowCount; i ++) {
-        newValue.push(Helpers.createCopy(this.defaultRowValue));
+    let refreshRows = false;
+    if (!isInProcess && this.minRowCount > 0 && !this.draggedRow) {
+      const newLen = Array.isArray(newValue) ? newValue.length : 0;
+      const isEditingEl = this.isEditingSurveyElement;
+      if (newLen < this.minRowCount && (isEditingEl && this.rowCount > 0 || !isEditingEl && !Helpers.isValueEmpty(this.defaultRowValue))) {
+        if (!Array.isArray(newValue)) {
+          newValue = [];
+        }
+        for (let i = newLen; i < this.minRowCount; i ++) {
+          if (isEditingEl) {
+            this.getValueForNewRow();
+          } else {
+            newValue.push(Helpers.createCopy(this.defaultRowValue));
+          }
+        }
+      }
+      if (isEditingEl && (newLen <= this.minRowCount && this.rowCount > this.minRowCount ||
+        newLen > this.minRowCount && this.rowCount <= this.minRowCount)) {
+        refreshRows = true;
       }
     }
     super.updateValueFromSurvey(newValue, clearData);
+    if (refreshRows) {
+      this.onRowsChanged();
+    }
     this.setRowCountValueFromData = false;
   }
   protected getFilteredDataCore(): any {

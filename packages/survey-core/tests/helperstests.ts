@@ -60,16 +60,18 @@ QUnit.test("Helpers.isValueEmpty function", function(assert) {
   );
 });
 QUnit.test("isTwoValueEquals with validators", function(assert) {
-  var survey = new SurveyModel();
-  var validators1 = [];
-  var validator1 = new EmailValidator();
-  validator1.errorOwner = survey;
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const question = page.addNewQuestion("text", "q1");
+  const validators1 = [];
+  const validator1 = new EmailValidator();
+  validator1.errorOwner = question;
   validator1.text = "en-text";
   validators1.push(validator1);
 
-  var validators2 = [];
-  var validator2 = new EmailValidator();
-  validator2.errorOwner = survey;
+  const validators2 = [];
+  const validator2 = new EmailValidator();
+  validator2.errorOwner = question;
   validator2.text = "en-text";
   validators2.push(validator2);
   survey.locale = "de";

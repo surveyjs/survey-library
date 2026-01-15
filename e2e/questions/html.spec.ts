@@ -30,13 +30,13 @@ frameworks.forEach((framework) => {
 
     test("check html elements", async ({ page }) => {
       const getImageExistance = await page.evaluate(
-        () => !!document.querySelector('table img[src="https://surveyjs.io/Content/Images/examples/26178-20160417.jpg"]')
+        () => !!(window as any).survey.rootElement.getRootNode().querySelector('table img[src="https://surveyjs.io/Content/Images/examples/26178-20160417.jpg"]')
       );
       const getBoldExistance = await page.evaluate(
-        () => !!document.querySelector("table b")
+        () => !!(window as any).survey.rootElement.getRootNode().querySelector("table b")
       );
       const getLinkExistance = await page.evaluate(
-        () => !!document.querySelector('table a[href="https://surveyjs.io/Editor/Editor/"]'));
+        () => !!(window as any).survey.rootElement.getRootNode().querySelector('table a[href="https://surveyjs.io/Editor/Editor/"]'));
 
       expect(getImageExistance).toBe(true);
       expect(getBoldExistance).toBe(true);

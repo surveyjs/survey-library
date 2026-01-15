@@ -2063,10 +2063,11 @@ QUnit.test("Double noneItem and SelectAllItem", function (assert) {
   assert.equal(question.isAllSelected, false, "isAllSelected #2");
   settings.specialChoicesOrder.selectAllItem = [-1];
   settings.specialChoicesOrder.noneItem = [1];
-  settings.specialChoicesOrder.otherItem = [2];
+  settings.specialChoicesOrder.otherItem = [4];
 });
 QUnit.test("Double noneItem & selectAllItem and headItems/footItems", function (assert) {
   settings.specialChoicesOrder.noneItem = [-2, 4];
+  settings.specialChoicesOrder.otherItem = [1];
   settings.specialChoicesOrder.selectAllItem = [-2, 3];
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: ["a", "b", "c"], showSelectAllItem: true, showNoneItem: true, showOtherItem: true }
@@ -2086,7 +2087,7 @@ QUnit.test("Double noneItem & selectAllItem and headItems/footItems", function (
 
   settings.specialChoicesOrder.selectAllItem = [-1];
   settings.specialChoicesOrder.noneItem = [1];
-  settings.specialChoicesOrder.otherItem = [2];
+  settings.specialChoicesOrder.otherItem = [4];
 });
 QUnit.test("Select all disable/enabled", function (assert) {
   const json = { elements: [
@@ -3282,6 +3283,8 @@ QUnit.test("Checkbox showCommentArea validation", (assert) => {
   q1.setCommentValue(q1.choices[2], "test comment");
   assert.equal(q1.validate(), true, "q1 validation, #6");
   q1.clickItemHandler(q1.otherItem, true);
+  assert.equal(q1.otherItem.showCommentArea, true, "q1 otherItem showCommentArea");
+  assert.equal(q1.otherItem.isCommentShowing, true, "q1 otherItem isCommentShowing, #7");
   assert.equal(q1.validate(), false, "q1 validation, #7");
   q1.setCommentValue(q1.otherItem, "test comment");
   assert.equal(q1.validate(), true, "q1 validation, #8");
@@ -4266,4 +4269,121 @@ QUnit.test("Checkbox question, defaultValue, skip trigger, Bug#10728", (assert) 
   assert.equal(survey.currentPage.name, "page3", "the survey is on the page3");
   survey.tryComplete();
   assert.deepEqual(survey.data, { q1: 1, q2: ["item1"] }, "the data is correct");
+});
+QUnit.test("Create noneItem, refuseItem,  dontKnowItem and otherItem on demand", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  const obj = q1 as any;
+  assert.equal(obj.refuseItemValue, undefined, "refuseItem is undefined by default");
+  assert.equal(obj.dontKnowItemValue, undefined, "dontKnowItem is undefined by default");
+  assert.equal(obj.noneItemValue, undefined, "noneItem is undefined by default");
+  assert.equal(obj.otherItemValue, undefined, "otherItem is undefined by default");
+
+  assert.equal(q1.visibleChoices.length, 3, "There are three choices initially");
+  assert.equal(obj.refuseItemValue, undefined, "refuseItem is undefined on calculating visibleChoices");
+  assert.equal(obj.dontKnowItemValue, undefined, "dontKnowItem is undefined on calculating visibleChoices");
+  assert.equal(obj.noneItemValue, undefined, "noneItem is undefined on calculating visibleChoices");
+  assert.equal(obj.otherItemValue, undefined, "otherItem is undefined on calculating visibleChoices");
+  q1.toJSON();
+  assert.equal(obj.refuseItemValue, undefined, "refuseItem is undefined on serialization");
+  assert.equal(obj.dontKnowItemValue, undefined, "dontKnowItem is undefined on serialization");
+  assert.equal(obj.noneItemValue, undefined, "noneItem is undefined on serialization");
+  assert.equal(obj.otherItemValue, undefined, "otherItem is undefined on serialization");
+});
+QUnit.test("Check noneText, refuseText, dontKnowText and otherItemText", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+        showNoneItem: true, noneText: "Not Available",
+        showRefuseItem: true, refuseText: "No Answer!",
+        showDontKnowItem: true, dontKnowText: "Don't Know!",
+        showOtherItem: true, otherText: "Other please specify"
+      }
+    ]
+  });
+  const q1 = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices.length, 7, "There are seven choices initially");
+  const noneItem = q1.visibleChoices[3];
+  assert.equal(noneItem.value, "none", "noneItem value is correct");
+  assert.equal(noneItem.locText.textOrHtml, "Not Available", "noneItem text is correct");
+  const refuseItem = q1.visibleChoices[4];
+  assert.equal(refuseItem.value, "refused", "refuseItem value is correct");
+  assert.equal(refuseItem.locText.textOrHtml, "No Answer!", "refuseItem text is correct");
+  const dontKnowItem = q1.visibleChoices[5];
+  assert.equal(dontKnowItem.value, "dontknow", "dontKnowItem value is correct");
+  assert.equal(dontKnowItem.locText.textOrHtml, "Don't Know!", "dontKnowItem text is correct");
+  const otherItem = q1.visibleChoices[6];
+  assert.equal(otherItem.value, "other", "otherItem value is correct");
+  assert.equal(otherItem.locText.textOrHtml, "Other please specify", "otherItem text is correct");
+  q1.noneText = "N/A";
+  assert.equal(noneItem.locText.textOrHtml, "N/A", "noneItem text is changed correctly");
+});
+QUnit.test("Check selectAllItem and otherItemText on demand in checkbox", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["item1", "item2", "item3"]
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const obj = q1 as any;
+  assert.equal(obj.selectAllItemValue, undefined, "selectAllItem is undefined by default");
+  assert.equal(obj.otherItemValue, undefined, "otherItem is undefined by default");
+  assert.equal(q1.visibleChoices.length, 3, "There are three choices initially");
+  assert.equal(obj.selectAllItemValue, undefined, "selectAllItem is undefined on calculating visibleChoices");
+  assert.equal(obj.otherItemValue, undefined, "otherItem is undefined on calculating visibleChoices");
+  q1.toJSON();
+  assert.equal(obj.selectAllItemValue, undefined, "selectAllItem is undefined on serialization");
+  assert.equal(obj.otherItemValue, undefined, "otherItem is undefined on serialization");
+});
+QUnit.test("Check selectAllText and otherItemText in checkbox", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["item1", "item2", "item3"],
+        showSelectAllItem: true, selectAllText: "Select All!",
+        showOtherItem: true, otherText: "Other please specify"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices.length, 5, "There are five choices initially");
+  const selectAllItem = q1.visibleChoices[0];
+  assert.equal(selectAllItem.locText.textOrHtml, "Select All!", "selectAllItem text is correct");
+  const otherItem = q1.visibleChoices[4];
+  assert.equal(otherItem.value, "other", "otherItem value is correct");
+  assert.equal(otherItem.locText.textOrHtml, "Other please specify", "otherItem text is correct");
+  assert.equal(q1.otherItem.showCommentArea, true, "otherItem showCommentArea is true");
+});
+QUnit.test("Do not send notifications on changing built-in choices properties on creating question", (assert) => {
+  const survey = new SurveyModel({
+    pages: [{ name: "page1" }]
+  });
+  survey.setDesignMode(true);
+  survey.pages[0].addElement(new QuestionCheckboxModel("q1"));
+  const modified = new Array<string>();
+  survey.onPropertyValueChangedCallback = (name, oldValue, newValue, sender) => {
+    if (sender.isDescendantOf("itemvalue")) {
+      modified.push(name);
+    }
+  };
+  const question = new QuestionCheckboxModel("q2");
+  survey.pages[0].addElement(question);
+  assert.equal(modified.length, 0, "one property is modified");
 });

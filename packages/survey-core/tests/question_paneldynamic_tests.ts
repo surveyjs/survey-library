@@ -22,7 +22,8 @@ import { setOldTheme } from "./oldTheme";
 import { DynamicPanelValueChangedEvent, DynamicPanelValueChangingEvent } from "../src/survey-events-api";
 import { AdaptiveActionContainer, UpdateResponsivenessMode } from "../src/actions/adaptive-container";
 import { Serializer } from "../src/jsonobject";
-import { ValueGetter } from "../src/conditionProcessValue";
+import { ProcessValue, ValueGetter } from "../src/conditionProcessValue";
+import { template } from "lodash";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -9237,4 +9238,35 @@ QUnit.test("Removing panels in the nested panel, Bug#10739", function (assert) {
   const q1 = rootPanel.panels[0].getQuestionByName("q1");
   q1.value = 10;
   assert.equal(innerPanel.panelCount, 0, "There is still no inner panel");
+});
+QUnit.test("ProcessValue.hasValue to access panel array in design mode", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "q1",
+        templateElements: [
+          {
+            type: "text",
+            name: "a",
+          },
+          {
+            type: "text",
+            name: "b",
+          }
+        ],
+      },
+      { type: "text", name: "q2" }
+    ]
+  });
+  survey.setDesignMode(true);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q2Context = q2.getValueGetterContext();
+  const processValue = new ProcessValue(q2Context);
+  assert.equal(processValue.hasValue("q1[0].a"), true, "there is a question a");
+  assert.equal(processValue.hasValue("q1[0].c"), false, "there is no question c");
+  panel.panelCount = 0;
+  assert.equal(processValue.hasValue("q1[0].a"), true, "there is a question a, #2");
+  assert.equal(processValue.hasValue("q1[0].c"), false, "there is no question c, #2");
 });

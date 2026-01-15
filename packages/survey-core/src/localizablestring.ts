@@ -5,6 +5,7 @@ import { Base, EventBase } from "./base";
 import { Serializer } from "./jsonobject";
 import { SurveyElementCore } from "./survey-element";
 import { ItemValue } from "./itemvalue";
+import { ISaveToJSONOptions } from "./base-interfaces";
 
 export interface ILocalizableOwner {
   getLocale(): string;
@@ -73,7 +74,6 @@ export class LocalizableString implements ILocalizableString {
   constructor(public owner: ILocalizableOwner, public useMarkdown: boolean = false,
     public name?: string, locName?: string) {
     this._localizationName = locName;
-    this.onCreating();
   }
   public getIsMultiple(): boolean { return false; }
   public getStringViewerClassName(textClass?: string): string {
@@ -295,10 +295,11 @@ export class LocalizableString implements ILocalizableString {
     if (keys.length == 0) return [];
     return keys;
   }
-  public getJson(selectedLocales?: string[]): any {
-    if (!!this.sharedData) return this.sharedData.getJson(selectedLocales);
+  public getJson(options?: ISaveToJSONOptions): any {
+    if (!!this.sharedData) return this.sharedData.getJson(options);
     const keys = this.getValuesKeys();
-    const hasSelected = Array.isArray(selectedLocales) && selectedLocales.length > 0;
+    const selectedLocales = options?.locales || [];
+    const hasSelected = selectedLocales.length > 0;
     if (hasSelected) {
       for (let i = keys.length - 1; i >= 0; i--) {
         if (selectedLocales.indexOf(keys[i]) < 0) {
@@ -408,7 +409,6 @@ export class LocalizableString implements ILocalizableString {
   }
   public onChanged(): void { }
   public onStringChanged: EventBase<LocalizableString> = new EventBase<LocalizableString>();
-  protected onCreating(): void { }
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
     let loc = this.locale;

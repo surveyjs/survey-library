@@ -15,23 +15,20 @@ import { CreateCustomChoiceItemEvent, DragDropAllowEvent } from "./survey-events
 import { PopupModel } from "./popup";
 import { ItemValue } from "./itemvalue";
 
-export interface ISurveyData {
-  getValue(name: string): any;
-  setValue(
-    name: string,
-    newValue: any,
-    locNotification: any,
-    allowNotifyValueChanged?: boolean,
-    questionName?: string
-  ): any;
+export interface ISurveyVariables {
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
+}
+export interface ISurveyDataGetEditingObj {
+  getEditingSurveyElement(): Base;
+}
+export interface ISurveyData {
+  getValue(name: string): any;
+  setValue(name: string, newValue: any, locNotification: boolean | "text", allowNotifyValueChanged?: boolean, questionName?: string): any;
   getComment(name: string): string;
-  setComment(name: string, newValue: string, locNotification: any): any;
-  getAllValues(): any;
+  setComment(name: string, newValue: string, locNotification: boolean | "text"): any;
   getFilteredProperties(): any;
   findQuestionByName(name: string): IQuestion;
-  getEditingSurveyElement(): Base;
 }
 export interface ITextProcessorProp {
   text: string;
@@ -51,6 +48,9 @@ export interface ITextProcessor {
 }
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
+}
+export interface ISurveyValidatorOwner extends ISurveyErrorOwner {
+  createRegexValidator(validator: Base, pattern: string, flags: string): RegExp;
 }
 export interface IValueItemCustomPropValues {
   propertyName: string;
@@ -97,6 +97,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   validateQuestion(question: IQuestion, errors: Array<SurveyError>, fireCallback: boolean): void;
   validatePanel(panel: IPanel, errors: Array<SurveyError>, fireCallback: boolean): void;
+  createRegexValidator(question: IQuestion, validator: Base, pattern: string, flags: string): RegExp;
   hasVisibleQuestionByValueName(question: IQuestion): boolean;
   questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;
@@ -473,7 +474,9 @@ export interface ISaveToJSONOptions {
    * - `false`\
    * Export the JSON schema without any textual content.
    * - `"stringsOnly"`\
-   * Export a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements. Use the [`locales`](#locales) array to restrict the output to specific locales. To apply a locale-strings-only schema to a survey model, call the [`addLocaleStrings(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addLocaleStrings) method.
+   * Export a JSON schema that contains only locale strings and the minimal set of properties required to identify survey elements. Use the [`locales`](#locales) array to restrict the output to specific locales. To apply a locale-strings-only schema to a survey model, call the [`mergeLocalizationJSON(json, locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#mergeLocalizationJSON) method.
+   *
+   * > As an alternative to calling `toJSON()` with `"stringsOnly"`, you can call the [`getLocalizationJSON(locales)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getLocalizationJSON) method, which is syntactic sugar.
    */
   storeLocaleStrings?: boolean | "stringsOnly";
   /**

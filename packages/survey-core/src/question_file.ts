@@ -750,7 +750,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set takePhotoCaption(val: string) { this.setLocStringText(this.locTakePhotoCaption, val); }
   public get locTakePhotoCaption(): LocalizableString { return this.getOrCreateLocStr("takePhotoCaption", false, true); }
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
-  @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
+  @property({ localizable: { defaultStr: true } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
 
@@ -769,19 +769,19 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * @see filePlaceholder
    * @see photoPlaceholder
    */
-  @property({ localizable: { defaultStr: "fileOrPhotoPlaceholder" } }) fileOrPhotoPlaceholder: string;
+  @property({ localizable: { defaultStr: true } }) fileOrPhotoPlaceholder: string;
   /**
    * A placeholder text displayed when the File Upload question doesn't contain any photos to upload. Applies only when the [`sourceType`](#sourceType) value is `"camera"`.
    * @see filePlaceholder
    * @see fileOrPhotoPlaceholder
    */
-  @property({ localizable: { defaultStr: "photoPlaceholder" } }) photoPlaceholder: string;
+  @property({ localizable: { defaultStr: true } }) photoPlaceholder: string;
   /**
    * A placeholder text displayed when the File Upload question doesn't contain any files to upload. Applies only when the [`sourceType`](#sourceType) value is `"file"`.
    * @see photoPlaceholder
    * @see fileOrPhotoPlaceholder
    */
-  @property({ localizable: { defaultStr: "filePlaceholder" } }) filePlaceholder: string;
+  @property({ localizable: { defaultStr: true } }) filePlaceholder: string;
 
   @property() locRenderedPlaceholderValue: LocalizableString;
   public get locRenderedPlaceholder(): LocalizableString {

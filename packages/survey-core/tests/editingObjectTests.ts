@@ -1,8 +1,8 @@
 import { SurveyModel } from "../src/survey";
-import { Base, Event, ArrayChanges } from "../src/base";
+import { Base } from "../src/base";
 import { QuestionTextModel } from "../src/question_text";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
-import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
+import { MatrixDynamicRowModel, QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 import { ExpressionValidator } from "../src/validator";
 import {
   QuestionCompositeModel,
@@ -20,6 +20,8 @@ import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { SurveyTriggerComplete } from "../src/trigger";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { QuestionCommentModel } from "../src/question_comment";
+import { ChoiceItem } from "../src/question_baseselect";
+import { ActionContainer } from "../src/actions/container";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1798,4 +1800,87 @@ QUnit.test("Matirix columns & getObjPropertyValue", function (assert) {
   assert.equal(Serializer.getObjPropertyValue(column, "cellType"), "default", "should return 'default'");
   column.cellType = "text";
   assert.equal(Serializer.getObjPropertyValue(column, "cellType"), "text", "should return 'text'");
+});
+QUnit.test("Edit choices in matrix, always keep minimum objects", (assert) => {
+  var question = new QuestionDropdownModel("q1");
+  question.choices = ["item1", "item2", "item3"];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        minRowCount: 2,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ChoiceItem("val");
+    matrix.value.push(item);
+    return item;
+  };
+  assert.equal(matrix.visibleRows.length, 3, "three choice");
+  question.choices = [];
+  assert.equal(matrix.rowCount, 2, "There are 2 items");
+  assert.equal(matrix.visibleRows.length, 2, "two minimum choices");
+  assert.equal(question.choices.length, 2, "two choices in question");
+  assert.equal(question.choices[0].getType(), "choiceitem", "first item is choiceitem");
+  assert.equal(question.choices[1].getType(), "choiceitem", "second item is choiceitem");
+});
+QUnit.test("Edit choices in matrix, update remove buttons visibility on changing choices", (assert) => {
+  var question = new QuestionDropdownModel("q1");
+  question.choices = ["item1", "item2", "item3"];
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        minRowCount: 2,
+        columns: [
+          { cellType: "text", name: "value" },
+          { cellType: "text", name: "text" },
+        ],
+      },
+    ],
+  });
+  survey.editingObj = question;
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ChoiceItem("val");
+    matrix.value.push(item);
+    return item;
+  };
+  const isRowHasRemoveButton = (index: number): boolean => {
+    const rows = matrix.renderedTable.rows;
+    const cells = rows[index * 2 + 1].cells;
+    const item = cells[cells.length - 1].item;
+    if (!item) return false;
+    const container = <ActionContainer>(item.value);
+    return !!container.getActionById("remove-row");
+  };
+  assert.equal(matrix.visibleRows.length, 3, "three choice");
+  assert.equal(matrix.canRemoveRows, true, "can remove rows");
+  assert.equal(isRowHasRemoveButton(0), true, "first row has remove button");
+  assert.equal(isRowHasRemoveButton(1), true, "second row has remove button");
+  assert.equal(isRowHasRemoveButton(2), true, "third row has remove button");
+  question.choices = ["item1", "item2"];
+  assert.equal(matrix.visibleRows.length, 2, "two choice");
+  assert.equal(matrix.canRemoveRows, false, "can not remove rows");
+  assert.equal(isRowHasRemoveButton(0), false, "first row has no remove button");
+  assert.equal(isRowHasRemoveButton(1), false, "second row has no remove button");
+  question.choices = ["item1", "item2", "item3", "item4"];
+  assert.equal(matrix.visibleRows.length, 4, "four choice");
+  assert.equal(isRowHasRemoveButton(0), true, "first row has remove button");
+  assert.equal(isRowHasRemoveButton(1), true, "second row has remove button");
+  assert.equal(isRowHasRemoveButton(2), true, "third row has remove button");
+  assert.equal(isRowHasRemoveButton(3), true, "fourth row has remove button");
 });

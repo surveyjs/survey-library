@@ -109,3 +109,17 @@ QUnit.test("Collapse/expand/read-only & focus Bug#10434", function(assert) {
   assert.equal(focusedQuestionId, "", "The question is not focused");
   SurveyElement.FocusElement = focusFunc;
 });
+
+QUnit.test("Textarea read-only ignores forceIsInputReadOnly Bug#7372", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "comment", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCommentModel>survey.getQuestionByName("q1");
+  q1.forceIsInputReadOnly = true;
+  const textArea = q1.textAreaModel;
+  assert.equal(textArea.isReadOnlyAttr, true, "The textarea is read-only");
+  assert.equal(textArea.isDisabledAttr, false, "The textarea is not disabled");
+  assert.equal(q1.isReadOnly, false, "The question is not read-only");
+});

@@ -2387,6 +2387,52 @@ QUnit.test("Do not send data notification on creating detail panel, Bug#10253", 
   assert.equal(survey.state, "completed", "survey.state");
   assert.equal(counter, 0, "#2");
 });
+QUnit.test("Close previous panels before showing the current panel, detailPanelMode is 'underRowSingle'", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 3,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          }
+        ],
+        "detailElements": [
+          {
+            "type": "text",
+            "name": "q1",
+            "isRequired": true
+          }
+        ],
+        "detailPanelMode": "underRowSingle"
+      }
+    ]
+  });
+  const logs = new Array<any>();
+  survey.onMatrixDetailPanelVisibleChanged.add((survey, options) => {
+    logs.push({ rowIndex: options.rowIndex, isVisible: options.visible });
+  });
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  const rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  rows[1].showDetailPanel();
+  rows[2].showDetailPanel();
+  rows[0].showDetailPanel();
+  rows[0].hideDetailPanel();
+  assert.deepEqual(logs, [
+    { rowIndex: 0, isVisible: true },
+    { rowIndex: 0, isVisible: false },
+    { rowIndex: 1, isVisible: true },
+    { rowIndex: 1, isVisible: false },
+    { rowIndex: 2, isVisible: true },
+    { rowIndex: 2, isVisible: false },
+    { rowIndex: 0, isVisible: true },
+    { rowIndex: 0, isVisible: false }
+  ], "The detail panel visibility log is correct");
+});
 QUnit.test("matrices getPanelInDesignMode", function (assert) {
   const q1 = new QuestionMatrixDropdownModel("q1");
   assert.notOk(q1.getPanelInDesignMode(), "#1");

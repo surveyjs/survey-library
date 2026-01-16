@@ -26,6 +26,7 @@
     v-bind:title="item.tooltip || item.title"
     v-bind:aria-checked="item.ariaChecked"
     v-bind:aria-expanded="item.ariaExpanded"
+    v-bind:aria-labelledby="item.ariaLabelledBy"
     v-bind:role="item.ariaRole"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >

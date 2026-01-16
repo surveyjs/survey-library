@@ -250,6 +250,15 @@ QUnit.test(
     assert.ok(action.ariaExpanded, "property exists");
   }
 );
+QUnit.test(
+  "ariaLabelledBy",
+  (assert) => {
+    const action = new Action(<any>{});
+    assert.notOk(action.ariaLabelledBy, "default is undefined");
+    action.ariaLabelledBy = "id-some";
+    assert.ok(action.ariaLabelledBy, "property exists");
+  }
+);
 QUnit.test("Dispose dots item and all it content", (assert) => {
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
   model.setItems([

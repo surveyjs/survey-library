@@ -746,9 +746,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  public get takePhotoCaption(): string { return this.getLocStringText(this.locTakePhotoCaption); }
-  public set takePhotoCaption(val: string) { this.setLocStringText(this.locTakePhotoCaption, val); }
-  public get locTakePhotoCaption(): LocalizableString { return this.getOrCreateLocStr("takePhotoCaption", false, true); }
+  @property({ localizable: { defaultStr: true } }) takePhotoCaption: string;
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
   @property({ localizable: { defaultStr: true } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;

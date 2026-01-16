@@ -75,7 +75,7 @@ export class HtmlConditionItem extends ExpressionItem {
    * The html that shows on completed ('Thank you') page. The expression should return true
    * @see expression
    */
-  @property({ localizable: true }) html: string;
+  @property({ localizable: { markdown: true } }) html: string;
 }
 
 /**

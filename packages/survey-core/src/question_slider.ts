@@ -828,7 +828,8 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
           id: `sv-clr-btn-${this.id}`,
           action: () => { this.clearValueFromUI(); },
           innerCss: this.cssClasses.clearButton,
-          visible: <any>new ComputedUpdater(() => this.allowClear && !this.isReadOnly)
+          visible: <any>new ComputedUpdater(() => this.allowClear && !this.isReadOnly),
+          ariaLabelledBy: this.a11y_input_ariaLabelledBy
         }
       );
       actions.push(clearAction);

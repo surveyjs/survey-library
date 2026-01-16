@@ -155,8 +155,7 @@ registerMarkupTests(
           "choices": [
             "item1",
             "item2"
-          ],
-          titleLocation: "hidden"
+          ]
         }
       ]
     },

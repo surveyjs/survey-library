@@ -327,29 +327,13 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see min
    * @see minValueExpression
    */
-  public get minErrorText(): string {
-    return this.getLocStringText(this.locMinErrorText);
-  }
-  public set minErrorText(val: string) {
-    this.setLocStringText(this.locMinErrorText, val);
-  }
-  get locMinErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("minErrorText", true, "minError");
-  }
+  @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
   /**
    * An error message to display when the question value exceeds the maximum accepted value.
    * @see max
    * @see maxValueExpression
    */
-  public get maxErrorText(): string {
-    return this.getLocStringText(this.locMaxErrorText);
-  }
-  public set maxErrorText(val: string) {
-    this.setLocStringText(this.locMaxErrorText, val);
-  }
-  get locMaxErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("maxErrorText", true, "maxError");
-  }
+  @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
 
   /**
    * Returns `true` if the specified `inputType` supports the `min` and `max` properties.

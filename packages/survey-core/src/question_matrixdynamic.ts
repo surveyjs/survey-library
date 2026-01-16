@@ -1,4 +1,4 @@
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
 import { QuestionFactory } from "./questionfactory";
 import { Question, QuestionValueGetterContext } from "./question";
@@ -839,34 +839,17 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    * @see confirmDelete
    */
-  public get confirmDeleteText() {
-    return this.getLocStringText(this.locConfirmDeleteText);
-  }
-  public set confirmDeleteText(val: string) {
-    this.setLocStringText(this.locConfirmDeleteText, val);
-  }
-  get locConfirmDeleteText() {
-    return this.getOrCreateLocStr("confirmDeleteText", false, "confirmDelete");
-  }
+  @property ({ localizable: { defaultStr: "confirmDelete" } }) confirmDeleteText: string;
   /**
    * A caption for the Add Row button.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see addRowButtonLocation
    */
-  public get addRowText() {
-    return this.getLocStringText(this.locAddRowText);
-  }
-  public set addRowText(val: string) {
-    this.setLocStringText(this.locAddRowText, val);
-  }
-  get locAddRowText() {
-    return this.getOrCreateLocStr("addRowText", false, "addRow", (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (text: string): string => {
-        return text || this.defaultAddRowText;
-      };
-    });
-  }
+  @property ({ localizable: { defaultStr: "addRow",
+    onCreate: (obj: QuestionMatrixDynamicModel, locStr: LocalizableString) =>
+      locStr.onGetTextCallback = (text: string): string => text || obj.defaultAddRowText
+  } }) addRowText: string;
   private get defaultAddRowText(): string {
     return this.getLocalizationString(
       this.isColumnLayoutHorizontal ? "addRow" : "addColumn"
@@ -923,28 +906,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    *
    * [View Demo](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/ (linkStyle))
    */
-  public get removeRowText() {
-    return this.getLocStringText(this.locRemoveRowText);
-  }
-  public set removeRowText(val: string) {
-    this.setLocStringText(this.locRemoveRowText, val);
-  }
-  get locRemoveRowText() {
-    return this.getOrCreateLocStr("removeRowText", false, "removeRow");
-  }
+  @property({ localizable: { defaultStr: "removeRow" } }) removeRowText: string;
   /**
    * A message displayed when the matrix does not contain any rows. Applies only if `hideColumnsIfEmpty` is enabled.
    * @see hideColumnsIfEmpty
    */
-  public get noRowsText(): string {
-    return this.getLocStringText(this.locNoRowsText);
-  }
-  public set noRowsText(val: string) {
-    this.setLocStringText(this.locNoRowsText, val);
-  }
-  public get locNoRowsText(): LocalizableString {
-    return this.getOrCreateLocStr("noRowsText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) noRowsText: string;
   public get locEditRowText(): LocalizableString {
     return this.getOrCreateLocStr("editRowText", false, "editText");
   }

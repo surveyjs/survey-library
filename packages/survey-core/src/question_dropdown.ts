@@ -66,17 +66,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   /**
    * A placeholder for the input field.
    */
-  public get placeholder(): string {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-    this.updateInputPlaceholder(val);
-  }
-
-  get locPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("placeholder", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) placeholder: string;
 
   public getType(): string {
     return "dropdown";

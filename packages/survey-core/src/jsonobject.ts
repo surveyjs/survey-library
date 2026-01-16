@@ -9,7 +9,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
-  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, markdown?: boolean }
+  | { name?: string, onCreate?: (obj: Base, locStr: any) => void, defaultStr?: string | boolean, markdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
 }
@@ -86,8 +86,8 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         {
           get: function () {
             return this.getOrCreateLocStr(key, supportsMarkdown, defaultStr, (locStr) => {
-              if (localizable && typeof localizable.onGetTextCallback === "function") {
-                locStr.onGetTextCallback = localizable.onGetTextCallback;
+              if (localizable && typeof localizable.onCreate === "function") {
+                localizable.onCreate(this, locStr);
               }
             });
           },

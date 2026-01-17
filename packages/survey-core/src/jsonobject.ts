@@ -596,8 +596,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public schemaType(): string {
     if (this.className === "choicesByUrl") return undefined;
     if (this.className === "string") return this.className;
-    if (!!this.className) return "array";
+    if (!!this.className && this.isArray) return "array";
     if (!!this.baseClassName) return "array";
+    if (!!this.className) return undefined;
     if (this.type == "switch") return "boolean";
     if (this.type == "boolean" || this.type == "number") return this.type;
     return "string";
@@ -1536,6 +1537,7 @@ export class JsonMetadata {
     }
   }
   private generateSchemaProperty(prop: JsonObjectProperty, schemaDef: any, isRoot: boolean): any {
+    let i;
     if (prop.isLocalizable) {
       return {
         oneOf: [
@@ -1569,7 +1571,16 @@ export class JsonMetadata {
           }
         }
       } else {
-        res["$ref"] = this.getChemeRefName(refType, isRoot);
+        const childClasses = this.getChildrenClasses(prop.className, true);
+        if (childClasses.length > 0) {
+          res.oneOf = [{ $ref: this.getChemeRefName(prop.className, isRoot) }];
+          for (i = 0; i < childClasses.length; i++) {
+            res.oneOf.push({ $ref: this.getChemeRefName(childClasses[i].name, isRoot) });
+            this.generateChemaClass(childClasses[i].name, schemaDef, false);
+          }
+        } else {
+          res["$ref"] = this.getChemeRefName(refType, isRoot);
+        }
       }
       this.generateChemaClass(prop.className, schemaDef, false);
     }
@@ -1579,7 +1590,7 @@ export class JsonMetadata {
         usedClasses.push(this.findClass("panel"));
       }
       res.items = { anyOf: [] };
-      for (var i = 0; i < usedClasses.length; i++) {
+      for (i = 0; i < usedClasses.length; i++) {
         var className = usedClasses[i].name;
         res.items.anyOf.push({ $ref: this.getChemeRefName(className, isRoot) });
         this.generateChemaClass(className, schemaDef, false);

@@ -32,6 +32,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.getSingleSelectedItem();
       this.resetReadOnlyText();
     }
+    if (name === "placeholder") {
+      this.updateInputPlaceholder(newValue);
+    }
   }
   public locStrsChanged(): void {
     super.locStrsChanged();

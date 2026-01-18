@@ -253,7 +253,7 @@ QUnit.test(
     );
     page.navigationDescription = "Description";
     assert.equal(
-      page.locNavigationDescription.renderedHtml,
+      page.getLocalizableString("navigationDescription").renderedHtml,
       "Description",
       "The locNavigationDescription property correspond navigationDescription"
     );

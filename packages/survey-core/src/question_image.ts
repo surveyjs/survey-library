@@ -40,33 +40,17 @@ export class QuestionImageModel extends QuestionNonValue {
    * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    * @see contentMode
    */
-  public get imageLink(): string {
-    return this.getLocStringText(this.locImageLink);
-  }
-  public set imageLink(val: string) {
-    this.setLocStringText(this.locImageLink, val);
-  }
-  get locImageLink(): LocalizableString {
-    return this.getOrCreateLocStr("imageLink", false, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (text: string): string => {
-        return getCorrectImageLink(text, this.contentMode == "youtube");
-      };
-    });
-  }
+  @property({ localizable: { onCreate: (obj: QuestionImageModel, locStr: LocalizableString) => {
+    locStr.onGetTextCallback = (text: string): string => {
+      return getCorrectImageLink(text, obj.contentMode == "youtube");
+    };
+  } } }) imageLink: string;
   /**
    * Specifies a value for the `alt` attribute of the underlying `<img>` element.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/ (linkStyle))
    */
-  public get altText(): string {
-    return this.getLocStringText(this.locAltText);
-  }
-  public set altText(val: string) {
-    this.setLocStringText(this.locAltText, val);
-  }
-  get locAltText(): LocalizableString {
-    return this.getOrCreateLocStr("altText");
-  }
+  @property({ localizable: true }) altText: string;
   /**
    * Specifies the height of a container for the image or video. Accepts positive numbers and CSS values.
    *

@@ -27,6 +27,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if (resetReadOnlyTextProps.indexOf(name) > -1) {
       this.resetReadOnlyText();
     }
+    if (name === "placeholder" && !!this.dropdownListModelValue) {
+      this.dropdownListModel.setInputPlaceholder(newValue);
+    }
   }
   supportElementsInChoice(): boolean { return false; }
   public locStrsChanged(): void {
@@ -130,18 +133,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   /**
    * A text displayed in the input field when it doesn't have a value.
    */
-  public get placeholder(): string {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-    if (!!this.dropdownListModelValue) {
-      this.dropdownListModel.setInputPlaceholder(val);
-    }
-  }
-  get locPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("placeholder", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) placeholder: string;
   public get readOnlyText(): string {
     return this.locReadOnlyText.calculatedText;
   }

@@ -1,5 +1,5 @@
 import { HashTable, Helpers } from "./helpers";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, property, Serializer } from "./jsonobject";
 import { Base, EventBase } from "./base";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions, IDropdownMenuOptions, ISurveyElement } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
@@ -1487,39 +1487,20 @@ export class Question extends SurveyElement<Question>
    * Specifies a custom error message for a required form field.
    * @see isRequired
    */
-  public get requiredErrorText(): string {
-    return this.getLocStringText(this.locRequiredErrorText);
-  }
-  public set requiredErrorText(val: string) {
-    this.setLocStringText(this.locRequiredErrorText, val);
-  }
-  get locRequiredErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("requiredErrorText");
-  }
+  @property({ localizable: true }) requiredErrorText: string;
   /**
    * Specifies a caption displayed above the comment area. Applies when the `showCommentArea` property is `true`.
    * @see showCommentArea
    * @see comment
    */
-  public get commentText(): string {
-    return this.getLocStringText(this.locCommentText);
-  }
-  public set commentText(val: string) {
-    this.setLocStringText(this.locCommentText, val);
-  }
-  get locCommentText(): LocalizableString {
-    return this.getOrCreateLocStr("commentText", true, true);
-  }
+  @property({ localizable: { defaultStr: true, markdown: true } }) commentText: string;
   /**
    * A placeholder for the comment area. Applies when the `showCommentArea` property is `true`.
    * @see showCommentArea
    * @see comment
    * @see commentText
    */
-  public get commentPlaceholder(): string { return this.getLocStringText(this.locCommentPlaceholder); }
-  public set commentPlaceholder(val: string) { this.setLocStringText(this.locCommentPlaceholder, val); }
-  public get locCommentPlaceholder(): LocalizableString { return this.getOrCreateLocStr("commentPlaceholder"); }
-
+  @property({ localizable: true }) commentPlaceholder: string;
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
   }
@@ -1539,9 +1520,8 @@ export class Question extends SurveyElement<Question>
    *
    * [Dynamic Texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts (linkStyle))
    */
-  public get defaultDisplayValue(): string { return this.getLocStringText(this.locDefaultDisplayValue); }
-  public set defaultDisplayValue(val: string) { this.setLocStringText(this.locDefaultDisplayValue, val); }
-  public get locDefaultDisplayValue(): LocalizableString { return this.getOrCreateLocStr("defaultDisplayValue"); }
+  @property({ localizable: true }) defaultDisplayValue: string;
+
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
   }

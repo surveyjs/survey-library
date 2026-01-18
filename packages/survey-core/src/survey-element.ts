@@ -119,7 +119,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    * @see hasDescription
    */
   @property({
-    localizable: true, onSet: (newDescription, self) => {
+    localizable: { markdown: true }, onSet: (newDescription, self) => {
       self.resetDescriptionVisibility();
     }
   }) description: string;

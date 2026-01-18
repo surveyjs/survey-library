@@ -131,7 +131,7 @@ export class QuestionMatrixDropdownRenderedCell {
       let cellHint = this.cell.column.cellHint;
       if (!!cellHint) {
         if (cellHint.trim() === "") return "";
-        return this.cell.column.locCellHint.renderedHtml;
+        return this.cell.column["locCellHint"].renderedHtml;
       }
       if (this.hasQuestion && this.question.isVisible && this.question.title)
         return this.question.title;

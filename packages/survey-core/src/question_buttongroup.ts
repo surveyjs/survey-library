@@ -70,15 +70,7 @@ export class QuestionButtonGroupModel extends QuestionCheckboxBase {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
-  public get placeholder(): string {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-  }
-  get locPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("placeholder", false, "buttongroupOptionsCaption");
-  }
+  @property({ localizable: { defaultStr: "buttongroupOptionsCaption" } }) placeholder: string;
   _allowClear = true;
   get allowClear(): boolean {
     return this._allowClear;

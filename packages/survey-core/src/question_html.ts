@@ -1,5 +1,5 @@
 import { QuestionNonValue } from "./questionnonvalue";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -28,21 +28,14 @@ export class QuestionHtmlModel extends QuestionNonValue {
    *
    * > If you get the markup from a third party, ensure that it does not contain malicious code.
    */
-  public get html(): string {
-    return this.getLocStringText(this.locHtml) || "";
-  }
-  public set html(val: string) {
-    this.setLocStringText(this.locHtml, val);
-  }
-  get locHtml(): LocalizableString {
-    return this.getOrCreateLocStr("html", false, false, (locStr: LocalizableString) => {
-      locStr.onGetTextCallback = (str: string): string => {
-        return !!this.survey && !this.ignoreHtmlProgressing
-          ? this.processHtml(str)
-          : str;
-      };
-    });
-  }
+  @property({ localizable: { onCreate: (obj: QuestionHtmlModel, locStr: LocalizableString) => {
+    locStr.onGetTextCallback = (str: string): string => {
+      return !!obj.survey && !obj.ignoreHtmlProgressing
+        ? obj.processHtml(str)
+        : str;
+    };
+  } } }) html: string;
+
   public get processedHtml() {
     return this.processHtml(this.html);
   }

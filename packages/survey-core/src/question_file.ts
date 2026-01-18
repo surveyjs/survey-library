@@ -746,24 +746,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  public get takePhotoCaption(): string { return this.getLocStringText(this.locTakePhotoCaption); }
-  public set takePhotoCaption(val: string) { this.setLocStringText(this.locTakePhotoCaption, val); }
-  public get locTakePhotoCaption(): LocalizableString { return this.getOrCreateLocStr("takePhotoCaption", false, true); }
+  @property({ localizable: { defaultStr: true } }) takePhotoCaption: string;
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
   @property({ localizable: { defaultStr: true } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
-
-  public get clearButtonCaption(): string {
-    return this.getLocStringText(this.locClearButtonCaption);
-  }
-  public set clearButtonCaption(value: string) {
-    this.setLocStringText(this.locClearButtonCaption, value);
-  }
-  get locClearButtonCaption(): LocalizableString {
-    return this.getOrCreateLocStr("clearCaption", false, true);
-  }
-
+  @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   /**
    * A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. Applies only when [`sourceType`](#sourceType) value is `"file-camera"`.
    * @see filePlaceholder

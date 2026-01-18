@@ -17,19 +17,9 @@ export class ImageItemValue extends ChoiceItem implements ILocalizableOwner {
   /**
    * The image or video link property.
    */
-  public get imageLink(): string {
-    return this.getLocStringText(this.locImageLink);
-  }
-  public set imageLink(val: string) {
-    this.setLocStringText(this.locImageLink, val);
-    this.imageNotLoaded = false;
-    this.videoNotLoaded = false;
-  }
-  private aspectRatio: number;
+  @property({ localizable: true }) imageLink: string;
 
-  get locImageLink(): LocalizableString {
-    return this.getOrCreateLocStr("imageLink");
-  }
+  private aspectRatio: number;
   protected isPropertyStoredInHash(name: string): boolean {
     return name !== "imageLink" && super.isPropertyStoredInHash(name);
   }
@@ -85,6 +75,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
     if (name === "imageWidth" || name === "imageHeight") {
       this.calcIsResponsive();
+    }
+    if (name === "imageLink") {
+      this.imageNotLoaded = false;
+      this.videoNotLoaded = false;
     }
   }
   public getType(): string {

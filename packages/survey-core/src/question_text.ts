@@ -684,8 +684,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   //web-based methods
   private _isWaitingForEnter = false;
+  private _isColorValueChanged = false;
 
   private updateValueOnEvent(event: any) {
+    if (this.inputType === "color" && !this._isColorValueChanged) return;
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
@@ -733,6 +735,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   };
   public onChange = (event: any): void => {
+    this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);
     const root = this.input?.getRootNode() || settings.environment.root;
     if (!(root instanceof Document || root instanceof ShadowRoot)) return;

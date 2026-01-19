@@ -894,8 +894,10 @@ export class Base implements IObjectValueContext {
   public validateExpression(name: string, checkFunctions: boolean, checkVariables: boolean): IExpressionErrors {
     const expression = this[name];
     if (!expression) return;
+    const prop = this.getPropertyByName(name);
+    const isCondition = !!prop && prop.type == "condition";
     const runner = this.createExpressionRunner(expression);
-    const errors = runner.validate(this.getValueGetterContext(), checkFunctions, checkVariables);
+    const errors = runner.validate(this.getValueGetterContext(), checkFunctions, checkVariables, isCondition);
     return errors.length ? { obj: this, propertyName: name, errors: errors } : undefined;
   }
   public validateExpressions(checkFunctions: boolean, checkVariables: boolean): IExpressionErrors[] {

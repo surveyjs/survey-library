@@ -583,18 +583,40 @@ QUnit.test("Test validateExpressions imagemap", (assert) => {
   );
 });
 
-// survey - calculatedValues, triggers, completedHtmlOnCondition
-// selectbase - choices
-// matrix - columns / rows
-// slider - customLabels // No expression fields
-// raiting - rateValues
-// multipletext - items // No expression fields
-// multipletextitem - validators
-// imagemap - areas
+QUnit.test("Test validateExpressions check constant in condition error", (assert) => {
 
-// matrixdropdown - columns / rows
-// matrixdynamic - columns
-// paneldynamic - templateElements
-// matrixdropdownbase - detailElements
+  var survey = new SurveyModel({
+    elements: [
+      { type: "boolean", name: "q1" },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = true",
+        enableIf: "foo",
+        requiredIf: "true"
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} = TrUe",
+        enableIf: "12345",
+        requiredIf: "tRuE"
+      }
+    ],
+  });
 
-// choicesitem - detailpannel ---- warn ----
+  let result = survey.validateExpressions(true, true);
+
+  assert.equal(result.length, 2, "There are 2 invalid expressions");
+  assert.deepEqual(
+    result.map(e => [e.obj.getType(), e.propertyName, e.errors.length]),
+    [
+      ["text", "enableIf", 1],
+      ["text", "enableIf", 1]
+    ],
+    "obj + property + count"
+  );
+
+  assert.equal(result[0].errors[0].errorType, ExpressionExecutorErrorType.ConstantCondition, "error type is ConstantCondition");
+  assert.equal(result[1].errors[0].errorType, ExpressionExecutorErrorType.ConstantCondition, "error type is ConstantCondition #2");
+});

@@ -1,5 +1,5 @@
 import { Action } from "./actions/action";
-import { ComputedUpdater } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { ExpressionRunner } from "./conditions";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable, Helpers } from "./helpers";
@@ -297,6 +297,12 @@ export class QuestionSliderModel extends Question implements ISliderLabelItemOwn
 
   public getType(): string {
     return "slider";
+  }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.customLabels
+    ];
   }
 
   public get rootCss(): string {

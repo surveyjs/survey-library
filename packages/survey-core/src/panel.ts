@@ -481,6 +481,12 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...(<any>this.elements)
+    ];
+  }
   getMarkdownHtml(text: string, name: string, item?: any): string {
     if (name === "navigationTitle" && this.locNavigationTitle.isEmpty) {
       return this.locTitle.renderedHtml || this.name;

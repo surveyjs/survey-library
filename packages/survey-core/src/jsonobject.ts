@@ -338,6 +338,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       this.className = this.typeValue.substring(0, this.typeValue.length - 2);
     }
   }
+  public get isExpression(): boolean {
+    return this.type === "expression" || this.type === "condition";
+  }
   public get locationInTable(): string {
     const res = this.locationInTableValue;
     return res || "column";

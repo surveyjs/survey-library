@@ -480,6 +480,12 @@ export class Question extends SurveyElement<Question>
       this.valueName ? this.valueName : oldValue
     );
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.validators
+    ];
+  }
   public get isReady(): boolean {
     return this.isReadyValue;
   }

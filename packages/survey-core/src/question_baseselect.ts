@@ -19,7 +19,7 @@ import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
 import { TextContextProcessor } from "./textPreProcessor";
 import { ValidationContext } from "./question";
 import { PanelModel, PanelModelBase } from "./panel";
-import { EventBase } from "./base";
+import { Base, EventBase } from "./base";
 
 const OTHER_ITEM_VALUE = "other";
 export interface IChoiceOwner extends ILocalizableOwner {
@@ -33,6 +33,12 @@ export interface IChoiceOwner extends ILocalizableOwner {
 export class ChoiceItem extends ItemValue {
   private panelValue: PanelModel;
   protected getBaseType(): string { return "choiceitem"; }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...(this.hasElements ? this.detailElements : []),
+    ];
+  }
   public get choiceOwner(): IChoiceOwner { return this.locOwner as IChoiceOwner; }
   public get showCommentArea(): boolean {
     return this.getPropertyValue("showCommentArea");
@@ -191,6 +197,12 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
   }
   public getType(): string {
     return "selectbase";
+  }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.choices
+    ];
   }
   public dispose(): void {
     super.dispose();

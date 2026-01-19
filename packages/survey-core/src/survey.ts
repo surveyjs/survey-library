@@ -2237,6 +2237,15 @@ export class SurveyModel extends SurveyElementCore
     }
     this.navigationBarValue?.locStrsChanged();
   }
+  protected getAllChildren(): Base[] {
+    let result = super.getAllChildren();
+    result.push(...this.pages);
+    result.push(...this.calculatedValues);
+    result.push(...this.triggers);
+    result.push(...this.completedHtmlOnCondition);
+    result.push(...this.navigateToUrlOnCondition);
+    return result;
+  }
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.getSurveyMarkdownHtml(this, text, name, item);
   }

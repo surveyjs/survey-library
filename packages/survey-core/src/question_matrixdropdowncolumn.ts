@@ -221,6 +221,12 @@ export class MatrixDropdownColumn extends Base
   public getType() {
     return "matrixdropdowncolumn";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.validators,
+    ];
+  }
   /**
    * Specifies the type of column cells.
    *

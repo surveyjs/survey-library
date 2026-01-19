@@ -1,8 +1,21 @@
 import { HashTable } from "./helpers";
 import { IValueGetterContext, ProcessValue, VariableGetterContextEx } from "./conditionProcessValue";
 import { ConsoleWarnings } from "./console-warnings";
-import { Operand, FunctionOperand, AsyncFunctionItem } from "./expressions/expressions";
+import { Operand, FunctionOperand, AsyncFunctionItem, Variable } from "./expressions/expressions";
 import { ConditionsParser } from "./conditionsParser";
+import { FunctionFactory } from "./functionsfactory";
+
+export enum ExpresionExecutorErrorType {
+  SyntaxError,
+  UnknownFunction,
+  UnknownVariable
+}
+
+export interface IExpresionExecutorError {
+  errorType: ExpresionExecutorErrorType;
+  functionName?: string;
+  variableName?: string;
+}
 
 /**
  * Base interface for expression execution
@@ -40,6 +53,7 @@ export interface IExpresionExecutor {
    * Returns true if there is an async function in the expression
    */
   isAsync: boolean;
+  validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpresionExecutorError[];
 }
 
 export class ExpressionExecutorRunner {
@@ -183,6 +197,39 @@ export class ExpressionExecutor implements IExpresionExecutor {
     const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, properties, context);
     return runner.run(this.isAsync);
   }
+  public validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpresionExecutorError[] {
+
+    let errors: IExpresionExecutorError[] = [];
+    if (!this.operand) { errors.push({ errorType: ExpresionExecutorErrorType.SyntaxError }); return errors; }
+
+    const list = new Array<Operand>();
+    this.operand.addOperandsToList(list);
+
+    const operands = list.reduce((acc, operand) => {
+      const type = operand.getType();
+      if (!acc[type]) { acc[type] = []; }
+      acc[type].push(operand);
+      return acc;
+    }, {} as { [key: string]: Operand[] });
+
+    if (checkFunctions) {
+      for (const operand of (operands.function || []) as FunctionOperand[]) {
+        if (!FunctionFactory.Instance.hasFunction(operand.functionName)) {
+          errors.push({ errorType: ExpresionExecutorErrorType.UnknownFunction, functionName: operand.functionName });
+        }
+      }
+    }
+
+    if (checkVariables) {
+      for (const operand of (operands.variable || []) as Variable[]) {
+        if (!new ProcessValue(context).hasValue(operand.variable)) {
+          errors.push({ errorType: ExpresionExecutorErrorType.UnknownVariable, variableName: operand.variable });
+        }
+      }
+    }
+
+    return errors;
+  }
 }
 
 export class ExpressionRunnerBase {
@@ -234,6 +281,9 @@ export class ExpressionRunnerBase {
       this.onBeforeAsyncRun(id);
     }
     return this.expressionExecutor.runContext(context, properties, id);
+  }
+  public validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpresionExecutorError[] {
+    return this.expressionExecutor.validate(context, checkFunctions, checkVariables);
   }
   protected doOnComplete(res: any, id: number): void {
     if (this.onAfterAsyncRun && this.isAsync) {

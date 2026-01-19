@@ -842,14 +842,14 @@ export class QuestionPanelDynamicModel extends Question
    * A message displayed in a confirmation dialog that appears when a respondent wants to delete a panel.
    * @see confirmDelete
    */
-  @property({ localizable: { defaultStr: "confirmDelete", markdown: true } }) confirmDeleteText: string;
+  @property({ localizable: { defaultStr: "confirmDelete" } }) confirmDeleteText: string;
   /**
    * An error message displayed when users enter a duplicate value into a question that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
    * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see keyName
    */
-  @property({ localizable: { defaultStr: "keyDuplicationError" } }) keyDuplicationError: string;
+  @property({ localizable: { defaultStr: true } }) keyDuplicationError: string;
   /**
    * A caption for the Previous button. Applies only if `displayMode` is different from `"list"`.
    * @see displayMode
@@ -1327,7 +1327,7 @@ export class QuestionPanelDynamicModel extends Question
         return this.processSingleInputTitle(this.templateTitle, panel);
       };
       const bntEdit = new Action({ locTitle: this.locEditPanelText, action: () => { this.singInputEditPanel(panel); } });
-      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locPanelRemoveText, action: () => { this.removePanelUI(panel); } }) : undefined;
+      const btnRemove = this.canRemovePanel ? new Action({ locTitle: this.locRemovePanelText, action: () => { this.removePanelUI(panel); } }) : undefined;
       items.push(new QuestionSingleInputSummaryItem(locText, bntEdit, btnRemove));
     });
     res.items = items;

@@ -96,7 +96,16 @@ export {
   ValidatorRunner
 } from "../../src/validator";
 export { ItemValue } from "../../src/itemvalue";
-export { Base, Event, EventBase, ArrayChanges, ComputedUpdater, IPropertyValueChangedEvent, IPropertyArrayValueChangedEvent } from "../../src/base";
+export {
+  Base,
+  Event,
+  EventBase,
+  ArrayChanges,
+  ComputedUpdater,
+  IPropertyValueChangedEvent,
+  IPropertyArrayValueChangedEvent,
+  IExpressionErrors,
+} from "../../src/base";
 export {
   ISurvey,
   ISurveyElement,
@@ -134,7 +143,14 @@ export {
 export { HtmlConditionItem, UrlConditionItem } from "../../src/expressionItems";
 export { ChoicesRestful, ChoicesRestfull } from "../../src/choicesRestful";
 export { FunctionFactory, registerFunction } from "../../src/functionsfactory";
-export { ConditionRunner, ExpressionRunner, IExpresionExecutor, ExpressionExecutor } from "../../src/conditions";
+export {
+  ConditionRunner,
+  ExpressionRunner,
+  IExpressionExecutor,
+  IExpressionExecutor as IExpresionExecutor,
+  ExpressionExecutor,
+  IExpressionExecutorError,
+  ExpressionExecutorErrorType } from "../../src/conditions";
 export {
   Operand,
   Const,

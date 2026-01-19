@@ -10,7 +10,7 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ExpressionRunner, IExpresionExecutorError } from "./conditions";
+import { ExpressionRunner, IExpressionExecutorError } from "./conditions";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditionProcessValue";
@@ -31,10 +31,10 @@ interface IExpressionRunnerInfo {
   canRun?: (obj: Base) => boolean;
 }
 
-export interface IExpresionErrors {
+export interface IExpressionErrors {
   obj: Base;
   propertyName: string;
-  errors: IExpresionExecutorError[];
+  errors: IExpressionExecutorError[];
 }
 
 export class Bindings {
@@ -891,22 +891,15 @@ export class Base implements IObjectValueContext {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
   }
-
-  public validateExpression(name: string, checkFunctions: boolean, checkVariables: boolean): IExpresionErrors {
-
+  public validateExpression(name: string, checkFunctions: boolean, checkVariables: boolean): IExpressionErrors {
     const expression = this[name];
     if (!expression) return;
-
     const runner = this.createExpressionRunner(expression);
     const errors = runner.validate(this.getValueGetterContext(), checkFunctions, checkVariables);
-
     return errors.length ? { obj: this, propertyName: name, errors: errors } : undefined;
   }
-
-  public validateExpressions(checkFunctions: boolean, checkVariables: boolean): IExpresionErrors[] {
-
-    const result: IExpresionErrors[] = [];
-
+  public validateExpressions(checkFunctions: boolean, checkVariables: boolean): IExpressionErrors[] {
+    const result: IExpressionErrors[] = [];
     Serializer.getPropertiesByObj(this).forEach(prop => {
       if (prop.isExpression) {
         const errors = this.validateExpression(prop.name, checkFunctions, checkVariables);
@@ -915,21 +908,17 @@ export class Base implements IObjectValueContext {
         }
       }
     });
-
     for (let child of this.getAllChildren()) {
       const errors = child.validateExpressions(checkFunctions, checkVariables);
       if (errors && errors.length > 0) {
         result.push(...errors);
       }
     }
-
     return result;
   }
-
   protected getAllChildren(): Base[] {
     return [];
   }
-
   public getDataFilteredProperties(): any {
     return {};
   }

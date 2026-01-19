@@ -5,14 +5,14 @@ import { Operand, FunctionOperand, AsyncFunctionItem, Variable } from "./express
 import { ConditionsParser } from "./conditionsParser";
 import { FunctionFactory } from "./functionsfactory";
 
-export enum ExpresionExecutorErrorType {
+export enum ExpressionExecutorErrorType {
   SyntaxError,
   UnknownFunction,
   UnknownVariable
 }
 
-export interface IExpresionExecutorError {
-  errorType: ExpresionExecutorErrorType;
+export interface IExpressionExecutorError {
+  errorType: ExpressionExecutorErrorType;
   functionName?: string;
   variableName?: string;
 }
@@ -20,7 +20,7 @@ export interface IExpresionExecutorError {
 /**
  * Base interface for expression execution
  */
-export interface IExpresionExecutor {
+export interface IExpressionExecutor {
   /**
    * This call back runs on executing expression if there is at least one async function
    */
@@ -53,7 +53,7 @@ export interface IExpresionExecutor {
    * Returns true if there is an async function in the expression
    */
   isAsync: boolean;
-  validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpresionExecutorError[];
+  validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpressionExecutorError[];
 }
 
 export class ExpressionExecutorRunner {
@@ -132,8 +132,8 @@ export class ExpressionExecutorRunner {
   }
 }
 
-export class ExpressionExecutor implements IExpresionExecutor {
-  public static createExpressionExecutor: (expression: string) => IExpresionExecutor =
+export class ExpressionExecutor implements IExpressionExecutor {
+  public static createExpressionExecutor: (expression: string) => IExpressionExecutor =
     (expression: string) => { return new ExpressionExecutor(expression); };
   public static getQuestionErrorText(properties: HashTable<any>): string {
     if (!!properties) {
@@ -197,10 +197,9 @@ export class ExpressionExecutor implements IExpresionExecutor {
     const runner = new ExpressionExecutorRunner(this.operand, id, this.onComplete, properties, context);
     return runner.run(this.isAsync);
   }
-  public validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpresionExecutorError[] {
-
-    let errors: IExpresionExecutorError[] = [];
-    if (!this.operand) { errors.push({ errorType: ExpresionExecutorErrorType.SyntaxError }); return errors; }
+  public validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpressionExecutorError[] {
+    let errors: IExpressionExecutorError[] = [];
+    if (!this.operand) { errors.push({ errorType: ExpressionExecutorErrorType.SyntaxError }); return errors; }
 
     const list = new Array<Operand>();
     this.operand.addOperandsToList(list);
@@ -215,7 +214,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
     if (checkFunctions) {
       for (const operand of (operands.function || []) as FunctionOperand[]) {
         if (!FunctionFactory.Instance.hasFunction(operand.functionName)) {
-          errors.push({ errorType: ExpresionExecutorErrorType.UnknownFunction, functionName: operand.functionName });
+          errors.push({ errorType: ExpressionExecutorErrorType.UnknownFunction, functionName: operand.functionName });
         }
       }
     }
@@ -223,7 +222,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
     if (checkVariables) {
       for (const operand of (operands.variable || []) as Variable[]) {
         if (!new ProcessValue(context).hasValue(operand.variable)) {
-          errors.push({ errorType: ExpresionExecutorErrorType.UnknownVariable, variableName: operand.variable });
+          errors.push({ errorType: ExpressionExecutorErrorType.UnknownVariable, variableName: operand.variable });
         }
       }
     }
@@ -233,7 +232,7 @@ export class ExpressionExecutor implements IExpresionExecutor {
 }
 
 export class ExpressionRunnerBase {
-  private expressionExecutor: IExpresionExecutor;
+  private expressionExecutor: IExpressionExecutor;
   private variables: string[];
   private containsFunc: boolean;
   private static IdRunnerCounter = 1;
@@ -282,7 +281,7 @@ export class ExpressionRunnerBase {
     }
     return this.expressionExecutor.runContext(context, properties, id);
   }
-  public validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpresionExecutorError[] {
+  public validate(context: IValueGetterContext, checkFunctions: boolean, checkVariables: boolean): IExpressionExecutorError[] {
     return this.expressionExecutor.validate(context, checkFunctions, checkVariables);
   }
   protected doOnComplete(res: any, id: number): void {

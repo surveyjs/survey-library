@@ -1,10 +1,10 @@
-import { IExpresionErrors } from "../../src/base";
-import { ExpresionExecutorErrorType } from "../../src/conditions";
+import { IExpressionErrors } from "../../src/base";
+import { ExpressionExecutorErrorType } from "../../src/conditions";
 import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Expression Validation");
 
-function convertIExpresionErrors(errors: IExpresionErrors[]): (IExpresionErrors & { name: string })[] {
+function convertIExpressionErrors(errors: IExpressionErrors[]): (IExpressionErrors & { name: string })[] {
   return errors.map(error => ({ ...error, name: (<any>error.obj).name }));
 }
 
@@ -33,12 +33,12 @@ QUnit.test("Test validateExpression in Object", (assert) => {
   result = q1.validateExpression("visibleIf", true, false);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
-  assert.equal(result.errors[0].errorType, ExpresionExecutorErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
+  assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
 
   result = q1.validateExpression("visibleIf", false, true);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
-  assert.equal(result.errors[0].errorType, ExpresionExecutorErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
+  assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
 
   result = q1.validateExpression("visibleIf", true, true);
   assert.notEqual(result, undefined, "There is an error");
@@ -46,7 +46,7 @@ QUnit.test("Test validateExpression in Object", (assert) => {
 
   result = q1.validateExpression("requiredIf", true, true);
   assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors[0].errorType, ExpresionExecutorErrorType.SyntaxError, "Error type is 'SyntaxError'");
+  assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.SyntaxError, "Error type is 'SyntaxError'");
 });
 
 QUnit.test("Test validateExpressions in Object", (assert) => {
@@ -64,7 +64,7 @@ QUnit.test("Test validateExpressions in Object", (assert) => {
   });
 
   const q1 = survey.getQuestionByName("q1");
-  let result = convertIExpresionErrors(q1.validateExpressions(true, true));
+  let result = convertIExpressionErrors(q1.validateExpressions(true, true));
 
   assert.equal(result.length, 2, "There are 2 invalid expressions");
   assert.equal(result[0].propertyName, "visibleIf", "First error is for 'visibleIf'");
@@ -90,7 +90,7 @@ QUnit.test("Test validateExpressions in Object including childre", (assert) => {
     ],
   });
 
-  let result = convertIExpresionErrors(survey.validateExpressions(true, true));
+  let result = convertIExpressionErrors(survey.validateExpressions(true, true));
 
   assert.equal(result.length, 2, "There are 2 invalid expressions");
   assert.equal(result[0].propertyName, "visibleIf", "First error is for 'visibleIf'");
@@ -125,7 +125,7 @@ QUnit.test("Test validateExpressions with Survey + expressions", (assert) => {
     ],
   });
 
-  let result = convertIExpresionErrors(survey.validateExpressions(true, true));
+  let result = convertIExpressionErrors(survey.validateExpressions(true, true));
   assert.equal(result.length, 5, "There are 5 invalid expressions");
 
   assert.deepEqual(

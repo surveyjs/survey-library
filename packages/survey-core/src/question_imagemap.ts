@@ -6,6 +6,7 @@ import { PropertyNameArray } from "../src/propertyNameArray";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
+import { Base } from "./base";
 
 function createSVGElement(name: string): SVGElement {
   const document = DomDocumentHelper.getDocument();
@@ -66,6 +67,13 @@ export class QuestionImageMapModel extends Question {
 
   public getType(): string {
     return "imagemap";
+  }
+
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.areas
+    ];
   }
 
   protected onValueChanged() {

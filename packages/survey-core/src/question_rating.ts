@@ -14,6 +14,7 @@ import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
 import { DomDocumentHelper } from "./global_variables_utils";
 import { HashTable } from "./helpers";
+import { Base } from "./base";
 
 function getColorFromProperty(varName: string) {
   if ("function" === typeof getComputedStyle) {
@@ -475,6 +476,13 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   public getType(): string {
     return "rating";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.rateValues
+    ];
+  }
+
   protected getItemValueType() {
     return "ratingitem";
   }

@@ -306,6 +306,10 @@ export class Const extends Operand {
     }
     return value;
   }
+  public isBoolean(): boolean {
+    if (!this.value || typeof this.value != "string") return this.value === true || this.value === false;
+    return OperandMaker.isBooleanValue(this.value);
+  }
   protected isContentEqual(op: Operand): boolean {
     const cOp = <Const>op;
     return cOp.value == this.value;

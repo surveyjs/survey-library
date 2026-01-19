@@ -22,6 +22,7 @@ import { LocalizableString } from "./localizablestring";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
+import { Base } from "./base";
 
 export class MatrixDynamicValueGetterContext extends QuestionValueGetterContext {
   constructor (protected question: Question) {
@@ -149,7 +150,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdynamic";
   }
-
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.columns,
+      ...this.choices
+    ];
+  }
   public get isRowsDynamic(): boolean {
     return true;
   }

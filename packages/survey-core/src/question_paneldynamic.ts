@@ -385,6 +385,12 @@ export class QuestionPanelDynamicModel extends Question
   public getType(): string {
     return "paneldynamic";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...(<any>this.templateElements)
+    ];
+  }
   public clearOnDeletingContainer(): void {
     this.panelsCore.forEach((panel) => {
       panel.clearOnDeletingContainer();

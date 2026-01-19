@@ -106,6 +106,13 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
   public getType(): string {
     return "matrixdropdown";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.columns,
+      ...this.rows,
+    ];
+  }
   /**
    * A title for the total row. Applies if at least one column displays total values.
    * @see rowTitleWidth

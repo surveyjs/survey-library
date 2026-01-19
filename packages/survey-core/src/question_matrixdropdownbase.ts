@@ -1061,6 +1061,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getType(): string {
     return "matrixdropdownbase";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...(<any>this.detailElements)
+    ];
+  }
   public dispose(): void {
     super.dispose();
     this.clearGeneratedRows();

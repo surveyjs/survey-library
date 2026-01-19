@@ -1555,7 +1555,7 @@ export class JsonMetadata {
     if (!!propType) {
       res.type = propType;
     }
-    if (prop.hasChoices) {
+    if (prop.hasChoices && prop.name !== "locale") {
       const enumRes = prop.getChoices(null);
       if (Array.isArray(enumRes) && enumRes.length > 0) {
         res.enum = this.getChoicesValues(enumRes);

@@ -144,10 +144,10 @@
             }
         },
         "requiredMark": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "requiredText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "questionStartIndex": {
             "type": "string"
@@ -220,7 +220,7 @@
             "type": "string"
         },
         "logo": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "logoWidth": {
             "type": [
@@ -283,7 +283,7 @@
             "type": "number"
         },
         "completedHtml": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "completedHtmlOnCondition": {
             "type": "array",
@@ -292,28 +292,28 @@
             }
         },
         "completedBeforeHtml": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "loadingHtml": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "startSurveyText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "pagePrevText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "pageNextText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "completeText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "previewText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "editText": {
-            "type": "string"
+            "$ref": "#localizablestring"
         },
         "questionTitlePattern": {
             "type": "string"
@@ -497,6 +497,15 @@
         },
         "maxTimeToFinishPage": {
             "type": "number"
+        },
+        "title": {
+            "$ref": "#localizablestring"
+        },
+        "description": {
+            "$ref": "#localizablestring"
+        },
+        "emptySurveyText": {
+            "$ref": "#localizablestring"
         }
     },
     "definitions": {
@@ -510,10 +519,10 @@
                 {
                     "properties": {
                         "navigationTitle": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "navigationDescription": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "navigationButtonsVisibility": {
                             "type": "string"
@@ -802,6 +811,15 @@
                         "top",
                         "bottom"
                     ]
+                },
+                "title": {
+                    "$ref": "#localizablestring"
+                },
+                "description": {
+                    "$ref": "#localizablestring"
+                },
+                "requiredErrorText": {
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -851,19 +869,19 @@
                     ]
                 },
                 "requiredErrorText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "commentText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "commentPlaceholder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "commentPlaceHolder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "defaultDisplayValue": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "startWithNewLine": {
                     "type": "boolean"
@@ -948,6 +966,15 @@
                 },
                 "renderAs": {
                     "type": "string"
+                },
+                "title": {
+                    "$ref": "#localizablestring"
+                },
+                "description": {
+                    "$ref": "#localizablestring"
+                },
+                "placeholder": {
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -1030,19 +1057,19 @@
                             "type": "boolean"
                         },
                         "noneText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "showRefuseItem": {
                             "type": "boolean"
                         },
                         "refuseText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "showDontKnowItem": {
                             "type": "boolean"
                         },
                         "dontKnowText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "choicesVisibleIf": {
                             "type": "string"
@@ -1101,19 +1128,19 @@
                             ]
                         },
                         "otherText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "separateSpecialChoices": {
                             "type": "boolean"
                         },
                         "otherPlaceholder": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "otherPlaceHolder": {
                             "type": "string"
                         },
                         "otherErrorText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "showOtherItem": {
                             "type": "boolean"
@@ -1130,7 +1157,7 @@
             "type": "object",
             "properties": {
                 "url": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "path": {
                     "type": "string"
@@ -1258,7 +1285,7 @@
                 {
                     "properties": {
                         "html": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -1274,7 +1301,7 @@
                 {
                     "properties": {
                         "url": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -1307,16 +1334,16 @@
                     "type": "string"
                 },
                 "title": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "defaultDisplayValue": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "isRequired": {
                     "type": "boolean"
                 },
                 "requiredErrorText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "readOnly": {
                     "type": "boolean"
@@ -1383,10 +1410,10 @@
                     "type": "string"
                 },
                 "totalFormat": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "cellHint": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "renderAs": {
                     "type": "string"
@@ -1740,19 +1767,19 @@
                     ]
                 },
                 "title": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "maxLength": {
                     "type": "number"
                 },
                 "placeholder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "placeHolder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "requiredErrorText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "inputSize": {
                     "type": "number"
@@ -1833,7 +1860,7 @@
                     "type": "string"
                 },
                 "selectAllText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "showSelectAllItem": {
                     "type": "boolean"
@@ -1846,6 +1873,18 @@
                 },
                 "minSelectedChoices": {
                     "type": "number"
+                },
+                "noneText": {
+                    "$ref": "#localizablestring"
+                },
+                "otherText": {
+                    "$ref": "#localizablestring"
+                },
+                "otherErrorText": {
+                    "$ref": "#localizablestring"
+                },
+                "otherPlaceholder": {
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -1893,7 +1932,7 @@
                             "type": "boolean"
                         },
                         "placeholder": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -1922,31 +1961,31 @@
                             ]
                         },
                         "selectToRankEmptyRankedAreaText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "selectToRankEmptyUnrankedAreaText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "showNoneItem": {
                             "type": "boolean"
                         },
                         "noneText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "otherText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "separateSpecialChoices": {
                             "type": "boolean"
                         },
                         "otherErrorText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "showOtherItem": {
                             "type": "boolean"
                         },
                         "selectAllText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "showSelectAllItem": {
                             "type": "boolean"
@@ -2003,13 +2042,13 @@
                     "type": "boolean"
                 },
                 "noneText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "otherText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "otherErrorText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "showOtherItem": {
                     "type": "boolean"
@@ -2025,6 +2064,18 @@
                 },
                 "showClearButton": {
                     "type": "boolean"
+                },
+                "noneText": {
+                    "$ref": "#localizablestring"
+                },
+                "otherText": {
+                    "$ref": "#localizablestring"
+                },
+                "otherErrorText": {
+                    "$ref": "#localizablestring"
+                },
+                "otherPlaceholder": {
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -2044,7 +2095,7 @@
                             "type": "string"
                         },
                         "placeholder": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "choicesMin": {
                             "type": "number"
@@ -2233,16 +2284,16 @@
                             ]
                         },
                         "templateTitle": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "templateTabTitle": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "tabTitlePlaceholder": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "templateDescription": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "templateVisibleIf": {
                             "type": "string"
@@ -2257,31 +2308,31 @@
                             "type": "string"
                         },
                         "confirmDeleteText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "keyDuplicationError": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "prevPanelText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "panelPrevText": {
                             "type": "string"
                         },
                         "nextPanelText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "panelNextText": {
                             "type": "string"
                         },
                         "addPanelText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "panelAddText": {
                             "type": "string"
                         },
                         "removePanelText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "panelRemoveText": {
                             "type": "string"
@@ -2435,7 +2486,7 @@
                             "type": "boolean"
                         },
                         "noEntriesText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -2496,13 +2547,13 @@
                     "type": "boolean"
                 },
                 "fileOrPhotoPlaceholder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "photoPlaceholder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "filePlaceholder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -2561,10 +2612,10 @@
                     "type": "boolean"
                 },
                 "placeholder": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "placeholderReadOnly": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -2578,7 +2629,7 @@
                 {
                     "properties": {
                         "format": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "expression": {
                             "type": "string"
@@ -2923,10 +2974,10 @@
                     "type": "string"
                 },
                 "minErrorText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "maxErrorText": {
-                    "type": "string"
+                    "$ref": "#localizablestring"
                 },
                 "step": {
                     "type": "string"
@@ -2952,6 +3003,9 @@
                 },
                 "allowResize": {
                     "type": "boolean"
+                },
+                "placeholder": {
+                    "$ref": "#localizablestring"
                 }
             }
         },
@@ -3199,16 +3253,16 @@
                             "items": "any"
                         },
                         "placeholder": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "optionsCaption": {
                             "type": "string"
                         },
                         "keyDuplicationError": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "singleInputTitleTemplate": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -3267,10 +3321,10 @@
                             "type": "boolean"
                         },
                         "confirmDeleteText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "addRowText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "addRowButtonLocation": {
                             "type": "string",
@@ -3294,13 +3348,16 @@
                             "type": "boolean"
                         },
                         "removeRowText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "noRowsText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "emptyRowsText": {
                             "type": "string"
+                        },
+                        "keyDuplicationError": {
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -3316,10 +3373,13 @@
                 {
                     "properties": {
                         "totalText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "hideIfRowsEmpty": {
                             "type": "boolean"
+                        },
+                        "keyDuplicationError": {
+                            "$ref": "#localizablestring"
                         }
                     }
                 }
@@ -3406,7 +3466,7 @@
                             ]
                         },
                         "requiredErrorText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "isRequired": {
                             "type": "boolean"
@@ -3478,7 +3538,7 @@
                 {
                     "properties": {
                         "html": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "valueName": {
                             "type": "string"
@@ -3506,7 +3566,7 @@
                             ]
                         },
                         "requiredErrorText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "isRequired": {
                             "type": "boolean"
@@ -3578,10 +3638,10 @@
                 {
                     "properties": {
                         "imageLink": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "altText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "imageHeight": {
                             "type": "string"
@@ -3624,7 +3684,7 @@
                             ]
                         },
                         "requiredErrorText": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "isRequired": {
                             "type": "boolean"
@@ -3719,10 +3779,10 @@
                             "type": "number"
                         },
                         "minRateDescription": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "maxRateDescription": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "displayRateDescriptionsAsExtremeItems": {
                             "type": "boolean"
@@ -3899,13 +3959,13 @@
                             "type": "boolean"
                         },
                         "labelTrue": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "swapOrder": {
                             "type": "boolean"
                         },
                         "labelFalse": {
-                            "type": "string"
+                            "$ref": "#localizablestring"
                         },
                         "valueTrue": {
                             "type": [
@@ -3941,6 +4001,20 @@
                                 "boolean"
                             ]
                         }
+                    }
+                }
+            ]
+        },
+        "localizablestring": {
+            "$id": "#localizablestring",
+            "oneOf": [
+                {
+                    "type": "string"
+                },
+                {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
                     }
                 }
             ]

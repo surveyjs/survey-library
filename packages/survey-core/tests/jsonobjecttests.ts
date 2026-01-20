@@ -3205,6 +3205,20 @@ QUnit.test("Validated property values where choices values are objects, Bug#1077
   assert.equal(survey.jsonErrors, undefined, "There is no errors, #1");
   Serializer.removeProperty("survey", "prop1");
 });
+QUnit.test("Validated property values where choices values are objects vs {value, text}, Bug#10813", (assert) => {
+  Serializer.addProperty("survey", { name: "prop1", choices: [
+    { value: 1, text: "red" },
+    { value: 2, text: "blue" },
+    { value: 3, text: "green" },
+  ] });
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    prop1: 2
+
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors, undefined, "There is no errors, #1");
+  Serializer.removeProperty("survey", "prop1");
+});
 QUnit.test("getRequiredProperties", function (assert) {
   let requiedValues = Serializer.getRequiredProperties("text");
   assert.deepEqual(requiedValues, ["name"], "required #1");

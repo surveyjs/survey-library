@@ -443,13 +443,14 @@ export class Helpers {
     };
     return date.getFullYear() + "-" + toStr(date.getMonth() + 1) + "-" + toStr(date.getDate());
   }
-  public static convertDateTimeToString(date: Date, isLocal?: boolean): string {
+  public static convertDateTimeToString(date: Date, isLocal?: boolean, withSeconds?: boolean): string {
     const toStr = (val: number): string => {
       if (val < 10) return "0" + val.toString();
       return val.toString();
     };
     const seperator = isLocal ? "T" : " ";
-    return this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
+    const base = this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
+    return withSeconds ? base + ":" + toStr(date.getSeconds()) : base;
   }
   public static convertValToQuestionVal(val: any, inputType?: string): any {
     if (val instanceof Date) {

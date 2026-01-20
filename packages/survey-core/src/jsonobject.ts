@@ -2028,8 +2028,10 @@ export class JsonObject {
     return error;
   }
   private getRequiredError(obj: any, jsonValue: any): JsonError {
-    if (!obj.getType || typeof obj.getData === "function") return null;
-    const metaClass = Serializer.findClass(obj.getType());
+    if (!obj.getType) return null;
+    const className = obj.getType();
+    if (Serializer.isDescendantOf(className, "itemvalue")) return null;
+    const metaClass = Serializer.findClass(className);
     if (!metaClass) return null;
     const props = metaClass.getRequiredProperties();
     if (!Array.isArray(props)) return null;

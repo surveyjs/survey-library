@@ -104,7 +104,7 @@ export {
   ComputedUpdater,
   IPropertyValueChangedEvent,
   IPropertyArrayValueChangedEvent,
-  IExpressionErrors,
+  IExpressionValidationResult,
 } from "../../src/base";
 export {
   ISurvey,
@@ -149,8 +149,8 @@ export {
   IExpressionExecutor,
   IExpressionExecutor as IExpresionExecutor,
   ExpressionExecutor,
-  IExpressionExecutorError,
-  ExpressionExecutorErrorType } from "../../src/conditions";
+  IExpressionError,
+  ExpressionErrorType } from "../../src/conditions";
 export {
   Operand,
   Const,

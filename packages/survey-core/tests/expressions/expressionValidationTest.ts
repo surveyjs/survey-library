@@ -1,10 +1,10 @@
-import { IExpressionErrors } from "../../src/base";
-import { ExpressionExecutorErrorType } from "../../src/conditions";
+import { IExpressionValidationResult } from "../../src/base";
+import { ExpressionErrorType } from "../../src/conditions";
 import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Expression Validation");
 
-function convertIExpressionErrors(errors: IExpressionErrors[]): (IExpressionErrors & { name: string })[] {
+function convertIExpressionErrors(errors: IExpressionValidationResult[]): (IExpressionValidationResult & { name: string })[] {
   return errors.map(error => ({ ...error, name: (<any>error.obj).name }));
 }
 
@@ -33,12 +33,12 @@ QUnit.test("Test validateExpression in Object", (assert) => {
   result = q1.validateExpression("visibleIf", q1.visibleIf, true, false);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
-  assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
+  assert.equal(result.errors[0].errorType, ExpressionErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
 
   result = q1.validateExpression("visibleIf", q1.visibleIf, false, true);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
-  assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
+  assert.equal(result.errors[0].errorType, ExpressionErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
 
   result = q1.validateExpression("visibleIf", q1.visibleIf, true, true);
   assert.notEqual(result, undefined, "There is an error");
@@ -46,7 +46,7 @@ QUnit.test("Test validateExpression in Object", (assert) => {
 
   result = q1.validateExpression("requiredIf", q1.requiredIf, true, true);
   assert.notEqual(result, undefined, "There is an error");
-  assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.SyntaxError, "Error type is 'SyntaxError'");
+  assert.equal(result.errors[0].errorType, ExpressionErrorType.SyntaxError, "Error type is 'SyntaxError'");
 });
 
 QUnit.test("Test validateExpressions in Object", (assert) => {
@@ -617,6 +617,6 @@ QUnit.test("Test validateExpressions check constant in condition error", (assert
     "obj + property + count"
   );
 
-  assert.equal(result[0].errors[0].errorType, ExpressionExecutorErrorType.ConstantCondition, "error type is ConstantCondition");
-  assert.equal(result[1].errors[0].errorType, ExpressionExecutorErrorType.ConstantCondition, "error type is ConstantCondition #2");
+  assert.equal(result[0].errors[0].errorType, ExpressionErrorType.SemanticError, "error type is SemanticError");
+  assert.equal(result[1].errors[0].errorType, ExpressionErrorType.SemanticError, "error type is SemanticError #2");
 });

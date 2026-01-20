@@ -10,7 +10,7 @@ import {
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
-import { ExpressionRunner, IExpressionExecutorError } from "./conditions";
+import { ExpressionRunner, IExpressionError } from "./conditions";
 import { getLocaleString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 import { IObjectValueContext, IValueGetterContext, VariableGetterContext } from "./conditionProcessValue";
@@ -31,10 +31,10 @@ interface IExpressionRunnerInfo {
   canRun?: (obj: Base) => boolean;
 }
 
-export interface IExpressionErrors {
+export interface IExpressionValidationResult {
   obj: Base;
   propertyName: string;
-  errors: IExpressionExecutorError[];
+  errors: IExpressionError[];
 }
 
 export class Bindings {
@@ -891,7 +891,7 @@ export class Base implements IObjectValueContext {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
   }
-  public validateExpression(name: string, expression: string, checkFunctions: boolean, checkVariables: boolean): IExpressionErrors {
+  public validateExpression(name: string, expression: string, checkFunctions: boolean, checkVariables: boolean): IExpressionValidationResult {
     if (!expression) return;
     const prop = this.getPropertyByName(name);
     const isCondition = !!prop && prop.type == "condition";
@@ -899,8 +899,8 @@ export class Base implements IObjectValueContext {
     const errors = runner.validate(this.getValueGetterContext(), checkFunctions, checkVariables, isCondition);
     return errors.length ? { obj: this, propertyName: name, errors: errors } : undefined;
   }
-  public validateExpressions(checkFunctions: boolean, checkVariables: boolean): IExpressionErrors[] {
-    const result: IExpressionErrors[] = [];
+  public validateExpressions(checkFunctions: boolean, checkVariables: boolean): IExpressionValidationResult[] {
+    const result: IExpressionValidationResult[] = [];
     Serializer.getPropertiesByObj(this).forEach(prop => {
       if (prop.isExpression) {
         const errors = this.validateExpression(prop.name, this[prop.name], checkFunctions, checkVariables);

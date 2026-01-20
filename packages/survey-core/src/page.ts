@@ -250,7 +250,12 @@ export class PageModel extends PanelModel implements IPage {
    *
    * Default value: `undefined` (the visibility depends on the survey-level setting)
    */
-  @property() showNavigationButtons: boolean | string;
+  public get showNavigationButtons(): boolean | string {
+    return this.getPropertyValue("showNavigationButtons", undefined);
+  }
+  public set showNavigationButtons(val: boolean | string) {
+    this.setShowNavigationButtonsProperty(val);
+  }
   public setShowNavigationButtonsProperty(val: boolean | string) {
     if (typeof val == "string") {
       val = val.toLowerCase();

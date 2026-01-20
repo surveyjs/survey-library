@@ -13,6 +13,8 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
   assert.notOk(schema.properties.isSinglePage, "isSinglePage is not seriazable");
+  assert.equal(schema.properties.locale.type, "string", "locale is string");
+  assert.notOk(schema.properties.locale.enum, "locale enum is not seriazable");
   assert.equal(
     schema.properties.showPreviewBeforeComplete.type,
     "boolean",

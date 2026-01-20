@@ -370,8 +370,11 @@ export class QuestionMatrixModel
       this.onColumnsChanged();
     }
     if (name === "rows") {
-      this.runCondition(this.getDataFilteredProperties());
-      this.onRowsChanged();
+      this.executeOnSyncPropertiesChanged(() => {
+        this.rows = this.sortVisibleRows(this.rows);
+        this.runCondition(this.getDataFilteredProperties());
+        this.onRowsChanged();
+      });
     }
     if (name === "hideIfRowsEmpty") {
       this.updateVisibilityBasedOnRows();
@@ -701,9 +704,6 @@ export class QuestionMatrixModel
   }
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val, true);
-  }
-  protected processRowsOnSet(newRows: Array<any>) {
-    return this.sortVisibleRows(newRows);
   }
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();

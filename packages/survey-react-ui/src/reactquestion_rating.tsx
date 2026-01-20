@@ -51,7 +51,7 @@ export class SurveyQuestionRating extends SurveyQuestionElementBase {
           aria-invalid={this.question.a11y_input_ariaInvalid}
           aria-errormessage={this.question.a11y_input_ariaErrormessage}
         >
-          <legend role="presentation" className={"sv-hidden"}></legend>
+          <legend className={"sv-hidden"}>{this.question.locTitle.renderedHtml}</legend>
           {!!this.question.hasMinLabel ? <span className={cssClasses.minText}>{minText}</span> : null}
           {this.question.renderedRateItems.map((item, index) => this.renderItem(item, index))}
           {!!this.question.hasMaxLabel ? <span className={cssClasses.maxText}>{maxText}</span> : null}

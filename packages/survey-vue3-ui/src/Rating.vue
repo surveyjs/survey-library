@@ -9,7 +9,7 @@
       :aria-invalid="question.a11y_input_ariaInvalid"
       :aria-errormessage="question.a11y_input_ariaErrormessage"
     >
-      <legend role="presentation" class="sv-hidden"></legend>
+      <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
       <span v-if="question.hasMinLabel" :class="question.cssClasses.minText">
         <SvComponent
           :is="'survey-string'"

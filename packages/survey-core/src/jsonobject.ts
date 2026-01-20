@@ -484,7 +484,12 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
     if (typeof value === "object" && typeof choices[0] === "object") return true;
     const aV = this.acceptedValues;
     if (Array.isArray(aV) && aV.indexOf(value) > -1) return true;
-    return choices.indexOf(value) > -1;
+    for (let i = 0; i < choices.length; i++) {
+      const item = choices[i];
+      if (item == value) return true;
+      if (typeof item === "object" && item.value == value) return true;
+    }
+    return false;
   }
   public getObjType(objType: string) {
     if (!this.classNamePart) return objType;

@@ -3117,6 +3117,17 @@ QUnit.test("Add a quesition into survey questions array", function (assert) {
   assert.equal(survey.jsonErrors.length, 1, "There is a JSON error");
   assert.equal((<any>survey.jsonErrors[0]).propertyName, "questions", "Correct property name");
 });
+QUnit.test("Add a required property into survey model & check the json error, Bug#10811", function (assert) {
+  Serializer.addProperty("survey", "!version");
+  const props = Serializer.findClass("survey").getRequiredProperties();
+  assert.equal(props.length, 1, "there is one required property");
+  assert.equal(props[0].name, "version", "the required property is version");
+  const survey = new SurveyModel({
+  });
+  assert.equal(survey.jsonErrors.length, 1, "There is a JSON error");
+  assert.equal((<any>survey.jsonErrors[0]).propertyName, "version", "Correct property name");
+  Serializer.removeProperty("survey", "version");
+});
 QUnit.test("Add a page into survey pages array", function (assert) {
   const prop = Serializer.findProperty("survey", "pages");
   assert.equal(prop.isArray, true, "Elements is an array");

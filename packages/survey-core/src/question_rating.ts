@@ -514,19 +514,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateValues
    * @see rateMin
    */
-  public get minRateDescription(): string {
-    return this.getLocStringText(this.locMinRateDescription);
-  }
-  public set minRateDescription(val: string) {
-    this.setLocStringText(this.locMinRateDescription, val);
-  }
-  get locMinRateDescription(): LocalizableString {
-    return this.getOrCreateLocStr("minRateDescription", true, false, (strLoc: LocalizableString) => {
-      strLoc.onStringChanged.add(() => {
-        this.setPropertyValue("hasMinRateDescription", !strLoc.isEmpty);
-      });
-    });
-  }
+  @property({ localizable: { markdown: true, onCreate: (obj: Base, loc: LocalizableString) =>
+    loc.onStringChanged.add(() => obj.setPropertyValue("hasMinRateDescription", !loc.isEmpty))
+  } }) minRateDescription: string;
   /**
    * Specifies a description for the maximum (last) rate value.
    * @see rateDescriptionLocation
@@ -534,19 +524,9 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
    * @see rateValues
    * @see rateMax
    */
-  public get maxRateDescription(): string {
-    return this.getLocStringText(this.locMaxRateDescription);
-  }
-  public set maxRateDescription(val: string) {
-    this.setLocStringText(this.locMaxRateDescription, val);
-  }
-  get locMaxRateDescription(): LocalizableString {
-    return this.getOrCreateLocStr("maxRateDescription", true, false, (strLoc: LocalizableString) => {
-      strLoc.onStringChanged.add(() => {
-        this.setPropertyValue("hasMaxRateDescription", !strLoc.isEmpty);
-      });
-    });
-  }
+  @property({ localizable: { markdown: true, onCreate: (obj: Base, loc: LocalizableString) =>
+    loc.onStringChanged.add(() => obj.setPropertyValue("hasMaxRateDescription", !loc.isEmpty))
+  } }) maxRateDescription: string;
   public get hasMinRateDescription(): boolean {
     return this.getPropertyValue("hasMinRateDescription", undefined, () => !!this.minRateDescription);
   }
@@ -896,15 +876,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
       .append(this.cssClasses.controlPreview, this.isPreviewStyle)
       .toString();
   }
-  public get placeholder(): string {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-  }
-  get locPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("ratingOptionsCaption", false, true);
-  }
+  @property({ localizable: { defaultStr: "ratingOptionsCaption" } }) placeholder: string;
   get allowClear(): boolean {
     return true;
   }

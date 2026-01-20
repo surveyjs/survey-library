@@ -1169,6 +1169,16 @@ export class Base implements IObjectValueContext {
     }
     return locStr;
   }
+  protected locStrChanged(name: string): void {
+    const locStr = this.getLocalizableString(name);
+    if (locStr) {
+      locStr.strChanged();
+    }
+  }
+  protected isLocStrEmpty(name: string): boolean {
+    const locStr = this.getLocalizableString(name);
+    return !locStr || locStr.isEmpty;
+  }
   public getLocalizableStringText(name: string, defaultStr: string = ""): string {
     return this.getLocStringText(this.getLocalizableString(name), defaultStr);
   }

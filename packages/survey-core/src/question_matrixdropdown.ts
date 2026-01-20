@@ -3,7 +3,7 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData,
 } from "./question_matrixdropdownbase";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
@@ -118,15 +118,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
    * @see rowTitleWidth
    * @see columns
    */
-  public get totalText() {
-    return this.getLocStringText(this.locTotalText) || "";
-  }
-  public set totalText(val: string) {
-    this.setLocStringText(this.locTotalText, val);
-  }
-  public get locTotalText(): LocalizableString {
-    return this.getOrCreateLocStr("totalText", true);
-  }
+  @property ({ localizable: { markdown: true } }) totalText: string;
   public getFooterText(): LocalizableString {
     return this.locTotalText;
   }

@@ -59,15 +59,7 @@ export class ChoiceItem extends ItemValue {
   public get isCommentShowing(): boolean {
     return this.getPropertyValue("isCommentShowing", false);
   }
-  public get locCommentPlaceholder(): LocalizableString {
-    return this.getOrCreateLocStr("commentPlaceholder");
-  }
-  public get commentPlaceholder(): string {
-    return this.getLocStringText(this.locCommentPlaceholder);
-  }
-  public set commentPlaceholder(val: string) {
-    this.setLocStringText(this.locCommentPlaceholder, val);
-  }
+  @property({ localizable: true }) commentPlaceholder: string;
   setIsCommentShowing(val: boolean) {
     this.setPropertyValue("isCommentShowing", val);
   }
@@ -1349,9 +1341,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    * @see showCommentArea
    */
-  public get otherPlaceholder(): string { return this.getLocStringText(this.locOtherPlaceholder); }
-  public set otherPlaceholder(val: string) { this.setLocStringText(this.locOtherPlaceholder, val); }
-  public get locOtherPlaceholder(): LocalizableString { return this.getOrCreateLocStr("otherPlaceholder", false, true); }
+  @property ({ localizable: { defaultStr: true } }) otherPlaceholder: string;
 
   public get otherPlaceHolder(): string {
     return this.otherPlaceholder;
@@ -1363,15 +1353,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * Gets or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
    * @see showOtherItem
    */
-  public get otherErrorText(): string {
-    return this.getLocStringText(this.locOtherErrorText);
-  }
-  public set otherErrorText(val: string) {
-    this.setLocStringText(this.locOtherErrorText, val);
-  }
-  get locOtherErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("otherErrorText", true, "otherRequiredError");
-  }
+  @property({ localizable: { defaultStr: "Other required error", markdown: true } }) otherErrorText: string;
   /**
    * An array of visible choice items. Includes the "Select All", "Other", and "None" choice items if they are visible. Items are sorted according to the `choicesOrder` value.
    * @see showNoneItem

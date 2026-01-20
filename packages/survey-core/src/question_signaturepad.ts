@@ -439,12 +439,12 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   /**
    * A placeholder text for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
-  @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
+  @property({ localizable: { defaultStr: "signaturePlaceHolder", markdown: true } }) placeholder: string;
 
   /**
    * A placeholder text for the signature area in read-only or preview mode. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
-  @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly" } }) placeholderReadOnly: string;
+  @property({ localizable: { defaultStr: "signaturePlaceHolderReadOnly", markdown: true } }) placeholderReadOnly: string;
   protected onBlurCore(event: any): void {
     super.onBlurCore(event);
     if (!this.storeDataAsText) {

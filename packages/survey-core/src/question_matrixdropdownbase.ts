@@ -1827,36 +1827,16 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * A placeholder for Dropdown matrix cells.
    * @see cellType
    */
-  public get placeholder() {
-    return this.getLocStringText(this.locPlaceholder);
-  }
-  public set placeholder(val: string) {
-    this.setLocStringText(this.locPlaceholder, val);
-  }
-  public get locPlaceholder() {
-    return this.getOrCreateLocStr("placeholder", false, true);
-  }
-  public get optionsCaption() {
-    return this.placeholder;
-  }
-  public set optionsCaption(val: string) {
-    this.placeholder = val;
-  }
+  @property ({ localizable: { defaultStr: true } }) placeholder: string;
+  public get optionsCaption() { return this.placeholder; }
+  public set optionsCaption(val: string) { this.placeholder = val; }
   /**
    * An error message displayed when users enter a duplicate value into a column that accepts only unique values (`isUnique` is set to `true` or `keyName` is specified).
    *
    * A default value for this property is taken from a [localization dictionary](https://github.com/surveyjs/survey-library/tree/01bd8abd0c574719956d4d579d48c8010cd389d4/packages/survey-core/src/localization). Refer to the following help topic for more information: [Localization & Globalization](https://surveyjs.io/form-library/documentation/localization).
    * @see useCaseSensitiveComparison
    */
-  public get keyDuplicationError(): string {
-    return this.getLocStringText(this.locKeyDuplicationError);
-  }
-  public set keyDuplicationError(val: string) {
-    this.setLocStringText(this.locKeyDuplicationError, val);
-  }
-  get locKeyDuplicationError(): LocalizableString {
-    return this.getOrCreateLocStr("keyDuplicationError", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) keyDuplicationError: string;
   /**
    * A title template that applies when the survey is in [input-per-page mode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionsOnPageMode).
    *

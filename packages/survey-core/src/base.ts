@@ -891,8 +891,7 @@ export class Base implements IObjectValueContext {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
   }
-  public validateExpression(name: string, checkFunctions: boolean, checkVariables: boolean): IExpressionErrors {
-    const expression = this[name];
+  public validateExpression(name: string, expression: string, checkFunctions: boolean, checkVariables: boolean): IExpressionErrors {
     if (!expression) return;
     const prop = this.getPropertyByName(name);
     const isCondition = !!prop && prop.type == "condition";
@@ -904,7 +903,7 @@ export class Base implements IObjectValueContext {
     const result: IExpressionErrors[] = [];
     Serializer.getPropertiesByObj(this).forEach(prop => {
       if (prop.isExpression) {
-        const errors = this.validateExpression(prop.name, checkFunctions, checkVariables);
+        const errors = this.validateExpression(prop.name, this[prop.name], checkFunctions, checkVariables);
         if (errors) {
           result.push(errors);
         }

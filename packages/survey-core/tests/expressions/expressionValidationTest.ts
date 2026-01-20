@@ -24,27 +24,27 @@ QUnit.test("Test validateExpression in Object", (assert) => {
 
   const q1 = survey.getQuestionByName("q1");
 
-  let result = q1.validateExpression("enableIf", true, true);
+  let result = q1.validateExpression("enableIf", q1.enableIf, true, true);
   assert.equal(result, undefined, "There is no error - valid expression");
 
-  result = q1.validateExpression("visibleIf", false, false);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, false, false);
   assert.equal(result, undefined, "There is no error due to disabled checks");
 
-  result = q1.validateExpression("visibleIf", true, false);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, true, false);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
   assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
 
-  result = q1.validateExpression("visibleIf", false, true);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, false, true);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
   assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
 
-  result = q1.validateExpression("visibleIf", true, true);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, true, true);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 2, "There is 2 errors");
 
-  result = q1.validateExpression("requiredIf", true, true);
+  result = q1.validateExpression("requiredIf", q1.requiredIf, true, true);
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors[0].errorType, ExpressionExecutorErrorType.SyntaxError, "Error type is 'SyntaxError'");
 });

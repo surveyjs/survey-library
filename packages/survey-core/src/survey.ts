@@ -2681,6 +2681,7 @@ export class SurveyModel extends SurveyElementCore
   protected createNavigationActions(): Array<IAction> {
     const onMouseDownCallback = () => this.navigationMouseDown();
     const navStart = new Action({
+      id: "sv-nav-start",
       visible: <any>new ComputedUpdater<boolean>(() => this.isStartPageActive),
       visibleIndex: 10,
       locTitle: this.locStartSurveyText,

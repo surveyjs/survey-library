@@ -37,9 +37,32 @@ export interface IExpressionValidationOptions {
   semantics: boolean;
 }
 
+/**
+ * An interface that describes the result returned by the [`validateExpressions`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validateExpressions) method.
+ */
 export interface IExpressionValidationResult {
+  /**
+   * A SurveyJS object (question, panel, page, collection item, or the survey itself) that contains the validated expression.
+   */
   obj: Base;
+  /**
+   * The name of the property that holds the expression.
+   */
   propertyName: string;
+  /**
+   * A list of validation errors detected in the expression.
+   *
+   * Each error object in this array may contain the following properties:
+   *
+   * - `errorType`: `ExpressionErrorType`\
+   * The type of validation error: 0 &ndash; `SyntaxError`, 1 &ndash; `UnknownFunction`, 2 &ndash; `UnknownVariable`, or 3 &ndash; `SemanticError`.
+   *
+   * - `functionName`: `string`\
+   * The name of the unknown function. Present only when `errorType` is `UnknownFunction`.
+   *
+   * - `variableName`: `string`\
+   * The name of the unknown variable. Present only when `errorType` is `UnknownVariable`.
+   */
   errors: IExpressionError[];
 }
 
@@ -905,6 +928,44 @@ export class Base implements IObjectValueContext {
     const errors = runner.validate(this.getValueGetterContext(), options, isCondition);
     return errors.length ? { obj: this, propertyName: name, errors: errors } : undefined;
   }
+  /**
+   * Validates expressions used in the survey.
+   *
+   * This method detects the following types of errors:
+   *
+   * - Unknown variable\
+   * The expression references an undefined variable or an unknown question, panel, or page name.
+   *
+   * - Unknown function\
+   * The expression references an unregistered function.
+   *
+   * - Semantic error\
+   * The expression is syntactically valid but has no meaningful effect because it always evaluates to the same value.
+   *
+   * - Syntax error\
+   * The expression contains invalid syntax, such as unmatched parentheses, missing operands, or invalid operators.
+   *
+   * You can disable checks for unknown variables, unknown functions, and semantic errors by passing an `options` object
+ * with the `variables`, `functions`, or `semantics` property set to `false`. Syntax errors are always validated.
+   *
+   * ```js
+   * // ...
+   * // Omitted: `SurveyModel` creation
+   * // ...
+   *
+   * // Validate syntax errors only
+   * survey.validateExpressions({
+   *   variables: false,
+   *   functions: false,
+   *   semantics: false
+   * })
+   * ```
+   * @param options Configuration options that control which validation checks are performed.
+   * @param {boolean} options.variables Pass `false` to disable validation of unknown variables.
+   * @param {boolean} options.functions Pass `false` to disable validation of unknown functions.
+   * @param {boolean} options.semantics Pass `false` to disable validation of semantic errors.
+   * @returns An [`IExpressionValidationResult`](https://surveyjs.io/form-library/documentation/api-reference/IExpressionValidationResult) array.
+   */
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     const result: IExpressionValidationResult[] = [];
     Serializer.getPropertiesByObj(this).forEach(prop => {

@@ -945,8 +945,7 @@ export class Base implements IObjectValueContext {
    * - Syntax error\
    * The expression contains invalid syntax, such as unmatched parentheses, missing operands, or invalid operators.
    *
-   * You can disable checks for unknown variables, unknown functions, and semantic errors by passing an `options` object
- * with the `variables`, `functions`, or `semantics` property set to `false`. Syntax errors are always validated.
+   * You can disable checks for unknown variables, unknown functions, and semantic errors by passing an `options` object with the `variables`, `functions`, or `semantics` property set to `false`. Syntax errors are always validated.
    *
    * ```js
    * // ...

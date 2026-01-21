@@ -49,7 +49,7 @@
       </template>
     </div>
     <SvComponent
-      :is="'survey-paneldynamicprogress-v2'"
+      :is="'survey-paneldynamicprogress'"
       v-if="question.showNavigation"
       :question="question"
     />

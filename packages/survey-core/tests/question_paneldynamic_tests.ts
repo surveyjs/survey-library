@@ -5627,21 +5627,13 @@ QUnit.test("Check paneldynamic navigation", function (assert) {
   assert.equal(panel.footerToolbar.actions[0].visible, true, "prev (text) btn is visible when currentIndex is 4/4");
   assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is visible when currentIndex is 4/4");
   assert.equal(panel.canAddPanel, true, "can add panel when currentIndex less then panelCount");
-  panel["legacyNavigation"] = true;
-  panel.currentIndex = 2;
-  assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in legacy mode");
-  assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in legacy mode");
-  assert.equal(panel.canAddPanel, true, "can always add panel in legacy mode");
-  assert.equal(panel.footerToolbar.actions[3].visible, true, "prev (icon) btn is visible in legacy mode");
-  assert.equal(panel.footerToolbar.actions[5].visible, true, "next (icon) btn is visible in legacy mode");
-  panel["legacyNavigation"] = false;
   panel.displayMode = "list";
   assert.equal(panel.footerToolbar.actions[0].visible, false, "prev (text) btn is not visible in list mode");
   assert.equal(panel.footerToolbar.actions[1].visible, false, "next (text) btn is not visible in list mode");
   assert.equal(panel.canAddPanel, true, "can always add panel in list mode");
   panel.displayMode = "carousel";
   panel.isMobile = true;
-  assert.equal(panel.footerToolbar.actions[4].visible, false, "progress text is not visible in mobile mode");
+  assert.equal(panel.footerToolbar.actions[3].visible, false, "progress text is not visible in mobile mode");
 });
 QUnit.test("paneldynamic add new button is not visible for progress render mode, bug#5600", function (assert) {
   const survey = new SurveyModel({

@@ -21,11 +21,9 @@
       <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />
     </ng-container>
   </div>
-  <sv-ng-paneldynamic-add-btn *ngIf="model.showLegacyNavigation && model.isRenderModeList"
-    [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
-  <ng-container [ngTemplateOutlet]="progressV2" *ngIf="model.showNavigation"></ng-container>
+  <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showNavigation"></ng-container>
 </div>
-<ng-template #progressV2>
+<ng-template #progress>
   <div [class]="model.cssClasses.footer" *ngIf="!!model.cssClasses.footer">
     <hr [class]="model.cssClasses.separator" />
     <div [class]="model.cssClasses.progress" *ngIf="model.isRangeShowing && model.isProgressBottomShowing">

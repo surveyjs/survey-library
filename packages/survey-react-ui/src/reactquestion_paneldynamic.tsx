@@ -56,7 +56,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     const rangeTop: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressTopShowing
       ? this.renderRange()
       : null;
-    const navV2 = this.renderNavigatorV2();
+    const navigation = this.renderNavigator();
     const noEntriesPlaceholder = this.renderPlaceholder(cssClasses);
     return (
       <div className={cssClasses.root}>
@@ -66,7 +66,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
         <div className={this.question.cssClasses.panelsContainer}>
           {panels}
         </div>
-        {navV2}
+        {navigation}
       </div>
     );
   }
@@ -83,12 +83,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
       </div>
     );
   }
-  protected renderAddRowButton(): React.JSX.Element | null {
-    return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
-      data: { question: this.question }
-    });
-  }
-  protected renderNavigatorV2(): React.JSX.Element | null {
+  protected renderNavigator(): React.JSX.Element | null {
     if (!this.question.showNavigation) return null;
     const range: React.JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
     return (<div className={this.question.cssClasses.footer}>

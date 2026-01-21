@@ -1604,7 +1604,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if (!this.legacyNavigation && !this.isRenderModeList &&
+    if (!this.isRenderModeList &&
       (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
     }
@@ -2759,8 +2759,6 @@ export class QuestionPanelDynamicModel extends Question
     }
     return this.footerToolbarValue;
   }
-  @property({ defaultValue: false, onSet: (_, target) => { target.updateFooterActions(); } })
-    legacyNavigation: boolean;
 
   public get ariaRole() {
     return "group";
@@ -2799,39 +2797,23 @@ export class QuestionPanelDynamicModel extends Question
       component: "sv-paneldynamic-add-btn",
       data: { question: this }
     });
-    const prevBtnIcon = new Action({
-      id: "sv-prev-btn-icon",
-      component: "sv-paneldynamic-prev-btn",
-      data: { question: this }
-    });
     const progressText = new Action({
       id: "sv-pd-progress-text",
       component: "sv-paneldynamic-progress-text",
       data: { question: this }
     });
-    const nextBtnIcon = new Action({
-      id: "sv-pd-next-btn-icon",
-      component: "sv-paneldynamic-next-btn",
-      data: { question: this }
-    });
-    items.push(prevTextBtn, nextTextBtn, addBtn, prevBtnIcon, progressText, nextBtnIcon);
+    items.push(prevTextBtn, nextTextBtn, addBtn, progressText);
     this.updateFooterActionsCallback = () => {
-      const isLegacyNavigation = this.legacyNavigation;
       const isRenderModeList = this.isRenderModeList;
       const isMobile = this.isMobile;
-      const showNavigation = !isLegacyNavigation && !isRenderModeList;
+      const showNavigation = !isRenderModeList;
       prevTextBtn.visible = showNavigation && this.currentIndex > 0;
       nextTextBtn.visible = showNavigation && this.currentIndex < this.visiblePanelCount - 1;
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
       addBtn.visible = this.canAddPanel;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
       progressText.visible = !this.isRenderModeList && !isMobile;
-      progressText.needSpace = !isLegacyNavigation && !this.isMobile;
-
-      const showLegacyNavigation = isLegacyNavigation && !isRenderModeList;
-      prevBtnIcon.visible = showLegacyNavigation;
-      nextBtnIcon.visible = showLegacyNavigation;
-      prevBtnIcon.needSpace = showLegacyNavigation;
+      progressText.needSpace = !this.isMobile;
     };
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);

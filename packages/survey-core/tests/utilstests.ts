@@ -1144,4 +1144,5 @@ QUnit.test("test getActiveElement function", (assert) => {
   res = getActiveElement();
   assert.equal(res, shadowInput, "shadowDiv is active element");
   document.body.removeChild(div);
+  document.body.removeChild(shadowDiv);
 });

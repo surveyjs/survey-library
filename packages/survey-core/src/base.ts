@@ -905,7 +905,7 @@ export class Base implements IObjectValueContext {
     const errors = runner.validate(this.getValueGetterContext(), options, isCondition);
     return errors.length ? { obj: this, propertyName: name, errors: errors } : undefined;
   }
-  public validateExpressions(options: IExpressionValidationOptions): IExpressionValidationResult[] {
+  public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     const result: IExpressionValidationResult[] = [];
     Serializer.getPropertiesByObj(this).forEach(prop => {
       if (prop.isExpression) {

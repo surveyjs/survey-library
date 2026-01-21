@@ -67,6 +67,7 @@ QUnit.test("Test validateExpressions in Object", (assert) => {
         visibleIf: "asyncFunc1({q2}) = 2",
         enableIf: "{q1} = 1",
         requiredIf: "bd+{",
+        resetValueIf: "foo"
       },
     ],
   });
@@ -74,17 +75,43 @@ QUnit.test("Test validateExpressions in Object", (assert) => {
   const q1 = survey.getQuestionByName("q1");
   let result = convertIExpressionErrors(q1.validateExpressions({ functions: true, variables: true, semantics: true }));
 
-  assert.equal(result.length, 2, "There are 2 invalid expressions");
-  assert.equal(result[0].propertyName, "visibleIf", "First error is for 'visibleIf'");
-  assert.equal(result[0].name, "q1", "First filed name for error is 'q1'");
-  assert.equal(result[0].errors.length, 2, "There is 2 errors for 'visibleIf'");
+  assert.equal(result.length, 3, "There are 3 invalid expressions");
+  assert.deepEqual(
+    result.map(e => [
+      e.propertyName,
+      e.errors.length,
+      e.errors.map(er => er.errorType)
+    ]),
+    [
+      ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
+      ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
+      ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
+    ],
+    "property + count + [...types]"
+  );
 
-  assert.equal(result[1].propertyName, "requiredIf", "Second error is for 'requiredIf'");
-  assert.equal(result[1].name, "q1", "Second filed name for error is 'q1'");
-  assert.equal(result[1].errors.length, 1, "There is 1 error for 'requiredIf'");
+  result = convertIExpressionErrors(q1.validateExpressions());
+  assert.equal(result.length, 3, "There are 3 invalid expressions with default options");
+  assert.deepEqual(
+    result.map(e => [
+      e.propertyName,
+      e.errors.length,
+      e.errors.map(er => er.errorType)
+    ]),
+    [
+      ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
+      ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
+      ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
+    ],
+    "property + count + [...types]"
+  );
+
+  result = convertIExpressionErrors(q1.validateExpressions({ functions: false, variables: false, semantics: false }));
+  assert.equal(result.length, 1, "There are 1 invalid expressions - only syntax errors are checked");
+  assert.equal(result[0].errors[0].errorType, ExpressionErrorType.SyntaxError, "Only syntax error is checked");
 });
 
-QUnit.test("Test validateExpressions in Object including childre", (assert) => {
+QUnit.test("Test validateExpressions in Object including children", (assert) => {
 
   var survey = new SurveyModel({
     elements: [

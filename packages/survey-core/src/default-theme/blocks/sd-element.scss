@@ -76,7 +76,6 @@
   }
 }
 
-
 .sd-element__num {
   float: left;
   padding-top: calcSize(0.625);
@@ -94,15 +93,13 @@
   flex-shrink: 0;
 }
 
-.sd-page__num+span,
-.sd-element__num+span {
+.sd-page__num + span,
+.sd-element__num + span {
   float: left;
   width: 0;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sd-element__num {
     float: right;
   }
@@ -232,9 +229,8 @@
 }
 
 .sd-element--expandable.sd-elemenet--expandable--animating {
-
-  &>.sd-element__header:focus-within,
-  &>.sd-element__header:hover {
+  & > .sd-element__header:focus-within,
+  & > .sd-element__header:hover {
     background-color: transparent;
   }
 }
@@ -242,7 +238,7 @@
 .sd-elemenet--expandable--animating.sd-element--expandable {
   transition-property: padding-top, padding-bottom;
 
-  &>.sd-element__header {
+  & > .sd-element__header {
     transition-property: padding-top, padding-bottom;
   }
 
@@ -250,7 +246,7 @@
     transition-timing-function: $ease-out;
     transition-duration: $expand-move-in-duration;
 
-    &>.sd-element__header {
+    & > .sd-element__header {
       transition-timing-function: $ease-out;
       transition-duration: $expand-move-in-duration;
 
@@ -265,7 +261,7 @@
     transition-duration: $collapse-move-out-duration;
     transition-delay: $collapse-move-out-delay;
 
-    &>.sd-element__header {
+    & > .sd-element__header {
       transition-timing-function: $ease-out;
       transition-duration: $collapse-move-out-duration;
       transition-delay: $collapse-move-out-delay;
@@ -278,7 +274,7 @@
   }
 
   &.sd-element--complex:not(.sd-question--empty) {
-    &>.sd-element__header--location-top:after {
+    & > .sd-element__header--location-top:after {
       display: block;
       opacity: 0;
       height: 0;

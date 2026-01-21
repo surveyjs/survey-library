@@ -35,7 +35,9 @@
 }
 
 .sd-input.sd-tagbox:focus-within {
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+  box-shadow:
+    $shadow-inner-reset,
+    0 0 0 2px $primary;
 }
 
 .sv-tagbox__item {
@@ -46,7 +48,7 @@
   background-color: $primary;
   border-radius: calcCornerRadius(0.5);
   box-shadow: inset 0 0 0 var(--lbr-tag-box-item-border-width, 0)
-    var(--lbr-tag-box-item-border-color, rgba(255, 255, 255, 0.00));
+    var(--lbr-tag-box-item-border-color, rgba(255, 255, 255, 0));
 
   max-width: calc(100% - #{$base-unit});
   box-sizing: border-box;
@@ -135,9 +137,7 @@
   color: $foreground-light;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sd-tagbox-item_clean-button {
     background: linear-gradient(90deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
   }

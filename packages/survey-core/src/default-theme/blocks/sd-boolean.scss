@@ -88,9 +88,7 @@
   transform: translateX(-100%);
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
+:dir(rtl) {
   .sd-boolean__thumb {
     left: calcSize(0.5);
     right: unset;

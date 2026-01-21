@@ -50,7 +50,7 @@
     flex-direction: column;
     cursor: pointer;
 
-    &:not(:first-child)>.sd-progress-buttons__connector {
+    &:not(:first-child) > .sd-progress-buttons__connector {
       display: block;
       content: "";
       height: calcSize(0.25);
@@ -131,7 +131,7 @@
   }
 
   .sd-progress-buttons__list-element--passed {
-    &:not(:first-child)>.sd-progress-buttons__connector {
+    &:not(:first-child) > .sd-progress-buttons__connector {
       background-color: $primary;
       opacity: 1;
     }
@@ -147,7 +147,7 @@
   }
 
   .sd-progress-buttons__list-element--current {
-    &:not(:first-child)>.sd-progress-buttons__connector {
+    &:not(:first-child) > .sd-progress-buttons__connector {
       background-color: $primary;
       opacity: 1;
     }
@@ -210,7 +210,7 @@
     li {
       flex-direction: column-reverse;
 
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         top: calcSize(1.125);
       }
     }
@@ -243,7 +243,7 @@
 
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         bottom: calcSize(2.175);
         right: calc(50% + 18px);
         width: calc(100% - 36px);
@@ -257,7 +257,6 @@
           height: calcSize(3);
           width: calcSize(4.5);
         }
-
       }
 
       &:hover .sd-progress-buttons__button {
@@ -288,7 +287,7 @@
 .sd-progress-buttons--bottom.sd-progress-buttons--numbered {
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         top: calcSize(2.175);
       }
     }
@@ -308,13 +307,10 @@
   margin: auto;
 }
 
-[dir="rtl"],
-[style*="direction:rtl"],
-[style*="direction: rtl"] {
-
+:dir(rtl) {
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child)>.sd-progress-buttons__connector {
+      &:not(:first-child) > .sd-progress-buttons__connector {
         right: unset;
         left: calc(50% + 10px);
       }
@@ -324,7 +320,7 @@
   .sd-progress-buttons--numbered {
     .sd-progress-buttons__list {
       li {
-        &:not(:first-child)>.sd-progress-buttons__connector {
+        &:not(:first-child) > .sd-progress-buttons__connector {
           right: unset;
           left: calc(50% + 20px);
         }

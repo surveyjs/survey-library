@@ -1332,7 +1332,7 @@ QUnit.test("getMaxDateForMonth method", function (assert) {
   assert.equal(getMaxDateForMonth(2019, 2), 28, "February 2019 (non-leap year) has 28 days");
 });
 
-QUnit.skip("Mask datetime with defaultValue includes seconds, #10820", function (assert) {
+QUnit.test("Mask datetime with defaultValue includes seconds, #10820", function (assert) {
   function currentDateSecondsMock() {
     return new Date("2024-09-04T12:34:56");
   }

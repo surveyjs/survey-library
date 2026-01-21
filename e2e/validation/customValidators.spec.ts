@@ -69,15 +69,15 @@ frameworks.forEach((framework) => {
       const getError1Div = page.locator("div").filter({ hasText: "Response required." });
       const getError2Div = page.locator("div").filter({ hasText: "You text should contains 'survey' word." });
 
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await expect(getError1Div.first()).toBeVisible({ timeout: 1000 });
 
       await page.locator("textarea").fill("wombat");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await expect(getError2Div.first()).toBeVisible({ timeout: 1000 });
 
       await page.locator("textarea").pressSequentially(" survey");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({ memo: "wombat survey" });

@@ -44,7 +44,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
 
       await firstElement.click();
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
       await page.goto("about:blank");
       await page.goto(`${url}${framework}`);
       await initSurvey(page, framework, json);

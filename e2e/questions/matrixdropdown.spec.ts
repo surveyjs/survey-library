@@ -84,7 +84,7 @@ frameworks.forEach((framework) => {
       await page.getByRole("combobox", { name: "row knockoutjs, column Please rate the framework itself" }).first().click();
       await page.locator(".sv-list__item").filter({ hasText: "Good", visible: true }).click();
 
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         frameworksRate: {
@@ -175,7 +175,7 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json3);
 
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
       const requiredSpan = page.locator("span").filter({ hasText: "Response required." }).first();
       let elementVisisbleInViewPort = await visibleInViewport(page, requiredSpan);
       await expect(elementVisisbleInViewPort).toBeTruthy();

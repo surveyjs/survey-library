@@ -46,7 +46,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
 
       await page.locator(".markdownclass", { hasText: "*item 2*" }).click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.question1).toEqual([2]);
@@ -77,7 +77,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       await page.locator(".markdownclass", { hasText: "*choice 2*" }).click();
       await page.waitForTimeout(500);
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.question2).toEqual(2);

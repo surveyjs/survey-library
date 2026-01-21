@@ -46,7 +46,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       expect(await page.locator("input").nth(0).inputValue()).toBe("12:34");
       expect(await page.locator("input").nth(1).inputValue()).toBe("2022");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

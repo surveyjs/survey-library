@@ -111,7 +111,7 @@ frameworks.forEach((framework) => {
       };
 
       expect(await getRowsCount()).toBe(2);
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       expect(await getRowsCount()).toBe(4);
       await expect(getRequiredElement(0)).toBeVisible();
       await expect(getRequiredElement(2)).toBeVisible();
@@ -120,7 +120,7 @@ frameworks.forEach((framework) => {
       expect(typeof surveyResult).toBe("undefined");
       await questionDropdownSelect.nth(0).click();
       await getVisibleListItemByText(page, "Science: Physical Science").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       expect(await getRowsCount()).toBe(3);
       await expect(getRequiredElement(1)).toBeVisible();
 
@@ -150,7 +150,7 @@ frameworks.forEach((framework) => {
       await fillTheRow(0);
       await fillTheRow(1);
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -210,7 +210,7 @@ frameworks.forEach((framework) => {
       await page.waitForTimeout(500);
       expect(await matrixRowSelector.count()).toBe(1);
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.teachersRate.length).toBe(1);
@@ -233,7 +233,7 @@ frameworks.forEach((framework) => {
       await questionDropdownSelect.nth(2).click();
       await getVisibleListItemByText(page, "Math: Algebra").click();
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.teachersRate.length).toBe(3);
@@ -283,7 +283,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("1");
       await page.keyboard.press("2");
       await page.keyboard.press("3");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       expect(await getSurveyResult(page)).toEqual({ matrix: [{ name: "abc123" }] });
     });
@@ -322,7 +322,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("1");
       await page.keyboard.press("2");
       await page.keyboard.press("3");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       expect(await getSurveyResult(page)).toEqual({ matrix: [{ name: "abc123" }] });
     });
@@ -361,7 +361,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("1");
       await page.keyboard.press("2");
       await page.keyboard.press("3");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       expect(await getSurveyResult(page)).toEqual({ matrix: [{ name: "abc123" }] });
     });
@@ -401,7 +401,7 @@ frameworks.forEach((framework) => {
       expect(await inputs.count()).toBe(3);
       await page.keyboard.press("b");
       await page.keyboard.press("c");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       expect(await getSurveyResult(page)).toEqual({ matrix: [{ col2: "abc" }] });
     });
@@ -520,7 +520,7 @@ frameworks.forEach((framework) => {
 
       const removeButton = page.locator(".sd-matrixdynamic__btn[title='Remove']").nth(1);
       await removeButton.click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.matrix.length).toBe(1);
     });
@@ -552,7 +552,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("e");
       await page.keyboard.press("d");
       await page.keyboard.press("f");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.matrix).toEqual([{ col1: "abc", col2: "edf" }]);
     });
@@ -700,7 +700,7 @@ frameworks.forEach((framework) => {
       await clearButtons.nth(0).click();
       await expect(clearButtons).toHaveCount(0);
 
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ });
     });
@@ -727,7 +727,7 @@ frameworks.forEach((framework) => {
       expect(await page.getByRole("textbox", { name: "row 0, column col1" }).inputValue()).toBe("row1");
       await expect(removeButtons).toHaveCount(1);
 
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ matrix: [{ col1: "row1" }] });
     });
@@ -748,7 +748,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("row1col2");
       await page.keyboard.press("Tab");
 
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ matrix: [{ col2: "row1col2" }] });
     });

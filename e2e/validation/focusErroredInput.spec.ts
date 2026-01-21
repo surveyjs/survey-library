@@ -64,12 +64,12 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("a");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=\"Next\"]").click();
+      await page.locator("button[title=Complete]").click();
       await page.keyboard.press("Backspace");
       await page.keyboard.press("1");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=\"Next\"]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({ q1: "1" });
@@ -81,12 +81,12 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("Tab");
       await page.keyboard.press("Tab");
       await page.keyboard.press("a");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=\"Next\"]").click();
+      await page.locator("button[title=Complete]").click();
       await page.keyboard.press("Backspace");
       await page.keyboard.press("1");
-      await page.locator("input[value=\"Next\"]").click();
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=\"Next\"]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({ matrix: [{ col1: "1" }] });

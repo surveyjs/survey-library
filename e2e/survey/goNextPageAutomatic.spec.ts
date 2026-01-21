@@ -25,9 +25,9 @@ frameworks.forEach((framework) => {
       };
       await initSurvey(page, framework, json);
       await page.locator("input[type=text]").first().fill("val1");
-      await page.locator("input[value=Next]").click();
+      await page.locator("button[title=Next]").click();
       await page.locator("input[type=text]").first().fill("val2");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

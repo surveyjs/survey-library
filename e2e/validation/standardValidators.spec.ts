@@ -62,36 +62,36 @@ frameworks.forEach((framework) => {
         return page.locator("textarea");
       };
 
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await getError("Response required.", 0).hover();
       await getError("Response required.", 1).hover();
       await getError("Response required.", 2).hover();
 
       await getTextInputByIndex(0).fill("wombat");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await getError("Please enter a valid e-mail address.", 0).hover();
       await getError("Response required.", 0).hover();
       await getError("Response required.", 1).hover();
 
       await getTextInputByIndex(0).fill("wombat@mail.mail");
       await getTextInputByIndex(1).fill("wombat");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await getError("The value should be numeric.", 0).hover();
       await getError("Response required.", 0).hover();
 
       await getTextInputByIndex(1).fill("0");
       await getTextInputByIndex(2).fill("10000");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await getError("The 'value' should be at least 10 and at most 10000", 0).hover();
       await getError("Response required.", 0).hover();
 
       await getTextInputByIndex(1).fill("10");
       await getTextarea().fill("0123456789");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await getError("Please enter at least 20 character(s).", 0).hover();
 
       await getTextarea().fill("01234567890123456789");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({
@@ -109,7 +109,7 @@ frameworks.forEach((framework) => {
         (window as any).survey.validationEnabled = false;
       });
 
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({});
     });

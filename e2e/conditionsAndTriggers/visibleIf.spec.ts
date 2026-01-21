@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
       // Select age for first kid and complete
       await questionDropdownSelect.nth(1).click();
       await page.getByText("2", { exact: true }).filter({ visible: true }).click();
-      await page.locator("input[value='Complete']").click();
+      await page.locator("button[title=Complete]").click();
 
       // Check survey results
       const surveyResult = await getSurveyResult(page);

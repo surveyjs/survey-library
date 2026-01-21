@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
     test("choose file", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
       await page.locator("input[type=file] + div label").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -71,7 +71,7 @@ frameworks.forEach((framework) => {
     test("choose multiple files", async ({ page }) => {
       await page.locator("input[type=file]").setInputFiles([folderPath + "stub.txt", folderPath + "logo.jpg"]);
       await page.locator("input[type=file] + div label").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image.length).toBe(2);
@@ -94,7 +94,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file]").setInputFiles(folderPath + "logo.jpg");
       await page.locator("input[type=file] + div label").click();
       await page.locator("img").hover();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image[0].content.indexOf("image/jpeg")).not.toBe(-1);
@@ -106,7 +106,7 @@ frameworks.forEach((framework) => {
       await page.locator("input[type=file] + div label").click();
       await expect(page.locator("img")).not.toBeVisible();
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.image[0].content.indexOf("image/jpeg")).not.toBe(-1);
     });
@@ -115,7 +115,7 @@ frameworks.forEach((framework) => {
       await setOptions(page, "image", { storeDataAsText: false });
       await page.locator("input[type=file]").setInputFiles(folderPath + "stub.txt");
       await page.locator("input[type=file] + div label").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({});
@@ -192,7 +192,7 @@ frameworks.forEach((framework) => {
     //     assert(await getImageExistance());
 
     //     await t
-    //         .click(`input[value=Complete]`);
+    //         .click(`button[title=Complete]`);
 
     //     surveyResult = await getSurveyResult();
     //     assert(surveyResult.image.indexOf('image/jpeg') !== -1);

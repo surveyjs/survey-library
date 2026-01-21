@@ -30,7 +30,7 @@ frameworks.forEach((framework) => {
       await initSurvey(page, framework, json);
       await page.locator("label").filter({ hasText: "item2" }).locator("span").first().click();
       await page.getByRole("textbox", { name: "q3" }).fill("abc");
-      await page.click("input[value=\"Complete\"]");
+      await page.click("button[title=Complete]");
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -73,7 +73,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("abc");
       await page.locator("label").filter({ hasText: "item3" }).locator("span").first().click();
       await page.keyboard.type("def");
-      await page.click("input[value=\"Complete\"]");
+      await page.click("button[title=Complete]");
       surveyResult = await getSurveyResult(page);
       await test.expect(surveyResult).toEqual({
         q1: "item3",

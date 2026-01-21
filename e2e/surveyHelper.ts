@@ -43,7 +43,7 @@ export class Survey {
     }
   }
   public getNavigatorButton(value: string): Locator {
-    return this.page.locator("input[value='" + value + "']").last();
+    return this.page.locator("button[title='" + value + "']").last();
   }
   public async clicNavigatorButton(btnName: string): Promise<void> {
     const btn = this.getNavigatorButton(btnName);

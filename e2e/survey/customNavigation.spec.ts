@@ -227,12 +227,12 @@ frameworks.forEach((framework) => {
       const firstElement = page.locator(".sd-item__decorator").first();
 
       await firstElement.click();
-      await page.click("input[value=\"forward\"]");
+      await page.click("button[title=\"forward\"]");
       await firstElement.click();
-      await page.click("input[value=\"forward\"]");
-      await page.click("input[value=\"back\"]");
-      await page.click("input[value=\"forward\"]");
-      await page.click("input[value=\"done\"]");
+      await page.click("button[title=\"forward\"]");
+      await page.click("button[title=\"back\"]");
+      await page.click("button[title=\"forward\"]");
+      await page.click("button[title=\"done\"]");
     });
 
     test("hide standard nav", async ({ page }) => {
@@ -241,18 +241,18 @@ frameworks.forEach((framework) => {
       const firstElement = page.locator(".sd-item__decorator").first();
 
       await firstElement.click();
-      await page.click("input[value=\"Next\"]");
+      await page.click("button[title=\"Next\"]");
 
       await hideStandardNav(page);
 
-      await expect(page.locator("input[value=Prev]")).not.toBeVisible();
-      await expect(page.locator("input[value=Next]")).not.toBeVisible();
+      await expect(page.locator("button[title=Prev]")).not.toBeVisible();
+      await expect(page.locator("button[title=Next]")).not.toBeVisible();
 
       await setCustomNavigation(page);
       await firstElement.click();
       await page.click("#surveyNext");
 
-      await expect(page.locator("input[value=Complete]")).not.toBeVisible();
+      await expect(page.locator("button[title=Complete]")).not.toBeVisible();
     });
   });
 });

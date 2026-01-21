@@ -52,7 +52,7 @@ frameworks.forEach((framework) => {
       expect(phoneChoiceItem.isVisible).toBeTruthy();
 
       phoneChoiceItem.fill("+1-111-11");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         checkbox: ["phone_call"],
@@ -103,7 +103,7 @@ frameworks.forEach((framework) => {
       expect(phoneChoiceItem.isVisible).toBeTruthy();
 
       phoneChoiceItem.fill("+1-111-11");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         checkbox: "phone_call",

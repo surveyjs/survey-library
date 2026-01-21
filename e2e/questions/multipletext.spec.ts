@@ -50,7 +50,7 @@ frameworks.forEach((framework) => {
       let surveyResult;
       await page.locator("tr > td:nth-child(1) input").fill("All my money");
       await page.locator("tr > td:nth-child(2) input").fill("Zero");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       surveyResult = await getSurveyResult(page);
 

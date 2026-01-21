@@ -41,7 +41,7 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator("label").filter({ hasText: "Nissan" }).click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("Nissan");
@@ -176,7 +176,7 @@ frameworks.forEach((framework) => {
 
       await otherText.click();
       await getOtherInput.fill("Zaporozec");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("other");
@@ -196,7 +196,7 @@ frameworks.forEach((framework) => {
 
       await otherText.click();
       await getOtherInput.fill("New_Producer");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.car).toEqual("New_Producer");
@@ -371,7 +371,7 @@ frameworks.forEach((framework) => {
       await page.locator("textarea").click();
       await page.keyboard.type("ABCDEF");
       await page.keyboard.press("Tab");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: "other", "q1-Comment": "ABCDEF", q2: 2 });
@@ -407,7 +407,7 @@ frameworks.forEach((framework) => {
       await page.locator("textarea").click();
       await page.keyboard.type("ABCDEF");
       await page.keyboard.press("Tab");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: "other", "q1-Comment": "ABCDEF", q2: 7 });
@@ -441,7 +441,7 @@ frameworks.forEach((framework) => {
       await page.locator("textarea").click();
       await page.keyboard.type("ABCDEF");
       await page.keyboard.press("Tab");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ "q1-Comment": "ABCDEF", q2: 1 });
@@ -476,7 +476,7 @@ frameworks.forEach((framework) => {
       await page.locator("textarea").click();
       await page.keyboard.type("ABCDEF");
       await page.keyboard.press("Tab");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ "q1-Comment": "ABCDEF", q2: 6 });
@@ -501,7 +501,7 @@ frameworks.forEach((framework) => {
       await page.locator("textarea").click();
       await page.keyboard.press("End");
       await page.keyboard.type("DEF");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ q1: "item2", "q1-Comment": "ABCDEF" });
@@ -524,7 +524,7 @@ frameworks.forEach((framework) => {
       await page.locator("label").filter({ hasText: "item2" }).click();
       await page.locator("textarea").fill("ABC");
       await clearButton.click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ "q1-Comment": "ABC" });

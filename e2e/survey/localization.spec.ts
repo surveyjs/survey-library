@@ -88,27 +88,27 @@ frameworks.forEach(framework => {
       await page.evaluate(() => {
         window["survey"].locale = "ru";
       });
-      await page.hover('input[value="Далее"]'); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
+      await page.hover('button[title="Далее"]'); // eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
 
       await page.evaluate(() => {
         window["survey"].locale = "en";
       });
-      await page.hover('input[value="Next"]');
+      await page.hover('button[title="Next"]');
 
       await page.evaluate(() => {
         window["survey"].locale = "de";
       });
-      await page.hover('input[value="Weiter"]');
+      await page.hover('button[title="Weiter"]');
 
       await page.evaluate(() => {
         window["survey"].locale = "fi";
       });
-      await page.hover('input[value="Seuraava"]');
+      await page.hover('button[title="Seuraava"]');
 
       await page.evaluate(() => {
         window["survey"].locale = "fr";
       });
-      await page.hover('input[value="Suivant"]');
+      await page.hover('button[title="Suivant"]');
     });
 
     test("check dropdown localization", async ({ page }) => {

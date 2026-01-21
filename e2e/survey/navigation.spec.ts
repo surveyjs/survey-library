@@ -120,7 +120,7 @@ frameworks.forEach(framework => {
 
     test("check disable/enable navigation item", async ({ page }) => {
       await initSurvey(page, framework, json);
-      const btnSelector = page.locator("input[value='Complete']");
+      const btnSelector = page.locator("button[title=Complete]");
       await expect(btnSelector).not.toHaveAttribute("disabled");
       await page.evaluate(() => {
         window["survey"].navigationBarValue.actions[4].enabled = false;
@@ -144,8 +144,8 @@ frameworks.forEach(framework => {
 
     test("Page should be scrolled to top of survey", async ({ page }) => {
       await initSurvey(page, framework, scrollJson);
-      await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
-      await page.locator("input[value=Next]").click();
+      await page.locator("button[title=Next]").scrollIntoViewIfNeeded();
+      await page.locator("button[title=Next]").click();
       const headingY = await page.evaluate(() => {
         return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
@@ -164,7 +164,7 @@ frameworks.forEach(framework => {
         window["survey"].navigationButtonsLocation = "top";
       });
 
-      await page.locator("input[value=Next]").click();
+      await page.locator("button[title=Next]").click();
       const headingY = await page.evaluate(() => {
         return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });
@@ -188,8 +188,8 @@ frameworks.forEach(framework => {
         }
         window["survey"].fitToContainer = true;
       });
-      await page.locator("input[value=Next]").scrollIntoViewIfNeeded();
-      await page.locator("input[value=Next]").click({ force: true });
+      await page.locator("button[title=Next]").scrollIntoViewIfNeeded();
+      await page.locator("button[title=Next]").click({ force: true });
       const headingY = await page.evaluate(() => {
         return (window as any).survey.rootElement.getRootNode().querySelector(`div[aria-label='${(window as any).survey.title}']`)?.getBoundingClientRect().y;
       });

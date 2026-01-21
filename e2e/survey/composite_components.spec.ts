@@ -47,7 +47,7 @@ frameworks.forEach((framework) => {
       await item1Input.fill("1");
       await item1Input.press("Tab");
       await expect(item1Input).toHaveValue("100");
-      await page.click("input[value=Complete]");
+      await page.click("button[title=Complete]");
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

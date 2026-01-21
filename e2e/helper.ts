@@ -187,7 +187,7 @@ export async function setOptions(page: Page, questionName: string, modValue: any
 export async function checkSurveyWithEmptyQuestion(page: Page) {
   const requiredMessage = page.locator(".sv-string-viewer").getByText("Response required.");
   await expect(requiredMessage).toHaveCount(0);
-  await page.locator("input[value=Complete]").click();
+  await page.locator("button[title=Complete]").click();
   await expect(requiredMessage).toHaveCount(1);
   const surveyResult = await getSurveyResult(page);
   expect(surveyResult).toEqual(undefined);

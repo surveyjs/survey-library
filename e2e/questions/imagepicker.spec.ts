@@ -52,7 +52,7 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator("fieldset.sd-imagepicker .sd-imagepicker__item:nth-of-type(2)").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.choosepicture).toBe("giraffe");

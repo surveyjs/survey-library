@@ -160,7 +160,7 @@ frameworks.forEach((framework) => {
       });
 
       await page.getByRole("button", { name: "Preview" }).click();
-      await page.click("input[value='Complete']");
+      await page.click("button[title=Complete]");
     });
   });
 });

@@ -25,7 +25,7 @@ frameworks.forEach((framework) => {
       await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.type("1234");
       expect(await page.locator("input").first().inputValue()).toBe("+12-34");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -164,7 +164,7 @@ frameworks.forEach((framework) => {
 
       await page.keyboard.type("1234");
       expect(await inputElement.inputValue()).toBe("");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ });

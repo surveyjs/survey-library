@@ -45,7 +45,7 @@ frameworks.forEach(framework => {
         };
       });
 
-      await page.click('input[value="Complete"]');
+      await page.click("button[title=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         name: "John Doe",
@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
         window["survey"].setValue("car", ["BMW", "Ford"]);
       });
 
-      await page.click('input[value="Complete"]');
+      await page.click("button[title=Complete]");
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
         name: "Wombat",

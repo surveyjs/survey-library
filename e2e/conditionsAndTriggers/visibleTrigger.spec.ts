@@ -177,7 +177,7 @@ frameworks.forEach((framework) => {
     });
 
     test("check visibility", async ({ page }) => {
-      const completeSelector = page.locator("input[value=\"Complete\"]").filter({ visible: true });
+      const completeSelector = page.locator("button[title=Complete]").filter({ visible: true });
       // Click Hot hatch option
       await page.locator("label").filter({ hasText: "Hot hatch" }).locator("span").first().click();
 

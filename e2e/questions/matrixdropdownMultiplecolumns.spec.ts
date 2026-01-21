@@ -63,7 +63,7 @@ frameworks.forEach((framework) => {
       await page.locator(`${baseSelectorFunc`${5}${6}`} label`).click();
       await page.locator(`${baseSelectorFunc`${1}${7}`} textarea`).fill("Some comment");
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult.question1.Excited).toEqual({
@@ -95,7 +95,7 @@ frameworks.forEach((framework) => {
       await page.locator(`${baseSelectorFunc`${5}${6}`} label`).click();
       await page.locator(`${baseSelectorFunc`${1}${7}`} textarea`).fill("Some comment");
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       let surveyResult = await getSurveyResult(page);
       expect(surveyResult.question1.Excited).toEqual({

@@ -52,11 +52,11 @@ frameworks.forEach((framework) => {
       let surveyResult;
 
       await page.locator("input[type=\"text\"]").pressSequentially("wombatland");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
       await getErrorSpan.waitFor({ state: "visible", timeout: 1000 });
       await getErrorSpan.hover();
       await page.locator("input[type=\"text\"]").fill("Romania");
-      await page.locator("input[value=\"Complete\"]").click();
+      await page.locator("button[title=Complete]").click();
 
       surveyResult = await getSurveyResult(page);
       await expect(surveyResult).toEqual({

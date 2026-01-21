@@ -64,7 +64,7 @@ frameworks.forEach((framework) => {
 
     test("choose value", async ({ page }) => {
       await page.locator("tbody tr:nth-child(4) td:nth-child(6)").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality["easy to use"]).toBe(5);
@@ -77,7 +77,7 @@ frameworks.forEach((framework) => {
       await expect(firstCellSelector).toHaveClass(/sd-matrix__text--checked/);
       await secondCellSelector.click();
       await expect(secondCellSelector).toHaveClass(/sd-matrix__text--checked/);
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality).toEqual({
         "does what it claims": 4,
@@ -87,7 +87,7 @@ frameworks.forEach((framework) => {
 
     test("require answer for all rows", async ({ page }) => {
       await setOptions(page, "Quality", { isAllRowRequired: true });
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
       await expect(page.locator(".sv-string-viewer").getByText("Response required: answer questions in all rows.")).toBeVisible();
 
       let surveyResult = await getSurveyResult(page);
@@ -97,7 +97,7 @@ frameworks.forEach((framework) => {
       await page.locator("tbody tr:nth-child(2) td:nth-child(5)").click();
       await page.locator("tbody tr:nth-child(3) td:nth-child(3)").click();
       await page.locator("tbody tr:nth-child(4) td:nth-child(6)").click();
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       surveyResult = await getSurveyResult(page);
       expect(surveyResult.Quality).toEqual({

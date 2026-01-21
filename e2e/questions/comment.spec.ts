@@ -287,7 +287,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.type("puppies");
       await page.keyboard.press("Enter");
       await page.keyboard.type("money");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({ suggestions: "puppies\nmoney" });

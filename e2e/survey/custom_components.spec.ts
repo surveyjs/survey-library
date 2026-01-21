@@ -43,7 +43,7 @@ frameworks.forEach((framework) => {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
 
-      await page.click("input[value='Complete']");
+      await page.click("button[title=Complete]");
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.q1).toBe(3);

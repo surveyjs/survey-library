@@ -60,7 +60,7 @@ frameworks.forEach((framework) => {
       // Fill first page
       await page.locator(".sd-text").nth(0).fill("wombat");
       await page.locator(".sd-text").nth(1).fill("wombat@mail.mail");
-      await page.locator("input[value='Next']").click();
+      await page.locator("button[title='Next']").click();
 
       // Check third title
       text = "C. wombat, please tell us what is on your mind";// eslint-disable-line surveyjs/eslint-plugin-i18n/only-english-or-code
@@ -69,7 +69,7 @@ frameworks.forEach((framework) => {
 
       // Fill second page
       await page.locator("textarea").fill("fresh grasses");
-      await page.locator("input[value='Complete']").click();
+      await page.locator("button[title=Complete]").click();
 
       // Check completed HTML
       const completedHtml = "Thank you for sharing this information with us.Your name is: wombatYour email is: wombat@mail.mailThis is what is on your mind:fresh grasses";

@@ -218,7 +218,7 @@ frameworks.forEach(framework => {
       await findQuestion(page, "paneldynamic").getByRole("button", { name: "Remove" })
         .click();
 
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult.text_question).toEqual("test text");

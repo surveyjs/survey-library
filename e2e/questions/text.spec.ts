@@ -98,7 +98,7 @@ frameworks.forEach((framework) => {
       let surveyResult;
 
       await page.locator("input[type=email]").fill("stub@gmail.com");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({
@@ -224,7 +224,7 @@ frameworks.forEach((framework) => {
 
       await expect(page.locator(".sd-text").first()).toBeFocused();
       await page.keyboard.press("Space");
-      await page.locator("input[value=Complete]").click();
+      await page.locator("button[title=Complete]").click();
 
       const surveyResult = await getSurveyResult(page);
       expect(surveyResult).toEqual({

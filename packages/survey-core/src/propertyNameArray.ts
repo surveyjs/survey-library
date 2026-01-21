@@ -20,14 +20,8 @@ export class PropertyNameArray {
   }
 
   public indexOf(val: any): number {
-
     for (let i = 0; i < this.val.length; i++) {
-      let item = this.val[i];
-      if (this.name && typeof item === "object") {
-        if (item[this.name] === val) return i;
-      } else {
-        if (item === val) return i;
-      }
+      if (this.getValue(i) === val) return i;
     }
     return -1;
   }
@@ -61,5 +55,37 @@ export class PropertyNameArray {
         return { [this.name]: item };
       }
     });
+  }
+
+  public getNamedValue(value: any) {
+    if (!this.name) return value;
+    return { [this.name]: value };
+  }
+
+  public getValues(): any[] {
+    if (!this.val) return undefined;
+    return this.val.map((e: any, i: number) => this.getValue(i));
+  }
+
+  public getValue(idx: number): any {
+    if (idx < 0 || idx >= this.val.length) return undefined;
+    const item = this.val[idx];
+    if (this.name && typeof item === "object") {
+      return item[this.name];
+    }
+    return item;
+  }
+
+  public equals(arr: any[]): boolean {
+    if (!Array.isArray(arr)) return false;
+    if (this.val.length !== arr.length) return false;
+
+    const v1 = new PropertyNameArray(arr, this.name).getValues();
+    const v2 = this.getValues();
+
+    for (let i = 0; i < v1.length; i++) {
+      if (v1[i] !== v2[i]) return false;
+    }
+    return true;
   }
 }

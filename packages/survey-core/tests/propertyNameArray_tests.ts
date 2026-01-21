@@ -71,3 +71,29 @@ QUnit.test("Check PropertyNameArray convert", function (assert) {
   assert.deepEqual(val, ["TX"], "values are correct after converting string without name");
 });
 
+QUnit.test("Check PropertyNameArray getValues", function (assert) {
+
+  const val: any[] = [];
+  const arr = new PropertyNameArray(val, "test");
+  arr.add(1);
+  arr.add(2);
+
+  assert.deepEqual(val, [{ test: 1 }, { test: 2 }], "underlying array is correct");
+  assert.deepEqual(new PropertyNameArray(val).getValues(), [{ test: 1 }, { test: 2 }], "values are correct without name");
+  assert.deepEqual(new PropertyNameArray(val, "test").getValues(), [1, 2], "values are correct with name");
+});
+
+QUnit.test("Check PropertyNameArray equals", (assert) => {
+
+  const val1 = [{ test: 1 }, { test: 2 }];
+  const val2 = [1, 2];
+  const val3 = [{ test: 1 }, { test: 3 }];
+
+  assert.deepEqual(
+    new PropertyNameArray(val1, "test").getValues(),
+    new PropertyNameArray(val2, "test").getValues()
+  );
+  assert.equal(new PropertyNameArray(val1, "test").equals(val2), true, "they are equal");
+  assert.equal(new PropertyNameArray(val2, "test").equals(val1), true, "they are equal");
+  assert.equal(new PropertyNameArray(val1, "test").equals(val3), false, "they are not equal");
+});

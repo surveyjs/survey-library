@@ -31,6 +31,12 @@ interface IExpressionRunnerInfo {
   canRun?: (obj: Base) => boolean;
 }
 
+export interface IExpressionValidationOptions {
+  variables: boolean;
+  functions: boolean;
+  semantics: boolean;
+}
+
 export interface IExpressionValidationResult {
   obj: Base;
   propertyName: string;
@@ -891,26 +897,26 @@ export class Base implements IObjectValueContext {
     }
     this.expressionInfo[name] = { onExecute: onExecute, canRun: canRun };
   }
-  public validateExpression(name: string, expression: string, checkFunctions: boolean, checkVariables: boolean): IExpressionValidationResult {
+  public validateExpression(name: string, expression: string, options: IExpressionValidationOptions): IExpressionValidationResult {
     if (!expression) return;
     const prop = this.getPropertyByName(name);
     const isCondition = !!prop && prop.type == "condition";
     const runner = this.createExpressionRunner(expression);
-    const errors = runner.validate(this.getValueGetterContext(), checkFunctions, checkVariables, isCondition);
+    const errors = runner.validate(this.getValueGetterContext(), options, isCondition);
     return errors.length ? { obj: this, propertyName: name, errors: errors } : undefined;
   }
-  public validateExpressions(checkFunctions: boolean, checkVariables: boolean): IExpressionValidationResult[] {
+  public validateExpressions(options: IExpressionValidationOptions): IExpressionValidationResult[] {
     const result: IExpressionValidationResult[] = [];
     Serializer.getPropertiesByObj(this).forEach(prop => {
       if (prop.isExpression) {
-        const errors = this.validateExpression(prop.name, this[prop.name], checkFunctions, checkVariables);
+        const errors = this.validateExpression(prop.name, this[prop.name], options);
         if (errors) {
           result.push(errors);
         }
       }
     });
     for (let child of this.getAllChildren()) {
-      const errors = child.validateExpressions(checkFunctions, checkVariables);
+      const errors = child.validateExpressions(options);
       if (errors && errors.length > 0) {
         result.push(...errors);
       }

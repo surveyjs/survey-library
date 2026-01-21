@@ -105,7 +105,6 @@ import ProgressToc from "./components/progress/ProgressToc.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
-import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
 import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
@@ -284,7 +283,6 @@ function registerComponents(
 
   registerComponent("sv-notifier", Notifier);
   registerComponent("survey-other-choice", OtherChoice);
-  registerComponent("sv-nav-btn", SurveyNavigationButton);
   registerComponent("survey-customwidget", CustomWidget);
   registerComponent("survey-popup-modal", PopupModal);
 

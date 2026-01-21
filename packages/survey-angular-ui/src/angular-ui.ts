@@ -73,7 +73,6 @@ export * from "./components/progress/toc/progress.component";
 export * from "./panel.component";
 export * from "./components/popup/modal-container.component";
 export * from "./components/popup/popup.service";
-export * from "./components/survey-actions/survey-nav-btn.component";
 export * from "./components/file/file-page.component";
 export * from "./components/file/file-item.component";
 export * from "./components/file/file-preview.component";

@@ -24,7 +24,7 @@ import { settings } from "./settings";
 import { cleanHtmlElementAfterAnimation, findScrollableParent, getElementWidth, isElementVisible, floorTo2Decimals, prepareElementForVerticalAnimation, setPropertiesOnElementForAnimation } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { IAction } from "./actions/action";
+import { Action, IAction } from "./actions/action";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { AnimationGroup, IAnimationGroupConsumer } from "./utils/animation";
@@ -2437,13 +2437,13 @@ export class PanelModel extends PanelModelBase implements IElement {
     if (!this.footerToolbarValue) {
       var actions = this.footerActions;
       if (this.hasEditButton) {
-        actions.push({
+        const editAction = new Action({
           id: "cancel-preview",
           locTitle: this.survey.locEditText,
-          innerCss: this.survey.cssNavigationEdit,
-          component: "sv-nav-btn",
+          innerCss: this.survey.getCss().navigation.edit,
           action: () => { this.cancelPreview(); }
         });
+        actions.push(editAction);
       }
       if (!!this.onGetFooterActionsCallback) {
         actions = this.onGetFooterActionsCallback();
@@ -2451,6 +2451,9 @@ export class PanelModel extends PanelModelBase implements IElement {
         actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
+      if (this.hasEditButton) {
+        this.footerToolbarValue.setCssClasses(this.survey.getCss().navigationBar);
+      }
       let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
       if (!footerCss) {
         footerCss = this.cssClasses.panel?.footer;

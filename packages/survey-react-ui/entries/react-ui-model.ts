@@ -101,7 +101,6 @@ export { SurveyQuestionMatrixDynamicDragDropIcon } from "../src/components/matri
 export { SurveyQuestionPanelDynamicAddButton } from "../src/components/paneldynamic-actions/paneldynamic-add-btn";
 export { SurveyQuestionPanelDynamicRemoveButton } from "../src/components/paneldynamic-actions/paneldynamic-remove-btn";
 export { SurveyQuestionPanelDynamicProgressText } from "../src/components/paneldynamic-actions/paneldynamic-progress-text";
-export { SurveyNavigationButton } from "../src/components/survey-actions/survey-nav-button";
 export { QuestionErrorComponent } from "../src/components/question-error";
 export { SliderLabelItem } from "../src/components/slider/slider-label-item";
 

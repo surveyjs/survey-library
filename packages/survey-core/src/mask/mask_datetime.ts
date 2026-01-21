@@ -162,6 +162,9 @@ export class InputMaskDateTime extends InputMaskPattern {
   public get hasTimePart(): boolean {
     return this.lexems.some(l => l.type === "hour" || l.type === "minute" || l.type === "second");
   }
+  public get hasSeconds(): boolean {
+    return this.lexems.some(l => l.type === "second");
+  }
   private get is12Hours(): boolean {
     return this.lexems.filter(l => l.type === "hour" && !l.upperCase).length > 0;
   }
@@ -171,6 +174,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   public getTypeForExpressions(): string {
+    if (this.hasTimePart && this.hasSeconds) return "datetime-seconds";
     return this.hasTimePart ? "datetime-local" : "datetime";
   }
 

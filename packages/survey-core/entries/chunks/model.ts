@@ -104,6 +104,7 @@ export {
   ComputedUpdater,
   IPropertyValueChangedEvent,
   IPropertyArrayValueChangedEvent,
+  IExpressionValidationOptions,
   IExpressionValidationResult,
 } from "../../src/base";
 export {

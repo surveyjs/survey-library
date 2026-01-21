@@ -18,35 +18,43 @@ QUnit.test("Test validateExpression in Object", (assert) => {
         visibleIf: "asyncFunc1({q2}) = 2",
         enableIf: "{q1} = 1",
         requiredIf: "bd+{",
+        resetValueIf: "foo",
       },
     ],
   });
 
   const q1 = survey.getQuestionByName("q1");
 
-  let result = q1.validateExpression("enableIf", q1.enableIf, true, true);
+  let result = q1.validateExpression("enableIf", q1.enableIf, { functions: false, variables: false, semantics: false });
   assert.equal(result, undefined, "There is no error - valid expression");
 
-  result = q1.validateExpression("visibleIf", q1.visibleIf, false, false);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: false, semantics: false });
   assert.equal(result, undefined, "There is no error due to disabled checks");
 
-  result = q1.validateExpression("visibleIf", q1.visibleIf, true, false);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: false, semantics: false });
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
   assert.equal(result.errors[0].errorType, ExpressionErrorType.UnknownFunction, "Error type is 'UnknownFunction'");
 
-  result = q1.validateExpression("visibleIf", q1.visibleIf, false, true);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: false, variables: true, semantics: false });
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 1, "There is 1 error");
   assert.equal(result.errors[0].errorType, ExpressionErrorType.UnknownVariable, "Error type is 'UnknownVariable'");
 
-  result = q1.validateExpression("visibleIf", q1.visibleIf, true, true);
+  result = q1.validateExpression("visibleIf", q1.visibleIf, { functions: true, variables: true, semantics: false });
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors.length, 2, "There is 2 errors");
 
-  result = q1.validateExpression("requiredIf", q1.requiredIf, true, true);
+  result = q1.validateExpression("requiredIf", q1.requiredIf, { functions: true, variables: true, semantics: false });
   assert.notEqual(result, undefined, "There is an error");
   assert.equal(result.errors[0].errorType, ExpressionErrorType.SyntaxError, "Error type is 'SyntaxError'");
+
+  result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: false });
+  assert.equal(result, undefined, "There is no error - due to disabled semantics check");
+
+  result = q1.validateExpression("resetValueIf", q1.resetValueIf, { functions: true, variables: true, semantics: true });
+  assert.notEqual(result, undefined, "There is an error");
+  assert.equal(result.errors[0].errorType, ExpressionErrorType.SemanticError, "Error type is 'SemanticError'");
 });
 
 QUnit.test("Test validateExpressions in Object", (assert) => {
@@ -59,24 +67,51 @@ QUnit.test("Test validateExpressions in Object", (assert) => {
         visibleIf: "asyncFunc1({q2}) = 2",
         enableIf: "{q1} = 1",
         requiredIf: "bd+{",
+        resetValueIf: "foo"
       },
     ],
   });
 
   const q1 = survey.getQuestionByName("q1");
-  let result = convertIExpressionErrors(q1.validateExpressions(true, true));
+  let result = convertIExpressionErrors(q1.validateExpressions({ functions: true, variables: true, semantics: true }));
 
-  assert.equal(result.length, 2, "There are 2 invalid expressions");
-  assert.equal(result[0].propertyName, "visibleIf", "First error is for 'visibleIf'");
-  assert.equal(result[0].name, "q1", "First filed name for error is 'q1'");
-  assert.equal(result[0].errors.length, 2, "There is 2 errors for 'visibleIf'");
+  assert.equal(result.length, 3, "There are 3 invalid expressions");
+  assert.deepEqual(
+    result.map(e => [
+      e.propertyName,
+      e.errors.length,
+      e.errors.map(er => er.errorType)
+    ]),
+    [
+      ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
+      ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
+      ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
+    ],
+    "property + count + [...types]"
+  );
 
-  assert.equal(result[1].propertyName, "requiredIf", "Second error is for 'requiredIf'");
-  assert.equal(result[1].name, "q1", "Second filed name for error is 'q1'");
-  assert.equal(result[1].errors.length, 1, "There is 1 error for 'requiredIf'");
+  result = convertIExpressionErrors(q1.validateExpressions());
+  assert.equal(result.length, 3, "There are 3 invalid expressions with default options");
+  assert.deepEqual(
+    result.map(e => [
+      e.propertyName,
+      e.errors.length,
+      e.errors.map(er => er.errorType)
+    ]),
+    [
+      ["visibleIf", 2, [ExpressionErrorType.UnknownFunction, ExpressionErrorType.UnknownVariable]],
+      ["resetValueIf", 1, [ExpressionErrorType.SemanticError]],
+      ["requiredIf", 1, [ExpressionErrorType.SyntaxError]]
+    ],
+    "property + count + [...types]"
+  );
+
+  result = convertIExpressionErrors(q1.validateExpressions({ functions: false, variables: false, semantics: false }));
+  assert.equal(result.length, 1, "There are 1 invalid expressions - only syntax errors are checked");
+  assert.equal(result[0].errors[0].errorType, ExpressionErrorType.SyntaxError, "Only syntax error is checked");
 });
 
-QUnit.test("Test validateExpressions in Object including childre", (assert) => {
+QUnit.test("Test validateExpressions in Object including children", (assert) => {
 
   var survey = new SurveyModel({
     elements: [
@@ -90,7 +125,7 @@ QUnit.test("Test validateExpressions in Object including childre", (assert) => {
     ],
   });
 
-  let result = convertIExpressionErrors(survey.validateExpressions(true, true));
+  let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
 
   assert.equal(result.length, 2, "There are 2 invalid expressions");
   assert.equal(result[0].propertyName, "visibleIf", "First error is for 'visibleIf'");
@@ -125,7 +160,7 @@ QUnit.test("Test validateExpressions with Survey + expressions", (assert) => {
     ],
   });
 
-  let result = convertIExpressionErrors(survey.validateExpressions(true, true));
+  let result = convertIExpressionErrors(survey.validateExpressions({ functions: true, variables: true, semantics: true }));
   assert.equal(result.length, 5, "There are 5 invalid expressions");
 
   assert.deepEqual(
@@ -170,7 +205,7 @@ QUnit.test("Test validateExpressions selectbase", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 11, "There are 11 invalid expressions");
   assert.deepEqual(
@@ -224,7 +259,7 @@ QUnit.test("Test validateExpressions matrix", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 5, "There are 5 invalid expressions");
   assert.deepEqual(
@@ -290,7 +325,7 @@ QUnit.test("Test validateExpressions matrixdropdown", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 18, "There are 18 invalid expressions");
   assert.deepEqual(
@@ -350,7 +385,7 @@ QUnit.test("Test validateExpressions matrixdynamic", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 10, "There are 10 invalid expressions");
   assert.deepEqual(
@@ -395,7 +430,7 @@ QUnit.test("Test validateExpressions paneldynamic", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 7, "There are 7 invalid expressions");
   assert.deepEqual(
@@ -432,7 +467,7 @@ QUnit.test("Test validateExpressions rating", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 1, "There are 1 invalid expressions");
   assert.deepEqual(
@@ -468,7 +503,7 @@ QUnit.test("Test validateExpressions panel", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 7, "There are 7 invalid expressions");
   assert.deepEqual(
@@ -504,7 +539,7 @@ QUnit.test("Test validateExpressions tagbox", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 2, "There are 2 invalid expressions");
   assert.deepEqual(
@@ -540,7 +575,7 @@ QUnit.test("Test validateExpressions multipletext", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 1, "There are 1 invalid expressions");
   assert.deepEqual(
@@ -570,7 +605,7 @@ QUnit.test("Test validateExpressions imagemap", (assert) => {
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 2, "There are 2 invalid expressions");
   assert.deepEqual(
@@ -605,7 +640,7 @@ QUnit.test("Test validateExpressions check constant in condition error", (assert
     ],
   });
 
-  let result = survey.validateExpressions(true, true);
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
 
   assert.equal(result.length, 2, "There are 2 invalid expressions");
   assert.deepEqual(

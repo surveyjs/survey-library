@@ -10,6 +10,7 @@ import { QuestionTextBase } from "./question_textbase";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
+import { InputMaskDateTime } from "./mask/mask_datetime";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
 
 /**
@@ -487,6 +488,12 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
     let type = this.maskTypeIsEmpty ? this.inputType : this.maskSettings.getTypeForExpressions();
+    if (!this.maskTypeIsEmpty && this.maskType === "datetime" && val instanceof Date) {
+      const maskSettings = this.maskSettings as InputMaskDateTime;
+      if (maskSettings.pattern && maskSettings.pattern.indexOf("s") !== -1) {
+        return Helpers.convertDateTimeToString(val, true, true);
+      }
+    }
     return Helpers.convertValToQuestionVal(val, type);
   }
   private getMinMaxErrorText(errorText: string, value: any): string {

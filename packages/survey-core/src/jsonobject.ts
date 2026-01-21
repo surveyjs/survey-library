@@ -8,6 +8,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
+  calcFunc?: (objectInstance?: any) => T;
   emptyStr?: boolean;
   localizable?:
   | { name?: string, onCreate?: (obj: Base, locStr: any) => void, defaultStr?: string | boolean, markdown?: boolean }
@@ -44,8 +45,10 @@ export function property(options: IPropertyDecoratorOptions = {}) {
           // }
           let defaultVal = null;
           let isEmptyStr = false;
+          let calcFunc = undefined;
           if (!!options) {
             isEmptyStr = options.emptyStr === true;
+            calcFunc = options.calcFunc;
             if (typeof options.getDefaultValue === "function") {
               defaultVal = options.getDefaultValue(this);
             }
@@ -53,7 +56,7 @@ export function property(options: IPropertyDecoratorOptions = {}) {
               defaultVal = options.defaultValue;
             }
           }
-          const res = this.getPropertyValue(key, defaultVal);
+          const res = this.getPropertyValue(key, defaultVal, calcFunc);
           return isEmptyStr && !res ? "" : res;
         },
         set: function (val: any) {

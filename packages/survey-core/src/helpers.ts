@@ -449,6 +449,7 @@ export class Helpers {
       return val.toString();
     };
     const seperator = isLocal ? "T" : " ";
+    // return this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes()) + ":" + toStr(date.getSeconds());
     return this.convertDateToString(date) + seperator + toStr(date.getHours()) + ":" + toStr(date.getMinutes());
   }
   public static convertValToQuestionVal(val: any, inputType?: string): any {

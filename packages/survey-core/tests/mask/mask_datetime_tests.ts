@@ -1,6 +1,8 @@
+import { FunctionFactory } from "../../src/functionsfactory";
 import { JsonObject } from "../../src/jsonobject";
 import { InputMaskDateTime, getDateTimeLexems } from "../../src/mask/mask_datetime";
 import { QuestionTextModel } from "../../src/question_text";
+import { SurveyModel } from "../../src/survey";
 
 export default QUnit.module("Datetime mask");
 
@@ -1328,4 +1330,26 @@ QUnit.test("getMaxDateForMonth method", function (assert) {
   assert.equal(getMaxDateForMonth(2100, 2), 28, "February 2100 (non-leap year divisible by 100) has 28 days");
   assert.equal(getMaxDateForMonth(2020, 2), 29, "February 2020 (leap year) has 29 days");
   assert.equal(getMaxDateForMonth(2019, 2), 28, "February 2019 (non-leap year) has 28 days");
+});
+
+QUnit.skip("Mask datetime with defaultValue includes seconds, #10820", function (assert) {
+  function currentDateSecondsMock() {
+    return new Date("2024-09-04T12:34:56");
+  }
+  FunctionFactory.Instance.register("currentDateSecondsMock", currentDateSecondsMock);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValueExpression: "currentDateSecondsMock()",
+        maskType: "datetime",
+        maskSettings: {
+          pattern: "mm/dd/yyyy HH:MM:ss"
+        }
+      },
+    ]
+  });
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.inputValue, "09/04/2024 12:34:56");
 });

@@ -953,7 +953,7 @@ export class Base implements IObjectValueContext {
    * // ...
    *
    * // Validate syntax errors only
-   * survey.validateExpressions({
+   * const res = survey.validateExpressions({
    *   variables: false,
    *   functions: false,
    *   semantics: false

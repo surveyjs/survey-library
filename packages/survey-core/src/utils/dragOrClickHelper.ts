@@ -1,4 +1,5 @@
 import { IsTouch } from "./devices";
+import { getRootNode } from "./utils";
 
 export interface ITargets {
   target: HTMLElement; currentTarget: HTMLElement;
@@ -26,8 +27,8 @@ export class DragOrClickHelper<T = any> {
     this.pointerDownEvent = pointerDownEvent;
     this.startX = pointerDownEvent.pageX;
     this.startY = pointerDownEvent.pageY;
-    const root = this.targets.currentTarget.getRootNode();
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(this.targets.currentTarget);
+    if (!root) return;
     root.addEventListener("pointermove", this.tryToStartDrag);
     this.rootNode = root;
     this.targets.currentTarget.addEventListener("pointerup", this.onPointerUp);

@@ -11,6 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
+import { getRootNode } from "./utils/utils";
 
 /**
  * A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
@@ -721,8 +722,8 @@ export class QuestionTextModel extends QuestionTextBase {
   public onChange = (event: any): void => {
     this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);
-    const root = this.input?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(this.input);
+    if (!root) return;
     const elementIsFocused = event.target === root.activeElement;
     if (elementIsFocused) {
       if (this.isInputTextUpdate) {

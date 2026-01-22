@@ -99,7 +99,9 @@
   width: 0;
 }
 
-:dir(rtl) {
+:dir(rtl),
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
   .sd-element__num {
     float: right;
   }

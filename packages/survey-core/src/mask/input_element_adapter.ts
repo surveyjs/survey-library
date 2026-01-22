@@ -18,9 +18,13 @@ export class InputElementAdapter {
     }
     let maskedValue = inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value);
     if (!!this.inputElement && _value === "" && !inputMaskInstance.saveMaskedValue) {
-      const root = (this.inputElement.getRootNode() as any) || DomDocumentHelper.getDocument();
-      if (root && "activeElement" in root && root.activeElement !== this.inputElement) {
-        maskedValue = "";
+      // Only hide mask if placeholder attribute is set and element is not focused
+      const hasPlaceholder = !!this.inputElement.placeholder;
+      if (hasPlaceholder) {
+        const root = (this.inputElement.getRootNode() as any) || DomDocumentHelper.getDocument();
+        if (root && "activeElement" in root && root.activeElement !== this.inputElement) {
+          maskedValue = "";
+        }
       }
     }
     this.setInputValue(maskedValue);

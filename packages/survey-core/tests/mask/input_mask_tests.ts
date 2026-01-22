@@ -165,6 +165,69 @@ QUnit.test("Input mask + autocomplete", function (assert) {
 
   testInput.remove();
 });
+
+QUnit.test("Input mask with placeholder attribute - should hide mask when not focused", function (assert) {
+  const testInput = document.createElement("input");
+  testInput.placeholder = "Enter date";
+  document.body.appendChild(testInput);
+
+  const inputMaskPattern = new InputMaskPattern();
+  inputMaskPattern.pattern = "999-99-99";
+  let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
+
+  // When placeholder is set and input is not focused, mask should be hidden
+  assert.equal(testInput.value, "", "Empty value when placeholder exists and not focused");
+
+  // Cleanup and create new adapter with focused input
+  adapter.dispose();
+  document.body.removeChild(testInput);
+
+  // Create new test with focused element
+  const testInput2 = document.createElement("input");
+  testInput2.placeholder = "Enter date";
+  document.body.appendChild(testInput2);
+  testInput2.focus();
+
+  const inputMaskPattern2 = new InputMaskPattern();
+  inputMaskPattern2.pattern = "999-99-99";
+  let adapter2 = new InputElementAdapter(inputMaskPattern2, testInput2, "");
+
+  // When focused, mask should be visible even with placeholder
+  assert.equal(testInput2.value, "___-__-__", "Mask visible when focused");
+
+  adapter2.dispose();
+  document.body.removeChild(testInput2);
+});
+
+QUnit.test("Input mask without placeholder attribute - should show mask always", function (assert) {
+  const testInput = document.createElement("input");
+  // No placeholder attribute set
+  document.body.appendChild(testInput);
+
+  const inputMaskPattern = new InputMaskPattern();
+  inputMaskPattern.pattern = "999-99-99";
+  let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
+
+  // When no placeholder is set, mask should always be visible
+  assert.equal(testInput.value, "___-__-__", "Mask visible when no placeholder and not focused");
+
+  document.body.removeChild(testInput);
+});
+
+QUnit.test("Input mask detached element - should show mask", function (assert) {
+  const testInput = document.createElement("input");
+  // Element is not attached to DOM (no activeElement check possible)
+
+  const inputMaskPattern = new InputMaskPattern();
+  inputMaskPattern.pattern = "999-99-99";
+  let adapter = new InputElementAdapter(inputMaskPattern, testInput, "");
+
+  // Detached elements should show mask (no placeholder behavior)
+  assert.equal(testInput.value, "___-__-__", "Mask visible for detached element");
+
+  testInput.remove();
+});
+
 QUnit.test("InputElementAdapter saveMaskedValue constructor", function (assert) {
   const testInput = document.createElement("input");
   const inputMask = new InputMaskDateTime();

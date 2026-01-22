@@ -89,22 +89,54 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const emptyValue = "_____";
+      const focusedEmptyValue = "_____";
+      const blurredEmptyValue = "";
 
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
+      expect(await page.locator("input").first().inputValue()).toBe(focusedEmptyValue);
 
       await page.keyboard.type("1234");
       expect(await page.locator("input").first().inputValue()).toBe("1234_");
 
       await page.keyboard.press("Tab");
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
+      expect(await page.locator("input").first().inputValue()).toBe(blurredEmptyValue);
 
       await page.locator("input").first().click();
       await page.keyboard.type("123");
       expect(await page.locator("input").first().inputValue()).toBe("123__");
 
       await page.keyboard.press("Tab");
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
+      expect(await page.locator("input").first().inputValue()).toBe(blurredEmptyValue);
+    });
+
+    test("Check placeholder behavior", async ({ page }) => {
+      await initSurvey(page, framework, {
+        elements: [
+          {
+            name: "question1",
+            type: "text",
+            maskType: "pattern",
+            maskSettings: {
+              pattern: "99-99"
+            },
+            placeholder: "Enter value..."
+          }
+        ]
+      });
+
+      const input = page.locator("input").first();
+
+      // Check placeholder is visible when not focused
+      await expect(input).toHaveAttribute("placeholder", "Enter value...");
+      await expect(input).toHaveValue("");
+
+      // Click to focus
+      await input.click();
+      await expect(input).toBeFocused();
+      await expect(input).toHaveValue("__-__");
+
+      // Blur
+      await input.blur();
+      await expect(input).toHaveValue("");
     });
 
     test("mask and maxlength", async ({ page }) => {

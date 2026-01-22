@@ -1,5 +1,6 @@
 import { InputMaskBase } from "./mask_base";
 import { ITextInputParams } from "./mask_utils";
+import { DomDocumentHelper } from "../global_variables_utils";
 
 export class InputElementAdapter {
   private prevUnmaskedValue: string = undefined;
@@ -15,7 +16,14 @@ export class InputElementAdapter {
     if (_value === null || _value === undefined) {
       _value = "";
     }
-    this.setInputValue(inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value));
+    let maskedValue = inputMaskInstance.saveMaskedValue ? _value : inputMaskInstance.getMaskedValue(_value);
+    if (!!this.inputElement && _value === "" && !inputMaskInstance.saveMaskedValue) {
+      const root = (this.inputElement.getRootNode() as any) || DomDocumentHelper.getDocument();
+      if (root && "activeElement" in root && root.activeElement !== this.inputElement) {
+        maskedValue = "";
+      }
+    }
+    this.setInputValue(maskedValue);
     this.prevUnmaskedValue = _value;
 
     inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);

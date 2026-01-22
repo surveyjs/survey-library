@@ -25,6 +25,7 @@ import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
  */
 export class QuestionTextModel extends QuestionTextBase {
   private maskInputAdapter: InputElementAdapter;
+  private _isFocused = false;
 
   private createMaskAdapter() {
     if (!!this.input && !this.maskTypeIsEmpty) {
@@ -392,6 +393,8 @@ export class QuestionTextModel extends QuestionTextBase {
     const _value = this.value;
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
+    } else if (!this._isFocused && Helpers.isValueEmpty(_value)) {
+      this._inputValue = "";
     } else if (this.maskSettings.saveMaskedValue) {
       this._inputValue = (_value !== undefined && _value !== null) ? _value : this.maskInstance.getMaskedValue("");
     } else {
@@ -734,14 +737,18 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   protected onBlurCore(event: any): void {
+    this._isFocused = false;
     this.updateDateValidationMessage(event);
     this.updateValueOnEvent(event);
     this.updateRemainingCharacterCounter(event.target.value);
     super.onBlurCore(event);
+    this.updateInputValue();
   }
   protected onFocusCore(event: any): void {
+    this._isFocused = true;
     this.updateRemainingCharacterCounter(event.target.value);
     super.onFocusCore(event);
+    this.updateInputValue();
   }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {

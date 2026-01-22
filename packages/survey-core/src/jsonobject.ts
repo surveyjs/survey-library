@@ -48,7 +48,9 @@ export function property(options: IPropertyDecoratorOptions = {}) {
           let calcFunc = undefined;
           if (!!options) {
             isEmptyStr = options.emptyStr === true;
-            calcFunc = options.calcFunc;
+            if (options.calcFunc) {
+              calcFunc = () => options.calcFunc(this);
+            }
             if (typeof options.getDefaultValue === "function") {
               defaultVal = options.getDefaultValue(this);
             }

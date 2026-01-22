@@ -21,6 +21,9 @@ export class QuestionImageModel extends QuestionNonValue {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "contentMode" || name === "imageLink") {
+      if (newValue === "video") {
+        this.showLabel = true;
+      }
       this.calculateRenderedMode();
     }
   }
@@ -61,12 +64,7 @@ export class QuestionImageModel extends QuestionNonValue {
    * > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
    * @see imageWidth
    */
-  public get imageHeight(): string {
-    return this.getPropertyValue("imageHeight");
-  }
-  public set imageHeight(val: string) {
-    this.setPropertyValue("imageHeight", val);
-  }
+  @property() imageHeight: string;
 
   public get renderedStyleHeight(): string {
     return this.imageHeight ? getRenderedStyleSize(this.imageHeight) : undefined;
@@ -85,12 +83,8 @@ export class QuestionImageModel extends QuestionNonValue {
    * > Use the [`imageFit`](#imageFit) property to specify how to fit the image or video into the container.
    * @see imageHeight
    */
-  public get imageWidth(): string {
-    return this.getPropertyValue("imageWidth");
-  }
-  public set imageWidth(val: string) {
-    this.setPropertyValue("imageWidth", val);
-  }
+  @property() imageWidth: string;
+
   public get renderedStyleWidth(): string {
     return this.imageWidth ? getRenderedStyleSize(this.imageWidth) : undefined;
   }
@@ -104,12 +98,7 @@ export class QuestionImageModel extends QuestionNonValue {
    * @see imageHeight
    * @see imageWidth
    */
-  public get imageFit(): string {
-    return this.getPropertyValue("imageFit");
-  }
-  public set imageFit(val: string) {
-    this.setPropertyValue("imageFit", val);
-  }
+  @property() imageFit: string;
   /**
    * Specifies the type of content that the Image question displays.
    *
@@ -120,15 +109,7 @@ export class QuestionImageModel extends QuestionNonValue {
    * - `"youtube"` - A link to a YouTube video.
    * - `"auto"` (default) - Selects one of the above based on the [`imageLink`](https://surveyjs.io/form-library/documentation/questionimagemodel#imageLink) property.
    */
-  public get contentMode(): string {
-    return this.getPropertyValue("contentMode");
-  }
-  public set contentMode(val: string) {
-    this.setPropertyValue("contentMode", val);
-    if (val === "video") {
-      this.showLabel = true;
-    }
-  }
+  @property() contentMode: string;
   /**
    * Returns the type of content that the Image question displays: `"image"`, `"video"`, or `"youtube"`.
    * @see contentMode

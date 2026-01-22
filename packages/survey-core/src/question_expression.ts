@@ -36,12 +36,7 @@ export class QuestionExpressionModel extends Question {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/expression-question-for-dynamic-form-calculations/ (linkStyle))
    */
-  public get expression(): string {
-    return this.getPropertyValue("expression", "");
-  }
-  public set expression(val: string) {
-    this.setPropertyValue("expression", val);
-  }
+  @property() expression: string;
   public locCalculation() {
     this.isExecutionLocked = true;
   }
@@ -69,13 +64,7 @@ export class QuestionExpressionModel extends Question {
    * @see minimumFractionDigits
    * @see precision
    */
-  public get maximumFractionDigits(): number {
-    return this.getPropertyValue("maximumFractionDigits");
-  }
-  public set maximumFractionDigits(val: number) {
-    if (val < -1 || val > 20) return;
-    this.setPropertyValue("maximumFractionDigits", val);
-  }
+  @property({ onSetting: (val) => val < -1 ? -1 : val > 20 ? 20 : val }) maximumFractionDigits: number;
   /**
    * The minimum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
    *
@@ -83,13 +72,8 @@ export class QuestionExpressionModel extends Question {
    * @see displayStyle
    * @see maximumFractionDigits
    */
-  public get minimumFractionDigits(): number {
-    return this.getPropertyValue("minimumFractionDigits");
-  }
-  public set minimumFractionDigits(val: number) {
-    if (val < -1 || val > 20) return;
-    this.setPropertyValue("minimumFractionDigits", val);
-  }
+  @property({ onSetting: (val) => val < -1 ? -1 : val > 20 ? 20 : val }) minimumFractionDigits: number;
+
   private runIfReadOnlyValue: boolean;
   public get runIfReadOnly(): boolean {
     return this.runIfReadOnlyValue === true;
@@ -141,12 +125,7 @@ export class QuestionExpressionModel extends Question {
    * @see maximumFractionDigits
    * @see format
    */
-  public get displayStyle(): string {
-    return this.getPropertyValue("displayStyle");
-  }
-  public set displayStyle(val: string) {
-    this.setPropertyValue("displayStyle", val);
-  }
+  @property() displayStyle: string;
   /**
    * A three-letter currency code. Applies only if the `displayStyle` property is set to `"currency"`.
    *
@@ -156,36 +135,22 @@ export class QuestionExpressionModel extends Question {
    * @see maximumFractionDigits
    * @see format
    */
-  public get currency(): string {
-    return this.getPropertyValue("currency");
-  }
-  public set currency(val: string) {
-    if (getCurrecyCodes().indexOf(val) < 0) return;
-    this.setPropertyValue("currency", val);
-  }
+  @property({ onSetting: (val: string, obj: QuestionExpressionModel) => getCurrecyCodes().indexOf(val) < 0 ? obj.currency : val }) currency: string;
+
   /**
    * Specifies whether to use grouping separators in number representation. Separators depend on the selected [locale](https://surveyjs.io/form-library/documentation/surveymodel#locale).
    *
    * Default value: `true`
    */
-  public get useGrouping(): boolean {
-    return this.getPropertyValue("useGrouping");
-  }
-  public set useGrouping(val: boolean) {
-    this.setPropertyValue("useGrouping", val);
-  }
+  @property() useGrouping: boolean;
   /**
    * Specifies how many decimal digits to keep in the expression value.
    *
    * Default value: -1 (unlimited)
    * @see maximumFractionDigits
    */
-  public get precision(): number {
-    return this.getPropertyValue("precision");
-  }
-  public set precision(val: number) {
-    this.setPropertyValue("precision", val);
-  }
+  @property() precision: number;
+
   private roundValue(val: any): any {
     if (val === Infinity) return undefined;
     if (this.precision < 0) return val;

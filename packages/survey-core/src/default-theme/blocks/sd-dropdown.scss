@@ -150,7 +150,9 @@ select.sd-dropdown {
 }
 
 .sd-input.sd-dropdown:focus-within {
-  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
+  box-shadow:
+    $shadow-inner-reset,
+    0 0 0 2px $primary;
 }
 
 .sd-input.sd-dropdown.sd-input--readonly {
@@ -288,11 +290,13 @@ select.sd-dropdown {
   }
 }
 
-[dir="rtl"],
+:dir(rtl),
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sd-dropdown {
-    background-position: left calcSize(1.5) top 50%, 0 0;
+    background-position:
+      left calcSize(1.5) top 50%,
+      0 0;
   }
 }
 

@@ -200,15 +200,15 @@ $pd-list-fade-out-duration: var(--sjs-pd-list-fade-out-duration, 150ms);
 $pd-list-move-out-duration: var(--sjs-pd-list-move-out-duration, 250ms);
 $pd-list-move-out-delay: var(--sjs-pd-list-move-out-delay, 100ms);
 
-$item-panel-fade-in-duration: var(--sjs-item-panel-fade-in-duration, 500ms);
-$item-panel-move-in-duration: var(--sjs-item-panel-move-in-duration, 150ms);
-$item-panel-fade-in-delay: var(--sjs-item-panel-fade-in-delay, 150ms);
+$item-panel-fade-in-duration: var(--sjs-item-panel-fade-in-duration, 300ms);
+$item-panel-move-in-duration: var(--sjs-item-panel-move-in-duration, 300ms);
+$item-panel-fade-in-delay: var(--sjs-item-panel-fade-in-delay, 100ms);
 $item-panel-fade-out-duration: var(--sjs-item-panel-fade-out-duration, 150ms);
 $item-panel-move-out-duration: var(--sjs-item-panel-move-out-duration, 250ms);
 $item-panel-move-out-delay: var(--sjs-item-panel-move-out-delay, 100ms);
 
-$item-comment-fade-in-duration: var(--sjs-item-comment-fade-in-duration, 500ms);
-$item-comment-move-in-duration: var(--sjs-item-comment-move-in-duration, 150ms);
+$item-comment-fade-in-duration: var(--sjs-item-comment-fade-in-duration, 300ms);
+$item-comment-move-in-duration: var(--sjs-item-comment-move-in-duration, 200ms);
 $item-comment-fade-in-delay: var(--sjs-item-comment-fade-in-delay, 150ms);
 $item-comment-fade-out-duration: var(--sjs-item-comment-fade-out-duration, 150ms);
 $item-comment-move-out-duration: var(--sjs-item-comment-move-out-duration, 250ms);

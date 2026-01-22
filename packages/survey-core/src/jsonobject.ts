@@ -490,8 +490,8 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   private get isBooleanType(): boolean {
     return this.type === "boolean" || this.type === "switch";
   }
-  public validateValue(value: any): boolean {
-    const choices = this.choices;
+  public validateValue(obj: Base, value: any): boolean {
+    const choices = this.getChoices(obj);
     if (!Array.isArray(choices) || choices.length === 0) return true;
     if (typeof value === "object" && typeof choices[0] === "object") return true;
     const aV = this.acceptedValues;
@@ -1951,7 +1951,7 @@ export class JsonObject {
       if (property != null) {
         property.setValue(obj, value, this);
         if (!!options && options.validatePropertyValues) {
-          if (!property.validateValue(value)) {
+          if (!property.validateValue(obj, value)) {
             this.addNewError(new JsonIncorrectPropertyValueError(property, value), jsonObj, obj);
           }
         }

@@ -8,11 +8,10 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
-  IPlainDataOptions, IElementUIState
+  IPlainDataOptions
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
-import { TextContextProcessor } from "./textPreProcessor";
 import { Base } from "./base";
 import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
@@ -32,69 +31,50 @@ import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IA
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 
-export interface IQuestionPanelDynamicData {
-  getItemIndex(item: ISurveyData): number;
+export interface IQuestionPanelDynamicData extends IDynamicItemModelData {
   getVisibleItemIndex(item: ISurveyData): number;
-  getPanelItemData(item: ISurveyData): any;
   setPanelItemData(item: ISurveyData, name: string, val: any): any;
   getSharedQuestionFromArray(name: string, panelIndex: number): Question;
-  getSurvey(): ISurvey;
   getRootData(): ISurveyData;
 }
-export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContext {
-  constructor(private item: QuestionPanelDynamicItem) {
-    super();
+export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
+  constructor(protected item: QuestionPanelDynamicItem) {
+    super(item);
   }
-  protected getIndex(): number { return this.panelIndex; }
-  protected getQuestionData(): Question { return <Question>(<any>this.item.data); }
-  public getValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
+
+  protected getNextName(): string {
+    return settings.expressionVariables.nextPanel;
+  }
+  protected getPrevName(): string {
+    return settings.expressionVariables.prevPanel;
+  }
+
+  protected getVisibleItem(index: number): DynamicItemModelBase {
+    if (index < 0 || index >= this.getPanels(true).length) return null;
+    return <any>this.getPanels(true)[index].data;
+  }
+
+  protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
-    if (path.length === 0) return undefined;
-    if (path.length === 1) {
-      const val = this.getPanelValue(path[0].name);
-      if (val !== undefined) {
-        return { isFound: true, value: val, context: this };
-      }
-    }
-    const expVar = settings.expressionVariables;
-    const panelPrefix = expVar.panel;
-    if (path.length > 1) {
-      const dIndex = path[0].name === expVar.prevPanel ? -1 : path[0].name === expVar.nextPanel ? 1 : 0;
-      if (dIndex !== 0) {
-        const index = this.visiblePanelIndex + dIndex;
-        if (index < 0 || index >= this.getPanels(true).length) return { isFound: true, value: undefined, context: this };
-        const panel = this.getPanels(true)[index];
-        path[0].name = panelPrefix;
-        params.index = index;
-        return (<any>panel.data).getValueGetterContext().getValue(params);
-      }
-    }
-    if (path.length > 1 && path[0].name.toLocaleLowerCase() === expVar.parentPanel.toLocaleLowerCase()) {
+    if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.parentPanel.toLocaleLowerCase()) {
       const q = <Question>(<any>this.item.data);
       if (!!q && !!q.parentQuestion && !!q.parent && !!(<any>q.parent).data) {
-        path[0].name = panelPrefix;
+        path[0].name = this.variableName;
         params.isRoot = true;
         return (<QuestionPanelDynamicItem>(<any>q.parent).data).getValueGetterContext().getValue(params);
       }
     }
-    const panel = this.item.panel;
-    const isPanelPrefix = path[0].name === panelPrefix;
-    if (isPanelPrefix || !params.isRoot) {
-      if (isPanelPrefix) {
-        path.shift();
-      }
-      const res = new QuestionArrayGetterContext(panel.questions).getValue(params);
-      if (!!res && res.isFound) return res;
-      const allValues = this.item.getAllValues();
-      if (params.isRoot) {
-        const res = this.getValueFromBindedQuestions(path, allValues);
-        if (!!res) return res;
-      }
-      params.isRoot = false;
-      return new VariableGetterContext(allValues).getValue(params);
+    return null;
+  }
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const qs = this.item.panel.getQuestionsByValueName(name, true);
+    if (qs.length > 0) {
+      res.isFound = true;
+      res.obj = qs[0];
+      res.context = qs[0].getValueGetterContext();
     }
-    return undefined;
   }
   getTextValue(name: string, value: any, isDisplayValue: boolean): string {
     name = name.toLocaleLowerCase();
@@ -106,20 +86,20 @@ export class PanelDynamicItemGetterContext extends QuestionItemValueGetterContex
   private get indexVar() { return settings.expressionVariables.panelIndex.toLocaleLowerCase(); }
   private get visIndexVar() { return settings.expressionVariables.visiblePanelIndex.toLocaleLowerCase(); }
 
-  private getPanelValue(name: string): any {
+  protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
       return this.panelIndex;
     }
     if (name == this.visIndexVar) {
-      return this.visiblePanelIndex;
+      return this.visibleIndex;
     }
     return undefined;
   }
   private get panelIndex(): number {
     return this.getPanels(false).indexOf(this.item.panel);
   }
-  private get visiblePanelIndex(): number {
+  protected get visibleIndex(): number {
     return this.getPanels(true).indexOf(this.item.panel);
   }
   private getPanels(isVisible: boolean): Array<PanelModel> {
@@ -169,13 +149,12 @@ class PanelDynamicTabbedMenuItem extends Action {
   }
 }
 
-export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObjectValueContext {
+export class QuestionPanelDynamicItem extends DynamicItemModelBase implements ISurveyImpl, IObjectValueContext {
   private panelValue: PanelModel;
-  private textPreProcessor: TextContextProcessor;
   constructor(public data: IQuestionPanelDynamicData, panel: PanelModel) {
+    super(data);
     this.data = data;
     this.panelValue = panel;
-    this.textPreProcessor = new TextContextProcessor(this);
     this.setSurveyImpl();
   }
   public get panel(): PanelModel {
@@ -187,12 +166,18 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
   public getValueGetterContext(): IValueGetterContext {
     return new PanelDynamicItemGetterContext(this);
   }
-  public getValue(name: string): any {
-    var values = this.getAllValues();
-    return values[name];
+  public getVariableName(): string {
+    return settings.expressionVariables.panel;
+  }
+  protected getQuestionByName(name: string): IQuestion {
+    return this.panel.getQuestionByName(name);
+  }
+
+  public getIndex(): number {
+    return this.data.getItemIndex(this);
   }
   public setValue(name: string, newValue: any): void {
-    const oldItemData = this.data.getPanelItemData(this);
+    const oldItemData = this.data.getItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
     if (Helpers.isTwoValueEquals(newValue, oldValue, false, true, false)) return;
     this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
@@ -205,7 +190,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
       const suffix = settings.commentSuffix;
       if (name.endsWith(suffix)) {
         name = name.substring(0, name.length - suffix.length);
-        const cQ = this.panel.getQuestionByName(name);
+        const cQ = this.getQuestionByName(name);
         if (!!cQ) {
           newValue = cQ.value;
         }
@@ -221,31 +206,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl, IObje
   public setComment(name: string, newValue: string, locNotification: boolean | "text") {
     this.setValue(name + settings.commentSuffix, newValue);
   }
-  findQuestionByName(name: string): IQuestion {
-    if (!name) return undefined;
-    const prefix = settings.expressionVariables.panel + ".";
-    if (name.indexOf(prefix) === 0) {
-      return this.panel.getQuestionByName(name.substring(prefix.length));
-    }
-    const survey = this.getSurvey();
-    return !!survey ? survey.getQuestionByName(name) : null;
-  }
-  getAllValues(): any {
-    return this.data.getPanelItemData(this);
-  }
   getFilteredProperties(): any {
+    // TODO review
     if (!!this.data && !!this.data.getRootData())
       return this.data.getRootData().getFilteredProperties();
     return { survey: this.getSurvey() };
-  }
-  getSurveyData(): ISurveyData {
-    return this;
-  }
-  getSurvey(): ISurvey {
-    return this.data ? this.data.getSurvey() : null;
-  }
-  getTextProcessor(): ITextProcessor {
-    return this.textPreProcessor;
   }
 }
 
@@ -346,6 +311,9 @@ export class QuestionPanelDynamicModel extends Question
     super.setSurveyImpl(value, isLight);
     this.setTemplatePanelSurveyImpl();
     this.setPanelsSurveyImpl();
+  }
+  getFilteredData(): any {
+    return this.value;
   }
   private assignOnPropertyChangedToTemplate() {
     var elements = this.template.elements;
@@ -2106,7 +2074,7 @@ export class QuestionPanelDynamicModel extends Question
   private runTriggersOnBuildPanelsFirstTime(): void {
     const val = this.value;
     this.visiblePanelsCore.forEach(p => {
-      const panelValue = this.getPanelItemData(p.data);
+      const panelValue = this.getItemData(p.data);
       if (!Helpers.isValueEmpty(panelValue)) {
         const triggeredValue = Helpers.createCopyWithPrefix(panelValue, settings.expressionVariables.panel + ".");
         p.questions.forEach(q => q.runTriggers("", undefined, triggeredValue));
@@ -2465,7 +2433,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private panelUpdateValueFromSurvey(panel: PanelModel) {
     const questions = panel.questions;
-    var values = this.getPanelItemData(panel.data);
+    var values = this.getItemData(panel.data);
     for (var i = 0; i < questions.length; i++) {
       const q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
@@ -2477,7 +2445,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private panelSurveyValueChanged(panel: PanelModel) {
     var questions = panel.questions;
-    var values = this.getPanelItemData(panel.data);
+    var values = this.getItemData(panel.data);
     for (var i = 0; i < questions.length; i++) {
       var q = questions[i];
       q.onSurveyValueChanged(values[q.getValueName()]);
@@ -2509,7 +2477,6 @@ export class QuestionPanelDynamicModel extends Question
       oldValue: childQuestion.value
     };
   }
-  //IQuestionPanelDynamicData
   getItemIndex(item: ISurveyData): number {
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
@@ -2521,7 +2488,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     return visPanels.length;
   }
-  getPanelItemData(item: ISurveyData): any {
+  getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }
   private getPanelItemDataByIndex(index: number): any {

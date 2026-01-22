@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, property, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
 import { getLocaleString } from "./surveyStrings";
@@ -46,8 +46,7 @@ class MatrixRowValueGetterContext implements IValueGetterContext {
 }
 export class MatrixColumn extends ItemValue {
   protected getBaseType(): string { return "matrixcolumn"; }
-  public get isExclusive(): boolean { return this.getPropertyValue("isExclusive", false); }
-  public set isExclusive(val: boolean) { this.setPropertyValue("isExclusive", val); }
+  @property({ defaultValue: false }) isExclusive: boolean;
 }
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
@@ -107,12 +106,7 @@ export class MatrixRowModel extends Base {
   public get rowTextClasses(): string {
     return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
   }
-  public get hasError(): boolean {
-    return this.getPropertyValue("hasError", false);
-  }
-  public set hasError(val: boolean) {
-    this.setPropertyValue("hasError", val);
-  }
+  @property({ defaultValue: false }) hasError: boolean;
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
     return new CssClassBuilder().append(cssClasses.row)
@@ -382,6 +376,9 @@ export class QuestionMatrixModel
     if (name === "cellType") {
       this.value = this.convertToCorrectValue(this.value);
     }
+    if (name === "rowOrder") {
+      this.onRowsChanged();
+    }
   }
   public getType(): string {
     return "matrix";
@@ -405,15 +402,7 @@ export class QuestionMatrixModel
    *
    * [Checkbox Matrix Demo](https://surveyjs.io/form-library/examples/checkbox-matrix-question/ (linkStyle))
    */
-  public get cellType(): string {
-    return this.getPropertyValue("cellType");
-  }
-  public set cellType(val: string) {
-    if (val !== "checkbox") {
-      val = "radio";
-    }
-    this.setPropertyValue("cellType", val);
-  }
+  @property({ onSetting: (val: string) => val !== "checkbox" ? "radio" : val }) cellType: string;
   public get isMultiSelect(): boolean {
     return this.cellType === "checkbox";
   }
@@ -437,12 +426,7 @@ export class QuestionMatrixModel
    * @see eachRowUnique
    * @see validators
    */
-  public get eachRowRequired(): boolean {
-    return this.getPropertyValue("eachRowRequired");
-  }
-  public set eachRowRequired(val: boolean) {
-    this.setPropertyValue("eachRowRequired", val);
-  }
+  @property() eachRowRequired: boolean;
   /**
    * @deprecated Use the [`eachRowRequired`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#eachRowRequired) property instead.
    */
@@ -457,12 +441,7 @@ export class QuestionMatrixModel
    * @see eachRowRequired
    * @see validators
    */
-  public get eachRowUnique(): boolean {
-    return this.getPropertyValue("eachRowUnique");
-  }
-  public set eachRowUnique(val: boolean) {
-    this.setPropertyValue("eachRowUnique", val);
-  }
+  @property() eachRowUnique: boolean;
   public get hasRows(): boolean {
     return this.rows.length > 0;
   }
@@ -475,15 +454,7 @@ export class QuestionMatrixModel
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
    */
-  public get rowOrder(): string {
-    return this.getPropertyValue("rowOrder");
-  }
-  public set rowOrder(val: string) {
-    val = val.toLowerCase();
-    if (val == this.rowOrder) return;
-    this.setPropertyValue("rowOrder", val);
-    this.onRowsChanged();
-  }
+  @property({ onSetting: (val: string) => val ? val.toLowerCase() : "initial" }) rowOrder: string;
   /**
    * @deprecated Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
    */
@@ -497,12 +468,8 @@ export class QuestionMatrixModel
    * Specifies whether to hide the question when the matrix has no visible rows.
    * @see rowsVisibleIf
    */
-  public get hideIfRowsEmpty(): boolean {
-    return this.getPropertyValue("hideIfRowsEmpty");
-  }
-  public set hideIfRowsEmpty(val: boolean) {
-    this.setPropertyValue("hideIfRowsEmpty", val);
-  }
+  @property() hideIfRowsEmpty: boolean;
+
   getRows(): Array<any> {
     return this.rows;
   }

@@ -1,7 +1,6 @@
 import { IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditionProcessValue";
 import { Question, QuestionItemValueGetterContext } from "./question";
-import { settings } from "./settings";
 import { TextContextProcessor } from "./textPreProcessor";
 
 export interface IDynamicItemModelData {
@@ -21,11 +20,9 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
   protected get questionName(): string {
     return "";
   }
-
   protected abstract getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo;
   protected abstract getNextName(): string;
   protected abstract getPrevName(): string;
-
   protected get variableName(): string {
     return this.item.getVariableName();
   }
@@ -76,11 +73,16 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
     }
     return undefined;
   }
-
+  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
+    const qs = this.item.getQuestionsByValueName(name, true);
+    if (qs.length > 0) {
+      res.isFound = true;
+      res.obj = qs[0];
+      res.context = qs[0].getValueGetterContext();
+    }
+  }
   protected abstract getVisibleItem(idx: number): DynamicItemModelBase;
-
   protected abstract get visibleIndex(): number;
-
 }
 
 export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, IObjectValueContext {
@@ -97,6 +99,7 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     return this.textPreProcessor;
   }
 
+  public abstract getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question>;
   public abstract getVariableName(): string;
   protected abstract getQuestionByName(name: string): IQuestion;
 

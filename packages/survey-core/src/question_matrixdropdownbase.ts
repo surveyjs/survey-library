@@ -1,9 +1,9 @@
 import { JsonObject, CustomPropertiesCollection, Serializer, property } from "./jsonobject";
 import { QuestionMatrixBaseModel } from "./martixBase";
-import { Question, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext } from "./question";
+import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ITextProcessor, IProgressInfo, IPanel, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 
 import { ItemValue } from "./itemvalue";
@@ -19,7 +19,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
 import { ConditionRunner } from "./conditions";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditionProcessValue";
 import { ValidationContext } from "./question";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 
@@ -200,23 +200,17 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   protected get visibleIndex(): number {
     return this.getQuestionData().visibleRows.indexOf(this.row);
   }
-
   protected getNextName(): string {
     return settings.expressionVariables.nextRow;
   }
   protected getPrevName(): string {
     return settings.expressionVariables.prevRow;
   }
-
   protected getVisibleItem(index: number): DynamicItemModelBase {
     const matrix = this.getQuestionData();
     if (index < 0 || index >= matrix.visibleRows.length) return null;
     return matrix.visibleRows[index];
   }
-  protected get questionName(): string {
-    return settings.expressionVariables.matrix;
-  }
-
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length > 1 && path[0].name === settings.expressionVariables.totalRow) {
@@ -228,15 +222,10 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
     }
     return null;
   }
-  getRootObj(): IObjectValueContext { return this.row.data; }
-  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const qs = this.row.getQuestionsByValueName(name, true);
-    if (qs.length > 0) {
-      res.isFound = true;
-      res.obj = qs[0];
-      res.context = qs[0].getValueGetterContext();
-    }
+  protected get questionName(): string {
+    return settings.expressionVariables.matrix;
   }
+  getRootObj(): IObjectValueContext { return this.row.data; }
   protected getItemValue(name: string): any {
     const setVar = settings.expressionVariables;
     name = name.toLocaleLowerCase();
@@ -256,7 +245,7 @@ export class MatrixRowGetterContext extends DynamicItemGetterContext {
   }
 }
 
-export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ISurveyImpl, ILocalizableOwner, IObjectValueContext {
+export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements ILocalizableOwner {
   private static idCounter: number = 1;
   private static getId(): string {
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
@@ -804,7 +793,6 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     }
     return res;
   }
-
   protected updateCellOnColumnChanged(cell: MatrixDropdownCell, name: string, newValue: any): void {
     if (name === "choices" && Array.isArray(newValue) && newValue.length === 0 && this.data) {
       newValue = this.data.choices;
@@ -895,6 +883,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     this.isSettingValue = false;
   }
 }
+
 export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
   constructor(data: IMatrixDropdownData) {
     super(data, null);

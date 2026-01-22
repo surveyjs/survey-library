@@ -13,7 +13,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { Base } from "./base";
-import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
+import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -30,7 +30,7 @@ import { ITheme } from "./themes";
 import { AnimationGroup, AnimationProperty, AnimationTab, IAnimationConsumer, IAnimationGroupConsumer } from "./utils/animation";
 import { QuestionSingleInputSummary, QuestionSingleInputSummaryItem } from "./questionSingleInputSummary";
 import { getLocaleString } from "./surveyStrings";
-import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, IValueGetterItem, VariableGetterContext } from "./conditionProcessValue";
+import { IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo } from "./conditionProcessValue";
 import { DynamicItemGetterContext, DynamicItemModelBase, IDynamicItemModelData } from "./dynamicItemModelBase";
 
 export interface IQuestionPanelDynamicData extends IDynamicItemModelData {
@@ -43,19 +43,16 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   constructor(protected item: QuestionPanelDynamicItem) {
     super(item);
   }
-
   protected getNextName(): string {
     return settings.expressionVariables.nextPanel;
   }
   protected getPrevName(): string {
     return settings.expressionVariables.prevPanel;
   }
-
   protected getVisibleItem(index: number): DynamicItemModelBase {
     if (index < 0 || index >= this.getPanels(true).length) return null;
     return <any>this.getPanels(true)[index].data;
   }
-
   protected getSpecificValue(params: IValueGetterContextGetValueParams): IValueGetterInfo {
     const path = params.path;
     if (path.length > 1 && path[0].name.toLocaleLowerCase() === settings.expressionVariables.parentPanel.toLocaleLowerCase()) {
@@ -68,14 +65,6 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
     }
     return null;
   }
-  protected updateValueByItem(name: string, res: IValueGetterInfo): void {
-    const qs = this.item.panel.getQuestionsByValueName(name, true);
-    if (qs.length > 0) {
-      res.isFound = true;
-      res.obj = qs[0];
-      res.context = qs[0].getValueGetterContext();
-    }
-  }
   getTextValue(name: string, value: any, isDisplayValue: boolean): string {
     name = name.toLocaleLowerCase();
     if ([this.indexVar, this.visIndexVar].indexOf(name) > -1 && value > -1) {
@@ -85,7 +74,6 @@ export class PanelDynamicItemGetterContext extends DynamicItemGetterContext {
   }
   private get indexVar() { return settings.expressionVariables.panelIndex.toLocaleLowerCase(); }
   private get visIndexVar() { return settings.expressionVariables.visiblePanelIndex.toLocaleLowerCase(); }
-
   protected getItemValue(name: string): any {
     name = name.toLocaleLowerCase();
     if (name === this.indexVar) {
@@ -149,7 +137,7 @@ class PanelDynamicTabbedMenuItem extends Action {
   }
 }
 
-export class QuestionPanelDynamicItem extends DynamicItemModelBase implements ISurveyImpl, IObjectValueContext {
+export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   private panelValue: PanelModel;
   constructor(public data: IQuestionPanelDynamicData, panel: PanelModel) {
     super(data);
@@ -169,10 +157,12 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase implements IS
   public getVariableName(): string {
     return settings.expressionVariables.panel;
   }
+  public getQuestionsByValueName(name: string, caseInsensitive?: boolean): Array<Question> {
+    return this.panel.getQuestionsByValueName(name, caseInsensitive);
+  }
   protected getQuestionByName(name: string): IQuestion {
     return this.panel.getQuestionByName(name);
   }
-
   public getIndex(): number {
     return this.data.getItemIndex(this);
   }
@@ -234,8 +224,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
-export class QuestionPanelDynamicModel extends Question
-  implements IQuestionPanelDynamicData {
+export class QuestionPanelDynamicModel extends Question implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
   private isValueChangingInternally: boolean;
   private changingValueQuestions: Array<Question>;

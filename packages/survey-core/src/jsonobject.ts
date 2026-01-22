@@ -14,6 +14,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   | { name?: string, onCreate?: (obj: Base, locStr: any) => void, defaultStr?: string | boolean, markdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
+  onSetting?: (val: T, objectInstance: any, prevVal?: T) => T;
 }
 function getLocalizablePropertyName(propertyName: string): string {
   return "loc" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
@@ -62,8 +63,11 @@ export function property(options: IPropertyDecoratorOptions = {}) {
           return isEmptyStr && !res ? "" : res;
         },
         set: function (val: any) {
-          const newValue = processComputedUpdater(this, val);
+          let newValue = processComputedUpdater(this, val);
           const prevValue = this.getPropertyValue(key);
+          if (!!options && !!options.onSetting) {
+            newValue = options.onSetting(newValue, this, prevValue);
+          }
           if (newValue !== prevValue) {
             this.setPropertyValue(key, newValue);
             if (!!options && options.onSet) {

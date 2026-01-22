@@ -355,17 +355,22 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set inputValue(val: string) {
     let value = val;
-    this._inputValue = val;
+    let _inputValue = val;
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
-      this._inputValue = this.maskInstance.getMaskedValue(value);
-      if (!!value && this.maskSettings.saveMaskedValue) {
-        value = this._inputValue;
+      if (value === undefined || value === null || value === "") {
+        value = undefined;
+      } else {
+        _inputValue = this.maskInstance.getMaskedValue(value);
+        if (!!value && this.maskSettings.saveMaskedValue) {
+          value = _inputValue;
+        }
       }
     }
     if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
       this.value = value;
     }
+    this._inputValue = _inputValue;
   }
   public getFilteredValue(): any {
     return this.getExpressionValue(this.value);

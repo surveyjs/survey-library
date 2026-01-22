@@ -399,7 +399,7 @@ export class ChoicesRestful extends Base {
    * @see valueName
    * @see titleName
    */
-  @property({ emptyStr: true }) url: string;
+  @property({ returnValue: "" }) url: string;
   /**
    * Path to the array of choices. The following path separators are allowed: semicolon `;`, comma `,`.
    *
@@ -417,7 +417,7 @@ export class ChoicesRestful extends Base {
    * @see valueName
    * @see titleName
    */
-  @property({ emptyStr: true }) path: string;
+  @property({ returnValue: "" }) path: string;
   /**
    * Specifies which property in the obtained data object contains choice values.
    *
@@ -427,7 +427,7 @@ export class ChoicesRestful extends Base {
    * @see path
    * @see titleName
    */
-  @property({ emptyStr: true }) valueName: string;
+  @property({ returnValue: "" }) valueName: string;
   /**
    * Specifies which property in the obtained data object contains display texts for choices.
    *
@@ -435,7 +435,7 @@ export class ChoicesRestful extends Base {
    * @see path
    * @see valueName
    */
-  @property({ emptyStr: true }) titleName: string;
+  @property({ returnValue: "" }) titleName: string;
   /**
    * Specifies which property in the obtained data object contains image URLs. Used only in [Image Picker](https://surveyjs.io/Examples/Library?id=questiontype-imagepicker) questions.
    *
@@ -443,7 +443,7 @@ export class ChoicesRestful extends Base {
    * @see path
    * @see valueName
    */
-  @property({ emptyStr: true }) imageLinkName: string;
+  @property({ returnValue: "" }) imageLinkName: string;
   /**
    * Specifies whether the service is allowed to return an empty response or an empty array in a response.
    *

@@ -212,12 +212,12 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * [Dynamic Matrix Demo](https://surveyjs.io/form-library/examples/dynamic-matrix-add-new-rows/ (linkStyle))
    * @see width
    */
-  @property({ emptyStr: true }) columnMinWidth: string;
+  @property({ returnValue: "" }) columnMinWidth: string;
 
   /**
    * A width for the column that displays row titles (first column). Accepts CSS values.
    */
-  @property({ emptyStr: true }) rowTitleWidth: string;
+  @property({ returnValue: "" }) rowTitleWidth: string;
   /**
    * Specifies how to arrange matrix questions.
    *

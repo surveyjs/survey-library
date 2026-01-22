@@ -26,7 +26,7 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   /**
    * The expression property. If this expression returns true, then survey will use html property to show on complete page.
    */
-  @property({ emptyStr: true }) expression: string;
+  @property({ returnValue: "" }) expression: string;
   get locHtml(): LocalizableString {
     return this.getLocalizableString("html");
   }

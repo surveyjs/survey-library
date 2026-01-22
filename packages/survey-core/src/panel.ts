@@ -568,7 +568,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * Default value: `"1."` (inherited from the `questionStartIndex` property specified for the parent panel, page, or survey)
    * @see showQuestionNumbers
    */
-  @property({ emptyStr: true }) questionStartIndex: string;
+  @property({ returnValue: "" }) questionStartIndex: string;
   public addNoFromChild(no: string): string { return no; }
   private canRandomize(isRandom: boolean): boolean {
     return isRandom && (this.questionOrder !== "initial") || this.questionOrder === "random";

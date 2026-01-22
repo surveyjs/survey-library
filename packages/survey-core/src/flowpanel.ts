@@ -31,7 +31,7 @@ export class FlowPanelModel extends PanelModel {
     this.onContentChanged();
   }
   @property({ localizable: true }) content: string;
-  @property ({ emptyStr: true }) html: string;
+  @property ({ returnValue: "" }) html: string;
   protected onContentChanged(): any {
     var html = "";
     if (!!this.onCustomHtmlProducing) {

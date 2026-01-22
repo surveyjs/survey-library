@@ -97,7 +97,7 @@ function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  const root = getRootNode(this.targets.currentTarget);
+  const root = getRootNode(element);
   if (!root || !element.offsetHeight) return false;
 
   const clientHeight = isShadowDOM(root)

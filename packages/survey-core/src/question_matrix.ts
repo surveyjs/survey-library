@@ -454,7 +454,7 @@ export class QuestionMatrixModel
    * - `"random"` - Arranges matrix rows in random order each time the question is displayed.
    * @see rows
    */
-  @property({ onSetting: (val: string) => val ? val.toLowerCase() : "initial" }) rowOrder: string;
+  @property({ isLowerCase: true }) rowOrder: string;
   /**
    * @deprecated Use the [`rowOrder`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model#rowOrder) property instead.
    */

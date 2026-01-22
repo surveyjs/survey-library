@@ -15,6 +15,7 @@ export interface IPropertyDecoratorOptions<T = any> {
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
   onSetting?: (val: T, objectInstance: any, prevVal?: T) => T;
+  isLowerCase?: boolean;
 }
 function getLocalizablePropertyName(propertyName: string): string {
   return "loc" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
@@ -65,8 +66,14 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         set: function (val: any) {
           let newValue = processComputedUpdater(this, val);
           const prevValue = this.getPropertyValue(key);
-          if (!!options && !!options.onSetting) {
-            newValue = options.onSetting(newValue, this, prevValue);
+          if (!!options) {
+            if (options.isLowerCase) {
+              if (!newValue || typeof newValue !== "string") return;
+              newValue = newValue.toLowerCase();
+            }
+            if (!!options.onSetting) {
+              newValue = options.onSetting(newValue, this, prevValue);
+            }
           }
           if (newValue !== prevValue) {
             this.setPropertyValue(key, newValue);

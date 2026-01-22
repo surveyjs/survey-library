@@ -1226,7 +1226,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * - `"random"` - Displays choice items in random order.
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  @property({ onSetting: (val: any) => val.toLowerCase() }) choicesOrder: string;
+  @property({ isLowerCase: true }) choicesOrder: string;
   /**
    * Gets or sets a caption for the "Other" choice item.
    * @see showOtherItem

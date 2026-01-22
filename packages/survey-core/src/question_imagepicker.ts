@@ -80,6 +80,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.imageNotLoaded = false;
       this.videoNotLoaded = false;
     }
+    if (name === "contentMode" && newValue === "video") {
+      this.showLabel = true;
+    }
   }
   public getType(): string {
     return "imagepicker";
@@ -114,12 +117,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
-  public get multiSelect(): boolean {
-    return this.getPropertyValue("multiSelect");
-  }
-  public set multiSelect(newValue: boolean) {
-    this.setPropertyValue("multiSelect", newValue);
-  }
+  @property() multiSelect: boolean;
+
   public isItemSelected(item: ItemValue): boolean {
     var val = this.value;
     const imageItemValue = item as ImageItemValue;
@@ -171,12 +170,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/image-picker-question/ (linkStyle))
    */
-  public get showLabel(): boolean {
-    return this.getPropertyValue("showLabel");
-  }
-  public set showLabel(newValue: boolean) {
-    this.setPropertyValue("showLabel", newValue);
-  }
+  @property() showLabel: boolean;
+
   endLoadingFromJson() {
     super.endLoadingFromJson();
     if (!this.isDesignMode && this.multiSelect) {
@@ -216,12 +211,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageWidth
    */
-  public get imageHeight() {
-    return this.getPropertyValue("imageHeight");
-  }
-  public set imageHeight(val: number) {
-    this.setPropertyValue("imageHeight", val);
-  }
+  @property() imageHeight: number;
+
   public get imageScale() {
     return this.survey ? (this.survey as any)["widthScale"] / 100 : 1;
   }
@@ -240,12 +231,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * Use the [`imageFit`](#imageFit) property to specify how to fit the images or videos into their containers.
    * @see imageHeight
    */
-  public get imageWidth() {
-    return this.getPropertyValue("imageWidth");
-  }
-  public set imageWidth(val: number) {
-    this.setPropertyValue("imageWidth", val);
-  }
+  @property() imageWidth: number;
 
   @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth(): number {
@@ -259,12 +245,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * @see imageHeight
    * @see imageWidth
    */
-  public get imageFit(): string {
-    return this.getPropertyValue("imageFit");
-  }
-  public set imageFit(val: string) {
-    this.setPropertyValue("imageFit", val);
-  }
+  @property() imageFit: string;
   /**
    * Specifies the type of content that choice items display.
    *
@@ -273,15 +254,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * - `"image"` (default) - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
    * - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
    */
-  public get contentMode(): string {
-    return this.getPropertyValue("contentMode");
-  }
-  public set contentMode(val: string) {
-    this.setPropertyValue("contentMode", val);
-    if (val === "video") {
-      this.showLabel = true;
-    }
-  }
+  @property() contentMode: string;
   protected valueToData(val: any): any {
     return val;
   }

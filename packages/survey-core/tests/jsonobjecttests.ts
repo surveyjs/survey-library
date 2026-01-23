@@ -3180,6 +3180,24 @@ QUnit.test("Validated property values & get choices by obj, Bug#10818", function
   assert.equal(survey.jsonErrors, undefined, "There are no errors");
   Serializer.removeProperty("question", "prop1");
 });
+QUnit.test("Validated property values & get choices by obj vs callback function, Bug#10845", (assert) => {
+  Serializer.addProperty("question", { name: "prop1", choices: (obj: Base, choicesCallback: (choices: any) => void) => {
+    if (obj.getType() === "text") {
+      choicesCallback([1, 2, 3]);
+    } else {
+      choicesCallback([4, 5, 6]);
+    }
+  } });
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    elements: [
+      { type: "text", name: "q1", prop1: 2 },
+      { type: "checkbox", name: "q2", prop1: 5 }
+    ]
+  }, { validatePropertyValues: true });
+  assert.equal(survey.jsonErrors, undefined, "There are no errors");
+  Serializer.removeProperty("question", "prop1");
+});
 QUnit.test("Validated property values with boolean property type, Bug#10759", (assert) => {
   const survey = new SurveyModel();
   survey.fromJSON({

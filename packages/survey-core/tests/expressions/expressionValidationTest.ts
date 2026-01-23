@@ -655,3 +655,66 @@ QUnit.test("Test validateExpressions check constant in condition error", (assert
   assert.equal(result[0].errors[0].errorType, ExpressionErrorType.SemanticError, "error type is SemanticError");
   assert.equal(result[1].errors[0].errorType, ExpressionErrorType.SemanticError, "error type is SemanticError #2");
 });
+
+QUnit.skip("Direct - reports unknown variable inside paneldynamic ref outer questions #10841", (assert) => {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        templateElements: [{
+          type: "text",
+          name: "q3",
+          visibleIf: "{q1} notempty",
+        }],
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        columns: [{
+          name: "c1",
+          visibleIf: "{q1} notempty"
+        }]
+      },
+    ],
+  });
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  assert.equal(result.length, 0, "There are 0 invalid expressions");
+});
+
+QUnit.skip("fromJSON - reports unknown variable inside paneldynamic ref outer questions #10841", (assert) => {
+
+  var survey = new SurveyModel();
+  // survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        templateElements: [{
+          type: "text",
+          name: "q3",
+          visibleIf: "{q1} notempty",
+        }],
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        columns: [{
+          name: "c1",
+          visibleIf: "{q1} notempty"
+        }]
+      },
+    ],
+  });
+  let result = survey.validateExpressions({ functions: true, variables: true, semantics: true });
+  assert.equal(result.length, 0, "There are 0 invalid expressions");
+});

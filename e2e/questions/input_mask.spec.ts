@@ -89,22 +89,39 @@ frameworks.forEach((framework) => {
           },
         ],
       });
-      const emptyValue = "_____";
+      const pageEvaluate = async () => {
+        return await page.evaluate(() => {
+          return (window as any).survey.getAllQuestions()[0].value;
+        });
+      };
+      expect(await page.locator("input").first().inputValue()).toBe("_____");
+      expect(await pageEvaluate()).toBeUndefined();
 
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
-
-      await page.keyboard.type("1234");
-      expect(await page.locator("input").first().inputValue()).toBe("1234_");
-
-      await page.keyboard.press("Tab");
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
-
-      await page.locator("input").first().click();
       await page.keyboard.type("123");
       expect(await page.locator("input").first().inputValue()).toBe("123__");
+      expect(await pageEvaluate()).toBeUndefined();
 
       await page.keyboard.press("Tab");
-      expect(await page.locator("input").first().inputValue()).toBe(emptyValue);
+      expect(await page.locator("input").first().inputValue()).toBe("123__");
+      expect(await pageEvaluate()).toBeUndefined();
+
+      await page.locator("input").first().click();
+      await page.keyboard.type("4");
+      expect(await page.locator("input").first().inputValue()).toBe("1234_");
+      expect(await pageEvaluate()).toBeUndefined();
+
+      await page.keyboard.press("Tab");
+      expect(await page.locator("input").first().inputValue()).toBe("1234_");
+      expect(await pageEvaluate()).toBeUndefined();
+
+      await page.locator("input").first().click();
+      await page.keyboard.type("5");
+      expect(await page.locator("input").first().inputValue()).toBe("12345");
+      expect(await pageEvaluate()).toBeUndefined();
+
+      await page.keyboard.press("Tab");
+      expect(await page.locator("input").first().inputValue()).toBe("12345");
+      expect(await pageEvaluate()).toBe("12345");
     });
 
     test("mask and maxlength", async ({ page }) => {

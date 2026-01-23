@@ -29,6 +29,7 @@ export class ModalComponent {
       for (const modal of removedModals) {
         if (this.hosts[modal.uniqueId]) {
           this.hosts[modal.uniqueId].detach();
+          delete this.hosts[modal.uniqueId];
         }
       }
     };

@@ -24,9 +24,9 @@ export class PopupModalManager {
       }
     };
     modal.onVisibilityChanged.add(onVisibilityChangedCallback);
-    modal.model.isVisible = true;
     this.modals.push(modal);
     this.onModalsChanged([modal]);
+    modal.model.isVisible = true;
   }
   public addDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement) {
     const modal: PopupBaseViewModel = createPopupModalViewModel(

@@ -323,7 +323,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
     if (!this.useTemplatePanel) {
-      this.template.setSurveyImpl(<QuestionPanelDynamicItem>this.template.data);
+      new QuestionPanelDynamicItem(this, this.template);
     }
     const res = super.validateExpressions(options);
     if (!this.useTemplatePanel) {

@@ -2193,6 +2193,9 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get isPanel(): boolean {
     return true;
   }
+  public getOwner(): any {
+    return this.parent;
+  }
   /**
    * Returns a page to which the panel belongs and allows you to move this panel to a different page.
    * @see PanelModelBase.parent

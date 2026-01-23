@@ -1,15 +1,11 @@
 import { property, Serializer } from "./jsonobject";
-import { Helpers } from "./helpers";
 import {
   IPage,
   IPanel,
   IElement,
-  ISurveyElement,
-  ISurveyImpl,
   ISurvey,
 } from "./base-interfaces";
 import { PanelModelBase, PanelModel } from "./panel";
-import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 
@@ -32,6 +28,9 @@ export class PageModel extends PanelModel implements IPage {
   }
   public get isPanel(): boolean {
     return !!this.parent;
+  }
+  public getOwner(): any {
+    return this.survey;
   }
   public get showPanelAsPage(): boolean {
     return true;

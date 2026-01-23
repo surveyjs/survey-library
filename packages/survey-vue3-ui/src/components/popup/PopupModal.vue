@@ -1,10 +1,9 @@
 <template>
-  <Teleport v-if="popup" :to="popup.container"
-    ><SvComponent :is="'sv-popup-container'" :model="popup"
-  /></Teleport>
+  <Teleport v-for="model in models" :model="model" :key="model.uniqueId" :to="model.container">
+    <SvComponent :is="'sv-popup-container'" :model="model"/>
+  </Teleport>
 </template>
 <script lang="ts" setup>
-import SvComponent from "@/SvComponent.vue";
 import { onUnmounted, shallowRef } from "vue";
 import {
   PopupBaseViewModel,
@@ -12,14 +11,15 @@ import {
   settings,
   type IDialogOptions,
 } from "survey-core";
+import SvComponent from "@/SvComponent.vue";
 
-const popup = shallowRef<PopupBaseViewModel>();
+const models = shallowRef<Array<PopupBaseViewModel>>([]);
 
 function showDialog(
   dialogOptions: IDialogOptions,
   rootElement?: HTMLElement
 ): PopupBaseViewModel {
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
+  const model: PopupBaseViewModel = createPopupModalViewModel(
     dialogOptions,
     rootElement
   );
@@ -28,20 +28,28 @@ function showDialog(
     options: { isVisible: boolean }
   ) => {
     if (!options.isVisible) {
-      popup.value = undefined;
-      popupViewModel.dispose();
-      popupViewModel.onVisibilityChanged.remove(onVisibilityChangedCallback);
+      const index = models.value.indexOf(model);
+      if(index >= 0) {
+        models.value.splice(index, 1);
+        models.value = models.value.slice();
+      }
+      model.onVisibilityChanged.remove(onVisibilityChangedCallback);
+      model.dispose();
     }
   };
-  popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
-  popupViewModel.model.isVisible = true;
-  popup.value = popupViewModel;
-  return popupViewModel;
+  model.onVisibilityChanged.add(onVisibilityChangedCallback);
+  model.model.isVisible = true;
+  models.value = models.value.concat(model);
+  return model;
 }
 if (!settings.showDialog) {
   settings.showDialog = showDialog;
   onUnmounted(() => {
     settings.showDialog = undefined as any;
+    for(const model of models.value) {
+      model.dispose();
+    }
+    models.value = [];
   });
 }
 </script>

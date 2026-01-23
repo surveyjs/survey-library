@@ -7,7 +7,7 @@ import { createPopupModalViewModel, IDialogOptions, PopupBaseViewModel, settings
 interface IModalDescriptor { init: () => void, clean: () => void }
 
 export class PopupModal extends SurveyElementBase<{}, any> {
-  private model: PopupBaseViewModel;
+  private models: Array<PopupBaseViewModel> = [];
   private isInitialized: boolean = false;
   private descriptor: IModalDescriptor;
   constructor(props: {}) {
@@ -33,22 +33,26 @@ export class PopupModal extends SurveyElementBase<{}, any> {
     }
   }
   protected renderElement(): React.JSX.Element | null {
-    if (!this.model) return null;
-    return createPortal(<PopupContainer model={this.model}></PopupContainer>, this.model.container);
+    return <>{this.models.map(model => createPortal(<PopupContainer model={model}></PopupContainer>, model.container, model.uniqueId.toString()))}</>;
   }
   showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-    this.model = createPopupModalViewModel(dialogOptions, rootElement);
+    const model = createPopupModalViewModel(dialogOptions, rootElement);
     const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
       if (!options.isVisible) {
-        this.model.dispose();
-        this.model = undefined as any;
+        const index = this.models.indexOf(model);
+        if (index >= 0) {
+          this.models.splice(index, 1);
+        }
+        model.onVisibilityChanged.remove(onVisibilityChangedCallback);
         this.setState({ changed: this.state.changed + 1 });
+        model.dispose();
       }
     };
-    this.model.onVisibilityChanged.add(onVisibilityChangedCallback);
-    this.model.model.isVisible = true;
+    model.onVisibilityChanged.add(onVisibilityChangedCallback);
+    model.model.isVisible = true;
+    this.models.push(model);
     this.setState({ changed: this.state.changed + 1 });
-    return this.model;
+    return model;
   }
   init: () => void = () => {
     if (!this.isInitialized) {
@@ -68,10 +72,10 @@ export class PopupModal extends SurveyElementBase<{}, any> {
     PopupModal.addModalDescriptor(this.descriptor);
   }
   componentWillUnmount(): void {
-    if (this.model) {
-      this.model.dispose();
-      this.model = undefined as any;
+    for (const model of this.models) {
+      model.dispose();
     }
+    this.models = [];
     PopupModal.removeModalDescriptor(this.descriptor);
   }
 }

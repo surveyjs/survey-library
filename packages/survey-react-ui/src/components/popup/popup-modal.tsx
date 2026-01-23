@@ -2,14 +2,21 @@ import { createPortal } from "react-dom";
 import * as React from "react";
 import { PopupContainer } from "./popup";
 import { SurveyElementBase } from "../../reactquestion_element";
-import { createPopupModalViewModel, IDialogOptions, PopupBaseViewModel, settings } from "survey-core";
+import { IDialogOptions, PopupModalManager, settings } from "survey-core";
 
 interface IModalDescriptor { init: () => void, clean: () => void }
 
 export class PopupModal extends SurveyElementBase<{}, any> {
-  private models: Array<PopupBaseViewModel> = [];
+  private modalManager: PopupModalManager = this.createPopupModalManager();
   private isInitialized: boolean = false;
   private descriptor: IModalDescriptor;
+  private createPopupModalManager() {
+    const modalManager = new PopupModalManager();
+    modalManager.onModalsChangedCallback = () => {
+      this.setState({ changed: this.state.changed + 1 });
+    };
+    return modalManager;
+  }
   constructor(props: {}) {
     super(props);
     this.state = { changed: 0 };
@@ -18,6 +25,7 @@ export class PopupModal extends SurveyElementBase<{}, any> {
       clean: this.clean
     };
   }
+
   static modalDescriptors: Array<IModalDescriptor> = [];
   static addModalDescriptor(descriptor: IModalDescriptor): void {
     if (!settings.showDialog) {
@@ -33,32 +41,11 @@ export class PopupModal extends SurveyElementBase<{}, any> {
     }
   }
   protected renderElement(): React.JSX.Element | null {
-    return <>{this.models.map(model => createPortal(<PopupContainer model={model}></PopupContainer>, model.container, model.uniqueId.toString()))}</>;
-  }
-  showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-    const model = createPopupModalViewModel(dialogOptions, rootElement);
-    const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
-      if (!options.isVisible) {
-        const index = this.models.indexOf(model);
-        if (index >= 0) {
-          this.models.splice(index, 1);
-        }
-        model.onVisibilityChanged.remove(onVisibilityChangedCallback);
-        this.setState({ changed: this.state.changed + 1 });
-        model.dispose();
-      }
-    };
-    model.onVisibilityChanged.add(onVisibilityChangedCallback);
-    model.model.isVisible = true;
-    this.models.push(model);
-    this.setState({ changed: this.state.changed + 1 });
-    return model;
+    return <>{this.modalManager.getModals().map(model => createPortal(<PopupContainer model={model}></PopupContainer>, model.container, model.uniqueId.toString()))}</>;
   }
   init: () => void = () => {
     if (!this.isInitialized) {
-      settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
-        return this.showDialog(dialogOptions, rootElement);
-      };
+      settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => this.modalManager.addDialog(dialogOptions, rootElement);
       this.isInitialized = true;
     }
   };
@@ -72,10 +59,7 @@ export class PopupModal extends SurveyElementBase<{}, any> {
     PopupModal.addModalDescriptor(this.descriptor);
   }
   componentWillUnmount(): void {
-    for (const model of this.models) {
-      model.dispose();
-    }
-    this.models = [];
+    this.modalManager.clear();
     PopupModal.removeModalDescriptor(this.descriptor);
   }
 }

@@ -962,7 +962,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
     }
   }
   private updateItemIsPanelShowing(item: ChoiceItem) {
-    if (item && this.supportElementsInChoice()) {
+    if (item && item.supportElements) {
       item.setIsPanelShowing(item.hasElements && this.isItemSelected(item));
     }
   }

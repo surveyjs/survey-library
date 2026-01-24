@@ -214,12 +214,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`size`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/size) attribute of the underlying `<input>` element.
    */
-  public get inputSize(): number {
-    return this.getPropertyValue("inputSize");
-  }
-  public set inputSize(val: number) {
-    this.setPropertyValue("inputSize", val);
-  }
+  @property() inputSize: number;
   /**
    * @deprecated Use the [`inputSize`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputSize) property instead.
    */
@@ -262,12 +257,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
-  public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete");
-  }
-  public set autocomplete(val: string) {
-    this.setPropertyValue("autocomplete", val);
-  }
+  @property() autocomplete: string;
   /**
    * A value passed on to the [`min`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/min) attribute of the underlying `<input>` element.
    * @see minValueExpression
@@ -569,12 +559,7 @@ export class QuestionTextModel extends QuestionTextBase {
   /**
    * A value passed on to the [`step`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/step) attribute of the underlying `<input>` element.
    */
-  public get step(): string {
-    return this.getPropertyValue("step");
-  }
-  public set step(val: string) {
-    this.setPropertyValue("step", val);
-  }
+  @property() step: string;
   public get renderedStep(): string {
     if (this.isValueEmpty(this.step)) {
       return this.inputType !== "number" ? undefined : "any";

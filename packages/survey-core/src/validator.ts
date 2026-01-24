@@ -71,7 +71,7 @@ export class SurveyValidator extends Base {
    *
    * > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
    */
-  @property({ defaultValue: "" }) notificationType: string;
+  @property() notificationType: string;
   /**
    * An error message to display when a value fails validation.
    */

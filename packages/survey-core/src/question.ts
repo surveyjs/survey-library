@@ -716,12 +716,7 @@ export class Question extends SurveyElement<Question>
    * @see visible
    * @see isVisible
    */
-  public get visibleIf(): string {
-    return this.getPropertyValue("visibleIf", "");
-  }
-  public set visibleIf(val: string) {
-    this.setPropertyValue("visibleIf", val);
-  }
+  @property() visibleIf: string;
   /**
    * Returns `true` if the question is visible or the survey is currently in design mode.
    *
@@ -3219,7 +3214,7 @@ export class Question extends SurveyElement<Question>
       this.getComponentName() === "default"
     );
   }
-  @property({ defaultValue: "" }) renderAs: string;
+  @property() renderAs: string;
   @property({ defaultValue: false }) inMatrixMode: boolean;
 
   //ISurveyErrorOwner

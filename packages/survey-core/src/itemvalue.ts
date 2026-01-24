@@ -523,8 +523,7 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected setLocTitle(val: LocalizableString): void {}
   protected setTitle(val: string): void {}
-  public get icon(): string { return this.getPropertyValue("icon", ""); }
-  public set icon(val: string) { this.setPropertyValue("icon", val); }
+  @property({ defaultValue: "" }) icon: string;
 }
 
 Base.createItemValue = function (source: any, type?: string): any {

@@ -3,7 +3,7 @@ import { ISurveyValidatorOwner, ISurvey } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError, RequreNumericError } from "./error";
 import { LocalizableString } from "./localizablestring";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { HashTable, Helpers } from "./helpers";
 import { IValueGetterContext } from "./conditionProcessValue";
@@ -71,8 +71,7 @@ export class SurveyValidator extends Base {
    *
    * > If multiple notification types are eligible to be displayed for a question, only the strongest type is shown. Warnings appear only after all errors are resolved, and notes appear only when there are no errors or warnings.
    */
-  public get notificationType(): string { return this.getPropertyValue("notificationType"); }
-  public set notificationType(val: string) { this.setPropertyValue("notificationType", val); }
+  @property({ defaultValue: "" }) notificationType: string;
   /**
    * An error message to display when a value fails validation.
    */

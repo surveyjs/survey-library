@@ -1251,8 +1251,7 @@ export class QuestionSelectBase extends Question implements IChoiceOwner {
    * @see showOtherItem
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
-  public get separateSpecialChoices(): boolean { return this.getPropertyValue("separateSpecialChoices"); }
-  public set separateSpecialChoices(val: boolean) { this.setPropertyValue("separateSpecialChoices", val); }
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem

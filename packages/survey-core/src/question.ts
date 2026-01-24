@@ -335,8 +335,7 @@ export class Question extends SurveyElement<Question>
   public themeChanged(theme: ITheme): void { }
   private get _isMobile(): boolean { return this.getPropertyValue("_isMobile", false); }
   private set _isMobile(val: boolean) { this.setPropertyValue("_isMobile", val); }
-  public get forceIsInputReadOnly(): boolean { return this.getPropertyValue("forceIsInputReadOnly"); }
-  public set forceIsInputReadOnly(val: boolean) { this.setPropertyValue("forceIsInputReadOnly", val); }
+  @property() forceIsInputReadOnly: boolean;
   public get ariaExpanded(): "true" | "false" {
     if (this.isNewA11yStructure) {
       return null;
@@ -3220,11 +3219,8 @@ export class Question extends SurveyElement<Question>
       this.getComponentName() === "default"
     );
   }
-  public get renderAs(): string { return this.getPropertyValue("renderAs"); }
-  public set renderAs(val: string) { this.setPropertyValue("renderAs", val); }
-
-  public get inMatrixMode(): boolean { return this.getPropertyValue("inMatrixMode", false); }
-  public set inMatrixMode(val: boolean) { this.setPropertyValue("inMatrixMode", val); }
+  @property({ defaultValue: "" }) renderAs: string;
+  @property({ defaultValue: false }) inMatrixMode: boolean;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

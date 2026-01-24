@@ -80,9 +80,6 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
       this.imageNotLoaded = false;
       this.videoNotLoaded = false;
     }
-    if (name === "contentMode" && newValue === "video") {
-      this.showLabel = true;
-    }
   }
   public getType(): string {
     return "imagepicker";
@@ -254,7 +251,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    * - `"image"` (default) - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
    * - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
    */
-  @property() contentMode: string;
+  @property({ onSet: (val, obj) => {
+    if (val === "video") {
+      obj.showLabel = true;
+    }
+  } }) contentMode: string;
   protected valueToData(val: any): any {
     return val;
   }

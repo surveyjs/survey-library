@@ -21,9 +21,6 @@ export class QuestionImageModel extends QuestionNonValue {
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "contentMode" || name === "imageLink") {
-      if (newValue === "video") {
-        this.showLabel = true;
-      }
       this.calculateRenderedMode();
     }
   }
@@ -109,7 +106,11 @@ export class QuestionImageModel extends QuestionNonValue {
    * - `"youtube"` - A link to a YouTube video.
    * - `"auto"` (default) - Selects one of the above based on the [`imageLink`](https://surveyjs.io/form-library/documentation/questionimagemodel#imageLink) property.
    */
-  @property() contentMode: string;
+  @property({ onSet: (val, obj) => {
+    if (val === "video") {
+      obj.showLabel = true;
+    }
+  } }) contentMode: string;
   /**
    * Returns the type of content that the Image question displays: `"image"`, `"video"`, or `"youtube"`.
    * @see contentMode

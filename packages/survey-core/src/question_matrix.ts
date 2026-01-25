@@ -409,12 +409,7 @@ export class QuestionMatrixModel
   /**
    * The name of a component used to render cells.
    */
-  public get cellComponent(): string {
-    return this.getPropertyValue("cellComponent");
-  }
-  public set itemComponent(value: string) {
-    this.setPropertyValue("cellComponent", value);
-  }
+  @property() cellComponent: string;
   public get hasSingleInput(): boolean {
     return false;
   }

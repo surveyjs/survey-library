@@ -595,12 +595,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * Disable this property if you want to start dragging when users perform a scroll gesture.
   */
-  public get longTap(): boolean {
-    return this.getPropertyValue("longTap");
-  }
-  public set longTap(val: boolean) {
-    this.setPropertyValue("longTap", val);
-  }
+  @property() longTap: boolean;
 
   protected getDefaultItemComponent(): string {
     return "sv-ranking-item";
@@ -616,19 +611,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see selectToRankAreasLayout
   */
-  public get selectToRankEnabled(): boolean {
-    return this.getPropertyValue("selectToRankEnabled", false);
-  }
-  public set selectToRankEnabled(val: boolean) {
-    this.setPropertyValue("selectToRankEnabled", val);
-  }
+  @property({ defaultValue: false }) selectToRankEnabled: boolean;
 
-  public get selectToRankSwapAreas(): boolean {
-    return this.getPropertyValue("selectToRankSwapAreas", false);
-  }
-  public set selectToRankSwapAreas(val: boolean) {
-    this.setPropertyValue("selectToRankSwapAreas", val);
-  }
+  @property({ defaultValue: false }) selectToRankSwapAreas: boolean;
 
   @property({ defaultValue: true }) carryForwardStartUnranked: boolean;
 
@@ -643,12 +628,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * [View Demo](https://surveyjs.io/form-library/examples/select-items-to-rank/ (linkStyle))
    * @see selectToRankAreasLayout
   */
-  public get selectToRankAreasLayout(): string {
-    return this.getPropertyValue("selectToRankAreasLayout");
-  }
-  public set selectToRankAreasLayout(val: string) {
-    this.setPropertyValue("selectToRankAreasLayout", val);
-  }
+  @property() selectToRankAreasLayout: string;
 
   public get renderedSelectToRankAreasLayout(): string {
     if (this.isMobileMode()) return "vertical";

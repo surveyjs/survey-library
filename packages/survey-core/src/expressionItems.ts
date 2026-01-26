@@ -16,6 +16,9 @@ export class ExpressionItem extends Base implements ILocalizableOwner {
   public getType(): string {
     return "expressionitem";
   }
+  public getOwner() {
+    return this.locOwner;
+  }
   public runCondition(properties: any): boolean {
     let res = false;
     this.runExpressionByProperty("expression", properties, (val: any) => {

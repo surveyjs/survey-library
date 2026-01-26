@@ -28,6 +28,9 @@ export class CalculatedValue extends Base {
     this.data = data;
     this.rerunExpression();
   }
+  public getOwner() {
+    return this.data;
+  }
   public getType(): string {
     return "calculatedvalue";
   }

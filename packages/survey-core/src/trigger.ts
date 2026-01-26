@@ -211,6 +211,9 @@ export class SurveyTrigger extends Trigger {
   public setOwner(owner: ISurveyTriggerOwner) {
     this.ownerValue = owner;
   }
+  public getOwner() {
+    return this.owner;
+  }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner && !!(<any>this.owner)["getSurvey"]
       ? (<any>this.owner).getSurvey()

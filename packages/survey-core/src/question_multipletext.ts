@@ -97,6 +97,9 @@ export class MultipleTextItemModel extends Base
   public getType(): string {
     return "multipletextitem";
   }
+  public getOwner() {
+    return this.question;
+  }
   protected getAllChildren(): Base[] {
     return [
       ...super.getAllChildren(),

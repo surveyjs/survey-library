@@ -86,6 +86,9 @@ export class MatrixRowModel extends Base {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
+  public getOwner() {
+    return this.data;
+  }
   public get isVisible(): boolean { return this.item.isVisible; }
   public get value(): any {
     return this.getPropertyValue("value");

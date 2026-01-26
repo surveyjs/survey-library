@@ -817,6 +817,9 @@ export class Question extends SurveyElement<Question>
   public get isQuestion(): boolean {
     return true;
   }
+  public getOwner() {
+    return this.parentQuestion || this.parent;
+  }
   public moveTo(container: IPanel, insertBefore: any = null): boolean {
     return this.moveToBase(this.parent, container, insertBefore);
   }

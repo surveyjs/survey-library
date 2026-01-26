@@ -173,6 +173,9 @@ export class MatrixDropdownColumn extends Base
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.colOwner ? (<any>this.colOwner).survey : null;
   }
+  public getOwner() {
+    return this.colOwner;
+  }
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;

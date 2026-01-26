@@ -86,6 +86,7 @@ export * from "../surveyServiceRemovingTests";
 export * from "../surveyStateTests";
 export * from "../propertyNameArray_tests";
 export * from "../surveySeparateLocalesTests";
+export * from "../getOwner_test";
 
 // localization
 import "../../src/localization/russian";

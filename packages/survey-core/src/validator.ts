@@ -58,6 +58,9 @@ export class SurveyValidator extends Base {
       ? (<any>this.owner).getSurvey()
       : null;
   }
+  public getOwner() {
+    return this.owner;
+  }
   /**
    * Specifies the type of notification shown to users.
    *

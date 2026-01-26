@@ -69,8 +69,6 @@ import DetailButton from "./components/matrix-actions/detail-button/DetailButton
 import PanelDynamic from "./PanelDynamic.vue";
 import PanelDynamicProgress from "./PanelDynamicProgress.vue";
 import PanelDynamicPlaceholder from "./PanelDynamicPlaceholder.vue";
-import PaneldynamicAddBtn from "./components/paneldynamic-actions/PaneldynamicAddBtn.vue";
-import PaneldynamicRemoveBtn from "./components/paneldynamic-actions/PaneldynamicRemoveBtn.vue";
 import PaneldynamicProgressText from "./components/paneldynamic-actions/PaneldynamicProgressText.vue";
 
 import Errors from "./Errors.vue";
@@ -245,8 +243,6 @@ function registerComponents(
   registerComponent("survey-paneldynamic", PanelDynamic);
   registerComponent("survey-paneldynamicprogress", PanelDynamicProgress);
   registerComponent("survey-placeholder-paneldynamic", PanelDynamicPlaceholder);
-  registerComponent("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
-  registerComponent("sv-paneldynamic-remove-btn", PaneldynamicRemoveBtn);
   registerComponent("sv-paneldynamic-progress-text", PaneldynamicProgressText);
   registerComponent("sv-components-container", Container);
 

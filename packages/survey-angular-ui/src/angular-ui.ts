@@ -95,8 +95,6 @@ export * from "./questions/ranking-item.component";
 export * from "./questions/ranking-item-content.component";
 export * from "./survey-string.component";
 export * from "./string-editor.component";
-export * from "./components/paneldynamic-actions/paneldynamic-add-btn.component";
-export * from "./components/paneldynamic-actions/paneldynamic-remove-btn.component";
 export * from "./components/paneldynamic-actions/paneldynamic-progress-text.component";
 export * from "./questions/paneldynamic.component";
 export * from "./embedded-view-content.component";

@@ -98,8 +98,6 @@ export { SvgIcon } from "../src/components/svg-icon/svg-icon";
 export { SurveyQuestionMatrixDynamicRemoveButton } from "../src/components/matrix-actions/remove-button/remove-button";
 export { SurveyQuestionMatrixDetailButton } from "../src/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../src/components/matrix-actions/drag-drop-icon/drag-drop-icon";
-export { SurveyQuestionPanelDynamicAddButton } from "../src/components/paneldynamic-actions/paneldynamic-add-btn";
-export { SurveyQuestionPanelDynamicRemoveButton } from "../src/components/paneldynamic-actions/paneldynamic-remove-btn";
 export { SurveyQuestionPanelDynamicProgressText } from "../src/components/paneldynamic-actions/paneldynamic-progress-text";
 export { QuestionErrorComponent } from "../src/components/question-error";
 export { SliderLabelItem } from "../src/components/slider/slider-label-item";

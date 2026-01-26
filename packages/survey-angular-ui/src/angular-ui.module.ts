@@ -85,7 +85,6 @@ import { RankingItemComponent } from "./questions/ranking-item.component";
 import { RankingItemContentComponent } from "./questions/ranking-item-content.component";
 import { SurveyStringComponent } from "./survey-string.component";
 import { StringEditorComponent } from "./string-editor.component";
-import { PanelDynamicAddBtn } from "./components/paneldynamic-actions/paneldynamic-add-btn.component";
 import { PanelDynamicProgressText } from "./components/paneldynamic-actions/paneldynamic-progress-text.component";
 import { PanelDynamicQuestionComponent } from "./questions/paneldynamic.component";
 import { EmbeddedViewContentComponent } from "./embedded-view-content.component";
@@ -114,7 +113,6 @@ import { ButtonGroupItemComponent } from "./questions/button-group/button-group-
 import { MatrixRowComponent } from "./questions/matrix-row.component";
 import { LogoImageComponent } from "./components/survey-header/logo-image.component";
 import { SkeletonComponent } from "./components/skeleton/skeleton.component";
-import { PaneldynamicRemoveButtonComponent } from "./components/paneldynamic-actions/paneldynamic-remove-btn.component";
 import { TimerPanelComponent } from "./components/timer-panel/timer-panel.component";
 import { NotifierComponent } from "./components/notifier/notifier.component";
 import { ComponentsContainerComponent } from "./components-container.component";
@@ -136,7 +134,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
 
 @NgModule({
   declarations: [
-    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
+    VisibleDirective, Key2ClickDirective, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     TextAreaComponent,
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
@@ -151,7 +149,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent, QuestionErrorComponent,
-    CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
+    CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent,
     NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
     BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent, ImageMapQuestionComponent
   ],
@@ -159,7 +157,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     CommonModule, FormsModule
   ],
   exports: [
-    VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
+    VisibleDirective, Key2ClickDirective, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
     SurveyComponent, SurveyContentComponent, PopupSurveyComponent, PageComponent, PanelComponent, QuestionComponent, StringViewerComponent, SurveyStringComponent, StringEditorComponent,
     TextAreaComponent,
     QuestionSkeletonComponent, ScrollComponent, TextQuestionComponent, RadiogroupComponent, RadiogroupItemComponent, CheckboxComponent, CheckboxItemComponent,
@@ -175,7 +173,7 @@ import { ImageMapQuestionComponent } from "./questions/imagemap.component";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, RankingItemContentComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent,
     MatrixCellComponent, MatrixDropdownCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe,
-    CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
+    CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent,
     NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, FilePreviewComponent, SvgBundleComponent, FileItemComponent, FilePageComponent,
     BreadcrumbsComponent, SingleInputSummaryComponent, MatrixDynamicPlaceholderComponent, PanelDynamicPlaceholderComponent, ImageMapQuestionComponent
   ],

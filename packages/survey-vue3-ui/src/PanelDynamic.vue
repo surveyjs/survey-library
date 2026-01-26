@@ -34,9 +34,9 @@
             v-bind="getPanelComponentData(panel)"
           ></SvComponent>
           <SvComponent
-            :is="'sv-paneldynamic-remove-btn'"
+            :is="'sv-action'"
             v-if="question.canRenderRemovePanelOnRight(panel)"
-            :data="{ question, panel }"
+            :item="question.getRemovePanelAction(panel)"
           />
         </div>
         <hr

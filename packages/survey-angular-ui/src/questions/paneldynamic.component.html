@@ -15,7 +15,7 @@
           [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
         <ng-container *ngIf="model.canRenderRemovePanelOnRight(panel)">
           <ng-template
-            [component]="{ name: 'sv-paneldynamic-remove-btn', data: { data: { panel, question: model }}}"></ng-template>
+            [component]="{ name: 'sv-action', data: { model: model.getRemovePanelAction(panel)}}"></ng-template>
         </ng-container>
       </div>
       <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)" />

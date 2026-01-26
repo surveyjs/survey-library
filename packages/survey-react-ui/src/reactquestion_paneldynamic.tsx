@@ -6,6 +6,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElement } from "./reactquestion_element";
+import { SurveyAction } from "./components/action-bar/action-bar-item";
 
 export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -132,9 +133,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   }
   protected renderButton(): React.JSX.Element | null {
     if (!this.question.canRenderRemovePanelOnRight(this.panel)) return null;
-    return ReactElementFactory.Instance.createElement("sv-paneldynamic-remove-btn", {
-      data: { question: this.question, panel: this.panel }
-    });
+    return <SurveyAction item={this.question.getRemovePanelAction(this.panel)}></SurveyAction>;
   }
 }
 
@@ -156,10 +155,9 @@ export class SurveyQuestionPanelDynamicPlaceholder extends ReactSurveyElement {
       </div>
     );
   }
-  protected renderAddRowButton(question: Question): React.JSX.Element {
-    return ReactElementFactory.Instance.createElement("sv-paneldynamic-add-btn", {
-      data: { question: question }
-    });
+  protected renderAddRowButton(question: QuestionPanelDynamicModel): React.JSX.Element {
+    if (!question.canAddPanel) return null;
+    return <SurveyAction item={question.addPanelAction}></SurveyAction>;
   }
 }
 

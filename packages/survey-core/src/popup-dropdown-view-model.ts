@@ -9,6 +9,7 @@ import { SurveyModel } from "./survey";
 import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 import { IAction } from "./actions/action";
 import { defaultActionBarCss } from "./actions/container";
+import { getRootNode } from "./utils/utils";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   static readonly tabletSizeBreakpoint = 600;
@@ -243,8 +244,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     super.resetComponentElement();
   }
   public updateOnShowing(): void {
-    const root = this.container?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(this.container);
+    if (!root) return;
     this.prevActiveElement = <HTMLElement>root.activeElement;
 
     if (this.isOverlay) {

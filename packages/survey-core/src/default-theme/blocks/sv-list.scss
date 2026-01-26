@@ -142,7 +142,7 @@
   }
 }
 
-[dir="rtl"],
+:dir(rtl),
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sv-list__item-icon {

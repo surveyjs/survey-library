@@ -13,7 +13,7 @@ import {
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
 import { TextContextProcessor } from "./textPreProcessor";
-import { Base } from "./base";
+import { Base, IExpressionValidationOptions, IExpressionValidationResult } from "./base";
 import { Question, QuestionValueGetterContext, IConditionObject, IQuestionPlainData, QuestionItemValueGetterContext, QuestionArrayGetterContext, ValidationContext } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, propertyArray, Serializer } from "./jsonobject";
@@ -326,6 +326,16 @@ export class QuestionPanelDynamicModel extends Question
     if (name === "tabAlign" && this.isRenderModeTab) {
       this.tabbedMenu.containerCss = this.getTabbedMenuCss();
     }
+  }
+  public validateExpressions(options: IExpressionValidationOptions = { functions: true, variables: true, semantics: true }): IExpressionValidationResult[] {
+    if (!this.useTemplatePanel) {
+      new QuestionPanelDynamicItem(this, this.template);
+    }
+    const res = super.validateExpressions(options);
+    if (!this.useTemplatePanel) {
+      this.setTemplatePanelSurveyImpl();
+    }
+    return res;
   }
   public get isCompositeQuestion(): boolean { return true; }
   public get isContainer(): boolean { return true; }

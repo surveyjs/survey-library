@@ -26,6 +26,7 @@ import { getRootNode } from "./utils/utils";
  */
 export class QuestionTextModel extends QuestionTextBase {
   private maskInputAdapter: InputElementAdapter;
+  private doNotUpdateInputValue: boolean = false;
 
   private createMaskAdapter() {
     if (!!this.input && !this.maskTypeIsEmpty) {
@@ -356,14 +357,20 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set inputValue(val: string) {
     let value = val;
-    this._inputValue = val;
+    let _inputValue = val;
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
-      this._inputValue = this.maskInstance.getMaskedValue(value);
-      if (!!value && this.maskSettings.saveMaskedValue) {
-        value = this._inputValue;
+      if (value === undefined || value === null || value === "") {
+        this.doNotUpdateInputValue = true;
+        value = undefined;
+      } else {
+        _inputValue = this.maskInstance.getMaskedValue(value);
+        if (!!value && this.maskSettings.saveMaskedValue) {
+          value = _inputValue;
+        }
       }
     }
+    this._inputValue = _inputValue;
     if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
       this.value = value;
     }
@@ -391,6 +398,10 @@ export class QuestionTextModel extends QuestionTextBase {
 
   private updateInputValue() {
     const _value = this.value;
+    if (this.doNotUpdateInputValue) {
+      this.doNotUpdateInputValue = false;
+      return;
+    }
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {

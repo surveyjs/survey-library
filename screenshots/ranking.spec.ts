@@ -290,5 +290,39 @@ frameworks.forEach(framework => {
       await page.locator(".sv-ranking-item").first().hover();
       await compareScreenshot(page, ".sd-question", "question-ranking-hover-long-item.png");
     });
+
+    test("RTL", async ({ page }) => {
+      await page.setViewportSize({ width: 1920, height: 1080 });
+      const json = {
+        "locale": "ar",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "ranking",
+                "name": "question1",
+                "selectToRankEnabled": true,
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(page, framework, json);
+      await page.locator(".sv-ranking-item").first().hover();
+      await compareScreenshot(page, ".sd-question", "rtl-question-ranking-hover-item.png");
+
+      const element = page.locator(".sv-ranking-item__text span").filter({ hasText: "Item 1" });
+      const target = page.locator(".sd-question");
+      await doDrag({ page, element, target });
+
+      const maxDiffPixels = 10;
+      await compareScreenshot(page, ".sd-question", "rtl-question-ranking-shortcut-position-container-layout.png", 0, maxDiffPixels);
+    });
   });
 });

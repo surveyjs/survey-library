@@ -49,7 +49,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -5765,8 +5765,8 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    const root = htmlElement?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(htmlElement);
+    if (!root) return;
     if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {

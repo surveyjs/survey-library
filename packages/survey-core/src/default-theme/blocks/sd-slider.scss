@@ -695,7 +695,7 @@ input[type="range"][name="range-input"].sd-slider__input::-moz-range-thumb {
   }
 }
 
-[dir="rtl"],
+:dir(rtl),
 [style*="direction:rtl"],
 [style*="direction: rtl"] {
   .sd-slider,

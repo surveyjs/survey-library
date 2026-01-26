@@ -59,14 +59,27 @@ QUnit.test("Pattern mask: value is incompleted", function (assert) {
   q.maskType = "pattern";
   q.maskSettings.fromJSON({ pattern: "+99-99", saveMaskedValue: true });
 
-  q.inputValue = "+12-";
-  assert.equal(q.value, undefined, "masked value");
-  assert.equal(q.inputValue, "+__-__", "masked inputValue");
+  q.inputValue = "+12-__";
+  assert.equal(q.value, undefined, "incomplete masked value");
+  assert.equal(q.inputValue, "+12-__", "incomplete masked inputValue");
+
+  q.inputValue = "+12-34";
+
+  q.inputValue = "+12-__";
+  assert.equal(q.value, undefined, "incomplete masked value");
+  assert.equal(q.inputValue, "+12-__", "incomplete masked inputValue");
 
   q.maskSettings.fromJSON({ pattern: "+99-99", saveMaskedValue: false });
-  q.inputValue = "+45-";
-  assert.equal(q.value, undefined, "unmasked value");
-  assert.equal(q.inputValue, "+__-__", "unmasked inputValue");
+
+  q.inputValue = "+45-__";
+  assert.equal(q.value, undefined, "incomplete unmasked value (saveMaskedValue: false)");
+  assert.equal(q.inputValue, "+45-__", "incomplete unmasked inputValue (saveMaskedValue: false)");
+
+  q.inputValue = "+12-34";
+
+  q.inputValue = "+45-__";
+  assert.equal(q.value, undefined, "incomplete unmasked value (saveMaskedValue: false)");
+  assert.equal(q.inputValue, "+45-__", "incomplete unmasked inputValue (saveMaskedValue: false)");
 });
 
 QUnit.test("Switch mask type", function (assert) {
@@ -122,8 +135,8 @@ QUnit.test("Datetime mask: value & inputValue", function (assert) {
   assert.equal(q.inputValue, "12/03/2024", "unmasked inputValue #1");
 
   q.inputValue = "12/03/202y";
-  assert.equal(q.value, "", "unmasked value #2");
-  assert.equal(q.inputValue, "dd/mm/yyyy", "unmasked inputValue #2");
+  assert.equal(q.value, undefined, "unmasked value #2");
+  assert.equal(q.inputValue, "12/03/202y", "unmasked inputValue #2");
 
   q.maskSettings.saveMaskedValue = true;
 
@@ -132,8 +145,8 @@ QUnit.test("Datetime mask: value & inputValue", function (assert) {
   assert.equal(q.inputValue, "12/03/2024", "masked inputValue #3");
 
   q.inputValue = "12/03/202y";
-  assert.equal(q.value, "", "masked value #4");
-  assert.equal(q.inputValue, "dd/mm/yyyy", "masked inputValue #4");
+  assert.equal(q.value, undefined, "masked value #4");
+  assert.equal(q.inputValue, "12/03/202y", "masked inputValue #4");
 });
 
 QUnit.test("Pattern mask: value & inputValue", function (assert) {
@@ -145,8 +158,8 @@ QUnit.test("Pattern mask: value & inputValue", function (assert) {
   assert.equal(q.inputValue, "123-456", "unmasked inputValue #1");
 
   q.inputValue = "123-45_";
-  assert.equal(q.value, "", "unmasked value #2");
-  assert.equal(q.inputValue, "___-___", "unmasked inputValue #2");
+  assert.equal(q.value, undefined, "unmasked value #2");
+  assert.equal(q.inputValue, "123-45_", "unmasked inputValue #2");
 
   q.maskSettings.saveMaskedValue = true;
 
@@ -155,8 +168,8 @@ QUnit.test("Pattern mask: value & inputValue", function (assert) {
   assert.equal(q.inputValue, "123-456", "masked inputValue #3");
 
   q.inputValue = "123-45_";
-  assert.equal(q.value, "", "masked value #4");
-  assert.equal(q.inputValue, "___-___", "masked inputValue #4");
+  assert.equal(q.value, undefined, "masked value #4");
+  assert.equal(q.inputValue, "123-45_", "masked inputValue #4");
 });
 
 QUnit.test("Numeric mask: value & inputValue", function (assert) {

@@ -298,6 +298,7 @@ export { PopupBaseViewModel } from "../../src/popup-view-model";
 export { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 export { PopupModalViewModel } from "../../src/popup-modal-view-model";
 export { createPopupViewModel, createPopupModalViewModel } from "../../src/popup-utils";
+export { PopupModalManager } from "../../src/popup-modal-manager";
 export { DropdownListModel } from "../../src/dropdownListModel";
 export { DropdownMultiSelectListModel } from "../../src/dropdownMultiSelectListModel";
 export {

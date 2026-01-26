@@ -383,6 +383,13 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.columns,
+      ...this.rows,
+    ];
+  }
   /**
    * Specifies the type of matrix cells.
    *

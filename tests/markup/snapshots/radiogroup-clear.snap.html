@@ -1,22 +1,48 @@
-<fieldset aria-invalid="false" aria-label="Question title" aria-required="false" class="sd-selectbase" role="radiogroup">
-	<div class="sd-item sd-item--allowhover sd-radio sd-radio--allowhover sd-selectbase__item sv-q-col-1" role="presentation">
-		<label class="sd-selectbase__label">
-			<input class="sd-item__control sd-radio__control sd-visuallyhidden" id="testid0i_0" name="name_testid0" type="radio" value="item1">
-			<span class="sd-item__decorator sd-radio__decorator">
-			</span>
-			<span class="sd-item__control-label">
-				<span class="sv-string-viewer">item1</span>
-			</span>
-		</label>
+<div class="sd-element__title sd-question__title sd-title" id="testid0_ariaTitle">
+	<div class="sv-title-actions">
+		<span class="sv-title-actions__title">
+			<span class="sv-string-viewer sv-string-viewer--multiline">Question title</span>
+		</span>
+		<div class="sd-action-bar sd-action-title-bar" style="opacity:0;">
+			<div class="sv-action">
+				<div class="sv-action__content">
+					<button aria-labelledby="testid0_ariaTitle" class="sd-action" role="button" tabindex="0" title="Clear" type="button">
+						<span class="sd-action__title">Clear</span>
+					</button>
+				</div>
+			</div>
+			<div class="sv-action sv-action--hidden sv-dots">
+				<div class="sv-action__content">
+					<button class="sd-action sd-action--icon sv-dots__item" role="button" tabindex="0" title="More" type="button">
+						<svg class="sd-action__icon sv-svg-icon" role="presentation" style="height:24px; width:24px;">
+							<use xlink:href="#icon-more-24x24" class="">
+							</use>
+							<title class="">More</title>
+						</svg>
+					</button>
+					<div>
+						<div class="sv-popup sv-popup--left sv-popup--menu-popup sv-popup--show-pointer" style="display:none;" tabindex="-1">
+							<div class="sv-popup__container">
+								<span class="sv-popup__pointer">
+								</span>
+								<div class="sv-popup__body-content">
+									<div class="sv-popup__scrolling-content">
+										<div class="sv-popup__content">
+											<div class="sv-list__container">
+												<div class="sv-list__empty-container">
+													<div aria-label="No data to display" class="sv-list__empty-text">No data to display</div>
+												</div>
+												<ul class="sv-list" role="menu" style="display:none;">
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
-	<div class="sd-item sd-item--allowhover sd-radio sd-radio--allowhover sd-selectbase__item sv-q-col-1" role="presentation">
-		<label class="sd-selectbase__label">
-			<input class="sd-item__control sd-radio__control sd-visuallyhidden" id="testid0i_1" name="name_testid0" type="radio" value="item2">
-			<span class="sd-item__decorator sd-radio__decorator">
-			</span>
-			<span class="sd-item__control-label">
-				<span class="sv-string-viewer">item2</span>
-			</span>
-		</label>
-	</div>
-</fieldset>
+</div>

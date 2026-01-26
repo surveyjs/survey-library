@@ -4868,6 +4868,29 @@ QUnit.test("question.isInputTextUpdate", function (assert) {
   question.inputType = "date";
   assert.equal(question.isInputTextUpdate, true, "inputType = date && settings.updateDateOnTyping = true");
 });
+
+QUnit.test("Possible to submit a survey without selecting color #10808", (assert) =>{
+
+  const input = document.createElement("input");
+  input.type = "color";
+
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "text",
+      "name": "q1",
+      "isRequired": true,
+      "inputType": "color"
+    }],
+  });
+
+  const q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+
+  q1.onBlur({ target: input });
+  assert.equal(q1.isEmpty(), true, "value is empty");
+  q1.onChange({ target: input });
+  assert.equal(q1.isEmpty(), false, "value is not empty");
+});
+
 QUnit.test("question.isInputTextUpdate && mask", function (assert) {
   const survey = new SurveyModel({
     textUpdateMode: "onTyping",

@@ -97,8 +97,8 @@ function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  const root = element?.getRootNode() || settings.environment.root;
-  if (!(root instanceof Document || root instanceof ShadowRoot) || !element.offsetHeight) return false;
+  const root = getRootNode(element);
+  if (!root || !element.offsetHeight) return false;
 
   const clientHeight = isShadowDOM(root)
     ? root.host.clientHeight
@@ -138,8 +138,9 @@ function findScrollableParent(element: Element): Element {
     return element;
   }
   if (!element.parentElement) {
-    const rootNode = element.getRootNode();
-    if (rootNode instanceof Document || rootNode instanceof ShadowRoot) {
+
+    const rootNode = getRootNode(<HTMLElement>element);
+    if (rootNode) {
       return isShadowDOM(rootNode) ? rootNode.host : rootNode.documentElement;
     }
   }
@@ -829,6 +830,22 @@ export function cleanHtmlElementAfterAnimation(el: HTMLElement): void {
 }
 export function floorTo2Decimals(number: number): number {
   return Math.floor(number * 100) / 100;
+}
+
+export function getRootNode(node: Element): Document | ShadowRoot | null {
+  const root = node?.getRootNode() || settings.environment.root;
+  if (!(root instanceof Document || root instanceof ShadowRoot)) return null;
+  return root;
+}
+
+export function getActiveElement(): Element | null {
+  const doc = DomDocumentHelper.getDocument();
+  if (!doc) return null;
+  let activeElement = doc.activeElement;
+  if (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement) {
+    activeElement = activeElement.shadowRoot.activeElement;
+  }
+  return activeElement;
 }
 
 export {

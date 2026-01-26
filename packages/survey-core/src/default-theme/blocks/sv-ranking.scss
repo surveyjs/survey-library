@@ -172,7 +172,7 @@
   top: calcSize(0.5);
 }
 
-[dir="rtl"] .sv-ranking-item__ghost {
+:dir(rtl) .sv-ranking-item__ghost {
   left: initilal;
   right: calcSize(5);
 }
@@ -277,7 +277,9 @@
   border-radius: calc(12.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
   min-width: 100px;
   max-width: 400px;
-  box-shadow: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
+  box-shadow:
+    var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)),
+    var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
   background-color: var(--sjs-general-backcolor, var(--background, #fff));
   font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
 
@@ -285,7 +287,6 @@
     height: calcSize(6);
 
     .sv-ranking-item__text {
-
       .sv-string-viewer,
       .sv-string-editor {
         overflow: hidden;
@@ -333,7 +334,6 @@
   animation-duration: $ranking-move-in-duration, $ranking-fade-in-duration;
   animation-delay: 0s, $ranking-fade-in-delay;
 }
-
 
 .sv-ranking-item--animate-item-adding-empty {
   animation-name: fadeIn;

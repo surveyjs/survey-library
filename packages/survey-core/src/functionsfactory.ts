@@ -336,6 +336,15 @@ function dateAdd(params: any[]): any {
   if (interval === "years") {
     date.setFullYear(date.getFullYear() + valToAdd);
   }
+  if (interval === "hours") {
+    date.setHours(date.getHours() + valToAdd);
+  }
+  if (interval === "minutes") {
+    date.setMinutes(date.getMinutes() + valToAdd);
+  }
+  if (interval === "seconds") {
+    date.setSeconds(date.getSeconds() + valToAdd);
+  }
   return date;
 }
 

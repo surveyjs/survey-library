@@ -133,6 +133,7 @@ QUnit.test("singleInput and navigation buttons visibilty", assert => {
     questionsOnPageMode: "inputPerPage",
   });
   const panel = survey.getQuestionByName("panel1");
+  assert.equal(panel.locRemovePanelText.textOrHtml, "Remove", "locRemovePanelText");
   assert.equal(panel.singleInputQuestion.name, "q1", "singleInputQuestion, #0.1");
   panel.singleInputQuestion.value = "a";
   survey.performNext();

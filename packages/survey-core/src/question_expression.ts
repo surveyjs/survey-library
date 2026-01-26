@@ -1,6 +1,6 @@
 import { HashTable, Helpers, createDate } from "./helpers";
 import { Question } from "./question";
-import { Serializer } from "./jsonobject";
+import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
@@ -28,15 +28,7 @@ export class QuestionExpressionModel extends Question {
    * A string that formats a question value. Use `{0}` to reference the question value in the format string.
    * @see displayStyle
    */
-  public get format(): string {
-    return this.getLocStringText(this.locFormat) || "";
-  }
-  public set format(val: string) {
-    this.setLocStringText(this.locFormat, val);
-  }
-  get locFormat(): LocalizableString {
-    return this.getOrCreateLocStr("format");
-  }
+  @property({ localizable: true }) format: string;
   /**
    * An expression used to calculate the question value.
    *

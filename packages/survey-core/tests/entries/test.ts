@@ -34,6 +34,7 @@ export * from "../dragdropcoretests";
 export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest"; //
 export * from "../expressions/expressionParserTest"; //
+export * from "../expressions/expressionValidationTest"; //
 export * from "../questionDropdownTests";
 export * from "../questionImagepicker";
 export * from "../questionBooleanTests";

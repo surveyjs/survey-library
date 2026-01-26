@@ -5,7 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
-import { getElement } from "./utils/utils";
+import { getActiveElement, getElement } from "./utils/utils";
 
 import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
 import { DomDocumentHelper } from "./global_variables_utils";
@@ -210,11 +210,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
 
-    // eslint-disable-next-line no-restricted-globals
-    let activeElement = document.activeElement;
-    if (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement) {
-      activeElement = activeElement.shadowRoot.activeElement;
-    }
+    let activeElement = getActiveElement();
 
     if (event.shiftKey) {
       if (activeElement === firstFocusableElement) {
@@ -242,11 +238,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
 
   public updateOnShowing(): void {
-    // eslint-disable-next-line no-restricted-globals
-    let activeElement = document.activeElement;
-    if (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement) {
-      activeElement = activeElement.shadowRoot.activeElement;
-    }
+    let activeElement = getActiveElement();
     this.prevActiveElement = <HTMLElement>activeElement;
 
     if (this.isOverlay) {

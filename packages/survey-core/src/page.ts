@@ -110,21 +110,13 @@ export class PageModel extends PanelModel implements IPage {
   public set navigationTitle(val: string) {
     this.setLocStringText(this.locNavigationTitle, val);
   }
-  public get navigationDescription(): string {
-    return this.getLocStringText(this.locNavigationDescription);
-  }
-  public set navigationDescription(val: string) {
-    this.setLocStringText(this.locNavigationDescription, val);
-  }
-  public get locNavigationDescription(): LocalizableString {
-    return this.getOrCreateLocStr("navigationDescription");
-  }
+  @property({ localizable: true }) navigationDescription: string;
   public navigationLocStrChanged(): void {
-    if (this.locNavigationTitle.isEmpty) {
+    if (this.isLocStrEmpty("navigationTitle")) {
       this.locTitle.strChanged();
     }
-    this.locNavigationTitle.strChanged();
-    this.locNavigationDescription.strChanged();
+    this.locStrChanged("navigationTitle");
+    this.locStrChanged("navigationDescription");
   }
   getMarkdownHtml(text: string, name: string, item?: any): string {
     const result = super.getMarkdownHtml(text, name, item);

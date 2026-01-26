@@ -1,6 +1,6 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog, getSafeUrl, compareArrays, setPropertiesOnElementForAnimation, cleanHtmlElementAfterAnimation, isBase64URL, getRootNode, getActiveElement } from "../src/utils/utils";
 import { mouseInfo, detectMouseSupport, MatchMediaMethod, calculateIsTablet } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
@@ -1105,4 +1105,44 @@ QUnit.test("calculateIsTablet function", (assert) => {
   assert.ok(result);
   result = calculateIsTablet(700, 700);
   assert.ok(result);
+});
+
+QUnit.test("test getRootNode function", (assert) => {
+  const div = document.createElement("div");
+  const shadowDiv = document.createElement("div");
+  let res = getRootNode(div);
+  assert.equal(res, null, "detached node doesn't have rootNode");
+  document.body.appendChild(div);
+  res = getRootNode(div);
+  assert.equal(res, document, "document is rootNode");
+  const shadowRoot = div.attachShadow({ mode: "open" });
+  shadowRoot.appendChild(shadowDiv);
+  res = getRootNode(shadowDiv);
+  assert.equal(res, shadowRoot, "shadowRoot is rootNode");
+  document.body.removeChild(div);
+});
+
+QUnit.test("test getActiveElement function", (assert) => {
+  const div = document.createElement("div");
+  const shadowDiv = document.createElement("div");
+  const input = document.createElement("input");
+  const shadowInput = document.createElement("input");
+  const shadowRoot = shadowDiv.attachShadow({ mode: "open" });
+  shadowRoot.appendChild(shadowInput);
+  div.appendChild(input);
+  document.body.appendChild(div);
+  document.body.appendChild(shadowDiv);
+
+  let res = getActiveElement();
+  assert.equal(res, document.body, "no active element");
+
+  input.focus();
+  res = getActiveElement();
+  assert.equal(res, input, "div is active element");
+
+  shadowInput.focus();
+  res = getActiveElement();
+  assert.equal(res, shadowInput, "shadowDiv is active element");
+  document.body.removeChild(div);
+  document.body.removeChild(shadowDiv);
 });

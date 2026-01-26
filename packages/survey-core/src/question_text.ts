@@ -11,6 +11,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
 import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
+import { getRootNode } from "./utils/utils";
 
 /**
  * A class that describes the Single-Line Input question type, which is used to create textual, numeric, date-time, and color input fields.
@@ -25,6 +26,7 @@ import { getAvailableMaskTypeChoices, IInputMask } from "./mask/mask_utils";
  */
 export class QuestionTextModel extends QuestionTextBase {
   private maskInputAdapter: InputElementAdapter;
+  private doNotUpdateInputValue: boolean = false;
 
   private createMaskAdapter() {
     if (!!this.input && !this.maskTypeIsEmpty) {
@@ -327,29 +329,13 @@ export class QuestionTextModel extends QuestionTextBase {
    * @see min
    * @see minValueExpression
    */
-  public get minErrorText(): string {
-    return this.getLocStringText(this.locMinErrorText);
-  }
-  public set minErrorText(val: string) {
-    this.setLocStringText(this.locMinErrorText, val);
-  }
-  get locMinErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("minErrorText", true, "minError");
-  }
+  @property({ localizable: { defaultStr: "minError", markdown: true } }) minErrorText: string;
   /**
    * An error message to display when the question value exceeds the maximum accepted value.
    * @see max
    * @see maxValueExpression
    */
-  public get maxErrorText(): string {
-    return this.getLocStringText(this.locMaxErrorText);
-  }
-  public set maxErrorText(val: string) {
-    this.setLocStringText(this.locMaxErrorText, val);
-  }
-  get locMaxErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("maxErrorText", true, "maxError");
-  }
+  @property({ localizable: { defaultStr: "maxError", markdown: true } }) maxErrorText: string;
 
   /**
    * Returns `true` if the specified `inputType` supports the `min` and `max` properties.
@@ -371,14 +357,20 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set inputValue(val: string) {
     let value = val;
-    this._inputValue = val;
+    let _inputValue = val;
     if (!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
-      this._inputValue = this.maskInstance.getMaskedValue(value);
-      if (!!value && this.maskSettings.saveMaskedValue) {
-        value = this._inputValue;
+      if (value === undefined || value === null || value === "") {
+        this.doNotUpdateInputValue = true;
+        value = undefined;
+      } else {
+        _inputValue = this.maskInstance.getMaskedValue(value);
+        if (!!value && this.maskSettings.saveMaskedValue) {
+          value = _inputValue;
+        }
       }
     }
+    this._inputValue = _inputValue;
     if (!Helpers.isTwoValueEquals(this.value, value, false, true)) {
       this.value = value;
     }
@@ -406,6 +398,10 @@ export class QuestionTextModel extends QuestionTextBase {
 
   private updateInputValue() {
     const _value = this.value;
+    if (this.doNotUpdateInputValue) {
+      this.doNotUpdateInputValue = false;
+      return;
+    }
     if (this.maskTypeIsEmpty) {
       this._inputValue = _value;
     } else if (this.maskSettings.saveMaskedValue) {
@@ -629,7 +625,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.locDataListValue?.hasValue() ? this.id + "_datalist" : undefined;
   }
   protected isPropertyStoredInHash(name: string): boolean {
-    if (name === "dataList" && !this.locDataListValue) return true;
+    if (name === "dataList") return !this.locDataListValue;
     return super.isPropertyStoredInHash(name);
   }
   protected setNewValue(newValue: any): void {
@@ -684,8 +680,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   //web-based methods
   private _isWaitingForEnter = false;
+  private _isColorValueChanged = false;
 
   private updateValueOnEvent(event: any) {
+    if (this.inputType === "color" && !this._isColorValueChanged) return;
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
       this.inputValue = newValue;
@@ -733,9 +731,10 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   };
   public onChange = (event: any): void => {
+    this._isColorValueChanged = true;
     this.updateDateValidationMessage(event);
-    const root = this.input?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(this.input);
+    if (!root) return;
     const elementIsFocused = event.target === root.activeElement;
     if (elementIsFocused) {
       if (this.isInputTextUpdate) {

@@ -49,7 +49,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, activateLazyRenderingChecks, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles, classesToSelector, getRootNode } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -1152,6 +1152,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
     this.setCalculatedWidthModeUpdater();
   }
+  locEditText: LocalizableString;
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "questionsOnPageMode") {
@@ -2237,6 +2238,15 @@ export class SurveyModel extends SurveyElementCore
     }
     this.navigationBarValue?.locStrsChanged();
   }
+  protected getAllChildren(): Base[] {
+    let result = super.getAllChildren();
+    result.push(...this.pages);
+    result.push(...this.calculatedValues);
+    result.push(...this.triggers);
+    result.push(...this.completedHtmlOnCondition);
+    result.push(...this.navigateToUrlOnCondition);
+    return result;
+  }
   public getMarkdownHtml(text: string, name: string, item?: any): string {
     return this.getSurveyMarkdownHtml(this, text, name, item);
   }
@@ -2312,15 +2322,7 @@ export class SurveyModel extends SurveyElementCore
    * A message that is displayed when a survey does not contain visible pages or questions.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get emptySurveyText(): string {
-    return this.getLocStringText(this.locEmptySurveyText);
-  }
-  public set emptySurveyText(val: string) {
-    this.setLocStringText(this.locEmptySurveyText, val);
-  }
-  public get locEmptySurveyText(): LocalizableString {
-    return this.getOrCreateLocStr("emptySurveyText", true, "emptySurvey");
-  }
+  @property({ localizable: { defaultStr: "emptySurvey", markdown: true } }) emptySurveyText: string;
   //#region Title/Header options
   /**
    * An image URL or a Base64-encoded image to use as a survey logo.
@@ -2329,15 +2331,7 @@ export class SurveyModel extends SurveyElementCore
    * @see logoPosition
    * @see logoFit
    */
-  public get logo(): string {
-    return this.getLocStringText(this.locLogo);
-  }
-  public set logo(value: string) {
-    this.setLocStringText(this.locLogo, value);
-  }
-  get locLogo(): LocalizableString {
-    return this.getOrCreateLocStr("logo");
-  }
+  @property({ localizable: true }) logo: string;
   /**
    * A logo width in CSS-accepted values.
    *
@@ -2810,84 +2804,37 @@ export class SurveyModel extends SurveyElementCore
    * @see firstPageIsStartPage
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get startSurveyText(): string {
-    return this.getLocStringText(this.locStartSurveyText);
-  }
-  public set startSurveyText(newValue: string) {
-    this.setLocStringText(this.locStartSurveyText, newValue);
-  }
-  get locStartSurveyText(): LocalizableString {
-    return this.getOrCreateLocStr("startSurveyText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) startSurveyText: string;
   /**
    * Gets or sets a caption for the Previous button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get pagePrevText(): string {
-    return this.getLocStringText(this.locPagePrevText);
-  }
-  public set pagePrevText(newValue: string) {
-    this.setLocStringText(this.locPagePrevText, newValue);
-  }
-  get locPagePrevText(): LocalizableString {
-    return this.getOrCreateLocStr("pagePrevText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) pagePrevText: string;
   /**
    * Gets or sets a caption for the Next button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get pageNextText(): string {
-    return this.getLocStringText(this.locPageNextText);
-  }
-  public set pageNextText(newValue: string) {
-    this.setLocStringText(this.locPageNextText, newValue);
-  }
-  get locPageNextText(): LocalizableString {
-    return this.getOrCreateLocStr("pageNextText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) pageNextText: string;
   /**
    * Gets or sets a caption for the Complete button.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
-  public get completeText(): string {
-    return this.getLocStringText(this.locCompleteText);
-  }
-  public set completeText(newValue: string) {
-    this.setLocStringText(this.locCompleteText, newValue);
-  }
-  get locCompleteText(): LocalizableString {
-    return this.getOrCreateLocStr("completeText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) completeText: string;
   /**
    * Gets or sets a caption for the Preview button.
    * @see showPreviewBeforeComplete
    * @see showPreview
    * @see editText
    */
-  public get previewText(): string {
-    return this.getLocStringText(this.locPreviewText);
-  }
-  public set previewText(newValue: string) {
-    this.setLocStringText(this.locPreviewText, newValue);
-  }
-  get locPreviewText(): LocalizableString {
-    return this.getOrCreateLocStr("previewText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) previewText: string;
   /**
    * Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
    * @see showPreviewBeforeComplete
    * @see cancelPreview
    * @see previewText
    */
-  public get editText(): string {
-    return this.getLocStringText(this.locEditText);
-  }
-  public set editText(newValue: string) {
-    this.setLocStringText(this.locEditText, newValue);
-  }
-  get locEditText(): LocalizableString {
-    return this.getOrCreateLocStr("editText", false, true);
-  }
+  @property({ localizable: { defaultStr: true } }) editText: string;
+
   getElementTitleTagName(element: Base, tagName: string): string {
     if (this.onGetTitleTagName.isEmpty) return tagName;
     const options: GetTitleTagNameEvent = { element: element, tagName: tagName };
@@ -5818,8 +5765,8 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    const root = htmlElement?.getRootNode() || settings.environment.root;
-    if (!(root instanceof Document || root instanceof ShadowRoot)) return;
+    const root = getRootNode(htmlElement);
+    if (!root) return;
     if (!!id && (!htmlElement || htmlElement.id !== id) && typeof root !== "undefined") {
       let el = root.getElementById(id);
       if (!!el) {

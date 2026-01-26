@@ -1,4 +1,4 @@
-import { JsonObject, JsonObjectProperty, Serializer } from "./jsonobject";
+import { JsonObject, JsonObjectProperty, property, Serializer } from "./jsonobject";
 import { Question } from "./question";
 import { Base, ArrayChanges } from "./base";
 import { ISurvey, IWrapperObject } from "./base-interfaces";
@@ -220,6 +220,12 @@ export class MatrixDropdownColumn extends Base
   }
   public getType() {
     return "matrixdropdowncolumn";
+  }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.validators,
+    ];
   }
   /**
    * Specifies the type of column cells.
@@ -595,24 +601,10 @@ export class MatrixDropdownColumn extends Base
    * @see totalType
    * @see totalDisplayStyle
    */
-  public get totalFormat(): string {
-    return this.getLocStringText(this.locTotalFormat) || "";
-  }
-  public set totalFormat(val: string) {
-    this.setLocStringText(this.locTotalFormat, val);
-  }
-  get locTotalFormat(): LocalizableString {
-    return this.getOrCreateLocStr("totalFormat");
-  }
-  public get cellHint(): string {
-    return this.getLocStringText(this.locCellHint) || "";
-  }
-  public set cellHint(val: string) {
-    this.setLocStringText(this.locCellHint, val);
-  }
-  get locCellHint(): LocalizableString {
-    return this.getOrCreateLocStr("cellHint");
-  }
+  @property ({ localizable: true }) totalFormat: string;
+
+  @property ({ localizable: true }) cellHint: string;
+
   public get renderAs(): string {
     return this.getPropertyValue("renderAs");
   }

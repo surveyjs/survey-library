@@ -97,6 +97,12 @@ export class MultipleTextItemModel extends Base
   public getType(): string {
     return "multipletextitem";
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.validators
+    ];
+  }
   public get id(): string {
     return this.editor.id;
   }
@@ -451,6 +457,12 @@ export class QuestionMultipleTextModel extends Question
   }
   public getType(): string {
     return "multipletext";
+  }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...this.items
+    ];
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);

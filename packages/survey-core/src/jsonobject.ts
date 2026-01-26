@@ -9,9 +9,12 @@ export interface IPropertyDecoratorOptions<T = any> {
   defaultSource?: string;
   getDefaultValue?: (objectInstance?: any) => T;
   localizable?:
-  | { name?: string, onGetTextCallback?: (str: string) => string, defaultStr?: string | boolean, disableMarkdown?: boolean }
+  | { name?: string, onCreate?: (obj: Base, locStr: any) => void, defaultStr?: string | boolean, markdown?: boolean }
   | boolean;
   onSet?: (val: T, objectInstance: any, prevVal?: T) => void;
+}
+function getLocalizablePropertyName(propertyName: string): string {
+  return "loc" + propertyName.charAt(0).toUpperCase() + propertyName.slice(1);
 }
 
 export function property(options: IPropertyDecoratorOptions = {}) {
@@ -62,9 +65,9 @@ export function property(options: IPropertyDecoratorOptions = {}) {
       });
     } else {
       const localizable = typeof options.localizable === "object" ? options.localizable : null;
-      const locName = localizable && !!localizable.name ? localizable.name : "loc" + key.charAt(0).toUpperCase() + key.slice(1);
+      const locName = localizable && !!localizable.name ? localizable.name : getLocalizablePropertyName(key);
       const defaultStr = localizable && localizable.defaultStr ? localizable.defaultStr : false;
-      const supportsMarkdown = !localizable || localizable.disableMarkdown === true;
+      const supportsMarkdown = localizable && localizable.markdown === true;
       Object.defineProperty(target, key, {
         get: function () {
           return this.getLocStringText(this[locName]);
@@ -83,8 +86,8 @@ export function property(options: IPropertyDecoratorOptions = {}) {
         {
           get: function () {
             return this.getOrCreateLocStr(key, supportsMarkdown, defaultStr, (locStr) => {
-              if (localizable && typeof localizable.onGetTextCallback === "function") {
-                locStr.onGetTextCallback = localizable.onGetTextCallback;
+              if (localizable && typeof localizable.onCreate === "function") {
+                localizable.onCreate(this, locStr);
               }
             });
           },
@@ -338,6 +341,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
       this.className = this.typeValue.substring(0, this.typeValue.length - 2);
     }
   }
+  public get isExpression(): boolean {
+    return this.type === "expression" || this.type === "condition";
+  }
   public get locationInTable(): string {
     const res = this.locationInTableValue;
     return res || "column";
@@ -475,13 +481,18 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   private get isBooleanType(): boolean {
     return this.type === "boolean" || this.type === "switch";
   }
-  public validateValue(value: any): boolean {
-    const choices = this.choices;
+  public validateValue(obj: Base, value: any): boolean {
+    const choices = this.getChoices(obj, (choices: any) => { });
     if (!Array.isArray(choices) || choices.length === 0) return true;
     if (typeof value === "object" && typeof choices[0] === "object") return true;
     const aV = this.acceptedValues;
     if (Array.isArray(aV) && aV.indexOf(value) > -1) return true;
-    return choices.indexOf(value) > -1;
+    for (let i = 0; i < choices.length; i++) {
+      const item = choices[i];
+      if (item == value) return true;
+      if (typeof item === "object" && item.value == value) return true;
+    }
+    return false;
   }
   public getObjType(objType: string) {
     if (!this.classNamePart) return objType;
@@ -569,6 +580,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public set isLocalizable(val: boolean) {
     this.isLocalizableValue = val;
   }
+  public get isMultipleText(): boolean { return this.type === "string[]"; }
   public get dataList(): Array<string> {
     return Array.isArray(this.dataListValue) ? this.dataListValue : [];
   }
@@ -596,8 +608,9 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public schemaType(): string {
     if (this.className === "choicesByUrl") return undefined;
     if (this.className === "string") return this.className;
-    if (!!this.className) return "array";
+    if (!!this.className && this.isArray) return "array";
     if (!!this.baseClassName) return "array";
+    if (!!this.className) return undefined;
     if (this.type == "switch") return "boolean";
     if (this.type == "boolean" || this.type == "number") return this.type;
     return "string";
@@ -1002,8 +1015,8 @@ export class JsonMetadataClass {
       if (propInfo.onSettingValue) {
         prop.onSettingValue = propInfo.onSettingValue;
       }
-      if (propInfo.isLocalizable) {
-        propInfo.serializationProperty = "loc" + prop.name;
+      if (propInfo.isLocalizable && !propInfo.serializationProperty) {
+        propInfo.serializationProperty = getLocalizablePropertyName(prop.name);
       }
       if (propInfo.serializationProperty) {
         prop.serializationProperty = propInfo.serializationProperty;
@@ -1536,6 +1549,7 @@ export class JsonMetadata {
     }
   }
   private generateSchemaProperty(prop: JsonObjectProperty, schemaDef: any, isRoot: boolean): any {
+    let i;
     if (prop.isLocalizable) {
       return {
         oneOf: [
@@ -1550,7 +1564,7 @@ export class JsonMetadata {
     if (!!propType) {
       res.type = propType;
     }
-    if (prop.hasChoices) {
+    if (prop.hasChoices && prop.name !== "locale") {
       const enumRes = prop.getChoices(null);
       if (Array.isArray(enumRes) && enumRes.length > 0) {
         res.enum = this.getChoicesValues(enumRes);
@@ -1569,7 +1583,16 @@ export class JsonMetadata {
           }
         }
       } else {
-        res["$ref"] = this.getChemeRefName(refType, isRoot);
+        const childClasses = this.getChildrenClasses(prop.className, true);
+        if (childClasses.length > 0) {
+          res.oneOf = [{ $ref: this.getChemeRefName(prop.className, isRoot) }];
+          for (i = 0; i < childClasses.length; i++) {
+            res.oneOf.push({ $ref: this.getChemeRefName(childClasses[i].name, isRoot) });
+            this.generateChemaClass(childClasses[i].name, schemaDef, false);
+          }
+        } else {
+          res["$ref"] = this.getChemeRefName(refType, isRoot);
+        }
       }
       this.generateChemaClass(prop.className, schemaDef, false);
     }
@@ -1579,7 +1602,7 @@ export class JsonMetadata {
         usedClasses.push(this.findClass("panel"));
       }
       res.items = { anyOf: [] };
-      for (var i = 0; i < usedClasses.length; i++) {
+      for (i = 0; i < usedClasses.length; i++) {
         var className = usedClasses[i].name;
         res.items.anyOf.push({ $ref: this.getChemeRefName(className, isRoot) });
         this.generateChemaClass(className, schemaDef, false);
@@ -1920,7 +1943,7 @@ export class JsonObject {
       if (property != null) {
         property.setValue(obj, value, this);
         if (!!options && options.validatePropertyValues) {
-          if (!property.validateValue(value)) {
+          if (!property.validateValue(obj, value)) {
             this.addNewError(new JsonIncorrectPropertyValueError(property, value), jsonObj, obj);
           }
         }
@@ -2014,8 +2037,10 @@ export class JsonObject {
     return error;
   }
   private getRequiredError(obj: any, jsonValue: any): JsonError {
-    if (!obj.getType || typeof obj.getData === "function") return null;
-    const metaClass = Serializer.findClass(obj.getType());
+    if (!obj.getType) return null;
+    const className = obj.getType();
+    if (Serializer.isDescendantOf(className, "itemvalue")) return null;
+    const metaClass = Serializer.findClass(className);
     if (!metaClass) return null;
     const props = metaClass.getRequiredProperties();
     if (!Array.isArray(props)) return null;

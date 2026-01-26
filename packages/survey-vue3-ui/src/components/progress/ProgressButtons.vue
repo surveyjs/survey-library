@@ -51,9 +51,9 @@
             <div
               v-if="canShowItemTitles"
               :class="css.progressButtonsPageDescription"
-              :title="page.locNavigationDescription.renderedHtml"
+              :title="page.navigationDescription"
             >
-              {{ page.locNavigationDescription.renderedHtml }}
+              {{ page.navigationDescription }}
             </div>
             <div :class="css.progressButtonsButton">
               <div :class="css.progressButtonsButtonBackground"></div>

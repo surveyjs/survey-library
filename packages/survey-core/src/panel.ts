@@ -481,6 +481,12 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements[i].locStrsChanged();
     }
   }
+  protected getAllChildren(): Base[] {
+    return [
+      ...super.getAllChildren(),
+      ...(<any>this.elements)
+    ];
+  }
   getMarkdownHtml(text: string, name: string, item?: any): string {
     if (name === "navigationTitle" && this.locNavigationTitle.isEmpty) {
       return this.locTitle.renderedHtml || this.name;
@@ -530,15 +536,7 @@ export class PanelModelBase extends SurveyElement<Question>
    * @see isRequired
    * @see requiredIf
    */
-  public get requiredErrorText(): string {
-    return this.getLocStringText(this.locRequiredErrorText);
-  }
-  public set requiredErrorText(val: string) {
-    this.setLocStringText(this.locRequiredErrorText, val);
-  }
-  get locRequiredErrorText(): LocalizableString {
-    return this.getOrCreateLocStr("requiredErrorText");
-  }
+  @property ({ localizable: true }) requiredErrorText: string;
   /**
    * Specifies the sort order of questions in the panel/page.
    *

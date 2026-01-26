@@ -153,6 +153,7 @@ export interface IAction {
   needSpace?: boolean;
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
+  ariaLabelledBy?: string;
   ariaRole?: string;
   elementId?: string;
   items?: Array<IAction>;
@@ -254,6 +255,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property({ defaultValue: false }) needSpace: boolean;
   @property() ariaChecked: boolean;
   @property() ariaExpanded: boolean;
+  @property() ariaLabelledBy: string;
   @property({ defaultValue: "button" }) ariaRole: string;
   private idValue: string;
   public get id(): string { return this.getId(); }

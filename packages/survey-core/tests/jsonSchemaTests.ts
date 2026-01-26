@@ -13,6 +13,8 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
   assert.notOk(schema.properties.isSinglePage, "isSinglePage is not seriazable");
+  assert.equal(schema.properties.locale.type, "string", "locale is string");
+  assert.notOk(schema.properties.locale.enum, "locale enum is not seriazable");
   assert.equal(
     schema.properties.showPreviewBeforeComplete.type,
     "boolean",
@@ -225,4 +227,42 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(customProp2.type, "string", "customProp2.type");
   assert.deepEqual(customProp2.enum, ["a", "b"], "customProp2.enum");
   Serializer.removeProperty("survey", "customSurveyProperty2");
+});
+
+QUnit.test("generate schema with polymorphic single object properties (maskSettings)", function (assert) {
+  const schema = Serializer.generateSchema();
+  const textProps = schema.definitions.text.allOf[1].properties;
+  const maskSettingsProp = textProps.maskSettings;
+
+  assert.ok(maskSettingsProp, "maskSettings property exists on text question");
+  assert.ok(maskSettingsProp.oneOf, "maskSettings has oneOf for polymorphic types");
+  assert.ok(maskSettingsProp.oneOf.length >= 5, "maskSettings oneOf has base and derived types");
+
+  const refNames = maskSettingsProp.oneOf.map((item: any) => item.$ref);
+  assert.ok(refNames.includes("masksettings"), "masksettings base class is in oneOf");
+  assert.ok(refNames.includes("patternmask"), "patternmask is in oneOf");
+  assert.ok(refNames.includes("numericmask"), "numericmask is in oneOf");
+  assert.ok(refNames.includes("datetimemask"), "datetimemask is in oneOf");
+  assert.ok(refNames.includes("currencymask"), "currencymask is in oneOf");
+
+  assert.ok(schema.definitions.masksettings, "masksettings definition exists");
+  assert.ok(schema.definitions.patternmask, "patternmask definition exists");
+  assert.ok(schema.definitions.numericmask, "numericmask definition exists");
+  assert.ok(schema.definitions.datetimemask, "datetimemask definition exists");
+  assert.ok(schema.definitions.currencymask, "currencymask definition exists");
+
+  assert.ok(schema.definitions.patternmask.allOf, "patternmask has allOf for inheritance");
+  assert.equal(schema.definitions.patternmask.allOf[0].$ref, "masksettings", "patternmask extends masksettings");
+  assert.ok(schema.definitions.patternmask.allOf[1].properties.pattern, "patternmask has pattern property");
+
+  assert.ok(schema.definitions.numericmask.allOf, "numericmask has allOf for inheritance");
+  assert.equal(schema.definitions.numericmask.allOf[0].$ref, "masksettings", "numericmask extends masksettings");
+  assert.ok(schema.definitions.numericmask.allOf[1].properties.precision, "numericmask has precision property");
+
+  assert.ok(schema.definitions.datetimemask.allOf, "datetimemask has allOf for inheritance");
+  assert.equal(schema.definitions.datetimemask.allOf[0].$ref, "patternmask", "datetimemask extends patternmask");
+
+  assert.ok(schema.definitions.currencymask.allOf, "currencymask has allOf for inheritance");
+  assert.equal(schema.definitions.currencymask.allOf[0].$ref, "numericmask", "currencymask extends numericmask");
+  assert.ok(schema.definitions.currencymask.allOf[1].properties.prefix, "currencymask has prefix property");
 });

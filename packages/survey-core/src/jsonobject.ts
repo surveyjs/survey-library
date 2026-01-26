@@ -580,6 +580,7 @@ export class JsonObjectProperty implements IObject, IJsonPropertyInfo {
   public set isLocalizable(val: boolean) {
     this.isLocalizableValue = val;
   }
+  public get isMultipleText(): boolean { return this.type === "string[]"; }
   public get dataList(): Array<string> {
     return Array.isArray(this.dataListValue) ? this.dataListValue : [];
   }

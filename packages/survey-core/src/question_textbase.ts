@@ -17,7 +17,7 @@ export class CharacterCounter extends Base {
  * A base class for the [Single-Line Input](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Long Text](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
  */
 export class QuestionTextBase extends Question {
-  onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "maxLength") {
       this.updateRemainingCharacterCounter(this.value);

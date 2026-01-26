@@ -412,6 +412,10 @@ export class Base implements IObjectValueContext {
   public getType(): string {
     return "base";
   }
+  /**
+   * Returns the survey element that owns this element. Returns `undefined` if called on a `SurveyModel` instance.
+   * @returns The owner survey element, or `undefined` if none exists.
+   */
   public getOwner(): any {
     return undefined;
   }
@@ -990,7 +994,7 @@ export class Base implements IObjectValueContext {
    *   variables: false,
    *   functions: false,
    *   semantics: false
-   * })
+   * });
    * ```
    * @param options Configuration options that control which validation checks are performed.
    * @param {boolean} options.variables Pass `false` to disable validation of unknown variables.

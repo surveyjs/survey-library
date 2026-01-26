@@ -172,9 +172,19 @@
   top: calcSize(0.5);
 }
 
-:dir(rtl) .sv-ranking-item__ghost {
-  left: initilal;
-  right: calcSize(5);
+:dir(rtl),
+[style*="direction:rtl"],
+[style*="direction: rtl"] {
+  .sv-ranking {
+    transform: scale(-1, 1);
+    direction: ltr;
+  }
+  .sv-ranking-item__text,
+  .sv-ranking__container-placeholder,
+  .sd-ranking-item__index {
+    transform: scale(-1, 1);
+    direction: rtl;
+  }
 }
 
 .sv-ranking-item--ghost {

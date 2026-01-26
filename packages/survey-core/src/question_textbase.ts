@@ -17,8 +17,11 @@ export class CharacterCounter extends Base {
  * A base class for the [Single-Line Input](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Long Text](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
  */
 export class QuestionTextBase extends Question {
-  constructor(name: string) {
-    super(name);
+  onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.onPropertyValueChanged(name, oldValue, newValue);
+    if (name === "maxLength") {
+      this.updateRemainingCharacterCounter(this.value);
+    }
   }
   protected isTextValue(): boolean {
     return true;
@@ -30,13 +33,7 @@ export class QuestionTextBase extends Question {
    *
    * [Long Text Demo](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/ (linkStyle))
    */
-  public get maxLength(): number {
-    return this.getPropertyValue("maxLength");
-  }
-  public set maxLength(val: number) {
-    this.setPropertyValue("maxLength", val);
-    this.updateRemainingCharacterCounter(this.value);
-  }
+  @property() maxLength: number;
   public getMaxLength(): any {
     return Helpers.getMaxLength(this.maxLength, this.survey ? this.survey.maxTextLength : -1);
   }
@@ -73,12 +70,7 @@ export class QuestionTextBase extends Question {
    *
    * > Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are re-evaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
    */
-  public get textUpdateMode(): string {
-    return this.getPropertyValue("textUpdateMode");
-  }
-  public set textUpdateMode(val: string) {
-    this.setPropertyValue("textUpdateMode", val);
-  }
+  @property() textUpdateMode: string;
   protected getIsInputTextUpdate(): boolean {
     if (this.textUpdateMode == "default") return super.getIsInputTextUpdate();
     return this.textUpdateMode == "onTyping";

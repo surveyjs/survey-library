@@ -1,7 +1,12 @@
 import { DomPortalOutlet } from "@angular/cdk/portal";
 import { Component } from "@angular/core";
-import { IDialogOptions, PopupBaseViewModel, createPopupModalViewModel, settings } from "survey-core";
+import { IDialogOptions, PopupBaseViewModel, PopupModalManager, settings } from "survey-core";
 import { PopupService } from "./popup.service";
+
+interface IModalWindowDescriptor {
+  model: PopupBaseViewModel;
+  portalHost: DomPortalOutlet;
+}
 
 @Component({
   selector: "sv-ng-modal-container",
@@ -10,36 +15,32 @@ import { PopupService } from "./popup.service";
 })
 
 export class ModalComponent {
-
-  public model!: PopupBaseViewModel;
-  private portalHost!: DomPortalOutlet;
   private functionDefined: boolean = false;
-
+  private hosts: { [index: number]: DomPortalOutlet } = {};
+  private modalManager: PopupModalManager = this.createModalManager();
   constructor(private popupService: PopupService) {
   }
-  showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
-    const popupViewModel = this.model = createPopupModalViewModel(dialogOptions, rootElement);
-    const onVisibilityChangedCallback = (_: PopupBaseViewModel, options: { isVisible: boolean }) => {
-      if (!options.isVisible) {
-        this.portalHost.detach();
-        this.model.dispose();
+  createModalManager(): PopupModalManager {
+    const modalManager = new PopupModalManager();
+    modalManager.onModalsChangedCallback = (_, addedModals, removedModals) => {
+      for (const modal of addedModals) {
+        this.hosts[modal.uniqueId] = this.popupService.createComponent(modal);
+      }
+      for (const modal of removedModals) {
+        if (this.hosts[modal.uniqueId]) {
+          this.hosts[modal.uniqueId].detach();
+          delete this.hosts[modal.uniqueId];
+        }
       }
     };
-    popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
-    this.portalHost = this.popupService.createComponent(this.model);
-    this.model.model.isVisible = true;
-    return this.model;
+    return modalManager;
   }
   ngOnInit(): void {
     this.functionDefined = true;
-
-    settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
-      return this.showDialog(dialogOptions, rootElement);
-    };
+    settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => this.modalManager.addDialog(dialogOptions, rootElement);
   }
   ngOnDestroy() {
-    this.portalHost?.detach();
-    this.model?.dispose();
+    this.modalManager.clear();
     if (this.functionDefined) {
       settings.showDialog = <any>undefined;
     }

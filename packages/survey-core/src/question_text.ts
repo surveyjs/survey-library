@@ -292,22 +292,12 @@ export class QuestionTextModel extends QuestionTextBase {
    * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
    * @see min
    */
-  public get minValueExpression(): string {
-    return this.getPropertyValue("minValueExpression", "");
-  }
-  public set minValueExpression(val: string) {
-    this.setPropertyValue("minValueExpression", val);
-  }
+  @property() minValueExpression: string;
   /**
    * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
    * @see max
    */
-  public get maxValueExpression(): string {
-    return this.getPropertyValue("maxValueExpression", "");
-  }
-  public set maxValueExpression(val: string) {
-    this.setPropertyValue("maxValueExpression", val);
-  }
+  @property() maxValueExpression: string;
   public get renderedMin(): any {
     return this.getPropertyValue("renderedMin");
   }

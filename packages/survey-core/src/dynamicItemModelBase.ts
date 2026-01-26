@@ -1,14 +1,17 @@
 import { IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditionProcessValue";
 import { Question, QuestionItemValueGetterContext } from "./question";
+import { settings } from "./settings";
 import { TextContextProcessor } from "./textPreProcessor";
 
 export interface IDynamicItemModelData {
     getSurvey(): ISurvey;
+    getItem(index: number): DynamicItemModelBase;
     getItemData(item: ISurveyData): any;
     getItemIndex(item: ISurveyData): number;
     getValueGetterContext(isUnwrapped?: boolean): IValueGetterContext;
     getFilteredData(): any;
+    getBindedQuestions(): IQuestion[];
 }
 
 export abstract class DynamicItemGetterContext extends QuestionItemValueGetterContext {
@@ -132,5 +135,44 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
     }
     const survey = this.getSurvey();
     return !!survey ? survey.getQuestionByName(name) : null;
+  }
+
+  public abstract get questions(): Array<Question>;
+  public runTriggers(name: string, value: any, keys?: any): void {
+    if (!name && !keys) return;
+    this.questions.forEach(q => q.runTriggers(name, value, keys));
+  }
+
+  protected runTriggersOnSetValue(name: string, newValue: any): void {
+    const questions = this.questions;
+    const suffix = settings.commentSuffix;
+    if (name.endsWith(suffix)) {
+      name = name.substring(0, name.length - suffix.length);
+      const cQ = this.getQuestionByName(name);
+      if (!!cQ) {
+        newValue = cQ.value;
+      }
+    }
+    const triggerName = this.getVariableName() + "." + name;
+    for (var i = 0; i < questions.length; i++) {
+      const q = questions[i];
+      if (q.getValueName() !== name) {
+        q.checkBindings(name, newValue);
+      }
+      q.runTriggers(triggerName, newValue);
+    }
+    var index = this.data.getItemIndex(this);
+    if (index < 0) return;
+    const bindedQuestions = this.data.getBindedQuestions();
+    bindedQuestions.forEach((q: any) => {
+      if (q === this.data) return;
+      if (typeof q.getItem === "function") {
+        const item = q.getItem(index);
+        if (item && item instanceof DynamicItemModelBase) {
+          const triggerName = item.getVariableName() + "." + name;
+          item.runTriggers(triggerName, newValue);
+        }
+      }
+    });
   }
 }

@@ -166,28 +166,16 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
   public getIndex(): number {
     return this.data.getItemIndex(this);
   }
+
+  public get questions(): Array<Question> {
+    return this.panel.questions;
+  }
   public setValue(name: string, newValue: any): void {
     const oldItemData = this.data.getItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
     if (Helpers.isTwoValueEquals(newValue, oldValue, false, true, false)) return;
     this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
-    const questions = this.panel.questions;
-    for (var i = 0; i < questions.length; i++) {
-      const q = questions[i];
-      if (q.getValueName() !== name) {
-        q.checkBindings(name, newValue);
-      }
-      const suffix = settings.commentSuffix;
-      if (name.endsWith(suffix)) {
-        name = name.substring(0, name.length - suffix.length);
-        const cQ = this.getQuestionByName(name);
-        if (!!cQ) {
-          newValue = cQ.value;
-        }
-      }
-      const triggerName = settings.expressionVariables.panel + "." + name;
-      q.runTriggers(triggerName, newValue);
-    }
+    this.runTriggersOnSetValue(name, newValue);
   }
   public getComment(name: string): string {
     var result = this.getValue(name + settings.commentSuffix);
@@ -2076,7 +2064,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
       const panelValue = this.getItemData(p.data);
       if (!Helpers.isValueEmpty(panelValue)) {
         const triggeredValue = Helpers.createCopyWithPrefix(panelValue, settings.expressionVariables.panel + ".");
-        p.questions.forEach(q => q.runTriggers("", undefined, triggeredValue));
+        (<DynamicItemModelBase>p.data).runTriggers("", undefined, triggeredValue);
       }
     });
   }
@@ -2103,7 +2091,7 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
   public runTriggers(name: string, value: any, keys?: any): void {
     super.runTriggers(name, value, keys);
     this.visiblePanelsCore.forEach(p => {
-      p.questions.forEach(q => q.runTriggers(name, value, keys));
+      (<DynamicItemModelBase>p.data).runTriggers(name, value, keys);
     });
   }
   private reRunCondition() {
@@ -2490,6 +2478,14 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
   getItemData(item: ISurveyData): any {
     return this.getPanelItemDataByIndex(this.items.indexOf(item));
   }
+  getBindedQuestions(): Array<IQuestion> {
+    if (!this.survey || !this.valueName) return [];
+    return this.survey.getQuestionsByValueName(this.valueName);
+  }
+  getItem(index: number): DynamicItemModelBase {
+    const panel = this.visiblePanels[index] || undefined;
+    return <DynamicItemModelBase>panel?.data;
+  }
   private getPanelItemDataByIndex(index: number): any {
     const items = this.items;
     var qValue = this.value;
@@ -2501,7 +2497,6 @@ export class QuestionPanelDynamicModel extends Question implements IQuestionPane
     return qValue[index];
   }
   private isSetPanelItemData: HashTable<number> = {};
-  private static maxCheckCount = 3;
   setPanelItemData(item: ISurveyData, name: string, val: any): void {
     if (this.isSetPanelItemData[name] > this.maxCheckCount)
       return;

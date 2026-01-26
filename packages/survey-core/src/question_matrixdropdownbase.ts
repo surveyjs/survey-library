@@ -65,7 +65,6 @@ export interface IMatrixDropdownData extends IObjectValueContext, IDynamicItemMo
   getProcessedText(text: string, context?: any): string;
   getParentTextProcessor(): ITextProcessor;
   getSharedQuestionByName(columnName: string, row: MatrixDropdownRowModelBase): Question;
-  runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void;
   onTotalValueChanged(): any;
   isMatrixReadOnly(): boolean;
   onRowVisibilityChanged(row: MatrixDropdownRowModelBase): void;
@@ -540,9 +539,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
     const rowName = settings.expressionVariables.row;
     if (changedName) {
-      const runName = rowName + "." + changedName;
-      this.runTriggers(runName, newValue);
-      this.data.runTriggersInRow(this, runName, newValue);
+      this.runTriggersOnSetValue(changedName, newColumnValue);
     }
     this.onAnyValueChanged(rowName, "");
   }
@@ -579,10 +576,6 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
         }
       }
     }
-  }
-  public runTriggers(name: string, value: any, keys?: any): void {
-    if (!name && !keys) return;
-    this.questions.forEach(q => q.runTriggers(name, value, keys));
   }
   private validateCellQuestion(question: Question): boolean {
     if (!question) return true;
@@ -2734,16 +2727,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       )
     );
   }
-  runTriggersInRow(row: MatrixDropdownRowModelBase, runName: string, newValue: any): void {
-    if (!this.survey || !this.valueName) return;
-    var index = this.getItemIndex(row);
-    if (index < 0) return;
-    this.survey.getQuestionsByValueName(this.valueName).forEach((q: any) => {
-      const rows = q.visibleRows;
-      if (Array.isArray(rows) && index < rows.length && rows[0] instanceof MatrixDropdownRowModelBase) {
-        rows[index].runTriggers(runName, newValue);
-      }
-    });
+  getBindedQuestions(): Array<IQuestion> {
+    if (!this.survey || !this.valueName) return [];
+    return this.survey.getQuestionsByValueName(this.valueName);
+  }
+  getItem(index: number): DynamicItemModelBase {
+    if (index < 0 || !this.generatedVisibleRows || index >= this.generatedVisibleRows.length) return null;
+    return this.generatedVisibleRows[index];
   }
   onTotalValueChanged(): any {
     if (

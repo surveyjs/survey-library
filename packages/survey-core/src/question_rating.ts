@@ -640,12 +640,7 @@ export class QuestionRatingModel extends Question implements IRatingItemOwner {
   /**
    * The name of a component used to render items.
    */
-  public get itemComponent(): string {
-    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
-  }
-  public set itemComponent(value: string) {
-    this.setPropertyValue("itemComponent", value);
-  }
+  @property({ getDefaultValue: (obj: QuestionRatingModel) => obj.getDefaultItemComponent() }) itemComponent: string;
 
   protected valueToData(val: any): any {
     if (this.useRateValues()) {

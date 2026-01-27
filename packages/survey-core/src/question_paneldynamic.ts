@@ -171,9 +171,8 @@ export class QuestionPanelDynamicItem extends DynamicItemModelBase {
     return this.panel.questions;
   }
   public setValue(name: string, newValue: any): void {
-    const oldItemData = this.data.getItemData(this);
-    const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    if (Helpers.isTwoValueEquals(newValue, oldValue, false, true, false)) return;
+    if (this.isSettingValue || !this.isValueChanged(name, newValue)) return;
+    this.updateSharedQuestionsValue(name, newValue);
     this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
     this.runTriggersOnSetValue(name, newValue);
   }

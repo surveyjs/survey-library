@@ -9431,3 +9431,26 @@ QUnit.test("question valueName vs matrixdynamic and paneldynamic & question trig
   assert.equal(panel3.panels[0].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row1, col5");
   assert.equal(panel3.panels[1].getQuestionByName("col5").isEmpty(), true, "Check value for panel3, row2, col5");
 });
+
+QUnit.test("paneldynamic shared question value", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        templateElements: [
+          { name: "q1", type: "text", valueName: "qa" },
+          { name: "q2", type: "text", valueName: "qa" }
+        ]
+      }
+    ]
+  });
+
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+
+  const q1 = panel1.panels[0].getQuestionByName("q1");
+  const q2 = panel1.panels[0].getQuestionByName("q2");
+
+  q1.value = "value1";
+  assert.equal(q2.value, "value1", "q2.value equals to q1.value");
+});

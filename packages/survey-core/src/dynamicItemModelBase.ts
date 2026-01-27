@@ -1,5 +1,6 @@
 import { IQuestion, ISurvey, ISurveyData, ISurveyImpl, ITextProcessor } from "./base-interfaces";
 import { IObjectValueContext, IValueGetterContext, IValueGetterContextGetValueParams, IValueGetterInfo, VariableGetterContext } from "./conditionProcessValue";
+import { Helpers } from "./helpers";
 import { Question, QuestionItemValueGetterContext } from "./question";
 import { settings } from "./settings";
 import { TextContextProcessor } from "./textPreProcessor";
@@ -90,6 +91,7 @@ export abstract class DynamicItemGetterContext extends QuestionItemValueGetterCo
 
 export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, IObjectValueContext {
 
+  protected isSettingValue: boolean = false;
   private textPreProcessor: TextContextProcessor;
   constructor(public data: IDynamicItemModelData) {
     this.textPreProcessor = new TextContextProcessor(this);
@@ -174,5 +176,24 @@ export abstract class DynamicItemModelBase implements ISurveyData, ISurveyImpl, 
         }
       }
     });
+  }
+
+  protected updateSharedQuestionsValue(name: string, value: any): void {
+    const questions = this.getQuestionsByValueName(name);
+    if (questions.length > 1) {
+      for (let i = 0; i < questions.length; i ++) {
+        if (!Helpers.isTwoValueEquals(questions[i].value, value)) {
+          this.isSettingValue = true;
+          questions[i].updateValueFromSurvey(value);
+          this.isSettingValue = false;
+        }
+      }
+    }
+  }
+
+  protected isValueChanged(name: string, newValue: any): boolean {
+    const oldItemData = this.data.getItemData(this);
+    const oldValue = !!oldItemData ? oldItemData[name] : undefined;
+    return !Helpers.isTwoValueEquals(newValue, oldValue, false, true, false);
   }
 }

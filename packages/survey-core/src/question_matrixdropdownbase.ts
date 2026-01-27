@@ -249,7 +249,7 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   private static getId(): string {
     return "srow_" + MatrixDropdownRowModelBase.idCounter++;
   }
-  protected isSettingValue: boolean = false;
+
   private idValue: string;
   private detailPanelValue: PanelModel = null;
   private visibleValue: boolean = true;
@@ -511,7 +511,6 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
   }
   private setValueCore(name: string, newColumnValue: any, isComment: boolean) {
     if (this.isSettingValue || this.isCreatingDetailPanel) return;
-    this.updateQuestionsValue(name, newColumnValue, isComment);
     if (!isComment) {
       this.updateSharedQuestionsValue(name, newColumnValue);
     }
@@ -542,40 +541,6 @@ export class MatrixDropdownRowModelBase extends DynamicItemModelBase implements 
       this.runTriggersOnSetValue(changedName, newColumnValue);
     }
     this.onAnyValueChanged(rowName, "");
-  }
-  private updateQuestionsValue(
-    name: string,
-    newColumnValue: any,
-    isComment: boolean
-  ) {
-    if (!this.detailPanel) return;
-    var colQuestion = this.getQuestionByColumnName(name);
-    var detailQuestion = this.detailPanel.getQuestionByName(name);
-    if (!colQuestion || !detailQuestion) return;
-    var isColQuestion = this.isTwoValueEquals(
-      newColumnValue,
-      isComment ? colQuestion.comment : colQuestion.value
-    );
-    var question = isColQuestion ? detailQuestion : colQuestion;
-    this.isSettingValue = true;
-    if (!isComment) {
-      question.value = newColumnValue;
-    } else {
-      question.comment = newColumnValue;
-    }
-    this.isSettingValue = false;
-  }
-  private updateSharedQuestionsValue(name: string, value: any): void {
-    const questions = this.getQuestionsByValueName(name);
-    if (questions.length > 1) {
-      for (let i = 0; i < questions.length; i ++) {
-        if (!Helpers.isTwoValueEquals(questions[i].value, value)) {
-          this.isSettingValue = true;
-          questions[i].updateValueFromSurvey(value);
-          this.isSettingValue = false;
-        }
-      }
-    }
   }
   private validateCellQuestion(question: Question): boolean {
     if (!question) return true;
